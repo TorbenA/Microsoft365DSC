@@ -125,12 +125,12 @@ function Get-TargetResource
 
     try
     {
-        if (-not $Script:exportedInstance)
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            Write-Verbose -Message "Getting configuration of DLPCompliancePolicy for $Name"
+            Write-Verbose -Message "Getting configuration of DLPCompliancePolicy for {$Name}"
 
-            $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-                -InboundParameters $PSBoundParameters
+            New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+                -InboundParameters $PSBoundParameters | Out-Null
 
             #Ensure the proper dependencies are installed in the current environment.
             Confirm-M365DSCDependencies
@@ -147,6 +147,7 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
+            Write-Verbose -Message "Retrieving DLPCompliancePolicy {$Name}"
             $PolicyObject = Get-DlpCompliancePolicy -Identity $Name -ErrorAction SilentlyContinue
 
             if ($null -eq $PolicyObject)
@@ -217,6 +218,7 @@ function Get-TargetResource
     }
     catch
     {
+        Write-Verbose -Message $_
         New-M365DSCLogEntry -Message 'Error retrieving data:' `
             -Exception $_ `
             -Source $($MyInvocation.MyCommand.Source) `
