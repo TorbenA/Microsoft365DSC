@@ -1,5 +1,32 @@
 # Change log for Microsoft365DSC
 
+# 1.25.319.1
+
+* AADServicePrincipal
+  * Streamlined logic to translate AppId from a display name.
+* IntuneDeviceConfigurationPolicyAndroidDeviceOwner
+  * Fixed an issue where empty complex objects result in a broken export.
+    FIXES [#5863](https://github.com/microsoft/Microsoft365DSC/issues/5863)
+* SCSensitivityLabel
+  * Fix an issue where the Priority property was always getting updated for an
+    existing label, even if it didn't get updated.
+* SHSpaceGroup
+  * Initial release.
+* SHSpaceUser
+  * Initial release.
+* TeamsApplicationInstance
+  * Initial release.
+* M365DSCDRGUtil
+  * Made a change in the Intune assignment evaluation logic not to validate that
+    the provided group is a valid Entra Id group based on GroupId. The logic
+    to validate this will be left to the Set-TargetResource.
+* M365DSCUtil
+  * Added note about long paths being recommended when installing the Dev branch.
+    FIXES [#3158](https://github.com/microsoft/Microsoft365DSC/issues/3158)
+* DEPENDENCIES
+  * Updated MicrosoftTeams to version 6.9.0.
+  * Updated MSCloudLoginAssistant to version 1.1.42.
+
 # 1.25.312.1
 
 * AADApplication

@@ -114,11 +114,11 @@
         },
         @{
             ModuleName      = 'MicrosoftTeams'
-            RequiredVersion = '6.8.0'
+            RequiredVersion = '6.9.0'
         },
         @{
             ModuleName      = "MSCloudLoginAssistant"
-            RequiredVersion = "1.1.41"
+            RequiredVersion = "1.1.42"
         },
         @{
             ModuleName      = 'PnP.PowerShell'
