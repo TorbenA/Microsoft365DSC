@@ -1105,6 +1105,16 @@
                        ]
     },
     {
+        "ClassName":  "MSFT_AADApplicationSPA",
+        "Parameters":  [
+                           {
+                               "CIMType":  "String[]",
+                               "Name":  "RedirectUris",
+                               "Option":  "Write"
+                           }
+                       ]
+    },
+    {
         "ClassName":  "MSFT_AADApplication",
         "Parameters":  [
                            {
@@ -1215,6 +1225,16 @@
                            {
                                "CIMType":  "String",
                                "Name":  "ApplicationTemplateId",
+                               "Option":  "Write"
+                           },
+                           {
+                               "CIMType":  "String[]",
+                               "Name":  "PublicClientRedirectUris",
+                               "Option":  "Write"
+                           },
+                           {
+                               "CIMType":  "MSFT_AADApplicationSpa",
+                               "Name":  "Spa",
                                "Option":  "Write"
                            },
                            {
@@ -15264,27 +15284,27 @@
                                "Option":  "Write"
                            },
                            {
-                               "CIMType":  "string",
+                               "CIMType":  "string[]",
                                "Name":  "ExtensionCustomAttribute1",
                                "Option":  "Write"
                            },
                            {
-                               "CIMType":  "string",
+                               "CIMType":  "string[]",
                                "Name":  "ExtensionCustomAttribute2",
                                "Option":  "Write"
                            },
                            {
-                               "CIMType":  "string",
+                               "CIMType":  "string[]",
                                "Name":  "ExtensionCustomAttribute3",
                                "Option":  "Write"
                            },
                            {
-                               "CIMType":  "string",
+                               "CIMType":  "string[]",
                                "Name":  "ExtensionCustomAttribute4",
                                "Option":  "Write"
                            },
                            {
-                               "CIMType":  "string",
+                               "CIMType":  "string[]",
                                "Name":  "ExtensionCustomAttribute5",
                                "Option":  "Write"
                            },
@@ -15329,7 +15349,7 @@
                                "Option":  "Write"
                            },
                            {
-                               "CIMType":  "string",
+                               "CIMType":  "string[]",
                                "Name":  "MailTipTranslations",
                                "Option":  "Write"
                            },

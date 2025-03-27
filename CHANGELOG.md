@@ -1,5 +1,14 @@
 # Change log for Microsoft365DSC
 
+# 1.25.326.1
+
+* AADApplication
+  * Added support for SPA and Public Client Url properties.
+* AADServicePrincipal
+  * In the translation logic between GUID and display name of the AppId property,
+    change the way we are retrieving the application instance to be using a filter
+    instead of a direct call to the -ApplicationId parameter.
+
 # 1.25.319.1
 
 * AADServicePrincipal
