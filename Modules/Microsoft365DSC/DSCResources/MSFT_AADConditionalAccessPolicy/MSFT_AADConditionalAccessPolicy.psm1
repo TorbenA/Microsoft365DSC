@@ -958,7 +958,7 @@ function Set-TargetResource
         $PersistentBrowserIsEnabled,
 
         [Parameter()]
-        [System.Boolean]
+        [nullable[System.Boolean]]
         $DisableResilienceDefaultsIsEnabled,
 
         [Parameter()]
@@ -1799,7 +1799,7 @@ function Set-TargetResource
             $NewParameters.Add('grantControls', $GrantControls)
         }
 
-        if ($ApplicationEnforcedRestrictionsIsEnabled -or $CloudAppSecurityIsEnabled -or $SignInFrequencyIsEnabled -or $PersistentBrowserIsEnabled -or !([String]::IsNullOrEmpty($DisableResilienceDefaultsIsEnabled)))
+        if ($ApplicationEnforcedRestrictionsIsEnabled -or $CloudAppSecurityIsEnabled -or $SignInFrequencyIsEnabled -or $PersistentBrowserIsEnabled -or ($null -ne $DisableResilienceDefaultsIsEnabled))
         {
             Write-Verbose -Message 'Set-Targetresource: process session controls'
             $sessioncontrols = $null
@@ -1866,7 +1866,7 @@ function Set-TargetResource
                 $sessioncontrols.persistentBrowser.isEnabled = $true
                 $sessioncontrols.persistentBrowser.mode = $PersistentBrowserMode
             }
-            if (!([String]::IsNullOrEmpty($DisableResilienceDefaultsIsEnabled)))
+            if ($null -ne $DisableResilienceDefaultsIsEnabled)
             {
                 $sessioncontrols.Add('disableResilienceDefaults', $DisableResilienceDefaultsIsEnabled)
             }
@@ -1875,7 +1875,7 @@ function Set-TargetResource
         }
     }
 
-    Write-Host "newparameters: $($NewParameters | ConvertTo-Json -Depth 5)"
+    Write-M365DSCHost -Message "newparameters: $($NewParameters | ConvertTo-Json -Depth 5)"
 
     if ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Present')
     {
@@ -2339,11 +2339,11 @@ function Export-TargetResource
 
         if ($Policies.Length -eq 0)
         {
-            Write-Host $Global:M365DSCEmojiGreenCheckMark
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
         else
         {
-            Write-Host "`r`n" -NoNewline
+            Write-M365DSCHost -Message "`r`n" -DeferWrite
             foreach ($Policy in $Policies)
             {
                 if ($null -ne $Global:M365DSCExportResourceInstancesCount)
@@ -2351,7 +2351,7 @@ function Export-TargetResource
                     $Global:M365DSCExportResourceInstancesCount++
                 }
 
-                Write-Host "    |---[$i/$($Policies.Count)] $($Policy.DisplayName)" -NoNewline
+                Write-M365DSCHost -Message "    |---[$i/$($Policies.Count)] $($Policy.DisplayName)" -DeferWrite
                 $Params = @{
                     DisplayName           = $Policy.DisplayName
                     Id                    = $Policy.Id
@@ -2379,7 +2379,7 @@ function Export-TargetResource
                 $dscContent += $currentDSCBlock
                 Save-M365DSCPartialExport -Content $currentDSCBlock `
                     -FileName $Global:PartialExportFileName
-                Write-Host $Global:M365DSCEmojiGreenCheckMark
+                Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
                 $i++
             }
         }
@@ -2388,7 +2388,7 @@ function Export-TargetResource
     }
     catch
     {
-        Write-Host $Global:M365DSCEmojiRedX
+        Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
 
         New-M365DSCLogEntry -Message 'Error during Export:' `
             -Exception $_ `

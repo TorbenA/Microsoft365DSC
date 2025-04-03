@@ -78,10 +78,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
-        $authschemes,
-
-        [Parameter()]
-        [System.String]
         $AuthSchemes_AuthSchemes,
 
         [Parameter()]
@@ -353,10 +349,6 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
-        $authschemes,
-
-        [Parameter()]
-        [System.String]
         $AuthSchemes_AuthSchemes,
 
         [Parameter()]
@@ -461,13 +453,6 @@ function Set-TargetResource
     $templateReferenceId = 'c66347b7-8325-4954-a235-3bf2233dfbfd_2'
     $platforms = 'windows10'
     $technologies = 'mdm'
-
-    if ($BoundParameters.ContainsKey('authschemes'))
-    {
-        Write-Warning -Message "The parameter 'authschemes' is deprecated. Please use 'AuthSchemes_AuthSchemes' instead."
-        $BoundParameters['AuthSchemes_AuthSchemes'] = $BoundParameters['authschemes']
-        $BoundParameters.Remove('authschemes') | Out-Null
-    }
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -615,10 +600,6 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
-        $authschemes,
-
-        [Parameter()]
-        [System.String]
         $AuthSchemes_AuthSchemes,
 
         [Parameter()]
@@ -756,17 +737,6 @@ function Test-TargetResource
         }
     }
 
-    if ($PSBoundParameters.ContainsKey('authschemes'))
-    {
-        Write-Warning -Message "The parameter 'authschemes' is deprecated. Please use 'AuthSchemes_AuthSchemes' instead."
-        if ($PSBoundParameters['authschemes'] -ne $CurrentValues['AuthSchemes_AuthSchemes'])
-        {
-            $testResult = $false
-        }
-        $ValuesToCheck.Remove('authschemes') | Out-Null
-        $ValuesToCheck.Remove('AuthSchemes_AuthSchemes') | Out-Null
-    }
-
     $ValuesToCheck.Remove('Id') | Out-Null
     $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
 
@@ -857,11 +827,11 @@ function Export-TargetResource
         $dscContent = ''
         if ($getValue.Length -eq 0)
         {
-            Write-Host $Global:M365DSCEmojiGreenCheckMark
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
         else
         {
-            Write-Host "`r`n" -NoNewline
+            Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
         foreach ($config in $getValue)
         {
@@ -874,7 +844,7 @@ function Export-TargetResource
             {
                 $displayedKey = $config.name
             }
-            Write-Host "    |---[$i/$($getValue.Count)] $displayedKey" -NoNewline
+            Write-M365DSCHost -Message "    |---[$i/$($getValue.Count)] $displayedKey" -DeferWrite
             $params = @{
                 Id                    = $config.Id
                 DisplayName           = $config.Name
@@ -915,13 +885,13 @@ function Export-TargetResource
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
             $i++
-            Write-Host $Global:M365DSCEmojiGreenCheckMark
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
         return $dscContent
     }
     catch
     {
-        Write-Host $Global:M365DSCEmojiRedX
+        Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
 
         New-M365DSCLogEntry -Message 'Error during Export:' `
             -Exception $_ `

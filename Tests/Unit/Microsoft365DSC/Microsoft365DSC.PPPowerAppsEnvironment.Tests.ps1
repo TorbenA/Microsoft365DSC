@@ -31,8 +31,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return 'Credentials'
             }
 
-            # Mock Write-Host to hide output during the tests
-            Mock -CommandName Write-Host -MockWith {
+            # Mock Write-M365DSCHost to hide output during the tests
+            Mock -CommandName Write-M365DSCHost -MockWith {
             }
             $Script:exportedInstances =$null
             $Script:ExportMode = $false
@@ -77,6 +77,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName    = 'Test Environment'
                     Location       = 'canada'
                     EnvironmentSKU = 'production'
+                    EnvironmentType = 'production'
                     Credential     = $Credential
                     Ensure         = 'Present'
                 }
@@ -87,6 +88,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             properties = @{
                                 displayName     = 'Test Environment'
                                 environmentType = 'production'
+                                environmentSKU  = 'production'
                             }
                             location        = 'canada'
                         }
@@ -119,6 +121,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             properties = @{
                                 displayName     = 'Test Environment'
                                 environmentType = 'production'
+                                environmentSKU  = 'production'
                             }
                             location        = 'canada'
                         }
@@ -154,6 +157,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             properties = @{
                                 displayName     = 'Test Environment'
                                 environmentType = 'production'
+                                environmentSKU  = 'production'
                             }
                             location        = 'canada'
                         }

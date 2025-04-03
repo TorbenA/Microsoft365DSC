@@ -138,7 +138,7 @@ function Get-TargetResource
 
             if ($PSBoundParameters.ContainsKey('SelectedMobileAppIds') -and $PSBoundParameters.ContainsKey('SelectedMobileAppNames'))
             {
-                Write-Verbose -Message '[WARNING] Both SelectedMobileAppIds and SelectedMobileAppNames are specified. SelectedMobileAppNames will be ignored!'
+                Write-Verbose -Message '[WARNING] Both SelectedMobileAppIds and SelectedMobileAppNames are specified. SelectedMobileAppIds will be ignored!'
             }
 
             $getValue = $null
@@ -185,7 +185,6 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Device Enrollment Configuration for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found."
 
         $SelectedMobileAppNamesValue = @()
-
         foreach ($mobileApp in $getValue.AdditionalProperties.selectedMobileAppIds)
         {
             $mobileEntry = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $mobileApp
@@ -376,7 +375,7 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
     $PSBoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-    if ($PSBoundParameters.ContainsKey('SelectedMobileAppIds') -eq $false -and $PSBoundParameters.ContainsKey('SelectedMobileAppNames') -eq $true)
+    if ($PSBoundParameters.ContainsKey('SelectedMobileAppNames') -eq $true)
     {
         Write-Verbose -Message 'Converting SelectedMobileAppNames to SelectedMobileAppIds'
         if ($PSBoundParameters.SelectedMobileAppNames.Count -ne 0)
@@ -619,12 +618,12 @@ function Test-TargetResource
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
 
-    if ($PSBoundParameters.ContainsKey('SelectedMobileAppIds') -eq $true)
+    if ($PSBoundParameters.ContainsKey('SelectedMobileAppIds') -eq $true -and $PSBoundParameters.ContainsKey('SelectedMobileAppNames') -eq $false)
     {
         Write-Verbose -Message 'Converting SelectedMobileAppIds to SelectedMobileAppNames'
         $PSBoundParameters.SelectedMobileAppNames = $SelectedMobileAppIds | ForEach-Object { (Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $_).DisplayName }
-        $PSBoundParameters.Remove('SelectedMobileAppIds') | Out-Null
     }
+    $PSBoundParameters.Remove('SelectedMobileAppIds') | Out-Null
 
     $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
     $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
@@ -738,11 +737,11 @@ function Export-TargetResource
         $dscContent = ''
         if ($getValue.Length -eq 0)
         {
-            Write-Host $Global:M365DSCEmojiGreenCheckMark
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
         else
         {
-            Write-Host "`r`n" -NoNewline
+            Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
         foreach ($config in $getValue)
         {
@@ -756,7 +755,7 @@ function Export-TargetResource
             {
                 $displayedKey = $config.displayName
             }
-            Write-Host "    |---[$i/$($getValue.Count)] $displayedKey" -NoNewline
+            Write-M365DSCHost -Message "    |---[$i/$($getValue.Count)] $displayedKey" -DeferWrite
             $params = @{
                 Id                    = $config.Id
                 DisplayName           = $config.displayName
@@ -794,7 +793,7 @@ function Export-TargetResource
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
 
-            Write-Host $Global:M365DSCEmojiGreenCheckMark
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
             $i++
         }
         return $dscContent
@@ -804,11 +803,11 @@ function Export-TargetResource
         if ($_.Exception -like '*401*' -or $_.ErrorDetails.Message -like "*`"ErrorCode`":`"Forbidden`"*" -or `
                 $_.Exception -like '*Request not applicable to target tenant*')
         {
-            Write-Host "`r`n    $($Global:M365DSCEmojiYellowCircle) The current tenant is not registered for Intune."
+            Write-M365DSCHost -Message "`r`n    $($Global:M365DSCEmojiYellowCircle) The current tenant is not registered for Intune."
         }
         else
         {
-            Write-Host $Global:M365DSCEmojiRedX
+            Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
 
             New-M365DSCLogEntry -Message 'Error during Export:' `
                 -Exception $_ `

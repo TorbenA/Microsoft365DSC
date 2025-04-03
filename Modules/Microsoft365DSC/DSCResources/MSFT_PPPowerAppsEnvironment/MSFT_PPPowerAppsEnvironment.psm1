@@ -12,6 +12,10 @@ function Get-TargetResource
         [ValidateSet('canada', 'unitedstates', 'europe', 'asia', 'australia', 'india', 'japan', 'unitedkingdom', 'unitedstatesfirstrelease', 'southamerica', 'france', 'usgov', 'unitedarabemirates', 'germany', 'switzerland', 'norway', 'korea', 'southafrica')]
         $Location,
 
+        [Parameter()]
+        [System.String]
+        $EnvironmentType,
+
         [Parameter(Mandatory = $true)]
         [System.String]
         [ValidateSet("Production","Standard","Trial","Sandbox","SubscriptionBasedTrial","Teams","Developer","Basic","Default")]
@@ -87,6 +91,11 @@ function Get-TargetResource
             if ($environmentInfo.properties.displayName -eq $DisplayName)
             {
                 $environment = $environmentInfo
+                if($null -ne $environmentInfo.properties.linkedEnvironmentMetadata)
+                {
+                    $ProvisionDatabaseparam = $true
+                    $LanguageNameparam = $environmentInfo.properties.linkedEnvironmentMetadata.baseLanguage
+                }
                 break
             }
         }
@@ -98,15 +107,18 @@ function Get-TargetResource
         }
 
         Write-Verbose -Message "Found PowerApps Environment {$DisplayName}"
-        $environmentType = $environment.properties.environmentType
-        if ($environmentType -eq 'Notspecified')
+        $environmentSKU = $environment.properties.EnvironmentSKU
+        if ($environmentSKU -eq 'Notspecified')
         {
-            $environmentType = 'Teams'
+            $environmentSKU = 'Teams'
         }
         return @{
             DisplayName           = $DisplayName
             Location              = $environment.location
-            EnvironmentSKU        = $environmentType
+            EnvironmentType       = $environment.properties.EnvironmentType
+            EnvironmentSKU        = $environmentSKU
+            ProvisionDatabase     = $ProvisionDatabaseparam
+            LanguageName          = $LanguageNameparam
             Ensure                = 'Present'
             Credential            = $Credential
             ApplicationId         = $ApplicationId
@@ -139,6 +151,10 @@ function Set-TargetResource
         [System.String]
         [ValidateSet('canada', 'unitedstates', 'europe', 'asia', 'australia', 'india', 'japan', 'unitedkingdom', 'unitedstatesfirstrelease', 'southamerica', 'france', 'usgov', 'unitedarabemirates', 'germany', 'switzerland', 'norway', 'korea', 'southafrica')]
         $Location,
+
+        [Parameter()]
+        [System.String]
+        $EnvironmentType,
 
         [Parameter(Mandatory = $true)]
         [System.String]
@@ -228,10 +244,31 @@ function Set-TargetResource
             $newParameters = @{
                 location   = $Location
                 properties = @{
-                    displayName    = $DisplayName
-                    description    = ''
-                    environmentSku = $EnvironmentSku
+                    displayName     = $DisplayName
+                    description     = ''
+                    environmentSku  = $EnvironmentSku
+                    environmentType = $EnvironmentType
                 }
+            }
+
+            if ($ProvisionDatabase)
+            {
+                if ($CurrencyName -ne $null -and
+                    $LanguageName -ne $null)
+                {
+                    $newParameters.properties['linkedEnvironmentMetadata'] = @{
+                        baseLanguage = $LanguageName
+                        currency     = @{
+                            code = $CurrencyName
+                        }
+                    }
+                }
+                $newParameters.properties["databaseType"] = "CommonDataService"
+            }
+            if ($EnvironmentSku -eq "Developer" -and !$ProvisionDatabase)
+            {
+                Write-Error "Developer environments must always include Dataverse provisioning parameters."
+                throw $_
             }
             Invoke-M365DSCPowerPlatformRESTWebRequest -Uri $uri -Method 'POST' -Body $newParameters
         }
@@ -268,6 +305,10 @@ function Test-TargetResource
         [System.String]
         [ValidateSet('canada', 'unitedstates', 'europe', 'asia', 'australia', 'india', 'japan', 'unitedkingdom', 'unitedstatesfirstrelease', 'southamerica', 'france', 'usgov', 'unitedarabemirates', 'germany', 'switzerland', 'norway', 'korea', 'southafrica')]
         $Location,
+
+        [Parameter()]
+        [System.String]
+        $EnvironmentType,
 
         [Parameter(Mandatory = $true)]
         [System.String]
@@ -333,8 +374,6 @@ function Test-TargetResource
 
     $ValuesToCheck = $PSBoundParameters
     $ValuesToCheck.Remove('Credential') | Out-Null
-    $ValuesToCheck.Remove('ProvisionDatabase') | Out-Null
-    $ValuesToCheck.Remove('LanguageName') | Out-Null
     $ValuesToCheck.Remove('CurrencyName') | Out-Null
 
     $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
@@ -399,11 +438,11 @@ function Export-TargetResource
 
         if ($environments.Length -eq 0)
         {
-            Write-Host $Global:M365DSCEmojiGreenCheckMark
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
         else
         {
-            Write-Host "`r`n" -NoNewline
+            Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
         foreach ($environment in $environments.value)
         {
@@ -414,7 +453,7 @@ function Export-TargetResource
                     $Global:M365DSCExportResourceInstancesCount++
                 }
 
-                Write-Host "    |---[$i/$($environments.value.Count)] $($environment.properties.displayName)" -NoNewline
+                Write-M365DSCHost -Message "    |---[$i/$($environments.value.Count)] $($environment.properties.displayName)" -DeferWrite
                 $environmentType = $environment.properties.environmentType
                 if ($environmentType -eq 'Notspecified')
                 {
@@ -440,12 +479,12 @@ function Export-TargetResource
 
                 Save-M365DSCPartialExport -Content $currentDSCBlock `
                     -FileName $Global:PartialExportFileName
-                Write-Host $Global:M365DSCEmojiGreenCheckMark
+                Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
             }
             else
             {
-                Write-Host "    |---[$i/$($environments.Count)] Skipping Default Environment $($environment.DisplayName)" -NoNewline
-                Write-Host $Global:M365DSCEmojiInformation
+                Write-M365DSCHost -Message "    |---[$i/$($environments.Count)] Skipping Default Environment $($environment.DisplayName)" -DeferWrite
+                Write-M365DSCHost -Message $Global:M365DSCEmojiInformation
             }
             $i++
         }
@@ -453,7 +492,7 @@ function Export-TargetResource
     }
     catch
     {
-        Write-Host $Global:M365DSCEmojiRedX
+        Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
 
         New-M365DSCLogEntry -Message 'Error during Export:' `
             -Exception $_ `

@@ -174,7 +174,7 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Testing configuration of AzureAD Tenant Details'
+    Write-Verbose -Message 'Testing configuration of Tenant Details'
 
     $Global:PartialExportFileName = "$((New-Guid).ToString()).partial"
     $module = Join-Path -Path $PSScriptRoot -ChildPath "..\MSFT_$ResourceTypeName\MSFT_$ResourceTypeName.psm1" -Resolve
@@ -201,7 +201,7 @@ function Test-TargetResource
         }
 
         Write-Verbose -Message "Importing module from Path {$($module)}"
-        Import-Module $module -Force -Function 'Export-TargetResource' | Out-Null
+        Import-Module $module -Force -Function 'Export-TargetResource'
         $cmdName = "MSFT_$ResourceTypeName\Export-TargetResource"
 
         # Ensure the referenced resource supports ManagedIdentity before adding the parameter.
@@ -423,7 +423,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    Write-Host "`r`n" -NoNewline
+    Write-M365DSCHost -Message "`r`n" -DeferWrite
     return $null
 }
 

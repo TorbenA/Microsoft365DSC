@@ -101,7 +101,7 @@ function Get-TargetResource
             CertificatePassword   = $CertificatePassword
             CertificatePath       = $CertificatePath
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
     }
@@ -403,11 +403,11 @@ function Export-TargetResource
 
         if ($themes.Length -eq 0)
         {
-            Write-Host $Global:M365DSCEmojiGreenCheckMark
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
         else
         {
-            Write-Host "`r`n" -NoNewline
+            Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
         foreach ($theme in $themes)
         {
@@ -416,7 +416,7 @@ function Export-TargetResource
                 $Global:M365DSCExportResourceInstancesCount++
             }
 
-            Write-Host "    |---[$i/$($themes.Length)] $($theme.Name)" -NoNewline
+            Write-M365DSCHost -Message "    |---[$i/$($themes.Length)] $($theme.Name)" -DeferWrite
             $Params = @{
                 Name                  = $theme.Name
                 ApplicationId         = $ApplicationId
@@ -432,17 +432,16 @@ function Export-TargetResource
             $Results = Get-TargetResource @Params
             if ($null -ne $Results.Palette)
             {
-                $complexMapping = @(
-                    @{
-                        Name            = 'OptionalClaims'
-                        CimInstanceName = 'MSFT_SPOThemePaletteProperty'
-                        IsRequired      = $False
+                $formatted = $Results.Palette.GetEnumerator() | ForEach-Object {
+                    [ordered]@{
+                        Property = $_.Key
+                        Value    = $_.Value
                     }
-                )
+                }
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
-                    -ComplexObject $Results.Palette `
+                    -ComplexObject $formatted `
                     -CIMInstanceName 'MSFT_SPOThemePaletteProperty' `
-                    -ComplexTypeMapping $complexMapping
+                    -IsArray
 
                 if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
@@ -462,14 +461,14 @@ function Export-TargetResource
             $dscContent += $currentDSCBlock
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
-            Write-Host $Global:M365DSCEmojiGreenCheckMark
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
             $i++
         }
         return $dscContent
     }
     catch
     {
-        Write-Host $Global:M365DSCEmojiRedX
+        Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
 
         New-M365DSCLogEntry -Message 'Error during Export:' `
             -Exception $_ `
@@ -515,30 +514,6 @@ function Convert-NewThemePaletteToHashTable
     }
     return $results
 }
-
-function ConvertTo-SPOThemePalettePropertyString
-{
-    [CmdletBinding()]
-    [OutputType([System.String])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [System.Collections.Hashtable]
-        $Palette
-    )
-
-    $StringContent = '@('
-    foreach ($property in $Palette.Keys)
-    {
-        $StringContent += "            MSFT_SPOThemePaletteProperty`r`n            {`r`n"
-        $StringContent += "                Property = '$($property)'`r`n"
-        $StringContent += "                Value    = '$($Palette[$property])'`r`n"
-        $StringContent += "            }`r`n"
-    }
-    $StringCOntent += "            )`r`n"
-    return $StringContent
-}
-
 
 function Compare-SPOTheme
 {

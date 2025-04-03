@@ -182,9 +182,15 @@ function Set-TargetResource
 
         $CreateParameters.Remove('Verbose') | Out-Null
 
-        $keys = $CreateParameters.Keys
+        $keys = @($CreateParameters.Keys)
         foreach ($key in $keys)
         {
+            if ($key -eq 'MeetingInvitePhoneNumbers')
+            {
+                $keyValue = $CreateParameters.$key -join ','
+                $CreateParameters.Remove($key) | Out-Null
+                $CreateParameters.Add($key, $keyValue)
+            }
             if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.GetType().Name -like '*cimInstance*')
             {
                 $keyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters.$key
@@ -202,9 +208,15 @@ function Set-TargetResource
         $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $UpdateParameters.Remove('Verbose') | Out-Null
 
-        $keys = $UpdateParameters.Keys
+        $keys = @($UpdateParameters.Keys)
         foreach ($key in $keys)
         {
+            if ($key -eq 'MeetingInvitePhoneNumbers')
+            {
+                $keyValue = $UpdateParameters.$key -join ','
+                $UpdateParameters.Remove($key) | Out-Null
+                $UpdateParameters.Add($key, $keyValue)
+            }
             if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.GetType().Name -like '*cimInstance*')
             {
                 $keyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
@@ -371,11 +383,11 @@ function Export-TargetResource
         $dscContent = ''
         if ($getValue.Length -eq 0)
         {
-            Write-Host $Global:M365DSCEmojiGreenCheckMark
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
         else
         {
-            Write-Host "`r`n" -NoNewline
+            Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
         foreach ($config in $getValue)
         {
@@ -389,7 +401,7 @@ function Export-TargetResource
             {
                 $displayedKey = $config.displayName
             }
-            Write-Host "    |---[$i/$($getValue.Count)] $displayedKey" -NoNewline
+            Write-M365DSCHost -Message "    |---[$i/$($getValue.Count)] $displayedKey" -DeferWrite
             $params = @{
                 Identity              = $config.Identity
                 Ensure                = 'Present'
@@ -412,13 +424,13 @@ function Export-TargetResource
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
             $i++
-            Write-Host $Global:M365DSCEmojiGreenCheckMark
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
         return $dscContent
     }
     catch
     {
-        Write-Host $Global:M365DSCEmojiRedX
+        Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
 
         New-M365DSCLogEntry -Message 'Error during Export:' `
             -Exception $_ `
