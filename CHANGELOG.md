@@ -1,5 +1,29 @@
 # Change log for Microsoft365DSC
 
+# 1.25.409.1
+
+* AADApplication
+  * DEPRECATED: Parameter AvailableToOtherTenants.
+  * Added direct support for the SignInAudience parameter.
+* EXOSafeAttachmentRule
+  * Inlined function calls.
+* EXOSafeLinksRule
+  * Inlined function calls.
+* IntuneAccountProtectionLocalAdministratorPasswordSolutionPolicy
+  * Add support for automatic account management and other new options.
+* IntuneSecurityBaselineHoloLens2Standard
+  * Initial release.
+* M365DSCPermissions
+  * Add `AdministrativeRoles` property to export of `Get-M365DSCCompiledPermissionList`.
+  * Removed commented out `Update-M365DSCResourcesSettingsJSON` definition.
+* M365DSCUtil
+  * Removed numerous EXO functions.
+  * Removed additional unnecessary functions.
+* MISC
+  * Removed clearing of M365DSC authentication parameters from numerous Intune resources.
+  * Updated the new Write-M365DSChost function to only print
+    messages when they are not null.
+
 # 1.25.402.1
 
 * AADAdministrativeUnit

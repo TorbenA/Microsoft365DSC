@@ -339,7 +339,6 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        $nullResult = Clear-M365DSCAuthenticationParameter -BoundParameters $nullResult
         return $nullResult
     }
 }
@@ -1011,11 +1010,6 @@ function Export-TargetResource
 
             $Script:exportedInstance = $configDeviceAndroidPolicy
             $Results = Get-TargetResource @params
-            if (-not (Test-M365DSCAuthenticationParameter -BoundParameters $Results))
-            {
-                Write-Verbose "An error occured in Get-TargetResource, the policy {$($params.displayName)} will not be processed"
-                throw "An error occured in Get-TargetResource, the policy {$($params.displayName)} will not be processed. Refer to the event viewer logs for more information."
-            }
 
             if ($Results.Assignments)
             {
