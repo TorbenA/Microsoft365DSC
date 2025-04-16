@@ -4874,7 +4874,7 @@ function Write-M365DSCHost
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param
     (
-        [Parameter(Mandatory = $true, Position = 0)]
+        [Parameter(Position = 0)]
         [System.String]
         $Message,
 
@@ -4891,49 +4891,52 @@ function Write-M365DSCHost
         $CommitWrite
     )
 
-    if ($null -eq $Script:M365DSCHostMessages)
+    if (-not [System.String]::IsNullOrEmpty($Message))
     {
-        $Script:M365DSCHostMessages = @()
-    }
-
-    if ($DeferWrite)
-    {
-        $Script:M365DSCHostMessages += @{
-            Message = $Message
-            ForegroundColor = $ForegroundColor
-        }
-        return
-    }
-
-    if ([Environment]::UserInteractive)
-    {
-        if ($CommitWrite -and $Script:M365DSCHostMessages.Count -gt 0)
+        if ($null -eq $Script:M365DSCHostMessages)
         {
-            for ($i = 0; $i -lt $Script:M365DSCHostMessages.Count - 1; $i++)
-            {
-                Write-Host -Object $Script:M365DSCHostMessages[$i].Message -ForegroundColor $Script:M365DSCHostMessages[$i].ForegroundColor -NoNewline
+            $Script:M365DSCHostMessages = @()
+        }
+
+        if ($DeferWrite)
+        {
+            $Script:M365DSCHostMessages += @{
+                Message = $Message
+                ForegroundColor = $ForegroundColor
             }
-            Write-Host -Object $Script:M365DSCHostMessages[-1].Message -ForegroundColor $Script:M365DSCHostMessages[-1].ForegroundColor -NoNewline
-            $Script:M365DSCHostMessages = @()
+            return
         }
 
-        if (-not [System.String]::IsNullOrEmpty($Message))
+        if ([Environment]::UserInteractive)
         {
-            Write-Host -Object $Message -ForegroundColor $ForegroundColor
+            if ($CommitWrite -and $Script:M365DSCHostMessages.Count -gt 0)
+            {
+                for ($i = 0; $i -lt $Script:M365DSCHostMessages.Count - 1; $i++)
+                {
+                    Write-Host -Object $Script:M365DSCHostMessages[$i].Message -ForegroundColor $Script:M365DSCHostMessages[$i].ForegroundColor -NoNewline
+                }
+                Write-Host -Object $Script:M365DSCHostMessages[-1].Message -ForegroundColor $Script:M365DSCHostMessages[-1].ForegroundColor -NoNewline
+                $Script:M365DSCHostMessages = @()
+            }
+
+            if (-not [System.String]::IsNullOrEmpty($Message))
+            {
+                Write-Host -Object $Message -ForegroundColor $ForegroundColor
+            }
         }
-    }
-    else
-    {
-        $outputMessage = ''
-        if ($CommitWrite)
+        else
         {
-            $outputMessage += $Script:M365DSCHostMessages.Message -join ''
-            $Script:M365DSCHostMessages = @()
-        }
-        $finalMessage = $outputMessage + $Message
-        if (-not [System.String]::IsNullOrEmpty($Message))
-        {
-            Write-Verbose -Message $finalMessage -Verbose
+            $outputMessage = ''
+            if ($CommitWrite)
+            {
+                $outputMessage += $Script:M365DSCHostMessages.Message -join ''
+                $Script:M365DSCHostMessages = @()
+            }
+            $finalMessage = $outputMessage + $Message
+            if (-not [System.String]::IsNullOrEmpty($Message))
+            {
+                Write-Verbose -Message $finalMessage -Verbose
+            }
         }
     }
 }

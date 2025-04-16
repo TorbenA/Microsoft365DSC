@@ -1,10 +1,45 @@
 # Change log for Microsoft365DSC
 
+# 1.25.416.1
+
+* EXOResourceConfiguration
+  * Added required permissions to settings.json file.
+* EXOTenantAllowBlockListItems
+  * Inlined function call.
+* IntuneDeviceControlPolicyWindows10
+  * Added support for `DefaultEnforcement` and `DeviceControlEnabled` properties.
+* IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile
+  * Fix export and remove read-only properties.
+    FIXES [#5969](https://github.com/microsoft/Microsoft365DSC/issues/5969)
+* IntuneSecurityBaselineHoloLens2Advanced
+  * Initial release.
+ * IntuneWifiConfigurationPolicyMacOS
+  * Fixed an issue where fetching the assignments of a policy that only exists by display name fails.
+    FIXES [#5971](https://github.com/microsoft/Microsoft365DSC/issues/5971)
+* PlannerTask
+  * Update export to use common functions.
+    FIXES [#6004](https://github.com/microsoft/Microsoft365DSC/issues/6004)
+* M365DSCDRGUtil
+  * Removed undefined variable from if statement.
+* M365DSCPermissions
+  * Add `AdministrativeRoles` and `RequiredRoles` property to export.
+* MISC
+  * Removed `-Verbose` parameter from multiple commands where it's not necessary.
+  * Removed unused functions across several resources.
+  * Added export of module functions to several EXO resources.
+  * Update export to use common function for multiple resources.
+  * Update `requiredrolegroups` property of settings.json file to array.
+  * Updated the Write-M365DSCHost function to make the Message parameter
+    optional to fix null errors.
+
 # 1.25.409.1
 
 * AADApplication
   * DEPRECATED: Parameter AvailableToOtherTenants.
   * Added direct support for the SignInAudience parameter.
+* AADEntitlementManagementAccessPackage
+  * Fix incorrect assignment where `$results.CatalogId` was assigned
+    `catalog.DisplayName` instead of `catalog.Id`
 * EXOSafeAttachmentRule
   * Inlined function calls.
 * EXOSafeLinksRule
@@ -21,7 +56,7 @@
   * Removed additional unnecessary functions.
 * MISC
   * Removed clearing of M365DSC authentication parameters from numerous Intune resources.
-  * Updated the new Write-M365DSChost function to only print
+  * Updated the new Write-M365DSCHost function to only print
     messages when they are not null.
 
 # 1.25.402.1

@@ -137,6 +137,16 @@ function Get-TargetResource
         $AllowFullScanRemovableDriveScanning,
 
         [Parameter()]
+        [ValidateSet('1', '2')]
+        [System.String]
+        $DefaultEnforcement,
+
+        [Parameter()]
+        [ValidateSet('0', '1')]
+        [System.String]
+        $DeviceControlEnabled,
+
+        [Parameter()]
         [ValidateSet('0', '1')]
         [System.String]
         $AllowDirectMemoryAccess,
@@ -514,6 +524,16 @@ function Set-TargetResource
         $AllowFullScanRemovableDriveScanning,
 
         [Parameter()]
+        [ValidateSet('1', '2')]
+        [System.String]
+        $DefaultEnforcement,
+
+        [Parameter()]
+        [ValidateSet('0', '1')]
+        [System.String]
+        $DeviceControlEnabled,
+
+        [Parameter()]
         [ValidateSet('0', '1')]
         [System.String]
         $AllowDirectMemoryAccess,
@@ -833,6 +853,16 @@ function Test-TargetResource
         [ValidateSet('0', '1')]
         [System.String]
         $AllowFullScanRemovableDriveScanning,
+
+        [Parameter()]
+        [ValidateSet('1', '2')]
+        [System.String]
+        $DefaultEnforcement,
+
+        [Parameter()]
+        [ValidateSet('0', '1')]
+        [System.String]
+        $DeviceControlEnabled,
 
         [Parameter()]
         [ValidateSet('0', '1')]

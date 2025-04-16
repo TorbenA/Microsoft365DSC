@@ -436,7 +436,7 @@ function Set-TargetResource
             #apps handled separately as not supported by Update-MgBetaDeviceAppManagementTargetedManagedAppConfiguration
             Write-Verbose -Message "Updating Apps for Intune App Configuration Policy {$DisplayName}"
             $Uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceAppManagement/targetedManagedAppConfigurations('$($currentconfigPolicy.Id)')/targetApps"
-            Invoke-MgGraphRequest -Method POST -Uri $Uri -Body $($appsBody | ConvertTo-Json -Depth 10) -Verbose
+            Invoke-MgGraphRequest -Method POST -Uri $Uri -Body $($appsBody | ConvertTo-Json -Depth 10)
         }
 
         Update-MgBetaDeviceAppManagementTargetedManagedAppConfiguration @updateParams
@@ -787,40 +787,6 @@ function Export-TargetResource
 
         return ''
     }
-}
-
-function Get-M365DSCIntuneAppConfigurationPolicyCustomSettingsAsString
-{
-    [CmdletBinding()]
-    [OutputType([System.String])]
-    param(
-        [Parameter(Mandatory = $true)]
-        [System.Object[]]
-        $Settings
-    )
-
-    $StringContent = '@('
-    $space = '                '
-    $indent = '    '
-
-    $i = 1
-    foreach ($setting in $Settings)
-    {
-        if ($Settings.Count -gt 1)
-        {
-            $StringContent += "`r`n"
-            $StringContent += "$space"
-        }
-        $StringContent += "MSFT_IntuneAppConfigurationPolicyCustomSetting { `r`n"
-        $StringContent += "$($space)$($indent)name  = '" + $setting.name + "'`r`n"
-        $StringContent += "$($space)$($indent)value = '" + $setting.value + "'`r`n"
-        $StringContent += "$space}"
-
-        $i++
-    }
-
-    $StringContent += ')'
-    return $StringContent
 }
 
 function ConvertTo-M365DSCIntuneAppConfigurationPolicyCustomSettings
