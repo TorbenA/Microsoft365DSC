@@ -87,12 +87,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     HighConfidencePhishAction            = 'Quarantine'
                     HighConfidenceSpamAction             = 'Quarantine'
                     SpamAction                           = 'MoveToJmf'
-                    EnableEndUserSpamNotifications       = $true
-                    DownloadLink                         = $false
                     EnableRegionBlockList                = $true
                     EnableLanguageBlockList              = $true
-                    EndUserSpamNotificationCustomSubject = 'This is SPAM'
-                    EndUserSpamNotificationLanguage      = 'Default'
                     BulkThreshold                        = 5
                     AllowedSenders                       = @('test@contoso.com', 'test@fabrikam.com')
                     AllowedSenderDomains                 = @('contoso.com', 'fabrikam.com')
@@ -134,7 +130,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     RedirectToRecipients                 = @()
                     TestModeBccToRecipients              = @()
                     QuarantineRetentionPeriod            = 15
-                    EndUserSpamNotificationFrequency     = 1
                     TestModeAction                       = 'AddXHeader'
                     IncreaseScoreWithImageLinks          = 'Off'
                     IncreaseScoreWithNumericIps          = 'On'
@@ -157,12 +152,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     HighConfidencePhishAction            = 'Quarantine'
                     HighConfidenceSpamAction             = 'Quarantine'
                     SpamAction                           = 'MoveToJmf'
-                    EnableEndUserSpamNotifications       = $true
-                    DownloadLink                         = $false
                     EnableRegionBlockList                = $true
                     EnableLanguageBlockList              = $true
-                    EndUserSpamNotificationCustomSubject = 'This is SPAM'
-                    EndUserSpamNotificationLanguage      = 'Default'
                     BulkThreshold                        = 5
                     AllowedSenders                       = @('test@contoso.com', 'test@fabrikam.com')
                     AllowedSenderDomains                 = @('contoso.com', 'fabrikam.com')
@@ -207,7 +198,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         HighConfidencePhishAction            = 'Quarantine'
                         HighConfidenceSpamAction             = 'Quarantine'
                         SpamAction                           = 'MoveToJmf'
-                        DownloadLink                         = $false
                         EnableRegionBlockList                = $true
                         EnableLanguageBlockList              = $true
                         BulkThreshold                        = 5
@@ -258,7 +248,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     RedirectToRecipients                 = @()
                     TestModeBccToRecipients              = @()
                     QuarantineRetentionPeriod            = 15
-                    EndUserSpamNotificationFrequency     = 1
                     TestModeAction                       = 'AddXHeader'
                     IncreaseScoreWithImageLinks          = 'Off'
                     IncreaseScoreWithNumericIps          = 'On'
@@ -281,12 +270,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     HighConfidencePhishAction            = 'Quarantine'
                     HighConfidenceSpamAction             = 'Quarantine'
                     SpamAction                           = 'MoveToJmf'
-                    EnableEndUserSpamNotifications       = $true
-                    DownloadLink                         = $false
                     EnableRegionBlockList                = $true
                     EnableLanguageBlockList              = $true
-                    EndUserSpamNotificationCustomSubject = 'This is SPAM'
-                    EndUserSpamNotificationLanguage      = 'Default'
                     BulkThreshold                        = 5
                     AllowedSenders                       = @('test@contoso.com', 'test@fabrikam.com')
                     AllowedSenderDomains                 = @('contoso.com', 'fabrikam.com')
@@ -311,7 +296,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         RedirectToRecipients                 = @()
                         TestModeBccToRecipients              = @()
                         QuarantineRetentionPeriod            = 15
-                        EndUserSpamNotificationFrequency     = 1
                         TestModeAction                       = 'AddXHeader'
                         IncreaseScoreWithImageLinks          = 'Off'
                         IncreaseScoreWithNumericIps          = 'On'
@@ -334,12 +318,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         HighConfidencePhishAction            = 'Quarantine'
                         HighConfidenceSpamAction             = 'Quarantine'
                         SpamAction                           = 'MoveToJmf'
-                        EnableEndUserSpamNotifications       = $true
-                        DownloadLink                         = $false
                         EnableRegionBlockList                = $true
                         EnableLanguageBlockList              = $true
-                        EndUserSpamNotificationCustomSubject = 'This is SPAM'
-                        EndUserSpamNotificationLanguage      = 'Default'
                         BulkThreshold                        = 5
                         AllowedSenders                       = @{
                             Sender = @(

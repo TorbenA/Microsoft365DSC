@@ -1,5 +1,12 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* EXOHostedContentFilterPolicy
+  * [BREAKING CHANGE] Remove deprecated properties `DownloadLink`, `EnableEndUserSpamNotifications`,
+    `EndUserSpamNotificationCustomSubject`, `EndUserSpamNotificationFrequency` and `EndUserSpamNotificationLanguage`.
+    FIXES [#4958](https://github.com/microsoft/Microsoft365DSC/issues/4958)
+
 # 1.25.416.1
 
 * EXOResourceConfiguration
