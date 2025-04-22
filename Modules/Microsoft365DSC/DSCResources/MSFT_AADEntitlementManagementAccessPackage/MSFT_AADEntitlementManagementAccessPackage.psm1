@@ -168,7 +168,7 @@ function Get-TargetResource
 
         $results = @{
             Id                              = $getValue.Id
-            CatalogId                       = $catalog.Id
+            CatalogId                       = $catalog.DisplayName
             Description                     = $getValue.Description
             DisplayName                     = $getValue.DisplayName
             IsHidden                        = $getValue.IsHidden
@@ -380,12 +380,12 @@ function Set-TargetResource
             Write-Verbose -Message "Adding roleScope {$originId`:$roleName} to access package with Id {$($accessPackage.Id)}"
 
             $resourceScope = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResource `
-                -AccessPackageCatalogId $CatalogId `
+                -AccessPackageCatalogId $CreateParameters.CatalogId `
                 -Filter "originId eq '$originId'" `
                 -ExpandProperty 'accessPackageResourceScopes'
 
             $resourceRole = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourceRole `
-                -AccessPackageCatalogId $CatalogId `
+                -AccessPackageCatalogId $CreateParameters.CatalogId `
                 -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and displayname eq '$roleName' and originSystem eq '$($resourceScope.originSystem)')" `
                 -ExpandProperty 'accessPackageResource'
 
@@ -546,12 +546,12 @@ function Set-TargetResource
                 Write-Verbose -Message "Adding roleScope {$originId`:$roleName} to access package with Id {$($currentInstance.Id)}"
 
                 $resourceScope = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResource `
-                    -AccessPackageCatalogId $CatalogId `
+                    -AccessPackageCatalogId $UpdateParameters.CatalogId `
                     -Filter "originId eq '$originId'" `
                     -ExpandProperty 'accessPackageResourceScopes'
 
                 $resourceRole = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourceRole `
-                    -AccessPackageCatalogId $CatalogId `
+                    -AccessPackageCatalogId $UpdateParameters.CatalogId `
                     -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and displayname eq '$roleName' and originSystem eq '$($resourceScope.originSystem)')" `
                     -ExpandProperty 'accessPackageResource'
 
@@ -607,12 +607,12 @@ function Set-TargetResource
                     Write-Verbose -Message "Updating role {$roleName} from access package rolescope with Id {$($accessPackageResourceRoleScope.id)}"
 
                     $resourceScope = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResource `
-                        -AccessPackageCatalogId $CatalogId `
+                        -AccessPackageCatalogId $UpdateParameters.CatalogId `
                         -Filter "originId eq '$originId'" `
                         -ExpandProperty 'accessPackageResourceScopes'
 
                     $resourceRole = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourceRole `
-                        -AccessPackageCatalogId $CatalogId `
+                        -AccessPackageCatalogId $UpdateParameters.CatalogId `
                         -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and displayname eq '$roleName' and originSystem eq '$($resourceScope.originSystem)')" `
                         -ExpandProperty 'accessPackageResource'
 
