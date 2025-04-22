@@ -43,8 +43,7 @@
   * DEPRECATED: Parameter AvailableToOtherTenants.
   * Added direct support for the SignInAudience parameter.
 * AADEntitlementManagementAccessPackage
-  * Fix incorrect assignment where `$results.CatalogId` was assigned
-    `catalog.DisplayName` instead of `catalog.Id`
+  * Fix missing `$CreateParameters.CatalogId` and `$UpdateParameters.CatalogId` where `$CatalogId` was being passed as parameter to `Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResource` and `Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourceRole`
 * EXOSafeAttachmentRule
   * Inlined function calls.
 * EXOSafeLinksRule
