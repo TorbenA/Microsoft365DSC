@@ -2,6 +2,19 @@
 
 # UNRELEASED
 
+* IntuneDeviceCompliancePolicyAndroid
+  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+* IntuneDeviceConfigurationPolicyAndroidDeviceAdministrator
+  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+* IntuneTrustedRootCertificateAndroidEnterprise
+  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+* IntuneVPNConfigurationPolicyAndroidEnterprise
+  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+* IntuneWifiConfigurationPolicyAndroidDeviceAdministrator
+  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+* IntuneWifiConfigurationPolicyAndroidForWork
+  * [BREAKING CHANGE] Removed resource because it's not supported anymore.
+    Instead, use the `IntuneWifiConfigurationPolicyAndroidEnterpriseWorkProfile` resource.
 * IntuneWindowsHelloForBusinessGlobalPolicy
   * Initial release.
     FIXES [#4561](https://github.com/microsoft/Microsoft365DSC/issues/4561)
