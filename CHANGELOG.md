@@ -6,6 +6,8 @@
   * Changed Get-TargetResource not to throw an error when the instance doesn't exist.
 * EXORetentionPolicy
   * Changed Get-TargetResource not to throw an error when the instance doesn't exist.
+* TeamsOnlineVoicemailUserSettings
+  * Remove connection to graph to retrieve all users in the export flow.
 * MISC
   * Streamlining the Test-TargetResource of all AAD, Commerce, Defender, O365, OneDrive and Services Hub resources.
 

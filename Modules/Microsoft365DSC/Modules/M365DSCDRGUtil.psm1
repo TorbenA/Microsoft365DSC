@@ -3111,7 +3111,6 @@ function Update-IntuneDeviceConfigurationPolicy
         [Array]
         $Settings
     )
-    $VerbosePreference = 'continue'
     try
     {
         $Uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceManagement/configurationPolicies/$DeviceConfigurationPolicyId"
