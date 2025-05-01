@@ -1466,6 +1466,7 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
