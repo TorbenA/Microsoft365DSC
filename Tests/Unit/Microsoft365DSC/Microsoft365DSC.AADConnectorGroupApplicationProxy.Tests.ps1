@@ -150,8 +150,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 Mock -CommandName Get-MgBetaOnPremisePublishingProfileConnectorGroup -MockWith {
                     return @{
                         Id = "FakeStringValue"
-                        Name = "NewFakeStringValue"
-                        Region = "nam"
+                        Name = "FakeStringValue"
+                        Region = "NewRegion"
                     }
                 }
             }

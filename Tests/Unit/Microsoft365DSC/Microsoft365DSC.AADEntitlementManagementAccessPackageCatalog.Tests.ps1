@@ -93,7 +93,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName         = 'FakeStringValue'
                     Id                  = 'FakeStringValue'
                     IsExternallyVisible = $True
-
                     Ensure              = 'Absent'
                     Credential          = $Credential
                 }
@@ -106,7 +105,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         DisplayName         = 'FakeStringValue'
                         Id                  = 'FakeStringValue'
                         IsExternallyVisible = $True
-
                     }
                 }
             }
@@ -133,7 +131,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName         = 'FakeStringValue'
                     Id                  = 'FakeStringValue'
                     IsExternallyVisible = $True
-
                     Ensure              = 'Present'
                     Credential          = $Credential
                 }
@@ -146,7 +143,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         DisplayName         = 'FakeStringValue'
                         Id                  = 'FakeStringValue'
                         IsExternallyVisible = $True
-
                     }
                 }
             }
@@ -166,7 +162,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName         = 'FakeStringValue'
                     Id                  = 'FakeStringValue'
                     IsExternallyVisible = $True
-
                     Ensure              = 'Present'
                     Credential          = $Credential
                 }

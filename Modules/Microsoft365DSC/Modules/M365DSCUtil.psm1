@@ -906,6 +906,7 @@ function Test-M365DSCParameterState
     {
         Write-Verbose -Message $_
     }
+
     if ($returnValue -eq $false -or $DriftedParameters.Keys.Length -gt 0)
     {
         $EventMessage = [System.Text.StringBuilder]::New()
@@ -1057,7 +1058,7 @@ function Test-M365DSCTargetResource
 
     Write-Verbose -Message "Testing configuration of the $ResourceName with $finalString"
 
-    $CurrentValues = Get-TargetResource @DesiredValues
+    $CurrentValues = & MSFT_$ResourceName\Get-TargetResource @DesiredValues
     $ValuesToCheck = ([Hashtable]$DesiredValues).Clone()
 
     # Remove the key parameters from the comparison
@@ -1098,14 +1099,27 @@ function Test-M365DSCTargetResource
             $CIMDefinition = $Global:M365DSCSchema | Where-Object -FilterScript { $_.ClassName -eq $CIMName }
             $CIMPrimaryKeys = $CIMDefinition.Parameters | Where-Object -FilterScript { $_.Option -eq 'Required' }
 
-            $targetObjects = @()
+            $targetObjects = @{}
+            if ($source.GetType().Name -eq 'CimInstance[]')
+            {
+                $targetObjects = @()
+            }
+
             foreach ($targetObject in $target)
             {
                 foreach ($primaryKey in $CIMPrimaryKeys.Name)
                 {
                     $targetObject.Remove($primaryKey) | Out-Null
                 }
-                $targetObjects += $targetObject
+
+                if ($targetObjects -is [array])
+                {
+                    $targetObjects += $targetObject
+                }
+                else
+                {
+                    $targetObjects = $targetObject
+                }
             }
 
             $testResult = Compare-M365DSCComplexObjectV2 `
@@ -1119,6 +1133,7 @@ function Test-M365DSCTargetResource
                 $testTargetResource = $false
             }
 
+            $DesiredValues.Remove($key) | Out-Null
             $ValuesToCheck.Remove($key) | Out-Null
         }
     }

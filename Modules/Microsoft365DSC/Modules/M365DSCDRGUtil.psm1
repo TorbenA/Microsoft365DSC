@@ -961,6 +961,7 @@ function Compare-M365DSCComplexObjectV2
             CurrentValue = $targetValue
             DesiredValue = $sourceValue
         }
+
         return $false
     }
 
@@ -976,11 +977,6 @@ function Compare-M365DSCComplexObjectV2
             }
 
             $returnValue = $false
-        }
-
-        if ($Source.Length -eq 0)
-        {
-            $returnValue = $true
         }
 
         if ($Source[0].CimClass.CimClassName -eq 'MSFT_DeviceManagementConfigurationPolicyAssignments' -or
@@ -1007,11 +1003,12 @@ function Compare-M365DSCComplexObjectV2
                 $returnValue = $false
             }
 
-            return $true
+            return $returnValue
         }
 
-        foreach ($item in $Source)
+        for ($counter = 0; $counter -lt $Source.Count; $counter++)
         {
+            $item = $Source[$counter]
             $foundMatch = $false
             foreach ($targetItem in $Target)
             {
@@ -1020,11 +1017,12 @@ function Compare-M365DSCComplexObjectV2
                     $compareResult = Compare-M365DSCComplexObjectV2 `
                         -Source $item `
                         -Target $targetItem `
-                        -PropertyName ($PropertyName + "." + $key)
+                        -PropertyName ("$PropertyName[$counter]")
 
                     if ($compareResult)
                     {
                         $foundMatch = $true
+                        break
                     }
                 }
             }
@@ -1033,7 +1031,7 @@ function Compare-M365DSCComplexObjectV2
             {
                 Write-Verbose -Message 'Configuration drift - The complex array items are not identical'
                 $Global:AllDrifts.DriftInfo += @{
-                    PropertyName = ($PropertyName + "." + $key)
+                    PropertyName = ("$PropertyName[$counter]")
                     CurrentValue = $Target
                     DesiredValue = $Source
                 }
@@ -1043,8 +1041,9 @@ function Compare-M365DSCComplexObjectV2
         }
 
         # Do the opposite check
-        foreach ($item in $target)
+        for ($counter = 0; $counter -lt $Target.Count; $counter++)
         {
+            $item = $Target[$counter]
             $foundMatch = $false
             foreach ($targetItem in $Source)
             {
@@ -1053,7 +1052,7 @@ function Compare-M365DSCComplexObjectV2
                     $compareResult = Compare-M365DSCComplexObjectV2 `
                         -Source $item `
                         -Target $targetItem `
-                        -PropertyName ($PropertyName + "." + $key)
+                        -PropertyName ("$PropertyName[$counter]")
 
                     if ($compareResult)
                     {
@@ -1066,7 +1065,7 @@ function Compare-M365DSCComplexObjectV2
             {
                 Write-Verbose -Message 'Configuration drift - The complex array items are not identical'
                 $Global:AllDrifts.DriftInfo += @{
-                    PropertyName = ($PropertyName + "." + $key)
+                    PropertyName = ("$PropertyName[$counter]")
                     CurrentValue = $Target
                     DesiredValue = $Source
                 }
@@ -1075,7 +1074,7 @@ function Compare-M365DSCComplexObjectV2
             }
         }
 
-        return $true
+        return $returnValue
     }
 
     if ($Source.GetType().FullName -like "*CimInstance")
@@ -1197,6 +1196,11 @@ function Compare-M365DSCComplexObjectV2
 
                         $returnValue = $false
                     }
+
+                    if ($compareResult -eq $false)
+                    {
+                        $returnValue = $false
+                    }
                 }
                 else
                 {
@@ -1256,12 +1260,19 @@ function Compare-M365DSCComplexObjectV2
                             CurrentValue = $targetValue
                             DesiredValue = $SourceValue
                         }
+
                         return $false
+                    }
+
+                    if ($compareResult -eq $false)
+                    {
+                        $returnValue = $false
                     }
                 }
             }
         }
     }
+
     return $returnValue
 }
 
