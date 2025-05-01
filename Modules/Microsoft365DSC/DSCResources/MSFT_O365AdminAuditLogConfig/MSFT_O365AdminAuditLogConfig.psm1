@@ -287,7 +287,8 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $ResourceName
+                                         -ResourceName $ResourceName `
+                                         -ExcludedProperties @('Ensure')
     return $result
 }
 

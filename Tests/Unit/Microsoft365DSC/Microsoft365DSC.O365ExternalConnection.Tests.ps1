@@ -151,7 +151,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description         = "Connection to index Contoso HR system";
                     Ensure              = "Present";
                     Id                  = "contosohr";
-                    Name                = "Contoso HR Nik"; # drift
+                    Name                = "Contoso Hr";
                     Credential          = $Credential;
                 }
 
@@ -161,7 +161,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Id   = "contosohr"
                         Description = 'Connection to index Contoso HR system'
                         Configuration = @{
-                            AuthorizedAppIds = @('12345-12345-12345-12345-12345')
+                            AuthorizedAppIds = @() # Drift
                         }
                     }
                 }

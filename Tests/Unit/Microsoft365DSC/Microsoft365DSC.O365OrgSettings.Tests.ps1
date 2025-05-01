@@ -128,7 +128,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 (Get-TargetResource @testParams).M365WebEnableUsersToOpenFilesFrom3PStorage | Should -Be $False
             }
 
-            It 'Should return false from the Test method' {
+            It 'Should return true from the Test method' {
                 (Test-TargetResource @testParams) | Should -Be $true
             }
         }
