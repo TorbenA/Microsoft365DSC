@@ -897,7 +897,7 @@ function Compare-M365DSCComplexObject
                     {
                         $compareResult = Compare-Object `
                             -ReferenceObject ($referenceObject) `
-                            -DifferenceObject ($differenceObject)
+                            -DifferenceObject ($differenceObject) -PassThru
                     }
 
                     if ($null -ne $compareResult -and $compareResult.Length -gt 0)
