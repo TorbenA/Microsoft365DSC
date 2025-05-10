@@ -102,7 +102,6 @@ function Get-TargetResource
         $results = @{
             Identity                  = $instance.Identity
             Comment                   = $instance.Comment
-            AgeLimitForRetention      = $instance.AgeLimitForRetention
             MessageClass              = $instance.MessageClass
             MustDisplayCommentEnabled = $instance.MustDisplayCommentEnabled
             RetentionAction           = $instance.RetentionAction
@@ -115,6 +114,10 @@ function Get-TargetResource
             CertificateThumbprint     = $CertificateThumbprint
             ManagedIdentity           = $ManagedIdentity.IsPresent
             AccessTokens              = $AccessTokens
+        }
+        if (-not [System.String]::IsNullOrEmpty($instance.AgeLimitForRetention))
+        {
+            $results.Add('AgeLimitForRetention', $instance.AgeLimitForRetention.Split('.')[0])
         }
         return [System.Collections.Hashtable] $results
     }
