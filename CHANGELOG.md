@@ -1,6 +1,8 @@
 # Change log for Microsoft365DSC
 
 # UNRELEASED
+* AADEntitlementManagementAccessPackage
+  * Fix catalogId variables used when adding resource to access package from catalog
 
 * DEPENDENCIES
   * Updated Microsoft.Graph to version 2.27.0.
@@ -43,7 +45,8 @@
   * DEPRECATED: Parameter AvailableToOtherTenants.
   * Added direct support for the SignInAudience parameter.
 * AADEntitlementManagementAccessPackage
-  * Fix missing `$CreateParameters.CatalogId` and `$UpdateParameters.CatalogId` where `$CatalogId` was being passed as parameter to `Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResource` and `Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourceRole`
+  * Fix incorrect assignment where `$results.CatalogId` was assigned
+    `catalog.DisplayName` instead of `catalog.Id`
 * EXOSafeAttachmentRule
   * Inlined function calls.
 * EXOSafeLinksRule
