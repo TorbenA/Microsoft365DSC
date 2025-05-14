@@ -106,7 +106,6 @@ function Get-TargetResource
             MustDisplayCommentEnabled = $instance.MustDisplayCommentEnabled
             RetentionAction           = $instance.RetentionAction
             RetentionEnabled          = $instance.RetentionEnabled
-            AgeLimitForRetention      = $instance.AgeLimitForRetention
             Type                      = $instance.Type
             Ensure                    = 'Present'
             Credential                = $Credential
