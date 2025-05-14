@@ -13,7 +13,7 @@ function Get-TargetResource
         $Comment,
 
         [Parameter()]
-        [System.String]
+        [System.UInt32]
         $AgeLimitForRetention,
 
         [Parameter()]
@@ -106,6 +106,7 @@ function Get-TargetResource
             MustDisplayCommentEnabled = $instance.MustDisplayCommentEnabled
             RetentionAction           = $instance.RetentionAction
             RetentionEnabled          = $instance.RetentionEnabled
+            AgeLimitForRetention      = $instance.AgeLimitForRetention
             Type                      = $instance.Type
             Ensure                    = 'Present'
             Credential                = $Credential
@@ -117,7 +118,7 @@ function Get-TargetResource
         }
         if (-not [System.String]::IsNullOrEmpty($instance.AgeLimitForRetention))
         {
-            $results.Add('AgeLimitForRetention', $instance.AgeLimitForRetention.Split('.')[0])
+            $results.Add('AgeLimitForRetention', [UInt32]::Parse($instance.AgeLimitForRetention.Split('.')[0]))
         }
         return [System.Collections.Hashtable] $results
     }
@@ -148,7 +149,7 @@ function Set-TargetResource
         $Comment,
 
         [Parameter()]
-        [System.String]
+        [System.UInt32]
         $AgeLimitForRetention,
 
         [Parameter()]
