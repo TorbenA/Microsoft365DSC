@@ -2694,6 +2694,7 @@ function Update-IntuneDeviceConfigurationPolicy
         [Array]
         $Settings
     )
+
     try
     {
         $Uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceManagement/configurationPolicies/$DeviceConfigurationPolicyId"
@@ -2706,6 +2707,7 @@ function Update-IntuneDeviceConfigurationPolicy
             'technologies'      = $Technologies
             'settings'          = $Settings
         }
+
         $body = $policy | ConvertTo-Json -Depth 20
         Write-Verbose -Message "Updating policy with:`r`n$body"
         Invoke-MgGraphRequest -Method PUT -Uri $Uri -Body $body -ErrorAction Stop
