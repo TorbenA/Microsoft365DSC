@@ -2,6 +2,11 @@
 
 # UNRELEASED
 
+* MISC
+  * Streamlining the Test-TargetResource of all AAD, Commerce, Defender, O365, OneDrive and Services Hub resources.
+
+# 1.25.514.1
+
 * AADApplication
   * Fixed an issue where the `AdminConsentGranted` property had an incorrect value.
     FIXES [#5027](https://github.com/microsoft/Microsoft365DSC/issues/5027)
@@ -17,7 +22,6 @@
   * Updates DSCParser to version 2.0.0.17.
 * MISC
   * Improved export speed for multiple resources.
-  * Streamlining the Test-TargetResource of all AAD, Commerce, Defender, O365, OneDrive and Services Hub resources.
 
 # 1.25.509.1
 
