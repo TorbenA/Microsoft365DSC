@@ -2840,6 +2840,9 @@ Specifies the name of parameters that should not be assessed as part of the repo
 .Parameter ExcludedResources
 Specifies the name of resources that should not be assessed as part of the report.
 
+.Parameter DriftOnly
+Specifies if the report should only show properties drifts and not missing instances.
+
 .Example
 Assert-M365DSCBlueprint -BluePrintUrl 'C:\DS\blueprint.m365' -OutputReportPath 'C:\DSC\BlueprintReport.html'
 
@@ -2904,7 +2907,11 @@ function Assert-M365DSCBlueprint
 
         [Parameter()]
         [System.String[]]
-        $ExcludedResources
+        $ExcludedResources,
+
+        [Parameter()]
+        [System.Boolean]
+        $DriftOnly = $true
     )
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -3008,7 +3015,7 @@ function Assert-M365DSCBlueprint
         New-M365DSCDeltaReport -Source $ExportPath `
             -Destination $LocalBluePrintPath `
             -OutputPath $OutputReportPath `
-            -DriftOnly:$true `
+            -DriftOnly $DriftOnly `
             -IsBlueprintAssessment:$true `
             -HeaderFilePath $HeaderFilePath `
             -Type $Type `
