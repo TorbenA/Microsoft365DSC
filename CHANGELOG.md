@@ -2,17 +2,39 @@
 
 # UNRELEASED
 
+* MISC
+  * Streamlining the Test-TargetResource of all AAD, Commerce, Defender, O365, OneDrive and Services Hub resources.
+
+# 1.25.528.1
+
+* EXORetentionPolicyTag
+  * Fixes an issue where the AgeLimitForRetention  could be added twice in the results
+    from Get-TargetResource.
+* DEPENDENCIES
+  * Updated ExchangeOnlineManagement to version 3.2.0
+  * Updated Microsoft.Graph to version 2.28.0
+  * Updated MSCloudLoginAssistant to version 1.1.44
+
+# 1.25.521.1
+
 * AADServicePrincipal
-  * Fixed the assignment of AppRoleAssignedTo when creating a new ServicePrincipal.
+  * Fixed the assignment of AppRoleAssignedTo when creatign a new Service Principal.
+  * Adds `-All` to `Get-MgServicePrincipalAppRoleAssignedTo` call to return more than 100 records
 * IntuneASRRulesPolicyWindows10
   * Removed newly added template ID, it belongs to `IntuneApplicationControlPolicyWindows10`.
 * IntuneDeviceConfigurationSCEPCertificatePolicyWindows10
   * Allow the combination of `sha1,sha2` as a value for `HashAlgorithm`.
 * IntuneMobileAppsWindowsOfficeSuiteApp
   * Fixed an issue where the `ExcludedApps` property would be in an invalid format.
+* SPOApp
+  * Fixed an issue where the export would fail.
+    FIXES [#5810](https://github.com/microsoft/Microsoft365DSC/issues/5810)
+    FIXES [#4557](https://github.com/microsoft/Microsoft365DSC/issues/4557)
+* TeamsMeetingPolicy
+  * Added support for the new CaptchaVerificationForMeetingJoin property.
 * MISC
-  * Streamlining the Test-TargetResource of all AAD, Commerce, Defender, O365, OneDrive and Services Hub resources.
-
+  * Updated required permissions for Intune script resources.
+  * Added a new LCMState property to drifts in event logging.
 
 # 1.25.514.1
 
