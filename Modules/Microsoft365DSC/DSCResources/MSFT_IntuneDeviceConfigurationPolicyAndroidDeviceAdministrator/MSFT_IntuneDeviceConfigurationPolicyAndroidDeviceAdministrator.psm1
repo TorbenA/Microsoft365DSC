@@ -18,6 +18,10 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [System.Boolean]
         $AppsBlockClipboardSharing,
 
@@ -398,6 +402,7 @@ function Get-TargetResource
             Id                                             = $getValue.Id
             Description                                    = $getValue.Description
             DisplayName                                    = $getValue.DisplayName
+            RoleScopeTagIds                                = $getValue.RoleScopeTagIds
             AppsHideList                                   = $complexAppsHideList
             AppsInstallAllowList                           = $complexAppsInstallAllowList
             AppsLaunchBlockList                            = $complexAppsLaunchBlockList
@@ -499,6 +504,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -891,6 +900,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]

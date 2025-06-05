@@ -123,7 +123,7 @@ function Get-TargetResource
                 Write-Verbose -Message "Could not find an Azure AD Administrative Unit by Id, trying by DisplayName {$DisplayName}"
                 if (-Not [string]::IsNullOrEmpty($DisplayName))
                 {
-                    $getValue = Get-MgBetaAdministrativeUnit -Filter "DisplayName eq '$DisplayName'" -ErrorAction Stop
+                    $getValue = Get-MgBetaAdministrativeUnit -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ErrorAction Stop
                 }
             }
             #endregion

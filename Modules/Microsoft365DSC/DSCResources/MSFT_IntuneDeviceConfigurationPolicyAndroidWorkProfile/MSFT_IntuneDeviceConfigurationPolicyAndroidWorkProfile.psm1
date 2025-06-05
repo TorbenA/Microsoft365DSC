@@ -13,6 +13,10 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [System.Boolean]
         $PasswordBlockFaceUnlock,
 
@@ -283,6 +287,7 @@ function Get-TargetResource
         $results = @{
             Description                                               = $policy.Description
             DisplayName                                               = $policy.DisplayName
+            RoleScopeTagIds                                           = $policy.RoleScopeTagIds
             PasswordBlockFaceUnlock                                   = $policy.AdditionalProperties.passwordBlockFaceUnlock
             PasswordBlockFingerprintUnlock                            = $policy.AdditionalProperties.passwordBlockFingerprintUnlock
             PasswordBlockIrisUnlock                                   = $policy.AdditionalProperties.passwordBlockIrisUnlock
@@ -374,6 +379,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -697,6 +706,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]

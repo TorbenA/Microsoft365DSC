@@ -29,6 +29,7 @@ class MSFT_IntuneDeviceCompliancePolicyWindows10 : OMI_BaseResource
 {
     [Key, Description("Display name of the Windows 10 device compliance policy.")] String DisplayName;
     [Write, Description("Description of the Windows 10 device compliance policy.")] String Description;
+    [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];
     [Write, Description("Represents the assignment to the Intune policy."), EmbeddedInstance("MSFT_DeviceManagementConfigurationPolicyAssignments")] String Assignments[];
     [Write, Description("PasswordRequired of the Windows 10 device compliance policy.")] Boolean PasswordRequired;
     [Write, Description("PasswordBlockSimple of the Windows 10 device compliance policy.")] Boolean PasswordBlockSimple;

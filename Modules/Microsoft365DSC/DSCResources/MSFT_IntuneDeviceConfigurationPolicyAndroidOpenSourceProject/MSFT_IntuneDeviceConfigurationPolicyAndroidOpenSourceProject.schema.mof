@@ -15,6 +15,7 @@ class MSFT_IntuneDeviceConfigurationPolicyAndroidOpenSourceProject : OMI_BaseRes
     [Write, Description("Id of the Intune policy.")] String Id;
     [Key, Description("Display name of the Intune policy.")] String DisplayName;
     [Write, Description("Description of the Intune policy.")] String Description;
+    [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];
     [Write, Description("Prevent applications from unknown sources.")] Boolean AppsBlockInstallFromUnknownSources;
     [Write, Description("Prevent bluetooth configuration.")] Boolean BluetoothBlockConfiguration;
     [Write, Description("Prevents using Bluetooth on devices.")] Boolean BluetoothBlocked;

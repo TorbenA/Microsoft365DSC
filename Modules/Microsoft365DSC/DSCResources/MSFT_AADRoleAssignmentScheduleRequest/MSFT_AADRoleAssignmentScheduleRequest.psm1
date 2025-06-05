@@ -216,25 +216,28 @@ function Get-TargetResource
         }
         if ($null -ne $schedule.ScheduleInfo.Recurrence)
         {
-            $recurrenceValue = @{
-                pattern = @{
-                    dayOfMonth     = $schedule.ScheduleInfo.Recurrence.Pattern.dayOfMonth
-                    daysOfWeek     = $schedule.ScheduleInfo.Recurrence.Pattern.daysOfWeek
-                    firstDayOfWeek = $schedule.ScheduleInfo.Recurrence.Pattern.firstDayOfWeek
-                    index          = $schedule.ScheduleInfo.Recurrence.Pattern.index
-                    interval       = $schedule.ScheduleInfo.Recurrence.Pattern.interval
-                    month          = $schedule.ScheduleInfo.Recurrence.Pattern.month
-                    type           = $schedule.ScheduleInfo.Recurrence.Pattern.type
+            if (Test-M365DSCRecurrenceIsConfigured -RecurrenceSettings $schedule.ScheduleInfo.Recurrence)
+            {
+                $recurrenceValue = @{
+                    pattern = @{
+                        dayOfMonth     = $schedule.ScheduleInfo.Recurrence.Pattern.dayOfMonth
+                        daysOfWeek     = $schedule.ScheduleInfo.Recurrence.Pattern.daysOfWeek
+                        firstDayOfWeek = $schedule.ScheduleInfo.Recurrence.Pattern.firstDayOfWeek
+                        index          = $schedule.ScheduleInfo.Recurrence.Pattern.index
+                        interval       = $schedule.ScheduleInfo.Recurrence.Pattern.interval
+                        month          = $schedule.ScheduleInfo.Recurrence.Pattern.month
+                        type           = $schedule.ScheduleInfo.Recurrence.Pattern.type
+                    }
+                    range   = @{
+                        endDate             = $schedule.ScheduleInfo.Recurrence.Range.endDate
+                        numberOfOccurrences = $schedule.ScheduleInfo.Recurrence.Range.numberOfOccurrences
+                        recurrenceTimeZone  = $schedule.ScheduleInfo.Recurrence.Range.recurrenceTimeZone
+                        startDate           = $schedule.ScheduleInfo.Recurrence.Range.startDate
+                        type                = $schedule.ScheduleInfo.Recurrence.Range.type
+                    }
                 }
-                range   = @{
-                    endDate             = $schedule.ScheduleInfo.Recurrence.Range.endDate
-                    numberOfOccurrences = $schedule.ScheduleInfo.Recurrence.Range.numberOfOccurrences
-                    recurrenceTimeZone  = $schedule.ScheduleInfo.Recurrence.Range.recurrenceTimeZone
-                    startDate           = $schedule.ScheduleInfo.Recurrence.Range.startDate
-                    type                = $schedule.ScheduleInfo.Recurrence.Range.type
-                }
+                $ScheduleInfoValue.Add('Recurrence', $recurrenceValue)
             }
-            $ScheduleInfoValue.Add('Recurrence', $recurrenceValue)
         }
         if ($null -ne $schedule.ScheduleInfo.StartDateTime)
         {
@@ -907,6 +910,36 @@ function Export-TargetResource
 
         return ''
     }
+}
+
+function Test-M365DSCRecurrenceIsConfigured
+{
+    [CmdletBinding()]
+    [OutputType([System.Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.Object]
+        $RecurrenceSettings
+    )
+
+    if ($null -eq $RecurrenceSettings.Pattern.DayOfMonth -and `
+        $null -eq $RecurrenceSettings.Pattern.DayOfWeek -and `
+        $null -eq $RecurrenceSettings.Pattern.FirstDayOfWeek -and `
+        $null -eq $RecurrenceSettings.Pattern.Index -and `
+        $null -eq $RecurrenceSettings.Pattern.Interval -and `
+        $null -eq $RecurrenceSettings.Pattern.Month -and `
+        $null -eq $RecurrenceSettings.Pattern.Type -and `
+        $null -eq $RecurrenceSettings.Range.EndDate -and `
+        $null -eq $RecurrenceSettings.Range.NumberOfOccurrences -and `
+        $null -eq $RecurrenceSettings.Range.RecurrenceTimeZone -and `
+        $null -eq $RecurrenceSettings.Range.StartDate -and `
+        $null -eq $RecurrenceSettings.Range.Type)
+    {
+        return $false
+    }
+
+    return $true
 }
 
 Export-ModuleMember -Function *-TargetResource

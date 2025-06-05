@@ -18,6 +18,10 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [System.Boolean]
         $AccountBlockModification,
 
@@ -867,6 +871,7 @@ function Get-TargetResource
             Id                                             = $getValue.Id
             Description                                    = $getValue.Description
             DisplayName                                    = $getValue.DisplayName
+            RoleScopeTagIds                                = $getValue.RoleScopeTagIds
             AccountBlockModification                       = $getValue.AdditionalProperties.accountBlockModification
             ActivationLockAllowWhenSupervised              = $getValue.AdditionalProperties.activationLockAllowWhenSupervised
             AirDropBlocked                                 = $getValue.AdditionalProperties.airDropBlocked
@@ -1204,6 +1209,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -2138,6 +2147,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]

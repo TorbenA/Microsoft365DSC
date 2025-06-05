@@ -104,6 +104,10 @@ function Get-TargetResource
         $Id,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Assignments,
         #endregion
@@ -249,6 +253,7 @@ function Get-TargetResource
             Description                            = $getValue.Description
             DisplayName                            = $getValue.DisplayName
             SupportsScopeTags                      = $getValue.SupportsScopeTags
+            RoleScopeTagIds                        = $getValue.RoleScopeTagIds
             Id                                     = $getValue.Id
             Ensure                                 = 'Present'
             Credential                             = $Credential
@@ -388,6 +393,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Id,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -616,6 +625,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Id,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]

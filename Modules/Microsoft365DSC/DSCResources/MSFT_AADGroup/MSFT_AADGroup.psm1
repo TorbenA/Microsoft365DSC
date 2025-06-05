@@ -265,36 +265,35 @@ function Get-TargetResource
 
         if ($assignedLicensesRequest.value.Length -gt 0)
         {
-            $assignedLicensesValues = Get-M365DSCAzureADGroupLicenses -AssignedLicenses $assignedLicensesRequest.value
-
+            [Array]$assignedLicensesValues = Get-M365DSCAzureADGroupLicenses -AssignedLicenses $assignedLicensesRequest.value
         }
 
-            $policySettings = @{
-                DisplayName                   = $Group.DisplayName
-                Id                            = $Group.Id
-                Owners                        = $OwnersValues
-                MemberOf                      = $MemberOfValues
-                Description                   = $Group.Description
-                GroupTypes                    = [System.String[]]$Group.GroupTypes
-                MembershipRule                = $Group.MembershipRule
-                MembershipRuleProcessingState = $Group.MembershipRuleProcessingState
-                SecurityEnabled               = $Group.SecurityEnabled
-                MailEnabled                   = $Group.MailEnabled
-                IsAssignableToRole            = $false -or $Group.IsAssignableToRole
-                AssignedToRole                = $AssignedToRoleValues
-                MailNickname                  = $Group.MailNickname
-                Visibility                    = $Group.Visibility
-                AssignedLicenses              = $assignedLicensesValues
-                Ensure                        = 'Present'
-                ApplicationId                 = $ApplicationId
-                TenantId                      = $TenantId
-                CertificateThumbprint         = $CertificateThumbprint
-                ApplicationSecret             = $ApplicationSecret
-                Credential                    = $Credential
-                Managedidentity               = $ManagedIdentity.IsPresent
-                AccessTokens                  = $AccessTokens
-            }
-            $result += $policySettings
+        $policySettings = @{
+            DisplayName                   = $Group.DisplayName
+            Id                            = $Group.Id
+            Owners                        = $OwnersValues
+            MemberOf                      = $MemberOfValues
+            Description                   = $Group.Description
+            GroupTypes                    = [System.String[]]$Group.GroupTypes
+            MembershipRule                = $Group.MembershipRule
+            MembershipRuleProcessingState = $Group.MembershipRuleProcessingState
+            SecurityEnabled               = $Group.SecurityEnabled
+            MailEnabled                   = $Group.MailEnabled
+            IsAssignableToRole            = $false -or $Group.IsAssignableToRole
+            AssignedToRole                = $AssignedToRoleValues
+            MailNickname                  = $Group.MailNickname
+            Visibility                    = $Group.Visibility
+            AssignedLicenses              = $assignedLicensesValues
+            Ensure                        = 'Present'
+            ApplicationId                 = $ApplicationId
+            TenantId                      = $TenantId
+            CertificateThumbprint         = $CertificateThumbprint
+            ApplicationSecret             = $ApplicationSecret
+            Credential                    = $Credential
+            Managedidentity               = $ManagedIdentity.IsPresent
+            AccessTokens                  = $AccessTokens
+        }
+        $result += $policySettings
 
         return $result
     }

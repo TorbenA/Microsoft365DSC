@@ -20,6 +20,9 @@ class MSFT_IntuneSecurityBaselineMicrosoftEdge : OMI_BaseResource
     [Write, Description("Allow unconfigured sites to be reloaded in Internet Explorer mode (0: Disabled, 1: Enabled)"), ValueMap{"0", "1"}, Values{"0", "1"}] String InternetExplorerIntegrationReloadInIEModeAllowed;
     [Write, Description("Allow users to proceed from the HTTPS warning page (0: Disabled, 1: Enabled)"), ValueMap{"0", "1"}, Values{"0", "1"}] String SSLErrorOverrideAllowed;
     [Write, Description("Automatically open downloaded MHT or MHTML files from the web in Internet Explorer mode (0: Disabled, 1: Enabled)"), ValueMap{"0", "1"}, Values{"0", "1"}] String InternetExplorerIntegrationZoneIdentifierMhtFileAllowed;
+    [Write, Description("Dynamic Code Settings (0: Disabled, 1: Enabled)"), ValueMap{"0", "1"}, Values{"0", "1"}] String edge_DynamicCodeSettings;
+    [Write, Description("Dynamic Code Settings (Device) - Depends on edge_DynamicCodeSettings (0: Default dynamic code settings, 1: Prevent the browser process from creating dynamic code)"), ValueMap{"0", "1"}, Values{"0", "1"}] String DynamicCodeSettings_DynamicCodeSettings;
+    [Write, Description("Enable Application Bound Encryption (0: Disabled, 1: Enabled)"), ValueMap{"0", "1"}, Values{"0", "1"}] String ApplicationBoundEncryptionEnabled;
     [Write, Description("Enable browser legacy extension point blocking (0: Disabled, 1: Enabled)"), ValueMap{"0", "1"}, Values{"0", "1"}] String BrowserLegacyExtensionPointsBlockingEnabled;
     [Write, Description("Enable site isolation for every site (0: Disabled, 1: Enabled)"), ValueMap{"0", "1"}, Values{"0", "1"}] String SitePerProcess;
     [Write, Description("Enhance images enabled (0: Disabled, 1: Enabled)"), ValueMap{"0", "1"}, Values{"0", "1"}] String EdgeEnhanceImagesEnabled;

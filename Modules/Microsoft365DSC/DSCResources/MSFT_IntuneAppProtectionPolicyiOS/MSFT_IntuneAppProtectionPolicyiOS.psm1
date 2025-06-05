@@ -18,6 +18,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
+        [System.String[]]
         $AllowedDataIngestionLocations,
 
         [Parameter()]
@@ -508,6 +512,7 @@ function Get-TargetResource
             Identity                                       = $policy.Id
             DisplayName                                    = $policy.DisplayName
             Description                                    = $policy.Description
+            RoleScopeTagIds                                = $policy.RoleScopeTagIds
             AllowedDataIngestionLocations                  = $AllowedDataIngestionLocationsValue
             AllowWidgetContentSync                         = $policy.AllowWidgetContentSync
             AppActionIfAccountIsClockedOut                 = [string]$policy.appActionIfAccountIsClockedOut
@@ -626,6 +631,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.String[]]
@@ -1131,6 +1140,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.String[]]

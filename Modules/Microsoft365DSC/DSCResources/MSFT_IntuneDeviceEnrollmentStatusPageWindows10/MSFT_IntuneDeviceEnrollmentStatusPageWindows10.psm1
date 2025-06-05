@@ -18,6 +18,10 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [System.Boolean]
         $AllowDeviceResetOnInstallFailure,
 
@@ -210,6 +214,7 @@ function Get-TargetResource
             Description                             = $getValue.Description
             DisplayName                             = $getValue.DisplayName
             Id                                      = $getValue.Id
+            RoleScopeTagIds                         = $getValue.RoleScopeTagIds
             Ensure                                  = 'Present'
             Credential                              = $Credential
             ApplicationId                           = $ApplicationId
@@ -262,6 +267,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -506,6 +515,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]

@@ -2143,7 +2143,7 @@ function Get-ComplexTypeConstructorToString
     }
     else
     {
-        $complexString.AppendLine($spacing + "if (`$$tempPropertyName.values.Where({`$null -ne `$_}).Count -eq 0)" ) | Out-Null
+        $complexString.AppendLine($spacing + "if (`$$tempPropertyName.Values.Where({ `$null -ne `$_ }).Count -eq 0)" ) | Out-Null
         $complexString.AppendLine($spacing + "{" ) | Out-Null
         $IndentCount++
         $spacing = $indent * $IndentCount

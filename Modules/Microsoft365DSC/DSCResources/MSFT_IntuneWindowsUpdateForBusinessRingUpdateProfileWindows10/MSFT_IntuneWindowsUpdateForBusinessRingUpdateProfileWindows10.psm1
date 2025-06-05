@@ -14,6 +14,10 @@ function Get-TargetResource
         $DisplayName,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [System.Boolean]
         $AllowWindows11Upgrade,
 
@@ -419,6 +423,7 @@ function Get-TargetResource
             Description                             = $getValue.Description
             DisplayName                             = $getValue.DisplayName
             Id                                      = $getValue.Id
+            RoleScopeTagIds                         = $getValue.RoleScopeTagIds
             Ensure                                  = 'Present'
             Credential                              = $Credential
             ApplicationId                           = $ApplicationId
@@ -465,6 +470,10 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -792,6 +801,10 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]

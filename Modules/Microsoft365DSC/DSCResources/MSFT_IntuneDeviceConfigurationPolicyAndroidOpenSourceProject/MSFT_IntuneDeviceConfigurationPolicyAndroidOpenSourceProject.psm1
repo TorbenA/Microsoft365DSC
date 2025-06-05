@@ -18,6 +18,10 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [System.Boolean]
         $AppsBlockInstallFromUnknownSources,
 
@@ -179,6 +183,7 @@ function Get-TargetResource
             Id                                             = $getValue.Id
             Description                                    = $getValue.Description
             DisplayName                                    = $getValue.DisplayName
+            RoleScopeTagIds                                = $getValue.RoleScopeTagIds
             AppsBlockInstallFromUnknownSources             = $getValue.AdditionalProperties.appsBlockInstallFromUnknownSources
             BluetoothBlockConfiguration                    = $getValue.AdditionalProperties.bluetoothBlockConfiguration
             BluetoothBlocked                               = $getValue.AdditionalProperties.bluetoothBlocked
@@ -244,6 +249,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -491,6 +500,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]

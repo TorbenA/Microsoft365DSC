@@ -24,6 +24,7 @@ class MSFT_IntuneDeviceCompliancePolicyiOs : OMI_BaseResource
 {
     [Key, Description("Display name of the iOS device compliance policy.")] String DisplayName;
     [Write, Description("Description of the iOS device compliance policy.")] String Description;
+    [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];
     [Write, Description("Assignments of the Intune Policy."), EmbeddedInstance("MSFT_DeviceManagementConfigurationPolicyAssignments")] String Assignments[];
     [Write, Description("PasscodeBlockSimple of the iOS device compliance policy.")] Boolean PasscodeBlockSimple;
     [Write, Description("PasscodeExpirationDays of the iOS device compliance policy.")] Uint32 PasscodeExpirationDays;

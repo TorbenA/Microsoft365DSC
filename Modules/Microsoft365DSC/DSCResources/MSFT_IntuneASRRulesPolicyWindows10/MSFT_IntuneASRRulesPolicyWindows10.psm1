@@ -16,6 +16,10 @@ function Get-TargetResource
         [System.String]
         $Description,
 
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
         # In next Breaking Change set it to 'notConfigured', 'block', 'auditMode', 'warn', 'disable', don't forget to update the schema as well
         [Parameter()]
         [ValidateSet('notConfigured', 'userDefined', 'block', 'auditMode', 'warn', 'disable')]
@@ -226,6 +230,7 @@ function Get-TargetResource
         $returnHashtable.Add('Identity', $policy.Id)
         $returnHashtable.Add('DisplayName', $policy.DisplayName)
         $returnHashtable.Add('Description', $policy.Description)
+        $returnHashtable.Add('RoleScopeTagIds', $policy.RoleScopeTagIds)
 
         foreach ($setting in $settings)
         {
@@ -295,6 +300,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         # In next Breaking Change set it to 'notConfigured', 'block', 'auditMode', 'warn', 'disable', don't forget to update the schema as well
         [Parameter()]
@@ -595,6 +604,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         # In next Breaking Change set it to 'notConfigured', 'block', 'auditMode', 'warn', 'disable', don't forget to update the schema as well
         [Parameter()]

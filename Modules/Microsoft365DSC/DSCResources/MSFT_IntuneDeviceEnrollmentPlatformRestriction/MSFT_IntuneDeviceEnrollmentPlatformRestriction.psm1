@@ -17,6 +17,10 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [ValidateSet('singlePlatformRestriction', 'platformRestrictions')]
         [System.String]
         $DeviceEnrollmentConfigurationType,
@@ -172,7 +176,8 @@ function Get-TargetResource
             Identity                          = $config.Id
             DisplayName                       = $config.DisplayName
             Description                       = $config.Description
-            DeviceEnrollmentConfigurationType = $config.DeviceEnrollmentConfigurationType.toString()
+            RoleScopeTagIds                   = $config.RoleScopeTagIds
+            DeviceEnrollmentConfigurationType = $config.DeviceEnrollmentConfigurationType.ToString()
             Priority                          = $config.Priority
             Ensure                            = 'Present'
             Credential                        = $Credential
@@ -231,6 +236,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [ValidateSet('singlePlatformRestriction', 'platformRestrictions')]
@@ -496,6 +505,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [ValidateSet('singlePlatformRestriction', 'platformRestrictions')]
