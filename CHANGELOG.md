@@ -26,6 +26,14 @@
 * EXORoleGroup
   * Add offline filter capability to `Export-TargetResource`.
     FIXES [#4286](https://github.com/microsoft/Microsoft365DSC/issues/4286)
+* IntuneAppProtectionPolicyiOS
+  * [BREAKING CHANGE] Combined `ExcludedGroups` with `Assignments`, updated
+    time parameters to ISO8601 format, removed `IsAssigned` property.
+    FIXES [#5970](https://github.com/microsoft/Microsoft365DSC/issues/5970)
+    FIXES [#5809](https://github.com/microsoft/Microsoft365DSC/issues/5809)
+    FIXES [#5689](https://github.com/microsoft/Microsoft365DSC/issues/5689)
+    FIXES [#4568](https://github.com/microsoft/Microsoft365DSC/issues/4568)
+    FIXES [#3936](https://github.com/microsoft/Microsoft365DSC/issues/3936)
 * IntuneDeviceCompliancePolicyWindows10
   * Added support for `Id` and `ScheduledActionsForRule` property.
     FIXES [#6123](https://github.com/microsoft/Microsoft365DSC/issues/6123)
