@@ -22,6 +22,7 @@ class MSFT_IntuneWindowsUpdateForBusinessFeatureUpdateProfileWindows10 : OMI_Bas
     [Write, Description("The unique identifier for an entity. Read-only.")] String Id;
     [Key, Description("The display name of the profile.")] String DisplayName;
     [Write, Description("The description of the profile which is specified by the user.")] String Description;
+    [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];
     [Write, Description("The feature update version that will be deployed to the devices targeted by this profile. The version could be any supported version for example 1709, 1803 or 1809 and so on.")] String FeatureUpdateVersion;
     [Write, Description("If true, the Windows 11 update will become optional")] Boolean InstallFeatureUpdatesOptional;
     [Write, Description("If true, the latest Microsoft Windows 10 update will be installed on devices ineligible for Microsoft Windows 11. Cannot be changed after creation of the policy.")] Boolean InstallLatestWindows10OnWindows11IneligibleDevice;

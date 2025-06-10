@@ -15,6 +15,7 @@ class MSFT_IntuneWifiConfigurationPolicyAndroidOpenSourceProject : OMI_BaseResou
     [Write, Description("Id of the Intune policy.")] String Id;
     [Key, Description("Display name of the Intune policy.")] String DisplayName;
     [Write, Description("Description of the Intune policy.")] String Description;
+    [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];
     [Write, Description("Connect automatically to the network.")] Boolean ConnectAutomatically;
     [Write, Description("Define if the network should be connected if hidden.")] Boolean ConnectWhenNetworkNameIsHidden;
     [Write, Description("Define the network name.")] String NetworkName;

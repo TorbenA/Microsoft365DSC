@@ -455,9 +455,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the new method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName 'Invoke-MgGraphRequest' -Exactly 2
+                Should -Invoke -CommandName 'Invoke-MgGraphRequest' -Exactly 1
+                Should -Invoke -CommandName 'Update-MgBetaApplication' -Exactly 1
             }
-
         }
 
         Context -Name 'Assigning Permissions to a new Application' -Fixture {

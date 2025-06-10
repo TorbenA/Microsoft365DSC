@@ -17,6 +17,10 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [System.Int32]
         [ValidateRange(0, 2)]
         $BackupDirectory,
@@ -212,6 +216,7 @@ function Get-TargetResource
         $returnHashtable.Add('Identity', $Identity)
         $returnHashtable.Add('DisplayName', $policy.Name)
         $returnHashtable.Add('Description', $policy.Description)
+        $returnHashtable.Add('RoleScopeTagIds', $policy.RoleScopeTagIds)
 
         $returnHashtable = Export-IntuneSettingCatalogPolicySettings -Settings $settings -ReturnHashtable $returnHashtable
 
@@ -278,6 +283,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Int32]
@@ -503,6 +512,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Int32]

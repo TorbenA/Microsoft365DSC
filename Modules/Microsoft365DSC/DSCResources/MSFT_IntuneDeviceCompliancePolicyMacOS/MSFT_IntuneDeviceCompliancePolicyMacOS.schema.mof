@@ -14,6 +14,7 @@ class MSFT_IntuneDeviceCompliancePolicyMacOS : OMI_BaseResource
 {
     [Key, Description("Display name of the MacOS device compliance policy.")] String DisplayName;
     [Write, Description("Description of the MacOS device compliance policy.")] String Description;
+    [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];
     [Write, Description("Assignments of the Intune Policy."), EmbeddedInstance("MSFT_DeviceManagementConfigurationPolicyAssignments")] String Assignments[];
     [Write, Description("PasswordRequired of the MacOS device compliance policy.")] Boolean PasswordRequired;
     [Write, Description("PasswordBlockSimple of the MacOS device compliance policy.")] Boolean PasswordBlockSimple;

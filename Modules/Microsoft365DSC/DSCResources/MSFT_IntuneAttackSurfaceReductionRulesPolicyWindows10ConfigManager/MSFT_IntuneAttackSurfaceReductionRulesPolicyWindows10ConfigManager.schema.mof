@@ -15,6 +15,7 @@ class MSFT_IntuneAttackSurfaceReductionRulesPolicyWindows10ConfigManager : OMI_B
     [Write, Description("Identity of the endpoint protection attack surface protection rules policy for Windows 10.")] String Identity;
     [Key, Description("Display name of the endpoint protection attack surface protection rules policy for Windows 10.")] String DisplayName;
     [Write, Description("Description of the endpoint protection attack surface protection rules policy for Windows 10.")] String Description;
+    [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];
     [Write, Description("Assignments of the endpoint protection attack surface protection rules policy for Windows 10."), EmbeddedInstance("MSFT_DeviceManagementConfigurationPolicyAssignments")] String Assignments[];
     [Write, Description("Exclude files and paths from attack surface reduction rules")] String AttackSurfaceReductionOnlyExclusions[];
     [Write, Description("This rule prevents an application from writing a vulnerable signed driver to disk."), ValueMap{"off", "block","audit", "warn"}, Values{"off", "block","audit", "warn"}] String BlockAbuseOfExploitedVulnerableSignedDrivers;

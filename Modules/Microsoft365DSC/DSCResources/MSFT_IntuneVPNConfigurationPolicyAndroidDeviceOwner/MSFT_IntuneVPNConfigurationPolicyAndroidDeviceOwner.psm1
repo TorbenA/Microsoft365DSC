@@ -18,6 +18,10 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [ValidateSet('certificate', 'usernameAndPassword', 'sharedSecret', 'derivedCredential', 'azureAD')]
         [System.String]
         $authenticationMethod,
@@ -242,6 +246,7 @@ function Get-TargetResource
             Id                             = $getValue.Id
             Description                    = $getValue.Description
             DisplayName                    = $getValue.DisplayName
+            RoleScopeTagIds                = $getValue.RoleScopeTagIds
             authenticationMethod           = $getValue.AdditionalProperties.authenticationMethod
             connectionName                 = $getValue.AdditionalProperties.connectionName
             role                           = $getValue.AdditionalProperties.role
@@ -308,6 +313,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [ValidateSet('certificate', 'usernameAndPassword', 'sharedSecret', 'derivedCredential', 'azureAD')]
@@ -577,6 +586,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [ValidateSet('certificate', 'usernameAndPassword', 'sharedSecret', 'derivedCredential', 'azureAD')]

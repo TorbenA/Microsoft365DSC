@@ -18,6 +18,10 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [System.Boolean]
         $AccountsBlockModification,
 
@@ -831,7 +835,7 @@ function Get-TargetResource
             #DeviceManagementApplicabilityRuleOsEdition               = $getValue.DeviceManagementApplicabilityRuleOsEdition
             #DeviceManagementApplicabilityRuleOsVersion               = $getValue.DeviceManagementApplicabilityRuleOsVersion
             DisplayName                                              = $getValue.DisplayName
-            #RoleScopeTagIds                                          = $getValue.RoleScopeTagIds
+            RoleScopeTagIds                                          = $getValue.RoleScopeTagIds
             AccountsBlockModification                                = $getValue.AdditionalProperties.accountsBlockModification
             AppsAllowInstallFromUnknownSources                       = $getValue.AdditionalProperties.appsAllowInstallFromUnknownSources
             AppsAutoUpdatePolicy                                     = $getValue.AdditionalProperties.appsAutoUpdatePolicy
@@ -1018,6 +1022,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -1780,6 +1788,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]

@@ -24,6 +24,7 @@ class MSFT_IntuneDeviceConfigurationPolicyAndroidDeviceAdministrator : OMI_BaseR
     [Write, Description("Id of the Intune policy.")] String Id;
     [Key, Description("Display name of the Intune policy.")] String DisplayName;
     [Write, Description("Description of the Intune policy.")] String Description;
+    [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];
     [Write, Description("Block clipboard sharing between apps (Samsung KNOX Standard 4.0+).")] Boolean AppsBlockClipboardSharing;
     [Write, Description("Block copy and paste functionality.")] Boolean AppsBlockCopyPaste;
     [Write, Description("Block YouTube (Samsung KNOX Standard 4.0+).")] Boolean AppsBlockYouTube;

@@ -18,6 +18,10 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [System.String]
         $certFileName,
 
@@ -123,6 +127,7 @@ function Get-TargetResource
             Id                             = $getValue.Id
             Description                    = $getValue.Description
             DisplayName                    = $getValue.DisplayName
+            RoleScopeTagIds                = $getValue.RoleScopeTagIds
             certFileName                   = $getValue.AdditionalProperties.certFileName
             trustedRootCertificate         = $getValue.AdditionalProperties.trustedRootCertificate
             Ensure                         = 'Present'
@@ -177,6 +182,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.String]
@@ -366,6 +375,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.String]

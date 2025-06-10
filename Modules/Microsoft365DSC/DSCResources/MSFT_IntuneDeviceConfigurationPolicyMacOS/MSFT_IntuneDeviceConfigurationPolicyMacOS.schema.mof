@@ -62,6 +62,7 @@ class MSFT_IntuneDeviceConfigurationPolicyMacOS : OMI_BaseResource
     [Write, Description("Id of the Intune policy.")] String Id;
     [Key, Description("Display name of the Intune policy.")] String DisplayName;
     [Write, Description("Description of the Intune policy.")] String Description;
+    [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];
     [Write, Description("Configures users from adding friends to Game Center. Available for devices running macOS versions 10.13 and later.")] Boolean AddingGameCenterFriendsBlocked;
     [Write, Description("Configures whether or not to allow AirDrop.")] Boolean AirDropBlocked;
     [Write, Description("Blocks users from unlocking their Mac with Apple Watch.")] Boolean AppleWatchBlockAutoUnlock;

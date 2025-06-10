@@ -18,6 +18,10 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [System.String]
         $connectionName,
 
@@ -300,6 +304,7 @@ function Get-TargetResource
             Id                             = $getValue.Id
             Description                    = $getValue.Description
             DisplayName                    = $getValue.DisplayName
+            RoleScopeTagIds                = $getValue.RoleScopeTagIds
             connectionName                 = $getValue.AdditionalProperties.connectionName
             connectionType                 = $getValue.AdditionalProperties.connectionType
             enableSplitTunneling           = $getValue.AdditionalProperties.enableSplitTunneling
@@ -381,6 +386,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.String]
@@ -732,6 +741,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.String]

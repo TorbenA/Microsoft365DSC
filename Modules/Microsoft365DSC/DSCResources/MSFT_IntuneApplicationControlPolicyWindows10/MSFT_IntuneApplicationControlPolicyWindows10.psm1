@@ -13,6 +13,10 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [ValidateSet('notConfigured', 'enforceComponentsAndStoreApps', 'auditComponentsAndStoreApps', 'enforceComponentsStoreAppsAndSmartlocker', 'auditComponentsStoreAppsAndSmartlocker')]
         [System.String]
         $AppLockerApplicationControl,
@@ -128,6 +132,7 @@ function Get-TargetResource
         $returnHashtable = @{
             Description                      = $policy.Description
             DisplayName                      = $policy.DisplayName
+            RoleScopeTagIds                  = $policy.RoleScopeTagIds
             AppLockerApplicationControl      = $settingAppLockerApplicationControl
             SmartScreenBlockOverrideForFiles = $settingSmartScreenBlockOverrideForFiles
             SmartScreenEnableInShell         = $settingSmartScreenEnableInShell
@@ -173,6 +178,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [ValidateSet('notConfigured', 'enforceComponentsAndStoreApps', 'auditComponentsAndStoreApps', 'enforceComponentsStoreAppsAndSmartlocker', 'auditComponentsStoreAppsAndSmartlocker')]
@@ -333,6 +342,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [ValidateSet('notConfigured', 'enforceComponentsAndStoreApps', 'auditComponentsAndStoreApps', 'enforceComponentsStoreAppsAndSmartlocker', 'auditComponentsStoreAppsAndSmartlocker')]
