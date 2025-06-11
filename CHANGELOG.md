@@ -24,9 +24,10 @@
 * DEPENDENCIES
   * Added dependency on Microsoft.Graph.Identity.DirectoryManagement.
   * Added dependency on Microsoft.Graph.Identity.Signins.
-  * Updated MSCloudLoginAssistant to version 
+  * Updated MSCloudLoginAssistant to version
 * MISC
   * Allow use of apostrophes in DisplayName for all resources types.
+  * Streamlining the Test-TargetResource of all AAD, Commerce, Defender, O365, OneDrive and Services Hub resources.
 
 # 1.25.604.1
 
@@ -86,11 +87,6 @@
   * Initial release.
 * MISC
   * Added `RoleScopeTagIds` property across the Intune resources.
-
-# UNRELEASED
-
-* MISC
-  * Streamlining the Test-TargetResource of all AAD, Commerce, Defender, O365, OneDrive and Services Hub resources.
 
 # 1.25.528.1
 
