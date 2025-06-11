@@ -81,7 +81,7 @@ function Get-TargetResource
             $getValue = $null
             #region resource generator code
             $getValue = Get-MgBetaPolicyHomeRealmDiscoveryPolicy `
-                -Filter "DisplayName eq '$DisplayName'"
+                -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
         }
         else
         {
@@ -222,7 +222,7 @@ function Set-TargetResource
 
     # to get the id parameter
     $getValue = Get-MgBetaPolicyHomeRealmDiscoveryPolicy `
-        -Filter "DisplayName eq '$DisplayName'"
+        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
 
     $newDefinitions = @()
     foreach ($Def in $Definition)

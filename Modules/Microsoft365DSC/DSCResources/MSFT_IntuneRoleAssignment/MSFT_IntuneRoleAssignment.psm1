@@ -114,7 +114,7 @@ function Get-TargetResource
 
                 $getValue = Get-MgBetaDeviceManagementRoleAssignment `
                     -All `
-                    -Filter "displayName eq '$DisplayName'" `
+                    -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                     -ErrorAction SilentlyContinue
             }
 
@@ -304,7 +304,7 @@ function Set-TargetResource
     if (!($RoleDefinition -match '^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$'))
     {
         [string]$roleDefinition = $null
-        $Filter = "displayName eq '$RoleDefinitionDisplayName'"
+        $Filter = "DisplayName eq '$($RoleDefinitionDisplayName -replace "'", "''")'"
         $RoleDefinitionId = Get-MgDeviceManagementRoleDefinition -All -Filter $Filter -ErrorAction SilentlyContinue
         if ($null -ne $RoleDefinitionId)
         {
@@ -319,7 +319,7 @@ function Set-TargetResource
     [array]$members = @()
     foreach ($MembersDisplayName in $membersDisplayNames)
     {
-        $Filter = "displayName eq '$MembersDisplayName'"
+        $Filter = "DisplayName eq '$($MembersDisplayName -replace "'", "''")'"
         $MemberId = Get-MgGroup -Filter $Filter -ErrorAction SilentlyContinue
         if ($null -ne $MemberId)
         {
@@ -337,7 +337,7 @@ function Set-TargetResource
     [array]$resourceScopes = @()
     foreach ($ResourceScopesDisplayName in $ResourceScopesDisplayNames)
     {
-        $Filter = "displayName eq '$ResourceScopesDisplayName'"
+        $Filter = "DisplayName eq '$($ResourceScopesDisplayName -replace "'", "''")'"
         $ResourceScopeId = Get-MgGroup -Filter $Filter -ErrorAction SilentlyContinue
         if ($null -ne $ResourceScopeId)
         {
@@ -499,7 +499,7 @@ function Test-TargetResource
     if (-not ($RoleDefinition -match '^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$'))
     {
         [string]$roleDefinition = $null
-        $Filter = "displayName eq '$RoleDefinitionDisplayName'"
+        $Filter = "DisplayName eq '$($RoleDefinitionDisplayName -replace "'", "''")'"
         $RoleDefinitionId = Get-MgDeviceManagementRoleDefinition -All -Filter $Filter -ErrorAction SilentlyContinue
         if ($null -ne $RoleDefinitionId)
         {
@@ -514,7 +514,7 @@ function Test-TargetResource
 
     foreach ($MembersDisplayName in $membersDisplayNames)
     {
-        $Filter = "displayName eq '$MembersDisplayName'"
+        $Filter = "DisplayName eq '$($MembersDisplayName -replace "'", "''")'"
         $newMemeber = Get-MgGroup -Filter $Filter -ErrorAction SilentlyContinue
         if ($null -ne $newMemeber)
         {
@@ -532,7 +532,7 @@ function Test-TargetResource
 
     foreach ($ResourceScopesDisplayName in $resourceScopesDisplayNames)
     {
-        $Filter = "displayName eq '$ResourceScopesDisplayName'"
+        $Filter = "DisplayName eq '$($ResourceScopesDisplayName -replace "'", "''")'"
         $newResourceScope = Get-MgGroup -Filter $Filter -ErrorAction SilentlyContinue
         if ($null -ne $newResourceScope)
         {

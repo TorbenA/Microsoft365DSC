@@ -1,8 +1,4 @@
 # Change log for Microsoft365DSC
-# UNRELEASED
-
-* AADPIMGroupSetting
-  * [#6117] Initial relase.
 
 # UNRELEASED
 
@@ -16,11 +12,21 @@
 * AADGroup
   * Allow DisplayName to include apostrophes.
   * Upgrade from beta to v1.0 Microsoft Graph endpoint for Device.
+* AADPIMGroupSetting
+  * [#6117] Initial relase.
 * EXOManagementRoleAssignment
   * Upgrade from beta to v1.0 Microsoft Graph endpoint for Administrative Units.
     FIXES [#4438](https://github.com/microsoft/Microsoft365DSC/issues/4438)
+* IntuneDeviceCompliancePolicyWindows10
+  * Added support for `Id` and `ScheduledActionsForRule` property.
+    FIXES [#6123](https://github.com/microsoft/Microsoft365DSC/issues/6123)
+    FIXES [#3563](https://github.com/microsoft/Microsoft365DSC/issues/3563)
 * DEPENDENCIES
   * Added dependency on Microsoft.Graph.Identity.DirectoryManagement.
+  * Added dependency on Microsoft.Graph.Identity.Signins.
+  * Updated MSCloudLoginAssistant to version 
+* MISC
+  * Allow use of apostrophes in DisplayName for all resources types.
 
 # 1.25.604.1
 

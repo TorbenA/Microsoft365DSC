@@ -627,7 +627,7 @@ function Get-UpdatedTargetProperty
             {
                 if ($entry.id -notmatch '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$|all_users')
                 {
-                    $Filter = "Displayname eq '$($entry.id)'" | Out-String
+                    $Filter = "DisplayName eq '$($entry.id -replace "'", "''")'" | Out-String
                     $params.$key[$i].foreach('id', (Get-MgGroup -Filter $Filter).id.ToString())
                 }
                 $i++
@@ -640,7 +640,7 @@ function Get-UpdatedTargetProperty
             {
                 if ($entry.id -notmatch '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$|all_users')
                 {
-                    $Filter = "Displayname eq '$($entry.id)'" | Out-String
+                    $Filter = "DisplayName eq '$($entry.id -replace "'", "''")'" | Out-String
                     $params.$key[$i].foreach('id', (Get-MgGroup -Filter $Filter).id.ToString())
                 }
                 $i++

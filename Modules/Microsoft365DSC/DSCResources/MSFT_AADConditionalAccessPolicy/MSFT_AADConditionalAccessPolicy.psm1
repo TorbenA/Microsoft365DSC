@@ -293,7 +293,7 @@ function Get-TargetResource
             catch
             {
                 Write-Verbose -Message "Couldn't find existing policy by ID {$Id}"
-                $Policy = Get-MgBetaIdentityConditionalAccessPolicy -Filter "DisplayName eq '$DisplayName'"
+                $Policy = Get-MgBetaIdentityConditionalAccessPolicy -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
                 $jsonPolicy = ConvertTo-Json $Policy -ErrorAction SilentlyContinue
                 Write-Verbose -Message "Retrieved policy:`r`n$($jsonPolicy)"
 
@@ -307,7 +307,7 @@ function Get-TargetResource
         {
             Write-Verbose -Message 'Id was NOT specified'
             ## Can retreive multiple CA Policies since displayname is not unique
-            $Policy = Get-MgBetaIdentityConditionalAccessPolicy -Filter "DisplayName eq '$DisplayName'"
+            $Policy = Get-MgBetaIdentityConditionalAccessPolicy -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
             $jsonPolicy = ConvertTo-Json $Policy -ErrorAction SilentlyContinue
             Write-Verbose -Message "Retrieved policy:`r`n$($jsonPolicy)"
 
@@ -1072,7 +1072,7 @@ function Set-TargetResource
                 }
                 else
                 {
-                    $appInfo = Get-MgApplication -Filter "DisplayName eq '$app'" -ErrorAction SilentlyContinue
+                    $appInfo = Get-MgApplication -Filter "DisplayName eq '$($app -replace "'", "''")'" -ErrorAction SilentlyContinue
                     if ($null -ne $appInfo)
                     {
                         $IncludeApplicationsValue += $appInfo.AppId
@@ -1098,7 +1098,7 @@ function Set-TargetResource
                 }
                 else
                 {
-                    $appInfo = Get-MgApplication -Filter "DisplayName eq '$app'" -ErrorAction SilentlyContinue
+                    $appInfo = Get-MgApplication -Filter "DisplayName eq '$($app -replace "'", "''")'" -ErrorAction SilentlyContinue
                     if ($null -ne $appInfo)
                     {
                         $ExcludeApplicationsValue += $appInfo.AppId
@@ -1258,7 +1258,7 @@ function Set-TargetResource
                     $GroupLookup = $null
                     try
                     {
-                        $GroupLookup = Get-MgGroup -Filter "DisplayName eq '$includegroup'" -ErrorAction Stop
+                        $GroupLookup = Get-MgGroup -Filter "DisplayName eq '$($includegroup -replace "'", "''")'" -ErrorAction Stop
                     }
                     catch
                     {
@@ -1312,7 +1312,7 @@ function Set-TargetResource
                     $GroupLookup = $null
                     try
                     {
-                        $GroupLookup = Get-MgGroup -Filter "DisplayName eq '$ExcludeGroup'" -ErrorAction Stop
+                        $GroupLookup = Get-MgGroup -Filter "DisplayName eq '$($ExcludeGroup -replace "'", "''")'" -ErrorAction Stop
                     }
                     catch
                     {
