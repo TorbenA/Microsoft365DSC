@@ -1,5 +1,45 @@
 # Change log for Microsoft365DSC
 
+# 1.25.611.1
+
+* AADAdministrativeUnit
+  * Upgrade from beta to v1.0 Microsoft Graph endpoint for Administrative Unit,
+    Device, Directory Role and Directory Role Template.
+    FIXES [#4438](https://github.com/microsoft/Microsoft365DSC/issues/4438)
+  * Remove unnecessary Graph requests when retrieving AU membership.
+* AADConditionalAccessPolicy
+  * Upgrade from beta to v1.0 Microsoft Graph endpoint for Directory Role Template.
+* AADGroup
+  * Allow DisplayName to include apostrophes.
+  * Upgrade from beta to v1.0 Microsoft Graph endpoint for Device.
+* AADPIMGroupSetting
+  * [#6117] Initial relase.
+* EXODistributionGroup
+  * Return PrimarySmtpAddress instead of DisplayName for Members field,
+    and ManagedBy and ModeratedBy field, to allow values to be set.
+  * Allow ManagedBy and ModeratedBy fields including groups or contacts.
+* EXOGroupSettings
+  * Use the existing group ID to apply updates instead of DisplayName.
+* EXOManagementRoleAssignment
+  * Upgrade from beta to v1.0 Microsoft Graph endpoint for Administrative Units.
+    FIXES [#4438](https://github.com/microsoft/Microsoft365DSC/issues/4438)
+* EXORoleGroup
+  * Add offline filter capability to `Export-TargetResource`.
+    FIXES [#4286](https://github.com/microsoft/Microsoft365DSC/issues/4286)
+* IntuneDeviceCompliancePolicyWindows10
+  * Added support for `Id` and `ScheduledActionsForRule` property.
+    FIXES [#6123](https://github.com/microsoft/Microsoft365DSC/issues/6123)
+    FIXES [#3563](https://github.com/microsoft/Microsoft365DSC/issues/3563)
+* IntuneRoleAssignment
+  * Update evaluation of parameters.
+    FIXES [#5929](https://github.com/microsoft/Microsoft365DSC/issues/5929)
+* DEPENDENCIES
+  * Added dependency on Microsoft.Graph.Identity.DirectoryManagement.
+  * Added dependency on Microsoft.Graph.Identity.Signins.
+  * Updated MSCloudLoginAssistant to version 1.1.45;
+* MISC
+  * Allow use of apostrophes in DisplayName for all resources types.
+
 # 1.25.604.1
 
 * AADAdministrativeUnit

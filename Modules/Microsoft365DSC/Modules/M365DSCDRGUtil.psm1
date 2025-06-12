@@ -1135,7 +1135,7 @@ function ConvertTo-IntunePolicyAssignment
             {
                 if ($assignment.groupDisplayName)
                 {
-                    $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.groupDisplayName)'" -ErrorAction SilentlyContinue
+                    $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.groupDisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue
                     if ($null -eq $group)
                     {
                         $message = "Skipping assignment for the group with DisplayName {$($assignment.groupDisplayName)} as it could not be found in the directory.`r`n"
@@ -1308,7 +1308,7 @@ function ConvertTo-IntuneMobileAppAssignment
             {
                 if ($assignment.groupDisplayName)
                 {
-                    $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.groupDisplayName)'" -ErrorAction SilentlyContinue
+                    $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.groupDisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue
                     if ($null -eq $group)
                     {
                         $message = "Skipping assignment for the group with DisplayName {$($assignment.groupDisplayName)} as it could not be found in the directory.`r`n"
@@ -1514,7 +1514,7 @@ function Update-DeviceConfigurationPolicyAssignment
                 {
                     if ($target.groupDisplayName)
                     {
-                        $group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName)'" -ErrorAction SilentlyContinue
+                        $group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue
                         if ($null -eq $group)
                         {
                             $message = "Skipping assignment for the group with DisplayName {$($target.groupDisplayName)} as it could not be found in the directory.`r`n"
@@ -1637,7 +1637,7 @@ function Update-DeviceAppManagementPolicyAssignment
                 {
                     if ($target.groupDisplayName)
                     {
-                        $group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName)'" -ErrorAction SilentlyContinue
+                        $group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue
                         if ($null -eq $group)
                         {
                             $message = "Skipping assignment for the group with DisplayName {$($target.groupDisplayName)} as it could not be found in the directory.`r`n"
