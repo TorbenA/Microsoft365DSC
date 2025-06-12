@@ -117,7 +117,8 @@ function Get-TargetResource
         }
         else
         {
-            $getValue = $Script:exportedInstance
+            $getValue = $Script:exportedInstance            
+            $user = Get-MgUser -UserId $Principal
         }
 
         if ($null -eq $getValue)
