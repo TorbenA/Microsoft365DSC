@@ -2,14 +2,16 @@
 
 # UNRELEASED
 
+* AADGroupElegibilityScheduleSettings
+  * New resource AADGroupElegibilityScheduleSettings
 * IntuneWindowsHelloForBusinessGlobalPolicy
   * Initial release.
     FIXES [#4561](https://github.com/microsoft/Microsoft365DSC/issues/4561)
+* M365DSCPermissions
+  * Fixed an issue when accessing permissions from the compiled list returns no permissions.
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
-* AADGroupElegibilityScheduleSettings
-  * New resource AADGroupElegibilityScheduleSettings
 
 # 1.25.611.1
 
