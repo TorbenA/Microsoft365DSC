@@ -3,6 +3,8 @@
 # UNRELEASED
 
 * MISC
+  * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
+    FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
   * Streamlining the Test-TargetResource of all AAD, Commerce, Defender, O365, OneDrive and Services Hub resources.
 
 # 1.25.611.1
