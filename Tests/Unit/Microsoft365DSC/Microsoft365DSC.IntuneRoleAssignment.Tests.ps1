@@ -49,12 +49,27 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return 'Credentials'
             }
 
+            Mock -CommandName Get-MgBetaDeviceManagementRoleAssignment -MockWith {
+                return @{
+                    Description = 'FakeStringValue'
+                    DisplayName = 'FakeStringValue'
+                    Id          = 'FakeStringValue'
+                    Members        = @('FakeStringValue')
+                    resourceScopes = @('FakeStringValue')
+                    ScopeType   = 'resourceScope'
+                }
+            }
             Mock -CommandName Get-MgDeviceManagementRoleDefinition -MockWith {
                 return @()
             }
-
             Mock -CommandName Get-MgDeviceManagementRoleDefinitionRoleAssignment -MockWith {
                 return @()
+            }
+            Mock -CommandName Get-MgGroup -MockWith {
+                return @{
+                    Displayname = 'FakeStringValue'
+                    Id          = 'FakeStringValue'
+                }
             }
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
@@ -102,27 +117,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     ScopeType                  = 'resourceScope'
                     Credential                 = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementRoleAssignment -MockWith {
-                    return @{
-                        Description = 'FakeStringValue'
-                        DisplayName = 'FakeStringValue'
-                        Id          = 'FakeStringValue'
-                        ScopeType   = 'resourceScope'
-                    }
-                }
-                Mock -CommandName Get-MgDeviceManagementRoleDefinition -MockWith {
-                    return @()
-                }
-                Mock -CommandName Get-MgDeviceManagementRoleDefinitionRoleAssignment -MockWith {
-                    return @()
-                }
-                Mock -CommandName Get-MgGroup -MockWith {
-                    return @{
-                        Displayname = 'FakeStringValue'
-                        Id          = 'FakeStringValue'
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -151,30 +145,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     ScopeType                  = 'resourceScope'
                     Credential                 = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementRoleAssignment -MockWith {
-                    return @{
-                        Description    = 'FakeStringValue'
-                        DisplayName    = 'FakeStringValue'
-                        Id             = 'FakeStringValue'
-                        Members        = @('FakeStringValue')
-                        resourceScopes = @('FakeStringValue')
-                        ScopeType      = 'resourceScope'
-
-                    }
-                }
-                Mock -CommandName Get-MgDeviceManagementRoleDefinition -MockWith {
-                    return @()
-                }
-                Mock -CommandName Get-MgDeviceManagementRoleDefinitionRoleAssignment -MockWith {
-                    return @()
-                }
-                Mock -CommandName Get-MgGroup -MockWith {
-                    return @{
-                        Displayname = 'FakeStringValue'
-                        Id          = 'FakeStringValue'
-                    }
-                }
             }
 
 
@@ -191,36 +161,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Id                         = 'FakeStringValue'
                     Ensure                     = 'Present'
                     RoleDefinition             = '7fbbd347-98de-431d-942b-cf5bea92998d'
-                    MembersDisplayNames        = @('FakeStringValue')
+                    MembersDisplayNames        = @('OtherMember') # Updated property
                     resourceScopesDisplayNames = @('FakeStringValue')
                     ScopeType                  = 'resourceScope'
                     Credential                 = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementRoleAssignment -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.'
-
-                        }
-                        Description          = 'StringValue'
-                        DisplayName          = 'StringValue'
-                        Id                   = 'StringValue'
-                        ScopeType            = 'resourceScope'
-
-                    }
-                }
-                Mock -CommandName Get-MgDeviceManagementRoleDefinition -MockWith {
-                    return @()
-                }
-                Mock -CommandName Get-MgDeviceManagementRoleDefinitionRoleAssignment -MockWith {
-                    return @()
-                }
-                Mock -CommandName Get-MgGroup -MockWith {
-                    return @{
-                        Displayname = 'FakeStringValue'
-                        Id          = 'FakeStringValue'
-                    }
                 }
             }
 
@@ -245,23 +189,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementRoleAssignment -MockWith {
-                    return @{
-                        Description = 'FakeStringValue'
-                        DisplayName = 'FakeStringValue'
-                        Id          = 'FakeStringValue'
-                        ScopeType   = 'resourceScope'
-                    }
-                }
-                Mock -CommandName Get-MgDeviceManagementRoleDefinition -MockWith {
-                    return @()
-                }
-                Mock -CommandName Get-MgDeviceManagementRoleDefinitionRoleAssignment -MockWith {
-                    return @()
-                }
-
             }
+
             It 'Should Reverse Engineer resource from the Export method' {
                 $result = Export-TargetResource @testParams
                 $result | Should -Not -BeNullOrEmpty

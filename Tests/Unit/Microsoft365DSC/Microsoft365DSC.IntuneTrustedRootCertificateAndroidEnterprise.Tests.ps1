@@ -39,8 +39,20 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-MgBetaDeviceManagementDeviceConfiguration -MockWith {
             }
 
-            Mock -CommandName Get-MgBetaDeviceManagementDeviceCompliancePolicyAssignment -MockWith {
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
+                return @{
+                    DisplayName                             = 'Test IntuneTrustedRootCertificateAndroidEnterprise'
+                    Description                             = 'Test IntuneTrustedRootCertificateAndroidEnterprise Description'
+                    Id                                      = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
+                    AdditionalProperties                    = @{
+                        certFileName                        = "FakeStringValue"
+                        trustedRootCertificate              = "fakestringvalue0"
+                        '@odata.type'                       = '#microsoft.graph.androidTrustedRootCertificate'
+                    }
+                }
+            }
 
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceCompliancePolicyAssignment -MockWith {
                 return @()
             }
             Mock -CommandName Update-DeviceConfigurationPolicyAssignment -MockWith {
@@ -89,27 +101,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName                = 'Test IntuneTrustedRootCertificateAndroidEnterprise'
                     Description                = 'Test IntuneTrustedRootCertificateAndroidEnterprise Description'
                     certFileName               = "FakeStringValue"
-                    trustedRootCertificate     = "fakestringvalue0"
+                    trustedRootCertificate     = "OtherCertificate" # Updated property
                     Ensure                     = 'Present'
                     Credential                 = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        DisplayName                      = 'Test IntuneTrustedRootCertificateAndroidEnterprise'
-                        Description                      = 'Different Value'
-                        Id                               = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
-                        AdditionalProperties             = @{
-                            certFileName                 = "FakeStringValue"
-                            trustedRootCertificate       = "fakestringvalue0"
-                            '@odata.type'             = '#microsoft.graph.androidTrustedRootCertificate'
-                        }
-                    }
                 }
             }
 
             It 'Should return Present from the Get method' {
-                    (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
+                (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
             }
 
             It 'Should return false from the Test method' {
@@ -119,7 +118,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             It 'Should update the IntuneTrustedRootCertificateAndroidEnterprise from the Set method' {
                 Set-TargetResource @testParams
                 Should -Invoke -CommandName Update-MgBetaDeviceManagementDeviceConfiguration -Exactly 1
-
             }
         }
 
@@ -132,19 +130,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     trustedRootCertificate                      = "fakestringvalue0"
                     Ensure                                      = 'Present'
                     Credential                                  = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        DisplayName                             = 'Test IntuneTrustedRootCertificateAndroidEnterprise'
-                        Description                             = 'Test IntuneTrustedRootCertificateAndroidEnterprise Description'
-                        Id                                      = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
-                        AdditionalProperties                    = @{
-                            certFileName                        = "FakeStringValue"
-                            trustedRootCertificate              = "fakestringvalue0"
-                            '@odata.type'                       = '#microsoft.graph.androidTrustedRootCertificate'
-                        }
-                    }
                 }
             }
 
@@ -162,19 +147,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     trustedRootCertificate                      = "fakestringvalue0"
                     Ensure                                      = 'Absent'
                     Credential                                  = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        DisplayName                 = 'Test IntuneTrustedRootCertificateAndroidEnterprise'
-                        Description                 = 'Test IntuneTrustedRootCertificateAndroidEnterprise Description'
-                        Id                          = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
-                        AdditionalProperties        = @{
-                            certFileName            = "FakeStringValue"
-                            trustedRootCertificate  = "fakestringvalue0"
-                            '@odata.type'           = '#microsoft.graph.androidTrustedRootCertificate'
-                        }
-                    }
                 }
             }
 

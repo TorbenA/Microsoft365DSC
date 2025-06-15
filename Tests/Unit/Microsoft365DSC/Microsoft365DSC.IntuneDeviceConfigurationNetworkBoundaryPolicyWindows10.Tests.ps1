@@ -46,6 +46,39 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return 'Credentials'
             }
 
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        windowsNetworkIsolationPolicy = @{
+                            EnterpriseProxyServers                 = @('FakeStringValue')
+                            EnterpriseInternalProxyServers         = @('FakeStringValue')
+                            EnterpriseIPRangesAreAuthoritative     = $True
+                            EnterpriseCloudResources               = @(
+                                @{
+                                    Proxy           = 'FakeStringValue'
+                                    IpAddressOrFQDN = 'FakeStringValue'
+                                }
+                            )
+                            EnterpriseProxyServersAreAuthoritative = $True
+                            EnterpriseNetworkDomainNames           = @('FakeStringValue')
+                            EnterpriseIPRanges                     = @(
+                                @{
+                                    CidrAddress   = 'FakeStringValue'
+                                    UpperAddress  = 'FakeStringValue'
+                                    LowerAddress  = 'FakeStringValue'
+                                    '@odata.type' = '#microsoft.graph.iPv4CidrRange'
+                                }
+                            )
+                            NeutralDomainResources                 = @('FakeStringValue')
+                        }
+                        '@odata.type'                 = '#microsoft.graph.windows10NetworkBoundaryConfiguration'
+                    }
+                    description          = 'FakeStringValue'
+                    displayName          = 'FakeStringValue'
+                    id                   = 'FakeStringValue'
+                }
+            }
+
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfigurationAssignment -MockWith {
             }
             Mock -CommandName Update-DeviceConfigurationPolicyAssignment -MockWith {
@@ -137,39 +170,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                        = 'Absent'
                     Credential                    = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            windowsNetworkIsolationPolicy = @{
-                                EnterpriseProxyServers                 = @('FakeStringValue')
-                                EnterpriseInternalProxyServers         = @('FakeStringValue')
-                                EnterpriseIPRangesAreAuthoritative     = $True
-                                EnterpriseCloudResources               = @(
-                                    @{
-                                        Proxy           = 'FakeStringValue'
-                                        IpAddressOrFQDN = 'FakeStringValue'
-                                    }
-                                )
-                                EnterpriseProxyServersAreAuthoritative = $True
-                                EnterpriseNetworkDomainNames           = @('FakeStringValue')
-                                EnterpriseIPRanges                     = @(
-                                    @{
-                                        CidrAddress   = 'FakeStringValue'
-                                        UpperAddress  = 'FakeStringValue'
-                                        LowerAddress  = 'FakeStringValue'
-                                        '@odata.type' = '#microsoft.graph.iPv4CidrRange'
-                                    }
-                                )
-                                NeutralDomainResources                 = @('FakeStringValue')
-                            }
-                            '@odata.type'                 = '#microsoft.graph.windows10NetworkBoundaryConfiguration'
-                        }
-                        description          = 'FakeStringValue'
-                        displayName          = 'FakeStringValue'
-                        id                   = 'FakeStringValue'
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -216,39 +216,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                        = 'Present'
                     Credential                    = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            windowsNetworkIsolationPolicy = @{
-                                EnterpriseProxyServers                 = @('FakeStringValue')
-                                EnterpriseInternalProxyServers         = @('FakeStringValue')
-                                EnterpriseIPRangesAreAuthoritative     = $True
-                                EnterpriseCloudResources               = @(
-                                    @{
-                                        Proxy           = 'FakeStringValue'
-                                        IpAddressOrFQDN = 'FakeStringValue'
-                                    }
-                                )
-                                EnterpriseProxyServersAreAuthoritative = $True
-                                EnterpriseNetworkDomainNames           = @('FakeStringValue')
-                                EnterpriseIPRanges                     = @(
-                                    @{
-                                        CidrAddress   = 'FakeStringValue'
-                                        UpperAddress  = 'FakeStringValue'
-                                        LowerAddress  = 'FakeStringValue'
-                                        '@odata.type' = '#microsoft.graph.iPv4CidrRange'
-                                    }
-                                )
-                                NeutralDomainResources                 = @('FakeStringValue')
-                            }
-                            '@odata.type'                 = '#microsoft.graph.windows10NetworkBoundaryConfiguration'
-                        }
-                        description          = 'FakeStringValue'
-                        displayName          = 'FakeStringValue'
-                        id                   = 'FakeStringValue'
-                    }
-                }
             }
 
 
@@ -266,7 +233,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     windowsNetworkIsolationPolicy = (New-CimInstance -ClassName MSFT_MicrosoftGraphwindowsNetworkIsolationPolicy -Property @{
                             EnterpriseProxyServers                 = @('FakeStringValue')
                             EnterpriseInternalProxyServers         = @('FakeStringValue')
-                            EnterpriseIPRangesAreAuthoritative     = $True
+                            EnterpriseIPRangesAreAuthoritative     = $False # Updated property
                             EnterpriseCloudResources               = [CimInstance[]]@(
                             (New-CimInstance -ClassName MSFT_MicrosoftGraphproxiedDomain1 -Property @{
                                     Proxy           = 'FakeStringValue'
@@ -287,37 +254,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         } -ClientOnly)
                     Ensure                        = 'Present'
                     Credential                    = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            windowsNetworkIsolationPolicy = @{
-                                EnterpriseProxyServers         = @('FakeStringValue')
-                                EnterpriseInternalProxyServers = @('FakeStringValue')
-                                EnterpriseCloudResources       = @(
-                                    @{
-                                        Proxy           = 'FakeStringValue'
-                                        IpAddressOrFQDN = 'FakeStringValue'
-                                    }
-                                )
-                                EnterpriseNetworkDomainNames   = @('FakeStringValue')
-                                EnterpriseIPRanges             = @(
-                                    @{
-                                        CidrAddress   = 'FakeStringValue'
-                                        UpperAddress  = 'FakeStringValue'
-                                        LowerAddress  = 'FakeStringValue'
-                                        '@odata.type' = '#microsoft.graph.iPv4CidrRange'
-                                    }
-                                )
-                                NeutralDomainResources         = @('FakeStringValue')
-                            }
-                            '@odata.type'                 = '#microsoft.graph.windows10NetworkBoundaryConfiguration'
-                        }
-                        description          = 'FakeStringValue'
-                        displayName          = 'FakeStringValue'
-                        id                   = 'FakeStringValue'
-                    }
                 }
             }
 
@@ -342,40 +278,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            windowsNetworkIsolationPolicy = @{
-                                EnterpriseProxyServers                 = @('FakeStringValue')
-                                EnterpriseInternalProxyServers         = @('FakeStringValue')
-                                EnterpriseIPRangesAreAuthoritative     = $True
-                                EnterpriseCloudResources               = @(
-                                    @{
-                                        Proxy           = 'FakeStringValue'
-                                        IpAddressOrFQDN = 'FakeStringValue'
-                                    }
-                                )
-                                EnterpriseProxyServersAreAuthoritative = $True
-                                EnterpriseNetworkDomainNames           = @('FakeStringValue')
-                                EnterpriseIPRanges                     = @(
-                                    @{
-                                        CidrAddress   = 'FakeStringValue'
-                                        UpperAddress  = 'FakeStringValue'
-                                        LowerAddress  = 'FakeStringValue'
-                                        '@odata.type' = '#microsoft.graph.iPv4CidrRange'
-                                    }
-                                )
-                                NeutralDomainResources                 = @('FakeStringValue')
-                            }
-                            '@odata.type'                 = '#microsoft.graph.windows10NetworkBoundaryConfiguration'
-                        }
-                        description          = 'FakeStringValue'
-                        displayName          = 'FakeStringValue'
-                        id                   = 'FakeStringValue'
-                    }
-                }
             }
+
             It 'Should Reverse Engineer resource from the Export method' {
                 $result = Export-TargetResource @testParams
                 $result | Should -Not -BeNullOrEmpty

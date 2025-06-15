@@ -45,6 +45,36 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName New-M365DSCConnection -MockWith {
                 return "Credentials"
             }
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        settingsDefaultVolume = 25
+                        welcomeScreenMeetingInformation = "userDefined"
+                        settingsScreenTimeoutInMinutes = 25
+                        settingsBlockMyMeetingsAndFiles = $True
+                        '@odata.type' = "#microsoft.graph.windows10TeamGeneralConfiguration"
+                        maintenanceWindowDurationInHours = 25
+                        azureOperationalInsightsBlockTelemetry = $True
+                        miracastChannel = "userDefined"
+                        welcomeScreenBackgroundImageUrl = "FakeStringValue"
+                        settingsBlockSessionResume = $True
+                        settingsSessionTimeoutInMinutes = 25
+                        azureOperationalInsightsWorkspaceKey = "FakeStringValue"
+                        welcomeScreenBlockAutomaticWakeUp = $True
+                        miracastRequirePin = $True
+                        maintenanceWindowStartTime = "00:00:00"
+                        settingsBlockSigninSuggestions = $True
+                        maintenanceWindowBlocked = $True
+                        miracastBlocked = $True
+                        settingsSleepTimeoutInMinutes = 25
+                        azureOperationalInsightsWorkspaceId = "FakeStringValue"
+                        connectAppBlockAutoLaunch = $True
+                    }
+                    Description = "FakeStringValue"
+                    DisplayName = "FakeStringValue"
+                    Id = "FakeStringValue"
+                }
+            }
             Mock -CommandName Update-DeviceConfigurationPolicyAssignment -MockWith {
             }
             # Mock Write-M365DSCHost to hide output during the tests
@@ -133,37 +163,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = 'Absent'
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            settingsDefaultVolume = 25
-                            welcomeScreenMeetingInformation = "userDefined"
-                            settingsScreenTimeoutInMinutes = 25
-                            settingsBlockMyMeetingsAndFiles = $True
-                            '@odata.type' = "#microsoft.graph.windows10TeamGeneralConfiguration"
-                            maintenanceWindowDurationInHours = 25
-                            azureOperationalInsightsBlockTelemetry = $True
-                            miracastChannel = "userDefined"
-                            welcomeScreenBackgroundImageUrl = "FakeStringValue"
-                            settingsBlockSessionResume = $True
-                            settingsSessionTimeoutInMinutes = 25
-                            azureOperationalInsightsWorkspaceKey = "FakeStringValue"
-                            welcomeScreenBlockAutomaticWakeUp = $True
-                            miracastRequirePin = $True
-                            maintenanceWindowStartTime = "00:00:00"
-                            settingsBlockSigninSuggestions = $True
-                            maintenanceWindowBlocked = $True
-                            miracastBlocked = $True
-                            settingsSleepTimeoutInMinutes = 25
-                            azureOperationalInsightsWorkspaceId = "FakeStringValue"
-                            connectAppBlockAutoLaunch = $True
-                        }
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        Id = "FakeStringValue"
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -208,39 +207,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = 'Present'
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            settingsDefaultVolume = 25
-                            welcomeScreenMeetingInformation = "userDefined"
-                            settingsScreenTimeoutInMinutes = 25
-                            settingsBlockMyMeetingsAndFiles = $True
-                            '@odata.type' = "#microsoft.graph.windows10TeamGeneralConfiguration"
-                            maintenanceWindowDurationInHours = 25
-                            azureOperationalInsightsBlockTelemetry = $True
-                            miracastChannel = "userDefined"
-                            welcomeScreenBackgroundImageUrl = "FakeStringValue"
-                            settingsBlockSessionResume = $True
-                            settingsSessionTimeoutInMinutes = 25
-                            azureOperationalInsightsWorkspaceKey = "FakeStringValue"
-                            welcomeScreenBlockAutomaticWakeUp = $True
-                            miracastRequirePin = $True
-                            maintenanceWindowStartTime = "00:00:00"
-                            settingsBlockSigninSuggestions = $True
-                            maintenanceWindowBlocked = $True
-                            miracastBlocked = $True
-                            settingsSleepTimeoutInMinutes = 25
-                            azureOperationalInsightsWorkspaceId = "FakeStringValue"
-                            connectAppBlockAutoLaunch = $True
-                        }
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        Id = "FakeStringValue"
-                    }
-                }
             }
-
 
             It 'Should return true from the Test method' {
                 Test-TargetResource @testParams | Should -Be $true
@@ -266,7 +233,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     SettingsBlockMyMeetingsAndFiles = $True
                     SettingsBlockSessionResume = $True
                     SettingsBlockSigninSuggestions = $True
-                    SettingsDefaultVolume = 25
+                    SettingsDefaultVolume = 7 # Updated property
                     SettingsScreenTimeoutInMinutes = 25
                     SettingsSessionTimeoutInMinutes = 25
                     SettingsSleepTimeoutInMinutes = 25
@@ -275,28 +242,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     WelcomeScreenMeetingInformation = "userDefined"
                     Ensure = 'Present'
                     Credential = $Credential;
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            maintenanceWindowDurationInHours = 7
-                            settingsScreenTimeoutInMinutes = 7
-                            welcomeScreenMeetingInformation = "userDefined"
-                            settingsDefaultVolume = 7
-                            azureOperationalInsightsWorkspaceId = "FakeStringValue"
-                            miracastChannel = "userDefined"
-                            azureOperationalInsightsWorkspaceKey = "FakeStringValue"
-                            settingsSessionTimeoutInMinutes = 7
-                            maintenanceWindowStartTime = "00:00:00"
-                            '@odata.type' = "#microsoft.graph.windows10TeamGeneralConfiguration"
-                            welcomeScreenBackgroundImageUrl = "FakeStringValue"
-                            settingsSleepTimeoutInMinutes = 7
-                        }
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        Id = "FakeStringValue"
-                    }
                 }
             }
 
@@ -321,38 +266,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            settingsDefaultVolume = 25
-                            welcomeScreenMeetingInformation = "userDefined"
-                            settingsScreenTimeoutInMinutes = 25
-                            settingsBlockMyMeetingsAndFiles = $True
-                            '@odata.type' = "#microsoft.graph.windows10TeamGeneralConfiguration"
-                            maintenanceWindowDurationInHours = 25
-                            azureOperationalInsightsBlockTelemetry = $True
-                            miracastChannel = "userDefined"
-                            welcomeScreenBackgroundImageUrl = "FakeStringValue"
-                            settingsBlockSessionResume = $True
-                            settingsSessionTimeoutInMinutes = 25
-                            azureOperationalInsightsWorkspaceKey = "FakeStringValue"
-                            welcomeScreenBlockAutomaticWakeUp = $True
-                            miracastRequirePin = $True
-                            maintenanceWindowStartTime = "00:00:00"
-                            settingsBlockSigninSuggestions = $True
-                            maintenanceWindowBlocked = $True
-                            miracastBlocked = $True
-                            settingsSleepTimeoutInMinutes = 25
-                            azureOperationalInsightsWorkspaceId = "FakeStringValue"
-                            connectAppBlockAutoLaunch = $True
-                        }
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        Id = "FakeStringValue"
-                    }
-                }
             }
+
             It 'Should Reverse Engineer resource from the Export method' {
                 $result = Export-TargetResource @testParams
                 $result | Should -Not -BeNullOrEmpty

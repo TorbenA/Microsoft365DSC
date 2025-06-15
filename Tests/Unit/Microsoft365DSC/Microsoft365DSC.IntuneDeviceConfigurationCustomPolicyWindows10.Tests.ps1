@@ -42,6 +42,29 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-MgBetaDeviceManagementDeviceConfiguration -MockWith {
             }
 
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        '@odata.type' = "#microsoft.graph.windows10CustomConfiguration"
+                        omaSettings = @(
+                            @{
+                                fileName = "FakeStringValue"
+                                description = "FakeStringValue"
+                                omaUri = "FakeStringValue"
+                                '@odata.type' = "#microsoft.graph.omaSettingBase64"
+                                secretReferenceValueId = "FakeStringValue"
+                                value = "FakeStringValue"
+                                isEncrypted = $True
+                                displayName = "FakeStringValue"
+                            }
+                        )
+                    }
+                    description = "FakeStringValue"
+                    displayName = "FakeStringValue"
+                    id = "FakeStringValue"
+                }
+            }
+
             Mock -CommandName New-M365DSCConnection -MockWith {
                 return "Credentials"
             }
@@ -113,29 +136,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = "Absent"
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = "#microsoft.graph.windows10CustomConfiguration"
-                            omaSettings = @(
-                                @{
-                                    fileName = "FakeStringValue"
-                                    description = "FakeStringValue"
-                                    omaUri = "FakeStringValue"
-                                    '@odata.type' = "#microsoft.graph.omaSettingBase64"
-                                    secretReferenceValueId = "FakeStringValue"
-                                    value = "FakeStringValue"
-                                    isEncrypted = $True
-                                    displayName = "FakeStringValue"
-                                }
-                            )
-                        }
-                        description = "FakeStringValue"
-                        displayName = "FakeStringValue"
-                        id = "FakeStringValue"
-                    }
-                }
             }
 
             It "Should return Values from the Get method" {
@@ -172,29 +172,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = "Present"
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = "#microsoft.graph.windows10CustomConfiguration"
-                            omaSettings = @(
-                                @{
-                                    fileName = "FakeStringValue"
-                                    description = "FakeStringValue"
-                                    omaUri = "FakeStringValue"
-                                    '@odata.type' = "#microsoft.graph.omaSettingBase64"
-                                    secretReferenceValueId = "FakeStringValue"
-                                    value = "FakeStringValue"
-                                    isEncrypted = $True
-                                    displayName = "FakeStringValue"
-                                }
-                            )
-                        }
-                        description = "FakeStringValue"
-                        displayName = "FakeStringValue"
-                        id = "FakeStringValue"
-                    }
-                }
             }
 
 
@@ -216,35 +193,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             omaUri = "FakeStringValue"
                             odataType = "#microsoft.graph.omaSettingBase64"
                             secretReferenceValueId = "FakeStringValue"
-                            value = "FakeStringValue"
+                            value = "FakeStringValue2" # Updated property
                             isEncrypted = $True
                             displayName = "FakeStringValue"
                         } -ClientOnly)
                     )
                     Ensure = "Present"
                     Credential = $Credential;
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = "#microsoft.graph.windows10CustomConfiguration"
-                            omaSettings = @(
-                                @{
-                                    '@odata.type' = "#microsoft.graph.omaSettingBase64"
-                                    description = "FakeStringValue"
-                                    fileName = "FakeStringValue"
-                                    omaUri = "FakeStringValue"
-                                    secretReferenceValueId = "FakeStringValue"
-                                    value = "FakeStringValue"
-                                    displayName = "FakeStringValue"
-                                }
-                            )
-                        }
-                        description = "FakeStringValue"
-                        displayName = "FakeStringValue"
-                        id = "FakeStringValue"
-                    }
                 }
             }
 
@@ -269,30 +224,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = "#microsoft.graph.windows10CustomConfiguration"
-                            omaSettings = @(
-                                @{
-                                    fileName = "FakeStringValue"
-                                    description = "FakeStringValue"
-                                    omaUri = "FakeStringValue"
-                                    '@odata.type' = "#microsoft.graph.omaSettingBase64"
-                                    secretReferenceValueId = "FakeStringValue"
-                                    value = "FakeStringValue"
-                                    isEncrypted = $True
-                                    displayName = "FakeStringValue"
-                                }
-                            )
-                        }
-                        description = "FakeStringValue"
-                        displayName = "FakeStringValue"
-                        id = "FakeStringValue"
-                    }
-                }
             }
+
             It "Should Reverse Engineer resource from the Export method" {
                 $result = Export-TargetResource @testParams
                 $result | Should -Not -BeNullOrEmpty

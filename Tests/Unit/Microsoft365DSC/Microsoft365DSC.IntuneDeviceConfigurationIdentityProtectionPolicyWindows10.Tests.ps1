@@ -46,6 +46,31 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return 'Credentials'
             }
 
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        pinRecoveryEnabled                           = $True
+                        pinExpirationInDays                          = 25
+                        pinMinimumLength                             = 25
+                        securityDeviceRequired                       = $True
+                        useCertificatesForOnPremisesAuthEnabled      = $True
+                        unlockWithBiometricsEnabled                  = $True
+                        '@odata.type'                                = '#microsoft.graph.windowsIdentityProtectionConfiguration'
+                        pinLowercaseCharactersUsage                  = 'blocked'
+                        pinPreviousBlockCount                        = 25
+                        windowsHelloForBusinessBlocked               = $True
+                        useSecurityKeyForSignin                      = $True
+                        pinSpecialCharactersUsage                    = 'blocked'
+                        pinMaximumLength                             = 25
+                        enhancedAntiSpoofingForFacialFeaturesEnabled = $True
+                        pinUppercaseCharactersUsage                  = 'blocked'
+                    }
+                    Description          = 'FakeStringValue'
+                    DisplayName          = 'FakeStringValue'
+                    Id                   = 'FakeStringValue'
+                }
+            }
+
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfigurationAssignment -MockWith {
             }
             Mock -CommandName Update-DeviceConfigurationPolicyAssignment -MockWith {
@@ -124,31 +149,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                                       = 'Absent'
                     Credential                                   = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            pinRecoveryEnabled                           = $True
-                            pinExpirationInDays                          = 25
-                            pinMinimumLength                             = 25
-                            securityDeviceRequired                       = $True
-                            useCertificatesForOnPremisesAuthEnabled      = $True
-                            unlockWithBiometricsEnabled                  = $True
-                            '@odata.type'                                = '#microsoft.graph.windowsIdentityProtectionConfiguration'
-                            pinLowercaseCharactersUsage                  = 'blocked'
-                            pinPreviousBlockCount                        = 25
-                            windowsHelloForBusinessBlocked               = $True
-                            useSecurityKeyForSignin                      = $True
-                            pinSpecialCharactersUsage                    = 'blocked'
-                            pinMaximumLength                             = 25
-                            enhancedAntiSpoofingForFacialFeaturesEnabled = $True
-                            pinUppercaseCharactersUsage                  = 'blocked'
-                        }
-                        Description          = 'FakeStringValue'
-                        DisplayName          = 'FakeStringValue'
-                        Id                   = 'FakeStringValue'
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -187,31 +187,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                                       = 'Present'
                     Credential                                   = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            pinRecoveryEnabled                           = $True
-                            pinExpirationInDays                          = 25
-                            pinMinimumLength                             = 25
-                            securityDeviceRequired                       = $True
-                            useCertificatesForOnPremisesAuthEnabled      = $True
-                            unlockWithBiometricsEnabled                  = $True
-                            '@odata.type'                                = '#microsoft.graph.windowsIdentityProtectionConfiguration'
-                            pinLowercaseCharactersUsage                  = 'blocked'
-                            pinPreviousBlockCount                        = 25
-                            windowsHelloForBusinessBlocked               = $True
-                            useSecurityKeyForSignin                      = $True
-                            pinSpecialCharactersUsage                    = 'blocked'
-                            pinMaximumLength                             = 25
-                            enhancedAntiSpoofingForFacialFeaturesEnabled = $True
-                            pinUppercaseCharactersUsage                  = 'blocked'
-                        }
-                        Description          = 'FakeStringValue'
-                        DisplayName          = 'FakeStringValue'
-                        Id                   = 'FakeStringValue'
-                    }
-                }
             }
 
 
@@ -227,7 +202,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName                                  = 'FakeStringValue'
                     EnhancedAntiSpoofingForFacialFeaturesEnabled = $True
                     Id                                           = 'FakeStringValue'
-                    PinExpirationInDays                          = 25
+                    PinExpirationInDays                          = 7 # Updated property
                     PinLowercaseCharactersUsage                  = 'blocked'
                     PinMaximumLength                             = 25
                     PinMinimumLength                             = 25
@@ -242,24 +217,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     WindowsHelloForBusinessBlocked               = $True
                     Ensure                                       = 'Present'
                     Credential                                   = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type'               = '#microsoft.graph.windowsIdentityProtectionConfiguration'
-                            pinUppercaseCharactersUsage = 'blocked'
-                            pinPreviousBlockCount       = 7
-                            pinMinimumLength            = 7
-                            pinSpecialCharactersUsage   = 'blocked'
-                            pinExpirationInDays         = 7
-                            pinLowercaseCharactersUsage = 'blocked'
-                            pinMaximumLength            = 7
-                        }
-                        Description          = 'FakeStringValue'
-                        DisplayName          = 'FakeStringValue'
-                        Id                   = 'FakeStringValue'
-                    }
                 }
             }
 
@@ -283,31 +240,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            pinRecoveryEnabled                           = $True
-                            pinExpirationInDays                          = 25
-                            pinMinimumLength                             = 25
-                            securityDeviceRequired                       = $True
-                            useCertificatesForOnPremisesAuthEnabled      = $True
-                            unlockWithBiometricsEnabled                  = $True
-                            '@odata.type'                                = '#microsoft.graph.windowsIdentityProtectionConfiguration'
-                            pinLowercaseCharactersUsage                  = 'blocked'
-                            pinPreviousBlockCount                        = 25
-                            windowsHelloForBusinessBlocked               = $True
-                            useSecurityKeyForSignin                      = $True
-                            pinSpecialCharactersUsage                    = 'blocked'
-                            pinMaximumLength                             = 25
-                            enhancedAntiSpoofingForFacialFeaturesEnabled = $True
-                            pinUppercaseCharactersUsage                  = 'blocked'
-                        }
-                        Description          = 'FakeStringValue'
-                        DisplayName          = 'FakeStringValue'
-                        Id                   = 'FakeStringValue'
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {

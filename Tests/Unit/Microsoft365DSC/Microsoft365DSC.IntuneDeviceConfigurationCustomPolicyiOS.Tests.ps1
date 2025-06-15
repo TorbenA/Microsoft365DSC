@@ -39,6 +39,20 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-MgBetaDeviceManagementDeviceConfiguration -MockWith {
             }
 
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
+                return @{
+                    DisplayName          = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
+                    Description          = 'Different Value'
+                    Id                   = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
+                    AdditionalProperties = @{
+                        Payload         = 'PHJvb3Q+PC9yb290Pg=='
+                        PayloadFileName = 'simple.xml'
+                        PayloadName     = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
+                        '@odata.type'   = '#microsoft.graph.iosCustomConfiguration'
+                    }
+                }
+            }
+
             Mock -CommandName Get-MgBetaDeviceManagementDeviceCompliancePolicyAssignment -MockWith {
 
                 return @()
@@ -88,26 +102,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     DisplayName     = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
-                    Description     = 'Test IntuneDeviceConfigurationCustomPolicyiOS Description'
+                    Description     = 'Updated description' # Updated property
                     Payload         = 'PHJvb3Q+PC9yb290Pg=='
                     PayloadFileName = 'simple.xml'
                     PayloadName     = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
                     Ensure          = 'Present'
                     Credential      = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        DisplayName          = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
-                        Description          = 'Different Value'
-                        Id                   = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
-                        AdditionalProperties = @{
-                            Payload         = 'PHJvb3Q+PC9yb290Pg=='
-                            PayloadFileName = 'simple.xml'
-                            PayloadName     = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
-                            '@odata.type'   = '#microsoft.graph.iosCustomConfiguration'
-                        }
-                    }
                 }
             }
 
@@ -137,20 +137,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure          = 'Present'
                     Credential      = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        DisplayName          = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
-                        Description          = 'Test IntuneDeviceConfigurationCustomPolicyiOS Description'
-                        Id                   = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
-                        AdditionalProperties = @{
-                            Payload         = 'PHJvb3Q+PC9yb290Pg=='
-                            PayloadFileName = 'simple.xml'
-                            PayloadName     = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
-                            '@odata.type'   = '#microsoft.graph.iosCustomConfiguration'
-                        }
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -168,20 +154,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     PayloadName     = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
                     Ensure          = 'Absent'
                     Credential      = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        DisplayName          = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
-                        Description          = 'Test IntuneDeviceConfigurationCustomPolicyiOS Description'
-                        Id                   = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
-                        AdditionalProperties = @{
-                            Payload         = 'PHJvb3Q+PC9yb290Pg=='
-                            PayloadFileName = 'simple.xml'
-                            PayloadName     = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
-                            '@odata.type'   = '#microsoft.graph.iosCustomConfiguration'
-                        }
-                    }
                 }
             }
 
@@ -205,20 +177,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        DisplayName          = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
-                        Description          = 'Test IntuneDeviceConfigurationCustomPolicyiOS Description'
-                        Id                   = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
-                        AdditionalProperties = @{
-                            Payload         = 'PHJvb3Q+PC9yb290Pg=='
-                            PayloadFileName = 'simple.xml'
-                            PayloadName     = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
-                            '@odata.type'   = '#microsoft.graph.iosCustomConfiguration'
-                        }
-                    }
                 }
             }
 

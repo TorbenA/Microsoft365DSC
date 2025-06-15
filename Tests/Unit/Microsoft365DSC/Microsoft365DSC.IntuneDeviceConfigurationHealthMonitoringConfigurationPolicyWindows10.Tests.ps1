@@ -49,6 +49,20 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfigurationAssignment -MockWith {
             }
 
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        '@odata.type'                           = '#microsoft.graph.windowsHealthMonitoringConfiguration'
+                        configDeviceHealthMonitoringCustomScope = 'FakeStringValue'
+                        allowDeviceHealthMonitoring             = 'notConfigured'
+                        configDeviceHealthMonitoringScope       = 'undefined'
+                    }
+                    Description          = 'FakeStringValue'
+                    DisplayName          = 'FakeStringValue'
+                    Id                   = 'FakeStringValue'
+                }
+            }
+
             Mock -CommandName Write-M365DSCHost -MockWith{
             }
             Mock -CommandName Update-DeviceConfigurationPolicyAssignment -MockWith {
@@ -102,20 +116,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                                  = 'Absent'
                     Credential                              = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type'                           = '#microsoft.graph.windowsHealthMonitoringConfiguration'
-                            configDeviceHealthMonitoringCustomScope = 'FakeStringValue'
-                            allowDeviceHealthMonitoring             = 'notConfigured'
-                            configDeviceHealthMonitoringScope       = 'undefined'
-                        }
-                        Description          = 'FakeStringValue'
-                        DisplayName          = 'FakeStringValue'
-                        Id                   = 'FakeStringValue'
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -143,20 +143,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                                  = 'Present'
                     Credential                              = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type'                           = '#microsoft.graph.windowsHealthMonitoringConfiguration'
-                            configDeviceHealthMonitoringCustomScope = 'FakeStringValue'
-                            allowDeviceHealthMonitoring             = 'notConfigured'
-                            configDeviceHealthMonitoringScope       = 'undefined'
-                        }
-                        Description          = 'FakeStringValue'
-                        DisplayName          = 'FakeStringValue'
-                        Id                   = 'FakeStringValue'
-                    }
-                }
             }
 
 
@@ -168,7 +154,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name 'The IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10 exists and values are NOT in the desired state' -Fixture {
             BeforeAll {
                 $testParams = @{
-                    AllowDeviceHealthMonitoring             = 'notConfigured'
+                    AllowDeviceHealthMonitoring             = 'enabled' # Updated property
                     ConfigDeviceHealthMonitoringCustomScope = 'FakeStringValue'
                     ConfigDeviceHealthMonitoringScope       = 'undefined'
                     Description                             = 'FakeStringValue'
@@ -176,20 +162,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Id                                      = 'FakeStringValue'
                     Ensure                                  = 'Present'
                     Credential                              = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type'                           = '#microsoft.graph.windowsHealthMonitoringConfiguration'
-                            configDeviceHealthMonitoringCustomScope = 'FakeStringValue'
-                            allowDeviceHealthMonitoring             = 'notConfigured'
-                            configDeviceHealthMonitoringScope       = 'undefined'
-                        }
-                        Description          = 'FakeStringValue'
-                        DisplayName          = 'FakeStringValue'
-                        Id                   = 'FakeStringValue'
-                    }
                 }
             }
 
@@ -214,21 +186,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type'                           = '#microsoft.graph.windowsHealthMonitoringConfiguration'
-                            configDeviceHealthMonitoringCustomScope = 'FakeStringValue'
-                            allowDeviceHealthMonitoring             = 'notConfigured'
-                            configDeviceHealthMonitoringScope       = 'undefined'
-                        }
-                        Description          = 'FakeStringValue'
-                        DisplayName          = 'FakeStringValue'
-                        Id                   = 'FakeStringValue'
-                    }
-                }
             }
+
             It 'Should Reverse Engineer resource from the Export method' {
                 $result = Export-TargetResource @testParams
                 $result | Should -Not -BeNullOrEmpty
