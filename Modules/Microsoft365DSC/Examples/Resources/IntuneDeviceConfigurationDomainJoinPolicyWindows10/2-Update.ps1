@@ -32,11 +32,10 @@ Configuration Example
                 }
             );
             ComputerNameStaticPrefix          = "WK-";
-            ComputerNameSuffixRandomCharCount = 12;
+            ComputerNameSuffixRandomCharCount = 13; # Updated Property
             DisplayName                       = "Domain Join";
             Ensure                            = "Present";
             OrganizationalUnit                = "OU=workstation,CN=domain,CN=com";
-            SupportsScopeTags                 = $False; # Updated Property
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;

@@ -43,7 +43,6 @@ Configuration Example
             SettingsBlockMyMeetingsAndFiles        = $True;
             SettingsBlockSessionResume             = $True;
             SettingsBlockSigninSuggestions         = $True;
-            SupportsScopeTags                      = $True;
             WelcomeScreenBlockAutomaticWakeUp      = $True;
             WelcomeScreenMeetingInformation        = "showOrganizerAndTimeOnly";
             ApplicationId         = $ApplicationId;

@@ -108,7 +108,7 @@ function Get-TargetResource
                 ApplicationSecret           = $ApplicationSecret
                 TenantId                    = $TenantId
                 CertificateThumbprint       = $CertificateThumbprint
-                Managedidentity             = $ManagedIdentity.IsPresent
+                ManagedIdentity             = $ManagedIdentity.IsPresent
                 AccessTokens                = $AccessTokens
             }
 
@@ -460,7 +460,7 @@ function Export-TargetResource
             ApplicationSecret           = $ApplicationSecret
             TenantId                    = $TenantId
             CertificateThumbprint       = $CertificateThumbprint
-            Managedidentity             = $ManagedIdentity.IsPresent
+            ManagedIdentity             = $ManagedIdentity.IsPresent
             AccessTokens                = $AccessTokens
         }
         $Results = Get-TargetResource @Params

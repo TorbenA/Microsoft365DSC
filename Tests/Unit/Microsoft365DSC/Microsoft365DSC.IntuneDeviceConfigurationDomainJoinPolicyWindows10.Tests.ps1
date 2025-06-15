@@ -68,7 +68,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"
                     OrganizationalUnit = "FakeStringValue"
-                    SupportsScopeTags = $True
                     Ensure = "Present"
                     Credential = $Credential;
                 }
@@ -99,7 +98,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"
                     OrganizationalUnit = "FakeStringValue"
-                    SupportsScopeTags = $True
                     Ensure = 'Absent'
                     Credential = $Credential;
                 }
@@ -116,8 +114,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Description = "FakeStringValue"
                         DisplayName = "FakeStringValue"
                         Id = "FakeStringValue"
-                        SupportsScopeTags = $True
-
                     }
                 }
             }
@@ -145,7 +141,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"
                     OrganizationalUnit = "FakeStringValue"
-                    SupportsScopeTags = $True
                     Ensure = 'Present'
                     Credential = $Credential;
                 }
@@ -162,8 +157,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Description = "FakeStringValue"
                         DisplayName = "FakeStringValue"
                         Id = "FakeStringValue"
-                        SupportsScopeTags = $True
-
                     }
                 }
             }
@@ -184,7 +177,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"
                     OrganizationalUnit = "FakeStringValue"
-                    SupportsScopeTags = $True
                     Ensure = 'Present'
                     Credential = $Credential;
                 }
@@ -239,8 +231,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Description = "FakeStringValue"
                         DisplayName = "FakeStringValue"
                         Id = "FakeStringValue"
-                        SupportsScopeTags = $True
-
                     }
                 }
             }

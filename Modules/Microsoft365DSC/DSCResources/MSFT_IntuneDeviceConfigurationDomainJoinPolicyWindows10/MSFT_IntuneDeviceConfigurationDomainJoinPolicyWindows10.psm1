@@ -30,10 +30,6 @@ function Get-TargetResource
         $DisplayName,
 
         [Parameter()]
-        [System.Boolean]
-        $SupportsScopeTags,
-
-        [Parameter()]
         [System.String]
         $Id,
 
@@ -153,7 +149,6 @@ function Get-TargetResource
             OrganizationalUnit                = $getValue.AdditionalProperties.organizationalUnit
             Description                       = $getValue.Description
             DisplayName                       = $getValue.DisplayName
-            SupportsScopeTags                 = $getValue.SupportsScopeTags
             Id                                = $getValue.Id
             RoleScopeTagIds                   = $getValue.RoleScopeTagIds
             Ensure                            = 'Present'
@@ -162,7 +157,7 @@ function Get-TargetResource
             TenantId                          = $TenantId
             ApplicationSecret                 = $ApplicationSecret
             CertificateThumbprint             = $CertificateThumbprint
-            Managedidentity                   = $ManagedIdentity.IsPresent
+            ManagedIdentity                   = $ManagedIdentity.IsPresent
             AccessTokens                      = $AccessTokens
             #endregion
         }
@@ -219,10 +214,6 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
-
-        [Parameter()]
-        [System.Boolean]
-        $SupportsScopeTags,
 
         [Parameter()]
         [System.String]
@@ -385,10 +376,6 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
-
-        [Parameter()]
-        [System.Boolean]
-        $SupportsScopeTags,
 
         [Parameter()]
         [System.String]
@@ -591,7 +578,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

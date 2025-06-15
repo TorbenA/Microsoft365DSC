@@ -101,7 +101,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     minimumRamAllowedToPeerInGigabytes                        = 25
                     modifyCacheLocation                                       = 'FakeStringValue'
                     restrictPeerSelectionBy                                   = 'notConfigured'
-                    supportsScopeTags                                         = $True
                     vpnPeerCaching                                            = 'notConfigured'
                     Ensure                                                    = 'Present'
                     Credential                                                = $Credential
@@ -166,7 +165,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     minimumRamAllowedToPeerInGigabytes                        = 25
                     modifyCacheLocation                                       = 'FakeStringValue'
                     restrictPeerSelectionBy                                   = 'notConfigured'
-                    supportsScopeTags                                         = $True
                     vpnPeerCaching                                            = 'notConfigured'
                     Ensure                                                    = 'Absent'
                     Credential                                                = $Credential
@@ -218,8 +216,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         description          = 'FakeStringValue'
                         displayName          = 'FakeStringValue'
                         id                   = 'FakeStringValue'
-                        supportsScopeTags    = $True
-
                     }
                 }
             }
@@ -280,7 +276,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     minimumRamAllowedToPeerInGigabytes                        = 25
                     modifyCacheLocation                                       = 'FakeStringValue'
                     restrictPeerSelectionBy                                   = 'notConfigured'
-                    supportsScopeTags                                         = $True
                     vpnPeerCaching                                            = 'notConfigured'
                     Ensure                                                    = 'Present'
                     Credential                                                = $Credential
@@ -332,8 +327,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         description          = 'FakeStringValue'
                         displayName          = 'FakeStringValue'
                         id                   = 'FakeStringValue'
-                        supportsScopeTags    = $True
-
                     }
                 }
             }
@@ -387,7 +380,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     minimumRamAllowedToPeerInGigabytes                        = 25
                     modifyCacheLocation                                       = 'FakeStringValue'
                     restrictPeerSelectionBy                                   = 'notConfigured'
-                    supportsScopeTags                                         = $True
                     vpnPeerCaching                                            = 'notConfigured'
                     Ensure                                                    = 'Present'
                     Credential                                                = $Credential
@@ -511,8 +503,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         description          = 'FakeStringValue'
                         displayName          = 'FakeStringValue'
                         id                   = 'FakeStringValue'
-                        supportsScopeTags    = $True
-
                     }
                 }
             }

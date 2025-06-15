@@ -64,7 +64,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     description                   = 'FakeStringValue'
                     displayName                   = 'FakeStringValue'
                     id                            = 'FakeStringValue'
-                    supportsScopeTags             = $True
                     windowsNetworkIsolationPolicy = (New-CimInstance -ClassName MSFT_MicrosoftGraphwindowsNetworkIsolationPolicy -Property @{
                             EnterpriseProxyServers                 = @('FakeStringValue')
                             EnterpriseInternalProxyServers         = @('FakeStringValue')
@@ -113,7 +112,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     description                   = 'FakeStringValue'
                     displayName                   = 'FakeStringValue'
                     id                            = 'FakeStringValue'
-                    supportsScopeTags             = $True
                     windowsNetworkIsolationPolicy = (New-CimInstance -ClassName MSFT_MicrosoftGraphwindowsNetworkIsolationPolicy -Property @{
                             EnterpriseProxyServers                 = @('FakeStringValue')
                             EnterpriseInternalProxyServers         = @('FakeStringValue')
@@ -170,8 +168,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         description          = 'FakeStringValue'
                         displayName          = 'FakeStringValue'
                         id                   = 'FakeStringValue'
-                        supportsScopeTags    = $True
-
                     }
                 }
             }
@@ -195,7 +191,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     description                   = 'FakeStringValue'
                     displayName                   = 'FakeStringValue'
                     id                            = 'FakeStringValue'
-                    supportsScopeTags             = $True
                     windowsNetworkIsolationPolicy = (New-CimInstance -ClassName MSFT_MicrosoftGraphwindowsNetworkIsolationPolicy -Property @{
                             EnterpriseProxyServers                 = @('FakeStringValue')
                             EnterpriseInternalProxyServers         = @('FakeStringValue')
@@ -252,8 +247,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         description          = 'FakeStringValue'
                         displayName          = 'FakeStringValue'
                         id                   = 'FakeStringValue'
-                        supportsScopeTags    = $True
-
                     }
                 }
             }
@@ -270,7 +263,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     description                   = 'FakeStringValue'
                     displayName                   = 'FakeStringValue'
                     id                            = 'FakeStringValue'
-                    supportsScopeTags             = $True
                     windowsNetworkIsolationPolicy = (New-CimInstance -ClassName MSFT_MicrosoftGraphwindowsNetworkIsolationPolicy -Property @{
                             EnterpriseProxyServers                 = @('FakeStringValue')
                             EnterpriseInternalProxyServers         = @('FakeStringValue')
@@ -381,8 +373,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         description          = 'FakeStringValue'
                         displayName          = 'FakeStringValue'
                         id                   = 'FakeStringValue'
-                        supportsScopeTags    = $True
-
                     }
                 }
             }

@@ -80,7 +80,7 @@ function Get-TargetResource
             CertificateThumbprint = $CertificateThumbprint
             CertificatePath       = $CertificatePath
             CertificatePassword   = $CertificatePassword
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             TenantId              = $TenantId
             AccessTokens          = $AccessTokens
         }
@@ -352,7 +352,7 @@ function Export-TargetResource
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePath       = $CertificatePath
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 TenantId              = $TenantId
                 AccessTokens          = $AccessTokens
             }

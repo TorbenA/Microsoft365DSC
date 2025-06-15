@@ -78,7 +78,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     RearCamera = "notConfigured"
                     SdCard = "notConfigured"
                     SimultaneousMultiThreading = "notConfigured"
-                    SupportsScopeTags = $True
                     UsbTypeAPort = "notConfigured"
                     VirtualizationOfCpuAndIO = "notConfigured"
                     WakeOnLAN = "notConfigured"
@@ -126,7 +125,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     RearCamera = "notConfigured"
                     SdCard = "notConfigured"
                     SimultaneousMultiThreading = "notConfigured"
-                    SupportsScopeTags = $True
                     UsbTypeAPort = "notConfigured"
                     VirtualizationOfCpuAndIO = "notConfigured"
                     WakeOnLAN = "notConfigured"
@@ -167,8 +165,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Description = "FakeStringValue"
                         DisplayName = "FakeStringValue"
                         Id = "FakeStringValue"
-                        SupportsScopeTags = $True
-
                     }
                 }
             }
@@ -206,7 +202,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     RearCamera = "notConfigured"
                     SdCard = "notConfigured"
                     SimultaneousMultiThreading = "notConfigured"
-                    SupportsScopeTags = $True
                     UsbTypeAPort = "notConfigured"
                     VirtualizationOfCpuAndIO = "notConfigured"
                     WakeOnLAN = "notConfigured"
@@ -247,8 +242,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Description = "FakeStringValue"
                         DisplayName = "FakeStringValue"
                         Id = "FakeStringValue"
-                        SupportsScopeTags = $True
-
                     }
                 }
             }
@@ -279,7 +272,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     RearCamera = "notConfigured"
                     SdCard = "notConfigured"
                     SimultaneousMultiThreading = "notConfigured"
-                    SupportsScopeTags = $True
                     UsbTypeAPort = "notConfigured"
                     VirtualizationOfCpuAndIO = "notConfigured"
                     WakeOnLAN = "notConfigured"
@@ -375,8 +367,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Description = "FakeStringValue"
                         DisplayName = "FakeStringValue"
                         Id = "FakeStringValue"
-                        SupportsScopeTags = $True
-
                     }
                 }
             }

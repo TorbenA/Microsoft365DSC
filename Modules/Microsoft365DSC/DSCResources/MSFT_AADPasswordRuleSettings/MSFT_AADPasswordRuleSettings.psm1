@@ -118,7 +118,7 @@ function Get-TargetResource
                 ApplicationSecret                   = $ApplicationSecret
                 CertificateThumbprint               = $CertificateThumbprint
                 Credential                          = $Credential
-                Managedidentity                     = $ManagedIdentity.IsPresent
+                ManagedIdentity                     = $ManagedIdentity.IsPresent
                 AccessTokens                        = $AccessTokens
             }
 
@@ -446,7 +446,7 @@ function Export-TargetResource
             IsSingleInstance      = 'Yes'
             ApplicationSecret     = $ApplicationSecret
             Credential            = $Credential
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
         $dscContent = ''

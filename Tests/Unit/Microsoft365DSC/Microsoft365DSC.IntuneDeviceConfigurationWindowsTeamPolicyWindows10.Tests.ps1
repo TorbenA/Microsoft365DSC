@@ -81,7 +81,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     SettingsScreenTimeoutInMinutes = 25
                     SettingsSessionTimeoutInMinutes = 25
                     SettingsSleepTimeoutInMinutes = 25
-                    SupportsScopeTags = $True
                     WelcomeScreenBackgroundImageUrl = "FakeStringValue"
                     WelcomeScreenBlockAutomaticWakeUp = $True
                     WelcomeScreenMeetingInformation = "userDefined"
@@ -128,7 +127,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     SettingsScreenTimeoutInMinutes = 25
                     SettingsSessionTimeoutInMinutes = 25
                     SettingsSleepTimeoutInMinutes = 25
-                    SupportsScopeTags = $True
                     WelcomeScreenBackgroundImageUrl = "FakeStringValue"
                     WelcomeScreenBlockAutomaticWakeUp = $True
                     WelcomeScreenMeetingInformation = "userDefined"
@@ -164,8 +162,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Description = "FakeStringValue"
                         DisplayName = "FakeStringValue"
                         Id = "FakeStringValue"
-                        SupportsScopeTags = $True
-
                     }
                 }
             }
@@ -206,7 +202,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     SettingsScreenTimeoutInMinutes = 25
                     SettingsSessionTimeoutInMinutes = 25
                     SettingsSleepTimeoutInMinutes = 25
-                    SupportsScopeTags = $True
                     WelcomeScreenBackgroundImageUrl = "FakeStringValue"
                     WelcomeScreenBlockAutomaticWakeUp = $True
                     WelcomeScreenMeetingInformation = "userDefined"
@@ -242,8 +237,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Description = "FakeStringValue"
                         DisplayName = "FakeStringValue"
                         Id = "FakeStringValue"
-                        SupportsScopeTags = $True
-
                     }
                 }
             }
@@ -277,7 +270,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     SettingsScreenTimeoutInMinutes = 25
                     SettingsSessionTimeoutInMinutes = 25
                     SettingsSleepTimeoutInMinutes = 25
-                    SupportsScopeTags = $True
                     WelcomeScreenBackgroundImageUrl = "FakeStringValue"
                     WelcomeScreenBlockAutomaticWakeUp = $True
                     WelcomeScreenMeetingInformation = "userDefined"
@@ -358,8 +350,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Description = "FakeStringValue"
                         DisplayName = "FakeStringValue"
                         Id = "FakeStringValue"
-                        SupportsScopeTags = $True
-
                     }
                 }
             }

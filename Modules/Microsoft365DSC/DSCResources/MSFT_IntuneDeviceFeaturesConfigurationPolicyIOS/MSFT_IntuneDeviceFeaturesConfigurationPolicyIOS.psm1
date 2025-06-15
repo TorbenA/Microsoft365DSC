@@ -197,7 +197,7 @@ function Get-TargetResource
             TenantId                 = $TenantId
             ApplicationSecret        = $ApplicationSecret
             CertificateThumbprint    = $CertificateThumbprint
-            Managedidentity          = $ManagedIdentity.IsPresent
+            ManagedIdentity          = $ManagedIdentity.IsPresent
             AccessTokens             = $AccessTokens
             AirPrintDestinations     = Convert-ComplexObjectToHashtableArray $getValue.AdditionalProperties.airPrintDestinations
             AssetTagTemplate         = $getValue.AdditionalProperties.assetTagTemplate
@@ -828,7 +828,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

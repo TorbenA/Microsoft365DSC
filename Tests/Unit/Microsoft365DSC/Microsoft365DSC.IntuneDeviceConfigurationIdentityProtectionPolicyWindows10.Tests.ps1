@@ -77,7 +77,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     PinSpecialCharactersUsage                    = 'blocked'
                     PinUppercaseCharactersUsage                  = 'blocked'
                     SecurityDeviceRequired                       = $True
-                    SupportsScopeTags                            = $True
                     UnlockWithBiometricsEnabled                  = $True
                     UseCertificatesForOnPremisesAuthEnabled      = $True
                     UseSecurityKeyForSignin                      = $True
@@ -118,7 +117,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     PinSpecialCharactersUsage                    = 'blocked'
                     PinUppercaseCharactersUsage                  = 'blocked'
                     SecurityDeviceRequired                       = $True
-                    SupportsScopeTags                            = $True
                     UnlockWithBiometricsEnabled                  = $True
                     UseCertificatesForOnPremisesAuthEnabled      = $True
                     UseSecurityKeyForSignin                      = $True
@@ -149,8 +147,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Description          = 'FakeStringValue'
                         DisplayName          = 'FakeStringValue'
                         Id                   = 'FakeStringValue'
-                        SupportsScopeTags    = $True
-
                     }
                 }
             }
@@ -184,7 +180,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     PinSpecialCharactersUsage                    = 'blocked'
                     PinUppercaseCharactersUsage                  = 'blocked'
                     SecurityDeviceRequired                       = $True
-                    SupportsScopeTags                            = $True
                     UnlockWithBiometricsEnabled                  = $True
                     UseCertificatesForOnPremisesAuthEnabled      = $True
                     UseSecurityKeyForSignin                      = $True
@@ -215,8 +210,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Description          = 'FakeStringValue'
                         DisplayName          = 'FakeStringValue'
                         Id                   = 'FakeStringValue'
-                        SupportsScopeTags    = $True
-
                     }
                 }
             }
@@ -243,7 +236,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     PinSpecialCharactersUsage                    = 'blocked'
                     PinUppercaseCharactersUsage                  = 'blocked'
                     SecurityDeviceRequired                       = $True
-                    SupportsScopeTags                            = $True
                     UnlockWithBiometricsEnabled                  = $True
                     UseCertificatesForOnPremisesAuthEnabled      = $True
                     UseSecurityKeyForSignin                      = $True
@@ -315,8 +307,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Description          = 'FakeStringValue'
                         DisplayName          = 'FakeStringValue'
                         Id                   = 'FakeStringValue'
-                        SupportsScopeTags    = $True
-
                     }
                 }
             }

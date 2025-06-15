@@ -232,7 +232,6 @@ Configuration Example
             LocalSecurityOptionsVirtualizeFileAndRegistryWriteFailuresToPerUserLocations = $False;
             SmartScreenBlockOverrideForFiles                                             = $True;
             SmartScreenEnableInShell                                                     = $True;
-            SupportsScopeTags                                                            = $True;
             UserRightsAccessCredentialManagerAsTrustedCaller                             = MSFT_MicrosoftGraphdeviceManagementUserRightsSetting{
                 State = 'allowed'
                 LocalUsersOrGroups = @(

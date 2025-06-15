@@ -388,7 +388,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     localSecurityOptionsVirtualizeFileAndRegistryWriteFailuresToPerUserLocations = $True
                     smartScreenBlockOverrideForFiles = $True
                     smartScreenEnableInShell = $True
-                    supportsScopeTags = $True
                     userRightsAccessCredentialManagerAsTrustedCaller = (New-CimInstance -ClassName MSFT_MicrosoftGraphdeviceManagementUserRightsSetting -Property @{
                         State = "notConfigured"
                         LocalUsersOrGroups = [CimInstance[]]@(
@@ -1035,7 +1034,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     localSecurityOptionsVirtualizeFileAndRegistryWriteFailuresToPerUserLocations = $True
                     smartScreenBlockOverrideForFiles = $True
                     smartScreenEnableInShell = $True
-                    supportsScopeTags = $True
                     userRightsAccessCredentialManagerAsTrustedCaller = (New-CimInstance -ClassName MSFT_MicrosoftGraphdeviceManagementUserRightsSetting -Property @{
                         State = "notConfigured"
                         LocalUsersOrGroups = [CimInstance[]]@(
@@ -1964,8 +1962,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         description = "FakeStringValue"
                         displayName = "FakeStringValue"
                         id = "FakeStringValue"
-                        supportsScopeTags = $True
-
                     }
                 }
             }
@@ -2313,7 +2309,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     localSecurityOptionsVirtualizeFileAndRegistryWriteFailuresToPerUserLocations = $True
                     smartScreenBlockOverrideForFiles = $True
                     smartScreenEnableInShell = $True
-                    supportsScopeTags = $True
                     userRightsAccessCredentialManagerAsTrustedCaller = (New-CimInstance -ClassName MSFT_MicrosoftGraphdeviceManagementUserRightsSetting -Property @{
                         State = "notConfigured"
                         LocalUsersOrGroups = [CimInstance[]]@(
@@ -3242,12 +3237,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         description = "FakeStringValue"
                         displayName = "FakeStringValue"
                         id = "FakeStringValue"
-                        supportsScopeTags = $True
-
                     }
                 }
             }
-
 
             It 'Should return true from the Test method' {
                 Test-TargetResource @testParams | Should -Be $true
@@ -3584,7 +3576,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     localSecurityOptionsVirtualizeFileAndRegistryWriteFailuresToPerUserLocations = $True
                     smartScreenBlockOverrideForFiles = $True
                     smartScreenEnableInShell = $True
-                    supportsScopeTags = $True
                     userRightsAccessCredentialManagerAsTrustedCaller = (New-CimInstance -ClassName MSFT_MicrosoftGraphdeviceManagementUserRightsSetting -Property @{
                         State = "notConfigured"
                         LocalUsersOrGroups = [CimInstance[]]@(
@@ -4985,8 +4976,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         description = "FakeStringValue"
                         displayName = "FakeStringValue"
                         id = "FakeStringValue"
-                        supportsScopeTags = $True
-
                     }
                 }
             }

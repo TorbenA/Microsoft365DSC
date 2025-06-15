@@ -499,7 +499,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 Credential            = $Credential
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

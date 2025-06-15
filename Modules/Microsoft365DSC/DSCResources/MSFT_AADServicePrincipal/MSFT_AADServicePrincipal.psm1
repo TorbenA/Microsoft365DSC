@@ -339,7 +339,7 @@ function Get-TargetResource
             ApplicationSecret                  = $ApplicationSecret
             TenantId                           = $TenantId
             CertificateThumbprint              = $CertificateThumbprint
-            Managedidentity                    = $ManagedIdentity.IsPresent
+            ManagedIdentity                    = $ManagedIdentity.IsPresent
             AccessTokens                       = $AccessTokens
         }
         Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
@@ -1084,7 +1084,7 @@ function Export-TargetResource
                 ApplicationSecret     = $ApplicationSecret
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AppID                 = $AADServicePrincipal.AppId
                 AccessTokens          = $AccessTokens
             }

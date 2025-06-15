@@ -22,10 +22,6 @@ function Get-TargetResource
         $RoleScopeTagIds,
 
         [Parameter()]
-        [System.Boolean]
-        $SupportsScopeTags,
-
-        [Parameter()]
         [System.String]
         $Id,
 
@@ -182,7 +178,6 @@ function Get-TargetResource
             Description           = $getValue.Description
             DisplayName           = $getValue.DisplayName
             RoleScopeTagIds       = $getValue.RoleScopeTagIds
-            SupportsScopeTags     = $getValue.SupportsScopeTags
             Id                    = $getValue.Id
             Ensure                = 'Present'
             Credential            = $Credential
@@ -240,10 +235,6 @@ function Set-TargetResource
         [Parameter()]
         [System.String[]]
         $RoleScopeTagIds,
-
-        [Parameter()]
-        [System.Boolean]
-        $SupportsScopeTags,
 
         [Parameter()]
         [System.String]
@@ -428,10 +419,6 @@ function Test-TargetResource
         [Parameter()]
         [System.String[]]
         $RoleScopeTagIds,
-
-        [Parameter()]
-        [System.Boolean]
-        $SupportsScopeTags,
 
         [Parameter()]
         [System.String]

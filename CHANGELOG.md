@@ -8,6 +8,7 @@
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
+  * [BREAKING CHANGE] Remove `SupportsScopeTags` property from all resources because it's read-only.
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
 
