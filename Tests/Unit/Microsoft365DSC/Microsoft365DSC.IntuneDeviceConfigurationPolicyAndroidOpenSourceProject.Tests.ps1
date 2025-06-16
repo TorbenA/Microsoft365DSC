@@ -24,7 +24,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             $secpasswd = ConvertTo-SecureString (New-Guid | Out-String) -AsPlainText -Force
             $Credential = New-Object System.Management.Automation.PSCredential ('tenantadmin@mydomain.com', $secpasswd)
 
-
             Mock -CommandName Confirm-M365DSCDependencies -MockWith {
             }
 
@@ -49,7 +48,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         ScreenCaptureBlocked                           = $True
                         PasswordMinimumLength                          = 25
                         BluetoothBlocked                               = $True
-                        '@odata.type'                                  = '#microsoft.graph.'
+                        '@odata.type'                                  = '#microsoft.graph.aospDeviceOwnerDeviceConfiguration'
                         AppsBlockInstallFromUnknownSources             = $True
                         FactoryResetBlocked                            = $True
                         CameraBlocked                                  = $True

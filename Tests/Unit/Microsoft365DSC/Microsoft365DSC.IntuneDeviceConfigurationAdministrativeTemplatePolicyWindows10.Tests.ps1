@@ -64,7 +64,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Get-MgBetaDeviceManagementGroupPolicyConfigurationDefinitionValue -MockWith {
                 return @(
                     @{
-                        ConfigurationType                = 'fakeConfigurationType'
+                        ConfigurationType                = 'policy'
                         Enabled                          = $true
                         Id                               = 'fakeDefinitionValueId'
                         PolicyConfigurationIngestionType = 'unknown'
@@ -115,7 +115,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Update-DeviceConfigurationGroupPolicyDefinitionValue -MockWith {
             }
 
-            $Script:exportedInstances = $null
             $Script:exportedInstance = $null
             $Script:ExportMode = $false
         }

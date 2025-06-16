@@ -42,7 +42,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
                 return @{
                     DisplayName          = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
-                    Description          = 'Different Value'
+                    Description          = 'Test IntuneDeviceConfigurationCustomPolicyiOS Description'
                     Id                   = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
                     AdditionalProperties = @{
                         Payload         = 'PHJvb3Q+PC9yb290Pg=='
@@ -62,7 +62,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
-            $Script:exportedInstances =$null
+            $Script:exportedInstance = $null
             $Script:ExportMode = $false
         }
 

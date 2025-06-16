@@ -163,7 +163,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name 'The IntuneWifiConfigurationPolicyAndroidOpenSourceProject exists and values are NOT in the desired state' -Fixture {
             BeforeAll {
                 $testParams = @{
-                    ConnectAutomatically           = $True
+                    ConnectAutomatically           = $False # Updated property
                     ConnectWhenNetworkNameIsHidden = $True
                     Description                    = 'FakeStringValue'
                     DisplayName                    = 'FakeStringValue'

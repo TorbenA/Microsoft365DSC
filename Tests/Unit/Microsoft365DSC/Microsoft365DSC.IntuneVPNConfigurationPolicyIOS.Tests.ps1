@@ -41,6 +41,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
                 return  @{
+                    Id                                          = 'FakeStringValue'
                     DisplayName                                 = 'FakeStringValue'
                     Description                                 = 'FakeStringValue'
                     AdditionalProperties                        = @{
@@ -183,7 +184,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             dnsServerAddressMatch              = 'FakeStringValue'
                         } -ClientOnly)
                     )
-                     targetedMobileApps                      = [CimInstance[]]@(
+                    targetedMobileApps                      = [CimInstance[]]@(
                         (New-CimInstance `
                         -ClassName MSFT_targetedMobileApps `
                         -Property @{

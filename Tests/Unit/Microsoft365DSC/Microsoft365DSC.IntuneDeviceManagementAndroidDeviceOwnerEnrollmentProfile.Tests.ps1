@@ -44,7 +44,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return @{
                     Id                      = "164655f7-1232-4d56-ae8f-b095196a0309";
                     DisplayName             = "Android Owner Enrollment Profile"
-                    Description             = "Profile for enrolling Android"
+                    Description             = "Profile for enrolling Android devices"
                     TokenExpirationDateTime = "2024-12-31T23:59:59Z"
                     TokenCreationDateTime   = "2024-12-31T23:59:59Z"
                     TokenValue              = "your-token-value"
@@ -54,7 +54,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     WifiSsid                = "your-wifi-ssid"
                     WifiPassword            = "your-wifi-password"
                     WifiSecurityType        = "wpa"
-                    Ensure                  = 'Present'
                 }
             }
 

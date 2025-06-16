@@ -142,7 +142,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     CertFileName = "FakeStringValue"
                     Description = "FakeStringValue"
-                    DestinationStore = "userCertStoreRoot" # Updated property
+                    DestinationStore = "userCertStoreIntermediate" # Updated property
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"
                     Ensure = 'Present'

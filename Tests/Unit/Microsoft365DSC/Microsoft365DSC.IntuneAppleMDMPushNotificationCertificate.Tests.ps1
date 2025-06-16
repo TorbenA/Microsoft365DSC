@@ -44,7 +44,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementApplePushNotificationCertificate -MockWith {
                 return @{
-                    AppleIdentifier          = "Patched cert";
+                    AppleIdentifier          = "Apple ID";
                     Certificate 	         = "Test cert";
                     Id                       = "66f4ec83-754f-4a59-a73d-e3182cc636a5";
                 }
@@ -60,7 +60,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Update-MgBetaDeviceManagementApplePushNotificationCertificate -MockWith {
             }
 
-            $Script:exportedInstances =$null
+            $Script:exportedInstance = $null
             $Script:ExportMode = $false
         }
 
@@ -73,7 +73,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Certificate 	        = "Test cert";
                     Id                      = "66f4ec83-754f-4a59-a73d-e3182cc636a5";
                     DataSharingConsetGranted = $True;
-
                     Ensure                  = 'Present';
                     Credential              = $Credential;
                 }

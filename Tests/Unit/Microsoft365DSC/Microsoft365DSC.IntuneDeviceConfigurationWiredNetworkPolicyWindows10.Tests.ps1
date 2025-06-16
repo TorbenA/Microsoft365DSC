@@ -47,7 +47,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
-            $Script:exportedInstances =$null
+            $Script:exportedInstance = $null
             $Script:ExportMode = $false
 
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfigurationAssignment -MockWith {
@@ -99,11 +99,11 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-IntuneDeviceConfigurationCertificateId -MockWith {
                 return 'a485d322-13cd-43ef-beda-733f656f48ea'
-            } -ParameterFilter { $DisplayName -eq 'RootCertificate' }
+            } -ParameterFilter { $CertificateDisplayName -eq 'RootCertificate' }
 
             Mock -CommandName Get-IntuneDeviceConfigurationCertificateId -MockWith {
                 return '0b9aef2f-1671-4260-8eb9-3ab3138e176a'
-            } -ParameterFilter { $DisplayName -eq 'ClientCertificate' }
+            } -ParameterFilter { $CertificateDisplayName -eq 'ClientCertificate' }
 
             Mock -CommandName Update-DeviceConfigurationPolicyCertificateId -MockWith {
             }
