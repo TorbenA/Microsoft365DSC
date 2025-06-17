@@ -544,7 +544,7 @@ function Set-TargetResource
         [Array]$groups = Get-MgBetaDirectoryDeletedItemAsGroup -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
         if ($groups.Length -gt 1)
         {
-            throw "Multiple deleted groups with the name {$DisplayName} were found. Cannot restore the existig group. Please ensure that you either have no instance of the group in the deleted list or that you have a single one."
+            throw "Multiple deleted groups with the name {$DisplayName} were found. Cannot restore the existing group. Please ensure that you either have no instance of the group in the deleted list or that you have a single one."
         }
 
         if ($groups.Length -eq 1)
@@ -626,7 +626,7 @@ function Set-TargetResource
     {
         try
         {
-            Remove-MgGroup -GroupId $currentGroup.ID | Out-Null
+            Remove-MgGroup -GroupId $currentGroup.Id | Out-Null
         }
         catch
         {
@@ -690,7 +690,7 @@ function Set-TargetResource
                 elseif ($diff.SideIndicator -eq '<=')
                 {
                     Write-Verbose -Message "Removing new owner {$($diff.InputObject)} to AAD Group {$($currentGroup.DisplayName)}"
-                    Remove-MgGroupOwnerDirectoryObjectByRef -GroupId ($currentGroup.Id) -DirectoryObjectId ($user.Id) | Out-Null
+                    Remove-MgGroupOwnerDirectoryObjectByRef -GroupId ($currentGroup.Id) -DirectoryObjectId ($directoryObject.Id) | Out-Null
                 }
             }
 
@@ -850,7 +850,7 @@ function Set-TargetResource
                     if ($diff.SideIndicator -eq '=>')
                     {
                         # see if memberOfGroup contains property SecurityEnabled (it can be true or false)
-                        if ($memberOfgroup.psobject.Typenames -match 'Group')
+                        if ($memberOfGroup.psobject.Typenames -match 'Group')
                         {
                             Write-Verbose -Message "Adding AAD group {$($currentGroup.DisplayName)} as member of AAD group {$($memberOfGroup.DisplayName)}"
                             New-MgGroupMember -GroupId ($memberOfGroup.Id) -DirectoryObject ($currentGroup.Id) | Out-Null
@@ -862,7 +862,7 @@ function Set-TargetResource
                     }
                     elseif ($diff.SideIndicator -eq '<=')
                     {
-                        if ($memberOfgroup.psobject.Typenames -match 'Group')
+                        if ($memberOfGroup.psobject.Typenames -match 'Group')
                         {
                             Write-Verbose -Message "Removing AAD Group {$($currentGroup.DisplayName)} from AAD group {$($memberOfGroup.DisplayName)}"
                             Remove-MgGroupMemberDirectoryObjectByRef -GroupId ($memberOfGroup.Id) -DirectoryObjectId ($currentGroup.Id) | Out-Null
