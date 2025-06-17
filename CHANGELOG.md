@@ -2,10 +2,12 @@
 
 # UNRELEASED
 
-* IntuneDeviceAndAppManagementAssignmentFilter
-  * Added property `AssignmentFilterManagementType` to supported properties.
 * IntuneDefenderGlobalExclusionsPolicyLinux
   * Initial release.
+* IntuneDeviceAndAppManagementAssignmentFilter
+  * Added property `AssignmentFilterManagementType` to supported properties.
+* IntuneDeviceCompliancePolicyAndroidDeviceOwner
+  * Added new property `SecurityBlockJailbrokenDevices`.
 * IntuneWindowsHelloForBusinessGlobalPolicy
   * Initial release.
     FIXES [#4561](https://github.com/microsoft/Microsoft365DSC/issues/4561)
