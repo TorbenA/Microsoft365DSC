@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* AADGroup
+  * Fix for removing Group owner.
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
 * IntuneDefenderGlobalExclusionsPolicyLinux
