@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* IntuneDefenderGlobalExclusionsPolicyLinux
+  * Initial release.
 * IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10
   * Deprecated resource.
 * IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10SettingCatalog
