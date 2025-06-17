@@ -16,6 +16,8 @@
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
+* AADRoleAssignmentScheduleRequest
+  * FIXES [#5710](https://github.com/microsoft/Microsoft365DSC/issues/5710)
 
 # 1.25.611.1
 
