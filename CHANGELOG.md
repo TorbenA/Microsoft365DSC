@@ -6,6 +6,8 @@
   * New resource AADGroupElegibilityScheduleSettings
 * IntuneDefenderGlobalExclusionsPolicyLinux
   * Initial release.
+* IntuneDeviceCompliancePolicyAndroidDeviceOwner
+  * Added new property `SecurityBlockJailbrokenDevices`.
 * IntuneWindowsHelloForBusinessGlobalPolicy
   * Initial release.
     FIXES [#4561](https://github.com/microsoft/Microsoft365DSC/issues/4561)
