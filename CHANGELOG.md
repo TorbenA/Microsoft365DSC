@@ -14,6 +14,8 @@
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
+  * Added module pinning.
+    FIXES [#6168](https://github.com/microsoft/Microsoft365DSC/issues/6168)
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
 

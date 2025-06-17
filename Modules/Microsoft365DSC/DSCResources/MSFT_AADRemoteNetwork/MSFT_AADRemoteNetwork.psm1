@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADRemoteNetwork'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -728,3 +730,4 @@ function Get-MicrosoftGraphRemoteNetworkDeviceLinksHashtable
 }
 
 Export-ModuleMember -Function *-TargetResource
+

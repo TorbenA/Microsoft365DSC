@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_DefenderSubscriptionPlan'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -469,3 +471,4 @@ securityresources | where type == "microsoft.security/pricings" | project Id=id,
 
 
 Export-ModuleMember -Function *-TargetResource
+

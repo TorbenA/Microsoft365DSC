@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADGroup'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -1393,3 +1395,4 @@ function Get-M365DSCCombinedLicenses
     return $result
 }
 Export-ModuleMember -Function *-TargetResource
+
