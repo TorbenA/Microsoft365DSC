@@ -16,6 +16,9 @@
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
+* TeamsMeetingPolicy
+  * Added missing Parameter 'RoomAttributeUserOverride' to Get-TargetResource's output.
+    Fixes [#6183](https://github.com/microsoft/Microsoft365DSC/issues/6183)
 
 # 1.25.611.1
 
