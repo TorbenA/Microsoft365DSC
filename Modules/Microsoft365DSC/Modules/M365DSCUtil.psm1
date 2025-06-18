@@ -1045,6 +1045,9 @@ Specifies the name of the configuration that will be generated.
 .Parameter Components
 Specifies the components for which an export should be created.
 
+.Parameter ExcludeComponents
+Specifies the components to skip when creating the export
+
 .Parameter Workloads
 Specifies the workload for which an export should be created for all resources.
 
@@ -1095,6 +1098,9 @@ Export-M365DSCConfiguration -Components @("AADApplication", "AADConditionalAcces
 
 .Example
 Export-M365DSCConfiguration -Credential $Credential -Filters @{AADApplication = "DisplayName eq 'MyApp'"}
+
+.Example
+Export-M365DSCConfiguration -Workloads @("SPO") -ExcludeComponents @("SPOPropertyBag") -Credential $Credential
 
 .Functionality
 Public

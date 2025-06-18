@@ -10,6 +10,9 @@
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
+* Export-M365DSCConfiguration
+  * Add -ExcludeComponents parameter to allow for easy skipping of certain components.
+    FIXED [#6192(https://github.com/microsoft/Microsoft365DSC/issues/6192)]
 
 # 1.25.611.1
 
