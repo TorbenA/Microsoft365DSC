@@ -1125,6 +1125,10 @@ function Export-M365DSCConfiguration
         $Components,
 
         [Parameter(ParameterSetName = 'Export')]
+        [System.String[]]
+        $ExcludeComponents,
+
+        [Parameter(ParameterSetName = 'Export')]
         [ValidateSet('AAD', 'ADO', 'AZURE', 'COMMERCE', 'DEFENDER', 'EXO', 'FABRIC', 'INTUNE', 'O365', 'OD', 'PLANNER', 'PP', 'SC', 'SENTINEL', 'SH', 'SPO', 'TEAMS')]
         [System.String[]]
         $Workloads,
@@ -1327,6 +1331,7 @@ function Export-M365DSCConfiguration
         Write-M365DSCHost -Message "Exporting Microsoft 365 configuration for Workloads: $($Workloads -join ', ')"
         Start-M365DSCConfigurationExtract -Credential $Credential `
             -Workloads $Workloads `
+            -ExcludeComponents $ExcludeComponents `
             -Mode $Mode `
             -Path $Path -FileName $FileName `
             -ConfigurationName $ConfigurationName `
@@ -1347,6 +1352,7 @@ function Export-M365DSCConfiguration
         Write-M365DSCHost -Message "Exporting Microsoft 365 configuration for Components: $($Components -join ', ')"
         Start-M365DSCConfigurationExtract -Credential $Credential `
             -Components $Components `
+            -ExcludeComponents $ExcludeComponents `
             -Path $Path -FileName $FileName `
             -ConfigurationName $ConfigurationName `
             -ApplicationId $ApplicationId `
@@ -1366,6 +1372,7 @@ function Export-M365DSCConfiguration
         Write-M365DSCHost -Message "Exporting Microsoft 365 configuration for Mode: $Mode"
         Start-M365DSCConfigurationExtract -Credential $Credential `
             -Mode $Mode `
+            -ExcludeComponents $ExcludeComponents `
             -Path $Path -FileName $FileName `
             -ConfigurationName $ConfigurationName `
             -ApplicationId $ApplicationId `
