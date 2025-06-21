@@ -7,6 +7,12 @@
     FIXES [#6182](https://github.com/microsoft/Microsoft365DSC/issues/6182)
 * AADGroup
   * Fix for removing Group owner.
+* AADServicePrincipal
+  * Fixed an issue where the `AppId` won't be exported.
+    FIXES [#6200](https://github.com/microsoft/Microsoft365DSC/issues/6200)
+    FIXES [#6181](https://github.com/microsoft/Microsoft365DSC/issues/6181)
+    FIXES [#6045](https://github.com/microsoft/Microsoft365DSC/issues/6045)
+    FIXES [#5419](https://github.com/microsoft/Microsoft365DSC/issues/5419)
 * IntuneDeviceCompliancePolicyAndroidDeviceOwner
   * Added new property `SecurityBlockJailbrokenDevices`.
 * IntuneDefenderGlobalExclusionsPolicyLinux
