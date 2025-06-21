@@ -16,6 +16,10 @@ function Get-TargetResource
         [System.String]
         $Description,
 
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
         # In next Breaking Change set it to 'notConfigured', 'block', 'auditMode', 'warn', 'disable', don't forget to update the schema as well
         [Parameter()]
         [ValidateSet('notConfigured', 'userDefined', 'block', 'auditMode', 'warn', 'disable')]
@@ -196,7 +200,9 @@ function Get-TargetResource
                 Write-Verbose -Message "No Endpoint Protection Attack Surface Protection rules Policy with identity {$Identity} was found"
                 if (-not [String]::IsNullOrEmpty($DisplayName))
                 {
-                    $policy = Get-MgBetaDeviceManagementIntent -All -Filter "DisplayName eq '$DisplayName'" -ErrorAction SilentlyContinue
+                    $filter = "DisplayName eq '$($DisplayName -replace "'", "''")' and (TemplateId eq '0e237410-1367-4844-bd7f-15fb0f08943b')"
+                    $policy = Get-MgBetaDeviceManagementIntent -All `
+                                                               -Filter $filter -ErrorAction SilentlyContinue
                 }
 
                 if (([array]$policy).count -gt 1)
@@ -224,6 +230,7 @@ function Get-TargetResource
         $returnHashtable.Add('Identity', $policy.Id)
         $returnHashtable.Add('DisplayName', $policy.DisplayName)
         $returnHashtable.Add('Description', $policy.Description)
+        $returnHashtable.Add('RoleScopeTagIds', $policy.RoleScopeTagIds)
 
         foreach ($setting in $settings)
         {
@@ -293,6 +300,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         # In next Breaking Change set it to 'notConfigured', 'block', 'auditMode', 'warn', 'disable', don't forget to update the schema as well
         [Parameter()]
@@ -593,6 +604,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         # In next Breaking Change set it to 'notConfigured', 'block', 'auditMode', 'warn', 'disable', don't forget to update the schema as well
         [Parameter()]

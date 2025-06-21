@@ -59,27 +59,34 @@ function Get-TargetResource
 
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Id -ne $Id)
+        {
+            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                -InboundParameters $PSBoundParameters
 
-        #Ensure the proper dependencies are installed in the current environment.
-        Confirm-M365DSCDependencies
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
 
-        #region Telemetry
-        $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-        $CommandName = $MyInvocation.MyCommand
-        $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-            -CommandName $CommandName `
-            -Parameters $PSBoundParameters
-        Add-M365DSCTelemetryEvent -Data $data
-        #endregion
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
 
-        $nullResult = $PSBoundParameters
-        $nullResult.Ensure = 'Absent'
+            $nullResult = $PSBoundParameters
+            $nullResult.Ensure = 'Absent'
 
-        $getValue = $null
-        #region resource generator code
-        $getValue = Get-MgBetaIdentityB2XUserFlow -B2XIdentityUserFlowId $Id -ErrorAction SilentlyContinue
+            $getValue = $null
+            #region resource generator code
+            $getValue = Get-MgBetaIdentityB2XUserFlow -B2XIdentityUserFlowId $Id -ErrorAction SilentlyContinue
+        }
+        else
+        {
+            $getValue = $Script:exportedInstance
+        }
 
         if ($null -eq $getValue)
         {
@@ -241,7 +248,7 @@ function Set-TargetResource
         $newApiConnectorConfiguration = @{}
         if (-not [string]::IsNullOrEmpty($ApiConnectorConfiguration.postFederationSignupConnectorName))
         {
-            $getConnector = Get-MgBetaIdentityApiConnector -Filter "DisplayName eq '$($ApiConnectorConfiguration.postFederationSignupConnectorName)'"
+            $getConnector = Get-MgBetaIdentityApiConnector -Filter "DisplayName eq '$($ApiConnectorConfiguration.postFederationSignupConnectorName -replace "'", "''")'"
             $newApiConnectorConfiguration['PostFederationSignup'] = @{
                 'Id' = $getConnector.Id
             }
@@ -249,7 +256,7 @@ function Set-TargetResource
 
         if (-not [string]::IsNullOrEmpty($ApiConnectorConfiguration.postAttributeCollectionConnectorName))
         {
-            $getConnector = Get-MgBetaIdentityApiConnector -Filter "DisplayName eq '$($ApiConnectorConfiguration.postAttributeCollectionConnectorName)'"
+            $getConnector = Get-MgBetaIdentityApiConnector -Filter "DisplayName eq '$($ApiConnectorConfiguration.postAttributeCollectionConnectorName -replace "'", "''")'"
             $newApiConnectorConfiguration['PostAttributeCollection'] = @{
                 'Id' = $getConnector.Id
             }
@@ -316,7 +323,7 @@ function Set-TargetResource
         #region Update ApiConnectorConfiguration object
         if (-not [string]::IsNullOrEmpty($ApiConnectorConfiguration.postFederationSignupConnectorName))
         {
-            $getConnector = Get-MgBetaIdentityApiConnector -Filter "DisplayName eq '$($ApiConnectorConfiguration.postFederationSignupConnectorName)'"
+            $getConnector = Get-MgBetaIdentityApiConnector -Filter "DisplayName eq '$($ApiConnectorConfiguration.postFederationSignupConnectorName -replace "'", "''")'"
             $params = @{
                 '@odata.id' = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/identity/apiConnectors/$($getConnector.Id)"
             }
@@ -328,7 +335,7 @@ function Set-TargetResource
 
         if (-not [string]::IsNullOrEmpty($ApiConnectorConfiguration.postAttributeCollectionConnectorName))
         {
-            $getConnector = Get-MgBetaIdentityApiConnector -Filter "DisplayName eq '$($ApiConnectorConfiguration.postAttributeCollectionConnectorName)'"
+            $getConnector = Get-MgBetaIdentityApiConnector -Filter "DisplayName eq '$($ApiConnectorConfiguration.postAttributeCollectionConnectorName -replace "'", "''")'"
             $params = @{
                 '@odata.id' = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/identity/apiConnectors/$($getConnector.Id)"
             }
@@ -623,6 +630,7 @@ function Export-TargetResource
                 AccessTokens          = $AccessTokens
             }
 
+            $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
             if ($null -ne $Results.ApiConnectorConfiguration)
             {

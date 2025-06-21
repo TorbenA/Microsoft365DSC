@@ -4,8 +4,265 @@
 * AADEntitlementManagementAccessPackage
   * Fix catalogId variables used when adding resource to access package from catalog
 
+* AADApplication
+  * Fix to properly handle PreAuthorizedApplications in the Set-TargetResource method
+    FIXES [#6182](https://github.com/microsoft/Microsoft365DSC/issues/6182)
+* AADGroup
+  * Fix for removing Group owner.
+* IntuneDeviceCompliancePolicyAndroidDeviceOwner
+  * Added new property `SecurityBlockJailbrokenDevices`.
+* IntuneDefenderGlobalExclusionsPolicyLinux
+  * Initial release.
+* IntuneWindowsHelloForBusinessGlobalPolicy
+  * Initial release.
+    FIXES [#4561](https://github.com/microsoft/Microsoft365DSC/issues/4561)
+* MISC
+  * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
+    FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
+* AADGroupElegibilityScheduleSettings
+  * New resource AADGroupElegibilityScheduleSettings
+
+# 1.25.611.1
+
+* AADAdministrativeUnit
+  * Upgrade from beta to v1.0 Microsoft Graph endpoint for Administrative Unit,
+    Device, Directory Role and Directory Role Template.
+    FIXES [#4438](https://github.com/microsoft/Microsoft365DSC/issues/4438)
+  * Remove unnecessary Graph requests when retrieving AU membership.
+* AADConditionalAccessPolicy
+  * Upgrade from beta to v1.0 Microsoft Graph endpoint for Directory Role Template.
+* AADGroup
+  * Allow DisplayName to include apostrophes.
+  * Upgrade from beta to v1.0 Microsoft Graph endpoint for Device.
+* AADPIMGroupSetting
+  * [#6117] Initial relase.
+* EXODistributionGroup
+  * Return PrimarySmtpAddress instead of DisplayName for Members field,
+    and ManagedBy and ModeratedBy field, to allow values to be set.
+  * Allow ManagedBy and ModeratedBy fields including groups or contacts.
+* EXOGroupSettings
+  * Use the existing group ID to apply updates instead of DisplayName.
+* EXOManagementRoleAssignment
+  * Upgrade from beta to v1.0 Microsoft Graph endpoint for Administrative Units.
+    FIXES [#4438](https://github.com/microsoft/Microsoft365DSC/issues/4438)
+* EXORoleGroup
+  * Add offline filter capability to `Export-TargetResource`.
+    FIXES [#4286](https://github.com/microsoft/Microsoft365DSC/issues/4286)
+* IntuneDeviceCompliancePolicyWindows10
+  * Added support for `Id` and `ScheduledActionsForRule` property.
+    FIXES [#6123](https://github.com/microsoft/Microsoft365DSC/issues/6123)
+    FIXES [#3563](https://github.com/microsoft/Microsoft365DSC/issues/3563)
+* IntuneRoleAssignment
+  * Update evaluation of parameters.
+    FIXES [#5929](https://github.com/microsoft/Microsoft365DSC/issues/5929)
+* DEPENDENCIES
+  * Added dependency on Microsoft.Graph.Identity.DirectoryManagement.
+  * Added dependency on Microsoft.Graph.Identity.Signins.
+  * Updated MSCloudLoginAssistant to version 1.1.45;
+* MISC
+  * Allow use of apostrophes in DisplayName for all resources types.
+
+# 1.25.604.1
+
+* AADAdministrativeUnit
+  * Allow DisplayName to include apostrophes.
+* AADApplication
+  * Fixed issue where the property AuthenticationBehaviors was incorrectly
+    exported as an array.
+  * Fixed issue where the AuthenticationBehaviors wasn't processed properly
+    and added example how to enforce an empty configuration.
+  * Deprecated AuthenticationBehavior\RequireClientServicePrincipal property.
+    Trying to set this property will throw an error.
+  * Fixed issue where the property Permissions was not exported as an array
+* AADCrossTenantAccessPolicyConfigurationPartner
+  * Fix export issue where B2B settings are not exported when these are set
+    to default settings.
+* AADEntitlementManagementAccessPackageAssignmentPolicy
+  * Fixing export issue where AccessReviewSettings does not contain correct
+    info when access reviews are disabled.
+    FIXES [#5941](https://github.com/microsoft/Microsoft365DSC/issues/5941)
+* AADGroup
+  * Fixed issue where the property Permissions was not exported as an array
+* AADRoleAssignmentScheduleRequest
+  * Fix export issue where Recurrence settings are not exported when they
+    are not configured.
+* AADRoleEligibilityScheduleRequest
+  * Fix export issue where Recurrence settings are not exported when they
+    are not configured.
+* EXOMobileDeviceMailboxPolicy
+  * Fix export issue where two properties were exported as integer, where
+    the schema expects a string.
+* EXOQuarantinePolicy
+  * Updated the schema to match the parameter value in the code. The schema
+    defined this property as a string, where the code expected and integer.
+    NOTE: This should not cause any issues, since the export already exported
+    this value as an integer.
+* IntuneSecurityBaselineMicrosoftEdge
+  * Updated to latest template and deprecated `EdgeEnhanceImagesEnabled` as well as `WebSQLAccess`.
+* IntuneSecurityBaselineWindows10
+  * Updated resource with new 24H2 properties.
+* SCDLPComplianceRule
+  * Fixed apostrophes in the export method.
+* SCSensitivityLabel
+  * Fixed issue where the Groups property in AutoLabelingSettings was not
+    exported as an array.
+  * Fixed issue where the export of AdvancedSettings had a key but no value,
+    which caused errors during deployment. Now ignoring setting if no value
+    is set.
+* SPORetentionLabelsSettings
+  * Correcting permissions in settings.json
+* TeamsGroupPolicyAssignment
+  * Fix export issue where two properties were exported as integer, where
+    the schema expects a string.
+* TeamsVdiPolicy
+  * Added support for `VDI2Optimization` property.
+* VivaEngagementRoleMember
+  * Initial release.
+* MISC
+  * Added `RoleScopeTagIds` property across the Intune resources.
+
+# 1.25.528.1
+
+* EXORetentionPolicyTag
+  * Fixes an issue where the AgeLimitForRetention  could be added twice in the results
+    from Get-TargetResource.
+* DEPENDENCIES
+  * Updated ExchangeOnlineManagement to version 3.2.0
+  * Updated Microsoft.Graph to version 2.28.0
+  * Updated MSCloudLoginAssistant to version 1.1.44
+
+# UNRELEASED
+
+* AADGroupElegibilityScheduleSettings
+  * New resource AADGroupElegibilityScheduleSettings
+
+# 1.25.521.1
+
+* AADServicePrincipal
+  * Fixed the assignment of AppRoleAssignedTo when creatign a new Service Principal.
+  * Adds `-All` to `Get-MgServicePrincipalAppRoleAssignedTo` call to return more than 100 records
+* IntuneASRRulesPolicyWindows10
+  * Removed newly added template ID, it belongs to `IntuneApplicationControlPolicyWindows10`.
+* IntuneDeviceConfigurationSCEPCertificatePolicyWindows10
+  * Allow the combination of `sha1,sha2` as a value for `HashAlgorithm`.
+* IntuneMobileAppsWindowsOfficeSuiteApp
+  * Fixed an issue where the `ExcludedApps` property would be in an invalid format.
+* SPOApp
+  * Fixed an issue where the export would fail.
+    FIXES [#5810](https://github.com/microsoft/Microsoft365DSC/issues/5810)
+    FIXES [#4557](https://github.com/microsoft/Microsoft365DSC/issues/4557)
+* TeamsMeetingPolicy
+  * Added support for the new CaptchaVerificationForMeetingJoin property.
+* MISC
+  * Updated required permissions for Intune script resources.
+  * Added a new LCMState property to drifts in event logging.
+
+# 1.25.514.1
+
+* AADApplication
+  * Fixed an issue where the `AdminConsentGranted` property had an incorrect value.
+    FIXES [#5027](https://github.com/microsoft/Microsoft365DSC/issues/5027)
+* EXOTransportRule
+  * Fixed an issue where not specified properties would lead to an exception.
+* IntuneASRRulesPolicyWindows10
+  * Added filter on additional template ID for both the Export and Get methods.
+* IntuneWifiConfigurationPolicyAndroidForWork
+  * Fixed an issue where the wrong odata type was used for export and creation.
+* TeamsFederationConfiguration
+  * DEPRECATED the AllowPublicUsers property.
+* DEPENDENCIES
+  * Updates DSCParser to version 2.0.0.17.
+* MISC
+  * Improved export speed for multiple resources.
+
+# 1.25.509.1
+
+* AADAppManagementPolicy
+  * Initial release.
+* AADAuthenticationFlowPolicy
+  * Fixes way argument is passed to `Update-MgBetaPolicyAuthenticationFlowPolicy` to now send as bodyparameter instead of `-SelfServiceSignUp $true/$false`
+* AADB2CAuthenticationMethodsPolicy
+  * Initial release.
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Updated Set-TargetResource to call the REST APIs directly, fixing
+    an issue with the cmdlet parameter casing.
+* AADMultiTenantOrganizationIdentitySyncPolicyTemplate
+  * Initial release.
+* AADTenantAppManagementPolicy
+  * Initial release.
+* AADTokenIssuancePolicy
+  * Initial release.
+* EXORecipientPermission
+  * Ensures the right entry is retrieved from the Get-TargetResource
+    method when multiple instances start with the same word pattern.
+* EXORetentionPolicyTag
+  * Fixes the evaluation of the AgeLimitForRetention property.
+* IntuneWifiConfigurationPolicyAndroidEnterpriseDeviceOwner
+  * Fixes the template type in the Get-Targetresource.
+* IntuneWifiConfigurationPolicyIOS
+  * Fixed Test-TargetResource and available properties.
+    FIXES [#3973](https://github.com/microsoft/Microsoft365DSC/issues/3973)
+* IntuneWifiConfigurationPolicyMacOS
+  * Added additional properties to the export.
+* IntuneWifiConfigurationPolicyWindows10
+  * Added additional properties to the export.
+    FIXES [#3963](https://github.com/microsoft/Microsoft365DSC/issues/3963)
+ * PlannerTask
+  * Allow setting of up to 25 categories.
+    FIXES [#6052](https://github.com/microsoft/Microsoft365DSC/issues/6052)
+* TeamsAppSetupPolicy
+  * Fixes evaluation of empty values in Test-TargetResource.
+* M365DSCReverse
+  * Removed the parameter `MaxProcesses` from the internal `Start-M365DSCConfigurationExtract` function.
+* M365DSCUtil
+  * Removed the parameter `MaxProcesses` from the public `Export-M365DSCConfiguration` function.
+    FIXES [#5982](https://github.com/microsoft/Microsoft365DSC/issues/5982)
+  * Fixed an issue where basic arrays would not be compared correctly.
+* DEPENDENCIES
+  * Updated ExchangeOnlineManagement to version 3.7.2
+  * Updated MicrosoftTeams to version 7.0.0
+
+# 1.25.430.1
+
+* AADServicePrincipal
+  * Fixes the evaluation of Enterprise app when AppId is passed in GUID form.
+* EXODistributionGroup
+  * Changed Get-TargetResource not to throw an error when the instance doesn't exist.
+* EXORetentionPolicy
+  * Changed Get-TargetResource not to throw an error when the instance doesn't exist.
+* EXORoleGroup
+  * Changed logic to always evaluate using the email address for both users
+    and groups in the Test-TargetResource method.
+* M365DSCRuleEvaluation
+  * Unload the modules after each exports to help with memory assignment.
+* TeamsOnlineVoicemailUserSettings
+  * Remove connection to graph to retrieve all users in the export flow.
+
+# 1.25.423.1
+
+* AADEntitlementManagementConnectedOrganization
+  * Fixed an issue where an empty display name would result in a parameter binding exception.
+    FIXES [#4981](https://github.com/microsoft/Microsoft365DSC/issues/4981)
+* EXOHostedContentFilterPolicy
+  * Fixed an issue with setting the default value for `IntraOrgFilterState`.
+    FIXES [#5031](https://github.com/microsoft/Microsoft365DSC/issues/5031)
+* IntuneAppProtectionPolicyiOS
+  * Fixed empty array comparison.
+    FIXES [#5736](https://github.com/microsoft/Microsoft365DSC/issues/5736)
+* IntuneDeviceEnrollmentLimitRestriction
+  * Added support for `Assignments`, `Priority` and `RoleScopeTagIds` properties.
+    FIXES [#3915](https://github.com/microsoft/Microsoft365DSC/issues/3915)
+* IntuneWifiConfigurationPolicyAndroidEnterpriseWorkProfile
+  * Fixes the data type for extraction and creation.
+* SPOSearchManagedProperty
+  * Fixed an issue where the connection url was not the admin url required by the resource.
+    FIXES [#5093](https://github.com/microsoft/Microsoft365DSC/issues/5093)
+    FIXES [#4538](https://github.com/microsoft/Microsoft365DSC/issues/4538)
 * DEPENDENCIES
   * Updated Microsoft.Graph to version 2.27.0.
+  * Updated MSCoudLoginAssistant to version 1.1.43.
+* MISC
+  * Fixes case sensitivity comparison when updating device configuration policies.
 
 # 1.25.416.1
 

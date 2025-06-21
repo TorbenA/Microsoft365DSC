@@ -69,7 +69,7 @@ function Get-TargetResource
     $nullResult.Ensure = 'Absent'
     try
     {
-        $servicePrincipal = Get-MgServicePrincipal -Filter "DisplayName eq '$($AppName)'"
+        $servicePrincipal = Get-MgServicePrincipal -Filter "DisplayName eq '$($AppName -replace "'", "''")'"
 
         if ($null -eq $servicePrincipal)
         {
@@ -183,7 +183,7 @@ function Set-TargetResource
 
     $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-    $servicePrincipal = Get-MgServicePrincipal -Filter "DisplayName eq '$($AppName)'"
+    $servicePrincipal = Get-MgServicePrincipal -Filter "DisplayName eq '$($AppName -replace "'", "''")'"
 
     # CREATE
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
@@ -341,7 +341,7 @@ function Export-TargetResource
         [array] $Script:exportedInstances = Get-ServicePrincipal -ErrorAction Stop
 
         $i = 1
-        $dscContent = ''
+        $dscContent = [System.Text.StringBuilder]::new()
         if ($Script:exportedInstances.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
@@ -378,13 +378,13 @@ function Export-TargetResource
                 -ModulePath $PSScriptRoot `
                 -Results $Results `
                 -Credential $Credential
-            $dscContent += $currentDSCBlock
+            $dscContent.Append($currentDSCBlock) | Out-Null
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
             $i++
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {

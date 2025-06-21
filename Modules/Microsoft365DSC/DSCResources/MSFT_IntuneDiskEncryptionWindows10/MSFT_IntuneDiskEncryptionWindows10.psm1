@@ -375,7 +375,7 @@ function Get-TargetResource
                 {
                     $getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
                         -All `
-                        -Filter "Name eq '$DisplayName' and templateReference/TemplateId eq '$templateReferenceId'" `
+                        -Filter "Name eq '$($DisplayName -replace "'", "''")' and templateReference/TemplateId eq '$templateReferenceId'" `
                         -ErrorAction SilentlyContinue
 
                     if ($getValue.Length -gt 1)
@@ -402,6 +402,7 @@ function Get-TargetResource
         [array]$settings = Get-MgBetaDeviceManagementConfigurationPolicySetting `
             -DeviceManagementConfigurationPolicyId $Id `
             -ExpandProperty 'settingDefinitions' `
+            -All `
             -ErrorAction Stop
 
         $policySettings = @{}

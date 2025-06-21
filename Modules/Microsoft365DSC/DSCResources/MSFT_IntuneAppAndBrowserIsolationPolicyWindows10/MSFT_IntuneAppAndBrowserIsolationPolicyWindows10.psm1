@@ -187,7 +187,7 @@ function Get-TargetResource
                 {
                     $getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
                         -All `
-                        -Filter "Name eq '$DisplayName'" `
+                        -Filter "Name eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue
 
                     if ($getValue.Length -gt 1)
@@ -214,6 +214,7 @@ function Get-TargetResource
         [array]$settings = Get-MgBetaDeviceManagementConfigurationPolicySetting `
             -DeviceManagementConfigurationPolicyId $Id `
             -ExpandProperty 'settingDefinitions' `
+            -All `
             -ErrorAction Stop
 
         $policySettings = @{}

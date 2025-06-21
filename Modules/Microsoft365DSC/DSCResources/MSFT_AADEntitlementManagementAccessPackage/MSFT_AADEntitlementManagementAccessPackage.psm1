@@ -82,51 +82,60 @@ function Get-TargetResource
 
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters
-
-        #Ensure the proper dependencies are installed in the current environment.
-        Confirm-M365DSCDependencies
-
-        #region Telemetry
-        $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-        $CommandName = $MyInvocation.MyCommand
-        $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-            -CommandName $CommandName `
-            -Parameters $PSBoundParameters
-        Add-M365DSCTelemetryEvent -Data $data
-        #endregion
-
-        $nullResult = $PSBoundParameters
-        $nullResult.Ensure = 'Absent'
-        $getValue = $null
-
-        if (-not [System.String]::IsNullOrEmpty($id))
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Id -ne $Id)
         {
-            $getValue = Get-MgBetaEntitlementManagementAccessPackage -AccessPackageId $id `
+            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullResult = $PSBoundParameters
+            $nullResult.Ensure = 'Absent'
+            $getValue = $null
+
+            if (-not [System.String]::IsNullOrEmpty($id))
+            {
+                $getValue = Get-MgBetaEntitlementManagementAccessPackage -AccessPackageId $id `
+                    -ExpandProperty "accessPackageResourceRoleScopes(`$expand=accessPackageResourceRole,accessPackageResourceScope)" `
+                    -ErrorAction SilentlyContinue
+            }
+
+            if ($null -eq $getValue)
+            {
+                if (-not [System.String]::IsNullOrEmpty($id))
+                {
+                    Write-Verbose -Message "Could not find an Azure AD Entitlement Management Access Package with Id {$id}"
+                }
+
+                if (-Not [string]::IsNullOrEmpty($DisplayName))
+                {
+                    $getValue = Get-MgBetaEntitlementManagementAccessPackage `
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
+                        -ExpandProperty "accessPackageResourceRoleScopes(`$expand=accessPackageResourceRole,accessPackageResourceScope)" `
+                        -ErrorAction SilentlyContinue
+                }
+            }
+        }
+        else
+        {
+            $getValue = Get-MgBetaEntitlementManagementAccessPackage -AccessPackageId $Id `
                 -ExpandProperty "accessPackageResourceRoleScopes(`$expand=accessPackageResourceRole,accessPackageResourceScope)" `
                 -ErrorAction SilentlyContinue
         }
 
         if ($null -eq $getValue)
         {
-            if (-not [System.String]::IsNullOrEmpty($id))
-            {
-                Write-Verbose -Message "Nothing with id {$id} was found"
-            }
-
-            if (-Not [string]::IsNullOrEmpty($DisplayName))
-            {
-                $getValue = Get-MgBetaEntitlementManagementAccessPackage `
-                    -Filter "displayName eq '$DisplayName'" `
-                    -ExpandProperty "accessPackageResourceRoleScopes(`$expand=accessPackageResourceRole,accessPackageResourceScope)" `
-                    -ErrorAction SilentlyContinue
-            }
-        }
-
-        if ($null -eq $getValue)
-        {
-            Write-Verbose -Message "Nothing with DisplayName {$DisplayName} was found"
+            Write-Verbose -Message "No Azure AD Entitlement Management Access Package with DisplayName {$DisplayName} was found"
             return $nullResult
         }
 
@@ -325,7 +334,7 @@ function Set-TargetResource
         $ObjectGuid = [System.Guid]::empty
         if (-not [System.Guid]::TryParse($CreateParameters.CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
         {
-            $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($CreateParameters.CatalogId)'"
+            $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($CreateParameters.CatalogId -replace "'", "''")'"
             if ($catalogInstance)
             {
                 $CreateParameters.CatalogId = $catalogInstance.Id
@@ -385,8 +394,8 @@ function Set-TargetResource
                 -ExpandProperty 'accessPackageResourceScopes'
 
             $resourceRole = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourceRole `
-                -AccessPackageCatalogId $CreateParameters.CatalogId `
-                -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and displayname eq '$roleName' and originSystem eq '$($resourceScope.originSystem)')" `
+                -AccessPackageCatalogId $CatalogId `
+                -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and DisplayName eq '$($roleName -replace "'", "''")' and originSystem eq '$($resourceScope.originSystem)')" `
                 -ExpandProperty 'accessPackageResource'
 
             $isValidRoleScope = $true
@@ -441,7 +450,7 @@ function Set-TargetResource
         $ObjectGuid = [System.Guid]::empty
         if (-not [System.Guid]::TryParse($CreateParameters.CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
         {
-            $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($UpdateParameters.CatalogId)'"
+            $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($UpdateParameters.CatalogId -replace "'", "''")'"
             if ($catalogInstance)
             {
                 $UpdateParameters.CatalogId = $catalogInstance.Id
@@ -551,8 +560,8 @@ function Set-TargetResource
                     -ExpandProperty 'accessPackageResourceScopes'
 
                 $resourceRole = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourceRole `
-                    -AccessPackageCatalogId $UpdateParameters.CatalogId `
-                    -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and displayname eq '$roleName' and originSystem eq '$($resourceScope.originSystem)')" `
+                    -AccessPackageCatalogId $CatalogId `
+                    -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and DisplayName eq '$($roleName -replace "'", "''")' and originSystem eq '$($resourceScope.originSystem)')" `
                     -ExpandProperty 'accessPackageResource'
 
                 $isValidRoleScope = $true
@@ -612,8 +621,8 @@ function Set-TargetResource
                         -ExpandProperty 'accessPackageResourceScopes'
 
                     $resourceRole = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourceRole `
-                        -AccessPackageCatalogId $UpdateParameters.CatalogId `
-                        -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and displayname eq '$roleName' and originSystem eq '$($resourceScope.originSystem)')" `
+                        -AccessPackageCatalogId $CatalogId `
+                        -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and DisplayName eq '$($roleName -replace "'", "''")' and originSystem eq '$($resourceScope.originSystem)')" `
                         -ExpandProperty 'accessPackageResource'
 
                     $isValidRoleScope = $true
@@ -951,6 +960,7 @@ function Export-TargetResource
                 AccessTokens          = $AccessTokens
             }
 
+            $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
             if ($null -ne $Results.AccessPackageResourceRoleScopes)
             {

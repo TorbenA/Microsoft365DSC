@@ -18,6 +18,10 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [System.Boolean]
         $ConnectAutomatically,
 
@@ -104,13 +108,13 @@ function Get-TargetResource
             $getValue = $null
             if (-not [string]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $Id -ErrorAction SilentlyContinue
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "Id eq '$Id'" -ErrorAction SilentlyContinue
             }
 
             #region resource generator code
-            if ($null -ne $getValue)
+            if ($null -eq $getValue)
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$DisplayName'" -ErrorAction SilentlyContinue | Where-Object `
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
                     -FilterScript { `
                         $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileWiFiConfiguration' `
                 }
@@ -134,6 +138,7 @@ function Get-TargetResource
             Id                             = $getValue.Id
             Description                    = $getValue.Description
             DisplayName                    = $getValue.DisplayName
+            RoleScopeTagIds                = ([Array]$getValue.RoleScopeTagIds)
             ConnectAutomatically           = $getValue.AdditionalProperties.connectAutomatically
             ConnectWhenNetworkNameIsHidden = $getValue.AdditionalProperties.connectWhenNetworkNameIsHidden
             NetworkName                    = $getValue.AdditionalProperties.networkName
@@ -190,6 +195,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -319,6 +328,7 @@ function Set-TargetResource
         }
 
         #region resource generator code
+        Write-Verbose -Message "Creating new Policy with parameters:`r`n$(ConvertTo-Json $CreateParameters)"
         $policy = New-MgBetaDeviceManagementDeviceConfiguration @CreateParameters
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
 
@@ -402,6 +412,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -606,7 +620,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript { `
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileEnterpriseWiFiConfiguration'  `
+                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileWiFiConfiguration'  `
         }
         #endregion
 
@@ -715,7 +729,7 @@ function Get-M365DSCAdditionalProperties
         'WiFiSecurityType'
     )
 
-    $results = @{'@odata.type' = '#microsoft.graph.androidWorkProfileEnterpriseWiFiConfiguration' }
+    $results = @{'@odata.type' = '#microsoft.graph.androidWorkProfileWiFiConfiguration' }
     $cloneProperties = $Properties.clone()
     foreach ($property in $cloneProperties.Keys)
     {

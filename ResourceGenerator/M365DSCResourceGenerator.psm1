@@ -182,7 +182,6 @@ function New-M365DSCResource
         $AssignmentsCIM = ''
         $AssignmentsProperty = ''
         $AssignmentsConvertComplexToString = ''
-        $AssignmentsConvertComplexToVariable = ''
 
         $global:ComplexList = @()
         $cimClasses = Get-Microsoft365DSCModuleCimClass -ResourceName $ResourceName
@@ -753,7 +752,13 @@ $($userDefinitionSettings.MOF -join "`r`n")
         Write-TokenReplacement -Token '<HashTableMapping>' -Value $hashTableMapping -FilePath $moduleFilePath
         Write-TokenReplacement -Token '<#ComplexTypeContent#>' -Value $hashtableResults.ComplexTypeContent -FilePath $moduleFilePath
         Write-TokenReplacement -Token '<#ConvertComplexToString#>' -Value $hashtableResults.ConvertToString -FilePath $moduleFilePath
-        Write-TokenReplacement -Token '<#ConvertComplexToVariable#>' -Value $hashtableResults.ConvertToVariable -FilePath $moduleFilePath
+
+        if ($addIntuneAssignments)
+        {
+            $hashtableResults.ToEscape = ,"Assignments" + $hashtableResults.ToEscape
+        }
+        $toEscapeValue = "```r`n                -NoEscape @('$($hashtableResults.ToEscape -join "', '")')"
+        Write-TokenReplacement -Token '<#AddToEscape#>' -Value $toEscapeValue -FilePath $moduleFilePath
         Write-TokenReplacement -Token '<#TrailingCharRemoval#>' -Value $trailingCharRemoval -FilePath $moduleFilePath
 
         $updateVerb = 'Update'
@@ -888,6 +893,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
     [Write, Description("The type of the target assignment."), ValueMap{"#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}, Values{"#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}] String dataType;
     [Write, Description("The type of filter of the target assignment i.e. Exclude or Include. Possible values are:none, include, exclude."), ValueMap{"none","include","exclude"}, Values{"none","include","exclude"}] String deviceAndAppManagementAssignmentFilterType;
     [Write, Description("The Id of the filter for the target assignment.")] String deviceAndAppManagementAssignmentFilterId;
+    [Write, Description("The display name of the filter for the target assignment.")] String deviceAndAppManagementAssignmentFilterDisplayName;
     [Write, Description("The group Id that is the target of the assignment.")] String groupId;
     [Write, Description("The group Display Name that is the target of the assignment.")] String groupDisplayName;
     [Write, Description("The collection Id that is the target of the assignment.(ConfigMgr)")] String collectionId;
@@ -909,12 +915,6 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
                 }
             }`r`n
 "@
-            $AssignmentsConvertComplexToVariable = @"
-`r`n            if (`$Results.Assignments)
-            {
-                `$currentDSCBlock = Convert-DSCStringParamToVariable -DSCBlock `$currentDSCBlock -ParameterName "Assignments" -IsCIMArray:`$true
-            }`r`n
-"@
         }
         Write-TokenReplacement -Token '<AssignmentsParam>' -Value $AssignmentsParam -FilePath $moduleFilePath
         Write-TokenReplacement -Token '<#AssignmentsGet#>' -Value $AssignmentsGet -FilePath $moduleFilePath
@@ -923,7 +923,6 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
         Write-TokenReplacement -Token '<#AssignmentsUpdate#>' -Value $AssignmentsUpdate -FilePath $moduleFilePath
         Write-TokenReplacement -Token '<#AssignmentsFunctions#>' -Value $AssignmentsFunctions -FilePath $moduleFilePath
         Write-TokenReplacement -Token '<#AssignmentsConvertComplexToString#>' -Value $AssignmentsConvertComplexToString -FilePath $moduleFilePath
-        Write-TokenReplacement -Token '<#AssignmentsConvertComplexToVariable#>' -Value $AssignmentsConvertComplexToVariable -FilePath $moduleFilePath
 
         $defaultTestValuesToCheck = "    `$ValuesToCheck = ([Hashtable]`$PSBoundParameters).clone()"
         if ($CmdLetNoun -like "*DeviceManagementConfigurationPolicy")
@@ -2145,7 +2144,7 @@ function Get-ComplexTypeConstructorToString
     }
     else
     {
-        $complexString.AppendLine($spacing + "if (`$$tempPropertyName.values.Where({`$null -ne `$_}).Count -eq 0)" ) | Out-Null
+        $complexString.AppendLine($spacing + "if (`$$tempPropertyName.Values.Where({ `$null -ne `$_ }).Count -eq 0)" ) | Out-Null
         $complexString.AppendLine($spacing + "{" ) | Out-Null
         $IndentCount++
         $spacing = $indent * $IndentCount
@@ -3437,7 +3436,7 @@ function New-M365HashTableMapping
     $hashtable = ''
     $complexTypeContent = ''
     $convertToString = ''
-    $convertToVariable = ''
+    [array]$toEscape = @()
     $additionalProperties = ''
     $complexTypeConstructor = [System.Text.StringBuilder]::New()
     $enumTypeConstructor = [System.Text.StringBuilder]::New()
@@ -3471,7 +3470,7 @@ function New-M365HashTableMapping
                 $CimInstanceName = $CimInstanceName -replace '[[\]]', ''
                 $CimInstanceName = $Workload + $CimInstanceName
                 $global:ComplexList = @()
-                $complexTypeConstructor.AppendLine((Get-ComplexTypeConstructorToString -Property $property -IndentCount 2 -DateFormat $DateFormat))
+                $complexTypeConstructor.AppendLine((Get-ComplexTypeConstructorToString -Property $property -IndentCount 2 -DateFormat $DateFormat)) | Out-Null
                 $global:ComplexList = $null
                 [Array]$complexMapping = Get-ComplexTypeMapping -Property $property -Workload $Workload
                 $complexMappingString = [System.Text.StringBuilder]::New()
@@ -3514,10 +3513,7 @@ function New-M365HashTableMapping
                 $convertToString += "                }`r`n"
                 $convertToString += "            }`r`n"
 
-                $convertToVariable += "            if (`$Results.$parameterName)`r`n"
-                $convertToVariable += "            {`r`n"
-                $convertToVariable += "                `$currentDSCBlock = Convert-DSCStringParamToVariable -DSCBlock `$currentDSCBlock -ParameterName `"$parameterName`" -IsCIMArray:`$$($property.IsArray)`r`n"
-                $convertToVariable += "            }`r`n"
+                $toEscape += $parameterName
             }
             if ($property.IsEnumType)
             {
@@ -3590,7 +3586,7 @@ function New-M365HashTableMapping
         $spacing = $biggestParameterLength - $key.Length
         $hashtable += "            $($key + ' ' * $spacing) = $keyValue`r`n"
     }
-    $results.Add('ConvertToVariable', $convertToVariable)
+    $results.Add('ToEscape', $toEscape)
     $results.Add('ComplexTypeConstructor', $complexTypeConstructor.ToString())
     $results.Add('EnumTypeConstructor', $enumTypeConstructor.ToString())
     $results.Add('DateTypeConstructor', $dateTypeConstructor.ToString())
@@ -4112,7 +4108,9 @@ class <ClassName>
         $mofInstanceDefinition = $mofInstanceTemplate.Replace("<ClassName>", $TemplateSetting.InstanceName)
         $mofInstanceDefinition = $mofInstanceDefinition.Replace("<MofParameterTemplate>", $($childDefinitions.MOF | Out-String))
         $definition.Add("MOFInstance", @($mofInstanceDefinition))
-        $definition.MOFInstance += $childDefinitions.MOFInstance
+        if ($null -ne $childDefinitions.MOFInstance) {
+            $definition.MOFInstance += $childDefinitions.MOFInstance
+        }
     } else {
         if ($null -ne $childDefinitions.MOFInstance) {
             $definition.MOFInstance += $childDefinitions.MOFInstance

@@ -897,7 +897,7 @@ function Compare-M365DSCComplexObject
                     {
                         $compareResult = Compare-Object `
                             -ReferenceObject ($referenceObject) `
-                            -DifferenceObject ($differenceObject)
+                            -DifferenceObject ($differenceObject) -PassThru
                     }
 
                     if ($null -ne $compareResult -and $compareResult.Length -gt 0)
@@ -1008,10 +1008,21 @@ function ConvertFrom-IntunePolicyAssignment
         [Parameter(Mandatory = $true)]
         [Array]
         $Assignments,
+
         [Parameter()]
         [System.Boolean]
         $IncludeDeviceFilter = $true
     )
+
+    if ($null -eq $Script:IntuneAssignmentFilters)
+    {
+        $Script:IntuneAssignmentFilters = Get-MgBetaDeviceManagementAssignmentFilter -All -ErrorAction SilentlyContinue | ForEach-Object {
+            @{
+                FilterId = $_.Id
+                DisplayName = $_.DisplayName
+            }
+        }
+    }
 
     $assignmentResult = @()
     foreach ($assignment in $Assignments)
@@ -1079,7 +1090,9 @@ function ConvertFrom-IntunePolicyAssignment
             }
             if ($null -ne $assignment.Target.DeviceAndAppManagementAssignmentFilterId)
             {
-                $hashAssignment.Add('deviceAndAppManagementAssignmentFilterId', $assignment.Target.DeviceAndAppManagementAssignmentFilterId)
+                $filterId = $assignment.Target.DeviceAndAppManagementAssignmentFilterId
+                $hashAssignment.Add('deviceAndAppManagementAssignmentFilterId', $filterId)
+                $hashAssignment.Add('deviceAndAppManagementAssignmentFilterDisplayName', (($Script:IntuneAssignmentFilters | Where-Object -FilterScript { $_.FilterId -eq $filterId }).DisplayName))
             }
         }
 
@@ -1103,6 +1116,16 @@ function ConvertTo-IntunePolicyAssignment
         $IncludeDeviceFilter = $true
     )
 
+    if ($null -eq $Script:IntuneAssignmentFilters)
+    {
+        $Script:IntuneAssignmentFilters = Get-MgBetaDeviceManagementAssignmentFilter -All -ErrorAction SilentlyContinue | ForEach-Object {
+            @{
+                FilterId = $_.Id
+                DisplayName = $_.DisplayName
+            }
+        }
+    }
+
     if ($null -eq $Assignments)
     {
         return ,@()
@@ -1114,10 +1137,23 @@ function ConvertTo-IntunePolicyAssignment
         $target = @{"@odata.type" = $assignment.dataType}
         if ($IncludeDeviceFilter)
         {
-            if ($null -ne $assignment.DeviceAndAppManagementAssignmentFilterType)
+            if ($null -ne $assignment.DeviceAndAppManagementAssignmentFilterType -and $assignment.DeviceAndAppManagementAssignmentFilterType -ne 'none')
             {
-                $target.Add('deviceAndAppManagementAssignmentFilterType', $assignment.DeviceAndAppManagementAssignmentFilterType)
-                $target.Add('deviceAndAppManagementAssignmentFilterId', $assignment.DeviceAndAppManagementAssignmentFilterId)
+                $filter = $Script:IntuneAssignmentFilters | Where-Object -FilterScript { $_.FilterId -eq $assignment.DeviceAndAppManagementAssignmentFilterId }
+                if ($null -eq $filter)
+                {
+                    $filter = $Script:IntuneAssignmentFilters | Where-Object -FilterScript { $_.DisplayName -eq $assignment.DeviceAndAppManagementAssignmentFilterDisplayName }
+                    if ($null -eq $filter)
+                    {
+                        Write-Warning -Message "Assignment filter with DisplayName {$($assignment.DeviceAndAppManagementAssignmentFilterDisplayName)} not found in the directory. Please update your DSC resource extract with the correct filterId or filterDisplayName."
+                    }
+                }
+
+                if ($null -ne $filter)
+                {
+                    $target.Add('deviceAndAppManagementAssignmentFilterType', $assignment.DeviceAndAppManagementAssignmentFilterType)
+                    $target.Add('deviceAndAppManagementAssignmentFilterId', $filter.FilterId)
+                }
             }
         }
         if ($assignment.dataType -like '*CollectionAssignmentTarget')
@@ -1135,7 +1171,7 @@ function ConvertTo-IntunePolicyAssignment
             {
                 if ($assignment.groupDisplayName)
                 {
-                    $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.groupDisplayName)'" -ErrorAction SilentlyContinue
+                    $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.groupDisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue
                     if ($null -eq $group)
                     {
                         $message = "Skipping assignment for the group with DisplayName {$($assignment.groupDisplayName)} as it could not be found in the directory.`r`n"
@@ -1189,6 +1225,16 @@ function ConvertFrom-IntuneMobileAppAssignment
         $IncludeDeviceFilter = $true
     )
 
+    if ($null -eq $Script:IntuneAssignmentFilters)
+    {
+        $Script:IntuneAssignmentFilters = Get-MgBetaDeviceManagementAssignmentFilter -All -ErrorAction SilentlyContinue | ForEach-Object {
+            @{
+                FilterId = $_.Id
+                DisplayName = $_.DisplayName
+            }
+        }
+    }
+
     $assignmentResult = @()
     foreach ($assignment in $Assignments)
     {
@@ -1238,16 +1284,6 @@ function ConvertFrom-IntuneMobileAppAssignment
 
         $hashAssignment.Add('intent', $assignment.intent.ToString())
 
-        # $concatenatedSettings = $assignment.settings.ToString() -join ','
-        # $hashAssignment.Add('settings', $concatenatedSettings)
-        # $hashSettings = @{}
-        # foreach ($setting in $assignment.Settings)
-        # {
-        #   $hashSettings.Add('datatype', $setting.dataType)
-        #   $hashSettings.Add('uninstallOnDeviceRemoval', $setting.uninstallOnDeviceRemoval)
-        # }
-        # $hashAssignment.Add('settings', $hashSettings)
-
         if ($IncludeDeviceFilter)
         {
             if ($null -ne $assignment.Target.DeviceAndAppManagementAssignmentFilterType)
@@ -1256,7 +1292,9 @@ function ConvertFrom-IntuneMobileAppAssignment
             }
             if ($null -ne $assignment.Target.DeviceAndAppManagementAssignmentFilterId)
             {
-                $hashAssignment.Add('deviceAndAppManagementAssignmentFilterId', $assignment.Target.DeviceAndAppManagementAssignmentFilterId)
+                $filterId = $assignment.Target.DeviceAndAppManagementAssignmentFilterId
+                $hashAssignment.Add('deviceAndAppManagementAssignmentFilterId', $filterId)
+                $hashAssignment.Add('deviceAndAppManagementAssignmentFilterDisplayName', (($Script:IntuneAssignmentFilters | Where-Object -FilterScript { $_.FilterId -eq $filterId }).DisplayName))
             }
         }
 
@@ -1280,6 +1318,16 @@ function ConvertTo-IntuneMobileAppAssignment
         $IncludeDeviceFilter = $true
     )
 
+    if ($null -eq $Script:IntuneAssignmentFilters)
+    {
+        $Script:IntuneAssignmentFilters = Get-MgBetaDeviceManagementAssignmentFilter -All -ErrorAction SilentlyContinue | ForEach-Object {
+            @{
+                FilterId = $_.Id
+                DisplayName = $_.DisplayName
+            }
+        }
+    }
+
     if ($null -eq $Assignments)
     {
         return ,@()
@@ -1292,10 +1340,23 @@ function ConvertTo-IntuneMobileAppAssignment
         $target = @{"@odata.type" = $assignment.dataType}
         if ($IncludeDeviceFilter)
         {
-            if ($null -ne $assignment.DeviceAndAppManagementAssignmentFilterType)
+            if ($null -ne $assignment.DeviceAndAppManagementAssignmentFilterType -and $assignment.DeviceAndAppManagementAssignmentFilterType -ne 'none')
             {
-                $target.Add('deviceAndAppManagementAssignmentFilterType', $assignment.DeviceAndAppManagementAssignmentFilterType)
-                $target.Add('deviceAndAppManagementAssignmentFilterId', $assignment.DeviceAndAppManagementAssignmentFilterId)
+                $filter = $Script:IntuneAssignmentFilters | Where-Object -FilterScript { $_.FilterId -eq $assignment.DeviceAndAppManagementAssignmentFilterId }
+                if ($null -eq $filter)
+                {
+                    $filter = $Script:IntuneAssignmentFilters | Where-Object -FilterScript { $_.DisplayName -eq $assignment.DeviceAndAppManagementAssignmentFilterDisplayName }
+                    if ($null -eq $filter)
+                    {
+                        Write-Warning -Message "Assignment filter with DisplayName {$($assignment.DeviceAndAppManagementAssignmentFilterDisplayName)} not found in the directory. Please update your DSC resource extract with the correct filterId or filterDisplayName."
+                    }
+                }
+
+                if ($null -ne $filter)
+                {
+                    $target.Add('deviceAndAppManagementAssignmentFilterType', $assignment.DeviceAndAppManagementAssignmentFilterType)
+                    $target.Add('deviceAndAppManagementAssignmentFilterId', $filter.FilterId)
+                }
             }
         }
 
@@ -1308,7 +1369,7 @@ function ConvertTo-IntuneMobileAppAssignment
             {
                 if ($assignment.groupDisplayName)
                 {
-                    $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.groupDisplayName)'" -ErrorAction SilentlyContinue
+                    $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.groupDisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue
                     if ($null -eq $group)
                     {
                         $message = "Skipping assignment for the group with DisplayName {$($assignment.groupDisplayName)} as it could not be found in the directory.`r`n"
@@ -1417,6 +1478,12 @@ function Compare-M365DSCIntunePolicyAssignment
                     {
                         Write-Verbose 'FilterId specified, checking filterId'
                         $testResult = $assignment.deviceAndAppManagementAssignmentFilterId -eq $assignmentTarget.deviceAndAppManagementAssignmentFilterId
+
+                        if (-not $testResult)
+                        {
+                            Write-Verbose 'FilterId does not match, checking filterDisplayName'
+                            $testResult = $assignment.deviceAndAppManagementAssignmentFilterDisplayName -eq $assignmentTarget.deviceAndAppManagementAssignmentFilterDisplayName
+                        }
                     }
                     if (-not $testResult)
                     {
@@ -1514,7 +1581,7 @@ function Update-DeviceConfigurationPolicyAssignment
                 {
                     if ($target.groupDisplayName)
                     {
-                        $group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName)'" -ErrorAction SilentlyContinue
+                        $group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue
                         if ($null -eq $group)
                         {
                             $message = "Skipping assignment for the group with DisplayName {$($target.groupDisplayName)} as it could not be found in the directory.`r`n"
@@ -1637,7 +1704,7 @@ function Update-DeviceAppManagementPolicyAssignment
                 {
                     if ($target.groupDisplayName)
                     {
-                        $group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName)'" -ErrorAction SilentlyContinue
+                        $group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue
                         if ($null -eq $group)
                         {
                             $message = "Skipping assignment for the group with DisplayName {$($target.groupDisplayName)} as it could not be found in the directory.`r`n"
@@ -2330,9 +2397,19 @@ function Get-IntuneSettingCatalogPolicySettingDSCValue
 
     $key = Get-SettingsCatalogSettingName -SettingDefinition $SettingDefinition -AllSettingDefinitions $AllSettingDefinitions
 
-    if (-not $DSCParams.ContainsKey($key))
+    if ($DSCParams.Keys -notcontains $key)
     {
         return $null
+    }
+
+    # Fixes potential case sensitivity issue.
+    foreach ($hashKey in $DSCParams.Keys)
+    {
+        if ($hashKey -eq $key)
+        {
+            $key = $hashKey
+            break
+        }
     }
 
     $isArray = $false
@@ -2697,8 +2774,9 @@ function Update-IntuneDeviceConfigurationPolicy
             'technologies'      = $Technologies
             'settings'          = $Settings
         }
+
         $body = $policy | ConvertTo-Json -Depth 20
-        # Write-Verbose -Message $body -Verbose
+        Write-Verbose -Message "Updating policy with:`r`n$body"
         Invoke-MgGraphRequest -Method PUT -Uri $Uri -Body $body -ErrorAction Stop
     }
     catch

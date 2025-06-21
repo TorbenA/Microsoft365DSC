@@ -64,27 +64,35 @@ function Get-TargetResource
 
     Write-Verbose -Message "Getting configuration for app $Identity"
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = $PSBoundParameters
-    $nullReturn.Ensure = 'Absent'
-
     try
     {
-        $app = Get-PnPApp -Identity $Identity -ErrorAction SilentlyContinue
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Title -ne $Identity)
+        {
+            $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullReturn = $PSBoundParameters
+            $nullReturn.Ensure = 'Absent'
+
+            $app = Get-PnPApp -Identity $Identity -ErrorAction SilentlyContinue
+        }
+        else
+        {
+            $app = $Script:exportedInstance
+        }
+
         if ($null -eq $app)
         {
             Write-Verbose -Message "The specified app wasn't found."
@@ -383,12 +391,12 @@ function Export-TargetResource
 
             if ($ConnectionMode -eq 'Credentials')
             {
-                $filesToDownload = Get-AllSPOPackages -Credential $Credential
+                [array]$filesToDownload = Get-AllSPOPackages -Credential $Credential
             }
             else
             {
                 # mlh
-                $filesToDownload = Get-AllSPOPackages -ApplicationId $ApplicationId -CertificateThumbprint $CertificateThumbprint `
+                [array]$filesToDownload = Get-AllSPOPackages -ApplicationId $ApplicationId -CertificateThumbprint $CertificateThumbprint `
                     -CertificatePassword $CertificatePassword -TenantId $TenantId -CertificatePath $CertificatePath -ManagedIdentity:$ManagedIdentity.IsPresent
             }
             $tenantAppCatalogPath = $tenantAppCatalogUrl.Replace('https://', '')
@@ -397,18 +405,17 @@ function Export-TargetResource
             $dscContent = ''
             $i = 1
 
-
-            if ($filesToDownload.Length -eq 0)
+            if ($filesToDownload.Count -eq 0)
             {
                 Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
             }
             else
             {
-                Write-M365DSCHost -Message "`r`n"
+                Write-M365DSCHost -Message "`r`n" -CommitWrite
             }
             foreach ($file in $filesToDownload)
             {
-                Write-M365DSCHost -Message "    |---[$i/$($filesToDownload.Length)] $($file.Name)" -DeferWrite
+                Write-M365DSCHost -Message "    |---[$i/$($filesToDownload.Count)] $($file.Name)" -DeferWrite
 
                 $identity = $file.Name.ToLower().Replace('.app', '').Replace('.sppkg', '')
                 $app = Get-PnPApp -Identity $identity -ErrorAction SilentlyContinue
@@ -439,6 +446,7 @@ function Export-TargetResource
                         AccessTokens          = $AccessTokens
                     }
 
+                    $Script:exportedInstance = $app
                     $Results = Get-TargetResource @Params
                     $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                         -ConnectionMode $ConnectionMode `
@@ -452,10 +460,6 @@ function Export-TargetResource
                 $i++
                 Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
             }
-
-            $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
-                -InboundParameters $PSBoundParameters `
-                -Url $tenantAppCatalogUrl
 
             foreach ($file in $filesToDownload)
             {

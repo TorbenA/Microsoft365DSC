@@ -102,16 +102,17 @@ function Get-TargetResource
         $roleGroupMembersValue = @()
         foreach ($member in $roleGroupMembers)
         {
-            if ($member.RecipientTypeDetails -eq 'UserMailbox' -or $member.RecipientTypeDetails -eq 'User')
+            if (-not [System.String]::IsNullOrEmpty($member.WindowsLiveID))
             {
-                if (-not [System.String]::IsNullOrEmpty($member.PrimarySmtpAddress))
-                {
-                    $roleGroupMembersValue += $member.PrimarySmtpAddress
-                }
-                elseif (-not [System.String]::IsNullOrEmpty($member.WindowsLiveID))
-                {
-                    $roleGroupMembersValue += $member.WindowsLiveID
-                }
+                $roleGroupMembersValue += $member.WindowsLiveID
+            }
+            elseif (-not [System.String]::IsNullOrEmpty($member.WindowsEmailAddress))
+            {
+                $roleGroupMembersValue += $member.WindowsEmailAddress
+            }
+            elseif (-not [System.String]::IsNullOrEmpty($member.PrimarySmtpAddress))
+            {
+                $roleGroupMembersValue += $member.PrimarySmtpAddress
             }
             else
             {
@@ -379,19 +380,39 @@ function Test-TargetResource
     $newMembersValue = @()
     foreach ($member in $Members)
     {
-        if ($member.Contains('@'))
-        {
-            Write-Verbose -Message "The current member {$member} is provided as a group display name."
-            $group = Get-Group -Identity $member -ErrorAction 'SilentlyContinue'
+        Write-Verbose -Message "The current member {$member} is provided as a group display name."
+        $group = Get-Group -Filter "DisplayName eq '$member'" -ErrorAction 'SilentlyContinue'
 
-            if ($null -ne $group)
+        if ($null -ne $group)
+        {
+            if ($null -ne $group.PrimaryStmpAddress)
             {
-                $newMembersValue += $group.DisplayName
+                $newMembersValue += $group.PrimarySmtpAddress
+            }
+            elseif ($null -ne $group.WindowsEmailAddress)
+            {
+                $newMembersValue += $group.WindowsEmailAddress
             }
         }
         else
         {
-            $newMembersValue += $member
+            $user = Get-User -Identity $member -ErrorAction 'SilentlyContinue'
+            if ($null -ne $user)
+            {
+                if ($member.Contains('@'))
+                {
+                    $newMembersValue += $user.UserPrincipalName
+                }
+                else
+                {
+                    $newMembersValue += $user.DisplayName
+                }
+            }
+            else
+            {
+                # Case where the member is an app.
+                $newMembersValue += $member
+            }
         }
     }
     $ValuesToCheck.Members = $newMembersValue
@@ -415,6 +436,10 @@ function Export-TargetResource
     [OutputType([System.String])]
     param
     (
+        [Parameter()]
+        [System.String]
+        $Filter,
+
         [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
@@ -465,7 +490,14 @@ function Export-TargetResource
     try
     {
         $Script:ExportMode = $true
-        [array] $Script:exportedInstances = Get-RoleGroup
+        $roleGroups = Get-RoleGroup
+
+        if (-not [System.String]::IsNullOrEmpty($Filter))
+        {
+            $filterScriptBlock = [ScriptBlock]::Create($Filter)
+            $roleGroups = $roleGroups | Where-Object -FilterScript $filterScriptBlock
+        }
+        [array] $Script:exportedInstances = $roleGroups
 
         $dscContent = [System.Text.StringBuilder]::New()
 
