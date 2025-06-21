@@ -399,25 +399,7 @@ function Get-TargetResource
         if ($null -ne $PolicyRule.AdvancedRule -and $PolicyRule.AdvancedRule.Count -gt 0)
         {
             $ruleobject = $PolicyRule.AdvancedRule | ConvertFrom-Json
-            $index = $ruleobject.Condition.SubConditions.ConditionName.IndexOf('ContentContainsSensitiveInformation')
-            if ($index -ne -1)
-            {
-                if ($null -eq $ruleobject.Condition.SubConditions[$index].value.groups)
-                {
-                    $ruleobject.Condition.SubConditions[$index].Value = $ruleobject.Condition.SubConditions[$index].Value | Select-Object * -ExcludeProperty Id
-                }
-                elseif ($null -ne $ruleObject.Condition.SubConditions[$index].Value.Groups.Sensitivetypes)
-                {
-                    $sensitiveTypesValue = $ruleobject.Condition.SubConditions[$index].Value.Groups.Sensitivetypes
-                    foreach ($stype in $sensitiveTypesValue)
-                    {
-                        if ($null -ne $stype.Id)
-                        {
-                            $stype.Id = $null
-                        }
-                    }
-                }
-            }
+            $ruleObject.Condition = Remove-AdvancedRuleConditionId -Condition $ruleObject.Condition
 
             $newAdvancedRule = $ruleobject | ConvertTo-Json -Depth 32 | Format-Json
             $newAdvancedRule = $newAdvancedRule | ConvertTo-Json -Compress
@@ -1636,6 +1618,7 @@ function Export-TargetResource
         return ''
     }
 }
+
 function ConvertTo-SCDLPSensitiveInformationStringGroup
 {
     [CmdletBinding()]
@@ -1729,6 +1712,7 @@ function ConvertTo-SCDLPSensitiveInformationStringGroup
     }
     return $result
 }
+
 function ConvertTo-SCDLPSensitiveInformationString
 {
     [CmdletBinding()]
@@ -1787,7 +1771,6 @@ function ConvertTo-SCDLPSensitiveInformationString
     $result += "            }`r`n"
     return $result
 }
-
 
 function Get-SCDLPSensitiveInformation
 {
@@ -2173,6 +2156,42 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json)
         }
         $line
     }) -Join "`n"
+}
+
+function Remove-AdvancedRuleConditionId
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [PSCustomObject]
+        $Condition
+    )
+
+    for ($i = 0; $i -lt $Condition.SubConditions.Count; $i++)
+    {
+        $Condition.SubConditions[$i] = Remove-AdvancedRuleConditionId -Condition $Condition.SubConditions[$i]
+    }
+
+    $index = $Condition.ConditionName.IndexOf('ContentContainsSensitiveInformation')
+    if ($index -ne -1)
+    {
+        if ($null -eq $Condition.Value.Groups)
+        {
+            $Condition.Value = $Condition.Value | Select-Object * -ExcludeProperty Id
+        }
+        elseif ($null -ne $Condition.Value.Groups.Sensitivetypes)
+        {
+            $sensitiveTypesValue = $Condition.Value.Groups.Sensitivetypes
+            foreach ($stype in $sensitiveTypesValue)
+            {
+                if ($null -ne $stype.Id)
+                {
+                    $stype.Id = $null
+                }
+            }
+        }
+    }
+
+    return $Condition
 }
 
 Export-ModuleMember -Function *-TargetResource
