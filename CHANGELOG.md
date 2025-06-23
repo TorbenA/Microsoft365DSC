@@ -9,6 +9,8 @@
   * Fix for removing Group owner.
 * IntuneDeviceCompliancePolicyAndroidDeviceOwner
   * Added new property `SecurityBlockJailbrokenDevices`.
+* IntuneDeviceConfigurationAdministrativeTemplatePolicyWindows10
+  * Added support for property `RoleScopeTagIds`.
 * IntuneDefenderGlobalExclusionsPolicyLinux
   * Initial release.
 * IntuneWindowsHelloForBusinessGlobalPolicy
