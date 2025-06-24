@@ -7,6 +7,8 @@
     FIXES [#6182](https://github.com/microsoft/Microsoft365DSC/issues/6182)
 * AADGroup
   * Fix for removing Group owner.
+* AADGroupElegibilityScheduleSettings
+  * New resource AADGroupElegibilityScheduleSettings
 * IntuneDeviceCompliancePolicyAndroidDeviceOwner
   * Added new property `SecurityBlockJailbrokenDevices`.
 * IntuneDefenderGlobalExclusionsPolicyLinux
@@ -17,8 +19,9 @@
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
-* AADGroupElegibilityScheduleSettings
-  * New resource AADGroupElegibilityScheduleSettings
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.46.
+
 
 # 1.25.611.1
 
