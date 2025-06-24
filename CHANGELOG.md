@@ -2,8 +2,13 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Fix to properly handle PreAuthorizedApplications in the Set-TargetResource method
+    FIXES [#6182](https://github.com/microsoft/Microsoft365DSC/issues/6182)
 * AADGroup
   * Fix for removing Group owner.
+* AADGroupElegibilityScheduleSettings
+  * New resource AADGroupElegibilityScheduleSettings
 * IntuneDefenderGlobalExclusionsPolicyLinux
   * Initial release.
 * IntuneDeviceAndAppManagementAssignmentFilter
@@ -13,11 +18,14 @@
 * IntuneWindowsHelloForBusinessGlobalPolicy
   * Initial release.
     FIXES [#4561](https://github.com/microsoft/Microsoft365DSC/issues/4561)
+* TeamsMeetingPolicy
+  * Added missing Parameter 'RoomAttributeUserOverride' to Get-TargetResource's output.
+    Fixes [#6183](https://github.com/microsoft/Microsoft365DSC/issues/6183)
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
-* AADGroupElegibilityScheduleSettings
-  * New resource AADGroupElegibilityScheduleSettings
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.46.
 
 # 1.25.611.1
 
@@ -127,11 +135,6 @@
   * Updated ExchangeOnlineManagement to version 3.2.0
   * Updated Microsoft.Graph to version 2.28.0
   * Updated MSCloudLoginAssistant to version 1.1.44
-
-# UNRELEASED
-
-* AADGroupElegibilityScheduleSettings
-  * New resource AADGroupElegibilityScheduleSettings
 
 # 1.25.521.1
 
