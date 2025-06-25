@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneRoleDefinition'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -587,4 +585,3 @@ function Export-TargetResource
         return ''
     }
 }
-

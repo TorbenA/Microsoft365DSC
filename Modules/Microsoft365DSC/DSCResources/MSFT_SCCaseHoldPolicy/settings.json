@@ -1,17 +1,16 @@
-{
-  "resourceName": "SCCaseHoldPolicy",
-  "description": "",
-  "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
+﻿{
+    "resourceName": "SCCaseHoldPolicy",
+    "description": "",
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [],
+                "update": []
+            }
+        }
     }
-  },
-  "requiredModules": []
 }

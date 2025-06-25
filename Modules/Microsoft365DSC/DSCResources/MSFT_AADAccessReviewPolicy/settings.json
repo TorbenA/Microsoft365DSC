@@ -1,35 +1,31 @@
-{
-  "resourceName": "AADAccessReviewPolicy",
-  "description": "Use this resource to monitor the access review policy object.",
-  "roles": {
-    "read": [],
-    "update": []
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
+﻿{
+    "resourceName": "AADAccessReviewPolicy",
+    "description": "Use this resource to monitor the access review policy object.",
+    "roles": {
         "read": [],
         "update": []
-      },
-      "application": {
-        "read": [
-          {
-            "name": "Policy.Read.All"
-          },
-          {
-            "name": "AccessReview.Read.All"
-          }
-        ],
-        "update": [
-          {
-            "name": "Policy.ReadWrite.AccessReview"
-          }
-        ]
-      }
+    },
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [
+                    {
+                        "name": "Policy.Read.All"
+                    },
+                    {
+                        "name": "AccessReview.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "Policy.ReadWrite.AccessReview"
+                    }
+                ]
+            }
+        }
     }
-  },
-  "requiredModules": [
-    "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Beta.Identity.SignIns"
-  ]
 }

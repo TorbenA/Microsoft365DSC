@@ -1,35 +1,34 @@
-{
-  "resourceName": "EXOIRMConfiguration",
-  "description": "",
-  "roles": {
-    "read": [
-      "Global Reader"
-    ],
-    "update": [
-      "Exchange Administrator"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
+﻿{
+    "resourceName": "EXOIRMConfiguration",
+    "description": "",
+    "roles": {
+        "read": [
+            "Global Reader"
+        ],
+        "update": [
+            "Exchange Administrator"
+        ]
     },
-    "exchange": {
-      "requiredroles": [
-        "Information Rights Management",
-        "View-Only Configuration"
-      ],
-      "requiredrolegroups": [
-        "Organization Management",
-        "Compliance Management"
-      ]
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [],
+                "update": []
+            }
+        },
+        "exchange": {
+            "requiredroles": [
+                "Information Rights Management",
+                "View-Only Configuration"
+            ],
+            "requiredrolegroups": [
+                "Organization Management",
+                "Compliance Management"
+            ]
+        }
     }
-  },
-  "requiredModules": []
 }

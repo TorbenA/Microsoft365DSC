@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AzureBillingAccountsRoleAssignment'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -545,4 +543,3 @@ function Get-M365DSCPrincipalIdFromName
 }
 
 Export-ModuleMember -Function *-TargetResource
-

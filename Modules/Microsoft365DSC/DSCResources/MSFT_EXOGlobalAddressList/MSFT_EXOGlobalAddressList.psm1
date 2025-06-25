@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOGlobalAddressList'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -766,5 +764,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
 

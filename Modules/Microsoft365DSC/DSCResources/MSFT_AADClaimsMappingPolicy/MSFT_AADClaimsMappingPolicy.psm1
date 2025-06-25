@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADClaimsMappingPolicy'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -630,4 +628,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

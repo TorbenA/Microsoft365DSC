@@ -1,23 +1,20 @@
-{
-  "resourceName": "AzureSubscription",
-  "description": "This resource controls the properties of an Azure subscription.",
-  "roles": {
-    "read": [],
-    "update": []
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
+﻿{
+    "resourceName": "AzureSubscription",
+    "description": "This resource controls the properties of an Azure subscription.",
+    "roles": {
         "read": [],
         "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
+    },
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [],
+                "update": []
+            }
+        }
     }
-  },
-  "requiredModules": [
-    "Az.Accounts"
-  ]
 }

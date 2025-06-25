@@ -1,42 +1,38 @@
-{
-  "resourceName": "AADTokenLifetimePolicy",
-  "description": "This resource configures the Azure AD Token Lifetime Policies.",
-  "roles": {
-    "read": [],
-    "update": [
-      "Application Administrator"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [
-          {
-            "name": "Policy.Read.All"
-          }
-        ],
+﻿{
+    "resourceName": "AADTokenLifetimePolicy",
+    "description": "This resource configures the Azure AD Token Lifetime Policies.",
+    "roles": {
+        "read": [],
         "update": [
-          {
-            "name": "Policy.ReadWrite.ApplicationConfiguration"
-          }
+            "Application Administrator"
         ]
-      },
-      "application": {
-        "read": [
-          {
-            "name": "Policy.Read.All"
-          }
-        ],
-        "update": [
-          {
-            "name": "Policy.ReadWrite.ApplicationConfiguration"
-          }
-        ]
-      }
+    },
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [
+                    {
+                        "name": "Policy.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "Policy.ReadWrite.ApplicationConfiguration"
+                    }
+                ]
+            },
+            "application": {
+                "read": [
+                    {
+                        "name": "Policy.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "Policy.ReadWrite.ApplicationConfiguration"
+                    }
+                ]
+            }
+        }
     }
-  },
-  "requiredModules": [
-    "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Beta.Identity.SignIns"
-  ]
 }

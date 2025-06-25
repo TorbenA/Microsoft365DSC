@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_PPTenantSettings'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -1095,4 +1093,3 @@ function Get-M365DSCPowerPlatformTenantSettings
 }
 
 Export-ModuleMember -Function *-TargetResource
-

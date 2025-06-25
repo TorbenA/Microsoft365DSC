@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOOrganizationConfig'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -1803,4 +1801,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

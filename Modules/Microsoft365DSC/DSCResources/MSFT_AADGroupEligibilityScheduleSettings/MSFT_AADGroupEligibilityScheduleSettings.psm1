@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADGroupEligibilityScheduleSettings'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -857,4 +855,3 @@ function Get-M365DSCRoleManagementPolicyRuleObject
 }
 
 Export-ModuleMember -Function *-TargetResource
-

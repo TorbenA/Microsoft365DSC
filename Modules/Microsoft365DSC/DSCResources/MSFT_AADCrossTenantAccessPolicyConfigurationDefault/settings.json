@@ -1,45 +1,40 @@
 {
-  "resourceName": "AADCrossTenantAccessPolicyConfigurationDefault",
-  "description": "This resource configures an Azure AD Authentication Method Policy Configuration Default.",
-  "roles": {
-    "read": [
-      "Global Reader"
-    ],
-    "update": [
-      "Security Administrator"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
+    "resourceName": "AADCrossTenantAccessPolicyConfigurationDefault",
+    "description": "This resource configures an Azure AD Authentication Method Policy Configuration Default.",
+    "roles": {
         "read": [
-          {
-            "name": "Policy.Read.All"
-          }
+            "Global Reader"
         ],
         "update": [
-          {
-            "name": "Policy.ReadWrite.CrossTenantAccess"
-          }
+            "Security Administrator"
         ]
-      },
-      "application": {
-        "read": [
-          {
-            "name": "Policy.Read.All"
-          }
-        ],
-        "update": [
-          {
-            "name": "Policy.ReadWrite.CrossTenantAccess"
-          }
-        ]
-      }
+    },
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [
+                    {
+                        "name": "Policy.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "Policy.ReadWrite.CrossTenantAccess"
+                    }
+                ]
+            },
+            "application": {
+                "read": [
+                    {
+                        "name": "Policy.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "Policy.ReadWrite.CrossTenantAccess"
+                    }
+                ]
+            }
+        }
     }
-  },
-  "requiredModules": [
-    "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Beta.Identity.SignIns",
-    "MSCloudLoginAssistant"
-  ]
 }

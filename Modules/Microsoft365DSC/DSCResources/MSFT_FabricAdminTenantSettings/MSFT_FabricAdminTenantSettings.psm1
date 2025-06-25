@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_FabricAdminTenantSettings'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -2141,4 +2139,3 @@ function Get-M365DSCFabricTenantSettingObject
 }
 
 Export-ModuleMember -Function *-TargetResource
-

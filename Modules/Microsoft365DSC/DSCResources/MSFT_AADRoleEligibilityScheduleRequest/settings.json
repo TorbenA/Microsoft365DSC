@@ -1,42 +1,34 @@
-{
-  "resourceName": "AADRoleEligibilityScheduleRequest",
-  "description": "This resource configures an Azure Active Directory Privilege Identity Management eligibility request.",
-  "roles": {
-    "read": [
-      "Security Reader"
-    ],
-    "update": [
-      "Privileged Role Administrator"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "application": {
+﻿{
+    "resourceName": "AADRoleEligibilityScheduleRequest",
+    "description": "This resource configures an Azure Active Directory Privilege Identity Management eligibility request.",
+    "roles": {
         "read": [
-          {
-            "name": "RoleEligibilitySchedule.Read.Directory"
-          },
-          {
-            "name": "Directory.Read.All"
-          }
+            "Security Reader"
         ],
         "update": [
-          {
-            "name": "RoleEligibilitySchedule.ReadWrite.Directory"
-          },
-          {
-            "name": "Directory.Read.All"
-          }
+            "Privileged Role Administrator"
         ]
-      }
+    },
+    "permissions": {
+        "graph": {
+            "application": {
+                "read": [
+                    {
+                        "name": "RoleEligibilitySchedule.Read.Directory"
+                    },
+                    {
+                        "name": "Directory.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "RoleEligibilitySchedule.ReadWrite.Directory"
+                    },
+                    {
+                        "name": "Directory.Read.All"
+                    }
+                ]
+            }
+        }
     }
-  },
-  "requiredModules": [
-    "Microsoft.Graph.Applications",
-    "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Beta.DirectoryObjects",
-    "Microsoft.Graph.Beta.Identity.Governance",
-    "Microsoft.Graph.Groups",
-    "Microsoft.Graph.Users"
-  ]
 }

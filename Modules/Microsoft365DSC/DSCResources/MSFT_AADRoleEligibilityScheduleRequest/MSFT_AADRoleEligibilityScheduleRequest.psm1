@@ -1,6 +1,4 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADRoleEligibilityScheduleRequest'
-
-function Get-TargetResource
+﻿function Get-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
@@ -848,4 +846,3 @@ function Test-M365DSCRecurrenceIsConfigured
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -1,35 +1,34 @@
-{
-  "resourceName": "EXOTransportConfig",
-  "description": "",
-  "roles": {
-    "read": [
-      "Global Reader"
-    ],
-    "update": [
-      "Exchange Administrator"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
+﻿{
+    "resourceName": "EXOTransportConfig",
+    "description": "",
+    "roles": {
+        "read": [
+            "Global Reader"
+        ],
+        "update": [
+            "Exchange Administrator"
+        ]
     },
-    "exchange": {
-      "requiredroles": [
-        "Organization Transport Settings",
-        "View-Only Configuration",
-        "Journaling"
-      ],
-      "requiredrolegroups": [
-        "Organization Management"
-      ]
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [],
+                "update": []
+            }
+        },
+        "exchange": {
+            "requiredroles": [
+                "Organization Transport Settings",
+                "View-Only Configuration",
+                "Journaling"
+            ],
+            "requiredrolegroups": [
+                "Organization Management"
+            ]
+        }
     }
-  },
-  "requiredModules": []
 }

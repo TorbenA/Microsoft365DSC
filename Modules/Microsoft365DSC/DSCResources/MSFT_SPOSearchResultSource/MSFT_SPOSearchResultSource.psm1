@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SPOSearchResultSource'
-
 
 $InfoMapping = @(
     @{
@@ -691,4 +689,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

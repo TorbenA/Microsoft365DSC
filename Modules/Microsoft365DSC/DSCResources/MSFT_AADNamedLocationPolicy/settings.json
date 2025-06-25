@@ -1,51 +1,46 @@
-{
-  "resourceName": "AADNamedLocationPolicy",
-  "description": "This resource configures the Azure AD Named Location Policies in Azure Active Directory.",
-  "roles": {
-    "read": [
-      "Security Reader"
-    ],
-    "update": [
-      "Security Administrator"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
+﻿{
+    "resourceName": "AADNamedLocationPolicy",
+    "description": "This resource configures the Azure AD Named Location Policies in Azure Active Directory.",
+    "roles": {
         "read": [
-          {
-            "name": "Policy.Read.All"
-          }
+            "Security Reader"
         ],
         "update": [
-          {
-            "name": "Policy.Read.All"
-          },
-          {
-            "name": "Policy.ReadWrite.ConditionalAccess"
-          }
+            "Security Administrator"
         ]
-      },
-      "application": {
-        "read": [
-          {
-            "name": "Policy.Read.All"
-          }
-        ],
-        "update": [
-          {
-            "name": "Policy.Read.All"
-          },
-          {
-            "name": "Policy.ReadWrite.ConditionalAccess"
-          }
-        ]
-      }
+    },
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [
+                    {
+                        "name": "Policy.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "Policy.Read.All"
+                    },
+                    {
+                        "name": "Policy.ReadWrite.ConditionalAccess"
+                    }
+                ]
+            },
+            "application": {
+                "read": [
+                    {
+                        "name": "Policy.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "Policy.Read.All"
+                    },
+                    {
+                        "name": "Policy.ReadWrite.ConditionalAccess"
+                    }
+                ]
+            }
+        }
     }
-  },
-  "requiredModules": [
-    "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Beta.Identity.SignIns",
-    "MSCloudLoginAssistant"
-  ]
 }

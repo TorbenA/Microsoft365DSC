@@ -1,32 +1,31 @@
 {
-  "resourceName": "EXOEOPProtectionPolicyRule",
-  "description": "This resource configures EOP Protection Policy Rules.",
-  "roles": {
-    "read": [
-      "Global Reader"
-    ],
-    "update": [
-      "Exchange Administrator"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
+    "resourceName": "EXOEOPProtectionPolicyRule",
+    "description": "This resource configures EOP Protection Policy Rules.",
+    "roles": {
+        "read": [
+            "Global Reader"
+        ],
+        "update": [
+            "Exchange Administrator"
+        ]
     },
-    "exchange": {
-      "requiredroles": [
-        "SecurityAdmin",
-        "TransportHygiene"
-      ],
-      "requiredrolegroups": []
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [],
+                "update": []
+            }
+        },
+        "exchange": {
+            "requiredroles": [
+                "SecurityAdmin",
+                "TransportHygiene"
+            ],
+            "requiredrolegroups": []
+        }
     }
-  },
-  "requiredModules": []
 }

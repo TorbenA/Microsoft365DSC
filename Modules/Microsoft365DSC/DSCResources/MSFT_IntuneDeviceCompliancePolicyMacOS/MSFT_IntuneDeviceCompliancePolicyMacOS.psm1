@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceCompliancePolicyMacOS'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -853,4 +851,3 @@ function Get-M365DSCIntuneDeviceCompliancePolicyMacOSAdditionalProperties
 }
 
 Export-ModuleMember -Function *-TargetResource
-

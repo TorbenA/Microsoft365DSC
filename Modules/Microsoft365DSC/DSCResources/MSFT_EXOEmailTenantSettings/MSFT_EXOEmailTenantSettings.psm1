@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOEmailTenantSettings'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -422,4 +420,3 @@ function Export-TargetResource
     }
 }
 Export-ModuleMember -Function *-TargetResource
-

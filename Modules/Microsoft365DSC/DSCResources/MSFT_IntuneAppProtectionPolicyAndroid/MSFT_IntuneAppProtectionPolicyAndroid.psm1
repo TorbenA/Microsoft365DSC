@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneAppProtectionPolicyAndroid'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -2058,4 +2056,3 @@ function Get-InputParameters
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -1,37 +1,36 @@
-{
-  "resourceName": "EXOMessageClassification",
-  "description": "",
-  "roles": {
-    "read": [
-      "Global Reader"
-    ],
-    "update": [
-      "Exchange Administrator"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
+﻿{
+    "resourceName": "EXOMessageClassification",
+    "description": "",
+    "roles": {
+        "read": [
+            "Global Reader"
+        ],
+        "update": [
+            "Exchange Administrator"
+        ]
     },
-    "exchange": {
-      "requiredroles": [
-        "User Options",
-        "Data Loss Prevention",
-        "Transport Rules",
-        "View-Only Configuration",
-        "Mail Recipients"
-      ],
-      "requiredrolegroups": [
-        "Organization Management"
-      ]
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [],
+                "update": []
+            }
+        },
+        "exchange": {
+            "requiredroles": [
+                "User Options",
+                "Data Loss Prevention",
+                "Transport Rules",
+                "View-Only Configuration",
+                "Mail Recipients"
+            ],
+            "requiredrolegroups": [
+                "Organization Management"
+            ]
+        }
     }
-  },
-  "requiredModules": []
 }

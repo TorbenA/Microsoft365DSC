@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADAuthenticationMethodPolicyExternal'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -699,4 +697,3 @@ function Get-UpdatedTargetProperty
 }
 
 Export-ModuleMember -Function *-TargetResource
-

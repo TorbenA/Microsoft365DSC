@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_O365OrgSettings'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -1434,4 +1432,3 @@ function Update-M365DSCOrgSettingsAdminCenterReport
 }
 
 Export-ModuleMember -Function *-TargetResource
-

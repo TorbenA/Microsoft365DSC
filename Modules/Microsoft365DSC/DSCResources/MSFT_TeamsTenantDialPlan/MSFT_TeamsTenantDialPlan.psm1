@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_TeamsTenantDialPlan'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -695,4 +693,3 @@ function Get-M365DSCNormalizationRules
 }
 
 Export-ModuleMember -Function *-TargetResource
-

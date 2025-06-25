@@ -1,17 +1,16 @@
-{
-  "resourceName": "SCFilePlanPropertyCitation",
-  "description": "",
-  "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
+﻿{
+    "resourceName": "SCFilePlanPropertyCitation",
+    "description": "",
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [],
+                "update": []
+            }
+        }
     }
-  },
-  "requiredModules": []
 }

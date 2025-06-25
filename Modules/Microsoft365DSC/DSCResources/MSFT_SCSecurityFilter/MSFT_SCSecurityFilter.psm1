@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCSecurityFilter'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -582,4 +580,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

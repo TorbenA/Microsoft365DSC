@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_TeamsEmergencyCallRoutingPolicy'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -534,4 +532,3 @@ function Convert-CIMToTeamsEmergencyNumbers
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCCaseHoldRule'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -445,4 +443,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

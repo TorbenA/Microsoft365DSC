@@ -1,31 +1,30 @@
-{
-  "resourceName": "EXOOfflineAddressBook",
-  "description": "",
-  "roles": {
-    "read": [
-      "Global Reader"
-    ],
-    "update": [
-      "Exchange Administrator"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
+﻿{
+    "resourceName": "EXOOfflineAddressBook",
+    "description": "",
+    "roles": {
+        "read": [
+            "Global Reader"
+        ],
+        "update": [
+            "Exchange Administrator"
+        ]
     },
-    "exchange": {
-      "requiredroles": [
-        "Address Lists"
-      ],
-      "requiredrolegroups": []
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [],
+                "update": []
+            }
+        },
+        "exchange": {
+            "requiredroles": [
+                "Address Lists"
+            ],
+            "requiredrolegroups": []
+        }
     }
-  },
-  "requiredModules": []
 }

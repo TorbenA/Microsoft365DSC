@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceCleanupRule'
-
 function Get-TargetResource
 {
     [CmdletBinding()]

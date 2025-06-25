@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceConfigurationVpnPolicyWindows10'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -1299,4 +1297,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource, *
-

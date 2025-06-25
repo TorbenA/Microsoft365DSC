@@ -1,42 +1,38 @@
-{
-  "resourceName": "AADSecurityDefaults",
-  "description": "This resource configures an Azure Active Directory Security Defaults.",
-  "roles": {
-    "read": [],
-    "update": [
-      "Security Administrator"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [
-          {
-            "name": "Policy.Read.All"
-          }
-        ],
+﻿{
+    "resourceName": "AADSecurityDefaults",
+    "description": "This resource configures an Azure Active Directory Security Defaults.",
+    "roles": {
+        "read": [],
         "update": [
-          {
-            "name": "Policy.ReadWrite.ConditionalAccess"
-          }
+            "Security Administrator"
         ]
-      },
-      "application": {
-        "read": [
-          {
-            "name": "Policy.Read.All"
-          }
-        ],
-        "update": [
-          {
-            "name": "Policy.ReadWrite.ConditionalAccess"
-          }
-        ]
-      }
+    },
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [
+                    {
+                        "name": "Policy.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "Policy.ReadWrite.ConditionalAccess"
+                    }
+                ]
+            },
+            "application": {
+                "read": [
+                    {
+                        "name": "Policy.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "Policy.ReadWrite.ConditionalAccess"
+                    }
+                ]
+            }
+        }
     }
-  },
-  "requiredModules": [
-    "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Beta.Identity.SignIns"
-  ]
 }

@@ -1,53 +1,49 @@
-{
-  "resourceName": "AADEntitlementManagementSettings",
-  "description": "Manages Entra Id Entitlement Management settings.",
-  "roles": {
-    "read": [
-      "Security Reader"
-    ],
-    "update": [
-      "Identity Governance Administrator"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
+﻿{
+    "resourceName": "AADEntitlementManagementSettings",
+    "description": "Manages Entra Id Entitlement Management settings.",
+    "roles": {
         "read": [
-          {
-            "name": "EntitlementManagement.Read.All"
-          }
+            "Security Reader"
         ],
         "update": [
-          {
-            "name": "EntitlementManagement.Read.All"
-          },
-          {
-            "name": "EntitlementManagement.ReadWrite.All"
-          }
+            "Identity Governance Administrator"
         ]
-      },
-      "application": {
-        "read": [
-          {
-            "name": "EntitlementManagement.Read.All"
-          }
-        ],
-        "update": [
-          {
-            "name": "EntitlementManagement.Read.All"
-          },
-          {
-            "name": "EntitlementManagement.ReadWrite.All"
-          },
-          {
-            "name": "RoleManagement.ReadWrite.Directory"
-          }
-        ]
-      }
+    },
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [
+                    {
+                        "name": "EntitlementManagement.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "EntitlementManagement.Read.All"
+                    },
+                    {
+                        "name": "EntitlementManagement.ReadWrite.All"
+                    }
+                ]
+            },
+            "application": {
+                "read": [
+                    {
+                        "name": "EntitlementManagement.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "EntitlementManagement.Read.All"
+                    },
+                    {
+                        "name": "EntitlementManagement.ReadWrite.All"
+                    },
+                    {
+                        "name": "RoleManagement.ReadWrite.Directory"
+                    }
+                ]
+            }
+        }
     }
-  },
-  "requiredModules": [
-    "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Beta.Identity.Governance"
-  ]
 }
