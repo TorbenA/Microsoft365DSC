@@ -9,6 +9,11 @@
   * Fix for removing Group owner.
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
+* EXODistributionGroup
+  * Always use the retrieved Identity when updating the distribution group
+    to ensure correct group is updated when retrieved with PrimarySmtpAddress.
+* IntuneDeviceCompliancePolicyAndroidDeviceOwner
+  * Added new property `SecurityBlockJailbrokenDevices`.
 * IntuneDefenderGlobalExclusionsPolicyLinux
   * Initial release.
 * IntuneDeviceCompliancePolicyAndroidDeviceOwner
