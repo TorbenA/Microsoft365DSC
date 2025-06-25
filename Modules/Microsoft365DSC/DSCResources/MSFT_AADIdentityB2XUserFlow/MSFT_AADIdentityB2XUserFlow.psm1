@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADIdentityB2XUserFlow'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -713,3 +715,4 @@ function Get-ConnectorName($connectorName)
 }
 
 Export-ModuleMember -Function *-TargetResource
+

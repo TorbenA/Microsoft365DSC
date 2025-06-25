@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADNetworkAccessForwardingPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -503,3 +505,4 @@ function Get-MicrosoftGraphNetworkAccessForwardingPolicyRules
 
 
 Export-ModuleMember -Function *-TargetResource
+

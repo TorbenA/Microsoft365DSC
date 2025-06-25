@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCAutoSensitivityLabelRule'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -1677,3 +1679,4 @@ function Test-ContainsSensitiveInformationGroups
 }
 
 Export-ModuleMember -Function *-TargetResource
+

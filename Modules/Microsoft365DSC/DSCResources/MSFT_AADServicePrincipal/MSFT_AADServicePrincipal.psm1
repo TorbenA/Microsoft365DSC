@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADServicePrincipal'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -1361,3 +1363,4 @@ function Get-CustomSecurityAttributes
 }
 
 Export-ModuleMember -Function *-TargetResource
+
