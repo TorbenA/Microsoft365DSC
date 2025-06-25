@@ -16,8 +16,10 @@
   * Added new property `SecurityBlockJailbrokenDevices`.
 * IntuneDefenderGlobalExclusionsPolicyLinux
   * Initial release.
-* IntuneDeviceCompliancePolicyAndroidDeviceOwner
-  * Added new property `SecurityBlockJailbrokenDevices`.
+* IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10
+  * Deprecated resource.
+* IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10SettingCatalog
+  * Initial release.
 * IntuneWindowsHelloForBusinessGlobalPolicy
   * Initial release.
     FIXES [#4561](https://github.com/microsoft/Microsoft365DSC/issues/4561)
