@@ -8,12 +8,10 @@
 * AADGroup
   * Fix for removing Group owner.
 * AADGroupElegibilityScheduleSettings
-  * New resource AADGroupElegibilityScheduleSettings
+  * Initial release.
 * EXODistributionGroup
   * Always use the retrieved Identity when updating the distribution group
     to ensure correct group is updated when retrieved with PrimarySmtpAddress.
-* IntuneDeviceCompliancePolicyAndroidDeviceOwner
-  * Added new property `SecurityBlockJailbrokenDevices`.
 * IntuneDefenderGlobalExclusionsPolicyLinux
   * Initial release.
 * IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10
@@ -31,6 +29,7 @@
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
+  * Streamlining the Test-TargetResource of all AAD, Commerce, Defender, O365, OneDrive and Services Hub resources.
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.46.
 
