@@ -283,7 +283,7 @@ function Get-TargetResource
         $groupNames = @()
         foreach ($group in $instance.TargetGroups)
         {
-            $groupValue = Get-Group $group.Guid -ErrorAction SilentlyContinue | Where-Object -FilterScript {$_.GUID -eq $group}
+            $groupValue = Get-Group $group.Guid -ErrorAction SilentlyContinue | Where-Object -FilterScript {$_.GUID -eq $group.Guid}
             if ($null -ne $groupValue)
             {
                 $groupNames += $groupValue.Name
