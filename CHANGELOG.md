@@ -8,10 +8,15 @@
 * AADGroup
   * Fix for removing Group owner.
 * AADGroupElegibilityScheduleSettings
-  * New resource AADGroupElegibilityScheduleSettings
-* IntuneDeviceCompliancePolicyAndroidDeviceOwner
-  * Added new property `SecurityBlockJailbrokenDevices`.
+  * Initial release.
+* EXODistributionGroup
+  * Always use the retrieved Identity when updating the distribution group
+    to ensure correct group is updated when retrieved with PrimarySmtpAddress.
 * IntuneDefenderGlobalExclusionsPolicyLinux
+  * Initial release.
+* IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10
+  * Deprecated resource.
+* IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10SettingCatalog
   * Initial release.
 * IntuneWindowsHelloForBusinessGlobalPolicy
   * Initial release.
@@ -19,9 +24,12 @@
 * TeamsMeetingPolicy
   * Added missing Parameter 'RoomAttributeUserOverride' to Get-TargetResource's output.
     Fixes [#6183](https://github.com/microsoft/Microsoft365DSC/issues/6183)
+* M365DSCPermissions
+  * Fixed an issue when accessing permissions from the compiled list returns no permissions.
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
+  * Streamlining the Test-TargetResource of all AAD, Commerce, Defender, O365, OneDrive and Services Hub resources.
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.46.
 
