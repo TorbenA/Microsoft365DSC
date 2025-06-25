@@ -1,34 +1,33 @@
-{
-  "resourceName": "EXORoleGroup",
-  "description": "",
-  "roles": {
-    "read": [
-      "Global Reader"
-    ],
-    "update": [
-      "Exchange Administrator"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
+﻿{
+    "resourceName": "EXORoleGroup",
+    "description": "",
+    "roles": {
+        "read": [
+            "Global Reader"
+        ],
+        "update": [
+            "Exchange Administrator"
+        ]
     },
-    "exchange": {
-      "requiredroles": [
-        "Role Management",
-        "View-Only Configuration"
-      ],
-      "requiredrolegroups": [
-        "Organization Management"
-      ]
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [],
+                "update": []
+            }
+        },
+        "exchange": {
+            "requiredroles": [
+                "Role Management",
+                "View-Only Configuration"
+            ],
+            "requiredrolegroups": [
+                "Organization Management"
+            ]
+        }
     }
-  },
-  "requiredModules": []
 }

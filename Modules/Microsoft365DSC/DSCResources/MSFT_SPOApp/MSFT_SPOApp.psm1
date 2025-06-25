@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SPOApp'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -492,4 +490,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

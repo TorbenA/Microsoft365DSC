@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_O365ExternalConnection'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -441,4 +439,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

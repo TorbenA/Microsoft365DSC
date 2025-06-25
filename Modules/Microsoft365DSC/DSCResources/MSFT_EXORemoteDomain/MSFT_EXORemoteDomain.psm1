@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXORemoteDomain'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -732,5 +730,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
 

@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOAvailabilityAddressSpace'
-
 function Get-TargetResource
 {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '')]
@@ -565,4 +563,3 @@ function Export-TargetResource
     }
 }
 Export-ModuleMember -Function *-TargetResource
-

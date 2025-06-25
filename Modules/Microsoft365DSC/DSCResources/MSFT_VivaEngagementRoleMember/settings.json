@@ -1,33 +1,28 @@
-{
-  "resourceName": "VivaEngagementRoleMember",
-  "description": "Manage a Viva Engage roles assigned to a user.",
-  "roles": {
-    "read": [],
-    "update": []
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
+﻿{
+    "resourceName": "VivaEngagementRoleMember",
+    "description": "Manage a Viva Engage roles assigned to a user.",
+    "roles": {
         "read": [],
         "update": []
-      },
-      "application": {
-        "read": [
-          {
-            "name": "EngagementRole.Read.All"
-          }
-        ],
-        "update": [
-          {
-            "name": "EngagementRole.ReadWrite.All"
-          }
-        ]
-      }
+    },
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [
+                    {
+                        "name": "EngagementRole.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "EngagementRole.ReadWrite.All"
+                    }
+                ]
+            }
+        }
     }
-  },
-  "requiredModules": [
-    "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Users",
-    "MSCloudLoginAssistant"
-  ]
 }

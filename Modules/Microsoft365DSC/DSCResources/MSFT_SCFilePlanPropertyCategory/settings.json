@@ -1,17 +1,16 @@
-{
-  "resourceName": "SCFilePlanPropertyCategory",
-  "description": "",
-  "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
+﻿{
+    "resourceName": "SCFilePlanPropertyCategory",
+    "description": "",
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [],
+                "update": []
+            }
+        }
     }
-  },
-  "requiredModules": []
 }

@@ -1,35 +1,32 @@
-{
-  "resourceName": "SHSpaceUser",
-  "description": "Represents a Services Hub space user.",
-  "roles": {
-    "read": [
-      "Role"
-    ],
-    "update": [
-      "Role"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
-      "application": {
+﻿{
+    "resourceName": "SHSpaceUser",
+    "description": "Represents a Services Hub space user.",
+    "roles": {
         "read": [
-          {
-            "name": "User.Read.All"
-          }
+            "Role"
         ],
         "update": [
-          {
-            "name": "User.Read.All"
-          }
+            "Role"
         ]
-      }
+    },
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [
+                    {
+                        "name": "User.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "User.Read.All"
+                    }
+                ]
+            }
+        }
     }
-  },
-  "requiredModules": [
-    "MSCloudLoginAssistant"
-  ]
 }

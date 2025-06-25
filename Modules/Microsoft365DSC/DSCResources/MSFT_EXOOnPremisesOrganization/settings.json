@@ -1,34 +1,33 @@
-{
-  "resourceName": "EXOOnPremisesOrganization",
-  "description": "",
-  "roles": {
-    "read": [
-      "Global Reader"
-    ],
-    "update": [
-      "Exchange Administrator"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
+﻿{
+    "resourceName": "EXOOnPremisesOrganization",
+    "description": "",
+    "roles": {
+        "read": [
+            "Global Reader"
+        ],
+        "update": [
+            "Exchange Administrator"
+        ]
     },
-    "exchange": {
-      "requiredroles": [
-        "Remote and Accepted Domains",
-        "View-Only Configuration"
-      ],
-      "requiredrolegroups": [
-        "Organization Management"
-      ]
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [],
+                "update": []
+            }
+        },
+        "exchange": {
+            "requiredroles": [
+                "Remote and Accepted Domains",
+                "View-Only Configuration"
+            ],
+            "requiredrolegroups": [
+                "Organization Management"
+            ]
+        }
     }
-  },
-  "requiredModules": []
 }

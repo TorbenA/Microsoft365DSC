@@ -1,35 +1,34 @@
-{
-  "resourceName": "EXOMailboxSettings",
-  "description": "",
-  "roles": {
-    "read": [
-      "Global Reader"
-    ],
-    "update": [
-      "Exchange Administrator"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
+﻿{
+    "resourceName": "EXOMailboxSettings",
+    "description": "",
+    "roles": {
+        "read": [
+            "Global Reader"
+        ],
+        "update": [
+            "Exchange Administrator"
+        ]
     },
-    "exchange": {
-      "requiredroles": [
-        "User Options",
-        "View-Only Recipients",
-        "Mail Recipients"
-      ],
-      "requiredrolegroups": [
-        "Organization Management"
-      ]
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [],
+                "update": []
+            }
+        },
+        "exchange": {
+            "requiredroles": [
+                "User Options",
+                "View-Only Recipients",
+                "Mail Recipients"
+            ],
+            "requiredrolegroups": [
+                "Organization Management"
+            ]
+        }
     }
-  },
-  "requiredModules": []
 }

@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCLabelPolicy'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -1160,4 +1158,3 @@ function New-PolicyData
 }
 
 Export-ModuleMember -Function *-TargetResource
-

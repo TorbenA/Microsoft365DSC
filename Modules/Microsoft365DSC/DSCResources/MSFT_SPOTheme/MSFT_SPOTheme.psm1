@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SPOTheme'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -573,4 +571,3 @@ function Compare-SPOTheme
 }
 
 Export-ModuleMember -Function *-TargetResource
-

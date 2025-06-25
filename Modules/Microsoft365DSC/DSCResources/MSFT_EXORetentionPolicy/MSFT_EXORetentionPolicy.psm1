@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXORetentionPolicy'
-
 
 function Get-TargetResource
 {
@@ -412,4 +410,3 @@ function Export-TargetResource
     }
 }
 Export-ModuleMember -Function *-TargetResource
-

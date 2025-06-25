@@ -1,21 +1,20 @@
-{
-  "resourceName": "ADOPermissionGroup",
-  "description": "Manages Azure DevOPS permission groups.",
-  "roles": {
-    "read": [],
-    "update": []
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
+﻿{
+    "resourceName": "ADOPermissionGroup",
+    "description": "Manages Azure DevOPS permission groups.",
+    "roles": {
         "read": [],
         "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
+    },
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [],
+                "update": []
+            }
+        }
     }
-  },
-  "requiredModules": []
 }

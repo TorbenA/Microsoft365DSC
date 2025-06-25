@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneWindowsInformationProtectionPolicyWindows10MdmEnrolled'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -1240,4 +1238,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

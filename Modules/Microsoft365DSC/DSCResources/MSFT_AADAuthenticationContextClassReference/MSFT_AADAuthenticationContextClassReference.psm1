@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADAuthenticationContextClassReference'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -425,4 +423,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

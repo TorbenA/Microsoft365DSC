@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneAppCategory'
-
 function Get-TargetResource
 {
     [CmdletBinding()]

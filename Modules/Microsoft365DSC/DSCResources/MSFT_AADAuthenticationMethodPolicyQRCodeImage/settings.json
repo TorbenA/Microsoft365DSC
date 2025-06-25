@@ -1,58 +1,52 @@
-{
-  "resourceName": "AADAuthenticationMethodPolicyQRCodeImage",
-  "description": "This resource configures an Azure AD Authentication Method Policy QR Code Image.",
-  "roles": {
-    "read": [
-      "Security Reader"
-    ],
-    "update": [
-      "Authentication Policy Administrator"
-    ]
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
+﻿{
+    "resourceName": "AADAuthenticationMethodPolicyQRCodeImage",
+    "description": "This resource configures an Azure AD Authentication Method Policy QR Code Image.",
+    "roles": {
         "read": [
-          {
-            "name": "Policy.ReadWrite.AuthenticationMethod"
-          },
-          {
-            "name": "Policy.Read.All"
-          }
+            "Security Reader"
         ],
         "update": [
-          {
-            "name": "Policy.ReadWrite.AuthenticationMethod"
-          },
-          {
-            "name": "Policy.Read.All"
-          }
+            "Authentication Policy Administrator"
         ]
-      },
-      "application": {
-        "read": [
-          {
-            "name": "Policy.ReadWrite.AuthenticationMethod"
-          },
-          {
-            "name": "Policy.Read.All"
-          }
-        ],
-        "update": [
-          {
-            "name": "Policy.ReadWrite.AuthenticationMethod"
-          },
-          {
-            "name": "Policy.Read.All"
-          }
-        ]
-      }
+    },
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [
+                    {
+                        "name": "Policy.ReadWrite.AuthenticationMethod"
+                    },
+                    {
+                        "name": "Policy.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "Policy.ReadWrite.AuthenticationMethod"
+                    },
+                    {
+                        "name": "Policy.Read.All"
+                    }
+                ]
+            },
+            "application": {
+                "read": [
+                    {
+                        "name": "Policy.ReadWrite.AuthenticationMethod"
+                    },
+                    {
+                        "name": "Policy.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "Policy.ReadWrite.AuthenticationMethod"
+                    },
+                    {
+                        "name": "Policy.Read.All"
+                    }
+                ]
+            }
+        }
     }
-  },
-  "requiredModules": [
-    "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Beta.Identity.SignIns",
-    "Microsoft.Graph.Groups",
-    "MSCloudLoginAssistant"
-  ]
 }

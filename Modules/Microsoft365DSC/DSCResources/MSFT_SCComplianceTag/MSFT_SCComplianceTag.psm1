@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCComplianceTag'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -692,4 +690,3 @@ function Test-SCFilePlanProperties
 }
 
 Export-ModuleMember -Function *-TargetResource
-
