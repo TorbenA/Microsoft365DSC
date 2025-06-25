@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_TeamsVoiceRoutingPolicy'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -413,4 +411,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

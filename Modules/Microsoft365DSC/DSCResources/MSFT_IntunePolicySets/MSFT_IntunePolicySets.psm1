@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntunePolicySets'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -706,4 +704,3 @@ function Get-ItemsAmendmentsObject
 }
 
 Export-ModuleMember -Function *-TargetResource
-

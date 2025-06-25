@@ -1,21 +1,20 @@
-{
-  "resourceName": "ADOSecurityPolicy",
-  "description": "Configures Azure DevOPS Security Policies.",
-  "roles": {
-    "read": [],
-    "update": []
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
+﻿{
+    "resourceName": "ADOSecurityPolicy",
+    "description": "Configures Azure DevOPS Security Policies.",
+    "roles": {
         "read": [],
         "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
+    },
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [],
+                "update": []
+            }
+        }
     }
-  },
-  "requiredModules": []
 }

@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneAppProtectionPolicyiOS'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -1814,4 +1812,3 @@ function Update-IntuneAppProtectionPolicyiOSApp
 }
 
 Export-ModuleMember -Function *-TargetResource
-

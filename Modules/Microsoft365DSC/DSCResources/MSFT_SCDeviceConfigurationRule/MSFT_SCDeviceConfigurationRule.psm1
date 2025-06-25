@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCDeviceConfigurationRule'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -1059,4 +1057,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneMobileThreatDefenseConnector'
-
 # https://learn.microsoft.com/en-us/graph/api/resources/intune-onboarding-mobilethreatdefenseconnector?view=graph-rest-1.0
 # https://learn.microsoft.com/en-us/powershell/module/microsoft.graph.devicemanagement.administration/new-mgdevicemanagementmobilethreatdefenseconnector?view=graph-powershell-1.0
 
@@ -699,4 +697,3 @@ function Get-MobileThreatDefenseConnectorIdOrDisplayName
 }
 
 Export-ModuleMember -Function *-TargetResource
-

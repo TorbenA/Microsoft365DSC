@@ -1,6 +1,4 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneAndroidManagedStoreAppConfiguration'
-
-function Get-TargetResource
+﻿function Get-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
@@ -804,4 +802,3 @@ function Get-M365DSCAdditionalProperties
 }
 
 Export-ModuleMember -Function *-TargetResource
-

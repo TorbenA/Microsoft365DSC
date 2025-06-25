@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneApplicationControlPolicyWindows10'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -637,4 +635,3 @@ function Get-M365DSCIntuneEndpointProtectionPolicyWindowsSettings
 }
 
 Export-ModuleMember -Function *-TargetResource
-

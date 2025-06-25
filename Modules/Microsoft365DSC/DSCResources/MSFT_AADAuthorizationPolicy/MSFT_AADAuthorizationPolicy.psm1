@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADAuthorizationPolicy'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -731,4 +729,3 @@ function Get-GuestUserRoleNameFromId
 }
 
 Export-ModuleMember -Function *-TargetResource
-

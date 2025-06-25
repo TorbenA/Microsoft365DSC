@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADVerifiedIdAuthority'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -586,4 +584,3 @@ function Invoke-M365DSCVerifiedIdWebRequest
 }
 
 Export-ModuleMember -Function *-TargetResource
-

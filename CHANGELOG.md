@@ -33,8 +33,6 @@
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
-  * Added module pinning.
-    FIXES [#6168](https://github.com/microsoft/Microsoft365DSC/issues/6168)
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.46.
 

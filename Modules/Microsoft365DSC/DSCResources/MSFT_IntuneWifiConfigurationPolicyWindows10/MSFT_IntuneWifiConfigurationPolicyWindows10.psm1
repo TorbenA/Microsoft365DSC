@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneWifiConfigurationPolicyWindows10'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -941,4 +939,3 @@ function Get-M365DSCAdditionalProperties
 }
 
 Export-ModuleMember -Function *-TargetResource
-

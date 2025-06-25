@@ -1,32 +1,28 @@
-{
-  "resourceName": "AADDomain",
-  "description": "Configures custom domain names in Entra Id.",
-  "roles": {
-    "read": [],
-    "update": []
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
+﻿{
+    "resourceName": "AADDomain",
+    "description": "Configures custom domain names in Entra Id.",
+    "roles": {
         "read": [],
         "update": []
-      },
-      "application": {
-        "read": [
-          {
-            "name": "Domain.Read.All"
-          }
-        ],
-        "update": [
-          {
-            "name": "Domain.ReadWrite.All"
-          }
-        ]
-      }
+    },
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [
+                    {
+                        "name": "Domain.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "Domain.ReadWrite.All"
+                    }
+                ]
+            }
+        }
     }
-  },
-  "requiredModules": [
-    "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Beta.Identity.DirectoryManagement"
-  ]
 }

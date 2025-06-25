@@ -1,32 +1,28 @@
-{
-  "resourceName": "AADLifecycleWorkflowSettings",
-  "description": "Update the properties of a lifecycleManagementSettings object.",
-  "roles": {
-    "read": [],
-    "update": []
-  },
-  "permissions": {
-    "graph": {
-      "delegated": {
+﻿{
+    "resourceName": "AADLifecycleWorkflowSettings",
+    "description": "Update the properties of a lifecycleManagementSettings object.",
+    "roles": {
         "read": [],
         "update": []
-      },
-      "application": {
-        "read": [
-          {
-            "name": "LifecycleWorkflows.Read.All"
-          }
-        ],
-        "update": [
-          {
-            "name": "LifecycleWorkflows.ReadWrite.All"
-          }
-        ]
-      }
+    },
+    "permissions": {
+        "graph": {
+            "delegated": {
+                "read": [],
+                "update": []
+            },
+            "application": {
+                "read": [
+                    {
+                        "name": "LifecycleWorkflows.Read.All"
+                    }
+                ],
+                "update": [
+                    {
+                        "name": "LifecycleWorkflows.ReadWrite.All"
+                    }
+                ]
+            }
+        }
     }
-  },
-  "requiredModules": [
-    "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Beta.Identity.Governance"
-  ]
 }

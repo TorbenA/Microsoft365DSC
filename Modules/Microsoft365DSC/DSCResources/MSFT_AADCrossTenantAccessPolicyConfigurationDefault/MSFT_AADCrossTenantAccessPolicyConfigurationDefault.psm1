@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADCrossTenantAccessPolicyConfigurationDefault'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -837,4 +835,3 @@ function Get-M365DSCAADCrossTenantAccessPolicyInboundTrust
 }
 
 Export-ModuleMember -Function *-TargetResource
-

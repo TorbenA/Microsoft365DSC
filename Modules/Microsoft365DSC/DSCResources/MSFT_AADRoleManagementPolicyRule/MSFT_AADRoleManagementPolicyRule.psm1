@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADRoleManagementPolicyRule'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -805,4 +803,3 @@ function Get-M365DSCRoleManagementPolicyRuleObject
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADApplication'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -2004,4 +2002,3 @@ function Get-M365DSCAzureADAppPermissions
 }
 
 Export-ModuleMember -Function *-TargetResource
-

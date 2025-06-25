@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SHSpaceUser'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -449,4 +447,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

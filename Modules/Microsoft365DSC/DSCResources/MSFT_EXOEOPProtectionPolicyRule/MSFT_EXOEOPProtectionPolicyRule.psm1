@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOEOPProtectionPolicyRule'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -534,4 +532,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
