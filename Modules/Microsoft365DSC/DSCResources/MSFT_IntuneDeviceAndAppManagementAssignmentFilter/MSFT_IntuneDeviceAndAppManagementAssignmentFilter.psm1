@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceAndAppManagementAssignmentFilter'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -15,6 +17,11 @@ function Get-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [ValidateSet('apps', 'devices')]
+        [System.String]
+        $AssignmentFilterManagementType = 'devices',
 
         [Parameter()]
         [ValidateSet('android', 'androidForWork', 'iOS', 'macOS', 'windowsPhone81', 'windows81AndLater', 'windows10AndLater', 'androidWorkProfile', 'unknown', 'androidAOSP', 'androidMobileApplicationManagement', 'iOSMobileApplicationManagement', 'unknownFutureValue')]
@@ -118,10 +125,11 @@ function Get-TargetResource
 
         $returnHashtable = @{}
         $returnHashtable.Add('Identity', $assignmentFilter.Id)
-        $returnHashtable.Add('DisplayName', $assignmentFilter.displayName)
-        $returnHashtable.Add('Description', $assignmentFilter.description)
-        $returnHashtable.Add('Platform', $assignmentFilter.platform.ToString())
-        $returnHashtable.Add('Rule', $assignmentFilter.rule)
+        $returnHashtable.Add('DisplayName', $assignmentFilter.DisplayName)
+        $returnHashtable.Add('Description', $assignmentFilter.Description)
+        $returnHashtable.Add('AssignmentFilterManagementType', $assignmentFilter.AssignmentFilterManagementType.ToString())
+        $returnHashtable.Add('Platform', $assignmentFilter.Platform.ToString())
+        $returnHashtable.Add('Rule', $assignmentFilter.Rule)
         $returnHashtable.Add('Ensure', 'Present')
         $returnHashtable.Add('Credential', $Credential)
         $returnHashtable.Add('ApplicationId', $ApplicationId)
@@ -161,6 +169,11 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [ValidateSet('apps', 'devices')]
+        [System.String]
+        $AssignmentFilterManagementType = 'devices',
 
         [Parameter()]
         [ValidateSet('android', 'androidForWork', 'iOS', 'macOS', 'windowsPhone81', 'windows81AndLater', 'windows10AndLater', 'androidWorkProfile', 'unknown', 'androidAOSP', 'androidMobileApplicationManagement', 'iOSMobileApplicationManagement', 'unknownFutureValue')]
@@ -232,18 +245,25 @@ function Set-TargetResource
             -DisplayName $DisplayName `
             -Description $Description `
             -Platform $Platform `
-            -Rule $Rule | Out-Null
+            -Rule $Rule `
+            -AssignmentFilterManagementType $AssignmentFilterManagementType | Out-Null
 
     }
     elseif ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating existing assignment filter {$DisplayName}"
 
+        if ($currentPolicy.AssignmentFilterManagementType -ne $AssignmentFilterManagementType)
+        {
+            throw "Cannot change the AssignmentFilterManagementType of an existing IntuneDeviceAndAppManagementAssignmentFilter. Remove and recreate the filter if you want to change the filter type."
+        }
+
         Update-MgBetaDeviceManagementAssignmentFilter `
             -DeviceAndAppManagementAssignmentFilterId $currentPolicy.Identity `
             -DisplayName $DisplayName `
             -Description $Description `
-            -Rule $Rule | Out-Null
+            -Rule $Rule `
+            -AssignmentFilterManagementType $AssignmentFilterManagementType | Out-Null
 
     }
     elseif ($Ensure -eq 'Absent' -and $currentPolicy.Ensure -eq 'Present')
@@ -270,6 +290,11 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [ValidateSet('apps', 'devices')]
+        [System.String]
+        $AssignmentFilterManagementType = 'devices',
 
         [Parameter()]
         [ValidateSet('android', 'androidForWork', 'iOS', 'macOS', 'windowsPhone81', 'windows81AndLater', 'windows10AndLater', 'androidWorkProfile', 'unknown', 'androidAOSP', 'androidMobileApplicationManagement', 'iOSMobileApplicationManagement', 'unknownFutureValue')]
@@ -330,7 +355,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of assignment filter {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
+    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
     $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
     $ValuesToCheck.Remove('Identity') | Out-Null
     $testResult = $true
@@ -491,3 +516,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource, *
+

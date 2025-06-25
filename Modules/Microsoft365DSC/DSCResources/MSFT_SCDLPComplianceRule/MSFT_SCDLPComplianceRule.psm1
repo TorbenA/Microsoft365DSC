@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCDLPComplianceRule'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -2176,3 +2178,4 @@ function Format-Json([Parameter(Mandatory, ValueFromPipeline)][String] $json)
 }
 
 Export-ModuleMember -Function *-TargetResource
+

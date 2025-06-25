@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDiskEncryptionMacOS'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -838,3 +840,4 @@ function Get-M365DSCIntuneDeviceConfigurationSettings
 }
 
 Export-ModuleMember -Function *-TargetResource
+

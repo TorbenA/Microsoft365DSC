@@ -12,6 +12,8 @@
 * EXODistributionGroup
   * Always use the retrieved Identity when updating the distribution group
     to ensure correct group is updated when retrieved with PrimarySmtpAddress.
+* IntuneDeviceAndAppManagementAssignmentFilter
+  * Added property `AssignmentFilterManagementType` to supported properties.
 * IntuneDeviceCompliancePolicyAndroidDeviceOwner
   * Added new property `SecurityBlockJailbrokenDevices`.
 * IntuneDefenderGlobalExclusionsPolicyLinux
@@ -31,6 +33,8 @@
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
+  * Added module pinning.
+    FIXES [#6168](https://github.com/microsoft/Microsoft365DSC/issues/6168)
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.46.
 
@@ -142,11 +146,6 @@
   * Updated ExchangeOnlineManagement to version 3.2.0
   * Updated Microsoft.Graph to version 2.28.0
   * Updated MSCloudLoginAssistant to version 1.1.44
-
-# UNRELEASED
-
-* AADGroupElegibilityScheduleSettings
-  * New resource AADGroupElegibilityScheduleSettings
 
 # 1.25.521.1
 
