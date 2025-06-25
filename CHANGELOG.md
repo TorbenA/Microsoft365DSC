@@ -15,16 +15,23 @@
     FIXES [#6181](https://github.com/microsoft/Microsoft365DSC/issues/6181)
     FIXES [#6045](https://github.com/microsoft/Microsoft365DSC/issues/6045)
     FIXES [#5419](https://github.com/microsoft/Microsoft365DSC/issues/5419)
+* EXODistributionGroup
+  * Always use the retrieved Identity when updating the distribution group
+    to ensure correct group is updated when retrieved with PrimarySmtpAddress.
 * IntuneDeviceCompliancePolicyAndroidDeviceOwner
   * Added new property `SecurityBlockJailbrokenDevices`.
 * IntuneDefenderGlobalExclusionsPolicyLinux
   * Initial release.
+* IntuneDeviceCompliancePolicyAndroidDeviceOwner
+  * Added new property `SecurityBlockJailbrokenDevices`.
 * IntuneWindowsHelloForBusinessGlobalPolicy
   * Initial release.
     FIXES [#4561](https://github.com/microsoft/Microsoft365DSC/issues/4561)
 * TeamsMeetingPolicy
   * Added missing Parameter 'RoomAttributeUserOverride' to Get-TargetResource's output.
     Fixes [#6183](https://github.com/microsoft/Microsoft365DSC/issues/6183)
+* M365DSCPermissions
+  * Fixed an issue when accessing permissions from the compiled list returns no permissions.
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
