@@ -38,6 +38,11 @@
 * IntuneWindowsHelloForBusinessGlobalPolicy
   * Initial release.
     FIXES [#4561](https://github.com/microsoft/Microsoft365DSC/issues/4561)
+* SCDLPComplianceRule
+  * Fixed an issue where the export of `SetHeader` is wrongly formatted.
+    FIXES [#6140](https://github.com/microsoft/Microsoft365DSC/issues/6140)
+  * Fixed an issue where the export of `AdvancedRule` with multiple and nested subconditions
+    would throw an error during removal of the sensitive type id.
 * TeamsMeetingPolicy
   * Added missing Parameter 'RoomAttributeUserOverride' to Get-TargetResource's output.
     Fixes [#6183](https://github.com/microsoft/Microsoft365DSC/issues/6183)
