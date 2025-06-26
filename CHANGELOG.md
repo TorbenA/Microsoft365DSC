@@ -12,19 +12,16 @@
   * Fix for removing Group owner.
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
-<<<<<<< fix/aadserviceprincipal-appid
+* AADGroupElegibilityScheduleSettings
+  * New resource AADGroupElegibilityScheduleSettings
+* AADRoleAssignmentScheduleRequest
+  * FIXES [#5710](https://github.com/microsoft/Microsoft365DSC/issues/5710)
 * AADServicePrincipal
   * Fixed an issue where the `AppId` won't be exported.
     FIXES [#6200](https://github.com/microsoft/Microsoft365DSC/issues/6200)
     FIXES [#6181](https://github.com/microsoft/Microsoft365DSC/issues/6181)
     FIXES [#6045](https://github.com/microsoft/Microsoft365DSC/issues/6045)
     FIXES [#5419](https://github.com/microsoft/Microsoft365DSC/issues/5419)
-=======
-* AADGroupElegibilityScheduleSettings
-  * New resource AADGroupElegibilityScheduleSettings
-* AADRoleAssignmentScheduleRequest
-  * FIXES [#5710](https://github.com/microsoft/Microsoft365DSC/issues/5710)
->>>>>>> Dev
 * EXODistributionGroup
   * Always use the retrieved Identity when updating the distribution group
     to ensure correct group is updated when retrieved with PrimarySmtpAddress.
