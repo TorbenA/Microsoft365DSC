@@ -14,8 +14,6 @@
   * Fix for removing Group owner.
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
-* AADGroupElegibilityScheduleSettings
-  * New resource AADGroupElegibilityScheduleSettings
 * AADRoleAssignmentScheduleRequest
   * FIXES [#5710](https://github.com/microsoft/Microsoft365DSC/issues/5710)
 * AADServicePrincipal
@@ -52,19 +50,16 @@
     Fixes [#6183](https://github.com/microsoft/Microsoft365DSC/issues/6183)
 * M365DSCPermissions
   * Fixed an issue when accessing permissions from the compiled list returns no permissions.
+* M365DSCUtil
+  * Add -ExcludeComponents parameter to `Export-M365DSCConfiguration`to allow
+    for easy skipping of certain components.
+    FIXES [#6192(https://github.com/microsoft/Microsoft365DSC/issues/6192)]
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
-<<<<<<< Add-ExcludeComponents
-* AADGroupElegibilityScheduleSettings
-  * New resource AADGroupElegibilityScheduleSettings
-* Export-M365DSCConfiguration
-  * Add -ExcludeComponents parameter to allow for easy skipping of certain components.
-    FIXED [#6192(https://github.com/microsoft/Microsoft365DSC/issues/6192)]
-=======
+  * Streamlined `Test-TargetResource` for many resources.
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.46.
->>>>>>> Dev
 
 # 1.25.611.1
 
