@@ -5,6 +5,9 @@
 * AADAdministrativeUnit
   * Throw if an unsupported Member or ScopedRoleMember type is returned.
   * Fix verbose logging for assigned memberships, make update calls type-agnostic.
+* AADConditionalAccessPolicy
+  * Fix for removing or resetting builtInControls, customAuthenticationFactors, authenticationStrength or termsOfUse
+    FIXES [#6218](https://github.com/microsoft/Microsoft365DSC/issues/6218)
 * AADApplication
   * Fix to properly handle PreAuthorizedApplications in the Set-TargetResource method
     FIXES [#6182](https://github.com/microsoft/Microsoft365DSC/issues/6182)
@@ -12,8 +15,6 @@
   * FIXES [#6198] Adds support for ServicePrincipalRiskLevels
 * AADGroup
   * Fix for removing Group owner.
-* AADGroupElegibilityScheduleSettings
-  * New resource AADGroupElegibilityScheduleSettings
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
 * AADRoleAssignmentScheduleRequest
@@ -55,16 +56,10 @@
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
-<<<<<<< Add-ExcludeComponents
-* AADGroupElegibilityScheduleSettings
-  * New resource AADGroupElegibilityScheduleSettings
-* Export-M365DSCConfiguration
-  * Add -ExcludeComponents parameter to allow for easy skipping of certain components.
+  * Export-M365DSCConfiguration - Add -ExcludeComponents parameter to allow for easy skipping of certain components.
     FIXED [#6192(https://github.com/microsoft/Microsoft365DSC/issues/6192)]
-=======
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.46.
->>>>>>> Dev
 
 # 1.25.611.1
 
