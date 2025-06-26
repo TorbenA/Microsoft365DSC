@@ -45,16 +45,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Get-MSCloudLoginConnectionProfile -MockWith {
             }
 
-            Mock -CommandName Get-MgBetaIdentityGovernanceTermsOfUseAgreement -MockWith {
+            Mock -CommandName Get-MgBetaAgreement -MockWith {
             }
 
-            Mock -CommandName New-MgBetaIdentityGovernanceTermsOfUseAgreement -MockWith {
+            Mock -CommandName New-MgBetaAgreement -MockWith {
             }
 
-            Mock -CommandName Update-MgBetaIdentityGovernanceTermsOfUseAgreement -MockWith {
+            Mock -CommandName Update-MgBetaAgreement -MockWith {
             }
 
-            Mock -CommandName Remove-MgBetaIdentityGovernanceTermsOfUseAgreement -MockWith {
+            Mock -CommandName Remove-MgBetaAgreement -MockWith {
             }
 
             # Mock Write-M365DSCHost to hide output during the tests
@@ -80,7 +80,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Credential                           = $Credential
                 }
 
-                Mock -CommandName Get-MgBetaIdentityGovernanceTermsOfUseAgreement -MockWith {
+                Mock -CommandName Get-MgBetaAgreement -MockWith {
                     return $null
                 }
             }
@@ -95,7 +95,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should Create the agreement from the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName New-MgBetaIdentityGovernanceTermsOfUseAgreement -Exactly 1
+                Should -Invoke -CommandName New-MgBetaAgreement -Exactly 1
             }
         }
 
@@ -107,7 +107,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Credential  = $Credential
                 }
 
-                Mock -CommandName Get-MgBetaIdentityGovernanceTermsOfUseAgreement -MockWith {
+                Mock -CommandName Get-MgBetaAgreement -MockWith {
                     return @{
                         DisplayName                          = 'Test Agreement'
                         Id                                   = '12345'
@@ -134,7 +134,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should Remove the agreement from the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName Remove-MgBetaIdentityGovernanceTermsOfUseAgreement -Exactly 1
+                Should -Invoke -CommandName Remove-MgBetaAgreement -Exactly 1
             }
         }
 
@@ -153,7 +153,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Credential                           = $Credential
                 }
 
-                Mock -CommandName Get-MgBetaIdentityGovernanceTermsOfUseAgreement -MockWith {
+                Mock -CommandName Get-MgBetaAgreement -MockWith {
                     return @{
                         DisplayName                          = 'Test Agreement'
                         Id                                   = '12345'
@@ -190,7 +190,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Credential                           = $Credential
                 }
 
-                Mock -CommandName Get-MgBetaIdentityGovernanceTermsOfUseAgreement -MockWith {
+                Mock -CommandName Get-MgBetaAgreement -MockWith {
                     return @{
                         DisplayName                          = 'Test Agreement'
                         Id                                   = '12345'
@@ -213,7 +213,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName Update-MgBetaIdentityGovernanceTermsOfUseAgreement -Exactly 1
+                Should -Invoke -CommandName Update-MgBetaAgreement -Exactly 1
             }
         }
 
@@ -225,7 +225,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Credential = $Credential
                 }
 
-                Mock -CommandName Get-MgBetaIdentityGovernanceTermsOfUseAgreement -MockWith {
+                Mock -CommandName Get-MgBetaAgreement -MockWith {
                     return @(
                         @{
                             DisplayName                          = 'Test Agreement 1'

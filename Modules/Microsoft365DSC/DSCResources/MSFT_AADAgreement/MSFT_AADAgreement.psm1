@@ -76,8 +76,8 @@ function Get-TargetResource
 
     Write-Verbose -Message "Getting configuration for the Azure AD Agreement with DisplayName {$DisplayName}"
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
+    New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters | Out-Null
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -104,7 +104,7 @@ function Get-TargetResource
         }
         else
         {
-            $instance = Get-MgBetaIdentityGovernanceTermsOfUseAgreement -Filter "displayName eq '$($DisplayName.Replace("'", "''"))'" -ErrorAction SilentlyContinue
+            $instance = Get-MgBetaAgreement -Filter "displayName eq '$($DisplayName.Replace("'", "''"))'" -ErrorAction SilentlyContinue
         }
 
         if ($null -eq $instance)
@@ -243,12 +243,12 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
+    New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters | Out-Null
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters | Out-Null
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -272,7 +272,7 @@ function Set-TargetResource
 
         $CreateParameters = Remove-NullEntriesFromHashtable -Hash $CreateParameters
 
-        New-MgBetaIdentityGovernanceTermsOfUseAgreement -BodyParameter $CreateParameters
+        New-MgBetaAgreement -BodyParameter $CreateParameters
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
@@ -304,12 +304,12 @@ function Set-TargetResource
 
         $UpdateParameters = Remove-NullEntriesFromHashtable -Hash $UpdateParameters
 
-        Update-MgBetaIdentityGovernanceTermsOfUseAgreement -AgreementId $currentInstance.Id -BodyParameter $UpdateParameters
+        Update-MgBetaAgreement -AgreementId $currentInstance.Id -BodyParameter $UpdateParameters
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Removing Azure AD Agreement with DisplayName {$DisplayName}"
-        Remove-MgBetaIdentityGovernanceTermsOfUseAgreement -AgreementId $currentInstance.Id
+        Remove-MgBetaAgreement -AgreementId $currentInstance.Id
     }
 }
 
@@ -475,7 +475,7 @@ function Export-TargetResource
     try
     {
         $Script:ExportMode = $true
-        [array] $Script:exportedInstances = Get-MgBetaIdentityGovernanceTermsOfUseAgreement -All
+        [array] $Script:exportedInstances = Get-MgBetaAgreement -All
 
         $i = 1
         $dscContent = ''
