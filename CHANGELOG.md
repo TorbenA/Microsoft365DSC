@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADAdministrativeUnit
+  * Throw if an unsupported Member or ScopedRoleMember type is returned.
+  * Fix verbose logging for assigned memberships, make update calls type-agnostic.
 * AADApplication
   * Fix to properly handle PreAuthorizedApplications in the Set-TargetResource method
     FIXES [#6182](https://github.com/microsoft/Microsoft365DSC/issues/6182)
@@ -9,6 +12,19 @@
   * Fix for removing Group owner.
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
+<<<<<<< fix/aadserviceprincipal-appid
+* AADServicePrincipal
+  * Fixed an issue where the `AppId` won't be exported.
+    FIXES [#6200](https://github.com/microsoft/Microsoft365DSC/issues/6200)
+    FIXES [#6181](https://github.com/microsoft/Microsoft365DSC/issues/6181)
+    FIXES [#6045](https://github.com/microsoft/Microsoft365DSC/issues/6045)
+    FIXES [#5419](https://github.com/microsoft/Microsoft365DSC/issues/5419)
+=======
+* AADGroupElegibilityScheduleSettings
+  * New resource AADGroupElegibilityScheduleSettings
+* AADRoleAssignmentScheduleRequest
+  * FIXES [#5710](https://github.com/microsoft/Microsoft365DSC/issues/5710)
+>>>>>>> Dev
 * EXODistributionGroup
   * Always use the retrieved Identity when updating the distribution group
     to ensure correct group is updated when retrieved with PrimarySmtpAddress.
