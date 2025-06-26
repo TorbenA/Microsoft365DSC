@@ -28,6 +28,9 @@
 * EXODistributionGroup
   * Always use the retrieved Identity when updating the distribution group
     to ensure correct group is updated when retrieved with PrimarySmtpAddress.
+* FabricAdminTenantSettings
+  * Fixed an issue where exported titles could contain unescaped string literals.
+    FIXES [#6199](https://github.com/microsoft/Microsoft365DSC/issues/6199)
 * IntuneDeviceAndAppManagementAssignmentFilter
   * Added property `AssignmentFilterManagementType` to supported properties.
 * IntuneDeviceCompliancePolicyAndroidDeviceOwner
