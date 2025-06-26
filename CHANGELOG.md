@@ -29,6 +29,8 @@
   * Added property `AssignmentFilterManagementType` to supported properties.
 * IntuneDeviceCompliancePolicyAndroidDeviceOwner
   * Added new property `SecurityBlockJailbrokenDevices`.
+* IntuneDeviceConfigurationAdministrativeTemplatePolicyWindows10
+  * Added support for property `RoleScopeTagIds`.
 * IntuneDefenderGlobalExclusionsPolicyLinux
   * Initial release.
 * IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10
