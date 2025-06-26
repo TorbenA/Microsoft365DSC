@@ -1787,15 +1787,15 @@ function Set-TargetResource
                 operator = $GrantControlOperator
             }
 
-            if ($BuiltInControls)
+            if ($currentParameters.ContainsKey('builtInControls'))
             {
                 $GrantControls.Add('builtInControls', $BuiltInControls)
             }
-            if ($customAuthenticationFactors)
+            if ($currentParameters.ContainsKey('customAuthenticationFactors'))
             {
                 $GrantControls.Add('customAuthenticationFactors', $CustomAuthenticationFactors)
             }
-            if ($AuthenticationStrength)
+            if ($currentParameters.ContainsKey('authenticationStrength'))
             {
                 $strengthPolicy = Get-MgBetaPolicyAuthenticationStrengthPolicy | Where-Object -FilterScript { $_.DisplayName -eq $AuthenticationStrength } -ErrorAction SilentlyContinue
                 if ($null -ne $strengthPolicy)
@@ -1808,7 +1808,7 @@ function Set-TargetResource
                 }
             }
 
-           if ($TermsOfUse)
+           if ($currentParameters.ContainsKey('termsOfUse'))
            {
                Write-Verbose -Message "Getting Terms of Use {$TermsOfUse}"
                $TermsOfUseObj = Get-MgBetaAgreement | Where-Object -FilterScript { $_.DisplayName -eq $TermsOfUse }
