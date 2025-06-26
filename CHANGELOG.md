@@ -43,6 +43,10 @@
 * IntuneWindowsHelloForBusinessGlobalPolicy
   * Initial release.
     FIXES [#4561](https://github.com/microsoft/Microsoft365DSC/issues/4561)
+* SCComplianceSearchAction
+  * Fixed an issue where the export would fail for preview actions.
+    FIXES [#6215](https://github.com/microsoft/Microsoft365DSC/issues/6215)
+    FIXES [#3534](https://github.com/microsoft/Microsoft365DSC/issues/3534)
 * SCDLPComplianceRule
   * Fixed an issue where the export of `SetHeader` is wrongly formatted.
     FIXES [#6140](https://github.com/microsoft/Microsoft365DSC/issues/6140)
