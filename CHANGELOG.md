@@ -46,8 +46,16 @@
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
+<<<<<<< Add-ExcludeComponents
+* AADGroupElegibilityScheduleSettings
+  * New resource AADGroupElegibilityScheduleSettings
+* Export-M365DSCConfiguration
+  * Add -ExcludeComponents parameter to allow for easy skipping of certain components.
+    FIXED [#6192(https://github.com/microsoft/Microsoft365DSC/issues/6192)]
+=======
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.46.
+>>>>>>> Dev
 
 # 1.25.611.1
 
