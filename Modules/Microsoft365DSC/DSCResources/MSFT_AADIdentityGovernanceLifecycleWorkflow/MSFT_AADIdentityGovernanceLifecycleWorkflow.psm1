@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADIdentityGovernanceLifecycleWorkflow'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -715,3 +717,4 @@ function Get-M365DSCIdentityGovernanceWorkflowExecutionConditions
 }
 
 Export-ModuleMember -Function *-TargetResource
+

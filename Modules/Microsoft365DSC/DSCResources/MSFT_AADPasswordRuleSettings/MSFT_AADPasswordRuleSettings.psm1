@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADPasswordRuleSettings'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -477,3 +479,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

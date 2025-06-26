@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADEntitlementManagementAccessPackage'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -1014,3 +1016,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

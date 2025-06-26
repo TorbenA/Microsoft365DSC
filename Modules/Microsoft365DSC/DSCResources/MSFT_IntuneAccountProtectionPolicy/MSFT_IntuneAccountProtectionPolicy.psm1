@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneAccountProtectionPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -889,3 +891,4 @@ function Get-M365DSCIntuneDeviceConfigurationSettings
 }
 
 Export-ModuleMember -Function *-TargetResource
+

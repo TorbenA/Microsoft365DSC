@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADRoleAssignmentScheduleRequest'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -947,3 +949,4 @@ function Test-M365DSCRecurrenceIsConfigured
 }
 
 Export-ModuleMember -Function *-TargetResource
+

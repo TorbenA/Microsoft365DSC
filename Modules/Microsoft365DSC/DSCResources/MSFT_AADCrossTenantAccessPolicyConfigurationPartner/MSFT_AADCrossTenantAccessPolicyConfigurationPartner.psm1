@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADCrossTenantAccessPolicyConfigurationPartner'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -926,3 +928,4 @@ function Test-M365DSCB2BIsDefault
 }
 
 Export-ModuleMember -Function *-TargetResource
+
