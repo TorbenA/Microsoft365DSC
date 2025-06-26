@@ -2,16 +2,29 @@
 
 # UNRELEASED
 
+* AADAdministrativeUnit
+  * Throw if an unsupported Member or ScopedRoleMember type is returned.
+  * Fix verbose logging for assigned memberships, make update calls type-agnostic.
 * AADConditionalAccessPolicy
   * Fix for removing or resetting builtInControls, customAuthenticationFactors, authenticationStrength or termsOfUse
     FIXES [#6218](https://github.com/microsoft/Microsoft365DSC/issues/6218)
 * AADApplication
   * Fix to properly handle PreAuthorizedApplications in the Set-TargetResource method
     FIXES [#6182](https://github.com/microsoft/Microsoft365DSC/issues/6182)
+* AADConditionalAccessPolicy
+  * FIXES [#6198] Adds support for ServicePrincipalRiskLevels
 * AADGroup
   * Fix for removing Group owner.
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
+* AADRoleAssignmentScheduleRequest
+  * FIXES [#5710](https://github.com/microsoft/Microsoft365DSC/issues/5710)
+* AADServicePrincipal
+  * Fixed an issue where the `AppId` won't be exported.
+    FIXES [#6200](https://github.com/microsoft/Microsoft365DSC/issues/6200)
+    FIXES [#6181](https://github.com/microsoft/Microsoft365DSC/issues/6181)
+    FIXES [#6045](https://github.com/microsoft/Microsoft365DSC/issues/6045)
+    FIXES [#5419](https://github.com/microsoft/Microsoft365DSC/issues/5419)
 * EXODistributionGroup
   * Always use the retrieved Identity when updating the distribution group
     to ensure correct group is updated when retrieved with PrimarySmtpAddress.
@@ -19,6 +32,8 @@
   * Added property `AssignmentFilterManagementType` to supported properties.
 * IntuneDeviceCompliancePolicyAndroidDeviceOwner
   * Added new property `SecurityBlockJailbrokenDevices`.
+* IntuneDeviceConfigurationAdministrativeTemplatePolicyWindows10
+  * Added support for property `RoleScopeTagIds`.
 * IntuneDefenderGlobalExclusionsPolicyLinux
   * Initial release.
 * IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10
@@ -28,6 +43,11 @@
 * IntuneWindowsHelloForBusinessGlobalPolicy
   * Initial release.
     FIXES [#4561](https://github.com/microsoft/Microsoft365DSC/issues/4561)
+* SCDLPComplianceRule
+  * Fixed an issue where the export of `SetHeader` is wrongly formatted.
+    FIXES [#6140](https://github.com/microsoft/Microsoft365DSC/issues/6140)
+  * Fixed an issue where the export of `AdvancedRule` with multiple and nested subconditions
+    would throw an error during removal of the sensitive type id.
 * TeamsMeetingPolicy
   * Added missing Parameter 'RoomAttributeUserOverride' to Get-TargetResource's output.
     Fixes [#6183](https://github.com/microsoft/Microsoft365DSC/issues/6183)
@@ -36,6 +56,8 @@
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
+  * Export-M365DSCConfiguration - Add -ExcludeComponents parameter to allow for easy skipping of certain components.
+    FIXED [#6192(https://github.com/microsoft/Microsoft365DSC/issues/6192)]
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.46.
 
