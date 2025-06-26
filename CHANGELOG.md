@@ -9,6 +9,10 @@
   * Fix for removing Group owner.
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
+* AADGroupElegibilityScheduleSettings
+  * New resource AADGroupElegibilityScheduleSettings
+* AADRoleAssignmentScheduleRequest
+  * FIXES [#5710](https://github.com/microsoft/Microsoft365DSC/issues/5710)
 * EXODistributionGroup
   * Always use the retrieved Identity when updating the distribution group
     to ensure correct group is updated when retrieved with PrimarySmtpAddress.
