@@ -491,7 +491,7 @@ function Export-TargetResource
         foreach ($config in $Script:exportedInstances)
         {
             $displayedKey = $config.DisplayName
-            Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Count)] $displayedKey" -NoNewLine
+            Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Count)] $displayedKey" -DeferWrite
 
             $params = @{
                 DisplayName           = $config.DisplayName
