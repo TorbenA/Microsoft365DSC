@@ -25,6 +25,8 @@
     FIXES [#6181](https://github.com/microsoft/Microsoft365DSC/issues/6181)
     FIXES [#6045](https://github.com/microsoft/Microsoft365DSC/issues/6045)
     FIXES [#5419](https://github.com/microsoft/Microsoft365DSC/issues/5419)
+  * Fixed an issue where updating the configuration with `CustomSecurityAttributes` would fail.
+    FIXES [#6208](https://github.com/microsoft/Microsoft365DSC/issues/6208)
 * EXODistributionGroup
   * Always use the retrieved Identity when updating the distribution group
     to ensure correct group is updated when retrieved with PrimarySmtpAddress.
