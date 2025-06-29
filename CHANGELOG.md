@@ -13,6 +13,7 @@
     FIXES [#6182](https://github.com/microsoft/Microsoft365DSC/issues/6182)
 * AADConditionalAccessPolicy
   * FIXES [#6198] Adds support for ServicePrincipalRiskLevels
+  * FIXES [[#6242](https://github.com/microsoft/Microsoft365DSC/issues/6242)] Avoids creating or updating a policy with a missing/unknown location
 * AADGroup
   * Fix for removing Group owner.
 * AADGroupElegibilityScheduleSettings
