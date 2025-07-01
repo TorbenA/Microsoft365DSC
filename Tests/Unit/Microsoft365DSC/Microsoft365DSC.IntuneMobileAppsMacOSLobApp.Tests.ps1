@@ -44,6 +44,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return "Credentials"
             }
 
+            Mock -CommandName Update-DeviceAppManagementAppCategory -MockWith {
+            }
+
             Mock -CommandName Get-MgBetaDeviceAppManagementMobileApp -MockWith {
             }
             Mock -CommandName New-MgBetaDeviceAppManagementMobileApp -MockWith {
@@ -59,7 +62,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
 
-            $Script:exportedInstances =$null
+            $Script:exportedInstance = $null
             $Script:ExportMode = $false
         }
 
