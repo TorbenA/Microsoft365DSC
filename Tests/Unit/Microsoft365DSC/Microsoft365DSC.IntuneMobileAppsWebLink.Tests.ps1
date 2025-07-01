@@ -42,16 +42,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Update-DeviceAppManagementAppCategory -MockWith {
             }
 
+            Mock -CommandName Update-DeviceAppManagementPolicyAssignment -MockWith {
+            }
+
             Mock -CommandName Update-MgBetaDeviceAppManagementMobileApp -MockWith {
             }
 
             Mock -CommandName New-MgBetaDeviceAppManagementMobileApp -MockWith {
-            }
-
-            Mock -CommandName Remove-MgBetaDeviceAppManagementMobileApp -MockWith {
-            }
-
-            Mock -CommandName Get-MgBetaDeviceAppManagementMobileApp -MockWith {
                 return @{
                     AdditionalProperties = @{
                         appUrl = "FakeStringValue"
@@ -67,6 +64,46 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     IsFeatured = $True
                     LargeIcon = @{
                         Type = "FakeStringValue"
+                        Value = [System.Convert]::FromBase64String("VGVzdA==")
+                    }
+                    Notes = "FakeStringValue"
+                    Owner = "FakeStringValue"
+                    PrivacyInformationUrl = "FakeStringValue"
+                    Publisher = "FakeStringValue"
+                    PublishingState = "notPublished"
+                    RoleScopeTagIds = @("FakeStringValue")
+                    SupersededAppCount = 25
+                    SupersedingAppCount = 25
+                    UploadState = 25
+                }
+            }
+
+            Mock -CommandName Remove-MgBetaDeviceAppManagementMobileApp -MockWith {
+            }
+
+            Mock -CommandName Get-MgBetaDeviceAppManagementMobileApp -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        appUrl = "FakeStringValue"
+                        useManagedBrowser = $True
+                        '@odata.type' = "#microsoft.graph.webApp"
+                    }
+                    Categories = @(
+                        @{
+                            Id = "FakeStringValue"
+                            DisplayName = "FakeStringValue"
+                        }
+                    )
+                    DependentAppCount = 25
+                    Description = "FakeStringValue"
+                    Developer = "FakeStringValue"
+                    DisplayName = "FakeStringValue"
+                    Id = "FakeStringValue"
+                    InformationUrl = "FakeStringValue"
+                    IsFeatured = $True
+                    LargeIcon = @{
+                        Type = "FakeStringValue"
+                        Value = [System.Convert]::FromBase64String("VGVzdA==")
                     }
                     Notes = "FakeStringValue"
                     Owner = "FakeStringValue"
@@ -87,7 +124,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
-            $Script:exportedInstance =$null
+            $Script:exportedInstance = $null
             $Script:ExportMode = $false
 
             Mock -CommandName Get-MgBetaDeviceAppManagementMobileAppAssignment -MockWith {
@@ -101,6 +138,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     TargetType = "webApp"
                     AppUrl = "FakeStringValue"
+                    Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
+                        Id = "FakeStringValue"
+                        DisplayName = "FakeStringValue"
+                    } -ClientOnly))
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
                     DisplayName = "FakeStringValue"
@@ -142,6 +183,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     TargetType = "webApp"
                     AppUrl = "FakeStringValue"
+                    Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
+                        Id = "FakeStringValue"
+                        DisplayName = "FakeStringValue"
+                    } -ClientOnly))
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
                     DisplayName = "FakeStringValue"
@@ -158,7 +203,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Publisher = "FakeStringValue"
                     RoleScopeTagIds = @("FakeStringValue")
                     UseManagedBrowser = $True
-                    Ensure = "Present"
+                    Ensure = "Absent"
                     Credential = $Credential;
                 }
             }
@@ -167,7 +212,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
             }
 
-            It 'Should return true from the Test method' {
+            It 'Should return false from the Test method' {
                 Test-TargetResource @testParams | Should -Be $false
             }
 
@@ -182,6 +227,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     TargetType = "webApp"
                     AppUrl = "FakeStringValue"
+                    Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
+                        Id = "FakeStringValue"
+                        DisplayName = "FakeStringValue"
+                    } -ClientOnly))
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
                     DisplayName = "FakeStringValue"
@@ -213,6 +262,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     TargetType = "webApp"
                     AppUrl = "FakeStringValue"
+                    Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
+                        Id = "FakeStringValue"
+                        DisplayName = "FakeStringValue"
+                    } -ClientOnly))
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
                     DisplayName = "FakeStringValue"

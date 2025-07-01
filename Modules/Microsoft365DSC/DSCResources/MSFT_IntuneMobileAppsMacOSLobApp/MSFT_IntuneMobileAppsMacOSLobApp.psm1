@@ -437,7 +437,7 @@ function Set-TargetResource
         $CreateParameters.Add('@odata.type', '#microsoft.graph.macOSLobApp')
         $app = New-MgBetaDeviceAppManagementMobileApp -BodyParameter $CreateParameters
 
-        Update-DeviceAppManagementAppCategory -AppId $app.Id -Categories $Categories
+        Update-DeviceAppManagementAppCategory -App $app -Categories $Categories
 
         #Assignments
         if ($app.Id)

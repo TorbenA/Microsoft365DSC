@@ -24,6 +24,7 @@ Configuration Example
     {
         IntuneMobileAppsWebLink "IntuneMobileAppsWebLink-Web App"
         {
+            TargetType            = "webApp";
             Description           = "Web App Description";
             Developer             = "Contoso";
             DisplayName           = "Web App";

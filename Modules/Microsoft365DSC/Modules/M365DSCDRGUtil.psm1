@@ -1648,6 +1648,7 @@ function ConvertFrom-IntuneMobileAppAssignment
         [Parameter(Mandatory = $true)]
         [Array]
         $Assignments,
+
         [Parameter()]
         [System.Boolean]
         $IncludeDeviceFilter = $true
@@ -2200,6 +2201,7 @@ function Update-DeviceAppManagementAppCategory
         $App,
 
         [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
         [Array]
         $Categories,
 
@@ -2210,9 +2212,9 @@ function Update-DeviceAppManagementAppCategory
 
     if ($Compare)
     {
-        [array]$referenceObject = if ($null -ne $currentInstance.Categories.DisplayName)
+        [array]$referenceObject = if ($null -ne $App.Categories.DisplayName)
         {
-            $currentInstance.Categories.DisplayName
+            $App.Categories.DisplayName
         }
         else
         {
@@ -2246,14 +2248,14 @@ function Update-DeviceAppManagementAppCategory
                     throw "Mobile App Category with DisplayName $($category.DisplayName) not found."
                 }
 
-                Invoke-MgGraphRequest -Uri "/beta/deviceAppManagement/mobileApps/$($currentInstance.Id)/categories/`$ref" -Method 'POST' -Body @{
+                Invoke-MgGraphRequest -Uri "/beta/deviceAppManagement/mobileApps/$($App.Id)/categories/`$ref" -Method 'POST' -Body @{
                     '@odata.id' = "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)beta/deviceAppManagement/mobileAppCategories/$($currentCategory.Id)"
                 }
             }
             else
             {
-                $category = $currentInstance.Categories | Where-Object { $_.DisplayName -eq $diff }
-                Invoke-MgGraphRequest -Uri "/beta/deviceAppManagement/mobileApps/$($currentInstance.Id)/categories/$($category.Id)/`$ref" -Method 'DELETE'
+                $category = $App.Categories | Where-Object { $_.DisplayName -eq $diff }
+                Invoke-MgGraphRequest -Uri "/beta/deviceAppManagement/mobileApps/$($App.Id)/categories/$($category.Id)/`$ref" -Method 'DELETE'
             }
         }
     }

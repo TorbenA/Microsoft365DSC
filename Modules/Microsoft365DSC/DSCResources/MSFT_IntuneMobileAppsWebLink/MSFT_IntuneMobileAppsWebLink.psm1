@@ -13,7 +13,7 @@ function Get-TargetResource
         [System.String]
         $Id,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('iosiPadOSWebClip', 'macOSWebClip', 'webApp', 'windowsWebApp')]
         [System.String]
         $TargetType,
@@ -195,7 +195,8 @@ function Get-TargetResource
         }
         else
         {
-            $getValue = $Script:exportedInstance
+            $getValue = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $Script:exportedInstance.Id `
+                -ExpandProperty 'categories'
         }
         $Id = $getValue.Id
         Write-Verbose -Message "An Intune Mobile Apps Web Link with Id {$Id} and DisplayName {$DisplayName} was found"
@@ -214,7 +215,7 @@ function Get-TargetResource
         {
             $complexLargeIcon = @{}
             $complexLargeIcon.Add('Type', $getValue.LargeIcon.Type)
-            $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($instance.LargeIcon.Value))
+            $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($getValue.LargeIcon.Value))
         }
         #endregion
 
@@ -253,7 +254,7 @@ function Get-TargetResource
         $assignmentResult = @()
         if ($assignmentsValues.Count -gt 0)
         {
-            $assignmentResult += ConvertFrom-IntunePolicyAssignment -Assignments $assignmentsValues -IncludeDeviceFilter $true
+            $assignmentResult += ConvertFrom-IntuneMobileAppAssignment -Assignments $assignmentsValues -IncludeDeviceFilter $true
         }
         $results.Add('Assignments', $assignmentResult)
 
@@ -285,7 +286,7 @@ function Set-TargetResource
         [System.String]
         $Id,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('iosiPadOSWebClip', 'macOSWebClip', 'webApp', 'windowsWebApp')]
         [System.String]
         $TargetType,
@@ -433,6 +434,7 @@ function Set-TargetResource
         }
     }
 
+    $BoundParameters.Remove('AppUrl') | Out-Null
     $BoundParameters.Remove('Categories') | Out-Null
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
@@ -453,18 +455,20 @@ function Set-TargetResource
             }
         }
         #region resource generator code
-        $createParameters.Add("@odata.type", "#microsoft.graph.webApp")
+        $createParameters.Add("@odata.type", "#microsoft.graph." + $BoundParameters.TargetType)
         $policy = New-MgBetaDeviceAppManagementMobileApp -BodyParameter $createParameters
 
-        Update-DeviceAppManagementAppCategory -App $policy -Categories $Categories
+        if ($PSBoundParameters.ContainsKey('Categories'))
+        {
+            Update-DeviceAppManagementAppCategory -App $policy -Categories $Categories
+        }
 
         if ($policy.Id)
         {
-            $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
-            Update-DeviceConfigurationPolicyAssignment `
-                -DeviceConfigurationPolicyId $policy.Id `
-                -Targets $assignmentsHash `
-                -Repository 'deviceAppManagement/mobileApps'
+            $assignmentsHash = ConvertTo-IntuneMobileAppAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
+            Update-DeviceAppManagementPolicyAssignment `
+                -AppManagementPolicyId $policy.Id `
+                -Assignments $assignmentsHash
         }
         #endregion
     }
@@ -493,13 +497,15 @@ function Set-TargetResource
             -MobileAppId $currentInstance.Id `
             -BodyParameter $UpdateParameters
 
-        Update-DeviceAppManagementAppCategory -App $currentInstance -Categories $Categories -Compare
+        if ($PSBoundParameters.ContainsKey('Categories'))
+        {
+            Update-DeviceAppManagementAppCategory -App $currentInstance -Categories $Categories -Compare
+        }
 
-        $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
-        Update-DeviceConfigurationPolicyAssignment `
-            -DeviceConfigurationPolicyId $currentInstance.Id `
-            -Targets $assignmentsHash `
-            -Repository 'deviceAppManagement/mobileApps'
+        $assignmentsHash = ConvertTo-IntuneMobileAppAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
+        Update-DeviceAppManagementPolicyAssignment `
+            -AppManagementPolicyId $currentInstance.Id `
+            -Assignments $assignmentsHash
         #endregion
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
@@ -526,7 +532,7 @@ function Test-TargetResource
         [System.String]
         $Id,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('iosiPadOSWebClip', 'macOSWebClip', 'webApp', 'windowsWebApp')]
         [System.String]
         $TargetType,
@@ -793,6 +799,7 @@ function Export-TargetResource
             $params = @{
                 Id                    = $config.Id
                 DisplayName           = $config.DisplayName
+                TargetType            = $config.AdditionalProperties.'@odata.type'.Replace('#microsoft.graph.', '')
                 Ensure                = 'Present'
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId
@@ -838,7 +845,7 @@ function Export-TargetResource
 
             if ($Results.Assignments)
             {
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString -ComplexObject $Results.Assignments -CIMInstanceName DeviceManagementConfigurationPolicyAssignments
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString -ComplexObject $Results.Assignments -CIMInstanceName DeviceManagementMobileAppAssignment
                 if ($complexTypeStringResult)
                 {
                     $Results.Assignments = $complexTypeStringResult
