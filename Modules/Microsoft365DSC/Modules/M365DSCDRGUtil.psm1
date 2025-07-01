@@ -2192,6 +2192,96 @@ function Update-DeviceAppManagementPolicyAssignment
     }
 }
 
+function Update-DeviceAppManagementAppCategory
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        $App,
+
+        [Parameter(Mandatory = $true)]
+        [Array]
+        $Categories,
+
+        [Parameter()]
+        [switch]
+        $Compare
+    )
+
+    if ($Compare)
+    {
+        [array]$referenceObject = if ($null -ne $currentInstance.Categories.DisplayName)
+        {
+            $currentInstance.Categories.DisplayName
+        }
+        else
+        {
+            , @()
+        }
+        [array]$differenceObject = if ($null -ne $Categories.DisplayName)
+        {
+            $Categories.DisplayName
+        }
+        else
+        {
+            , @()
+        }
+        $delta = Compare-Object -ReferenceObject $referenceObject -DifferenceObject $differenceObject -PassThru
+        foreach ($diff in $delta)
+        {
+            if ($diff.SideIndicator -eq '=>')
+            {
+                $category = $Categories | Where-Object { $_.DisplayName -eq $diff }
+                if ($category.Id)
+                {
+                    $currentCategory = Get-MgBetaDeviceAppManagementMobileAppCategory -MobileAppCategoryId $category.Id
+                }
+                else
+                {
+                    $currentCategory = Get-MgBetaDeviceAppManagementMobileAppCategory -Filter "DisplayName eq '$($category.DisplayName -replace "'", "''")'"
+                }
+
+                if ($null -eq $currentCategory)
+                {
+                    throw "Mobile App Category with DisplayName $($category.DisplayName) not found."
+                }
+
+                Invoke-MgGraphRequest -Uri "/beta/deviceAppManagement/mobileApps/$($currentInstance.Id)/categories/`$ref" -Method 'POST' -Body @{
+                    '@odata.id' = "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)beta/deviceAppManagement/mobileAppCategories/$($currentCategory.Id)"
+                }
+            }
+            else
+            {
+                $category = $currentInstance.Categories | Where-Object { $_.DisplayName -eq $diff }
+                Invoke-MgGraphRequest -Uri "/beta/deviceAppManagement/mobileApps/$($currentInstance.Id)/categories/$($category.Id)/`$ref" -Method 'DELETE'
+            }
+        }
+    }
+    else
+    {
+        foreach ($category in $Categories)
+        {
+            if ($category.Id)
+            {
+                $currentCategory = Get-MgBetaDeviceAppManagementMobileAppCategory -CategoryId $category.Id
+            }
+            else
+            {
+                $currentCategory = Get-MgBetaDeviceAppManagementMobileAppCategory -Filter "DisplayName eq '$($category.DisplayName -replace "'", "''")'"
+            }
+
+            if ($null -eq $currentCategory)
+            {
+                throw "Mobile App Category with DisplayName $($category.DisplayName) not found."
+            }
+
+            Invoke-MgGraphRequest -Uri "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)beta/deviceAppManagement/mobileApps/$($App.Id)/categories/`$ref" -Method 'POST' -Body @{
+                '@odata.id' = "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)beta/deviceAppManagement/mobileAppCategories/$($currentCategory.Id)"
+            }
+        }
+    }
+}
+
 function Get-OmaSettingPlainTextValue
 {
     [CmdletBinding()]
