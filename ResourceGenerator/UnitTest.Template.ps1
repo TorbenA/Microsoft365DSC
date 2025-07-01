@@ -48,6 +48,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName <RemoveCmdletName> -MockWith {
             }
 
+            Mock -CommandName <GetCmdletName> -MockWith {
+                return @{
+<FakeValues>
+                }
+            }
+
             Mock -CommandName New-M365DSCConnection -MockWith {
                 return "Credentials"
             }
@@ -89,12 +95,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 <TargetResourceFakeValues>                    Ensure = 'Absent'
                     Credential = $Credential;
                 }
-
-                Mock -CommandName <GetCmdletName> -MockWith {
-                    return @{
-<FakeValues>
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -117,12 +117,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 <TargetResourceFakeValues>                    Ensure = 'Present'
                     Credential = $Credential;
                 }
-
-                Mock -CommandName <GetCmdletName> -MockWith {
-                    return @{
-<FakeValues>
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -135,11 +129,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
 <TargetResourceFakeValues>                    Ensure = 'Present'
                     Credential = $Credential;
-                }
-
-                Mock -CommandName <GetCmdletName> -MockWith {
-                    return @{
-<DriftValues>                    }
                 }
             }
 
@@ -163,12 +152,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName <GetCmdletName> -MockWith {
-                    return @{
-<FakeValues>
-                    }
                 }
             }
 
