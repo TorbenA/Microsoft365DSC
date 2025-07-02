@@ -2192,6 +2192,91 @@ function Update-DeviceAppManagementPolicyAssignment
     }
 }
 
+function Get-M365DSCIntuneDeviceConfigurationSettings
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param
+    (
+        [Parameter(Mandatory = 'true')]
+        [System.Collections.Hashtable]
+        $Properties,
+
+        [Parameter()]
+        [System.String]
+        $TemplateId
+    )
+
+    $templateCategoryId = (Get-MgBetaDeviceManagementTemplateCategory -DeviceManagementTemplateId $TemplateId).Id
+    $templateSettings = Get-MgBetaDeviceManagementTemplateCategoryRecommendedSetting `
+        -DeviceManagementTemplateId $TemplateId `
+        -DeviceManagementTemplateSettingCategoryId $templateCategoryId
+
+    $results = @()
+    foreach ($setting in $templateSettings)
+    {
+        $result = @{}
+        $settingType = $setting.AdditionalProperties.'@odata.type'
+        $settingValue = $null
+        $currentValueKey = $Properties.keys | Where-Object -FilterScript { $setting.DefinitionId -like "*$_" }
+        if ($null -ne $currentValueKey)
+        {
+            $settingValue = $Properties.$currentValueKey
+        }
+
+        $requiresValueJson = $false
+        switch ($settingType)
+        {
+            {
+                ( $_ -eq '#microsoft.graph.deviceManagementStringSettingInstance' ) -or
+                ( $_ -eq '#microsoft.graph.deviceManagementBooleanSettingInstance' )
+            }
+            {
+                if ([String]::IsNullOrEmpty($settingValue))
+                {
+                    $settingValue = $setting.ValueJson | ConvertFrom-Json
+                }
+            }
+            '#microsoft.graph.deviceManagementCollectionSettingInstance'
+            {
+                $requiresValueJson = $true
+                if ($null -eq $settingValue)
+                {
+                    $settingValue = ConvertTo-Json -InputObject @()
+                }
+                else
+                {
+                    $settingValue = ConvertTo-Json -InputObject ([Array]$settingValue)
+                }
+            }
+            default
+            {
+                if ($null -eq $settingValue)
+                {
+                    $settingValue = $setting.ValueJson | ConvertFrom-Json
+                }
+            }
+        }
+
+        $result.Add('@odata.type', $settingType)
+        $result.Add('Id', $setting.Id)
+        $result.Add('definitionId', $setting.DefinitionId)
+
+        if ($requiresValueJson)
+        {
+            $result.Add('valueJson', $settingValue)
+        }
+        else
+        {
+            $result.Add('value', $settingValue)
+        }
+
+        $results += $result
+    }
+
+    return $results
+}
+
 function Get-OmaSettingPlainTextValue
 {
     [CmdletBinding()]
