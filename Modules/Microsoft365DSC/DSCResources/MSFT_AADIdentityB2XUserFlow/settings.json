@@ -9,7 +9,11 @@
                         "name": "IdentityUserFlow.Read.All"
                     }
                 ],
-                "update": []
+                "update": [
+                    {
+                        "name": "IdentityUserFlow.ReadWrite.All"
+                    }
+                ]
             },
             "application": {
                 "read": [
@@ -17,7 +21,11 @@
                         "name": "IdentityUserFlow.Read.All"
                     }
                 ],
-                "update": []
+                "update": [
+                    {
+                        "name": "IdentityUserFlow.ReadWrite.All"
+                    }
+                ]
             }
         }
     }

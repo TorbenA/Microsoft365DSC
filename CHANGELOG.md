@@ -5,18 +5,19 @@
 * AADAdministrativeUnit
   * Throw if an unsupported Member or ScopedRoleMember type is returned.
   * Fix verbose logging for assigned memberships, make update calls type-agnostic.
-* AADConditionalAccessPolicy
-  * Fix for removing or resetting builtInControls, customAuthenticationFactors, authenticationStrength or termsOfUse
-    FIXES [#6218](https://github.com/microsoft/Microsoft365DSC/issues/6218)
 * AADApplication
   * Fix to properly handle PreAuthorizedApplications in the Set-TargetResource method
     FIXES [#6182](https://github.com/microsoft/Microsoft365DSC/issues/6182)
 * AADConditionalAccessPolicy
+  * Fix for removing or resetting builtInControls, customAuthenticationFactors, authenticationStrength or termsOfUse
+    FIXES [#6218](https://github.com/microsoft/Microsoft365DSC/issues/6218)
   * FIXES [#6198] Adds support for ServicePrincipalRiskLevels
 * AADGroup
   * Fix for removing Group owner.
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
+* AADIdentityB2XUserFlow
+  * Corrected permission in settings.json
 * AADRoleAssignmentScheduleRequest
   * FIXES [#5710](https://github.com/microsoft/Microsoft365DSC/issues/5710)
 * AADServicePrincipal
