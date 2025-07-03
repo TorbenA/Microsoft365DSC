@@ -57,6 +57,8 @@
     FIXES [#6140](https://github.com/microsoft/Microsoft365DSC/issues/6140)
   * Fixed an issue where the export of `AdvancedRule` with multiple and nested subconditions
     would throw an error during removal of the sensitive type id.
+* TeamsCallQueue
+  * Fixed an issue with the export where we can now export more than 100 instances.
 * TeamsMeetingPolicy
   * Added missing Parameter 'RoomAttributeUserOverride' to Get-TargetResource's output.
     Fixes [#6183](https://github.com/microsoft/Microsoft365DSC/issues/6183)
@@ -71,7 +73,7 @@
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
   * Streamlined `Test-TargetResource` for many resources.
 * DEPENDENCIES
-  * Updated MSCloudLoginAssistant to version 1.1.46.
+  * Updated MSCloudLoginAssistant to version 1.1.47.
 
 # 1.25.611.1
 
