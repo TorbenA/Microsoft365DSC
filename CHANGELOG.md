@@ -79,6 +79,8 @@
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
+  * Added module pinning.
+    FIXES [#6168](https://github.com/microsoft/Microsoft365DSC/issues/6168)
   * Streamlined `Test-TargetResource` for many resources.
   * Streamlined usage of `Get-M365DSCIntuneDeviceConfigurationSettings` in combination with
     updating Intune intent policy type settings.

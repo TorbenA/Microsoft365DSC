@@ -1512,6 +1512,7 @@ function Export-M365DSCConfiguration
     # Make sure we are not connected to Microsoft Graph on another tenant
     try
     {
+        Confirm-M365DSCLoadedModule -ModuleName 'Microsoft.Graph.Authentication'
         if ($null -ne (Get-MgContext))
         {
             Disconnect-MgGraph -ErrorAction Stop | Out-Null
@@ -1616,6 +1617,109 @@ function Export-M365DSCConfiguration
 
 $Script:M365DSCDependenciesValidated = $false
 $Script:IsPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
+if ($null -eq $Script:M365DSCDependencies)
+{
+    $Script:M365DSCDependencies = (Import-PowerShellDataFile "$PSScriptRoot/../Dependencies/Manifest.psd1").Dependencies
+    $Script:M365DSCResourceSettings = @{}
+    Get-ChildItem -Path "$PSScriptRoot/../DSCResources" -Filter 'settings.json' -Recurse | ForEach-Object {
+        Write-Verbose -Message "Processing settings.json file at path: $($_.FullName)"
+        $jsonContent = Get-Content -Path $_.FullName -Raw | ConvertFrom-Json
+        $directoryName = Split-Path -Path $_.DirectoryName -Leaf
+        $Script:M365DSCResourceSettings.Add($directoryName, $jsonContent.requiredModules)
+    }
+    $Script:M365DSCValidatedDependencies = @()
+}
+
+<#
+.DESCRIPTION
+    This function checks if a specific module is loaded and validates its version against the required version specified in the M365DSC dependencies manifest.
+
+.PARAMETER ModuleName
+    The name of the module to check and validate.
+
+.EXAMPLE
+    PS> Confirm-M365DSCLoadedModule -ModuleName 'Microsoft.Graph.Authentication'
+
+.FUNCTIONALITY
+    Internal
+#>
+function Confirm-M365DSCLoadedModule
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $ModuleName
+    )
+
+    if ($Script:M365DSCValidatedDependencies -contains $ModuleName)
+    {
+        Write-Verbose -Message "Module '$ModuleName' has already been validated."
+        return
+    }
+
+    $manifestModule = $Script:M365DSCDependencies | Where-Object -FilterScript { $_.ModuleName -eq $ModuleName }
+    $loadedModule = Get-Module -Name $ModuleName
+
+    if ($null -eq $loadedModule)
+    {
+        Write-Verbose -Message "Module '$ModuleName' is not loaded. Importing it now."
+        Import-Module -Name $ModuleName -RequiredVersion $manifestModule.RequiredVersion -Global
+    }
+    elseif ($loadedModule.Version -ne $manifestModule.RequiredVersion)
+    {
+        Write-Verbose -Message "Module '$ModuleName' is loaded but the version '$($loadedModule.Version)' does not match the required version '$($manifestModule.RequiredVersion)'."
+        Remove-Module -Name $ModuleName -Force -ErrorAction SilentlyContinue
+        Write-Verbose -Message "Unloaded module '$ModuleName' with version '$($loadedModule.Version)'."
+        Import-Module -Name $ModuleName -RequiredVersion $manifestModule.RequiredVersion -Global
+        Write-Verbose -Message "Re-imported module '$ModuleName' with version '$($manifestModule.RequiredVersion)'."
+    }
+    else
+    {
+        Write-Verbose -Message "Module '$ModuleName' is already loaded."
+    }
+
+    if ($Script:M365DSCValidatedDependencies -notcontains $ModuleName)
+    {
+        $Script:M365DSCValidatedDependencies += $ModuleName
+    }
+}
+
+<#
+.DESCRIPTION
+    This function checks the required dependencies for a specific M365DSC module and validates that they are loaded.
+
+.PARAMETER ModuleName
+    The name of the DSC resource for which to check dependencies.
+
+.EXAMPLE
+    PS> Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADApplication'
+
+.FUNCTIONALITY
+    Public
+#>
+function Confirm-M365DSCModuleDependency
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $ModuleName
+    )
+
+    if ($Global:SkipModuleValidation)
+    {
+        Write-Verbose -Message "Skipping module dependency validation in test environment for module '$ModuleName'."
+        return
+    }
+
+    $modulesToCheck = $Script:M365DSCResourceSettings[$ModuleName]
+    foreach ($module in $modulesToCheck)
+    {
+        Write-Verbose -Message "Validating module dependency: $($module)"
+        Confirm-M365DSCLoadedModule -ModuleName $module
+    }
+}
 
 <#
 .Description
@@ -1644,7 +1748,6 @@ function Confirm-M365DSCDependencies
                 $ErrorMessage += '    * ' + $invalidDependency.ModuleName + "`r`n"
             }
             $ErrorMessage += 'Please run Update-M365DSCDependencies as Administrator. '
-            $ErrorMessage += 'Please run Uninstall-M365DSCOutdatedDependencies.'
             $Script:M365DSCDependenciesValidated = $false
             Add-M365DSCEvent -Message $ErrorMessage -EntryType 'Error' `
                 -EventID 1 -Source $($MyInvocation.MyCommand.Source) `
@@ -3114,15 +3217,12 @@ function Test-M365DSCDependenciesForNewVersions
     [CmdletBinding()]
     param ()
 
-    $currentPath = Join-Path -Path $PSScriptRoot -ChildPath '..\' -Resolve
-    $manifest = Import-PowerShellDataFile "$currentPath/Dependencies/Manifest.psd1"
-    $dependencies = $manifest.Dependencies
     $i = 1
     Import-Module PowerShellGet -Force
 
-    foreach ($dependency in $dependencies)
+    foreach ($dependency in $Script:M365DSCDependencies)
     {
-        Write-Progress -Activity 'Scanning Dependencies' -PercentComplete ($i / $dependencies.Count * 100)
+        Write-Progress -Activity 'Scanning Dependencies' -PercentComplete ($i / $Script:M365DSCDependencies.Count * 100)
         try
         {
             $moduleInGallery = Find-Module $dependency.ModuleName
@@ -3201,9 +3301,6 @@ function Update-M365DSCDependencies
         $Global:MaximumFunctionCount = 32767
 
         $InformationPreference = 'Continue'
-        $currentPath = Join-Path -Path $PSScriptRoot -ChildPath '../' -Resolve
-        $manifest = Import-PowerShellDataFile "$currentPath/Dependencies/Manifest.psd1"
-        $dependencies = $manifest.Dependencies
         $i = 1
 
         $returnValue = @()
@@ -3214,9 +3311,9 @@ function Update-M365DSCDependencies
             $params.Add('Proxy', $Proxy)
         }
 
-        foreach ($dependency in $dependencies)
+        foreach ($dependency in $Script:M365DSCDependencies)
         {
-            Write-Progress -Activity 'Scanning dependencies' -PercentComplete ($i / $dependencies.Count * 100)
+            Write-Progress -Activity 'Scanning dependencies' -PercentComplete ($i / $Script:M365DSCDependencies.Count * 100)
             try
             {
                 if (-not $Force)
@@ -3306,7 +3403,6 @@ function Update-M365DSCDependencies
         {
             return $returnValue
         }
-
     }
     catch
     {
@@ -3356,10 +3452,7 @@ function Uninstall-M365DSCOutdatedDependencies
             }
         }
 
-        $currentPath = Join-Path -Path $PSScriptRoot -ChildPath '..\' -Resolve
-        $manifest = Import-PowerShellDataFile "$currentPath\Dependencies\Manifest.psd1"
-
-        $allDependenciesExceptAuth = $manifest.Dependencies | Where-Object { $_.ModuleName -ne 'Microsoft.Graph.Authentication' }
+        $allDependenciesExceptAuth = $Script:M365DSCDependencies | Where-Object { $_.ModuleName -ne 'Microsoft.Graph.Authentication' }
 
         $i = 1
         foreach ($dependency in $allDependenciesExceptAuth)
@@ -4642,7 +4735,11 @@ function Update-M365DSCModule
 
         [Parameter()]
         [System.String]
-        $Proxy
+        $Proxy,
+
+        [Parameter()]
+        [switch]
+        $NoUninstall
     )
 
     $params = @{}
@@ -4683,7 +4780,11 @@ function Update-M365DSCModule
         throw $_
     }
     Update-M365DSCDependencies -Scope $Scope -Proxy $Proxy
-    Uninstall-M365DSCOutdatedDependencies
+
+    if (-not $NoUninstall)
+    {
+        Uninstall-M365DSCOutdatedDependencies
+    }
 }
 
 <#
@@ -5188,6 +5289,7 @@ Export-ModuleMember -Function @(
     'Assert-M365DSCBlueprint',
     'Confirm-ImportedCmdletIsAvailable',
     'Confirm-M365DSCDependencies',
+    'Confirm-M365DSCModuleDependency',
     'Convert-M365DscHashtableToString',
     'ConvertTo-SPOUserProfilePropertyInstanceString',
     'Export-M365DSCConfiguration',
@@ -5207,6 +5309,7 @@ Export-ModuleMember -Function @(
     'Get-SPOUserProfilePropertyInstance',
     'Get-TeamByName',
     'Install-M365DSCDevBranch',
+    'Invoke-PowerShellCoreResource',
     'Join-M365DSCConfiguration',
     'New-M365DSCCmdletDocumentation',
     'New-M365DSCConnection',
@@ -5215,6 +5318,7 @@ Export-ModuleMember -Function @(
     'Remove-M365DSCAuthenticationParameter',
     'Remove-NullEntriesFromHashtable',
     'Split-ArrayByParts',
+    'Sync-M365DSCParameter',
     'Test-M365DSCDependenciesForNewVersions',
     'Test-M365DSCModuleValidity',
     'Test-M365DSCParameterState',
@@ -5223,7 +5327,5 @@ Export-ModuleMember -Function @(
     'Update-M365DSCDependencies',
     'Update-M365DSCExportAuthenticationResults',
     'Update-M365DSCModule',
-    'Sync-M365DSCParameter',
-    'Invoke-PowerShellCoreResource',
     'Write-M365DSCHost'
 )
