@@ -62,6 +62,9 @@
     Fixes [#6183](https://github.com/microsoft/Microsoft365DSC/issues/6183)
 * M365DSCPermissions
   * Fixed an issue when accessing permissions from the compiled list returns no permissions.
+* M365DSCReverse
+  * Fixed an issue where a provided file name with spaces leads to an invalid export config name.
+    FIXES [#6247](https://github.com/microsoft/Microsoft365DSC/issues/6247)
 * M365DSCUtil
   * Add -ExcludeComponents parameter to `Export-M365DSCConfiguration`to allow
     for easy skipping of certain components.
