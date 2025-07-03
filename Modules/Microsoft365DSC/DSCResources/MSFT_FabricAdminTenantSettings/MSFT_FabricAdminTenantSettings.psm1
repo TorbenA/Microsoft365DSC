@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_FabricAdminTenantSettings'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -1914,7 +1916,7 @@ function Test-TargetResource
     {
         $source = $PSBoundParameters.$key
         $target = $CurrentValues.$key
-        if ($source.getType().Name -like '*CimInstance*')
+        if ($source.GetType().Name -like '*CimInstance*')
         {
             $source = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject $source
 
@@ -2094,7 +2096,7 @@ function Get-M365DSCFabricTenantSettingObject
     $values = @{
         settingName = $Setting.settingName
         enabled     = [Boolean]$Setting.enabled
-        title       = ($Setting.title -creplace '\P{IsBasicLatin}')
+        title       = ($Setting.title -creplace '\P{IsBasicLatin}').Replace("`"", "```"")
     }
     if (-not [System.String]::IsNullOrEmpty($Setting.canSpecifySecurityGroups))
     {
@@ -2139,3 +2141,4 @@ function Get-M365DSCFabricTenantSettingObject
 }
 
 Export-ModuleMember -Function *-TargetResource
+

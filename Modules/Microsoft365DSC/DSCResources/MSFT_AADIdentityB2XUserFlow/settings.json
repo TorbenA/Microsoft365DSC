@@ -9,7 +9,11 @@
                         "name": "IdentityUserFlow.Read.All"
                     }
                 ],
-                "update": []
+                "update": [
+                    {
+                        "name": "IdentityUserFlow.ReadWrite.All"
+                    }
+                ]
             },
             "application": {
                 "read": [
@@ -17,8 +21,18 @@
                         "name": "IdentityUserFlow.Read.All"
                     }
                 ],
-                "update": []
+                "update": [
+                    {
+                        "name": "IdentityUserFlow.ReadWrite.All"
+                    }
+                ]
             }
         }
     }
+  },
+  "requiredModules": [
+    "Microsoft.Graph.Authentication",
+    "Microsoft.Graph.Beta.Identity.SignIns",
+    "MSCloudLoginAssistant"
+  ]
 }
