@@ -5,18 +5,20 @@
 * AADAdministrativeUnit
   * Throw if an unsupported Member or ScopedRoleMember type is returned.
   * Fix verbose logging for assigned memberships, make update calls type-agnostic.
-* AADConditionalAccessPolicy
-  * Fix for removing or resetting builtInControls, customAuthenticationFactors, authenticationStrength or termsOfUse
-    FIXES [#6218](https://github.com/microsoft/Microsoft365DSC/issues/6218)
 * AADApplication
   * Fix to properly handle PreAuthorizedApplications in the Set-TargetResource method
     FIXES [#6182](https://github.com/microsoft/Microsoft365DSC/issues/6182)
 * AADConditionalAccessPolicy
+  * Fix for removing or resetting builtInControls, customAuthenticationFactors, authenticationStrength or termsOfUse
+    FIXES [#6218](https://github.com/microsoft/Microsoft365DSC/issues/6218)
   * FIXES [#6198] Adds support for ServicePrincipalRiskLevels
+  * FIXES [[#6242](https://github.com/microsoft/Microsoft365DSC/issues/6242)] Avoids creating or updating a policy with a missing/unknown location
 * AADGroup
   * Fix for removing Group owner.
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
+* AADIdentityB2XUserFlow
+  * Corrected permission in settings.json
 * AADRoleAssignmentScheduleRequest
   * FIXES [#5710](https://github.com/microsoft/Microsoft365DSC/issues/5710)
 * AADServicePrincipal
@@ -57,6 +59,9 @@
     FIXES [#6140](https://github.com/microsoft/Microsoft365DSC/issues/6140)
   * Fixed an issue where the export of `AdvancedRule` with multiple and nested subconditions
     would throw an error during removal of the sensitive type id.
+* SPOSharingSettings
+  * Removing calls to deprecated RequireAcceptingAccountMatchInvitedAccount setting
+    that prevent SharingDomainRestrictionMode from being set properly.
 * TeamsCallQueue
   * Fixed an issue with the export where we can now export more than 100 instances.
 * TeamsMeetingPolicy
@@ -75,6 +80,8 @@
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
+  * Added module pinning.
+    FIXES [#6168](https://github.com/microsoft/Microsoft365DSC/issues/6168)
   * Streamlined `Test-TargetResource` for many resources.
   * Streamlined usage of `Get-M365DSCIntuneDeviceConfigurationSettings` in combination with
     updating Intune intent policy type settings.

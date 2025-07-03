@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADEntitlementManagementAccessPackage'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
