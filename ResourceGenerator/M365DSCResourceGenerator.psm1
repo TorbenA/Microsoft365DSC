@@ -984,6 +984,46 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
         Write-TokenReplacement -Token '<ResourceDescription>' -Value $resourceDescription -FilePath $settingsFilePath
         Write-TokenReplacement -Token '<ResourcePermissions>' -Value $ResourcePermissions -FilePath $settingsFilePath
         #endregion
+
+        #region Required Modules
+        $MaximumFunctionCount = 32767
+        $ast = [System.Management.Automation.Language.Parser]::ParseFile($moduleFilePath, [ref]$null, [ref]$null)
+        $targetResourceFunctions = $ast.FindAll(
+            {
+                param($Item)
+                return (
+                    ($Item -is [System.Management.Automation.Language.FunctionDefinitionAst]) -and
+                    ($Item.Name -like '*-TargetResource')
+                )
+            }, $true
+        )
+        $commands = $targetResourceFunctions | ForEach-Object -Process {
+            $_.FindAll(
+                {
+                    param($Item)
+                    return (
+                        ($Item -is [System.Management.Automation.Language.CommandAst])
+                    )
+                }, $true
+            )
+        } | Foreach-Object -Process {
+            $_.CommandElements[0]
+        } | Select-Object -ExpandProperty Value -Unique
+        $modules = @()
+        foreach ($command in $commands) {
+            $module = Get-Command -Name $command -ErrorAction SilentlyContinue | Select-Object -ExpandProperty ModuleName
+            if ($module -in $m365dscModules) {
+                if ($module -like "Microsoft.Graph.*" -and -not $modules -contains "Microsoft.Graph.Authentication") {
+                    $modules += "Microsoft.Graph.Authentication"
+                }
+                $modules += $module
+            }
+        }
+        $modules = $modules | Sort-Object -Unique
+        $settingsContent = Get-Content -Path $settingsFilePath -Raw | ConvertFrom-Json
+        $settingsContent.requiredModules = @($modules)
+        $settingsContent | ConvertTo-Json -Depth 20 | Set-Content -Path $settingsFilePath -Force
+        #endregion
         #region ReadMe
         Write-TokenReplacement -Token '<ResourceFriendlyName>' -Value $ResourceName -FilePath $readmeFilePath
         Write-TokenReplacement -Token '<ResourceDescription>' -Value $resourceDescription -FilePath $readmeFilePath
