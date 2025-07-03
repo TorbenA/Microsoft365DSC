@@ -1,4 +1,3 @@
-
 #region Session Objects
 $Global:SessionSecurityCompliance = $null
 #endregion
@@ -1675,6 +1674,7 @@ function Confirm-M365DSCLoadedModule
     {
         Write-Verbose -Message "Module '$ModuleName' is not loaded. Importing it now."
         Import-Module -Name $ModuleName -RequiredVersion $manifestModule.RequiredVersion -Global
+        Write-Verbose -Message "Module '$ModuleName' with version '$($manifestModule.RequiredVersion)' has been imported."
     }
     elseif ($loadedModule.Version -ne $manifestModule.RequiredVersion)
     {
@@ -1716,6 +1716,8 @@ function Confirm-M365DSCModuleDependency
         [System.String]
         $ModuleName
     )
+
+    $Global:MaximumFunctionCount = 32767
 
     if ($Global:SkipModuleValidation)
     {
@@ -2044,7 +2046,9 @@ function New-M365DSCConnection
         [System.Boolean]
         $SkipModuleReload = $false
     )
+
     $Global:MaximumFunctionCount = 32767
+
     if ($Workload -eq 'MicrosoftTeams')
     {
         try
@@ -3308,8 +3312,6 @@ function Update-M365DSCDependencies
 
     try
     {
-        $Global:MaximumFunctionCount = 32767
-
         $InformationPreference = 'Continue'
         $i = 1
 
