@@ -5,9 +5,17 @@ This example creates a Terms of Use Agreement that requires re-acceptance every 
 Configuration Example
 {
     param(
-        [Parameter(Mandatory = $true)]
-        [PSCredential]
-        $Credential
+        [Parameter()]
+        [System.String]
+        $ApplicationId,
+
+        [Parameter()]
+        [System.String]
+        $TenantId,
+
+        [Parameter()]
+        [System.String]
+        $CertificateThumbprint
     )
     Import-DscResource -ModuleName Microsoft365DSC
 
@@ -24,7 +32,9 @@ Configuration Example
             FileName                             = "device_terms.txt"
             Language                             = "en-US"
             Ensure                               = "Present"
-            Credential                           = $Credential
+            ApplicationId                    = $ApplicationId
+            TenantId                         = $TenantId
+            CertificateThumbprint            = $CertificateThumbprint
         }
     }
 }
