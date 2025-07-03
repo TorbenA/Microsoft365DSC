@@ -71,10 +71,14 @@
   * Add -ExcludeComponents parameter to `Export-M365DSCConfiguration`to allow
     for easy skipping of certain components.
     FIXES [#6192(https://github.com/microsoft/Microsoft365DSC/issues/6192)]
+  * Moved `Get-M365DSCIntuneDeviceConfigurationSettings` function to central location.
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
   * Streamlined `Test-TargetResource` for many resources.
+  * Streamlined usage of `Get-M365DSCIntuneDeviceConfigurationSettings` in combination with
+    updating Intune intent policy type settings.
+    FIXES [#6252](https://github.com/microsoft/Microsoft365DSC/issues/6252)
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.47.
 
