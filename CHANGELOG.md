@@ -5,18 +5,19 @@
 * AADAdministrativeUnit
   * Throw if an unsupported Member or ScopedRoleMember type is returned.
   * Fix verbose logging for assigned memberships, make update calls type-agnostic.
-* AADConditionalAccessPolicy
-  * Fix for removing or resetting builtInControls, customAuthenticationFactors, authenticationStrength or termsOfUse
-    FIXES [#6218](https://github.com/microsoft/Microsoft365DSC/issues/6218)
 * AADApplication
   * Fix to properly handle PreAuthorizedApplications in the Set-TargetResource method
     FIXES [#6182](https://github.com/microsoft/Microsoft365DSC/issues/6182)
 * AADConditionalAccessPolicy
+  * Fix for removing or resetting builtInControls, customAuthenticationFactors, authenticationStrength or termsOfUse
+    FIXES [#6218](https://github.com/microsoft/Microsoft365DSC/issues/6218)
   * FIXES [#6198] Adds support for ServicePrincipalRiskLevels
 * AADGroup
   * Fix for removing Group owner.
 * AADGroupElegibilityScheduleSettings
   * New resource AADGroupElegibilityScheduleSettings
+* AADIdentityB2XUserFlow
+  * Corrected permission in settings.json
 * AADRoleAssignmentScheduleRequest
   * FIXES [#5710](https://github.com/microsoft/Microsoft365DSC/issues/5710)
 * AADServicePrincipal
@@ -57,6 +58,9 @@
     FIXES [#6140](https://github.com/microsoft/Microsoft365DSC/issues/6140)
   * Fixed an issue where the export of `AdvancedRule` with multiple and nested subconditions
     would throw an error during removal of the sensitive type id.
+* SPOSharingSettings
+  * Removing calls to deprecated RequireAcceptingAccountMatchInvitedAccount setting
+    that prevent SharingDomainRestrictionMode from being set properly.
 * TeamsCallQueue
   * Fixed an issue with the export where we can now export more than 100 instances.
 * TeamsMeetingPolicy
