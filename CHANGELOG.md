@@ -57,21 +57,30 @@
     FIXES [#6140](https://github.com/microsoft/Microsoft365DSC/issues/6140)
   * Fixed an issue where the export of `AdvancedRule` with multiple and nested subconditions
     would throw an error during removal of the sensitive type id.
+* TeamsCallQueue
+  * Fixed an issue with the export where we can now export more than 100 instances.
 * TeamsMeetingPolicy
   * Added missing Parameter 'RoomAttributeUserOverride' to Get-TargetResource's output.
     Fixes [#6183](https://github.com/microsoft/Microsoft365DSC/issues/6183)
 * M365DSCPermissions
   * Fixed an issue when accessing permissions from the compiled list returns no permissions.
+* M365DSCReverse
+  * Fixed an issue where a provided file name with spaces leads to an invalid export config name.
+    FIXES [#6247](https://github.com/microsoft/Microsoft365DSC/issues/6247)
 * M365DSCUtil
   * Add -ExcludeComponents parameter to `Export-M365DSCConfiguration`to allow
     for easy skipping of certain components.
     FIXES [#6192(https://github.com/microsoft/Microsoft365DSC/issues/6192)]
+  * Moved `Get-M365DSCIntuneDeviceConfigurationSettings` function to central location.
 * MISC
   * Added `deviceAndAppManagementAssignmentFilterDisplayName` property to Intune assignments.
     FIXES [#4609](https://github.com/microsoft/Microsoft365DSC/issues/4609)
   * Streamlined `Test-TargetResource` for many resources.
+  * Streamlined usage of `Get-M365DSCIntuneDeviceConfigurationSettings` in combination with
+    updating Intune intent policy type settings.
+    FIXES [#6252](https://github.com/microsoft/Microsoft365DSC/issues/6252)
 * DEPENDENCIES
-  * Updated MSCloudLoginAssistant to version 1.1.46.
+  * Updated MSCloudLoginAssistant to version 1.1.47.
 
 # 1.25.611.1
 
