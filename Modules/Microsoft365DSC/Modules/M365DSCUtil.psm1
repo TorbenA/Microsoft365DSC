@@ -447,8 +447,22 @@ function Test-M365DSCParameterState
 
         [Parameter(Position = 7)]
         [switch]
-        $NoEventMessage
+        $NoEventMessage,
+
+        [Parameter(Position = 8)]
+        [switch]
+        $NoDriftReset
     )
+
+    if ($null -eq $Global:AllDrifts -or -not $NoDriftReset)
+    {
+        $Global:AllDrifts = @{
+            DriftInfo     = @()
+            CurrentValues = @{}
+            DesiredValues = @{}
+        }
+        $Global:PotentialDrifts = @()
+    }
 
     #region Telemetry
     $data = [System.Collections.Generic.Dictionary[[String], [String]]]::new()
@@ -1043,12 +1057,6 @@ function Test-M365DSCParameterState
     return $returnValue
 }
 
-$Global:AllDrifts = @{
-    DriftInfo     = @()
-    CurrentValues = @{}
-    DesiredValues = @{}
-}
-
 <#
 .Description
     Centralized method to evaluate the result of the various Test-TargetResource functions
@@ -1085,6 +1093,7 @@ function Test-M365DSCTargetResource
         CurrentValues = @{}
         DesiredValues = @{}
     }
+    $Global:PotentialDrifts = @()
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -1193,7 +1202,8 @@ function Test-M365DSCTargetResource
             -Source $($MyInvocation.MyCommand.Source) `
             -DesiredValues $DesiredValues `
             -ValuesToCheck $ValuesToCheck.Keys `
-            -NoEventMessage
+            -NoEventMessage `
+            -NoDriftReset
 
     Write-Verbose -Message "Test-M365DSCTargetResource returned $testResult"
 
