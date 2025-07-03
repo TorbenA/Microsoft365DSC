@@ -12,6 +12,7 @@
   * Fix for removing or resetting builtInControls, customAuthenticationFactors, authenticationStrength or termsOfUse
     FIXES [#6218](https://github.com/microsoft/Microsoft365DSC/issues/6218)
   * FIXES [#6198] Adds support for ServicePrincipalRiskLevels
+  * FIXES [[#6242](https://github.com/microsoft/Microsoft365DSC/issues/6242)] Avoids creating or updating a policy with a missing/unknown location
 * AADGroup
   * Fix for removing Group owner.
 * AADGroupElegibilityScheduleSettings

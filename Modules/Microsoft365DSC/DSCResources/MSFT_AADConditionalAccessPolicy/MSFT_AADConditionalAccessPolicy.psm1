@@ -1640,6 +1640,7 @@ function Set-TargetResource
                                 -Source $($MyInvocation.MyCommand.Source) `
                                 -TenantId $TenantId `
                                 -Credential $Credential
+                            throw $message # and avoid creating or updating a policy with a missing location
                         }
                         else
                         {
@@ -1666,6 +1667,7 @@ function Set-TargetResource
                                 -Source $($MyInvocation.MyCommand.Source) `
                                 -TenantId $TenantId `
                                 -Credential $Credential
+                            throw $message # and avoid creating or updating a policy with a missing location
                         }
                         else
                         {
