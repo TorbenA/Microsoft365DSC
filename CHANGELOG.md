@@ -5,6 +5,8 @@
 * AADAdministrativeUnit
   * Throw if an unsupported Member or ScopedRoleMember type is returned.
   * Fix verbose logging for assigned memberships, make update calls type-agnostic.
+* AADAgreement
+  * Initial release.
 * AADApplication
   * Fix to properly handle PreAuthorizedApplications in the Set-TargetResource method
     FIXES [#6182](https://github.com/microsoft/Microsoft365DSC/issues/6182)
