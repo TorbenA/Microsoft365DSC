@@ -1,6 +1,8 @@
 # Change log for Microsoft365DSC
 
 # UNRELEASED
+* AADEntitlementManagementAccessPackage
+  * Fix catalogId variables used when adding resource to access package from catalog
 
 * AADAdministrativeUnit
   * Throw if an unsupported Member or ScopedRoleMember type is returned.
