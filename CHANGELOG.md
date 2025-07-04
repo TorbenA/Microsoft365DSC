@@ -1,8 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
-* AADEntitlementManagementAccessPackage
-  * Fix catalogId variables used when adding resource to access package from catalog
+# 1.25.702.1
 
 * AADAdministrativeUnit
   * Throw if an unsupported Member or ScopedRoleMember type is returned.
@@ -13,10 +11,14 @@
   * Fix to properly handle PreAuthorizedApplications in the Set-TargetResource method
     FIXES [#6182](https://github.com/microsoft/Microsoft365DSC/issues/6182)
 * AADConditionalAccessPolicy
-  * Fix for removing or resetting builtInControls, customAuthenticationFactors, authenticationStrength or termsOfUse
+  * Fix for removing or resetting builtInControls, customAuthenticationFactors,
+    authenticationStrength or termsOfUse
     FIXES [#6218](https://github.com/microsoft/Microsoft365DSC/issues/6218)
   * FIXES [#6198] Adds support for ServicePrincipalRiskLevels
-  * FIXES [[#6242](https://github.com/microsoft/Microsoft365DSC/issues/6242)] Avoids creating or updating a policy with a missing/unknown location
+  * FIXES [[#6242](https://github.com/microsoft/Microsoft365DSC/issues/6242)]
+    Avoids creating or updating a policy with a missing/unknown location.
+* AADEntitlementManagementAccessPackage
+  * Fix catalogId variables used when adding resource to access package from catalog
 * AADGroup
   * Fix for removing Group owner.
 * AADGroupElegibilityScheduleSettings
@@ -31,7 +33,8 @@
     FIXES [#6181](https://github.com/microsoft/Microsoft365DSC/issues/6181)
     FIXES [#6045](https://github.com/microsoft/Microsoft365DSC/issues/6045)
     FIXES [#5419](https://github.com/microsoft/Microsoft365DSC/issues/5419)
-  * Fixed an issue where updating the configuration with `CustomSecurityAttributes` would fail.
+  * Fixed an issue where updating the configuration with `CustomSecurityAttributes`
+    would fail.
     FIXES [#6208](https://github.com/microsoft/Microsoft365DSC/issues/6208)
 * EXODistributionGroup
   * Always use the retrieved Identity when updating the distribution group
