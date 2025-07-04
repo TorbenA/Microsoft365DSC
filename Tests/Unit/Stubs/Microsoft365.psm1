@@ -38936,6 +38936,10 @@ function Get-MgBetaAgreement
         $Search,
 
         [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
         [PSObject]
         $HttpPipelineAppend,
 
