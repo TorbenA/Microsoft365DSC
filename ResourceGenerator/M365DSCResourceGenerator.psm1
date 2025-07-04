@@ -987,6 +987,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 
         #region Required Modules
         $MaximumFunctionCount = 32767
+        $m365dscModules = (Import-PowerShellDataFile -Path "$(Split-Path -Path $PSScriptRoot -Parent)\Modules\Microsoft365DSC\Dependencies\Manifest.psd1").Dependencies.ModuleName
         $ast = [System.Management.Automation.Language.Parser]::ParseFile($moduleFilePath, [ref]$null, [ref]$null)
         $targetResourceFunctions = $ast.FindAll(
             {
