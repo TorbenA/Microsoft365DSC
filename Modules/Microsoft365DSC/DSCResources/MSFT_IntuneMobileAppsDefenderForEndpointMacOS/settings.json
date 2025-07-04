@@ -1,44 +1,48 @@
 {
-  "resourceName":"IntuneMobileAppsDefenderForEndpointMacOS",
-  "description":"This resource configures an Intune Mobile Apps Defender For Endpoint for macOS.",
-  "permissions":{
-    "graph":{
-      "application":{
-        "update":[
+  "resourceName": "IntuneMobileAppsDefenderForEndpointMacOS",
+  "description": "This resource configures an Intune Mobile Apps Defender For Endpoint for macOS.",
+  "permissions": {
+    "graph": {
+      "application": {
+        "update": [
           {
-            "name":"DeviceManagementApps.ReadWrite.All"
+            "name": "DeviceManagementApps.ReadWrite.All"
           },
           {
-            "name":"Group.Read.All"
+            "name": "Group.Read.All"
           }
         ],
-        "read":[
+        "read": [
           {
-            "name":"DeviceManagementApps.Read.All"
+            "name": "DeviceManagementApps.Read.All"
           },
           {
-            "name":"Group.Read.All"
+            "name": "Group.Read.All"
           }
         ]
       },
-      "delegated":{
-        "update":[
+      "delegated": {
+        "update": [
           {
-            "name":"DeviceManagementApps.ReadWrite.All"
+            "name": "DeviceManagementApps.ReadWrite.All"
           },
           {
-            "name":"Group.Read.All"
+            "name": "Group.Read.All"
           }
         ],
-        "read":[
+        "read": [
           {
-            "name":"DeviceManagementApps.Read.All"
+            "name": "DeviceManagementApps.Read.All"
           },
           {
-            "name":"Group.Read.All"
+            "name": "Group.Read.All"
           }
         ]
       }
     }
-  }
+  },
+  "requiredModules": [
+    "Microsoft.Graph.Authentication",
+    "Microsoft.Graph.Beta.Devices.CorporateManagement"
+  ]
 }
