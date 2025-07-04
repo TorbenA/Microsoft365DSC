@@ -22,40 +22,31 @@ Configuration Example
     Import-DscResource -ModuleName Microsoft365DSC
     node localhost
     {
-        IntuneMobileAppsMacOSLobApp "IntuneMobileAppsMacOSLobApp-TeamsForBusinessInstaller"
+        IntuneMobileAppsWebLink "IntuneMobileAppsWebLink-Web App"
         {
-            Id                    = "8d027f94-0682-431e-97c1-827d1879fa79";
-            Description           = "TeamsForBusinessInstaller";
-            Developer             = "Contoso drift"; #drift
-            DisplayName           = "TeamsForBusinessInstaller";
+            TargetType            = "webApp";
+            Description           = "Web App Description";
+            Developer             = "Contoso";
+            DisplayName           = "Web App";
             Ensure                = "Present";
             InformationUrl        = "";
-            IsFeatured            = $False;
-            MinimumSupportedOperatingSystem = MSFT_DeviceManagementMinimumOperatingSystem{
-                v11_0 = $true
-            }
+            IsFeatured            = $True; # Drift
             Notes                 = "";
             Owner                 = "";
             PrivacyInformationUrl = "";
             Publisher             = "Contoso";
-            Assignments           = @(
+            Assignments          = @(
                 MSFT_DeviceManagementMobileAppAssignment {
                     groupDisplayName = 'All devices'
                     deviceAndAppManagementAssignmentFilterType = 'none'
                     dataType = '#microsoft.graph.allDevicesAssignmentTarget'
                     intent = 'required'
                 }
-                MSFT_DeviceManagementMobileAppAssignment {
-                    deviceAndAppManagementAssignmentFilterType = 'none'
-                    dataType = '#microsoft.graph.groupAssignmentTarget'
-                    groupId = '57b5e81c-85bb-4644-a4fd-33b03e451c89'
-                    intent = 'required'
-                }
             );
-            Categories           = @(
-                MSFT_DeviceManagementMobileAppCategory {
-                    Id  = '1bff2652-03ec-4a48-941c-152e93736515'
-                    DisplayName = 'Kajal 3'
+            Categories             = @(
+                MSFT_DeviceManagementMobileAppCategory{
+                    Id = "2185c6bf-1b3d-4daa-a0bc-79cb4fad9c87"
+                    DisplayName = "App Category 1"
                 }
             );
             ApplicationId         = $ApplicationId;
