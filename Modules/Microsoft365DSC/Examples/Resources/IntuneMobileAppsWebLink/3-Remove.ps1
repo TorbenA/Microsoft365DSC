@@ -20,12 +20,14 @@ Configuration Example
     )
 
     Import-DscResource -ModuleName Microsoft365DSC
+
     node localhost
     {
-        IntuneMobileAppsMacOSLobApp "IntuneMobileAppsMacOSLobApp-TeamsForBusinessInstaller"
+        IntuneMobileAppsWebLink "IntuneMobileAppsWebLink-Web App"
         {
             Id                    = "8d027f94-0682-431e-97c1-827d1879fa79";
-            DisplayName           = "TeamsForBusinessInstaller";
+            DisplayName           = "Web App";
+            TargetType            = "webApp";
             Ensure                = "Absent";
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
