@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXORoleGroup'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -102,17 +104,17 @@ function Get-TargetResource
         $roleGroupMembersValue = @()
         foreach ($member in $roleGroupMembers)
         {
-            if (-not [System.String]::IsNullOrEmpty($member.PrimarySmtpAddress))
-            {
-                $roleGroupMembersValue += $member.PrimarySmtpAddress
-            }
-            elseif (-not [System.String]::IsNullOrEmpty($member.WindowsLiveID))
+            if (-not [System.String]::IsNullOrEmpty($member.WindowsLiveID))
             {
                 $roleGroupMembersValue += $member.WindowsLiveID
             }
             elseif (-not [System.String]::IsNullOrEmpty($member.WindowsEmailAddress))
             {
                 $roleGroupMembersValue += $member.WindowsEmailAddress
+            }
+            elseif (-not [System.String]::IsNullOrEmpty($member.PrimarySmtpAddress))
+            {
+                $roleGroupMembersValue += $member.PrimarySmtpAddress
             }
             else
             {
@@ -358,11 +360,12 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -381,7 +384,7 @@ function Test-TargetResource
     foreach ($member in $Members)
     {
         Write-Verbose -Message "The current member {$member} is provided as a group display name."
-        $group = Get-Group -Identity $member -ErrorAction 'SilentlyContinue'
+        $group = Get-Group -Filter "DisplayName eq '$member'" -ErrorAction 'SilentlyContinue'
 
         if ($null -ne $group)
         {
@@ -399,7 +402,19 @@ function Test-TargetResource
             $user = Get-User -Identity $member -ErrorAction 'SilentlyContinue'
             if ($null -ne $user)
             {
-                $newMembersValue += $user.UserPrincipalName
+                if ($member.Contains('@'))
+                {
+                    $newMembersValue += $user.UserPrincipalName
+                }
+                else
+                {
+                    $newMembersValue += $user.DisplayName
+                }
+            }
+            else
+            {
+                # Case where the member is an app.
+                $newMembersValue += $member
             }
         }
     }
@@ -551,4 +566,5 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+
 

@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADConditionalAccessPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -227,6 +229,11 @@ function Get-TargetResource
         [ValidateSet('minor', 'moderate', 'elevated', 'unknownFutureValue')]
         [System.String[]]
         $InsiderRiskLevels,
+
+        [Parameter()]
+        [ValidateSet('low', 'medium', 'high', 'none', 'unknownFutureValue')]
+        [System.String[]]
+        $ServicePrincipalRiskLevels,
 
         #generic
         [Parameter()]
@@ -664,6 +671,12 @@ function Get-TargetResource
         $InsiderRiskLevelsValue = $Policy.Conditions.InsiderRiskLevels.Split(',')
     }
 
+    $ServicePrincipalRiskLevelsValue = $null
+    if (-not [System.String]::IsNullOrEmpty($Policy.Conditions.ServicePrincipalRiskLevels))
+    {
+        $ServicePrincipalRiskLevelsValue = $Policy.Conditions.ServicePrincipalRiskLevels.Split(',')
+    }
+
     $result = @{
         DisplayName                              = $Policy.DisplayName
         Id                                       = $Policy.Id
@@ -743,6 +756,7 @@ function Get-TargetResource
         #Standard part
         TermsOfUse                               = $termOfUseName
         InsiderRiskLevels                        = $InsiderRiskLevelsValue
+        ServicePrincipalRiskLevels               = $ServicePrincipalRiskLevelsValue
         Ensure                                   = 'Present'
         Credential                               = $Credential
         ApplicationSecret                        = $ApplicationSecret
@@ -985,6 +999,11 @@ function Set-TargetResource
         [ValidateSet('minor', 'moderate', 'elevated', 'unknownFutureValue')]
         [System.String[]]
         $InsiderRiskLevels,
+
+        [Parameter()]
+        [ValidateSet('low', 'medium', 'high', 'none', 'unknownFutureValue')]
+        [System.String[]]
+        $ServicePrincipalRiskLevels,
 
         #generic
         [Parameter()]
@@ -1621,6 +1640,7 @@ function Set-TargetResource
                                 -Source $($MyInvocation.MyCommand.Source) `
                                 -TenantId $TenantId `
                                 -Credential $Credential
+                            throw $message # and avoid creating or updating a policy with a missing location
                         }
                         else
                         {
@@ -1647,6 +1667,7 @@ function Set-TargetResource
                                 -Source $($MyInvocation.MyCommand.Source) `
                                 -TenantId $TenantId `
                                 -Credential $Credential
+                            throw $message # and avoid creating or updating a policy with a missing location
                         }
                         else
                         {
@@ -1703,6 +1724,11 @@ function Set-TargetResource
         if ([String]::IsNullOrEmpty($InsiderRiskLevels) -eq $false)
         {
             $conditions.Add('insiderRiskLevels', $($InsiderRiskLevels -join ','))
+        }
+
+        if ([String]::IsNullOrEmpty($ServicePrincipalRiskLevels) -eq $false)
+        {
+            $conditions.Add('servicePrincipalRiskLevels', $($ServicePrincipalRiskLevels -join ','))
         }
 
         Write-Verbose -Message 'Set-Targetresource: process risk levels and app types'
@@ -1765,15 +1791,15 @@ function Set-TargetResource
                 operator = $GrantControlOperator
             }
 
-            if ($BuiltInControls)
+            if ($currentParameters.ContainsKey('builtInControls'))
             {
                 $GrantControls.Add('builtInControls', $BuiltInControls)
             }
-            if ($customAuthenticationFactors)
+            if ($currentParameters.ContainsKey('customAuthenticationFactors'))
             {
                 $GrantControls.Add('customAuthenticationFactors', $CustomAuthenticationFactors)
             }
-            if ($AuthenticationStrength)
+            if ($currentParameters.ContainsKey('authenticationStrength'))
             {
                 $strengthPolicy = Get-MgBetaPolicyAuthenticationStrengthPolicy | Where-Object -FilterScript { $_.DisplayName -eq $AuthenticationStrength } -ErrorAction SilentlyContinue
                 if ($null -ne $strengthPolicy)
@@ -1786,7 +1812,7 @@ function Set-TargetResource
                 }
             }
 
-           if ($TermsOfUse)
+           if ($currentParameters.ContainsKey('termsOfUse'))
            {
                Write-Verbose -Message "Getting Terms of Use {$TermsOfUse}"
                $TermsOfUseObj = Get-MgBetaAgreement | Where-Object -FilterScript { $_.DisplayName -eq $TermsOfUse }
@@ -2184,6 +2210,11 @@ function Test-TargetResource
         [System.String[]]
         $InsiderRiskLevels,
 
+        [Parameter()]
+        [ValidateSet('low', 'medium', 'high', 'none', 'unknownFutureValue')]
+        [System.String[]]
+        $ServicePrincipalRiskLevels,
+
         #generic
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -2218,8 +2249,6 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
@@ -2230,51 +2259,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Testing configuration of AzureAD CA Policies'
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
-    $testResult = $true
-    $testTargetResource = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-not $testResult)
-            {
-                $testTargetResource = $false
-                break
-            }
-
-            $ValuesToCheck.Remove($key) | Out-Null
-        }
-    }
-
-    $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    if (-not $TestResult)
-    {
-        $testTargetResource = $false
-    }
-    Write-Verbose -Message "Test-TargetResource returned $testTargetResource"
-    return $testTargetResource
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $ResourceName
+    return $result
 }
 
 function Export-TargetResource
@@ -2401,3 +2388,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

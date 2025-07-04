@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCAutoSensitivityLabelRule'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -1383,22 +1385,6 @@ function Get-SCDLPSensitiveInformation
     return $returnValue
 }
 
-function Get-SCHeaderPatternsAsObject
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [System.Object[]]
-        $Patterns
-    )
-    $returnValue = @{
-        $Patterns.Name = $Patterns.Value
-    }
-    return $returnValue
-}
-
 function Get-SCDLPSensitiveInformationGroups
 {
     [CmdletBinding()]
@@ -1677,3 +1663,4 @@ function Test-ContainsSensitiveInformationGroups
 }
 
 Export-ModuleMember -Function *-TargetResource
+
