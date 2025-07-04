@@ -89,7 +89,7 @@
     updating Intune intent policy type settings.
     FIXES [#6252](https://github.com/microsoft/Microsoft365DSC/issues/6252)
 * DEPENDENCIES
-  * Updated MSCloudLoginAssistant to version 1.1.47.
+  * Updated MSCloudLoginAssistant to version 1.1.48.
 
 # 1.25.611.1
 
