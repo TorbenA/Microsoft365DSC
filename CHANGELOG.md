@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* MISC
+  * Updated CIM version for `MSFT_DeviceManagementConfigurationPolicyAssignments` class.
 * DEPENDENCIES
   * Updated DSCParser to version 2.0.0.18.
 
