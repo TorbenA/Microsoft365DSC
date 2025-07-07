@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* MISC
+  * Updated CIM version for `MSFT_DeviceManagementConfigurationPolicyAssignments` class.
+
 # 1.25.702.1
 
 * AADAdministrativeUnit
