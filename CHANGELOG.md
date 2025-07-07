@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* DEPENDENCIES
+  * Updated DSCParser to version 2.0.0.18.
+
 # 1.25.702.1
 
 * AADAdministrativeUnit
