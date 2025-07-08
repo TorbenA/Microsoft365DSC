@@ -2,6 +2,10 @@
 
 # UNRELEASED
 
+* M365DSCUtil
+  * Fixed an issue where `Uninstall-M365DSCOutdatedDependencies` would throw an error during
+    checking of the Microsoft.Graph.Authentication module.
+    FIXES [#6274](https://github.com/microsoft/Microsoft365DSC/issues/6274)
 * MISC
   * Updated CIM version for `MSFT_DeviceManagementConfigurationPolicyAssignments` class.
 * DEPENDENCIES
