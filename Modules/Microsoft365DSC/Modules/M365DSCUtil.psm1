@@ -1058,7 +1058,7 @@ function Test-M365DSCParameterState
     $data  = [System.Collections.Generic.Dictionary[[String], [String]]]::new()
     $data.Add('Resource', $Source)
     $data.Add('Method', 'Test-M365DSCParameterState')
-    $data.Add('TimeTaken', $timeTaken)
+    $data.Add('TimeTakenMilliseconds', $timeTaken)
     $data.Add('Tenant', $TenantName)
     $data.Add('ParametersCount', $KeyList.Count)
 
