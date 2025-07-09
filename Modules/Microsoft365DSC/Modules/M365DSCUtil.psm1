@@ -453,6 +453,7 @@ function Test-M365DSCParameterState
         $NoDriftReset
     )
 
+    $startTime = [System.DateTime]::Now
     if ($null -eq $Global:AllDrifts -or -not $NoDriftReset)
     {
         $Global:AllDrifts = @{
@@ -1053,6 +1054,14 @@ function Test-M365DSCParameterState
             -EventID 2 -Source $Source
     }
 
+    $timeTaken = [System.DateTime]::Now.Subtract($startTime).TotalMilliseconds
+    Add-M365DSCTelemetryEvent -Type 'ResourceTesting' `
+        -Data @{
+            'Resource' = $Source
+            'TimeTaken' = $timeTaken
+            'Tenant' = $TenantName
+            'ParametersCount' = $KeyList.Count
+        }
     return $returnValue
 }
 
