@@ -1055,13 +1055,15 @@ function Test-M365DSCParameterState
     }
 
     $timeTaken = [System.DateTime]::Now.Subtract($startTime).TotalMilliseconds
+    $data = Format-M365DSCTelemetryParameters -ResourceName $Source `
+        -CommandName 'Test-M365DSCParameterState'
+
+    $data.Add('TimeTaken', $timeTaken)
+    $data.Add('Tenant', $TenantName)
+    $data.Add('ParametersCount', $KeyList.Count)
+
     Add-M365DSCTelemetryEvent -Type 'ResourceTesting' `
-        -Data @{
-            'Resource' = $Source
-            'TimeTaken' = $timeTaken
-            'Tenant' = $TenantName
-            'ParametersCount' = $KeyList.Count
-        }
+        -Data $data
     return $returnValue
 }
 
