@@ -2,6 +2,10 @@
 
 # UNRELEASED
 
+* IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10SettingCatalog
+  * Shortened resource name to `IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10V2`
+    because of a path too long exception in Azure Automation.
+    FIXES [#6289](https://github.com/microsoft/Microsoft365DSC/issues/6289)
 * M365DSCUtil
   * Fixed an issue where `Uninstall-M365DSCOutdatedDependencies` would throw an error during
     checking of the Microsoft.Graph.Authentication module.
