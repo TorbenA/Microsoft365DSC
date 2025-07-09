@@ -114,10 +114,12 @@ function Get-TargetResource
         #ConditionalAccessPlatformCondition
         [Parameter()]
         [System.String[]]
+        [ValidateSet('','android', 'iOS', 'windows', 'windowsPhone', 'macOS', 'linux', 'all', 'unknownFutureValue')]
         $IncludePlatforms,
 
         [Parameter()]
         [System.String[]]
+        [ValidateSet('','android', 'iOS', 'windows', 'windowsPhone', 'macOS', 'linux', 'all', 'unknownFutureValue')]
         $ExcludePlatforms,
 
         #ConditionalAccessLocationCondition
@@ -272,7 +274,7 @@ function Get-TargetResource
 
     if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
     {
-        Write-Verbose -Message 'Getting configuration of AzureAD Conditional Access Policy'
+        Write-Verbose -Message 'Getting configuration of Entra ID Conditional Access Policy'
         $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
@@ -884,10 +886,12 @@ function Set-TargetResource
         #ConditionalAccessPlatformCondition
         [Parameter()]
         [System.String[]]
+        [ValidateSet('','android', 'iOS', 'windows', 'windowsPhone', 'macOS', 'linux', 'all', 'unknownFutureValue')]
         $IncludePlatforms,
 
         [Parameter()]
         [System.String[]]
+        [ValidateSet('','android', 'iOS', 'windows', 'windowsPhone', 'macOS', 'linux', 'all', 'unknownFutureValue')]
         $ExcludePlatforms,
 
         #ConditionalAccessLocationCondition
@@ -1039,7 +1043,7 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    Write-Verbose -Message 'Setting configuration of AzureAD Conditional Access Policy'
+    Write-Verbose -Message 'Setting configuration of Entra ID Conditional Access Policy'
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -1594,6 +1598,10 @@ function Set-TargetResource
                     $conditions.platforms.Add('excludePlatforms', @())
                     $conditions.platforms.excludePlatforms = @() + $ExcludePlatforms
                 }
+                else
+                {
+                    $conditions.platforms.Add('excludePlatforms', @())
+                }
                 #no translation or conversion needed
             }
             else
@@ -2094,10 +2102,12 @@ function Test-TargetResource
         #ConditionalAccessPlatformCondition
         [Parameter()]
         [System.String[]]
+        [ValidateSet('','android', 'iOS', 'windows', 'windowsPhone', 'macOS', 'linux', 'all', 'unknownFutureValue')]
         $IncludePlatforms,
 
         [Parameter()]
         [System.String[]]
+        [ValidateSet('','android', 'iOS', 'windows', 'windowsPhone', 'macOS', 'linux', 'all', 'unknownFutureValue')]
         $ExcludePlatforms,
 
         #ConditionalAccessLocationCondition
