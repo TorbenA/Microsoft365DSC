@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.25.709.1
 
 * IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10SettingCatalog
   * Shortened resource name to `IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10V2`
