@@ -163,7 +163,7 @@
   * Updated CIM version for `MSFT_DeviceManagementConfigurationPolicyAssignments` class.
   * Added benchmarking for Test-TargetResource evaluation.
 * DEPENDENCIES
-  * Updated DSCParser to version 2.0.0.18.
+  * Updated DSCParser to version 2.0.0.19.
   * Updated MicrosoftTeams to version 7.2.0.'
 
       # Flag to indicate whether the module requires explicit user acceptance for install/update
