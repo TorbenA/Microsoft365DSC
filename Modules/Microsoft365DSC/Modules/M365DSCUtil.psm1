@@ -1641,10 +1641,10 @@ if ($null -eq $Script:M365DSCDependencies)
 {
     $Script:M365DSCDependencies = (Import-PowerShellDataFile "$PSScriptRoot/../Dependencies/Manifest.psd1").Dependencies
     $Script:M365DSCResourceSettings = @{}
-    Get-ChildItem -Path "$PSScriptRoot/../DSCResources" -Filter 'settings.json' -Recurse | ForEach-Object {
-        Write-Verbose -Message "Processing settings.json file at path: $($_.FullName)"
-        $jsonContent = Get-Content -Path $_.FullName -Raw | ConvertFrom-Json
-        $directoryName = Split-Path -Path $_.DirectoryName -Leaf
+    foreach ($file in (Get-ChildItem -Path "$PSScriptRoot/../DSCResources" -Filter 'settings.json' -Recurse)) {
+        Write-Verbose -Message "Processing settings.json file at path: $($file.FullName)"
+        $jsonContent = [System.IO.File]::ReadAllText($file.FullName) | ConvertFrom-Json
+        $directoryName = Split-Path -Path $file.DirectoryName -Leaf
         $Script:M365DSCResourceSettings.Add($directoryName, $jsonContent.requiredModules)
     }
     $Script:M365DSCValidatedDependencies = @()
@@ -4056,7 +4056,7 @@ function Get-M365DSCComponentsWithMostSecureAuthenticationType
     $Components = @()
     foreach ($resource in $modules)
     {
-        if ($Resources -contains ($resource.Name.Replace('.psm1', '').Replace('MSFT_', '')))
+        if ($Resources.Contains(($resource.Name -replace '.psm1', '' -replace 'MSFT_', '')))
         {
             Import-Module $resource.FullName -Force
             $parameters = (Get-Command 'Set-TargetResource').Parameters.Keys

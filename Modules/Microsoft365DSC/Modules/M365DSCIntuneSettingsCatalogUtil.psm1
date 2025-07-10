@@ -13,7 +13,7 @@
     $settingName = [regex]::Replace($SettingDefinition.Name, "[\{\}\$]", "")
     $settingName = $settingName.Replace(" ", "_")
 
-    $settingsWithSameName = $AllSettingDefinitions | Where-Object -FilterScript { $_.Name -eq $settingName }
+    $settingsWithSameName = $AllSettingDefinitions.Where({ $_.Name -eq $settingName })
 
     # Edge case where the same setting is defined twice in the template, with the same name and id
     # Example is RDVAllowBDE_Name from the IntuneDiskEncryptionWindows10 resource
@@ -127,15 +127,15 @@ function Get-ParentSettingDefinition {
     $parentSetting = $null
     if ($SettingDefinition.AdditionalProperties.dependentOn.parentSettingId.Count -gt 0)
     {
-        $parentSetting = $AllSettingDefinitions | Where-Object -FilterScript {
+        $parentSetting = $AllSettingDefinitions.Where({
             $_.Id -eq ($SettingDefinition.AdditionalProperties.dependentOn.parentSettingId | Select-Object -Unique -First 1)
-        }
+        })
     }
     elseif ($SettingDefinition.AdditionalProperties.options.dependentOn.parentSettingId.Count -gt 0)
     {
-        $parentSetting = $AllSettingDefinitions | Where-Object -FilterScript {
+        $parentSetting = $AllSettingDefinitions.Where({
             $_.Id -eq ($SettingDefinition.AdditionalProperties.options.dependentOn.parentSettingId | Select-Object -Unique -First 1)
-        }
+        })
     }
 
     $parentSetting
