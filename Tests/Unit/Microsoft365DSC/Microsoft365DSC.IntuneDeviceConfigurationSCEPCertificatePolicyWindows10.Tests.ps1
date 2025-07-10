@@ -71,7 +71,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         }
 
         # Test contexts
-        Context -Name "The IntuneDeviceConfigurationScepCertificatePolicyWindows10 should exist but it DOES NOT" -Fixture {
+        Context -Name "The IntuneDeviceConfigurationSCEPCertificatePolicyWindows10 should exist but it DOES NOT" -Fixture {
             BeforeAll {
                 $RootCertificateId = ([Guid]::Empty).ToString()
 
@@ -137,7 +137,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
         }
 
-        Context -Name "The IntuneDeviceConfigurationScepCertificatePolicyWindows10 exists but it SHOULD NOT" -Fixture {
+        Context -Name "The IntuneDeviceConfigurationSCEPCertificatePolicyWindows10 exists but it SHOULD NOT" -Fixture {
             BeforeAll {
                 $testParams = @{
                     CertificateStore = "user"
@@ -225,7 +225,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 Should -Invoke -CommandName Remove-MgBetaDeviceManagementDeviceConfiguration -Exactly 1
             }
         }
-        Context -Name "The IntuneDeviceConfigurationScepCertificatePolicyWindows10 Exists and Values are already in the desired state" -Fixture {
+        Context -Name "The IntuneDeviceConfigurationSCEPCertificatePolicyWindows10 Exists and Values are already in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
                     CertificateStore = "user"
@@ -306,7 +306,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
         }
 
-        Context -Name "The IntuneDeviceConfigurationScepCertificatePolicyWindows10 exists and values are NOT in the desired state" -Fixture {
+        Context -Name "The IntuneDeviceConfigurationSCEPCertificatePolicyWindows10 exists and values are NOT in the desired state" -Fixture {
             BeforeAll {
                 $RootCertificateId = ([Guid]::Empty).ToString()
 

@@ -22,7 +22,7 @@ Configuration Example
 
     node localhost
     {
-        IntuneDeviceConfigurationScepCertificatePolicyWindows10 'Example'
+        IntuneDeviceConfigurationSCEPCertificatePolicyWindows10 'Example'
         {
             DisplayName                    = "SCEP";
             Ensure                         = "Absent";

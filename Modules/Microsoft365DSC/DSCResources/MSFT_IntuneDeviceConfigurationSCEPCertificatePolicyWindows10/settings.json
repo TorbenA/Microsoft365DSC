@@ -1,5 +1,5 @@
 {
-  "resourceName": "IntuneDeviceConfigurationScepCertificatePolicyWindows10",
+  "resourceName": "IntuneDeviceConfigurationSCEPCertificatePolicyWindows10",
   "description": "This resource configures an Intune Device Configuration Scep Certificate Policy for Windows10.",
   "permissions": {
     "graph": {
