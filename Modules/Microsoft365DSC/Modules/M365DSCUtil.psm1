@@ -453,6 +453,7 @@ function Test-M365DSCParameterState
         $NoDriftReset
     )
 
+    $startTime = [System.DateTime]::Now
     if ($null -eq $Global:AllDrifts -or -not $NoDriftReset)
     {
         $Global:AllDrifts = @{
@@ -1053,6 +1054,16 @@ function Test-M365DSCParameterState
             -EventID 2 -Source $Source
     }
 
+    $timeTaken = [System.DateTime]::Now.Subtract($startTime).TotalMilliseconds
+    $data  = [System.Collections.Generic.Dictionary[[String], [String]]]::new()
+    $data.Add('Resource', $Source)
+    $data.Add('Method', 'Test-M365DSCParameterState')
+    $data.Add('TimeTakenMilliseconds', $timeTaken)
+    $data.Add('Tenant', $TenantName)
+    $data.Add('ParametersCount', $KeyList.Count)
+
+    Add-M365DSCTelemetryEvent -Type 'ResourceTesting' `
+        -Data $data
     return $returnValue
 }
 
@@ -3517,7 +3528,7 @@ function Uninstall-M365DSCOutdatedDependencies
         Write-Error $_
     }
 
-    $authModule = $manifest.Dependencies | Where-Object { $_.ModuleName -eq 'Microsoft.Graph.Authentication' }
+    $authModule = $Script:M365DSCDependencies | Where-Object { $_.ModuleName -eq 'Microsoft.Graph.Authentication' }
     try
     {
         Write-Information -MessageData 'Checking Microsoft.Graph.Authentication'

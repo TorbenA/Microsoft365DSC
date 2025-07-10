@@ -18,7 +18,7 @@
         },
         @{
             ModuleName      = 'DSCParser'
-            RequiredVersion = '2.0.0.17'
+            RequiredVersion = '2.0.0.20'
         },
         @{
             ModuleName      = 'ExchangeOnlineManagement'
@@ -122,7 +122,7 @@
         },
         @{
             ModuleName      = 'MicrosoftTeams'
-            RequiredVersion = '7.0.0'
+            RequiredVersion = '7.2.0'
         },
         @{
             ModuleName      = "MSCloudLoginAssistant"
