@@ -1843,7 +1843,12 @@ function Set-TargetResource
                 $SetTransportRuleParams.HeaderContainsWords = @()
             }
         }
-        if ($null -ne $HeaderMatchesPatterns -and $null -eq $currentTransportRuleConfig.HeaderMatchesMessageHeader)
+        elseif ([System.String]::IsNullOrEmpty($HeaderContainsMessageHeader))
+        {
+            $SetTransportRuleParams.HeaderContainsMessageHeader = $null
+        }
+
+        if ($null -eq $HeaderMatchesPatterns -and $null -eq $currentTransportRuleConfig.HeaderMatchesMessageHeader)
         {
 
             if (-not $SetTransportRuleParams.ContainsKey('HeaderMatchesMessageHeader'))
@@ -1864,7 +1869,7 @@ function Set-TargetResource
                 $SetTransportRuleParams.HeaderMatchesPatterns = @()
             }
         }
-        if ($null -ne $ExceptIfHeaderContainsWords -and $null -eq $currentTransportRuleConfig.ExceptIfHeaderContainsMessageHeader)
+        if ($null -eq $ExceptIfHeaderContainsWords -and $null -eq $currentTransportRuleConfig.ExceptIfHeaderContainsMessageHeader)
         {
             if (-not $SetTransportRuleParams.ContainsKey('ExceptIfHeaderContainsMessageHeader'))
             {
@@ -1884,7 +1889,7 @@ function Set-TargetResource
                 $SetTransportRuleParams.ExceptIfHeaderContainsWords = @()
             }
         }
-        if ($null -ne $ExceptIfHeaderMatchesPatterns -and $null -eq $currentTransportRuleConfig.ExceptIfHeaderMatchesMessageHeader)
+        if ($null -eq $ExceptIfHeaderMatchesPatterns -and $null -eq $currentTransportRuleConfig.ExceptIfHeaderMatchesMessageHeader)
         {
             if (-not $SetTransportRuleParams.ContainsKey('ExceptIfHeaderMatchesMessageHeader'))
             {
