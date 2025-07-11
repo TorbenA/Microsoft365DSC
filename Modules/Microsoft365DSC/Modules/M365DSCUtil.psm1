@@ -1639,7 +1639,13 @@ $Script:M365DSCDependenciesValidated = $false
 $Script:IsPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
 if ($null -eq $Script:M365DSCDependencies)
 {
-    $Script:M365DSCDependencies = (Import-PowerShellDataFile "$PSScriptRoot/../Dependencies/Manifest.psd1").Dependencies
+    $Script:M365DSCDependencies = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $dependencies = (Import-PowerShellDataFile "$PSScriptRoot/../Dependencies/Manifest.psd1").Dependencies
+    foreach ($dependency in $dependencies)
+    {
+        $Script:M365DSCDependencies.Add($dependency.ModuleName, $dependency)
+    }
+
     $Script:M365DSCResourceSettings = @{}
     foreach ($file in (Get-ChildItem -Path "$PSScriptRoot/../DSCResources" -Filter 'settings.json' -Recurse)) {
         Write-Verbose -Message "Processing settings.json file at path: $($file.FullName)"
@@ -1647,7 +1653,7 @@ if ($null -eq $Script:M365DSCDependencies)
         $directoryName = Split-Path -Path $file.DirectoryName -Leaf
         $Script:M365DSCResourceSettings.Add($directoryName, $jsonContent.requiredModules)
     }
-    $Script:M365DSCValidatedDependencies = @()
+    $Script:M365DSCValidatedDependencies = [System.Collections.Generic.List[System.String]]::new($Script:M365DSCDependencies.Count)
 }
 
 <#
@@ -1672,13 +1678,13 @@ function Confirm-M365DSCLoadedModule
         $ModuleName
     )
 
-    if ($Script:M365DSCValidatedDependencies -contains $ModuleName)
+    if ($Script:M365DSCValidatedDependencies.Contains($ModuleName))
     {
         Write-Verbose -Message "Module '$ModuleName' has already been validated."
         return
     }
 
-    $manifestModule = $Script:M365DSCDependencies | Where-Object -FilterScript { $_.ModuleName -eq $ModuleName }
+    $manifestModule = $Script:M365DSCDependencies[$ModuleName]
     $loadedModule = Get-Module -Name $ModuleName
 
     if ($null -eq $loadedModule)
@@ -1700,9 +1706,9 @@ function Confirm-M365DSCLoadedModule
         Write-Verbose -Message "Module '$ModuleName' is already loaded."
     }
 
-    if ($Script:M365DSCValidatedDependencies -notcontains $ModuleName)
+    if (-not $Script:M365DSCValidatedDependencies.Contains($ModuleName))
     {
-        $Script:M365DSCValidatedDependencies += $ModuleName
+        $Script:M365DSCValidatedDependencies.Add($ModuleName)
     }
 }
 
@@ -3245,7 +3251,7 @@ function Test-M365DSCDependenciesForNewVersions
     $i = 1
     Import-Module PowerShellGet -Force
 
-    foreach ($dependency in $Script:M365DSCDependencies)
+    foreach ($dependency in $Script:M365DSCDependencies.Values.GetEnumerator())
     {
         Write-Progress -Activity 'Scanning Dependencies' -PercentComplete ($i / $Script:M365DSCDependencies.Count * 100)
         try
@@ -3334,7 +3340,7 @@ function Update-M365DSCDependencies
             $params.Add('Proxy', $Proxy)
         }
 
-        foreach ($dependency in $Script:M365DSCDependencies)
+        foreach ($dependency in $Script:M365DSCDependencies.Values.GetEnumerator())
         {
             Write-Progress -Activity 'Scanning dependencies' -PercentComplete ($i / $Script:M365DSCDependencies.Count * 100)
             try
@@ -3454,7 +3460,7 @@ function Uninstall-M365DSCOutdatedDependencies
         $InformationPreference = 'Continue'
 
         [array]$microsoft365DscModules = Get-Module Microsoft365DSC -ListAvailable
-        $outdatedMicrosoft365DscModules = $microsoft365DscModules | Sort-Object Version | Select-Object -SkipLast 1
+        $outdatedMicrosoft365DscModules = $microsoft365DscModules | Select-Object -SkipLast 1 | Sort-Object Version
 
         foreach ($module in $outdatedMicrosoft365DscModules)
         {
@@ -3475,7 +3481,7 @@ function Uninstall-M365DSCOutdatedDependencies
             }
         }
 
-        $allDependenciesExceptAuth = $Script:M365DSCDependencies | Where-Object { $_.ModuleName -ne 'Microsoft.Graph.Authentication' }
+        $allDependenciesExceptAuth = $Script:M365DSCDependencies.Values.GetEnumerator().Where({ $_.ModuleName -ne 'Microsoft.Graph.Authentication' })
 
         $i = 1
         foreach ($dependency in $allDependenciesExceptAuth)
@@ -3528,7 +3534,7 @@ function Uninstall-M365DSCOutdatedDependencies
         Write-Error $_
     }
 
-    $authModule = $Script:M365DSCDependencies | Where-Object { $_.ModuleName -eq 'Microsoft.Graph.Authentication' }
+    $authModule = $Script:M365DSCDependencies['Microsoft.Graph.Authentication']
     try
     {
         Write-Information -MessageData 'Checking Microsoft.Graph.Authentication'
@@ -3893,34 +3899,30 @@ function Get-M365DSCExportContentForResource
 
     $primaryKey = ''
     $ModuleFullName = "MSFT_" + $ResourceName
-    $moduleInfo = Get-Command -Module $ModuleFullName -ErrorAction SilentlyContinue
-    if ($null -eq $moduleInfo)
+    if ($null -eq $Script:AllM365DscResources)
     {
-        if ($Script:AllM365DscResources.Count -eq 0)
+        $Script:AllM365DscResources = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new([System.StringComparer]::InvariantCultureIgnoreCase)
+        if ($Script:IsPowerShellCore)
         {
-            if ($Script:IsPowerShellCore)
-            {
-                $Script:AllM365DscResources = Get-PwshDscResource -Module 'Microsoft365Dsc'
-            }
-            else
-            {
-                $Script:AllM365DscResources = Get-DscResource -Module 'Microsoft365Dsc'
-            }
+            $resources = Get-PwshDscResource -Module 'Microsoft365Dsc'
         }
-
-        $Resource = $Script:AllM365DscResources.Where({ $_.Name -eq $ResourceName })
-        $Keys = $Resource.Properties.Where({ $_.IsMandatory }) | `
-            Select-Object -ExpandProperty Name
-        if ($null -eq $keys)
+        else
         {
-            Import-Module $Resource.Path -Force
-            $moduleInfo = Get-Command -Module $ModuleFullName -ErrorAction SilentlyContinue
-            $cmdInfo = $moduleInfo | Where-Object -FilterScript {$_.Name -eq 'Get-TargetResource'}
-            $Keys = $cmdInfo.Parameters.Values.Where({ $_.ParameterSets.Values.IsMandatory }).Name
+            $resources = Get-DscResource -Module 'Microsoft365Dsc'
+        }
+        foreach ($resource in $resources)
+        {
+            $Script:AllM365DscResources.Add($resource.Name, $resource)
         }
     }
-    else
+
+    $Resource = $Script:AllM365DscResources[$ResourceName]
+    $Keys = $Resource.Properties.Where({ $_.IsMandatory }) | `
+        Select-Object -ExpandProperty Name
+    if ($null -eq $keys)
     {
+        Import-Module $Resource.Path -Force
+        $moduleInfo = Get-Command -Module $ModuleFullName -ErrorAction SilentlyContinue
         $cmdInfo = $moduleInfo | Where-Object -FilterScript {$_.Name -eq 'Get-TargetResource'}
         $Keys = $cmdInfo.Parameters.Values.Where({ $_.ParameterSets.Values.IsMandatory }).Name
     }
