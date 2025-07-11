@@ -4,6 +4,9 @@
 
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
+* MISC
+  * Improve module import speed by up to 60%.
+  * Other performance improvements to speed up resource processing.
 
 # 1.25.709.1
 

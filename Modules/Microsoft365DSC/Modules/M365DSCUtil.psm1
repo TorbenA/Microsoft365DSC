@@ -1690,7 +1690,7 @@ function Confirm-M365DSCLoadedModule
     if ($null -eq $loadedModule)
     {
         Write-Verbose -Message "Module '$ModuleName' is not loaded. Importing it now."
-        Import-Module -Name $ModuleName -RequiredVersion $manifestModule.RequiredVersion -Global
+        Import-Module -Name $ModuleName -RequiredVersion $manifestModule.RequiredVersion -Global -Alias @() -Cmdlet @() -Variable @() -DisableNameChecking
         Write-Verbose -Message "Module '$ModuleName' with version '$($manifestModule.RequiredVersion)' has been imported."
     }
     elseif ($loadedModule.Version -ne $manifestModule.RequiredVersion)
@@ -1698,7 +1698,7 @@ function Confirm-M365DSCLoadedModule
         Write-Verbose -Message "Module '$ModuleName' is loaded but the version '$($loadedModule.Version)' does not match the required version '$($manifestModule.RequiredVersion)'."
         Remove-Module -Name $ModuleName -Force -ErrorAction SilentlyContinue
         Write-Verbose -Message "Unloaded module '$ModuleName' with version '$($loadedModule.Version)'."
-        Import-Module -Name $ModuleName -RequiredVersion $manifestModule.RequiredVersion -Global
+        Import-Module -Name $ModuleName -RequiredVersion $manifestModule.RequiredVersion -Global -Alias @() -Cmdlet @() -Variable @() -DisableNameChecking
         Write-Verbose -Message "Re-imported module '$ModuleName' with version '$($manifestModule.RequiredVersion)'."
     }
     else
@@ -2074,7 +2074,7 @@ function New-M365DSCConnection
         }
         catch
         {
-            Import-Module 'MicrosoftTeams' -Global -Force | Out-Null
+            Import-Module 'MicrosoftTeams' -Global -Force -Alias @() -Cmdlet @() -Variable @() -DisableNameChecking | Out-Null
         }
     }
 
@@ -3404,11 +3404,11 @@ function Update-M365DSCDependencies
                     Remove-Module $dependency.ModuleName -Force -ErrorAction SilentlyContinue
                     if ($dependency.Prefix)
                     {
-                        Import-Module $dependency.ModuleName -Global -Prefix $dependency.Prefix -Force
+                        Import-Module $dependency.ModuleName -Global -Prefix $dependency.Prefix -Force -DisableNameChecking
                     }
                     else
                     {
-                        Import-Module $dependency.ModuleName -Global -Force
+                        Import-Module $dependency.ModuleName -Global -Force -Alias @() -Cmdlet @() -Variable @() -DisableNameChecking
                     }
                 }
 
@@ -5211,8 +5211,8 @@ function Initialize-PowerShellCoreSession
     $script:PSCoreSession = New-PSSession -ComputerName localhost -ConfigurationName PowerShell.7 -EnableNetworkAccess
     $lcmConfig = Get-DscLocalConfigurationManager
     Invoke-Command -Session $script:PSCoreSession -ScriptBlock {
-        Import-Module -Name PSDesiredStateConfiguration -MinimumVersion 2.0.7 -ErrorAction SilentlyContinue
-        Import-Module -Name Microsoft365DSC
+        Import-Module -Name PSDesiredStateConfiguration -MinimumVersion 2.0.7 -ErrorAction SilentlyContinue -DisableNameChecking -SkipEditionCheck
+        Import-Module -Name Microsoft365DSC -Alias @() -Cmdlet @() -Variable @() -DisableNameChecking -SkipEditionCheck
         Set-M365DSCLCMConfiguration -LCMConfig $using:lcmConfig
     }
     $script:PSCoreSessionInitialized = $true
