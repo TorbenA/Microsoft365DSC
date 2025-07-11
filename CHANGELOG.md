@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* EXOTransportRule
+  * Changed the update logic to handle empty parameters.
+
 # 1.25.709.1
 
 * IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10SettingCatalog
