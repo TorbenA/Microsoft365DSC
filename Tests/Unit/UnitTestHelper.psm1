@@ -44,7 +44,7 @@ function New-M365DscUnitTestHelper
         $moduleToLoad = Join-Path -Path $moduleRoot -ChildPath $modulePath
     }
 
-    $Global:SkipModuleValidation = $true
+    $Global:IsTestEnvironment = $true
 
     Import-Module -Name $moduleToLoad -Global
 

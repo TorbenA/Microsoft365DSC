@@ -1736,7 +1736,7 @@ function Confirm-M365DSCModuleDependency
 
     $Global:MaximumFunctionCount = 32767
 
-    if ($Global:SkipModuleValidation)
+    if ($Global:IsTestEnvironment)
     {
         Write-Verbose -Message "Skipping module dependency validation in test environment for module '$ModuleName'."
         return
@@ -3899,7 +3899,7 @@ function Get-M365DSCExportContentForResource
 
     $primaryKey = ''
     $ModuleFullName = "MSFT_" + $ResourceName
-    if ($null -eq $Script:AllM365DscResources)
+    if ($null -eq $Script:AllM365DscResources -and -not $Global:IsTestEnvironment)
     {
         $Script:AllM365DscResources = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new([System.StringComparer]::InvariantCultureIgnoreCase)
         if ($Script:IsPowerShellCore)
@@ -3916,14 +3916,16 @@ function Get-M365DSCExportContentForResource
         }
     }
 
-    $Resource = $Script:AllM365DscResources[$ResourceName]
+    $Resource = $Script:AllM365DscResources.$ResourceName
     $Keys = $Resource.Properties.Where({ $_.IsMandatory }) | `
         Select-Object -ExpandProperty Name
     if ($null -eq $keys)
     {
-        Import-Module $Resource.Path -Force
-        $moduleInfo = Get-Command -Module $ModuleFullName -ErrorAction SilentlyContinue
-        $cmdInfo = $moduleInfo | Where-Object -FilterScript {$_.Name -eq 'Get-TargetResource'}
+        if (-not (Get-Module $ModuleFullName))
+        {
+            Import-Module $Resource.Path -Force
+        }
+        $cmdInfo = Get-Command $ModuleFullName\Get-TargetResource -ErrorAction SilentlyContinue
         $Keys = $cmdInfo.Parameters.Values.Where({ $_.ParameterSets.Values.IsMandatory }).Name
     }
 
