@@ -10,6 +10,8 @@
   * Improve module import speed by up to 60%.
   * Other performance improvements to speed up resource processing.
   * Update required modules for Intune resources doing assignments to groups.
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.49.
 
 # 1.25.709.1
 
@@ -17,6 +19,12 @@
   * Shortened resource name to `IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10V2`
     because of a path too long exception in Azure Automation.
     FIXES [#6289](https://github.com/microsoft/Microsoft365DSC/issues/6289)
+* SCAutoSensitivityLabelRule
+  * Fix logic to test actions with apostrophes in the name.
+* SCDeviceConfigurationRule
+  * Changes in logic retrieving existing rule associated policy.
+* SCDLPComplianceRule
+  * Fix logic to test actions with apostrophes in the name.
 * M365DSCUtil
   * Fixed an issue where `Uninstall-M365DSCOutdatedDependencies` would throw an error during
     checking of the Microsoft.Graph.Authentication module.
