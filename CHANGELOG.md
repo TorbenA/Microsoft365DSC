@@ -7,6 +7,7 @@
 * MISC
   * Improve module import speed by up to 60%.
   * Other performance improvements to speed up resource processing.
+  * Update required modules for Intune resources doing assignments to groups.
 
 # 1.25.709.1
 

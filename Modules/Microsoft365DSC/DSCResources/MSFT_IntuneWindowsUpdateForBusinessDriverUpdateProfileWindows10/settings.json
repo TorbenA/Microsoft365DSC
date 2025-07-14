@@ -42,6 +42,7 @@
     }
   },
   "requiredModules": [
-    "Microsoft.Graph.Authentication"
+    "Microsoft.Graph.Authentication",
+    "Microsoft.Graph.Groups"
   ]
 }
