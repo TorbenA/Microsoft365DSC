@@ -4,6 +4,8 @@
 
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.49.
 
 # 1.25.709.1
 
