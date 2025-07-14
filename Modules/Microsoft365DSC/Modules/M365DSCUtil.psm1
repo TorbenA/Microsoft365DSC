@@ -1,7 +1,3 @@
-#region Session Objects
-$Global:SessionSecurityCompliance = $null
-#endregion
-
 #region Extraction Modes
 $Global:DefaultComponents = @('SPOApp', 'SPOSiteDesign')
 
@@ -12,6 +8,27 @@ $Global:FullComponents = @('AADRoleManagementPolicyRule', 'AADGroup', 'AADServic
         'SPOSiteAuditSettings', 'SPOSiteGroup', 'SPOSite', 'SPOUserProfileProperty', 'SPOPropertyBag', 'TeamsTeam', 'TeamsChannel', `
         'TeamsUser', 'TeamsChannelTab', 'TeamsOnlineVoicemailUserSettings', 'TeamsUserCallingSettings', 'TeamsUserPolicyAssignment')
 #endregion
+
+$Script:M365DSCDependenciesValidated = $false
+$Script:IsPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
+if ($null -eq $Script:M365DSCDependencies)
+{
+    $Script:M365DSCDependencies = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    $dependencies = (Import-PowerShellDataFile "$PSScriptRoot/../Dependencies/Manifest.psd1").Dependencies
+    foreach ($dependency in $dependencies)
+    {
+        $Script:M365DSCDependencies.Add($dependency.ModuleName, $dependency)
+    }
+
+    $Script:M365DSCResourceSettings = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    foreach ($file in (Get-ChildItem -Path "$PSScriptRoot/../DSCResources" -Filter 'settings.json' -Recurse)) {
+        Write-Verbose -Message "Processing settings.json file at path: $($file.FullName)"
+        $jsonContent = [System.IO.File]::ReadAllText($file.FullName) | ConvertFrom-Json
+        $directoryName = (Split-Path -Path $file.DirectoryName -Leaf).Replace('MSFT_', '')
+        $Script:M365DSCResourceSettings.Add($directoryName, $jsonContent.requiredModules)
+    }
+    $Script:M365DSCValidatedDependencies = [System.Collections.Generic.List[System.String]]::new($Script:M365DSCDependencies.Count)
+}
 
 <#
 .Description
@@ -1245,6 +1262,23 @@ function Test-M365DSCTargetResource
     return $testTargetResource
 }
 
+function Set-M365DSCAllResourcesDictionary {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        $DscResourceDictionary
+    )
+
+    $Script:AllM365DSCResources = $DscResourceDictionary
+}
+
+function Get-M365DSCAllResourcesDictionary {
+    [CmdletBinding()]
+    param()
+
+    $Script:AllM365DSCResources
+}
+
 <#
 .Description
 This is the main Microsoft365DSC.Reverse function that extracts the DSC configuration from an existing Microsoft 365 Tenant.
@@ -1438,7 +1472,11 @@ function Export-M365DSCConfiguration
 
         [Parameter(ParameterSetName = 'Export')]
         [Switch]
-        $Validate
+        $Validate,
+
+        [Parameter(ParameterSetName = 'Export')]
+        [Switch]
+        $Parallel
     )
 
     $currentStartDateTime = [System.DateTime]::Now
@@ -1552,6 +1590,23 @@ function Export-M365DSCConfiguration
     $data.Add('ConnectionMode', $ConnectionMode)
 
     Add-M365DSCTelemetryEvent -Type 'ExportInitiated' -Data $data
+    if ($null -eq $Script:AllM365DSCResources -and -not $Global:IsTestEnvironment)
+    {
+        $Script:AllM365DSCResources = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new([System.StringComparer]::InvariantCultureIgnoreCase)
+        if ($Script:IsPowerShellCore)
+        {
+            Import-Module -Name 'PSDesiredStateConfiguration' -RequiredVersion 2.0.7 -Prefix 'Pwsh' -Force
+            $resources = Get-PwshDscResource -Module 'Microsoft365Dsc'
+        }
+        else
+        {
+            $resources = Get-DscResource -Module 'Microsoft365Dsc'
+        }
+        foreach ($resource in $resources)
+        {
+            $Script:AllM365DSCResources.Add($resource.Name, $resource)
+        }
+    }
     if ($null -ne $Workloads)
     {
         Write-M365DSCHost -Message "Exporting Microsoft 365 configuration for Workloads: $($Workloads -join ', ')"
@@ -1571,7 +1626,9 @@ function Export-M365DSCConfiguration
             -AccessTokens $AccessTokens `
             -GenerateInfo $GenerateInfo `
             -Filters $Filters `
-            -Validate:$Validate
+            -Validate:$Validate `
+            -Parallel:$Parallel `
+            -ResourceSettings $Script:M365DSCResourceSettings
     }
     elseif ($null -ne $Components)
     {
@@ -1591,7 +1648,9 @@ function Export-M365DSCConfiguration
             -AccessTokens $AccessTokens `
             -GenerateInfo $GenerateInfo `
             -Filters $Filters `
-            -Validate:$Validate
+            -Validate:$Validate `
+            -Parallel:$Parallel `
+            -ResourceSettings $Script:M365DSCResourceSettings
     }
     elseif ($null -ne $Mode)
     {
@@ -1612,7 +1671,9 @@ function Export-M365DSCConfiguration
             -GenerateInfo $GenerateInfo `
             -AllComponents `
             -Filters $Filters `
-            -Validate:$Validate
+            -Validate:$Validate `
+            -Parallel:$Parallel `
+            -ResourceSettings $Script:M365DSCResourceSettings
     }
 
     # Clear the exported resource instances' names Global variable
@@ -1633,27 +1694,6 @@ function Export-M365DSCConfiguration
     $timeTaken = [System.DateTime]::Now.Subtract($currentStartDateTime)
     $data.Add('TotalSeconds',$timeTaken.TotalSeconds)
     Add-M365DSCTelemetryEvent -Type 'ExportCompleted' -Data $data
-}
-
-$Script:M365DSCDependenciesValidated = $false
-$Script:IsPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
-if ($null -eq $Script:M365DSCDependencies)
-{
-    $Script:M365DSCDependencies = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new([System.StringComparer]::OrdinalIgnoreCase)
-    $dependencies = (Import-PowerShellDataFile "$PSScriptRoot/../Dependencies/Manifest.psd1").Dependencies
-    foreach ($dependency in $dependencies)
-    {
-        $Script:M365DSCDependencies.Add($dependency.ModuleName, $dependency)
-    }
-
-    $Script:M365DSCResourceSettings = @{}
-    foreach ($file in (Get-ChildItem -Path "$PSScriptRoot/../DSCResources" -Filter 'settings.json' -Recurse)) {
-        Write-Verbose -Message "Processing settings.json file at path: $($file.FullName)"
-        $jsonContent = [System.IO.File]::ReadAllText($file.FullName) | ConvertFrom-Json
-        $directoryName = Split-Path -Path $file.DirectoryName -Leaf
-        $Script:M365DSCResourceSettings.Add($directoryName, $jsonContent.requiredModules)
-    }
-    $Script:M365DSCValidatedDependencies = [System.Collections.Generic.List[System.String]]::new($Script:M365DSCDependencies.Count)
 }
 
 <#
@@ -1742,12 +1782,13 @@ function Confirm-M365DSCModuleDependency
         return
     }
 
-    $modulesToCheck = $Script:M365DSCResourceSettings[$ModuleName]
+    $modulesToCheck = $Script:M365DSCResourceSettings[$ModuleName.Replace('MSFT_', '')]
     foreach ($module in $modulesToCheck)
     {
-        Write-Verbose -Message "Validating module dependency: $($module)"
+        Write-Verbose -Message "Validating module dependency: $($module)" -Verbose
         Confirm-M365DSCLoadedModule -ModuleName $module
     }
+    Write-Verbose -Message "All dependencies for module '$ModuleName' have been validated." -Verbose
 }
 
 <#
@@ -3899,24 +3940,7 @@ function Get-M365DSCExportContentForResource
 
     $primaryKey = ''
     $ModuleFullName = "MSFT_" + $ResourceName
-    if ($null -eq $Script:AllM365DscResources -and -not $Global:IsTestEnvironment)
-    {
-        $Script:AllM365DscResources = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new([System.StringComparer]::InvariantCultureIgnoreCase)
-        if ($Script:IsPowerShellCore)
-        {
-            $resources = Get-PwshDscResource -Module 'Microsoft365Dsc'
-        }
-        else
-        {
-            $resources = Get-DscResource -Module 'Microsoft365Dsc'
-        }
-        foreach ($resource in $resources)
-        {
-            $Script:AllM365DscResources.Add($resource.Name, $resource)
-        }
-    }
-
-    $Resource = $Script:AllM365DscResources.$ResourceName
+    $Resource = $Script:AllM365DSCResources.$ResourceName
     $Keys = $Resource.Properties.Where({ $_.IsMandatory }) | `
         Select-Object -ExpandProperty Name
     if ($null -eq $keys)
@@ -5322,6 +5346,7 @@ Export-ModuleMember -Function @(
     'Export-M365DSCConfiguration',
     'Get-AllSPOPackages',
     'Get-M365DSCAllResources',
+    'Get-M365DSCAllResourcesDictionary',
     'Get-M365DSCAPIEndpoint'
     'Get-M365DSCAuthenticationMode',
     'Get-M365DSCComponentsWithMostSecureAuthenticationType',
@@ -5345,6 +5370,7 @@ Export-ModuleMember -Function @(
     'Remove-M365DSCAuthenticationParameter',
     'Remove-NullEntriesFromHashtable',
     'Split-ArrayByParts',
+    'Set-M365DSCAllResourcesDictionary',
     'Sync-M365DSCParameter',
     'Test-M365DSCDependenciesForNewVersions',
     'Test-M365DSCModuleValidity',

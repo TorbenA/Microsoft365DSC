@@ -4,6 +4,8 @@
 
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
+* M365DSCUtil
+  * Added parameter `-Parallel` to `Export-M365DSCConfiguration`.
 * MISC
   * Improve module import speed by up to 60%.
   * Other performance improvements to speed up resource processing.
