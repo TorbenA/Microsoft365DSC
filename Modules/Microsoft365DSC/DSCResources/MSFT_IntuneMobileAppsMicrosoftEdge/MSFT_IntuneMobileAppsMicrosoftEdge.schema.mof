@@ -29,7 +29,7 @@ class MSFT_IntuneMobileAppsMicrosoftEdge : OMI_BaseResource
 {
     [Key, Description("The admin provided or imported title of the app.")] String DisplayName;
     [Write, Description("The unique identifier for an entity. Read-only.")] String Id;
-    [Write, Description("The channel to install on target devices. The possible values are dev, beta, and stable. By default, this property is set to dev. Possible values are: dev, beta, stable, unknownFutureValue."), ValueMap{"dev","beta","stable","unknownFutureValue"}, Values{"dev","beta","stable","unknownFutureValue"}] String Channel;
+    [Write, Description("The channel to install on target devices. Cannot be updated after creation. Instead, a new policy must be created. The possible values are dev, beta, and stable. By default, this property is set to dev. Possible values are: dev, beta, stable, unknownFutureValue."), ValueMap{"dev","beta","stable","unknownFutureValue"}, Values{"dev","beta","stable","unknownFutureValue"}] String Channel;
     [Write, Description("The language locale to use when the Edge app displays text to the user. Only applicable for the 'windows' target platform.")] String DisplayLanguageLocale;
     [Write, Description("The description of the app.")] String Description;
     [Write, Description("The developer of the app.")] String Developer;

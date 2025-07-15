@@ -155,15 +155,8 @@ function Get-TargetResource
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaDeviceAppManagementMobileApp `
-                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                        -ExpandProperty 'categories' `
-                        -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -in @(
-                                '#microsoft.graph.windowsMicrosoftEdgeApp'
-                                '#microsoft.graph.macOSMicrosoftEdgeApp'
-                            )
-                        }
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and (isof('microsoft.graph.windowsMicrosoftEdgeApp') or isof('microsoft.graph.macOSMicrosoftEdgeApp'))" `
+                        -ErrorAction SilentlyContinue
                 }
             }
             #endregion
@@ -172,6 +165,8 @@ function Get-TargetResource
                 Write-Verbose -Message "Could not find an Intune Mobile Apps Microsoft Edge with DisplayName {$DisplayName}."
                 return $nullResult
             }
+
+            $getValue = Get-MgBetadeviceAppManagementMobileApp -MobileAppId $getValue.Id -ExpandProperty 'categories'
         }
         else
         {
@@ -387,17 +382,8 @@ function Set-TargetResource
 
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-    if ($BoundParameters.ContainsKey('LargeIcon'))
-    {
-        $complexLargeIcon = @{
-            type = $BoundParameters.LargeIcon.type
-            value = [System.Convert]::FromBase64String($BoundParameters.LargeIcon.value)
-        }
-        $BoundParameters.Remove('LargeIcon') | Out-Null
-        $BoundParameters.Add('LargeIcon', $complexLargeIcon)
-    }
-
     $BoundParameters.Remove('Categories') | Out-Null
+    $BoundParameters.Remove('Channel') | Out-Null
     $BoundParameters.Remove('TargetPlatform') | Out-Null
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
@@ -419,7 +405,7 @@ function Set-TargetResource
         }
         #region resource generator code
         $createParameters.Add("@odata.type", "#microsoft.graph.$($TargetPlatform)MicrosoftEdgeApp")
-        $policy = New-MgBetaDeviceAppManagementMobileApp -BodyParameter $createParameters
+        $policy = Invoke-MgGraphRequest -Method POST -Uri "/beta/deviceAppManagement/mobileApps" -Body $($createParameters | ConvertTo-Json -Depth 10)
 
         if ($PSBoundParameters.ContainsKey('Categories'))
         {
@@ -455,10 +441,8 @@ function Set-TargetResource
         }
 
         #region resource generator code
-        $UpdateParameters.Add("@odata.type", "#microsoft.graph.$($TargetPlatform)MicrosoftEdgeApp")
-        Update-MgBetaDeviceAppManagementMobileApp `
-            -MobileAppId $currentInstance.Id `
-            -BodyParameter $UpdateParameters
+        $updateParameters.Add("@odata.type", "#microsoft.graph.$($TargetPlatform)MicrosoftEdgeApp")
+        Invoke-MgGraphRequest -Method PATCH -Uri "/beta/deviceAppManagement/mobileApps/$($currentInstance.Id)" -Body $($updateParameters | ConvertTo-Json -Depth 10)
 
         if ($PSBoundParameters.ContainsKey('Categories'))
         {
@@ -631,6 +615,7 @@ function Test-TargetResource
     }
 
     $ValuesToCheck.Remove('Id') | Out-Null
+    $ValuesToCheck.Remove('Channel') | Out-Null
     $ValuesToCheck.Remove('TargetPlatform') | Out-Null
     $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
 
