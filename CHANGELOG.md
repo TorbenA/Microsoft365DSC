@@ -6,8 +6,6 @@
   * Changed the update logic to handle empty parameters.
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.50.
-* AAD_GROUP, AADUser, O365Group, AADAdministrativeUnit
-  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual)
 
 # 1.25.709.1
 
