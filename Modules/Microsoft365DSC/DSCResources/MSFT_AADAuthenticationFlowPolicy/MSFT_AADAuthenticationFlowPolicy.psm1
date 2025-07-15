@@ -56,6 +56,7 @@ function Get-TargetResource
     )
 
     Write-Verbose -Message 'Getting configuration of Authentication Flow Policy'
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
@@ -171,6 +172,7 @@ function Set-TargetResource
     )
 
     Write-Verbose -Message 'Setting configuration of Authentication flow policy.'
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
@@ -266,7 +268,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $ResourceName
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

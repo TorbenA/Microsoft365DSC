@@ -270,9 +270,10 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of AzureAD Conditional Access Policy for {$DisplayName}"
+
     if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
     {
-        Write-Verbose -Message 'Getting configuration of AzureAD Conditional Access Policy'
         $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
@@ -1039,7 +1040,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    Write-Verbose -Message 'Setting configuration of AzureAD Conditional Access Policy'
+
+    Write-Verbose -Message "Setting configuration of AzureAD Conditional Access Policy for {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -2260,7 +2262,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $ResourceName
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
