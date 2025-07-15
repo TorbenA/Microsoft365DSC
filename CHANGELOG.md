@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneMobileAppsStoreApp
+  * Initial release.
+
 # 1.25.716.1
 
 * AADAdministrativeUnit
