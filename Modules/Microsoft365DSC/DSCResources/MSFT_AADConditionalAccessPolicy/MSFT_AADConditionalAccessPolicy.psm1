@@ -118,7 +118,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String[]]
-        [ValidateSet('','android', 'iOS', 'windows', 'windowsPhone', 'macOS', 'linux', 'all', 'unknownFutureValue')]
         $ExcludePlatforms,
 
         #ConditionalAccessLocationCondition
