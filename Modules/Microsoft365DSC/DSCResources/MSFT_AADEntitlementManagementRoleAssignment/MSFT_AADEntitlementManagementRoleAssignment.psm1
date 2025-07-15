@@ -62,6 +62,8 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of AzureAD Entitlement Management Role Assignment for Principal {$Principal}"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Id -ne $Id)
@@ -119,7 +121,7 @@ function Get-TargetResource
         }
         else
         {
-            $getValue = $Script:exportedInstance            
+            $getValue = $Script:exportedInstance
             $user = Get-MgUser -UserId $Principal
         }
 
@@ -222,6 +224,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Getting configuration of AzureAD Entitlement Management Role Assignment for Principal {$Principal}"
 
     try
     {
@@ -351,7 +355,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $ResourceName
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
