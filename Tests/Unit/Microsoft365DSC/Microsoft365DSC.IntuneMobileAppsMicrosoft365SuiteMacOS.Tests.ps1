@@ -48,7 +48,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Update-DeviceAppManagementPolicyAssignment -MockWith {
             }
 
-            Mock -CommandName New-MgBetaDeviceAppManagementMobileApp -MockWith {
+            Mock -CommandName Invoke-MgGraphRequest -MockWith {
                 return @{
                     AdditionalProperties = @{
                         '@odata.type' = "#microsoft.graph.macOSOfficeSuiteApp"
@@ -186,7 +186,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
             It 'Should Create the group from the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName New-MgBetaDeviceAppManagementMobileApp -Exactly 1
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1
             }
         }
 
@@ -318,7 +318,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName Update-MgBetaDeviceAppManagementMobileApp -Exactly 1
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1
             }
         }
 
