@@ -22,7 +22,6 @@ function New-M365DscUnitTestHelper
         [System.String]
         $GenericStubModule
     )
-
     $repoRoot = Join-Path -Path $PSScriptRoot -ChildPath "..\..\" -Resolve
     $moduleRoot = Join-Path -Path $repoRoot -ChildPath "Modules\Microsoft365DSC"
 
@@ -45,6 +44,8 @@ function New-M365DscUnitTestHelper
         $moduleToLoad = Join-Path -Path $moduleRoot -ChildPath $modulePath
     }
 
+    $Global:SkipModuleValidation = $true
+
     Import-Module -Name $moduleToLoad -Global
 
     $initScript = @"
@@ -52,7 +53,6 @@ function New-M365DscUnitTestHelper
             Import-Module -Name "$StubModule" -WarningAction SilentlyContinue -Global
             Import-Module -Name "$GenericStubModule" -WarningAction SilentlyContinue
             Import-Module -Name "$moduleToLoad"
-
 "@
 
     return @{
@@ -62,9 +62,7 @@ function New-M365DscUnitTestHelper
         InitializeScript = [ScriptBlock]::Create($initScript)
         RepoRoot = $repoRoot
         CleanupScript = [ScriptBlock]::Create(@"
-
             `$global:DSCMachineStatus = 0
-
 "@)
     }
 }

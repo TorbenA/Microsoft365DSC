@@ -25,7 +25,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             $Credential = New-Object System.Management.Automation.PSCredential ('tenantadmin@mydomain.com', $secpasswd)
 
 
-            Mock -CommandName Confirm-M365DSCDependencies -MockWith {
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
             }
 
             Mock -CommandName Get-MSCloudLoginConnectionProfile -MockWith {
@@ -97,9 +97,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
 
             Mock -CommandName Remove-MgGroupMemberDirectoryObjectByRef -MockWith {
-            }
-
-            Mock -CommandName Remove-MgBetaDirectoryRoleMemberDirectoryObjectByRef -MockWith {
             }
 
             Mock -CommandName Invoke-MgGraphRequest -MockWith {

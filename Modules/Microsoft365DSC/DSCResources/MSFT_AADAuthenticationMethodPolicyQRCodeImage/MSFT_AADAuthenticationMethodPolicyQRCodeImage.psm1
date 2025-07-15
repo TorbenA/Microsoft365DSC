@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADAuthenticationMethodPolicyQRCodeImage'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -59,6 +61,8 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Getting the Azure AD Authentication Method Policy QR Code with Id {$Id}"
 
     try
     {
@@ -264,6 +268,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting the Azure AD Authentication Method Policy QR Code with Id {$Id}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -576,3 +582,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

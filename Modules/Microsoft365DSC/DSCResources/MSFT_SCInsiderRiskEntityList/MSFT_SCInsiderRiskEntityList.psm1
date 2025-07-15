@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCInsiderRiskEntityList'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -131,13 +133,9 @@ function Get-TargetResource
 
             $nullResult = $PSBoundParameters
             $nullResult.Ensure = 'Absent'
-
-            $instance = Get-InsiderRiskEntityList -Identity $Name -ErrorAction Stop
         }
-        else
-        {
-            $instance = $Script:exportedInstance
-        }
+        
+        $instance = Get-InsiderRiskEntityList -Identity $Name -ErrorAction Stop
 
         if ($null -eq $instance)
         {
@@ -1223,3 +1221,4 @@ function Set-M365DSCSCInsiderRiskExclusionGroup
 }
 
 Export-ModuleMember -Function *-TargetResource
+

@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceConfigurationPolicyMacOS'
+
 # More information on the properties can be found here:
 # - https://learn.microsoft.com/en-us/graph/api/intune-deviceconfig-macosgeneraldeviceconfiguration-create?view=graph-rest-beta
 # - https://learn.microsoft.com/en-us/graph/api/resources/intune-deviceconfig-applistitem?view=graph-rest-beta
@@ -332,7 +334,7 @@ function Get-TargetResource
             $getValue = $null
             if (-not [string]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $Id -ErrorAction SilentlyContinue
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter "Id eq '$Id'" -All -ErrorAction SilentlyContinue
             }
 
             #region resource generator code
@@ -1434,3 +1436,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

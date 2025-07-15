@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceConfigurationDefenderForEndpointOnboardingPolicyWindows10'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -116,7 +118,7 @@ function Get-TargetResource
             #region resource generator code
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $Id -ErrorAction SilentlyContinue
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "Id eq '$Id'" -ErrorAction SilentlyContinue
             }
 
             if ($null -eq $getValue)
@@ -692,3 +694,4 @@ function Export-TargetResource
     }
 }
 Export-ModuleMember -Function *-TargetResource
+

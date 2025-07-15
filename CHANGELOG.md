@@ -2,8 +2,18 @@
 
 # UNRELEASED
 
+* AADAdministrativeUnit
+  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual). 
+* AADGroup
+  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
+* AADUser
+  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
+* O365Group
+  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
+* MISC
+  * Added logging to various resource to improve troubleshooting
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.50.
 

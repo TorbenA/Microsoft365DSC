@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceConfigurationAdministrativeTemplatePolicyWindows10'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -25,6 +27,10 @@ function Get-TargetResource
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $DefinitionValues,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -240,6 +246,7 @@ function Get-TargetResource
             #PolicyConfigurationIngestionType = $enumPolicyConfigurationIngestionType
             DefinitionValues      = $complexDefinitionValues
             Id                    = $getValue.Id
+            RoleScopeTagIds       = $getValue.RoleScopeTagIds
             Ensure                = 'Present'
             Credential            = $Credential
             ApplicationId         = $ApplicationId
@@ -311,6 +318,10 @@ function Set-TargetResource
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $DefinitionValues,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -632,6 +643,10 @@ function Test-TargetResource
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $DefinitionValues,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -993,3 +1008,4 @@ function Update-DeviceConfigurationGroupPolicyDefinitionValue
 }
 
 Export-ModuleMember -Function *-TargetResource
+

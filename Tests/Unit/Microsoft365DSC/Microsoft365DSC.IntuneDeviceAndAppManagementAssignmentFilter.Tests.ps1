@@ -94,6 +94,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return @{
                         Description = 'Test'
                         DisplayName = 'Test Device Filter'
+                        AssignmentFilterManagementType = 'devices'
                         Platform    = 'windows10AndLater'
                         Rule        = "(device.manufacturer -ne `"test`")"; #drift
                     }
@@ -101,7 +102,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
 
             It 'Should return Present from the Get method' {
-                    (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
+                (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
             }
 
             It 'Should return false from the Test method' {
@@ -129,6 +130,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return @{
                         Description = 'Test'
                         DisplayName = 'Test Device Filter'
+                        AssignmentFilterManagementType = 'devices'
                         Platform    = 'windows10AndLater'
                         Rule        = "(device.manufacturer -ne `"bibi`")"
                     }
@@ -155,6 +157,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return @{
                         Description = 'Test'
                         DisplayName = 'Test Device Filter'
+                        AssignmentFilterManagementType = 'devices'
                         Platform    = 'windows10AndLater'
                         Rule        = "(device.manufacturer -ne `"bibi`")"
                     }
@@ -187,6 +190,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return @{
                         Description = 'Test'
                         DisplayName = 'Test Device Filter'
+                        AssignmentFilterManagementType = 'devices'
                         Platform    = 'windows10AndLater'
                         Rule        = "(device.manufacturer -ne `"bibi`")"
                     }
@@ -199,7 +203,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
         }
     }
-
 }
 
 Invoke-Command -ScriptBlock $Global:DscHelper.CleanupScript -NoNewScope

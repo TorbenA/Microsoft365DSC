@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceConfigurationPolicyAndroidDeviceAdministrator'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -291,7 +293,7 @@ function Get-TargetResource
             $getValue = $null
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $Id -ErrorAction SilentlyContinue
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "Id eq '$Id'" -ErrorAction SilentlyContinue
             }
 
             if ($null -eq $getValue)
@@ -1522,3 +1524,4 @@ function Get-M365DSCAdditionalProperties
 }
 
 Export-ModuleMember -Function *-TargetResource
+

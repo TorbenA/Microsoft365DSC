@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneWifiConfigurationPolicyAndroidOpenSourceProject'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -116,7 +118,7 @@ function Get-TargetResource
             $getValue = $null
             if (-not [string]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $Id -ErrorAction SilentlyContinue
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "Id eq '$Id'" -ErrorAction SilentlyContinue
             }
 
             #region resource generator code
@@ -794,3 +796,4 @@ function Get-M365DSCAdditionalProperties
 }
 
 Export-ModuleMember -Function *-TargetResource
+
