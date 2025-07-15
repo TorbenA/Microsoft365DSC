@@ -31,7 +31,6 @@ function Get-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
-
         #endregion
 
         [Parameter()]
@@ -67,6 +66,8 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Getting the Azure AD Authentication Method Policy External with Id {$DisplayName}"
 
     try
     {
@@ -302,6 +303,8 @@ function Set-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Setting the Azure AD Authentication Method Policy External with Id {$DisplayName}"
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -434,7 +437,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $ResourceName
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
