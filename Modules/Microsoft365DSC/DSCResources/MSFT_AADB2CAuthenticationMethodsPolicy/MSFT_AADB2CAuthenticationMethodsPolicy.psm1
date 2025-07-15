@@ -52,6 +52,8 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting the Azure AD B2C Authentication Methods Policy"
+
     New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters | Out-Null
 
@@ -157,6 +159,8 @@ function Set-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Setting the Azure AD B2C Authentication Methods Policy"
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -237,7 +241,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $ResourceName
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

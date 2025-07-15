@@ -84,6 +84,9 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Getting configuration for Administrative Unit '$DisplayName'"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
@@ -353,6 +356,9 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting configuration for Administrative Unit '$DisplayName'"
+
     try
     {
         $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
@@ -881,7 +887,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $ResourceName `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
                                          -ExcludedProperties @('Visibility')
     return $result
 }
