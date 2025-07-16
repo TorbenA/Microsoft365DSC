@@ -1,4 +1,4 @@
-[ClassVersion("1.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_DeviceManagementMobileAppAssignment
 {
     [Write, Description("The type of the target assignment."), ValueMap{"#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget", "#microsoft.graph.mobileAppAssignment"}, Values{"#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget", "#microsoft.graph.mobileAppAssignment"}] String dataType;
@@ -65,7 +65,7 @@ class MSFT_IntuneMobileAppsStoreApp : OMI_BaseResource
     [Write, Description("The unique identifier for an entity. Read-only.")] String Id;
     [Key, Description("The admin provided or imported title of the app.")] String DisplayName;
     [Write, Description("The architecture for which this app can run on. Only applicable for the 'iOS' TargetPlatform."), EmbeddedInstance("MSFT_MicrosoftGraphiosDeviceType")] String ApplicableDeviceType;
-    [Write, Description("The Apple App Store URL")] String AppStoreUrl;
+    [Write, Description("The App Store URL. Cannot be changed after creation.")] String AppStoreUrl;
     [Write, Description("The Identity Name. Only applicable for the 'iOS' TargetPlatform.")] String BundleId;
     [Write, Description("The value for the minimum applicable operating system."), EmbeddedInstance("MSFT_MicrosoftGraphMinimumOperatingSystem")] String MinimumSupportedOperatingSystem;
     [Write, Description("The description of the app.")] String Description;
@@ -77,7 +77,6 @@ class MSFT_IntuneMobileAppsStoreApp : OMI_BaseResource
     [Write, Description("The owner of the app.")] String Owner;
     [Write, Description("The privacy statement Url.")] String PrivacyInformationUrl;
     [Write, Description("The publisher of the app.")] String Publisher;
-    [Write, Description("The publishing state for the app. The app cannot be assigned unless the app is published. Possible values are: notPublished, processing, published."), ValueMap{"notPublished","processing","published"}, Values{"notPublished","processing","published"}] String PublishingState;
     [Write, Description("List of scope tag ids for this mobile app.")] String RoleScopeTagIds[];
     [Required, Description("The target platform of the mobile app."), ValueMap{"android","ios"}, Values{"android","ios"}] String TargetPlatform;
     [Write, Description("The list of categories for this app."), EmbeddedInstance("MSFT_DeviceManagementMobileAppCategory")] String Categories[];

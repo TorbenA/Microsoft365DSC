@@ -161,7 +161,7 @@ function Get-TargetResource
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaDeviceAppManagementMobileApp `
-                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and (isof(microsoft.graph.androidStoreApp) or isof(microsoft.graph.iosStoreApp))" `
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and (isof('microsoft.graph.androidStoreApp') or isof('microsoft.graph.iosStoreApp'))" `
                         -ErrorAction SilentlyContinue
                 }
             }
@@ -448,7 +448,6 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
 
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
     $boundParameters.Remove('Categories') | Out-Null
     $boundParameters.Remove('TargetPlatform') | Out-Null
 
@@ -490,6 +489,7 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Intune Mobile Apps Store App with Id {$($currentInstance.Id)}"
+        $boundParameters.Remove('AppStoreUrl') | Out-Null
         $boundParameters.Remove("Assignments") | Out-Null
 
         $updateParameters = ([Hashtable]$boundParameters).Clone()
@@ -713,6 +713,7 @@ function Test-TargetResource
     }
 
     $ValuesToCheck.Remove('Id') | Out-Null
+    $ValuesToCheck.Remove('AppStoreUrl') | Out-Null
     $ValuesToCheck.Remove('TargetPlatform') | Out-Null
     $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
 
