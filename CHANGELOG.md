@@ -1,11 +1,43 @@
 # Change log for Microsoft365DSC
 
+# 1.25.716.1
+
+* AADAdministrativeUnit
+  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
+* AADGroup
+  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
+* AADUser
+  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
+* AADConditionalAccessPolicy
+  * Fixed issue with setting empty ExcludePlatform in Target state when current state contains a value
+    FIXES [#6298](https://github.com/microsoft/Microsoft365DSC/issues/6298)
+* EXOTransportRule
+  * Changed the update logic to handle empty parameters.
+* IntuneMobileAppsDefenderForEndpointMacOS
+  * Initial release.
+* IntuneMobileAppsMicrosoft365SuiteMacOS
+  * Initial release.
+* IntuneMobileAppsMicrosoftEdge
+  * Initial release.
+* O365Group
+  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
+* MISC
+  * Added logging to various resource to improve troubleshooting
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.50.
+
 # 1.25.709.1
 
 * IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10SettingCatalog
   * Shortened resource name to `IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10V2`
     because of a path too long exception in Azure Automation.
     FIXES [#6289](https://github.com/microsoft/Microsoft365DSC/issues/6289)
+* SCAutoSensitivityLabelRule
+  * Fix logic to test actions with apostrophes in the name.
+* SCDeviceConfigurationRule
+  * Changes in logic retrieving existing rule associated policy.
+* SCDLPComplianceRule
+  * Fix logic to test actions with apostrophes in the name.
 * M365DSCUtil
   * Fixed an issue where `Uninstall-M365DSCOutdatedDependencies` would throw an error during
     checking of the Microsoft.Graph.Authentication module.
