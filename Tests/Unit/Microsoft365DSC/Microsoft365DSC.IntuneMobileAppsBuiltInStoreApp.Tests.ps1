@@ -83,6 +83,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return @{
                     AdditionalProperties = @{
                         '@odata.type' = "#microsoft.graph.managedAndroidStoreApp"
+                        packageId = "FakeStringValue"
+                        appStoreUrl = "FakeStringValue"
                     }
                     Categories = @(
                         @{
@@ -132,6 +134,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The IntuneMobileAppsBuiltInStoreApp should exist but it DOES NOT" -Fixture {
             BeforeAll {
                 $testParams = @{
+                    AppStoreUrl = "FakeStringValue"
                     TargetPlatform = "Android"
                     Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
                         Id = "FakeStringValue"
@@ -149,6 +152,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     } -ClientOnly)
                     Notes = "FakeStringValue"
                     Owner = "FakeStringValue"
+                    PackageId = "FakeStringValue"
                     PrivacyInformationUrl = "FakeStringValue"
                     Publisher = "FakeStringValue"
                     RoleScopeTagIds = @("FakeStringValue")
@@ -175,6 +179,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The IntuneMobileAppsBuiltInStoreApp exists but it SHOULD NOT" -Fixture {
             BeforeAll {
                 $testParams = @{
+                    AppStoreUrl = "FakeStringValue"
                     TargetPlatform = "Android"
                     Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
                         Id = "FakeStringValue"
@@ -192,6 +197,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     } -ClientOnly)
                     Notes = "FakeStringValue"
                     Owner = "FakeStringValue"
+                    PackageId = "FakeStringValue"
                     PrivacyInformationUrl = "FakeStringValue"
                     Publisher = "FakeStringValue"
                     RoleScopeTagIds = @("FakeStringValue")
@@ -217,6 +223,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The IntuneMobileAppsBuiltInStoreApp Exists and Values are already in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
+                    AppStoreUrl = "FakeStringValue"
                     TargetPlatform = "Android"
                     Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
                         Id = "FakeStringValue"
@@ -234,6 +241,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     } -ClientOnly)
                     Notes = "FakeStringValue"
                     Owner = "FakeStringValue"
+                    PackageId = "FakeStringValue"
                     PrivacyInformationUrl = "FakeStringValue"
                     Publisher = "FakeStringValue"
                     RoleScopeTagIds = @("FakeStringValue")
@@ -250,6 +258,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The IntuneMobileAppsBuiltInStoreApp exists and values are NOT in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
+                    AppStoreUrl = "FakeStringValue"
                     TargetPlatform = "Android"
                     Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
                         Id = "FakeStringValue"
@@ -267,6 +276,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     } -ClientOnly)
                     Notes = "FakeStringValue"
                     Owner = "FakeStringValue"
+                    PackageId = "FakeStringValue"
                     PrivacyInformationUrl = "FakeStringValue"
                     Publisher = "FakeStringValue"
                     RoleScopeTagIds = @("FakeStringValue")
