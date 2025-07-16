@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneMobileAppsBuiltInStoreApp'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -647,7 +649,7 @@ function Export-TargetResource
         $baseFilter = "isof('microsoft.graph.managedIOSStoreApp') or isof('microsoft.graph.managedAndroidStoreApp')"
         if (-not [System.String]::IsNullOrEmpty($Filter))
         {
-            $Filter += " and ($baseFilter)"
+            $Filter = "($Filter) and ($baseFilter)"
         }
         else
         {
