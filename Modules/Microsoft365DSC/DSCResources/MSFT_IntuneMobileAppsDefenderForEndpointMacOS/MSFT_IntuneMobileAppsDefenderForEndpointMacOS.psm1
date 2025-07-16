@@ -629,14 +629,19 @@ function Export-TargetResource
     try
     {
         #region resource generator code
+        $baseFilter = "isof('microsoft.graph.macOSMicrosoftDefenderApp')"
+        if (-not [String]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($Filter) and ($baseFilter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
+        }
         [array]$getValue = Get-MgBetaDeviceAppManagementMobileApp `
             -Filter $Filter `
             -All `
-            -ExpandProperty 'categories' `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.macOSMicrosoftDefenderApp'
-            }
+            -ErrorAction Stop
         #endregion
 
         $i = 1
