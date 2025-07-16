@@ -15,6 +15,8 @@
   * Changed the update logic to handle empty parameters.
 * IntuneMobileAppsDefenderForEndpointMacOS
   * Initial release.
+* IntuneMobileAppsMicrosoft365SuiteMacOS
+  * Initial release.
 * IntuneMobileAppsMicrosoftEdge
   * Initial release.
 * O365Group
