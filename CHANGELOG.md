@@ -1,6 +1,7 @@
 # Change log for Microsoft365DSC
 
 # UNRELEASED
+
 * AADAdministrativeUnit
   * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual). 
 * AADGroup
@@ -12,7 +13,7 @@
     FIXES [#6298](https://github.com/microsoft/Microsoft365DSC/issues/6298)
   * Fixed incorrect ServicePrincipalRiskLevels parameter type
     FIXES [#6325](https://github.com/microsoft/Microsoft365DSC/issues/6325)
-  * Added explample for workload identity and dynamic filter based on CustomSecurityAttribute
+  * Added example for workload identity and dynamic filter based on CustomSecurityAttribute
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
 * IntuneMobileAppsDefenderForEndpointMacOS
