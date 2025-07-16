@@ -1596,6 +1596,10 @@ function Set-TargetResource
                     $conditions.platforms.Add('excludePlatforms', @())
                     $conditions.platforms.excludePlatforms = @() + $ExcludePlatforms
                 }
+                else
+                {
+                    $conditions.platforms.Add('excludePlatforms', @())
+                }
                 #no translation or conversion needed
             }
             else
