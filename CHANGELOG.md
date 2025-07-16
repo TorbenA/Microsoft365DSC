@@ -17,6 +17,8 @@
   * Initial release.
 * IntuneMobileAppsMicrosoft365SuiteMacOS
   * Initial release.
+* IntuneMobileAppsMicrosoftEdge
+  * Initial release.
 * O365Group
   * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
 * MISC
