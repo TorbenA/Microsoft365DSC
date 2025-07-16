@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneMobileAppsMicrosoftEdge'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -692,17 +694,19 @@ function Export-TargetResource
     try
     {
         #region resource generator code
+        $baseFilter = "isof('microsoft.graph.macOSMicrosoftEdgeApp') or isof('microsoft.graph.windowsMicrosoftEdgeApp')"
+        if (-not [String]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($Filter) and ($baseFilter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
+        }
         [array]$getValue = Get-MgBetaDeviceAppManagementMobileApp `
             -Filter $Filter `
             -All `
-            -ExpandProperty 'categories' `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -in @(
-                    '#microsoft.graph.windowsMicrosoftEdgeApp'
-                    '#microsoft.graph.macOSMicrosoftEdgeApp'
-                )
-            }
+            -ErrorAction Stop
         #endregion
 
         $i = 1
