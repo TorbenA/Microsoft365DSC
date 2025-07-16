@@ -34558,31 +34558,31 @@ function Get-MgBetaDirectorySettingTemplate
 {
     [cmdletbinding()]
     param(
-        [parameter()]
+        [Parameter()]
         [system.string[]]
         $ExpandProperty,
 
-        [parameter()]
+        [Parameter()]
         [system.string[]]
         $Property,
 
-        [parameter()]
+        [Parameter()]
         [system.string]
         $Filter,
 
-        [parameter()]
+        [Parameter()]
         [system.string]
         $Search,
 
-        [parameter()]
+        [Parameter()]
         [system.int32]
         $Skip,
 
-        [parameter()]
+        [Parameter()]
         [system.string[]]
         $Sort,
 
-        [parameter()]
+        [Parameter()]
         [system.int32]
         $Top,
 
@@ -34590,39 +34590,39 @@ function Get-MgBetaDirectorySettingTemplate
         [System.Management.Automation.SwitchParameter]
         $Break,
 
-        [parameter()]
+        [Parameter()]
         [system.string]
         $ResponseHeadersVariable,
 
-        [parameter()]
+        [Parameter()]
         [psobject]
         $Headers,
 
-        [parameter()]
+        [Parameter()]
         [psobject]
         $HttpPipelinePrepend,
 
-        [parameter()]
-        [psobject]
+        [Parameter()]
+        [system.Uri]
         $Proxy,
 
-        [parameter()]
+        [Parameter()]
         [System.Management.Automation.pscredential]
         $ProxyCredential,
 
-        [parameter()]
+        [Parameter()]
         [System.Management.Automation.SwitchParameter]
         $ProxyUseDefaultCredentials,
 
-        [parameter()]
+        [Parameter()]
         [system.int32]
         $PageSize,
 
-        [parameter[]]
+        [Parameter[]]
         [System.Management.Automation.SwitchParameter]
         $All,
 
-        [parameter()]
+        [Parameter()]
         [system.string]
         $CountVariable
     )
