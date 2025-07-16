@@ -1,9 +1,9 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.25.716.1
 
 * AADAdministrativeUnit
-  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual). 
+  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
 * AADGroup
   * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
 * AADUser
