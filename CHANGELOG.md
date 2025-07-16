@@ -1,10 +1,11 @@
 # Change log for Microsoft365DSC
 
 # UNRELEASED
-
 * AADConditionalAccessPolicy
   * Fixed issue with setting empty ExcludePlatform in Target state when current state contains a value
     FIXES [#6298](https://github.com/microsoft/Microsoft365DSC/issues/6298)
+  * Fixed incorrect ServicePrincipalRiskLevels parameter type
+    FIXES [#6325](https://github.com/microsoft/Microsoft365DSC/issues/6325)
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
 * MISC
