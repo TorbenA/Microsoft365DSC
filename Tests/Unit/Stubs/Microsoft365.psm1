@@ -34554,6 +34554,79 @@ function Get-MgBetaDirectorySetting
         $HttpPipelineAppend
     )
 }
+function Get-MgBetaDirectorySettingTemplate
+{
+    [cmdletbinding()]
+    param(
+        [parameter()]
+        [system.string[]]
+        $ExpandProperty,
+
+        [parameter()]
+        [system.string[]]
+        $Property,
+
+        [parameter()]
+        [system.string]
+        $Filter,
+
+        [parameter()]
+        [system.string]
+        $Search,
+
+        [parameter()]
+        [system.int32]
+        $Skip,
+
+        [parameter()]
+        [system.string[]]
+        $Sort,
+
+        [parameter()]
+        [system.int32]
+        $Top,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Break,
+
+        [parameter()]
+        [system.string]
+        $ResponseHeadersVariable,
+
+        [parameter()]
+        [psobject]
+        $Headers,
+
+        [parameter()]
+        [psobject]
+        $HttpPipelinePrepend,
+
+        [parameter()]
+        [psobject]
+        $Proxy,
+
+        [parameter()]
+        [System.Management.Automation.pscredential]
+        $ProxyCredential,
+
+        [parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ProxyUseDefaultCredentials,
+
+        [parameter()]
+        [system.int32]
+        $PageSize,
+
+        [parameter[]]
+        [System.Management.Automation.SwitchParameter]
+        $All,
+
+        [parameter()]
+        [system.string]
+        $CountVariable
+    )
+}
 function Get-MgBetaDomain
 {
     [CmdletBinding()]
