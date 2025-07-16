@@ -13,6 +13,8 @@
     FIXES [#6298](https://github.com/microsoft/Microsoft365DSC/issues/6298)
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
+* IntuneMobileAppsDefenderForEndpointMacOS
+  * Initial release.
 * IntuneMobileAppsMicrosoft365SuiteMacOS
   * Initial release.
 * O365Group
