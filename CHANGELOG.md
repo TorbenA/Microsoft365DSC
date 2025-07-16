@@ -6,6 +6,7 @@
     FIXES [#6298](https://github.com/microsoft/Microsoft365DSC/issues/6298)
   * Fixed incorrect ServicePrincipalRiskLevels parameter type
     FIXES [#6325](https://github.com/microsoft/Microsoft365DSC/issues/6325)
+  * Added explample for workload identity and dynamic filter based on CustomSecurityAttribute
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
 * MISC
