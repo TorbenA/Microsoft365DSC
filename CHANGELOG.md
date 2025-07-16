@@ -15,6 +15,12 @@
   * Added explample for workload identity and dynamic filter based on CustomSecurityAttribute
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
+* IntuneMobileAppsDefenderForEndpointMacOS
+  * Initial release.
+* IntuneMobileAppsMicrosoft365SuiteMacOS
+  * Initial release.
+* IntuneMobileAppsMicrosoftEdge
+  * Initial release.
 * O365Group
   * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
 * MISC
