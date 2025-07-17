@@ -10,6 +10,22 @@ class MSFT_DeviceManagementMobileAppAssignment
     [Write, Description("Possible values for the install intent chosen by the admin."), ValueMap{"available", "required", "uninstall", "availableWithoutEnrollment"}, Values{"available", "required", "uninstall", "availableWithoutEnrollment"}] String intent;
 };
 
+[ClassVersion("1.0.0.0")]
+class MSFT_DeviceManagementWinGetMobileAppAssignmentSettingsRestartSettings
+{
+    [Write, Description("The number of minutes to wait before restarting the device after an app installation.")] SInt32 countdownDisplayBeforeRestartInMinutes;
+    [Write, Description("The number of minutes before the restart time to display the countdown dialog for pending restarts.")] SInt32 gracePeriodInMinutes;
+    [Write, Description("The number of minutes to snooze the restart notification dialog when the snooze button is selected.")] SInt32 restartNotificationSnoozeDurationInMinutes;
+};
+
+[ClassVersion("1.0.0.0")]
+class MSFT_DeviceManagementWinGetMobileAppAssignmentSettingsInstallTimeSettings
+{
+    [Write, Description("Whether the local device time or UTC time should be used when determining the available and deadline times.")] Boolean useLocalTime;
+    [Write, Description("The time at which the app should be available for installation.")] String startDateTime;
+    [Write, Description("The time at which the app should be installed.")] String deadlineDateTime;
+};
+
 [ClassVersion("1.0.0.1")]
 class MSFT_DeviceManagementMobileAppAssignmentSettings
 {
@@ -17,21 +33,29 @@ class MSFT_DeviceManagementMobileAppAssignmentSettings
 };
 
 [ClassVersion("1.0.0.0")]
-class MSFT_DeviceManagementAppxMobileAppAssignmentSettings : MSFT_DeviceManagementMobileAppAssignmentSettings
+class MSFT_DeviceManagementWingetMobileAppAssignmentSettings : MSFT_DeviceManagementMobileAppAssignmentSettings
 {
-    [Write, Description("If true, uses device execution context for Windows Universal AppX mobile app. Device-context install is not allowed when this type of app is targeted with Available intent. Defaults to false.")] Boolean useDeviceContext;
+    [Write, Description("The install time settings to apply for this app assignment."), EmbeddedInstance("MSFT_DeviceManagementWinGetMobileAppAssignmentSettingsInstallTimeSettings")] String installTimeSettings;
+    [Write, Description("The notification status for this app assignment. Possible values are: showAll, showReboot, hideAll."), ValueMap{"showAll", "showReboot", "hideAll"}, Values{"showAll", "showReboot", "hideAll"}] String notifications;
+    [Write, Description("The reboot settings to apply for this app assignment."), EmbeddedInstance("MSFT_DeviceManagementWinGetMobileAppAssignmentSettingsRestartSettings")] String restartSettings;
 };
 
 [ClassVersion("1.0.0.0")]
-class MSFT_DeviceManagementAppxMobileAppAssignment : MSFT_DeviceManagementMobileAppAssignment
+class MSFT_DeviceManagementWingetMobileAppAssignment : MSFT_DeviceManagementMobileAppAssignment
 {
-    [Write, Description("The settings of the assignment."), EmbeddedInstance("MSFT_DeviceManagementAppxMobileAppAssignmentSettings")] String assignmentSettings;
+    [Write, Description("The settings of the assignment."), EmbeddedInstance("MSFT_DeviceManagementWingetMobileAppAssignmentSettings")] String assignmentSettings;
 };
 
 [ClassVersion("1.0.0")]
-class MSFT_DeviceManagementMimeContent
+class MSFT_MicrosoftGraphWinGetAppInstallExperience
 {
-    [Write, Description("Indicates the type of content mime.")] String Type;
+    [Write, Description("Indicates the type of execution context the app setup runs in on target devices. Options include values of the RunAsAccountType enum, which are System and User. Required at creation time, cannot be modified on existing objects. Possible values are: system, user."), ValueMap{"system","user"}, Values{"system","user"}] String RunAsAccount;
+};
+
+[ClassVersion("1.0.0")]
+class MSFT_MicrosoftGraphMimeContent
+{
+    [Write, Description("Indicates the content mime type.")] String Type;
     [Write, Description("The Base64 encoded string content.")] String Value;
 };
 
@@ -42,25 +66,25 @@ class MSFT_DeviceManagementMobileAppCategory
     [Write, Description("The unique identifier for an entity. Read-only.")] String Id;
 };
 
-[ClassVersion("1.0.0.0"), FriendlyName("IntuneMobileAppsLobAppWindows10")]
-class MSFT_IntuneMobileAppsLobAppWindows10 : OMI_BaseResource
+[ClassVersion("1.0.0.0"), FriendlyName("IntuneMobileAppsMicrosoftStoreAppWindows10")]
+class MSFT_IntuneMobileAppsMicrosoftStoreAppWindows10 : OMI_BaseResource
 {
-    [Key, Description("The admin provided or imported title of the app.")] String DisplayName;
     [Write, Description("The unique identifier for an entity. Read-only.")] String Id;
-    [Write, Description("The name of the main Lob application file. Required for creating the resource.")] String FileName;
+    [Key, Description("The admin provided or imported title of the app.")] String DisplayName;
+    [Write, Description("The install experience settings associated with this application, which are used to ensure the desired install experiences on the target device are taken into account. This includes the account type (System or User) that actions should be run as on target devices. Cannot be changed after creation."), EmbeddedInstance("MSFT_MicrosoftGraphwinGetAppInstallExperience")] String InstallExperience;
+    [Required, Description("The PackageIdentifier from the WinGet source repository REST API. This also maps to the Id when using the WinGet client command line application. Required at creation time, cannot be modified on existing objects.")] String PackageIdentifier;
     [Write, Description("The description of the app.")] String Description;
     [Write, Description("The developer of the app.")] String Developer;
     [Write, Description("The more information Url.")] String InformationUrl;
     [Write, Description("The value indicating whether the app is marked as featured by the admin.")] Boolean IsFeatured;
-    [Write, Description("The large icon, to be displayed in the app details and used for upload of the icon."), EmbeddedInstance("MSFT_DeviceManagementMimeContent")] String LargeIcon;
+    [Write, Description("The large icon, to be displayed in the app details and used for upload of the icon."), EmbeddedInstance("MSFT_MicrosoftGraphMimeContent")] String LargeIcon;
     [Write, Description("Notes for the app.")] String Notes;
     [Write, Description("The owner of the app.")] String Owner;
     [Write, Description("The privacy statement Url.")] String PrivacyInformationUrl;
     [Write, Description("The publisher of the app.")] String Publisher;
-    [Write, Description("List of scope tag ids for this mobile app.")] String RoleScopeTagIds[];
-
     [Write, Description("The list of categories for this app."), EmbeddedInstance("MSFT_DeviceManagementMobileAppCategory")] String Categories[];
-    [Write, Description("Represents the assignment to the Intune policy."), EmbeddedInstance("MSFT_DeviceManagementMobileAppAssignment")] String Assignments[];
+    [Write, Description("List of scope tag ids for this mobile app.")] String RoleScopeTagIds[];
+    [Write, Description("Represents the assignment to the Intune policy."), EmbeddedInstance("MSFT_DeviceManagementWingetMobileAppAssignment")] String Assignments[];
     [Write, Description("Present ensures the policy exists, absent ensures it is removed."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] string Ensure;
     [Write, Description("Credentials of the Admin"), EmbeddedInstance("MSFT_Credential")] string Credential;
     [Write, Description("Id of the Azure Active Directory application to authenticate with.")] String ApplicationId;

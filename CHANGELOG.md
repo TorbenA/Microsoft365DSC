@@ -37,8 +37,12 @@
     if the backend reports 0 as the value.
     FIXES [#6450](https://github.com/microsoft/Microsoft365DSC/issues/6450)
   * Restricted possible values for `DeviceComplianceCheckinThresholdDays` from 1 to 120.
+* IntuneMobileAppsMicrosoftStoreAppWindows10
+  * Initial release.
 * IntuneMobileAppsWin32AppWindows10
   * Bump CIM instance version to fix invalid property name.
+* IntuneMobileAppsWindowsOfficeSuiteApp
+  * Fixes problem with OfficeConfigurationXml.Changed from type byte to type String as APi expect a string that is encoded in Base64 format.
 * IntuneSecurityBaselineMicrosoftEdge
   * Fixed an issue where the latest policy version was not exported.
     FIXES [#6415](https://github.com/microsoft/Microsoft365DSC/issues/6415)
@@ -73,10 +77,6 @@
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.0.
     FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
-
-* IntuneMobileAppsWindowsOfficeSuiteApp
-  * Fixes problem with OfficeConfigurationXml.Changed from type byte to type String as APi expect a string that is encoded in Base64 format.
-  
   * Include `Az.Security` module for `Defender` workload.
 * M365DSCTelemetryEngine
   * Changed logic to retrieve the global telemetry authentication parameters.
