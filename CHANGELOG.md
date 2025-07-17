@@ -6,6 +6,8 @@
   * Updated creation of new DirectorySetting object to explicitly use default values to avoid exception
 * IntuneMobileAppsBuiltInStoreApp
   * Initial release.
+* IntuneMobileAppsManagedGooglePlayApp
+  * Initial release.
 * IntuneMobileAppsStoreApp
   * Initial release.
 * IntuneMobileAppsSystemAppAndroid
