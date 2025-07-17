@@ -34567,40 +34567,40 @@ function Get-MgBetaDirectorySettingTemplate
         $InputObject,
 
         [Parameter()]
-        [system.string[]]
+        [System.String[]]
         $ExpandProperty,
 
         [Parameter()]
-        [system.string[]]
+        [System.String[]]
         $Property,
 
         [Parameter()]
-        [system.string]
+        [System.String]
         $Filter,
 
         [Parameter()]
-        [system.string]
+        [System.String]
         $Search,
 
         [Parameter()]
-        [system.int32]
+        [System.Int32]
         $Skip,
 
         [Parameter()]
-        [system.string[]]
+        [System.String[]]
         $Sort,
 
         [Parameter()]
-        [system.int32]
+        [System.Int32]
         $Top,
+
+        [Parameter()]
+        [System.String]
+        $ResponseHeadersVariable,
 
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
         $Break,
-
-        [Parameter()]
-        [system.string]
-        $ResponseHeadersVariable,
 
         [Parameter()]
         [PSObject]
@@ -34608,14 +34608,18 @@ function Get-MgBetaDirectorySettingTemplate
 
         [Parameter()]
         [PSObject]
+        $HttpPipelineAppend,
+
+        [Parameter()]
+        [PSObject]
         $HttpPipelinePrepend,
 
         [Parameter()]
-        [system.Uri]
+        [System.Uri]
         $Proxy,
 
         [Parameter()]
-        [System.Management.Automation.pscredential]
+        [System.Management.Automation.PSCredential]
         $ProxyCredential,
 
         [Parameter()]
@@ -34623,16 +34627,12 @@ function Get-MgBetaDirectorySettingTemplate
         $ProxyUseDefaultCredentials,
 
         [Parameter()]
-        [system.int32]
+        [System.Int32]
         $PageSize,
 
-        [Parameter[]]
-        [System.Management.Automation.SwitchParameter]
-        $All,
-
         [Parameter()]
-        [system.string]
-        $CountVariable
+        [System.Management.Automation.SwitchParameter]
+        $All
     )
 }
 function Get-MgBetaDomain
