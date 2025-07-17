@@ -4,6 +4,8 @@
 
 * IntuneMobileAppsBuiltInStoreApp
   * Initial release.
+* IntuneMobileAppsStoreApp
+  * Initial release.
 
 # 1.25.716.1
 
