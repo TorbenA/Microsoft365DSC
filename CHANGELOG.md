@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* IntuneMobileAppsBuiltInStoreApp
+  * Initial release.
 * IntuneMobileAppsStoreApp
   * Initial release.
 
