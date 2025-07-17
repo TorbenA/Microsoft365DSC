@@ -34559,6 +34559,14 @@ function Get-MgBetaDirectorySettingTemplate
     [cmdletbinding()]
     param(
         [Parameter()]
+        [System.String]
+        $DirectorySettingTemplateId,
+
+        [Parameter()]
+        [PSObject]
+        $InputObject,
+
+        [Parameter()]
         [system.string[]]
         $ExpandProperty,
 
@@ -34595,11 +34603,11 @@ function Get-MgBetaDirectorySettingTemplate
         $ResponseHeadersVariable,
 
         [Parameter()]
-        [psobject]
+        [PSObject]
         $Headers,
 
         [Parameter()]
-        [psobject]
+        [PSObject]
         $HttpPipelinePrepend,
 
         [Parameter()]

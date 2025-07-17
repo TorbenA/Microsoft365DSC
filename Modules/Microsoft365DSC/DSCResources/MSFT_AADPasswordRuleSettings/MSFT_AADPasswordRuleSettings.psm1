@@ -229,8 +229,9 @@ function Set-TargetResource
     $needToUpdate = $false
     if ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Absent')
     {
-        write-verbose "Create new DirectorySetting for 'PasswordRule Settings' with default values"
+        write-verbose "Create new DirectorySetting for 'Password Rule Settings' with default values"
         $template = Get-MgBetaDirectorySettingTemplate -All | Where-Object -FilterScript {$_.Displayname -eq 'Password Rule Settings'}
+        # need to build a new array for values since the template-values contain property DefaultValue but Value is required
         $defaultValues = @()
         $template.Values | ForEach-Object {
             $defaultValues += @{
