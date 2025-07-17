@@ -1,4 +1,4 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneMobileAppsWebLink'
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneMobileAppsMicrosoft365SuiteMacOS'
 
 function Get-TargetResource
 {
@@ -14,35 +14,6 @@ function Get-TargetResource
         [Parameter()]
         [System.String]
         $Id,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('iosiPadOSWebClip', 'macOSWebClip', 'webApp', 'windowsWebApp')]
-        [System.String]
-        $TargetType,
-
-        [Parameter()]
-        [System.String]
-        $AppUrl,
-
-        [Parameter()]
-        [System.Boolean]
-        $FullScreenEnabled,
-
-        [Parameter()]
-        [System.Boolean]
-        $PreComposedIconEnabled,
-
-        [Parameter()]
-        [System.Boolean]
-        $IgnoreManifestScope,
-
-        [Parameter()]
-        [System.String]
-        $TargetApplicationBundleIdentifier,
-
-        [Parameter()]
-        [System.Boolean]
-        $UseManagedBrowser,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -127,15 +98,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Getting configuration for the Intune Mobile Apps Web Link with Id {$Id} and DisplayName {$DisplayName}"
-
-    foreach ($property in $Script:customProperties)
-    {
-        if ($PSBoundParameters.ContainsKey($property) -and $Script:odataToPropertiesMap.$TargetType -notcontains $property)
-        {
-            throw "Property '$property' is not supported for the target type '$TargetType'."
-        }
-    }
+    Write-Verbose -Message "Getting configuration for the Intune Mobile Apps Microsoft365 Suite for macOS with Id {$Id} and DisplayName {$DisplayName}"
 
     try
     {
@@ -170,30 +133,23 @@ function Get-TargetResource
 
             if ($null -eq $getValue)
             {
-                Write-Verbose -Message "Could not find an Intune Mobile Apps Web Link with Id {$Id}"
+                Write-Verbose -Message "Could not find an Intune Mobile Apps Microsoft365 Suite for macOS with Id {$Id}"
 
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaDeviceAppManagementMobileApp `
-                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                        -ExpandProperty 'categories' `
-                        -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -in @(
-                                "#microsoft.graph.iosiPadOSWebClip"
-                                "#microsoft.graph.macOSWebClip"
-                                "#microsoft.graph.windowsWebApp"
-                                "#microsoft.graph.webApp"
-                            )
-                        }
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.macOSOfficeSuiteApp')" `
+                        -ErrorAction SilentlyContinue
                 }
             }
             #endregion
             if ($null -eq $getValue)
             {
-                Write-Verbose -Message "Could not find an Intune Mobile Apps Web Link with DisplayName {$DisplayName}."
+                Write-Verbose -Message "Could not find an Intune Mobile Apps Microsoft365 Suite for macOS with DisplayName {$DisplayName}."
                 return $nullResult
             }
+
+            $getValue = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $getValue.Id -ExpandProperty 'categories'
         }
         else
         {
@@ -201,7 +157,7 @@ function Get-TargetResource
                 -ExpandProperty 'categories'
         }
         $Id = $getValue.Id
-        Write-Verbose -Message "An Intune Mobile Apps Web Link with Id {$Id} and DisplayName {$DisplayName} was found"
+        Write-Verbose -Message "An Intune Mobile Apps Microsoft365 Suite for macOS with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
         $complexCategories = @()
@@ -223,33 +179,26 @@ function Get-TargetResource
 
         $results = @{
             #region resource generator code
-            TargetType                        = $getValue.AdditionalProperties.'@odata.type'.Replace('#microsoft.graph.', '')
-            AppUrl                            = $getValue.AdditionalProperties.appUrl
-            UseManagedBrowser                 = $getValue.AdditionalProperties.useManagedBrowser
-            FullScreenEnabled                 = $getValue.AdditionalProperties.fullScreenEnabled
-            PreComposedIconEnabled            = $getValue.AdditionalProperties.preComposedIconEnabled
-            IgnoreManifestScope               = $getValue.AdditionalProperties.ignoreManifestScope
-            TargetApplicationBundleIdentifier = $getValue.AdditionalProperties.targetApplicationBundleIdentifier
-            Categories                        = $complexCategories
-            Description                       = $getValue.Description
-            Developer                         = $getValue.Developer
-            DisplayName                       = $getValue.DisplayName
-            InformationUrl                    = $getValue.InformationUrl
-            IsFeatured                        = $getValue.IsFeatured
-            LargeIcon                         = $complexLargeIcon
-            Notes                             = $getValue.Notes
-            Owner                             = $getValue.Owner
-            PrivacyInformationUrl             = $getValue.PrivacyInformationUrl
-            Publisher                         = $getValue.Publisher
-            RoleScopeTagIds                   = $getValue.RoleScopeTagIds
-            Id                                = $getValue.Id
-            Ensure                            = 'Present'
-            Credential                        = $Credential
-            ApplicationId                     = $ApplicationId
-            TenantId                          = $TenantId
-            ApplicationSecret                 = $ApplicationSecret
-            CertificateThumbprint             = $CertificateThumbprint
-            ManagedIdentity                   = $ManagedIdentity.IsPresent
+            Categories            = $complexCategories
+            Description           = $getValue.Description
+            Developer             = $getValue.Developer
+            DisplayName           = $getValue.DisplayName
+            InformationUrl        = $getValue.InformationUrl
+            IsFeatured            = $getValue.IsFeatured
+            LargeIcon             = $complexLargeIcon
+            Notes                 = $getValue.Notes
+            Owner                 = $getValue.Owner
+            PrivacyInformationUrl = $getValue.PrivacyInformationUrl
+            Publisher             = $getValue.Publisher
+            RoleScopeTagIds       = $getValue.RoleScopeTagIds
+            Id                    = $getValue.Id
+            Ensure                = 'Present'
+            Credential            = $Credential
+            ApplicationId         = $ApplicationId
+            TenantId              = $TenantId
+            ApplicationSecret     = $ApplicationSecret
+            CertificateThumbprint = $CertificateThumbprint
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             #endregion
         }
         $assignmentsValues = Get-MgBetaDeviceAppManagementMobileAppAssignment -MobileAppId $Id
@@ -288,35 +237,6 @@ function Set-TargetResource
         [System.String]
         $Id,
 
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('iosiPadOSWebClip', 'macOSWebClip', 'webApp', 'windowsWebApp')]
-        [System.String]
-        $TargetType,
-
-        [Parameter()]
-        [System.String]
-        $AppUrl,
-
-        [Parameter()]
-        [System.Boolean]
-        $FullScreenEnabled,
-
-        [Parameter()]
-        [System.Boolean]
-        $PreComposedIconEnabled,
-
-        [Parameter()]
-        [System.Boolean]
-        $IgnoreManifestScope,
-
-        [Parameter()]
-        [System.String]
-        $TargetApplicationBundleIdentifier,
-
-        [Parameter()]
-        [System.Boolean]
-        $UseManagedBrowser,
-
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Categories,
@@ -400,7 +320,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting configuration of the Intune Mobile Apps Web Link with Id {$Id} and DisplayName {$DisplayName}"
+    Write-Verbose -Message "Setting configuration of the Intune Mobile Apps Microsoft365 Suite for macOS with Id {$Id} and DisplayName {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -417,31 +337,11 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
 
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
-    if ($BoundParameters.ContainsKey('LargeIcon'))
-    {
-        $complexLargeIcon = @{
-            type = $BoundParameters.LargeIcon.type
-            value = [System.Convert]::FromBase64String($BoundParameters.LargeIcon.value)
-        }
-        $BoundParameters.Remove('LargeIcon') | Out-Null
-        $BoundParameters.Add('LargeIcon', $complexLargeIcon)
-    }
-
-    foreach ($property in $Script:customProperties)
-    {
-        if ($BoundParameters.ContainsKey($property) -and $Script:odataToPropertiesMap.$TargetType -notcontains $property)
-        {
-            throw "Property '$property' is not supported for the target type '$TargetType'."
-        }
-    }
-
-    $BoundParameters.Remove('AppUrl') | Out-Null
     $BoundParameters.Remove('Categories') | Out-Null
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating an Intune Mobile Apps Web Link with DisplayName {$DisplayName}"
+        Write-Verbose -Message "Creating an Intune Mobile Apps Microsoft365 Suite for macOS with DisplayName {$DisplayName}"
         $BoundParameters.Remove("Assignments") | Out-Null
 
         $createParameters = ([Hashtable]$BoundParameters).Clone()
@@ -457,8 +357,8 @@ function Set-TargetResource
             }
         }
         #region resource generator code
-        $createParameters.Add("@odata.type", "#microsoft.graph." + $BoundParameters.TargetType)
-        $policy = New-MgBetaDeviceAppManagementMobileApp -BodyParameter $createParameters
+        $createParameters.Add("@odata.type", "#microsoft.graph.macOSOfficeSuiteApp")
+        $policy = Invoke-MgGraphRequest -Method POST -Uri "/beta/deviceAppManagement/mobileApps" -Body $($createParameters | ConvertTo-Json -Depth 10)
 
         if ($PSBoundParameters.ContainsKey('Categories'))
         {
@@ -476,7 +376,7 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating the Intune Mobile Apps Web Link with Id {$($currentInstance.Id)}"
+        Write-Verbose -Message "Updating the Intune Mobile Apps Microsoft365 Suite for macOS with Id {$($currentInstance.Id)}"
         $BoundParameters.Remove("Assignments") | Out-Null
 
         $updateParameters = ([Hashtable]$BoundParameters).Clone()
@@ -494,10 +394,8 @@ function Set-TargetResource
         }
 
         #region resource generator code
-        $UpdateParameters.Add("@odata.type", "#microsoft.graph." + $BoundParameters.TargetType)
-        Update-MgBetaDeviceAppManagementMobileApp `
-            -MobileAppId $currentInstance.Id `
-            -BodyParameter $UpdateParameters
+        $UpdateParameters.Add("@odata.type", "#microsoft.graph.macOSOfficeSuiteApp")
+        Invoke-MgGraphRequest -Method PATCH -Uri "/beta/deviceAppManagement/mobileApps/$($currentInstance.Id)" -Body $($UpdateParameters | ConvertTo-Json -Depth 10)
 
         if ($PSBoundParameters.ContainsKey('Categories'))
         {
@@ -512,7 +410,7 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removing the Intune Mobile Apps Web Link with Id {$($currentInstance.Id)}"
+        Write-Verbose -Message "Removing the Intune Mobile Apps Microsoft365 Suite for macOS with Id {$($currentInstance.Id)}"
         #region resource generator code
         Remove-MgBetaDeviceAppManagementMobileApp -MobileAppId $currentInstance.Id
         #endregion
@@ -534,35 +432,6 @@ function Test-TargetResource
         [System.String]
         $Id,
 
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('iosiPadOSWebClip', 'macOSWebClip', 'webApp', 'windowsWebApp')]
-        [System.String]
-        $TargetType,
-
-        [Parameter()]
-        [System.String]
-        $AppUrl,
-
-        [Parameter()]
-        [System.Boolean]
-        $FullScreenEnabled,
-
-        [Parameter()]
-        [System.Boolean]
-        $PreComposedIconEnabled,
-
-        [Parameter()]
-        [System.Boolean]
-        $IgnoreManifestScope,
-
-        [Parameter()]
-        [System.String]
-        $TargetApplicationBundleIdentifier,
-
-        [Parameter()]
-        [System.Boolean]
-        $UseManagedBrowser,
-
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Categories,
@@ -658,7 +527,7 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune Mobile Apps Web Link with Id {$Id} and DisplayName {$DisplayName}"
+    Write-Verbose -Message "Testing configuration of the Intune Mobile Apps Microsoft365 Suite for macOS with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
     $ValuesToCheck = ([hashtable]$PSBoundParameters).Clone()
@@ -685,7 +554,6 @@ function Test-TargetResource
     }
 
     $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck.Remove('AppUrl') | Out-Null
     $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
@@ -761,19 +629,19 @@ function Export-TargetResource
     try
     {
         #region resource generator code
+        $baseFilter = "isof('microsoft.graph.macOSOfficeSuiteApp')"
+        if (-not [String]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($Filter) and ($baseFilter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
+        }
         [array]$getValue = Get-MgBetaDeviceAppManagementMobileApp `
             -Filter $Filter `
             -All `
-            -ExpandProperty 'categories' `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -in @(
-                    "#microsoft.graph.iosiPadOSWebClip"
-                    "#microsoft.graph.macOSWebClip"
-                    "#microsoft.graph.windowsWebApp"
-                    "#microsoft.graph.webApp"
-                )
-            }
+            -ErrorAction Stop
         #endregion
 
         $i = 1
@@ -801,7 +669,6 @@ function Export-TargetResource
             $params = @{
                 Id                    = $config.Id
                 DisplayName           = $config.DisplayName
-                TargetType            = $config.AdditionalProperties.'@odata.type'.Replace('#microsoft.graph.', '')
                 Ensure                = 'Present'
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId
@@ -884,31 +751,6 @@ function Export-TargetResource
 
         return ''
     }
-}
-
-$Script:customProperties = @(
-    'UseManagedBrowser'
-    'FullScreenEnabled'
-    'PreComposedIconEnabled'
-    'IgnoreManifestScope'
-    'TargetApplicationBundleIdentifier'
-)
-$Script:odataToPropertiesMap = @{
-    'iosiPadOSWebClip' = @(
-        'UseManagedBrowser'
-        'FullScreenEnabled'
-        'PreComposedIconEnabled'
-        'IgnoreManifestScope'
-        'TargetApplicationBundleIdentifier'
-    )
-    'macOSWebClip' = @(
-        'FullScreenEnabled'
-        'PreComposedIconEnabled'
-    )
-    'webApp' = @(
-        'UseManagedBrowser'
-    )
-    'windowsWebApp' = @()
 }
 
 Export-ModuleMember -Function *-TargetResource

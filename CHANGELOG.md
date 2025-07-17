@@ -2,8 +2,15 @@
 
 # UNRELEASED
 
+* IntuneMobileAppsBuiltInStoreApp
+  * Initial release.
+* IntuneMobileAppsStoreApp
+  * Initial release.
+
+# 1.25.716.1
+
 * AADAdministrativeUnit
-  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual). 
+  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
 * AADGroup
   * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
 * AADUser
@@ -11,10 +18,19 @@
 * AADConditionalAccessPolicy
   * Fixed issue with setting empty ExcludePlatform in Target state when current state contains a value
     FIXES [#6298](https://github.com/microsoft/Microsoft365DSC/issues/6298)
+  * Fixed incorrect ServicePrincipalRiskLevels parameter type
+    FIXES [#6325](https://github.com/microsoft/Microsoft365DSC/issues/6325)
+  * Added example for workload identity and dynamic filter based on CustomSecurityAttribute
 * AADPasswordRuleSettings
   * Updated creation of new DirectorySetting object to explicitly use default values to avoid exception
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
+* IntuneMobileAppsDefenderForEndpointMacOS
+  * Initial release.
+* IntuneMobileAppsMicrosoft365SuiteMacOS
+  * Initial release.
+* IntuneMobileAppsMicrosoftEdge
+  * Initial release.
 * O365Group
   * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
 * MISC

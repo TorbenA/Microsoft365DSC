@@ -672,12 +672,6 @@ function Get-TargetResource
         $InsiderRiskLevelsValue = $Policy.Conditions.InsiderRiskLevels.Split(',')
     }
 
-    $ServicePrincipalRiskLevelsValue = $null
-    if (-not [System.String]::IsNullOrEmpty($Policy.Conditions.ServicePrincipalRiskLevels))
-    {
-        $ServicePrincipalRiskLevelsValue = $Policy.Conditions.ServicePrincipalRiskLevels.Split(',')
-    }
-
     $result = @{
         DisplayName                              = $Policy.DisplayName
         Id                                       = $Policy.Id
@@ -754,10 +748,11 @@ function Get-TargetResource
         AuthenticationStrength                   = $AuthenticationStrengthValue
         AuthenticationContexts                   = $AuthenticationContextsValues
         TransferMethods                          = [System.String]$Policy.Conditions.AuthenticationFlows.TransferMethods
+        #no translation needed, return empty string array if undefined
+        ServicePrincipalRiskLevels               = [System.String[]](@() + $Policy.Conditions.ServicePrincipalRiskLevels)
         #Standard part
         TermsOfUse                               = $termOfUseName
         InsiderRiskLevels                        = $InsiderRiskLevelsValue
-        ServicePrincipalRiskLevels               = $ServicePrincipalRiskLevelsValue
         Ensure                                   = 'Present'
         Credential                               = $Credential
         ApplicationSecret                        = $ApplicationSecret
@@ -1732,9 +1727,9 @@ function Set-TargetResource
             $conditions.Add('insiderRiskLevels', $($InsiderRiskLevels -join ','))
         }
 
-        if ([String]::IsNullOrEmpty($ServicePrincipalRiskLevels) -eq $false)
+        if ($ServicePrincipalRiskLevels -is [string[]] -and $ServicePrincipalRiskLevels.Count -gt 0)
         {
-            $conditions.Add('servicePrincipalRiskLevels', $($ServicePrincipalRiskLevels -join ','))
+            $conditions.Add('servicePrincipalRiskLevels', $ServicePrincipalRiskLevels)
         }
 
         Write-Verbose -Message 'Set-Targetresource: process risk levels and app types'

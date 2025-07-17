@@ -24,8 +24,8 @@ class MSFT_DeviceManagementMobileAppCategory
     [Write, Description("The unique identifier for an entity. Read-only.")] String Id;
 };
 
-[ClassVersion("1.0.0.0"), FriendlyName("IntuneMobileAppsWebLink")]
-class MSFT_IntuneMobileAppsWebLink : OMI_BaseResource
+[ClassVersion("1.0.0.0"), FriendlyName("IntuneMobileAppsDefenderForEndpointMacOS")]
+class MSFT_IntuneMobileAppsDefenderForEndpointMacOS : OMI_BaseResource
 {
     [Key, Description("The admin provided or imported title of the app.")] String DisplayName;
     [Write, Description("The unique identifier for an entity. Read-only.")] String Id;
@@ -49,12 +49,4 @@ class MSFT_IntuneMobileAppsWebLink : OMI_BaseResource
     [Write, Description("Thumbprint of the Azure Active Directory application's authentication certificate to use for authentication.")] String CertificateThumbprint;
     [Write, Description("Managed ID being used for authentication.")] Boolean ManagedIdentity;
     [Write, Description("Access token used for authentication.")] String AccessTokens[];
-
-    [Required, Description("The target type of the web link."), ValueMap{"iosiPadOSWebClip","macOSWebClip","webApp","windowsWebApp"}, Values{"iosiPadOSWebClip","macOSWebClip","webApp","windowsWebApp"}] String TargetType;
-    [Write, Description("Indicates the web app URL. Example: 'https://www.contoso.com'. Cannot be updated after creation.")] String AppUrl;
-    [Write, Description("Whether or not to use managed browser (on iOS it's Microsoft Edge). This property is only applicable 'webApp' and 'iosiPadOSWebClip' target type.")] Boolean UseManagedBrowser;
-    [Write, Description("Whether or not to open the web clip as a full-screen web app. Defaults to false. If TRUE, opens the web clip as a full-screen web app. If FALSE, the web clip opens inside of another app such as Safary or the app specified with targetApplicationBundleIdentifier. Only applicable for the 'iosiPadOSWebClip' and 'macOSWebClip' target type.")] Boolean FullScreenEnabled;
-    [Write, Description("Whether or not the icon for the app is precomosed. Defaults to false. If TRUE, prevents SpringBoard from adding 'shine' to the icon. If FALSE, SpringBoard can add 'shine'. Only applicable for the 'iosiPadOSWebClip' and 'macOSWebClip' target type.")] Boolean PreComposedIconEnabled;
-    [Write, Description("Whether or not a full screen web clip can navigate to an external web site without showing the Safari UI. Defaults to false. If FALSE, the Safari UI appears when navigating away. If TRUE, the Safari UI will not be shown. Only applicable for the 'iosiPadOSWebClip' target type.")] Boolean IgnoreManifestScope;
-    [Write, Description("Specifies the application bundle identifier which opens the URL. Available in iOS 14 and later. Only applicable for the 'iosiPadOSWebClip' target type.")] String TargetApplicationBundleIdentifier;
 };
