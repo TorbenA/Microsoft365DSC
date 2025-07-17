@@ -6,6 +6,8 @@
   * Initial release.
 * IntuneMobileAppsStoreApp
   * Initial release.
+* IntuneMobileAppsSystemAppAndroid
+  * Initial release.
 
 # 1.25.716.1
 
