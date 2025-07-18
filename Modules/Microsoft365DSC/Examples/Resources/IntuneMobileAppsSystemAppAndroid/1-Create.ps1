@@ -26,7 +26,7 @@ Configuration Example
         {
             DisplayName           = "Office";
             Ensure                = "Present";
-            PackageId             = "com.microsoft.office";
+            AppIdentifier         = "com.microsoft.office";
             Publisher             = "Microsoft";
             RoleScopeTagIds       = @("0")
             Assignments           = @(

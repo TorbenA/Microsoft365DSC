@@ -26,7 +26,7 @@ Configuration Example
         {
             DisplayName           = "Office";
             Ensure                = "Present";
-            PackageId             = "com.microsoft.office";
+            AppIdentifier         = "com.microsoft.office";
             Publisher             = "Company"; # Drift
             RoleScopeTagIds       = @("0")
             Assignments           = @(

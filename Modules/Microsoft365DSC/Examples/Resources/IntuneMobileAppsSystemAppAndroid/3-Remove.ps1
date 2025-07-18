@@ -26,7 +26,7 @@ Configuration Example
         IntuneMobileAppsSystemAppAndroid "IntuneMobileAppsSystemAppAndroid-Office"
         {
             DisplayName           = "Office";
-            PackageId             = "com.microsoft.office";
+            AppIdentifier         = "com.microsoft.office";
             Publisher             = "Microsoft";
             Ensure                = "Absent";
             ApplicationId         = $ApplicationId;

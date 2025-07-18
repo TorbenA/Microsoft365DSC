@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName "MSFT_IntuneMobileAppsSystemAppAndroid"
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -15,7 +17,7 @@ function Get-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String]
-        $PackageId,
+        $AppIdentifier,
 
         [Parameter(Mandatory = $true)]
         [System.String]
@@ -128,7 +130,7 @@ function Get-TargetResource
 
         $results = @{
             #region resource generator code
-            PackageId             = $getValue.AdditionalProperties.packageId
+            AppIdentifier         = $getValue.AdditionalProperties.appIdentifier
             DisplayName           = $getValue.DisplayName
             Publisher             = $getValue.Publisher
             RoleScopeTagIds       = $getValue.RoleScopeTagIds
@@ -180,7 +182,7 @@ function Set-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String]
-        $PackageId,
+        $AppIdentifier,
 
         [Parameter(Mandatory = $true)]
         [System.String]
@@ -245,7 +247,7 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
@@ -267,8 +269,8 @@ function Set-TargetResource
         }
         #region resource generator code
         $createParameters.Add("@odata.type", "#microsoft.graph.androidManagedStoreApp")
-        $createParameters.Add("IsSystemApp", $true)
-        $policy = New-MgBetaDeviceAppManagementMobileApp -BodyParameter $createParameters
+        $createParameters.Add("isSystemApp", $true)
+        $policy = Invoke-MgGraphRequest -Method POST -Uri '/beta/deviceAppManagement/mobileApps' -Body $($createParameters | ConvertTo-Json -Depth 10)
 
         if ($policy.Id)
         {
@@ -288,7 +290,7 @@ function Set-TargetResource
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
 
         $updateParameters.Remove('Id') | Out-Null
-        $updateParameters.Remove('PackageId') | Out-Null
+        $updateParameters.Remove('AppIdentifier') | Out-Null
 
         $keys = (([Hashtable]$updateParameters).Clone()).Keys
         foreach ($key in $keys)
@@ -337,7 +339,7 @@ function Test-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String]
-        $PackageId,
+        $AppIdentifier,
 
         [Parameter(Mandatory = $true)]
         [System.String]
@@ -500,7 +502,7 @@ function Export-TargetResource
             $params = @{
                 Id                    = $config.Id
                 DisplayName           = $config.DisplayName
-                PackageId             = $config.AdditionalProperties.packageId
+                AppIdentifier         = $config.AdditionalProperties.appIdentifier
                 Publisher             = $config.Publisher
                 Ensure                = 'Present'
                 Credential            = $Credential
@@ -517,7 +519,7 @@ function Export-TargetResource
 
             if ($Results.Assignments)
             {
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString -ComplexObject $Results.Assignments -CIMInstanceName DeviceManagementConfigurationPolicyAssignments
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString -ComplexObject $Results.Assignments -CIMInstanceName DeviceManagementMobileAppAssignment
                 if ($complexTypeStringResult)
                 {
                     $Results.Assignments = $complexTypeStringResult
