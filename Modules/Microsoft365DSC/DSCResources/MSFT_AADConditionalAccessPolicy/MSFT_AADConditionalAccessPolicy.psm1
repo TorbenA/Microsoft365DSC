@@ -270,9 +270,10 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of AzureAD Conditional Access Policy for {$DisplayName}"
+
     if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
     {
-        Write-Verbose -Message 'Getting configuration of AzureAD Conditional Access Policy'
         $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
@@ -671,12 +672,6 @@ function Get-TargetResource
         $InsiderRiskLevelsValue = $Policy.Conditions.InsiderRiskLevels.Split(',')
     }
 
-    $ServicePrincipalRiskLevelsValue = $null
-    if (-not [System.String]::IsNullOrEmpty($Policy.Conditions.ServicePrincipalRiskLevels))
-    {
-        $ServicePrincipalRiskLevelsValue = $Policy.Conditions.ServicePrincipalRiskLevels.Split(',')
-    }
-
     $result = @{
         DisplayName                              = $Policy.DisplayName
         Id                                       = $Policy.Id
@@ -753,10 +748,11 @@ function Get-TargetResource
         AuthenticationStrength                   = $AuthenticationStrengthValue
         AuthenticationContexts                   = $AuthenticationContextsValues
         TransferMethods                          = [System.String]$Policy.Conditions.AuthenticationFlows.TransferMethods
+        #no translation needed, return empty string array if undefined
+        ServicePrincipalRiskLevels               = [System.String[]](@() + $Policy.Conditions.ServicePrincipalRiskLevels)
         #Standard part
         TermsOfUse                               = $termOfUseName
         InsiderRiskLevels                        = $InsiderRiskLevelsValue
-        ServicePrincipalRiskLevels               = $ServicePrincipalRiskLevelsValue
         Ensure                                   = 'Present'
         Credential                               = $Credential
         ApplicationSecret                        = $ApplicationSecret
@@ -1039,7 +1035,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    Write-Verbose -Message 'Setting configuration of AzureAD Conditional Access Policy'
+
+    Write-Verbose -Message "Setting configuration of AzureAD Conditional Access Policy for {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -1594,6 +1591,10 @@ function Set-TargetResource
                     $conditions.platforms.Add('excludePlatforms', @())
                     $conditions.platforms.excludePlatforms = @() + $ExcludePlatforms
                 }
+                else
+                {
+                    $conditions.platforms.Add('excludePlatforms', @())
+                }
                 #no translation or conversion needed
             }
             else
@@ -1726,9 +1727,9 @@ function Set-TargetResource
             $conditions.Add('insiderRiskLevels', $($InsiderRiskLevels -join ','))
         }
 
-        if ([String]::IsNullOrEmpty($ServicePrincipalRiskLevels) -eq $false)
+        if ($ServicePrincipalRiskLevels -is [string[]] -and $ServicePrincipalRiskLevels.Count -gt 0)
         {
-            $conditions.Add('servicePrincipalRiskLevels', $($ServicePrincipalRiskLevels -join ','))
+            $conditions.Add('servicePrincipalRiskLevels', $ServicePrincipalRiskLevels)
         }
 
         Write-Verbose -Message 'Set-Targetresource: process risk levels and app types'

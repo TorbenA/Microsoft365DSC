@@ -2,16 +2,45 @@
 
 # UNRELEASED
 
-* EXOTransportRule
-  * Changed the update logic to handle empty parameters.
+* IntuneMobileAppsBuiltInStoreApp
+  * Initial release.
+* IntuneMobileAppsStoreApp
+  * Initial release.
 * M365DSCUtil
   * Added parameter `-Parallel` to `Export-M365DSCConfiguration`.
 * MISC
   * Improve module import speed by up to 60%.
   * Other performance improvements to speed up resource processing.
   * Update required modules for Intune resources doing assignments to groups.
+
+# 1.25.716.1
+
+* AADAdministrativeUnit
+  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
+* AADGroup
+  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
+* AADUser
+  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
+* AADConditionalAccessPolicy
+  * Fixed issue with setting empty ExcludePlatform in Target state when current state contains a value
+    FIXES [#6298](https://github.com/microsoft/Microsoft365DSC/issues/6298)
+  * Fixed incorrect ServicePrincipalRiskLevels parameter type
+    FIXES [#6325](https://github.com/microsoft/Microsoft365DSC/issues/6325)
+  * Added example for workload identity and dynamic filter based on CustomSecurityAttribute
+* EXOTransportRule
+  * Changed the update logic to handle empty parameters.
+* IntuneMobileAppsDefenderForEndpointMacOS
+  * Initial release.
+* IntuneMobileAppsMicrosoft365SuiteMacOS
+  * Initial release.
+* IntuneMobileAppsMicrosoftEdge
+  * Initial release.
+* O365Group
+  * Add detection/support for not filters as they require additional headers (ConsistencyLevel: Eventual).
+* MISC
+  * Added logging to various resource to improve troubleshooting
 * DEPENDENCIES
-  * Updated MSCloudLoginAssistant to version 1.1.49.
+  * Updated MSCloudLoginAssistant to version 1.1.50.
 
 # 1.25.709.1
 
