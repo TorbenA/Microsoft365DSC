@@ -238,14 +238,13 @@ function Set-TargetResource
 
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-    # Only creation and removal is allowed. Update is not supported.
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating an Intune Mobile Apps Managed Google Play App with DisplayName {$DisplayName}"
 
         #region resource generator code
         $body = @{
-            productIds = @($PackageId)
+            productIds = @("app:$PackageId")
         }
         Invoke-MgGraphRequest -Method POST -Uri '/beta/deviceManagement/androidManagedStoreAccountEnterpriseSettings/addApps' -Body $body
         $policy = Get-MgBetaDeviceAppManagementMobileApp -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.androidManagedStoreApp')" -ErrorAction Stop
@@ -258,6 +257,36 @@ function Set-TargetResource
                 -Assignments $assignmentsHash
         }
         #endregion
+    }
+    elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
+    {
+        Write-Verbose -Message "Updating the Intune Mobile Apps Managed Google Play App with DisplayName {$DisplayName}"
+        $boundParameters.Remove('Assignments') | Out-Null
+
+        $updateParameters = ([Hashtable]$boundParameters).Clone()
+        $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
+
+        $updateParameters.Remove('Id') | Out-Null
+        $updateParameters.Remove('DisplayName') | Out-Null
+        $updateParameters.Remove('PackageId') | Out-Null
+
+        $keys = (([Hashtable]$updateParameters).Clone()).Keys
+        foreach ($key in $keys)
+        {
+            if ($null -ne $updateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
+            {
+                $updateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.$key
+            }
+        }
+
+        $updateParameters.Add('@odata.type', '#microsoft.graph.macOSLobApp')
+        Invoke-MgGraphRequest -Method PATCH -Uri "/beta/deviceAppManagement/mobileApps/$($currentInstance.Id)" -Body $($updateParameters | ConvertTo-Json -Depth 10)
+
+        #Assignments
+        $assignmentsHash = ConvertTo-IntuneMobileAppAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
+        Update-DeviceAppManagementPolicyAssignment `
+            -AppManagementPolicyId $currentInstance.Id `
+            -Assignments $assignmentsHash
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
@@ -340,7 +369,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ExcludedProperties @('Id', 'PackageId') `
+                                         -ExcludedProperties @('PackageId') `
                                          -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
@@ -460,7 +489,7 @@ function Export-TargetResource
 
             if ($Results.Assignments)
             {
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString -ComplexObject $Results.Assignments -CIMInstanceName DeviceManagementConfigurationPolicyAssignments
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString -ComplexObject $Results.Assignments -CIMInstanceName DeviceManagementMobileAppAssignment
                 if ($complexTypeStringResult)
                 {
                     $Results.Assignments = $complexTypeStringResult

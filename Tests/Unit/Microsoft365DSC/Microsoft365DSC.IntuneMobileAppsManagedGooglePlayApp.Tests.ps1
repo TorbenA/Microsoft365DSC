@@ -45,7 +45,45 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Update-MgBetaDeviceAppManagementMobileApp -MockWith {
             }
 
-            Mock -CommandName New-MgBetaDeviceAppManagementMobileApp -MockWith {
+            Mock -CommandName Invoke-MgGraphRequest -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        supportsOemConfig = $True
+                        appIdentifier = "FakeStringValue"
+                        isSystemApp = $False
+                        appTracks = @(
+                            @{
+                                trackAlias = "FakeStringValue"
+                                trackId = "FakeStringValue"
+                            }
+                        )
+                        '@odata.type' = "#microsoft.graph.androidManagedStoreApp"
+                        packageId = "FakeStringValue"
+                        appStoreUrl = "FakeStringValue"
+                        usedLicenseCount = 25
+                        isPrivate = $True
+                        totalLicenseCount = 25
+                    }
+                    dependentAppCount = 25
+                    description = "FakeStringValue"
+                    developer = "FakeStringValue"
+                    displayName = "FakeStringValue"
+                    Id = "FakeStringValue"
+                    informationUrl = "FakeStringValue"
+                    isFeatured = $True
+                    LargeIcon = @{
+                        Type = "FakeStringValue"
+                    }
+                    Notes = "FakeStringValue"
+                    Owner = "FakeStringValue"
+                    PrivacyInformationUrl = "FakeStringValue"
+                    Publisher = "FakeStringValue"
+                    PublishingState = "notPublished"
+                    RoleScopeTagIds = @("FakeStringValue")
+                    SupersededAppCount = 25
+                    SupersedingAppCount = 25
+                    UploadState = 25
+                }
             }
 
             Mock -CommandName Remove-MgBetaDeviceAppManagementMobileApp -MockWith {
@@ -56,7 +94,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     AdditionalProperties = @{
                         supportsOemConfig = $True
                         appIdentifier = "FakeStringValue"
-                        isSystemApp = $True
+                        isSystemApp = $False
                         appTracks = @(
                             @{
                                 trackAlias = "FakeStringValue"
@@ -200,7 +238,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName Update-MgBetaDeviceAppManagementMobileApp -Exactly 1
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1
             }
         }
 
