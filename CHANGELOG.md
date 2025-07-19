@@ -2,10 +2,32 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Reduced export time by up to 75%.
+* AADGroup
+  * Reduced export time by up to 60%.
+* AADPIMGroupSettings
+  * Reduced export time by 80%.
+* AADGroupEligibilitySchedule
+  * Reduced export time by 80%.
+* AADGroupEligibilitySchedule
+  * Reduced export time by 90%.
+* AADGroupEligibilityScheduleSettings
+  * Reduced export time by 90%.
+* AADRoleEligibilityScheduleRequest
+  * Reduced export time by up to 50%.
+* AADRoleSetting
+  * Reduced export time by 80%.
+* AADServicePrincipal
+  * Reduced export time by 70%.
+* AADUser
+  * Reduced export time by 25%.
 * IntuneMobileAppsBuiltInStoreApp
   * Initial release.
 * IntuneMobileAppsStoreApp
   * Initial release.
+* MISC
+  * Fixed log messages from being out of order for AAD resources.
 
 # 1.25.716.1
 
