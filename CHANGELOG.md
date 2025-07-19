@@ -10,8 +10,6 @@
   * Reduced export time by 80%.
 * AADGroupEligibilitySchedule
   * Reduced export time by 80%.
-* AADGroupEligibilitySchedule
-  * Reduced export time by 90%.
 * AADGroupEligibilityScheduleSettings
   * Reduced export time by 90%.
 * AADRoleEligibilityScheduleRequest
