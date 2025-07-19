@@ -481,11 +481,7 @@ function Export-TargetResource
         $dscContent = ''
         if ($Script:exportedInstances.Length -eq 0)
         {
-            Write-M365DSCHost -Message $Global:M365DSCEmojiYellowCircle
-        }
-        else
-        {
-            Write-M365DSCHost -Message "Found $($Script:exportedInstances.Count) Azure AD Agreement(s)"
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckmark -CommitWrite
         }
 
         foreach ($config in $Script:exportedInstances)
@@ -515,13 +511,13 @@ function Export-TargetResource
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
             $i++
-            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
         return $dscContent
     }
     catch
     {
-        Write-M365DSCHost -Message $Global:M365DSCEmojiRedX
+        Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
 
         New-M365DSCLogEntry -Message 'Error during Export:' `
             -Exception $_ `
