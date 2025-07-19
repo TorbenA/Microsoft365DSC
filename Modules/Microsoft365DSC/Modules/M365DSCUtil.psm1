@@ -9,6 +9,7 @@ $Global:FullComponents = @('AADRoleManagementPolicyRule', 'AADGroup', 'AADServic
         'TeamsUser', 'TeamsChannelTab', 'TeamsOnlineVoicemailUserSettings', 'TeamsUserCallingSettings', 'TeamsUserPolicyAssignment')
 #endregion
 
+$Script:M365DSCWorkloads = @('AAD', 'ADO', 'AZURE', 'COMMERCE', 'DEFENDER', 'EXO', 'FABRIC', 'INTUNE', 'O365', 'OD', 'PLANNER', 'PP', 'SC', 'SENTINEL', 'SH', 'SPO', 'TEAMS')
 $Script:M365DSCDependenciesValidated = $false
 $Script:IsPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
 if ($null -eq $Script:M365DSCDependencies)
@@ -1785,10 +1786,10 @@ function Confirm-M365DSCModuleDependency
     $modulesToCheck = $Script:M365DSCResourceSettings[$ModuleName.Replace('MSFT_', '')]
     foreach ($module in $modulesToCheck)
     {
-        Write-Verbose -Message "Validating module dependency: $($module)" -Verbose
+        Write-Verbose -Message "Validating module dependency: $($module)"
         Confirm-M365DSCLoadedModule -ModuleName $module
     }
-    Write-Verbose -Message "All dependencies for module '$ModuleName' have been validated." -Verbose
+    Write-Verbose -Message "All dependencies for module '$ModuleName' have been validated."
 }
 
 <#
@@ -4236,28 +4237,28 @@ function Test-M365DSCObjectHasProperty
 
 <#
 .Description
-    This function returns the used workloads for the specified DSC resources
+    This function returns the connection workloads for the specified DSC resources
 
 .Parameter ResourceNames
-    Specifies the resources for which the workloads should be determined.
+    Specifies the resources for which the connection workloads should be determined.
     Either a single string, an array of strings or an object with 'Name' and 'AuthenticationMethod' can be provided.
 
 .Example
-    Get-M365DSCWorkloadsListFromResourceNames -ResourceNames AADUser
+    Get-M365DSCConnectedWorkloadList -ResourceNames AADUser
 
 .EXAMPLE
-    Get-M365DSCWorkloadsListFromResourceNames -ResourceNames @('AADUser', 'AADGroup')
+    Get-M365DSCConnectedWorkloadList -ResourceNames @('AADUser', 'AADGroup')
 
 .EXAMPLE
-    Get-M365DSCWorkloadsListFromResourceNames -ResourceNames @{Name = 'AADUser'; AuthenticationMethod = 'Credentials'}
+    Get-M365DSCConnectedWorkloadList -ResourceNames @{Name = 'AADUser'; AuthenticationMethod = 'Credentials'}
 
 .Functionality
 Public
 #>
-function Get-M365DSCWorkloadsListFromResourceNames
+function Get-M365DSCConnectedWorkloadList
 {
     [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
+    [OutputType([System.Collections.Hashtable[]])]
     param
     (
         [Parameter(Mandatory = $true, Position = 1)]
@@ -4376,6 +4377,53 @@ function Get-M365DSCWorkloadsListFromResourceNames
         }
     }
     return ($workloads | Sort-Object {$_.Name})
+}
+
+<#
+.Description
+    This function returns the workload to which the specified DSC resources belongs.
+
+.Parameter ResourceName
+    Specifies the resources for which the workloads should be determined.
+    Either a single string or an array of strings.
+
+.Example
+    Get-M365DSCWorkloadForResource -ResourceName AADUser
+
+.EXAMPLE
+    Get-M365DSCWorkloadForResource -ResourceName @('AADUser', 'AADGroup')
+
+.Functionality
+Internal
+#>
+function Get-M365DSCWorkloadForResource
+{
+    [CmdletBinding()]
+    [OutputType([System.String[]])]
+    param
+    (
+        [Parameter(Mandatory = $true, Position = 1)]
+        [System.String[]]
+        $ResourceName
+    )
+
+    $workloads = @()
+    foreach ($resource in $ResourceName)
+    {
+        foreach ($workload in $Script:M365DSCWorkloads)
+        {
+            if ($resource -like "$($workload)*")
+            {
+                if ($workloads -notcontains $workload)
+                {
+                    $workloads += $workload
+                    break
+                }
+            }
+        }
+    }
+
+    return $workloads | Sort-Object
 }
 
 <#
@@ -5351,11 +5399,12 @@ Export-ModuleMember -Function @(
     'Get-M365DSCAuthenticationMode',
     'Get-M365DSCComponentsWithMostSecureAuthenticationType',
     'Get-M365DSCConfigurationConflict',
+    'Get-M365DSCConnectedWorkloadList',
     'Get-M365DSCExportContentForResource',
     'Get-M365DSCOrganization',
     'Get-M365DSCTenantDomain',
     'Get-M365DSCTenantNameFromParameterSet',
-    'Get-M365DSCWorkloadsListFromResourceNames',
+    'Get-M365DSCWorkloadForResource',
     'Get-M365TenantName',
     'Get-SPOAdministrationUrl',
     'Get-SPOUserProfilePropertyInstance',

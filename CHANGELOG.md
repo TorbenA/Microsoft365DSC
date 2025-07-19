@@ -8,6 +8,8 @@
   * Initial release.
 * M365DSCUtil
   * Added parameter `-Parallel` to `Export-M365DSCConfiguration`.
+  * Renamed function `Get-M365DSCWorkloadsListFromResourceNames` to `Get-M365DSCConnectedWorkloadList`.
+  * Added function `Get-M365DSCWorkloadForResource` to look up the workload of a resource.
 * MISC
   * Improve module import speed by up to 60%.
   * Other performance improvements to speed up resource processing.

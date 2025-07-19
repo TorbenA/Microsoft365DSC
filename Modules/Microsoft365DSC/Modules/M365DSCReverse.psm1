@@ -557,7 +557,7 @@ function Start-M365DSCConfigurationExtract
         # Retrieve the list of Workloads represented by the resources to export and pre-authenticate to each one;
         if ($ResourcesToExport.Length -gt 0)
         {
-            $WorkloadsToConnectTo = Get-M365DSCWorkloadsListFromResourceNames -ResourceNames $ResourcesToExport
+            $WorkloadsToConnectTo = Get-M365DSCConnectedWorkloadList -ResourceNames $ResourcesToExport
         }
         foreach ($Workload in $WorkloadsToConnectTo)
         {
@@ -710,19 +710,26 @@ function Start-M365DSCConfigurationExtract
 
         if ($Parallel)
         {
-            Write-M365DSCHost -Message "Starting export in parallel mode. Initialiation may take a while..."
-            $requiredModules = [System.Collections.Generic.List[System.String]]::new(50)
-            foreach ($resource in $ResourcesToExport)
+            if ($Workloads.Count -eq 0)
             {
-                foreach ($module in $resourceSettings[$resource.Name])
+                $Workloads = Get-M365DSCWorkloadForResource -ResourceName $ResourcesToExport.Name
+            }
+            foreach ($workload in $Workloads)
+            {
+                Write-M365DSCHost -Message "Starting export in parallel mode for workload {$workload}. Initialization may take a while..."
+                $requiredModules = [System.Collections.Generic.List[System.String]]::new(25)
+                foreach ($resource in $($ResourcesToExport | Where-Object { $_.Name -like "$workload*" }))
                 {
-                    if (-not $requiredModules.Contains($module))
+                    foreach ($module in $resourceSettings[$resource.Name])
                     {
-                        $requiredModules.Add($module)
+                        if (-not $requiredModules.Contains($module))
+                        {
+                            $requiredModules.Add($module)
+                        }
                     }
                 }
+                $resourcesPath | Where-Object { $_ -like "*MSFT_$workload*" } | Invoke-Parallel -ScriptBlock $exportScriptBlock -ModuleName $requiredModules -Verbose
             }
-            $resourcesPath | Invoke-Parallel -ScriptBlock $exportScriptBlock -ModuleName $requiredModules -Verbose
         }
         else
         {
@@ -731,7 +738,7 @@ function Start-M365DSCConfigurationExtract
             $resourcesPath | ForEach-Object -Process $exportScriptBlock
         }
 
-        foreach ($resource in $($synchronizedHashtable.Keys | Sort-Object))
+        foreach ($resource in $($synchronizedHashtable.ResourcesResult.Keys | Sort-Object))
         {
             $DSCContent.Append($synchronizedHashtable.ResourcesResult.$resource) | Out-Null
         }
