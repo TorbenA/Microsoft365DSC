@@ -38,5 +38,6 @@
     "Microsoft.Graph.Beta.NetworkAccess",
     "MSCloudLoginAssistant"
   ],
-  "supportedEnvironments": []
+  "supportedEnvironments": [],
+  "mode": "Configuration"
 }

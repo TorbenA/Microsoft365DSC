@@ -32,5 +32,6 @@
   "requiredModules": [
     "Microsoft.Graph.Groups",
     "MSCloudLoginAssistant"
-  ]
+  ],
+  "mode": "Configuration"
 }

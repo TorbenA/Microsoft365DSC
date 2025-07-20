@@ -46,7 +46,7 @@ function Start-M365DSCConfigurationExtract
         $Workloads,
 
         [Parameter()]
-        [ValidateSet('Lite', 'Default', 'Full')]
+        [ValidateSet('Default', 'Full')]
         [System.String]
         $Mode = 'Default',
 
@@ -144,14 +144,11 @@ function Start-M365DSCConfigurationExtract
         $ComponentsToSkip = @()
         if ($Mode -eq 'Default' -and $null -eq $Components)
         {
-            $ComponentsToSkip = $Global:FullComponents
-        }
-        elseif ($Mode -eq 'Lite' -and $null -eq $Components)
-        {
-            $ComponentsToSkip = $Global:DefaultComponents + $Global:FullComponents
+            $ComponentsToSkip = Get-M365DSCResourcesByExportMode -Mode 'Full' -ExcludeConfigurationResources
         }
 
-        if( $null -ne $ExcludeComponents ) {
+        if ($null -ne $ExcludeComponents)
+        {
             $ComponentsToSkip += $ExcludeComponents
         }
 
@@ -720,7 +717,7 @@ function Start-M365DSCConfigurationExtract
                 $requiredModules = [System.Collections.Generic.List[System.String]]::new(25)
                 foreach ($resource in $($ResourcesToExport | Where-Object { $_.Name -like "$workload*" }))
                 {
-                    foreach ($module in $resourceSettings[$resource.Name])
+                    foreach ($module in $resourceSettings[$resource.Name].requiredModules)
                     {
                         if (-not $requiredModules.Contains($module))
                         {
@@ -1026,7 +1023,7 @@ function Get-M365DSCResourcesByWorkloads
         $Workloads,
 
         [Parameter()]
-        [ValidateSet('Lite', 'Default', 'Full')]
+        [ValidateSet('Default', 'Full')]
         [System.String]
         $Mode = 'Default'
     )
@@ -1037,14 +1034,14 @@ function Get-M365DSCResourcesByWorkloads
     {
         Write-M365DSCHost -Message "Finding all resources for workload {$Workload} and Mode {$Mode}" -ForegroundColor Gray
 
+        $fullComponents = Get-M365DSCResourcesByExportMode -Mode 'Full' -ExcludeConfigurationResources
         foreach ($resource in $modules)
         {
             $ResourceName = $resource.Name -replace 'MSFT_', '' -replace '.psm1', ''
 
             if ($ResourceName.StartsWith($Workload, 'CurrentCultureIgnoreCase') -and
                 ($Mode -eq 'Full' -or `
-                ($Mode -eq 'Default' -and -not $Global:FullComponents.Contains($ResourceName)) -or `
-                ($Mode -eq 'Lite' -and -not $Global:FullComponents.Contains($ResourceName) -and -not $Global:DefaultComponents.Contains($ResourceName))))
+                ($Mode -eq 'Default' -and -not $fullComponents.Contains($ResourceName))))
             {
                 $Components += $ResourceName
             }

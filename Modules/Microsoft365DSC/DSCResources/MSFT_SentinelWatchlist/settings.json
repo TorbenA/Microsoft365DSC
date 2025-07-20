@@ -33,5 +33,6 @@
   },
   "requiredModules": [
     "Az.Resources"
-  ]
+  ],
+  "mode": "Data"
 }

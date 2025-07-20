@@ -18,7 +18,7 @@ This function does not generate any output.
 | ConfigurationName | False | String |  |  | Specifies the name of the configuration that will be generated. |
 | Components | False | String[] |  |  | Specifies the components for which an export should be created. |
 | Workloads | False | String[] |  | AAD, DEFENDER, FABRIC, SPO, EXO, INTUNE, SC, OD, O365, PLANNER, PP, TEAMS | Specifies the workload for which an export should be created for all resources. |
-| Mode | False | String | Default | Lite, Default, Full | Specifies the mode of the export: Lite, Default or Full. |
+| Mode | False | String | Default | Default, Full | Specifies the mode of the export: Default or Full. |
 | GenerateInfo | False | Boolean |  |  | Specifies if each exported resource should get a link to the Wiki article of the resource. |
 | Filters | False | Hashtable |  |  | Specifies resource level filters to apply in order to reduce the number of instances exported. |
 | ApplicationId | False | String |  |  | Specifies the application id to be used for authentication. |

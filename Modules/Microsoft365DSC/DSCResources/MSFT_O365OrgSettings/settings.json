@@ -133,5 +133,6 @@
     "ExchangeOnlineManagement",
     "Microsoft.Graph.Applications",
     "MSCloudLoginAssistant"
-  ]
+  ],
+  "mode": "Configuration"
 }

@@ -27,5 +27,6 @@
       "requiredrolegroups": []
     }
   },
-  "requiredModules": []
+  "requiredModules": [],
+  "mode": "Configuration"
 }

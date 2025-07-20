@@ -6,10 +6,12 @@
   * Added parameter `-Parallel` to `Export-M365DSCConfiguration`.
   * Renamed function `Get-M365DSCWorkloadsListFromResourceNames` to `Get-M365DSCConnectedWorkloadList`.
   * Added function `Get-M365DSCWorkloadForResource` to look up the workload of a resource.
+  * Added function `Get-M365DSCResourcesByExportMode` to determine which resources belong to an export mode.
 * MISC
   * Improve module import speed by up to 60%.
   * Other performance improvements to speed up resource processing.
   * Update required modules for Intune resources doing assignments to groups.
+  * Updated all resource settings files to include a `configuration` or `data` mode.
 
 # 1.25.903.2
 
