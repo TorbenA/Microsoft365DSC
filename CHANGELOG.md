@@ -4,6 +4,8 @@
 
 * IntuneMobileAppsBuiltInStoreApp
   * Initial release.
+* IntuneMobileAppsBundleMacOS
+  * Initial release.
 * IntuneMobileAppsStoreApp
   * Initial release.
 
