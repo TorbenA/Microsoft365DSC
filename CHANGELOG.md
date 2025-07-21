@@ -6,6 +6,8 @@
   * Initial release.
 * IntuneMobileAppsStoreApp
   * Initial release.
+* IntuneMobileAppsWin32AppWindows10
+  * Initial release.
 
 # 1.25.716.1
 
