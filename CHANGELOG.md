@@ -6,6 +6,9 @@
   * Initial release.
 * IntuneMobileAppsStoreApp
   * Initial release.
+* IntuneSettingCatalogCustomPolicyWindows10
+  * Add `RoleScopeTagIds` property to functions.
+    FIXES [#6348](https://github.com/microsoft/Microsoft365DSC/issues/6348)
 
 # 1.25.716.1
 
