@@ -23,6 +23,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
+        $FileName,
+
+        [Parameter()]
+        [System.String]
         $InformationUrl,
 
         [Parameter()]
@@ -48,6 +52,10 @@ function Get-TargetResource
         [Parameter()]
         [System.String]
         $Publisher,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $Categories,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -201,8 +209,8 @@ function Get-TargetResource
         foreach ($complexApp in $getValue.AdditionalProperties.includedApps)
         {
             $complexIncludedApp = @{
-                Id          = $complexApp.id
-                DisplayName = $complexApp.displayName
+                BundleId      = $complexApp.bundleId
+                BundleVersion = $complexApp.bundleVersion
             }
             $complexIncludedApps += $complexIncludedApp
         }
@@ -234,6 +242,7 @@ function Get-TargetResource
             Description                     = $getValue.Description
             Developer                       = $getValue.Developer
             DisplayName                     = $getValue.DisplayName
+            FileName                        = $getValue.AdditionalProperties.fileName
             IgnoreVersionDetection          = $getValue.AdditionalProperties.ignoreVersionDetection
             IncludedApps                    = $complexIncludedApps
             InformationUrl                  = $getValue.InformationUrl
@@ -307,6 +316,10 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
+        $FileName,
+
+        [Parameter()]
+        [System.String]
         $InformationUrl,
 
         [Parameter()]
@@ -332,6 +345,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Publisher,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $Categories,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -424,6 +441,7 @@ function Set-TargetResource
 
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $boundParameters.Remove('Categories') | Out-Null
+    $boundParameters.Remove('PackageFileType') | Out-Null
 
     if ($boundParameters.ContainsKey('PreInstallScript'))
     {
@@ -451,6 +469,11 @@ function Set-TargetResource
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
         $createParameters.Remove('Id') | Out-Null
 
+        if (-not $createParameters.ContainsKey('FileName') -or -not $createParameters.ContainsKey('IncludedApps'))
+        {
+            throw "FileName and IncludedApps are required parameters."
+        }
+
         $keys = (([Hashtable]$createParameters).Clone()).Keys
         foreach ($key in $keys)
         {
@@ -460,8 +483,13 @@ function Set-TargetResource
             }
         }
         #region resource generator code
-        $createParameters.Add("@odata.type", "#microsoft.graph.macOS$($PackageFileType)App")
+        $odataType = "#microsoft.graph.macOS$($PackageFileType)App"
+        $createParameters.Add("@odata.type", $odataType)
+        $createParameters.Add('primaryBundleId', $createParameters.IncludedApps[0].BundleId)
+        $createParameters.Add('primaryBundleVersion', $createParameters.IncludedApps[0].BundleVersion)
         $policy = Invoke-MgGraphRequest -Method POST -Uri "/beta/deviceAppManagement/mobileApps" -Body ($createParameters | ConvertTo-Json -Depth 10)
+
+        Invoke-M365DSCIntuneMobileAppInitialUpload -AppId $policy.Id -OdataType $odataType -FileExtension $PackageFileType.ToLower()
 
         if ($PSBoundParameters.ContainsKey('Categories'))
         {
@@ -475,6 +503,8 @@ function Set-TargetResource
                 -AppManagementPolicyId $policy.Id `
                 -Assignments $assignmentsHash
         }
+
+        Write-Warning -Message "The Intune Mobile Apps Bundle for macOS resource has been created and the sample content was uploaded. Please ensure to upload the actual content from the Intune portal."
         #endregion
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
@@ -545,6 +575,10 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
+        $FileName,
+
+        [Parameter()]
+        [System.String]
         $InformationUrl,
 
         [Parameter()]
@@ -570,6 +604,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Publisher,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $Categories,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]

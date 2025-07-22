@@ -39,10 +39,53 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-PSSession -MockWith {
             }
 
-            Mock -CommandName Update-MgBetaDeviceAppManagementMobileApp -MockWith {
+            Mock -CommandName Update-DeviceAppManagementAppCategory -MockWith {
             }
 
-            Mock -CommandName New-MgBetaDeviceAppManagementMobileApp -MockWith {
+            Mock -CommandName Invoke-M365DSCIntuneMobileAppInitialUpload -MockWith {
+            }
+
+            Mock -CommandName Update-DeviceAppManagementPolicyAssignment -MockWith {
+            }
+
+            Mock -CommandName Invoke-MgGraphRequest -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        '@odata.type' = "#microsoft.graph.macOSDmgApp"
+                        fileName = "FakeStringValue"
+                        ignoreVersionDetection = $true
+                        includedApps = @(
+                            @{
+                                bundleId = "FakeStringValue"
+                                bundleVersion = "FakeStringValue"
+                            }
+                        )
+                        minimumSupportedOperatingSystem = @{
+                            v10_15 = $true
+                        }
+                    }
+                    CommittedContentVersion = "FakeStringValue"
+                    DependentAppCount = 25
+                    Description = "FakeStringValue"
+                    Developer = "FakeStringValue"
+                    DisplayName = "FakeStringValue"
+                    Id = "FakeStringValue"
+                    InformationUrl = "FakeStringValue"
+                    IsFeatured = $True
+                    LargeIcon = @{
+                        Type = "FakeStringValue"
+                        Value = [System.Convert]::FromBase64String("VGVzdA==")
+                    }
+                    Notes = "FakeStringValue"
+                    Owner = "FakeStringValue"
+                    PrivacyInformationUrl = "FakeStringValue"
+                    Publisher = "FakeStringValue"
+                    PublishingState = "notPublished"
+                    RoleScopeTagIds = @("FakeStringValue")
+                    SupersededAppCount = 25
+                    SupersedingAppCount = 25
+                    UploadState = 25
+                }
             }
 
             Mock -CommandName Remove-MgBetaDeviceAppManagementMobileApp -MockWith {
@@ -50,31 +93,47 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceAppManagementMobileApp -MockWith {
                 return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = "#microsoft.graph.mobileLobApp"
+                    AdditionalProperties = @{
+                        '@odata.type' = "#microsoft.graph.macOSDmgApp"
+                        fileName = "FakeStringValue"
+                        ignoreVersionDetection = $true
+                        includedApps = @(
+                            @{
+                                bundleId = "FakeStringValue"
+                                bundleVersion = "FakeStringValue"
+                            }
+                        )
+                        minimumSupportedOperatingSystem = @{
+                            v10_15 = $true
                         }
-                        CommittedContentVersion = "FakeStringValue"
-                        DependentAppCount = 25
-                        Description = "FakeStringValue"
-                        Developer = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        FileName = "FakeStringValue"
-                        Id = "FakeStringValue"
-                        InformationUrl = "FakeStringValue"
-                        IsFeatured = $True
-                        LargeIcon = @{
-                            Type = "FakeStringValue"
+                    }
+                    Categories = @(
+                        @{
+                            Id = "FakeStringValue"
+                            DisplayName = "FakeStringValue"
                         }
-                        Notes = "FakeStringValue"
-                        Owner = "FakeStringValue"
-                        PrivacyInformationUrl = "FakeStringValue"
-                        Publisher = "FakeStringValue"
-                        PublishingState = "notPublished"
-                        RoleScopeTagIds = @("FakeStringValue")
-                        SupersededAppCount = 25
-                        SupersedingAppCount = 25
-                        UploadState = 25
-
+                    )
+                    CommittedContentVersion = "FakeStringValue"
+                    DependentAppCount = 25
+                    Description = "FakeStringValue"
+                    Developer = "FakeStringValue"
+                    DisplayName = "FakeStringValue"
+                    Id = "FakeStringValue"
+                    InformationUrl = "FakeStringValue"
+                    IsFeatured = $True
+                    LargeIcon = @{
+                        Type = "FakeStringValue"
+                        Value = [System.Convert]::FromBase64String("VGVzdA==")
+                    }
+                    Notes = "FakeStringValue"
+                    Owner = "FakeStringValue"
+                    PrivacyInformationUrl = "FakeStringValue"
+                    Publisher = "FakeStringValue"
+                    PublishingState = "notPublished"
+                    RoleScopeTagIds = @("FakeStringValue")
+                    SupersededAppCount = 25
+                    SupersedingAppCount = 25
+                    UploadState = 25
                 }
             }
 
@@ -97,27 +156,37 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The IntuneMobileAppsBundleMacOS should exist but it DOES NOT" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    CommittedContentVersion = "FakeStringValue"
-                    DependentAppCount = 25
+                    Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
+                        Id = "FakeStringValue"
+                        DisplayName = "FakeStringValue"
+                    } -ClientOnly))
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     FileName = "FakeStringValue"
                     Id = "FakeStringValue"
+                    IgnoreVersionDetection = $true
+                    IncludedApps = [CimInstance[]]@(
+                        New-CimInstance -ClassName MSFT_MicrosoftGraphMacOSIncludedApp -Property @{
+                            BundleId = "FakeStringValue"
+                            BundleVersion = "FakeStringValue"
+                        } -ClientOnly
+                    )
                     InformationUrl = "FakeStringValue"
                     IsFeatured = $True
-                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent1 -Property @{
+                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent -Property @{
                         Type = "FakeStringValue"
+                        Value = "VGVzdA==" # Base64 encoded string for "Test"
+                    } -ClientOnly)
+                    MinimumSupportedOperatingSystem = (New-CimInstance -ClassName MSFT_MicrosoftGraphMacOSMinimumOperatingSystem -Property @{
+                        V10_15 = $true
                     } -ClientOnly)
                     Notes = "FakeStringValue"
                     Owner = "FakeStringValue"
+                    PackageFileType = "Dmg"
                     PrivacyInformationUrl = "FakeStringValue"
                     Publisher = "FakeStringValue"
-                    PublishingState = "notPublished"
                     RoleScopeTagIds = @("FakeStringValue")
-                    SupersededAppCount = 25
-                    SupersedingAppCount = 25
-                    UploadState = 25
                     Ensure = "Present"
                     Credential = $Credential;
                 }
@@ -134,35 +203,45 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
             It 'Should Create the group from the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName New-MgBetaDeviceAppManagementMobileApp -Exactly 1
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1
             }
         }
 
         Context -Name "The IntuneMobileAppsBundleMacOS exists but it SHOULD NOT" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    CommittedContentVersion = "FakeStringValue"
-                    DependentAppCount = 25
+                    Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
+                        Id = "FakeStringValue"
+                        DisplayName = "FakeStringValue"
+                    } -ClientOnly))
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     FileName = "FakeStringValue"
                     Id = "FakeStringValue"
+                    IgnoreVersionDetection = $true
+                    IncludedApps = [CimInstance[]]@(
+                        New-CimInstance -ClassName MSFT_MicrosoftGraphMacOSIncludedApp -Property @{
+                            BundleId = "FakeStringValue"
+                            BundleVersion = "FakeStringValue"
+                        } -ClientOnly
+                    )
                     InformationUrl = "FakeStringValue"
                     IsFeatured = $True
-                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent1 -Property @{
+                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent -Property @{
                         Type = "FakeStringValue"
+                        Value = "VGVzdA==" # Base64 encoded string for "Test"
+                    } -ClientOnly)
+                    MinimumSupportedOperatingSystem = (New-CimInstance -ClassName MSFT_MicrosoftGraphMacOSMinimumOperatingSystem -Property @{
+                        V10_15 = $true
                     } -ClientOnly)
                     Notes = "FakeStringValue"
                     Owner = "FakeStringValue"
+                    PackageFileType = "Dmg"
                     PrivacyInformationUrl = "FakeStringValue"
                     Publisher = "FakeStringValue"
-                    PublishingState = "notPublished"
                     RoleScopeTagIds = @("FakeStringValue")
-                    SupersededAppCount = 25
-                    SupersedingAppCount = 25
-                    UploadState = 25
-                    Ensure = 'Absent'
+                    Ensure = "Absent"
                     Credential = $Credential;
                 }
             }
@@ -184,28 +263,38 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The IntuneMobileAppsBundleMacOS Exists and Values are already in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    CommittedContentVersion = "FakeStringValue"
-                    DependentAppCount = 25
+                    Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
+                        Id = "FakeStringValue"
+                        DisplayName = "FakeStringValue"
+                    } -ClientOnly))
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     FileName = "FakeStringValue"
                     Id = "FakeStringValue"
+                    IgnoreVersionDetection = $true
+                    IncludedApps = [CimInstance[]]@(
+                        New-CimInstance -ClassName MSFT_MicrosoftGraphMacOSIncludedApp -Property @{
+                            BundleId = "FakeStringValue"
+                            BundleVersion = "FakeStringValue"
+                        } -ClientOnly
+                    )
                     InformationUrl = "FakeStringValue"
                     IsFeatured = $True
-                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent1 -Property @{
+                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent -Property @{
                         Type = "FakeStringValue"
+                        Value = "VGVzdA==" # Base64 encoded string for "Test"
+                    } -ClientOnly)
+                    MinimumSupportedOperatingSystem = (New-CimInstance -ClassName MSFT_MicrosoftGraphMacOSMinimumOperatingSystem -Property @{
+                        V10_15 = $true
                     } -ClientOnly)
                     Notes = "FakeStringValue"
                     Owner = "FakeStringValue"
+                    PackageFileType = "Dmg"
                     PrivacyInformationUrl = "FakeStringValue"
                     Publisher = "FakeStringValue"
-                    PublishingState = "notPublished"
                     RoleScopeTagIds = @("FakeStringValue")
-                    SupersededAppCount = 25
-                    SupersedingAppCount = 25
-                    UploadState = 25
-                    Ensure = 'Present'
+                    Ensure = "Present"
                     Credential = $Credential;
                 }
             }
@@ -218,28 +307,38 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The IntuneMobileAppsBundleMacOS exists and values are NOT in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    CommittedContentVersion = "FakeStringValue"
-                    DependentAppCount = 25
+                    Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
+                        Id = "FakeStringValue"
+                        DisplayName = "FakeStringValue"
+                    } -ClientOnly))
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     FileName = "FakeStringValue"
                     Id = "FakeStringValue"
+                    IgnoreVersionDetection = $true
+                    IncludedApps = [CimInstance[]]@(
+                        New-CimInstance -ClassName MSFT_MicrosoftGraphMacOSIncludedApp -Property @{
+                            BundleId = "FakeStringValue"
+                            BundleVersion = "FakeStringValue_NewVersion" # Drift
+                        } -ClientOnly
+                    )
                     InformationUrl = "FakeStringValue"
                     IsFeatured = $True
-                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent1 -Property @{
+                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent -Property @{
                         Type = "FakeStringValue"
+                        Value = "VGVzdA==" # Base64 encoded string for "Test"
+                    } -ClientOnly)
+                    MinimumSupportedOperatingSystem = (New-CimInstance -ClassName MSFT_MicrosoftGraphMacOSMinimumOperatingSystem -Property @{
+                        V10_15 = $true
                     } -ClientOnly)
                     Notes = "FakeStringValue"
                     Owner = "FakeStringValue"
+                    PackageFileType = "Dmg"
                     PrivacyInformationUrl = "FakeStringValue"
                     Publisher = "FakeStringValue"
-                    PublishingState = "notPublished"
                     RoleScopeTagIds = @("FakeStringValue")
-                    SupersededAppCount = 25
-                    SupersedingAppCount = 25
-                    UploadState = 25
-                    Ensure = 'Present'
+                    Ensure = "Present"
                     Credential = $Credential;
                 }
             }
@@ -254,7 +353,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName Update-MgBetaDeviceAppManagementMobileApp -Exactly 1
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1
             }
         }
 

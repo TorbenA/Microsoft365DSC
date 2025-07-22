@@ -14,7 +14,14 @@ class MSFT_DeviceManagementMobileAppAssignment
 class MSFT_MicrosoftGraphMimeContent
 {
     [Write, Description("Indicates the content mime type.")] String Type;
-    [Write, Description("The byte array that contains the actual content.")] String Value;
+    [Write, Description("The Base64 encoded string content.")] String Value;
+};
+
+[ClassVersion("1.0.0")]
+class MSFT_DeviceManagementMobileAppCategory
+{
+    [Key, Description("The name of the app category.")] String DisplayName;
+    [Write, Description("The unique identifier for an entity. Read-only.")] String Id;
 };
 
 [ClassVersion("1.0.0.0")]
@@ -51,6 +58,7 @@ class MSFT_IntuneMobileAppsBundleMacOS : OMI_BaseResource
     [Write, Description("The bundle type. To change the app type, you have to first delete and then recreate it. Possible values are: Dmg, Pkg"), ValueMap{"Dmg", "Pkg"}, Values{"Dmg", "Pkg"}] String PackageFileType;
     [Write, Description("The description of the app.")] String Description;
     [Write, Description("The developer of the app.")] String Developer;
+    [Write, Description("The file name of the app.")] String FileName;
     [Write, Description("The more information Url.")] String InformationUrl;
     [Write, Description("The value indicating whether the app is marked as featured by the admin.")] Boolean IsFeatured;
     [Write, Description("The large icon, to be displayed in the app details and used for upload of the icon."), EmbeddedInstance("MSFT_MicrosoftGraphMimeContent")] String LargeIcon;
@@ -58,7 +66,8 @@ class MSFT_IntuneMobileAppsBundleMacOS : OMI_BaseResource
     [Write, Description("The owner of the app.")] String Owner;
     [Write, Description("The privacy statement Url.")] String PrivacyInformationUrl;
     [Write, Description("The publisher of the app.")] String Publisher;
-    [Write, Description("The list of apps expected to be installed by the bundle."), EmbeddedInstance("MSFT_MicrosoftGraphMacOSIncludedApp")] String IncludedApps;
+    [Write, Description("The list of categories for this app."), EmbeddedInstance("MSFT_DeviceManagementMobileAppCategory")] String Categories[];
+    [Write, Description("The list of apps expected to be installed by the bundle."), EmbeddedInstance("MSFT_MicrosoftGraphMacOSIncludedApp")] String IncludedApps[];
     [Write, Description("When TRUE, indicates that the app's version will NOT be used to detect if the app is installed on a device. When FALSE, indicates that the app's version will be used to detect if the app is installed on a device. Set this to true for apps that use a self update feature.")] Boolean IgnoreVersionDetection;
     [Write, Description("Indicates the minimum operating system applicable for the application."), EmbeddedInstance("MSFT_MicrosoftGraphMacOSMinimumOperatingSystem")] String MinimumSupportedOperatingSystem;
     [Write, Description("Contains the pre-install script for the app. This will execute on the macOS device before the app is installed.")] String PreInstallScript;

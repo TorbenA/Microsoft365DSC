@@ -8,6 +8,8 @@
   * Initial release.
 * IntuneMobileAppsStoreApp
   * Initial release.
+* M365DSCDRGUtil
+  * Added new function `Invoke-M365DSCIntuneMobileAppInitialUpload` for initial mobile app content upload.
 
 # 1.25.716.1
 
