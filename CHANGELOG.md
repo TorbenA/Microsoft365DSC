@@ -4,6 +4,8 @@
 
 * AADApplication
   * Reduced export time by up to 75%.
+* AADConditionalAccessPolicy
+  * Added support for the ProtocolFlows property.
 * AADGroup
   * Reduced export time by up to 60%.
 * AADPIMGroupSettings
