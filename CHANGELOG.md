@@ -24,10 +24,14 @@
   * Reduced export time by 25%.
 * IntuneMobileAppsBuiltInStoreApp
   * Initial release.
-* IntuneMobileAppsSystemAppAndroid
+* IntuneMobileAppsBundleMacOS
   * Initial release.
 * IntuneMobileAppsStoreApp
   * Initial release.
+* IntuneMobileAppsSystemAppAndroid
+  * Initial release.
+* M365DSCDRGUtil
+  * Added new function `Invoke-M365DSCIntuneMobileAppInitialUpload` for initial mobile app content upload.
 * MISC
   * Fixed log messages from being out of order for AAD resources.
 
