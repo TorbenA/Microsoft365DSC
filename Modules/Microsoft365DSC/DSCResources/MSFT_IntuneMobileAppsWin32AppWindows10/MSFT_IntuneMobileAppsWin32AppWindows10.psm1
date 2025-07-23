@@ -50,6 +50,10 @@ function Get-TargetResource
         $Publisher,
 
         [Parameter()]
+        [System.String]
+        $FileName,
+
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Categories,
 
@@ -66,10 +70,6 @@ function Get-TargetResource
         $AllowedArchitectures,
 
         [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $MinimumSupportedOperatingSystem,
-
-        [Parameter()]
         [System.Int32]
         $MinimumFreeDiskSpaceInMB,
 
@@ -84,14 +84,6 @@ function Get-TargetResource
         [Parameter()]
         [System.Int32]
         $MinimumCpuSpeedInMHz,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $DetectionRules,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $RequirementRules,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -220,10 +212,12 @@ function Get-TargetResource
                 Write-Verbose -Message "Could not find an Intune Mobile Apps Win32 App for Windows10 with DisplayName {$DisplayName}."
                 return $nullResult
             }
+
+            $getValue = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $getValue.Id -ExpandProperty 'Categories'
         }
         else
         {
-            $getValue = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $getValue.Id -ExpandProperty 'Categories'
+            $getValue = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $Script:exportedInstance.Id -ExpandProperty 'Categories'
         }
         $Id = $getValue.Id
         Write-Verbose -Message "An Intune Mobile Apps Win32 App for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found"
@@ -245,102 +239,55 @@ function Get-TargetResource
             $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($getValue.LargeIcon.Value))
         }
 
-        $complexMinimumSupportedOperatingSystem = [ordered]@{}
-        $complexMinimumSupportedOperatingSystem.Add('V8_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v8_0)
-        $complexMinimumSupportedOperatingSystem.Add('V8_1', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v8_1)
-        $complexMinimumSupportedOperatingSystem.Add('V10_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_0)
-        $complexMinimumSupportedOperatingSystem.Add('V10_1607', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_1607)
-        $complexMinimumSupportedOperatingSystem.Add('V10_1703', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_1703)
-        $complexMinimumSupportedOperatingSystem.Add('V10_1709', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_1709)
-        $complexMinimumSupportedOperatingSystem.Add('V10_1803', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_1803)
-        $complexMinimumSupportedOperatingSystem.Add('V10_1809', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_1809)
-        $complexMinimumSupportedOperatingSystem.Add('V10_1903', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_1903)
-        $complexMinimumSupportedOperatingSystem.Add('V10_1909', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_1909)
-        $complexMinimumSupportedOperatingSystem.Add('V10_2004', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_2004)
-        $complexMinimumSupportedOperatingSystem.Add('V10_2H20', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_2H20)
-        $complexMinimumSupportedOperatingSystem.Add('V10_21H1', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_21H1)
-        if ($complexMinimumSupportedOperatingSystem.Values.Where({ $null -ne $_ }).Count -eq 0)
+        $complexRules = @()
+        foreach ($rule in $getValue.AdditionalProperties.rules)
         {
-            $complexMinimumSupportedOperatingSystem = $null
-        }
-
-        $complexDetectionRules = @()
-        foreach ($detectionRule in $getValue.AdditionalProperties.detectionRules)
-        {
-            $detectionType = $detectionRule.'@odata.type'.Replace('#microsoft.graph.win32LobApp', '').Replace('Detection', '')
-            $baseDetectionRule = @{
-                OdataType      = $detectionType
-                Operator       = $detectionRule.operator
-                DetectionValue = $detectionRule.detectionValue
+            $ruleType = $rule.'@odata.type'.Replace('#microsoft.graph.win32LobApp', '').Replace('Rule', '')
+            $baseRule = @{
+                OdataType       = $ruleType
+                RuleType        = $rule.ruleType
+                Operator        = $rule.operator
+                ComparisonValue = $rule.comparisonValue
             }
-            switch ($detectionType)
+            switch ($ruleType)
             {
                 'FileSystem' {
-                    $baseDetectionRule.Add('Check32BitOn64System', $detectionRule.check32BitOn64System)
-                    $baseDetectionRule.Add('Path', $detectionRule.path)
-                    $baseDetectionRule.Add('FileOrFolderName', $detectionRule.fileOrFolderName)
-                    $baseDetectionRule.Add('FileSystemDetectionType', $detectionRule.detectionType)
+                    $baseRule.Add('Check32BitOn64System', $rule.check32BitOn64System)
+                    $baseRule.Add('Path', $rule.path)
+                    $baseRule.Add('FileOrFolderName', $rule.fileOrFolderName)
+                    $baseRule.Add('FileSystemOperationType', $rule.operationType)
                 }
                 'Registry' {
-                    $baseDetectionRule.Add('Check32BitOn64System', $detectionRule.check32BitOn64System)
-                    $baseDetectionRule.Add('KeyPath', $detectionRule.keyPath)
-                    $baseDetectionRule.Add('RegistryDetectionType', $detectionRule.detectionType)
-                    $baseDetectionRule.Add('ValueName', $detectionRule.registryValueName)
+                    $baseRule.Add('Check32BitOn64System', $rule.check32BitOn64System)
+                    $baseRule.Add('KeyPath', $rule.keyPath)
+                    $baseRule.Add('RegistryOperationType', $rule.operationType)
+                    $baseRule.Add('ValueName', $rule.valueName)
                 }
                 "ProductCode" {
-                    $baseDetectionRule.Add('ProductCode', $detectionRule.productCode)
-                    $baseDetectionRule.Add('ProductVersionOperator', $detectionRule.productVersionOperator)
-                    $baseDetectionRule.Add('ProductVersion', $detectionRule.productVersion)
+                    $baseRule.Add('ProductCode', $rule.productCode)
+                    $baseRule.Add('ProductVersionOperator', $rule.productVersionOperator)
+                    $baseRule.Add('ProductVersion', $rule.productVersion)
+                    $baseRule.Remove('Operator') | Out-Null
+                    $baseRule.Remove('ComparisonValue') | Out-Null
                 }
                 "PowerShellScript" {
-                    $baseDetectionRule.Add('Script', [System.Convert]::FromBase64String($detectionRule.scriptContent))
-                    $baseDetectionRule.Add('RunAs32Bit', $detectionRule.runAs32Bit)
-                    $baseDetectionRule.Add('EnforceSignatureCheck', $detectionRule.enforceSignatureCheck)
+                    $baseRule.Add('DisplayName', $rule.displayName)
+                    $baseRule.Add('Script', [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($rule.scriptContent)))
+                    $baseRule.Add('RunAs32Bit', $rule.runAs32Bit)
+                    $baseRule.Add('EnforceSignatureCheck', $rule.enforceSignatureCheck)
+                    $baseRule.Add('RunAsAccount', $rule.runAsAccount)
+                    $baseRule.Add('PowerShellScriptOperationType', $rule.operationType)
                 }
             }
-            $complexDetectionRules += $baseDetectionRule
+            $complexRules += $baseRule
         }
 
-        $complexRequirementRules = @()
-        foreach ($requirementRule in $getValue.AdditionalProperties.requirementRules)
-        {
-            $requirementType = $requirementRule.'@odata.type'.Replace('#microsoft.graph.win32LobApp', '').Replace('Requirement', '')
-            $baseRequirementRule = @{
-                OdataType      = $requirementType
-                Operator       = $requirementRule.operator
-                DetectionValue = $requirementRule.detectionValue
-            }
-            switch ($requirementType)
-            {
-                'FileSystem' {
-                    $baseRequirementRule.Add('Check32BitOn64System', $requirementRule.check32BitOn64System)
-                    $baseRequirementRule.Add('Path', $requirementRule.path)
-                    $baseRequirementRule.Add('FileOrFolderName', $requirementRule.fileOrFolderName)
-                    $baseRequirementRule.Add('FileSystemDetectionType', $requirementRule.detectionType)
-                }
-                'Registry' {
-                    $baseRequirementRule.Add('Check32BitOn64System', $requirementRule.check32BitOn64System)
-                    $baseRequirementRule.Add('KeyPath', $requirementRule.keyPath)
-                    $baseRequirementRule.Add('RegistryDetectionType', $requirementRule.detectionType)
-                    $baseRequirementRule.Add('ValueName', $requirementRule.registryValueName)
-                }
-                "PowerShellScript" {
-                    $baseRequirementRule.Add('Script', [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($requirementRule.scriptContent)))
-                    $baseRequirementRule.Add('RunAs32Bit', $requirementRule.runAs32Bit)
-                    $baseRequirementRule.Add('EnforceSignatureCheck', $requirementRule.enforceSignatureCheck)
-                    $baseRequirementRule.Add('RunAsAccountType', $requirementRule.runAsAccountType)
-                    $baseRequirementRule.Add('PowerShellScriptDetectionType', $requirementRule.detectionType)
-                }
-            }
-            $complexRequirementRules += $baseRequirementRule
-        }
-
-        if ($null -ne $getValue.AdditionalProperties.InstallExperience)
+        if ($null -ne $getValue.AdditionalProperties.installExperience)
         {
             $complexInstallExperience = @{}
             $complexInstallExperience.Add('DeviceRestartBehavior', $getValue.AdditionalProperties.installExperience.deviceRestartBehavior)
             $complexInstallExperience.Add('MaxRunTimeInMinutes', $getValue.AdditionalProperties.installExperience.maxRunTimeInMinutes)
-            $complexInstallExperience.Add('RunAsAccountType', $getValue.AdditionalProperties.installExperience.runAsAccountType)
+            $complexInstallExperience.Add('RunAsAccount', $getValue.AdditionalProperties.installExperience.runAsAccount)
         }
 
         $complexReturnCodes = @()
@@ -372,18 +319,17 @@ function Get-TargetResource
             Description                     = $getValue.Description
             Developer                       = $getValue.Developer
             DisplayName                     = $getValue.DisplayName
+            FileName                        = $getValue.AdditionalProperties.fileName
             InformationUrl                  = $getValue.InformationUrl
             InstallCommandLine              = $getValue.AdditionalProperties.installCommandLine
             UninstallCommandLine            = $getValue.AdditionalProperties.uninstallCommandLine
-            MinimumSupportedOperatingSystem = $complexMinimumSupportedOperatingSystem
             MinimumFreeDiskSpaceInMB        = $getValue.AdditionalProperties.minimumFreeDiskSpaceInMB
             MinimumMemoryInMB               = $getValue.AdditionalProperties.minimumMemoryInMB
             MinimumNumberOfProcessors       = $getValue.AdditionalProperties.minimumNumberOfProcessors
             MinimumCpuSpeedInMHz            = $getValue.AdditionalProperties.minimumCpuSpeedInMHz
-            DetectionRules                  = $complexDetectionRules
-            RequirementRules                = $complexRequirementRules
             InstallExperience               = $complexInstallExperience
             ReturnCodes                     = $complexReturnCodes
+            Rules                           = $complexRules
             MsiInformation                  = $complexMsiInformation
             SetupFilePath                   = $getValue.AdditionalProperties.setupFilePath
             MinimumSupportedWindowsRelease  = $getValue.AdditionalProperties.minimumSupportedWindowsRelease
@@ -410,7 +356,7 @@ function Get-TargetResource
         $assignmentResult = @()
         if ($assignmentsValues.Count -gt 0)
         {
-            $assignmentResult += ConvertFrom-IntunePolicyAssignment -Assignments $assignmentsValues -IncludeDeviceFilter $true
+            $assignmentResult += ConvertFrom-IntuneMobileAppAssignment -Assignments $assignmentsValues -IncludeDeviceFilter $true
         }
         $results.Add('Assignments', $assignmentResult)
 
@@ -479,6 +425,10 @@ function Set-TargetResource
         $Publisher,
 
         [Parameter()]
+        [System.String]
+        $FileName,
+
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Categories,
 
@@ -495,10 +445,6 @@ function Set-TargetResource
         $AllowedArchitectures,
 
         [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $MinimumSupportedOperatingSystem,
-
-        [Parameter()]
         [System.Int32]
         $MinimumFreeDiskSpaceInMB,
 
@@ -513,14 +459,6 @@ function Set-TargetResource
         [Parameter()]
         [System.Int32]
         $MinimumCpuSpeedInMHz,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $DetectionRules,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $RequirementRules,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -614,6 +552,7 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
 
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $boundParameters.Remove('Categories') | Out-Null
 
     if ($boundParameters.ContainsKey('AllowedArchitectures'))
     {
@@ -624,6 +563,13 @@ function Set-TargetResource
 
         $boundParameters.Remove('AllowedArchitectures') | Out-Null
         $boundParameters.Add('AllowedArchitectures', ($PSBoundParameters.AllowedArchitectures -join ','))
+        $PSBoundParameters.Add('ApplicableArchitectures', 'none')
+        $boundParameters.Add('ApplicableArchitectures', 'none')
+
+        if ([System.String]::IsNullOrEmpty($boundParameters.AllowedArchitectures))
+        {
+            $boundParameters.AllowedArchitectures = $null
+        }
     }
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
@@ -636,56 +582,51 @@ function Set-TargetResource
         $createParameters.Remove('Id') | Out-Null
 
         $keys = (([Hashtable]$createParameters).Clone()).Keys
+        $allRules = @()
         foreach ($key in $keys)
         {
-            if ($null -ne $createParameters.$key -and $createParameters.$key.GetType().Name -like '*CimInstance*')
+            if ($null -ne $createParameters.$key -and $PSBoundParameters.$key.GetType().Name -like '*CimInstance*')
             {
                 $createParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $createParameters.$key
 
-                $rulesToProcess = @()
-                $isDetectionRule = $false
-                if ($key -eq 'DetectionRules')
+                if ($key -eq 'Rules')
                 {
-                    $isDetectionRule = $true
-                    $rulesToProcess = $createParameters.DetectionRules
-                }
-                elseif ($key -eq 'RequirementRules')
-                {
-                    $rulesToProcess = $createParameters.RequirementRules
-                }
-                foreach ($rule in $rulesToProcess)
-                {
-                    $odataType = $rule.OdataType
-                    $rule.Remove('OdataType') | Out-Null
-                    if ($isDetectionRule)
+                    $rulesToProcess = @()
+                    $rulesToProcess = $createParameters.$key
+
+                    foreach ($rule in $rulesToProcess)
                     {
-                        $rule.Add('@odata.type', "#microsoft.graph.win32LobApp$odataType" + 'Detection')
-                    }
-                    else
-                    {
-                        $rule.Add('@odata.type', "#microsoft.graph.win32LobApp$odataType" + 'Requirement')
-                    }
-                    switch ($odataType)
-                    {
-                        'FileSystem' {
-                            $rule.Add('DetectionType', $rule.FileSystemDetectionType)
-                            $rule.Remove('FileSystemDetectionType') | Out-Null
-                        }
-                        'Registry' {
-                            $rule.Add('DetectionType', $rule.RegistryDetectionType)
-                            $rule.Remove('RegistryDetectionType') | Out-Null
-                        }
-                        'PowerShellScript' {
-                            $rule.Add('ScriptContent', [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($rule.Script)))
-                            $rule.Remove('Script') | Out-Null
+                        $odataType = $rule.'@odata.type'
+                        $rule.'@odata.type' = "#microsoft.graph.win32LobApp$($odataType)Rule"
+                        switch ($odataType)
+                        {
+                            'FileSystem' {
+                                $rule.Add('operationType', $rule.fileSystemOperationType)
+                                $rule.Remove('fileSystemOperationType') | Out-Null
+                            }
+                            'Registry' {
+                                $rule.Add('operationType', $rule.registryOperationType)
+                                $rule.Remove('registryOperationType') | Out-Null
+                            }
+                            'PowerShellScript' {
+                                $rule.Add('scriptContent', [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($rule.script)))
+                                $rule.Remove('script') | Out-Null
+                                $rule.Add('operationType', $rule.powerShellScriptOperationType)
+                                $rule.Remove('powerShellScriptOperationType') | Out-Null
+                            }
                         }
                     }
+
+                    $createParameters.$key = $rulesToProcess
+                    $allRules += $rulesToProcess
                 }
             }
         }
         #region resource generator code
         $createParameters.Add("@odata.type", "#microsoft.graph.win32LobApp")
         $policy = Invoke-MgGraphRequest -Method POST -Uri "/beta/deviceAppManagement/mobileApps" -Body ($createParameters | ConvertTo-Json -Depth 10)
+
+        Invoke-M365DSCIntuneMobileAppInitialUpload -AppId $policy.Id -OdataType "#microsoft.graph.win32LobApp" -FileExtension "intunewin"
 
         if ($PSBoundParameters.ContainsKey('Categories'))
         {
@@ -712,50 +653,43 @@ function Set-TargetResource
         $updateParameters.Remove('Id') | Out-Null
 
         $keys = (([Hashtable]$updateParameters).Clone()).Keys
+        $allRules = @()
         foreach ($key in $keys)
         {
-            if ($null -ne $createParameters.$key -and $createParameters.$key.GetType().Name -like '*CimInstance*')
+            if ($null -ne $updateParameters.$key -and $PSBoundParameters.$key.GetType().Name -like '*CimInstance*')
             {
-                $createParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $createParameters.$key
+                $updateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.$key
 
-                $rulesToProcess = @()
-                $isDetectionRule = $false
-                if ($key -eq 'DetectionRules')
+                if ($key -eq 'Rules')
                 {
-                    $isDetectionRule = $true
-                    $rulesToProcess = $createParameters.DetectionRules
-                }
-                elseif ($key -eq 'RequirementRules')
-                {
-                    $rulesToProcess = $createParameters.RequirementRules
-                }
-                foreach ($rule in $rulesToProcess)
-                {
-                    $odataType = $rule.OdataType
-                    $rule.Remove('OdataType') | Out-Null
-                    if ($isDetectionRule)
+                    $rulesToProcess = @()
+                    $rulesToProcess = $updateParameters.$key
+
+                    foreach ($rule in $rulesToProcess)
                     {
-                        $rule.Add('@odata.type', "#microsoft.graph.win32LobApp$odataType" + 'Detection')
-                    }
-                    else
-                    {
-                        $rule.Add('@odata.type', "#microsoft.graph.win32LobApp$odataType" + 'Requirement')
-                    }
-                    switch ($odataType)
-                    {
-                        'FileSystem' {
-                            $rule.Add('DetectionType', $rule.FileSystemDetectionType)
-                            $rule.Remove('FileSystemDetectionType') | Out-Null
-                        }
-                        'Registry' {
-                            $rule.Add('DetectionType', $rule.RegistryDetectionType)
-                            $rule.Remove('RegistryDetectionType') | Out-Null
-                        }
-                        'PowerShellScript' {
-                            $rule.Add('ScriptContent', [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($rule.Script)))
-                            $rule.Remove('Script') | Out-Null
+                        $odataType = $rule.'@odata.type'
+                        $rule.'@odata.type' = "#microsoft.graph.win32LobApp$($odataType)Rule"
+                        switch ($odataType)
+                        {
+                            'FileSystem' {
+                                $rule.Add('operationType', $rule.fileSystemOperationType)
+                                $rule.Remove('fileSystemOperationType') | Out-Null
+                            }
+                            'Registry' {
+                                $rule.Add('operationType', $rule.registryOperationType)
+                                $rule.Remove('registryOperationType') | Out-Null
+                            }
+                            'PowerShellScript' {
+                                $rule.Add('scriptContent', [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($rule.script)))
+                                $rule.Remove('script') | Out-Null
+                                $rule.Add('operationType', $rule.powerShellScriptOperationType)
+                                $rule.Remove('powerShellScriptOperationType') | Out-Null
+                            }
                         }
                     }
+
+                    $updateParameters.$key = $rulesToProcess
+                    $allRules += $rulesToProcess
                 }
             }
         }
@@ -836,6 +770,10 @@ function Test-TargetResource
         $Publisher,
 
         [Parameter()]
+        [System.String]
+        $FileName,
+
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Categories,
 
@@ -852,10 +790,6 @@ function Test-TargetResource
         $AllowedArchitectures,
 
         [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $MinimumSupportedOperatingSystem,
-
-        [Parameter()]
         [System.Int32]
         $MinimumFreeDiskSpaceInMB,
 
@@ -870,14 +804,6 @@ function Test-TargetResource
         [Parameter()]
         [System.Int32]
         $MinimumCpuSpeedInMHz,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $DetectionRules,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $RequirementRules,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -981,7 +907,7 @@ function Test-TargetResource
         {
             $testResult = Compare-M365DSCComplexObject `
                 -Source ($source) `
-                -Target ($target)
+                -Target ($target) -Verbose
 
             if (-not $testResult)
             {
@@ -1135,32 +1061,18 @@ function Export-TargetResource
                     $Results.Remove('Categories') | Out-Null
                 }
             }
-            if ($null -ne $Results.DetectionRules)
+            if ($null -ne $Results.Rules)
             {
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
-                    -ComplexObject $Results.DetectionRules `
-                    -CIMInstanceName 'MicrosoftGraphWin32LobAppDetection'
+                    -ComplexObject $Results.Rules `
+                    -CIMInstanceName 'MicrosoftGraphWin32LobAppRule'
                 if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
-                    $Results.DetectionRules = $complexTypeStringResult
+                    $Results.Rules = $complexTypeStringResult
                 }
                 else
                 {
-                    $Results.Remove('DetectionRules') | Out-Null
-                }
-            }
-            if ($null -ne $Results.RequirementRules)
-            {
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
-                    -ComplexObject $Results.RequirementRules `
-                    -CIMInstanceName 'MicrosoftGraphWin32LobAppRequirement'
-                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
-                {
-                    $Results.RequirementRules = $complexTypeStringResult
-                }
-                else
-                {
-                    $Results.Remove('RequirementRules') | Out-Null
+                    $Results.Remove('Rules') | Out-Null
                 }
             }
             if ($null -ne $Results.InstallExperience)
@@ -1219,24 +1131,35 @@ function Export-TargetResource
                     $Results.Remove('LargeIcon') | Out-Null
                 }
             }
-            if ($null -ne $Results.MinimumSupportedOperatingSystem)
-            {
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
-                    -ComplexObject $Results.MinimumSupportedOperatingSystem `
-                    -CIMInstanceName 'MicrosoftGraphWindowsMinimumOperatingSystem'
-                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
-                {
-                    $Results.MinimumSupportedOperatingSystem = $complexTypeStringResult
-                }
-                else
-                {
-                    $Results.Remove('MinimumSupportedOperatingSystem') | Out-Null
-                }
-            }
 
             if ($Results.Assignments)
             {
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString -ComplexObject $Results.Assignments -CIMInstanceName DeviceManagementMobileAppAssignment
+                $complexMapping = @(
+                    @{
+                        Name = 'AssignmentSettings'
+                        CIMInstanceName = 'DeviceManagementWin32MobileAppAssignmentSettings'
+                        IsRequired = $false
+                    },
+                    @{
+                        Name = 'AutoUpdateSettings'
+                        CIMInstanceName = 'DeviceManagementWin32MobileAppAssignmentSettingsAutoUpdateSettings'
+                        IsRequired = $false
+                    },
+                    @{
+                        Name = 'InstallTimeSettings'
+                        CIMInstanceName = 'DeviceManagementWin32MobileAppAssignmentSettingsInstallTimeSettings'
+                        IsRequired = $false
+                    },
+                    @{
+                        Name = 'RestartSettings'
+                        CIMInstanceName = 'DeviceManagementWin32MobileAppAssignmentSettingsRestartSettings'
+                        IsRequired = $false
+                    }
+                )
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.Assignments `
+                    -CIMInstanceName DeviceManagementWin32MobileAppAssignment `
+                    -ComplexTypeMapping $complexMapping
                 if ($complexTypeStringResult)
                 {
                     $Results.Assignments = $complexTypeStringResult
@@ -1252,7 +1175,7 @@ function Export-TargetResource
                 -ModulePath $PSScriptRoot `
                 -Results $Results `
                 -Credential $Credential `
-                -NoEscape @('Assignments', 'Categories', 'DetectionRules', 'RequirementRules', 'LargeIcon', 'InstallExperience', 'ReturnCodes', 'MsiInformation', 'MinimumSupportedOperatingSystem')
+                -NoEscape @('Assignments', 'Categories', 'Rules', 'LargeIcon', 'InstallExperience', 'ReturnCodes', 'MsiInformation')
             $dscContent += $currentDSCBlock
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName

@@ -36,88 +36,67 @@ Configuration Example
             );
             CertificateThumbprint           = $CertificateThumbprint;
             Description                     = "IntuneWinAppUtil.exe";
-            DetectionRules                  = @(
-                MSFT_MicrosoftGraphWin32LobAppDetection{
+            Rules                           = @(
+                MSFT_MicrosoftGraphWin32LobAppRule{
                     Check32BitOn64System = $False
-                    DetectionValue = "1.0.0.0"
+                    ComparisonValue = "1.0.0.0"
                     FileOrFolderName = "asdf.exe"
-                    FileSystemDetectionType = "version"
+                    FileSystemOperationType = "version"
                     Operator = "equal"
                     Path = "C:\temp\Dev"
+                    RuleType = "detection"
                     OdataType = "FileSystem"
                 }
-                MSFT_MicrosoftGraphWin32LobAppDetection{
+                MSFT_MicrosoftGraphWin32LobAppRule{
                     Check32BitOn64System = $False
-                    RegistryDetectionType = "integer"
-                    DetectionValue = "100"
+                    RegistryOperationType = "integer"
+                    ComparisonValue = "100"
                     Operator = "greaterThanOrEqual"
                     OdataType = "Registry"
+                    RuleType = "detection"
                     KeyPath = "HKLM:\Software\Microsoft\Windows\CurrentVersion"
                 }
-                MSFT_MicrosoftGraphWin32LobAppDetection{
+                MSFT_MicrosoftGraphWin32LobAppRule{
                     ProductVersionOperator = "lessThan"
                     ProductVersion = "2.0.0.0"
                     ProductCode = "{00000000-0000-0000-0000-000000000000}"
                     OdataType = "ProductCode"
+                    RuleType = "requirement"
+                }
+                MSFT_MicrosoftGraphWin32LobAppRule{
+                    Script = "Write-Output 'Hello World'"
+                    DisplayName = "PowerShell Script Rule.ps1"
+                    Operator = "equals"
+                    RunAs32Bit = $False
+                    EnforceSignatureCheck = $False
+                    RunAsAccount = "system"
+                    OdataType = "PowerShellScript"
+                    RuleType = "requirement"
+                    PowerShellScriptOperationType = "string"
+                    ComparisonValue = "Hello World"
                 }
             );
             Developer                       = "";
             DisplayName                     = "Win32 App - IntuneWinAppUtil.exe";
             DisplayVersion                  = "1.0.0.0";
             Ensure                          = "Present";
+            FileName                        = "IntuneWinAppUtil.intunewin";
             Id                              = "63271b78-0fa4-46b8-9ac0-d4b777555dde";
             InstallCommandLine              = "IntuneWinAppUtil.exe -s -t 0";
+            InstallExperience               = MSFT_MicrosoftGraphWin32LobAppInstallExperience{
+                DeviceRestartBehavior = "suppress"
+                RunAsAccount = "system"
+                MaxRunTimeInMinutes = 60
+            };
             IsFeatured                      = $False;
             MinimumCpuSpeedInMHz            = 2500;
             MinimumFreeDiskSpaceInMB        = 1;
             MinimumMemoryInMB               = 200;
             MinimumNumberOfProcessors       = 1;
-            MinimumSupportedOperatingSystem = MSFT_MicrosoftGraphWindowsMinimumOperatingSystem{
-                V8_0 = $False
-                V8_1 = $False
-                V10_0 = $False
-                V10_1607 = $True
-                V10_1703 = $False
-                V10_1709 = $False
-                V10_1803 = $False
-                V10_1809 = $False
-                V10_1903 = $False
-                V10_1909 = $False
-                V10_2004 = $False
-                V10_2H20 = $False
-                V10_21H1 = $False
-            };
             MinimumSupportedWindowsRelease  = "1607";
             Notes                           = "";
             Owner                           = "";
             Publisher                       = "Microsoft";
-            RequirementRules                = @(
-                MSFT_MicrosoftGraphWin32LobAppRequirement{
-                    Check32BitOn64System = $False
-                    FileOrFolderName = "asdf.exe"
-                    FileSystemDetectionType = "exists"
-                    Operator = "notConfigured"
-                    Path = "C:\temp\Dev"
-                    OdataType = "FileSystem"
-                }
-                MSFT_MicrosoftGraphWin32LobAppRequirement{
-                    Check32BitOn64System = $False
-                    RegistryDetectionType = "string"
-                    DetectionValue = "1.0.0.0"
-                    Operator = "equal"
-                    OdataType = "Registry"
-                    KeyPath = "HKLM:\Software\Microsoft\Windows\CurrentVersion"
-                }
-                MSFT_MicrosoftGraphWin32LobAppRequirement{
-                    DetectionValue = "Hello World"
-                    PowerShellScriptDetectionType = "string"
-                    EnforceSignatureCheck = $False
-                    Operator = "equal"
-                    RunAs32Bit = $False
-                    OdataType = "PowerShellScript"
-                    Script = "Write-Output `"Hello World`""
-                }
-            );
             ReturnCodes                     = @(
                 MSFT_MicrosoftGraphWin32LobAppReturnCode{
                     ReturnCode = 0

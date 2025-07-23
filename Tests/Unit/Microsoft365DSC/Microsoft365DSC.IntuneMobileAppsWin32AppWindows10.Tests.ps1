@@ -48,6 +48,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Update-MgBetaDeviceAppManagementMobileApp -MockWith {
             }
 
+            Mock -CommandName Invoke-M365DSCIntuneMobileAppInitialUpload -MockWith {
+            }
+
             Mock -CommandName Invoke-MgGraphRequest -MockWith {
                 return @{
                     AdditionalProperties = @{
@@ -55,12 +58,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         allowedArchitectures = "x86,x64"
                         installCommandLine = "IntuneWinAppUtil.exe -s -t 0"
                         uninstallCommandLine = "IntuneWinAppUtil.exe -s -u -t 0"
+                        installExperience = @{
+                            deviceRestartBehavior = "suppress"
+                            maxRunTimeInMinutes = 60
+                            runAsAccount = "system"
+                        }
                         setupFilePath = "IntuneWinAppUtil.exe"
-                        minimumSupportedWindowsRelease = @{
+                        minimumSupportedOperatingSystem = @{
                             v8_0 = $False
                             v8_1 = $False
                             v10_0 = $False
-                            v10_1607 = $False
+                            v10_1607 = $True
                             v10_1703 = $False
                             v10_1709 = $False
                             v10_1803 = $False
@@ -71,27 +79,37 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             v10_2H20 = $False
                             v10_21H1 = $False
                         }
+                        minimumSupportedWindowsRelease = "1607"
+                        msiInformation = @{
+                            productCode = "{00000000-0000-0000-0000-000000000000}"
+                            productVersion = "1.0.0.0"
+                            upgradeCode = "{00000000-0000-0000-0000-000000000000}"
+                            requiresReboot = $False
+                            packageType = "dualPurpose"
+                            productName = "IntuneWinAppUtil"
+                            publisher = "FakeStringValue"
+                        }
                         displayVersion = "1.0.0.0"
                         allowAvailableUninstall = $False
-                        detectionRules = @(
+                        rules = @(
                             @{
-                                '@odata.type' = "#microsoft.graph.win32LobAppFileSystemDetection"
+                                '@odata.type' = "#microsoft.graph.win32LobAppFileSystemRule"
                                 check32BitOn64System = $False
-                                detectionType = "version"
-                                detectionValue = "1.0.0.0"
+                                operationType = "version"
                                 fileOrFolderName = "test.exe"
                                 operator = "equal"
-                                path = "C:\temp\Dev"
+                                comparisonValue = "1.0.0.0"
+                                path = "C:\Path"
+                                ruleType = "detection"
                             }
-                        )
-                        requirementRules = @(
                             @{
-                                '@odata.type' = "#microsoft.graph.win32LobAppFileSystemRequirement"
+                                '@odata.type' = "#microsoft.graph.win32LobAppFileSystemRule"
                                 check32BitOn64System = $False
-                                detectionType = "exists"
+                                operationType = "exists"
                                 fileOrFolderName = "test.exe"
                                 operator = "notConfigured"
-                                path = "C:\temp\Dev"
+                                path = "C:\Path"
+                                ruleType = "requirement"
                             }
                         )
                         returnCodes = @(
@@ -142,12 +160,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         allowedArchitectures = "x86,x64"
                         installCommandLine = "IntuneWinAppUtil.exe -s -t 0"
                         uninstallCommandLine = "IntuneWinAppUtil.exe -s -u -t 0"
+                        installExperience = @{
+                            deviceRestartBehavior = "suppress"
+                            maxRunTimeInMinutes = 60
+                            runAsAccount = "system"
+                        }
                         setupFilePath = "IntuneWinAppUtil.exe"
-                        minimumSupportedWindowsRelease = @{
+                        minimumSupportedOperatingSystem = @{
                             v8_0 = $False
                             v8_1 = $False
                             v10_0 = $False
-                            v10_1607 = $False
+                            v10_1607 = $True
                             v10_1703 = $False
                             v10_1709 = $False
                             v10_1803 = $False
@@ -158,24 +181,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             v10_2H20 = $False
                             v10_21H1 = $False
                         }
-                        displayVersion = "1.0.0.0"
-                        allowAvailableUninstall = $False
-                        detectionRules = @(
-                            @{
-                                '@odata.type' = "#microsoft.graph.win32LobAppFileSystemDetection"
-                                check32BitOn64System = $False
-                                detectionType = "version"
-                                detectionValue = "1.0.0.0"
-                                fileOrFolderName = "test.exe"
-                                operator = "equal"
-                                path = "C:\temp\Dev"
-                            }
-                        )
-                        installExperience = @{
-                            deviceRestartBehavior = "suppress"
-                            maxRunTimeInMinutes = 60
-                            runAsAccountType = "system"
-                        }
+                        minimumSupportedWindowsRelease = "1607"
                         msiInformation = @{
                             productCode = "{00000000-0000-0000-0000-000000000000}"
                             productVersion = "1.0.0.0"
@@ -185,14 +191,27 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             productName = "IntuneWinAppUtil"
                             publisher = "FakeStringValue"
                         }
-                        requirementRules = @(
+                        displayVersion = "1.0.0.0"
+                        allowAvailableUninstall = $False
+                        rules = @(
                             @{
-                                '@odata.type' = "#microsoft.graph.win32LobAppFileSystemRequirement"
+                                '@odata.type' = "#microsoft.graph.win32LobAppFileSystemRule"
                                 check32BitOn64System = $False
-                                detectionType = "exists"
+                                operationType = "version"
+                                fileOrFolderName = "test.exe"
+                                operator = "equal"
+                                comparisonValue = "1.0.0.0"
+                                path = "C:\Path"
+                                ruleType = "detection"
+                            }
+                            @{
+                                '@odata.type' = "#microsoft.graph.win32LobAppFileSystemRule"
+                                check32BitOn64System = $False
+                                operationType = "exists"
                                 fileOrFolderName = "test.exe"
                                 operator = "notConfigured"
-                                path = "C:\temp\Dev"
+                                path = "C:\Path"
+                                ruleType = "requirement"
                             }
                         )
                         returnCodes = @(
@@ -244,8 +263,35 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             $Script:ExportMode = $false
 
             Mock -CommandName Get-MgBetaDeviceAppManagementMobileAppAssignment -MockWith {
+                return @(
+                    @{
+                        Id = "12345-12345-12345-12345-12345"
+                        Intent = "required"
+                        Source = "direct"
+                        SourceId = "12345-12345-12345-12345-12345"
+                        Target = @{
+                            AdditionalProperties = @{
+                                "@odata.type" = "#microsoft.graph.groupAssignmentTarget"
+                                groupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
+                            }
+                            "deviceAndAppManagementAssignmentFilterId" = '12345-12345-12345-12345-12345'
+                            "deviceAndAppManagementAssignmentFilterType" = "none"
+                        }
+                        Settings = @{
+                            AdditionalProperties = @{
+                                "@odata.type" = "#microsoft.graph.win32LobAppAssignmentSettings"
+                                notifications = "showAll"
+                                deliveryOptimizationPriority = "notConfigured"
+                                restartSettings = @{
+                                    gracePeriodInMinutes = 1440
+                                    countdownDisplayBeforeRestartInMinutes = 15
+                                    restartNotificationSnoozeDurationInMinutes = 240
+                                }
+                            }
+                        }
+                    }
+                )
             }
-
         }
 
         # Test contexts
@@ -253,6 +299,23 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     AllowedArchitectures = @("x86", "x64")
+                    Assignments = [CimInstance[]]@(
+                        (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignment -Property @{
+                            Id = "12345-12345-12345-12345-12345"
+                            Intent = "required"
+                            DeviceAndAppManagementAssignmentFilterType = "none"
+                            GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
+                            assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignmentSettings -Property @{
+                                Notifications = "showAll"
+                                DeliveryOptimizationPriority = "notConfigured"
+                                RestartSettings = (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignmentSettingsRestartSettings -Property @{
+                                    GracePeriodInMinutes = 1440
+                                    CountdownDisplayBeforeRestartInMinutes = 15
+                                    RestartNotificationSnoozeDurationInMinutes = 240
+                                } -ClientOnly)
+                            } -ClientOnly)
+                        } -ClientOnly)
+                    )
                     Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
                         Id = "FakeStringValue"
                         DisplayName = "FakeStringValue"
@@ -271,25 +334,24 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         ProductName = "IntuneWinAppUtil"
                         Publisher = "FakeStringValue"
                     } -ClientOnly)
-                    DetectionRules = [CimInstance[]]@(
-                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppFileSystemDetection -Property @{
-                            Check32BitOn64System = $False
-                            DetectionType = "version"
-                            DetectionValue = "1.0.0.0"
+                    Rules = [CimInstance[]]@(
+                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppRule -Property @{
+                            Path = "C:\Path"
                             FileOrFolderName = "test.exe"
                             OdataType = "FileSystem"
-                            Operator = "equal"
-                            Path = "C:\temp\Dev"
-                        } -ClientOnly)
-                    )
-                    RequirementRules = [CimInstance[]]@(
-                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppFileSystemRequirement -Property @{
-                            Check32BitOn64System = $False
-                            DetectionType = "exists"
-                            FileOrFolderName = "test.exe"
+                            RuleType = "requirement"
+                            FileSystemOperationType = "exists"
                             Operator = "notConfigured"
-                            Path = "C:\temp\Dev"
+                            Check32BitOn64System = $False
+                        } -ClientOnly)
+                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppRule -Property @{
+                            Path = "C:\Path"
+                            FileOrFolderName = "test.exe"
                             OdataType = "FileSystem"
+                            RuleType = "detection"
+                            FileSystemOperationType = "version"
+                            Operator = "equal"
+                            ComparisonValue = "1.0.0.0"
                         } -ClientOnly)
                     )
                     ReturnCodes = [CimInstance[]]@(
@@ -340,6 +402,23 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     AllowedArchitectures = @("x86", "x64")
+                    Assignments = [CimInstance[]]@(
+                        (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignment -Property @{
+                            Id = "12345-12345-12345-12345-12345"
+                            Intent = "required"
+                            DeviceAndAppManagementAssignmentFilterType = "none"
+                            GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
+                            assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignmentSettings -Property @{
+                                Notifications = "showAll"
+                                DeliveryOptimizationPriority = "notConfigured"
+                                RestartSettings = (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignmentSettingsRestartSettings -Property @{
+                                    GracePeriodInMinutes = 1440
+                                    CountdownDisplayBeforeRestartInMinutes = 15
+                                    RestartNotificationSnoozeDurationInMinutes = 240
+                                } -ClientOnly)
+                            } -ClientOnly)
+                        } -ClientOnly)
+                    )
                     Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
                         Id = "FakeStringValue"
                         DisplayName = "FakeStringValue"
@@ -358,25 +437,24 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         ProductName = "IntuneWinAppUtil"
                         Publisher = "FakeStringValue"
                     } -ClientOnly)
-                    DetectionRules = [CimInstance[]]@(
-                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppFileSystemDetection -Property @{
-                            Check32BitOn64System = $False
-                            DetectionType = "version"
-                            DetectionValue = "1.0.0.0"
+                    Rules = [CimInstance[]]@(
+                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppRule -Property @{
+                            Path = "C:\Path"
                             FileOrFolderName = "test.exe"
                             OdataType = "FileSystem"
-                            Operator = "equal"
-                            Path = "C:\temp\Dev"
-                        } -ClientOnly)
-                    )
-                    RequirementRules = [CimInstance[]]@(
-                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppFileSystemRequirement -Property @{
-                            Check32BitOn64System = $False
-                            DetectionType = "exists"
-                            FileOrFolderName = "test.exe"
+                            RuleType = "requirement"
+                            FileSystemOperationType = "exists"
                             Operator = "notConfigured"
-                            Path = "C:\temp\Dev"
+                            Check32BitOn64System = $False
+                        } -ClientOnly)
+                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppRule -Property @{
+                            Path = "C:\Path"
+                            FileOrFolderName = "test.exe"
                             OdataType = "FileSystem"
+                            RuleType = "detection"
+                            FileSystemOperationType = "version"
+                            Operator = "equal"
+                            ComparisonValue = "1.0.0.0"
                         } -ClientOnly)
                     )
                     ReturnCodes = [CimInstance[]]@(
@@ -426,6 +504,23 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     AllowedArchitectures = @("x86", "x64")
+                    Assignments = [CimInstance[]]@(
+                        (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignment -Property @{
+                            Id = "12345-12345-12345-12345-12345"
+                            Intent = "required"
+                            DeviceAndAppManagementAssignmentFilterType = "none"
+                            GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
+                            assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignmentSettings -Property @{
+                                Notifications = "showAll"
+                                DeliveryOptimizationPriority = "notConfigured"
+                                RestartSettings = (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignmentSettingsRestartSettings -Property @{
+                                    GracePeriodInMinutes = 1440
+                                    CountdownDisplayBeforeRestartInMinutes = 15
+                                    RestartNotificationSnoozeDurationInMinutes = 240
+                                } -ClientOnly)
+                            } -ClientOnly)
+                        } -ClientOnly)
+                    )
                     Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
                         Id = "FakeStringValue"
                         DisplayName = "FakeStringValue"
@@ -444,25 +539,24 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         ProductName = "IntuneWinAppUtil"
                         Publisher = "FakeStringValue"
                     } -ClientOnly)
-                    DetectionRules = [CimInstance[]]@(
-                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppFileSystemDetection -Property @{
-                            Check32BitOn64System = $False
-                            DetectionType = "version"
-                            DetectionValue = "1.0.0.0"
+                    Rules = [CimInstance[]]@(
+                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppRule -Property @{
+                            Path = "C:\Path"
                             FileOrFolderName = "test.exe"
                             OdataType = "FileSystem"
-                            Operator = "equal"
-                            Path = "C:\temp\Dev"
-                        } -ClientOnly)
-                    )
-                    RequirementRules = [CimInstance[]]@(
-                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppFileSystemRequirement -Property @{
-                            Check32BitOn64System = $False
-                            DetectionType = "exists"
-                            FileOrFolderName = "test.exe"
+                            RuleType = "requirement"
+                            FileSystemOperationType = "exists"
                             Operator = "notConfigured"
-                            Path = "C:\temp\Dev"
+                            Check32BitOn64System = $False
+                        } -ClientOnly)
+                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppRule -Property @{
+                            Path = "C:\Path"
+                            FileOrFolderName = "test.exe"
                             OdataType = "FileSystem"
+                            RuleType = "detection"
+                            FileSystemOperationType = "version"
+                            Operator = "equal"
+                            ComparisonValue = "1.0.0.0"
                         } -ClientOnly)
                     )
                     ReturnCodes = [CimInstance[]]@(
@@ -503,6 +597,23 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     AllowedArchitectures = @("x86", "x64")
+                    Assignments = [CimInstance[]]@(
+                        (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignment -Property @{
+                            Id = "12345-12345-12345-12345-12345"
+                            Intent = "required"
+                            DeviceAndAppManagementAssignmentFilterType = "none"
+                            GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
+                            assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignmentSettings -Property @{
+                                Notifications = "showAll"
+                                DeliveryOptimizationPriority = "notConfigured"
+                                RestartSettings = (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignmentSettingsRestartSettings -Property @{
+                                    GracePeriodInMinutes = 1440
+                                    CountdownDisplayBeforeRestartInMinutes = 30 # Drift
+                                    RestartNotificationSnoozeDurationInMinutes = 240
+                                } -ClientOnly)
+                            } -ClientOnly)
+                        } -ClientOnly)
+                    )
                     Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
                         Id = "FakeStringValue"
                         DisplayName = "FakeStringValue"
@@ -521,25 +632,24 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         ProductName = "IntuneWinAppUtil"
                         Publisher = "FakeStringValue"
                     } -ClientOnly)
-                    DetectionRules = [CimInstance[]]@(
-                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppFileSystemDetection -Property @{
-                            Check32BitOn64System = $False
-                            DetectionType = "version"
-                            DetectionValue = "1.0.0.1" # Drift
+                    Rules = [CimInstance[]]@(
+                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppRule -Property @{
+                            Path = "C:\Path"
                             FileOrFolderName = "test.exe"
                             OdataType = "FileSystem"
-                            Operator = "equal"
-                            Path = "C:\temp\Dev"
-                        } -ClientOnly)
-                    )
-                    RequirementRules = [CimInstance[]]@(
-                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppFileSystemRequirement -Property @{
-                            Check32BitOn64System = $False
-                            DetectionType = "exists"
-                            FileOrFolderName = "test.exe"
+                            RuleType = "requirement"
+                            FileSystemOperationType = "exists"
                             Operator = "notConfigured"
-                            Path = "C:\temp\Dev"
+                            Check32BitOn64System = $False
+                        } -ClientOnly)
+                        (New-CimInstance -ClassName MSFT_MicrosoftGraphWin32LobAppRule -Property @{
+                            Path = "C:\Path"
+                            FileOrFolderName = "test.exe"
                             OdataType = "FileSystem"
+                            RuleType = "detection"
+                            FileSystemOperationType = "version"
+                            Operator = "equal"
+                            ComparisonValue = "1.0.0.0"
                         } -ClientOnly)
                     )
                     ReturnCodes = [CimInstance[]]@(
