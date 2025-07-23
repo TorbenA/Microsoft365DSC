@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.25.723.1
 
 * AADApplication
   * Reduced export time by up to 75%.
