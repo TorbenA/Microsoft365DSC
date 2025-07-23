@@ -1,7 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneMobileAppsStoreApp'
-$Script:androidExclusive = @('V4_0', 'V4_0_3', 'V4_1', 'V4_2', 'V4_3', 'V4_4', 'V5_0', 'V5_1', 'V6_0', 'V7_0', 'V7_1', 'V8_1')
-$Script:iOSExclusive = @('V16_0', 'V17_0', 'V18_0')
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -17,27 +13,6 @@ function Get-TargetResource
         [System.String]
         $DisplayName,
 
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('Android', 'IOS')]
-        [System.String]
-        $TargetPlatform,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $ApplicableDeviceType,
-
-        [Parameter()]
-        [System.String]
-        $AppStoreUrl,
-
-        [Parameter()]
-        [System.String]
-        $BundleId,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $MinimumSupportedOperatingSystem,
-
         [Parameter()]
         [System.String]
         $Description,
@@ -45,6 +20,10 @@ function Get-TargetResource
         [Parameter()]
         [System.String]
         $Developer,
+
+        [Parameter()]
+        [System.String]
+        $FileName,
 
         [Parameter()]
         [System.String]
@@ -77,6 +56,31 @@ function Get-TargetResource
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Categories,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $IncludedApps,
+
+        [Parameter()]
+        [System.Boolean]
+        $IgnoreVersionDetection,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $MinimumSupportedOperatingSystem,
+
+        [Parameter()]
+        [System.String]
+        $PreInstallScript,
+
+        [Parameter()]
+        [System.String]
+        $PostInstallScript,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Dmg', 'Pkg')]
+        [System.String]
+        $PackageFileType,
 
         [Parameter()]
         [System.String[]]
@@ -121,7 +125,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Getting configuration for the Intune Mobile Apps Store App with Id {$Id} and DisplayName {$DisplayName}"
+    Write-Verbose -Message "Getting configuration for the Intune Mobile Apps Bundle for macOS with Id {$Id} and DisplayName {$DisplayName}"
 
     try
     {
@@ -156,19 +160,21 @@ function Get-TargetResource
 
             if ($null -eq $getValue)
             {
-                Write-Verbose -Message "Could not find an Intune Mobile Apps Store App with Id {$Id}"
+                Write-Verbose -Message "Could not find an Intune Mobile Apps Bundle for macOS with Id {$Id}"
 
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaDeviceAppManagementMobileApp `
-                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and (isof('microsoft.graph.androidStoreApp') or isof('microsoft.graph.iosStoreApp'))" `
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and (isof('microsoft.graph.macOSDmgApp') or isof('microsoft.graph.macOSPkgApp'))" `
+                        -ExpandProperty 'categories' `
+                        -All `
                         -ErrorAction SilentlyContinue
                 }
             }
             #endregion
             if ($null -eq $getValue)
             {
-                Write-Verbose -Message "Could not find an Intune Mobile Apps Store App with DisplayName {$DisplayName}."
+                Write-Verbose -Message "Could not find an Intune Mobile Apps Bundle for macOS with DisplayName {$DisplayName}."
                 return $nullResult
             }
 
@@ -176,50 +182,12 @@ function Get-TargetResource
         }
         else
         {
-            $getValue = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $Script:exportedInstance.Id `
-                -ExpandProperty 'categories'
+            $getValue = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $Script:exportedInstance.Id -ExpandProperty 'categories'
         }
         $Id = $getValue.Id
-        Write-Verbose -Message "An Intune Mobile Apps Store App with Id {$Id} and DisplayName {$DisplayName} was found"
+        Write-Verbose -Message "An Intune Mobile Apps Bundle for macOS with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
-        $complexApplicableDeviceType = @{}
-        $complexApplicableDeviceType.Add('IPad', $getValue.AdditionalProperties.applicableDeviceType.iPad)
-        $complexApplicableDeviceType.Add('IPhoneAndIPod', $getValue.AdditionalProperties.applicableDeviceType.iPhoneAndIPod)
-        if ($complexApplicableDeviceType.Values.Where({ $null -ne $_ }).Count -eq 0)
-        {
-            $complexApplicableDeviceType = $null
-        }
-
-        $complexMinimumSupportedOperatingSystem = [ordered]@{}
-        $complexMinimumSupportedOperatingSystem.Add('V4_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v4_0)
-        $complexMinimumSupportedOperatingSystem.Add('V4_0_3', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v4_0_3)
-        $complexMinimumSupportedOperatingSystem.Add('V4_1', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v4_1)
-        $complexMinimumSupportedOperatingSystem.Add('V4_2', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v4_2)
-        $complexMinimumSupportedOperatingSystem.Add('V4_3', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v4_3)
-        $complexMinimumSupportedOperatingSystem.Add('V4_4', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v4_4)
-        $complexMinimumSupportedOperatingSystem.Add('V5_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v5_0)
-        $complexMinimumSupportedOperatingSystem.Add('V5_1', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v5_1)
-        $complexMinimumSupportedOperatingSystem.Add('V6_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v6_0)
-        $complexMinimumSupportedOperatingSystem.Add('V7_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v7_0)
-        $complexMinimumSupportedOperatingSystem.Add('V7_1', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v7_1)
-        $complexMinimumSupportedOperatingSystem.Add('V8_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v8_0)
-        $complexMinimumSupportedOperatingSystem.Add('V8_1', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v8_1)
-        $complexMinimumSupportedOperatingSystem.Add('V9_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v9_0)
-        $complexMinimumSupportedOperatingSystem.Add('V10_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_0)
-        $complexMinimumSupportedOperatingSystem.Add('V11_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v11_0)
-        $complexMinimumSupportedOperatingSystem.Add('V12_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v12_0)
-        $complexMinimumSupportedOperatingSystem.Add('V13_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v13_0)
-        $complexMinimumSupportedOperatingSystem.Add('V14_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v14_0)
-        $complexMinimumSupportedOperatingSystem.Add('V15_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v15_0)
-        $complexMinimumSupportedOperatingSystem.Add('V16_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v16_0)
-        $complexMinimumSupportedOperatingSystem.Add('V17_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v17_0)
-        $complexMinimumSupportedOperatingSystem.Add('V18_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v18_0)
-        if ($complexMinimumSupportedOperatingSystem.Values.Where({ $null -ne $_ }).Count -eq 0)
-        {
-            $complexMinimumSupportedOperatingSystem = $null
-        }
-
         $complexCategories = @()
         foreach ($category in $getValue.Categories)
         {
@@ -228,6 +196,7 @@ function Get-TargetResource
             $myCategory.Add('DisplayName', $category.displayName)
             $complexCategories += $myCategory
         }
+
         $complexLargeIcon = $null
         if ($null -ne $getValue.LargeIcon.Value)
         {
@@ -235,27 +204,57 @@ function Get-TargetResource
             $complexLargeIcon.Add('Type', $getValue.LargeIcon.Type)
             $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($getValue.LargeIcon.Value))
         }
+
+        $complexIncludedApps = @()
+        foreach ($complexApp in $getValue.AdditionalProperties.includedApps)
+        {
+            $complexIncludedApp = @{
+                BundleId      = $complexApp.bundleId
+                BundleVersion = $complexApp.bundleVersion
+            }
+            $complexIncludedApps += $complexIncludedApp
+        }
+
+        $complexMinimumSupportedOperatingSystem = [ordered]@{}
+        $complexMinimumSupportedOperatingSystem.Add('V10_7', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_7)
+        $complexMinimumSupportedOperatingSystem.Add('V10_8', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_8)
+        $complexMinimumSupportedOperatingSystem.Add('V10_9', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_9)
+        $complexMinimumSupportedOperatingSystem.Add('V10_10', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_10)
+        $complexMinimumSupportedOperatingSystem.Add('V10_11', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_11)
+        $complexMinimumSupportedOperatingSystem.Add('V10_12', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_12)
+        $complexMinimumSupportedOperatingSystem.Add('V10_13', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_13)
+        $complexMinimumSupportedOperatingSystem.Add('V10_14', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_14)
+        $complexMinimumSupportedOperatingSystem.Add('V10_15', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_15)
+        $complexMinimumSupportedOperatingSystem.Add('V11_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v11_0)
+        $complexMinimumSupportedOperatingSystem.Add('V12_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v12_0)
+        $complexMinimumSupportedOperatingSystem.Add('V13_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v13_0)
+        $complexMinimumSupportedOperatingSystem.Add('V14_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v14_0)
+        $complexMinimumSupportedOperatingSystem.Add('V15_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v15_0)
+        if ($complexMinimumSupportedOperatingSystem.Values.Where({ $null -ne $_ }).Count -eq 0)
+        {
+            $complexMinimumSupportedOperatingSystem = $null
+        }
         #endregion
 
         $results = @{
             #region resource generator code
-            ApplicableDeviceType            = $complexApplicableDeviceType
-            AppStoreUrl                     = $getValue.AdditionalProperties.appStoreUrl
-            BundleId                        = $getValue.AdditionalProperties.bundleId
             Categories                      = $complexCategories
-            MinimumSupportedOperatingSystem = $complexMinimumSupportedOperatingSystem
             Description                     = $getValue.Description
             Developer                       = $getValue.Developer
             DisplayName                     = $getValue.DisplayName
+            FileName                        = $getValue.AdditionalProperties.fileName
+            IgnoreVersionDetection          = $getValue.AdditionalProperties.ignoreVersionDetection
+            IncludedApps                    = $complexIncludedApps
             InformationUrl                  = $getValue.InformationUrl
             IsFeatured                      = $getValue.IsFeatured
             LargeIcon                       = $complexLargeIcon
+            MinimumSupportedOperatingSystem = $complexMinimumSupportedOperatingSystem
             Notes                           = $getValue.Notes
             Owner                           = $getValue.Owner
+            PackageFileType                 = $getValue.AdditionalProperties.'@odata.type'.Replace('#microsoft.graph.macOS', '').Replace('App', '')
             PrivacyInformationUrl           = $getValue.PrivacyInformationUrl
             Publisher                       = $getValue.Publisher
             RoleScopeTagIds                 = $getValue.RoleScopeTagIds
-            TargetPlatform                  = $getValue.AdditionalProperties.'@odata.type'.Replace('#microsoft.graph.', '').Replace('StoreApp', '')
             Id                              = $getValue.Id
             Ensure                          = 'Present'
             Credential                      = $Credential
@@ -265,6 +264,11 @@ function Get-TargetResource
             CertificateThumbprint           = $CertificateThumbprint
             ManagedIdentity                 = $ManagedIdentity.IsPresent
             #endregion
+        }
+        if ($results.PackageFileType -eq 'Pkg')
+        {
+            $results.PreInstallScript  = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($getValue.AdditionalProperties.preInstallScript.scriptContent))
+            $results.PostInstallScript = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($getValue.AdditionalProperties.postInstallScript.scriptContent))
         }
         $assignmentsValues = Get-MgBetaDeviceAppManagementMobileAppAssignment -MobileAppId $Id
         $assignmentResult = @()
@@ -302,27 +306,6 @@ function Set-TargetResource
         [System.String]
         $DisplayName,
 
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('Android', 'IOS')]
-        [System.String]
-        $TargetPlatform,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $ApplicableDeviceType,
-
-        [Parameter()]
-        [System.String]
-        $AppStoreUrl,
-
-        [Parameter()]
-        [System.String]
-        $BundleId,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $MinimumSupportedOperatingSystem,
-
         [Parameter()]
         [System.String]
         $Description,
@@ -330,6 +313,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Developer,
+
+        [Parameter()]
+        [System.String]
+        $FileName,
 
         [Parameter()]
         [System.String]
@@ -362,6 +349,31 @@ function Set-TargetResource
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Categories,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $IncludedApps,
+
+        [Parameter()]
+        [System.Boolean]
+        $IgnoreVersionDetection,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $MinimumSupportedOperatingSystem,
+
+        [Parameter()]
+        [System.String]
+        $PreInstallScript,
+
+        [Parameter()]
+        [System.String]
+        $PostInstallScript,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Dmg', 'Pkg')]
+        [System.String]
+        $PackageFileType,
 
         [Parameter()]
         [System.String[]]
@@ -406,31 +418,11 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting configuration of the Intune Mobile Apps Store App with Id {$Id} and DisplayName {$DisplayName}"
+    Write-Verbose -Message "Setting configuration of the Intune Mobile Apps Bundle for macOS with Id {$Id} and DisplayName {$DisplayName}"
 
-    if ($PSBoundParameters.ContainsKey('ApplicableDeviceType') -and $PSBoundParameters.TargetPlatform -ne 'iOS')
+    if ($PSBoundParameters.PackageFileType -eq 'Dmg' -and ($PSBoundParameters.ContainsKey('PreInstallScript') -or $PSBoundParameters.ContainsKey('PostInstallScript')))
     {
-        throw "ApplicableDeviceType is only applicable for iOS Store Apps."
-    }
-
-    if ($PSBoundParameters.ContainsKey('BundleId') -and $PSBoundParameters.TargetPlatform -ne 'iOS')
-    {
-        throw "BundleId is only applicable for iOS Store Apps."
-    }
-
-    if ($PSBoundParameters.ContainsKey('MinimumSupportedOperatingSystem'))
-    {
-        foreach ($keyValuePair in $PSBoundParameters.MinimumSupportedOperatingSystem.CimInstanceProperties.GetEnumerator())
-        {
-            if ($keyValuePair.Key -in $Script:androidExclusive -and $TargetPlatform -ne 'Android')
-            {
-                throw "MinimumSupportedOperatingSystem.$($keyValuePair.Key) is only applicable for Android Store Apps."
-            }
-            if ($keyValuePair.Key -in $Script:iOSExclusive -and $TargetPlatform -ne 'IOS')
-            {
-                throw "MinimumSupportedOperatingSystem.$($keyValuePair.Key) is only applicable for iOS Store Apps."
-            }
-        }
+        throw "PreInstallScript and PostInstallScript are not supported for Dmg package type."
     }
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -449,16 +441,38 @@ function Set-TargetResource
 
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $boundParameters.Remove('Categories') | Out-Null
-    $boundParameters.Remove('TargetPlatform') | Out-Null
+    $boundParameters.Remove('PackageFileType') | Out-Null
+
+    if ($boundParameters.ContainsKey('PreInstallScript'))
+    {
+        $convertedPreInstallScript = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($boundParameters.PreInstallScript))
+        $boundParameters.Remove('PreInstallScript') | Out-Null
+        $boundParameters.Add('PreInstallScript', @{
+            scriptContent = $convertedPreInstallScript
+        })
+    }
+    if ($boundParameters.ContainsKey('PostInstallScript'))
+    {
+        $convertedPostInstallScript = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($boundParameters.PostInstallScript))
+        $boundParameters.Remove('PostInstallScript') | Out-Null
+        $boundParameters.Add('PostInstallScript', @{
+            scriptContent = $convertedPostInstallScript
+        })
+    }
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating an Intune Mobile Apps Store App with DisplayName {$DisplayName}"
+        Write-Verbose -Message "Creating an Intune Mobile Apps Bundle for macOS with DisplayName {$DisplayName}"
         $boundParameters.Remove("Assignments") | Out-Null
 
         $createParameters = ([Hashtable]$boundParameters).Clone()
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
         $createParameters.Remove('Id') | Out-Null
+
+        if (-not $createParameters.ContainsKey('FileName') -or -not $createParameters.ContainsKey('IncludedApps'))
+        {
+            throw "FileName and IncludedApps are required parameters."
+        }
 
         $keys = (([Hashtable]$createParameters).Clone()).Keys
         foreach ($key in $keys)
@@ -469,8 +483,13 @@ function Set-TargetResource
             }
         }
         #region resource generator code
-        $createParameters.Add("@odata.type", "#microsoft.graph.$($TargetPlatform)StoreApp")
+        $odataType = "#microsoft.graph.macOS$($PackageFileType)App"
+        $createParameters.Add("@odata.type", $odataType)
+        $createParameters.Add('primaryBundleId', $createParameters.IncludedApps[0].BundleId)
+        $createParameters.Add('primaryBundleVersion', $createParameters.IncludedApps[0].BundleVersion)
         $policy = Invoke-MgGraphRequest -Method POST -Uri "/beta/deviceAppManagement/mobileApps" -Body ($createParameters | ConvertTo-Json -Depth 10)
+
+        Invoke-M365DSCIntuneMobileAppInitialUpload -AppId $policy.Id -OdataType $odataType -FileExtension $PackageFileType.ToLower()
 
         if ($PSBoundParameters.ContainsKey('Categories'))
         {
@@ -484,12 +503,13 @@ function Set-TargetResource
                 -AppManagementPolicyId $policy.Id `
                 -Assignments $assignmentsHash
         }
+
+        Write-Warning -Message "The Intune Mobile Apps Bundle for macOS resource has been created and the sample content was uploaded. Please ensure to upload the actual content from the Intune portal."
         #endregion
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating the Intune Mobile Apps Store App with Id {$($currentInstance.Id)}"
-        $boundParameters.Remove('AppStoreUrl') | Out-Null
+        Write-Verbose -Message "Updating the Intune Mobile Apps Bundle for macOS with Id {$($currentInstance.Id)}"
         $boundParameters.Remove("Assignments") | Out-Null
 
         $updateParameters = ([Hashtable]$boundParameters).Clone()
@@ -507,7 +527,7 @@ function Set-TargetResource
         }
 
         #region resource generator code
-        $updateParameters.Add("@odata.type", "#microsoft.graph.$($TargetPlatform)StoreApp")
+        $updateParameters.Add("@odata.type", "#microsoft.graph.macOS$($PackageFileType)App")
         Invoke-MgGraphRequest -Method PATCH -Uri "/beta/deviceAppManagement/mobileApps/$($currentInstance.Id)" -Body ($updateParameters | ConvertTo-Json -Depth 10)
 
         if ($PSBoundParameters.ContainsKey('Categories'))
@@ -523,7 +543,7 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removing the Intune Mobile Apps Store App with Id {$($currentInstance.Id)}"
+        Write-Verbose -Message "Removing the Intune Mobile Apps Bundle for macOS with Id {$($currentInstance.Id)}"
         #region resource generator code
         Remove-MgBetaDeviceAppManagementMobileApp -MobileAppId $currentInstance.Id
         #endregion
@@ -545,27 +565,6 @@ function Test-TargetResource
         [System.String]
         $DisplayName,
 
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('Android', 'IOS')]
-        [System.String]
-        $TargetPlatform,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $ApplicableDeviceType,
-
-        [Parameter()]
-        [System.String]
-        $AppStoreUrl,
-
-        [Parameter()]
-        [System.String]
-        $BundleId,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $MinimumSupportedOperatingSystem,
-
         [Parameter()]
         [System.String]
         $Description,
@@ -573,6 +572,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Developer,
+
+        [Parameter()]
+        [System.String]
+        $FileName,
 
         [Parameter()]
         [System.String]
@@ -605,6 +608,31 @@ function Test-TargetResource
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Categories,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $IncludedApps,
+
+        [Parameter()]
+        [System.Boolean]
+        $IgnoreVersionDetection,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $MinimumSupportedOperatingSystem,
+
+        [Parameter()]
+        [System.String]
+        $PreInstallScript,
+
+        [Parameter()]
+        [System.String]
+        $PostInstallScript,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Dmg', 'Pkg')]
+        [System.String]
+        $PackageFileType,
 
         [Parameter()]
         [System.String[]]
@@ -649,29 +677,9 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    if ($PSBoundParameters.ContainsKey('ApplicableDeviceType') -and $PSBoundParameters.TargetPlatform -ne 'iOS')
+    if ($PSBoundParameters.PackageFileType -eq 'Dmg' -and ($PSBoundParameters.ContainsKey('PreInstallScript') -or $PSBoundParameters.ContainsKey('PostInstallScript')))
     {
-        throw "ApplicableDeviceType is only applicable for iOS Store Apps."
-    }
-
-    if ($PSBoundParameters.ContainsKey('BundleId') -and $PSBoundParameters.TargetPlatform -ne 'iOS')
-    {
-        throw "BundleId is only applicable for iOS Store Apps."
-    }
-
-    if ($PSBoundParameters.ContainsKey('MinimumSupportedOperatingSystem'))
-    {
-        foreach ($keyValuePair in $PSBoundParameters.MinimumSupportedOperatingSystem.CimInstanceProperties.GetEnumerator())
-        {
-            if ($keyValuePair.Key -in $Script:androidExclusive -and $TargetPlatform -ne 'Android')
-            {
-                throw "MinimumSupportedOperatingSystem.$($keyValuePair.Key) is only applicable for Android Store Apps."
-            }
-            if ($keyValuePair.Key -in $Script:iOSExclusive -and $TargetPlatform -ne 'IOS')
-            {
-                throw "MinimumSupportedOperatingSystem.$($keyValuePair.Key) is only applicable for iOS Store Apps."
-            }
-        }
+        throw "PreInstallScript and PostInstallScript are not supported for Dmg package type."
     }
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -686,7 +694,7 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune Mobile Apps Store App with Id {$Id} and DisplayName {$DisplayName}"
+    Write-Verbose -Message "Testing configuration of the Intune Mobile Apps Bundle for macOS with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
     $ValuesToCheck = ([hashtable]$PSBoundParameters).Clone()
@@ -713,8 +721,7 @@ function Test-TargetResource
     }
 
     $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck.Remove('AppStoreUrl') | Out-Null
-    $ValuesToCheck.Remove('TargetPlatform') | Out-Null
+    $ValuesToCheck.Remove('PackageFileType') | Out-Null
     $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
@@ -790,7 +797,7 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        $baseFilter = "isof('microsoft.graph.androidStoreApp') or isof('microsoft.graph.iosStoreApp')"
+        $baseFilter = "isof('microsoft.graph.macOSDmgApp') or isof('microsoft.graph.macOSPkgApp')"
         if (-not [String]::IsNullOrEmpty($Filter))
         {
             $Filter = "($Filter) and ($baseFilter)"
@@ -830,7 +837,7 @@ function Export-TargetResource
             $params = @{
                 Id                    = $config.Id
                 DisplayName           = $config.DisplayName
-                TargetPlatform        = $config.AdditionalProperties.'@odata.type'.Replace('#microsoft.graph.', '').Replace('StoreApp', '')
+                PackageFileType       = $config.AdditionalProperties.'@odata.type'.Replace('#microsoft.graph.macOS', '').Replace('App', '')
                 Ensure                = 'Present'
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId
@@ -843,20 +850,6 @@ function Export-TargetResource
 
             $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
-            if ($null -ne $Results.ApplicableDeviceType)
-            {
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
-                    -ComplexObject $Results.ApplicableDeviceType `
-                    -CIMInstanceName 'MicrosoftGraphiosDeviceType'
-                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
-                {
-                    $Results.ApplicableDeviceType = $complexTypeStringResult
-                }
-                else
-                {
-                    $Results.Remove('ApplicableDeviceType') | Out-Null
-                }
-            }
             if ($null -ne $Results.Categories)
             {
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
@@ -872,11 +865,25 @@ function Export-TargetResource
                     $Results.Remove('Categories') | Out-Null
                 }
             }
+            if ($null -ne $Results.IncludedApps)
+            {
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.IncludedApps `
+                    -CIMInstanceName 'MicrosoftGraphMacOSIncludedApp'
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                {
+                    $Results.IncludedApps = $complexTypeStringResult
+                }
+                else
+                {
+                    $Results.Remove('IncludedApps') | Out-Null
+                }
+            }
             if ($null -ne $Results.MinimumSupportedOperatingSystem)
             {
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.MinimumSupportedOperatingSystem `
-                    -CIMInstanceName 'MicrosoftGraphMinimumOperatingSystem'
+                    -CIMInstanceName 'MicrosoftGraphMacOSMinimumOperatingSystem'
                 if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.MinimumSupportedOperatingSystem = $complexTypeStringResult
@@ -890,7 +897,7 @@ function Export-TargetResource
             {
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.LargeIcon `
-                    -CIMInstanceName 'MicrosoftGraphmimeContent'
+                    -CIMInstanceName 'MicrosoftGraphMimeContent'
                 if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.LargeIcon = $complexTypeStringResult
@@ -919,7 +926,7 @@ function Export-TargetResource
                 -ModulePath $PSScriptRoot `
                 -Results $Results `
                 -Credential $Credential `
-                -NoEscape @('Assignments', 'ApplicableDeviceType', 'MinimumSupportedOperatingSystem', 'LargeIcon', 'Categories')
+                -NoEscape @('Assignments', 'IncludedApps', 'LargeIcon', 'MinimumSupportedOperatingSystem', 'Categories')
             $dscContent += $currentDSCBlock
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName

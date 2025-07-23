@@ -2,12 +2,40 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Reduced export time by up to 75%.
+* AADGroup
+  * Reduced export time by up to 60%.
+* AADPIMGroupSettings
+  * Reduced export time by 80%.
+* AADGroupEligibilitySchedule
+  * Reduced export time by 80%.
+* AADGroupEligibilityScheduleSettings
+  * Reduced export time by 90%.
+* AADPasswordRuleSettings
+  * Updated creation of new DirectorySetting object to explicitly use default values to avoid exception
+* AADRoleEligibilityScheduleRequest
+  * Reduced export time by up to 50%.
+* AADRoleSetting
+  * Reduced export time by 80%.
+* AADServicePrincipal
+  * Reduced export time by 70%.
+* AADUser
+  * Reduced export time by 25%.
 * IntuneMobileAppsBuiltInStoreApp
+  * Initial release.
+* IntuneMobileAppsBundleMacOS
   * Initial release.
 * IntuneMobileAppsStoreApp
   * Initial release.
+* IntuneMobileAppsSystemAppAndroid
+  * Initial release.
 * IntuneMobileAppsWin32AppWindows10
   * Initial release.
+* M365DSCDRGUtil
+  * Added new function `Invoke-M365DSCIntuneMobileAppInitialUpload` for initial mobile app content upload.
+* MISC
+  * Fixed log messages from being out of order for AAD resource
 
 # 1.25.716.1
 
@@ -23,6 +51,7 @@
   * Fixed incorrect ServicePrincipalRiskLevels parameter type
     FIXES [#6325](https://github.com/microsoft/Microsoft365DSC/issues/6325)
   * Added example for workload identity and dynamic filter based on CustomSecurityAttribute
+
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
 * IntuneMobileAppsDefenderForEndpointMacOS
