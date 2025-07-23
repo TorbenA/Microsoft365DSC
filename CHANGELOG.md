@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* IntuneDeviceCleanupRuleV2
+  * Initial release.
 * IntuneMobileAppsBuiltInStoreApp
   * Initial release.
 * IntuneMobileAppsStoreApp
