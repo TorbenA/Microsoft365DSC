@@ -36,6 +36,9 @@
   * Initial release.
 * IntuneMobileAppsWin32AppWindows10
   * Initial release.
+* IntuneSettingCatalogASRRulesPolicyWindows10
+  * Added new options to `EnableControlledFolderAccess` property.
+    FIXES [#6353](https://github.com/microsoft/Microsoft365DSC/issues/6353)
 * IntuneSettingCatalogCustomPolicyWindows10
   * Add `RoleScopeTagIds` property to functions.
     FIXES [#6348](https://github.com/microsoft/Microsoft365DSC/issues/6348)
