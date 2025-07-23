@@ -1165,7 +1165,7 @@ function Test-M365DSCTargetResource
         {
             $CIMProperty = $resourceDefinition.Parameters | Where-Object -FilterScript { $_.Name -eq $key }
             $CIMName = $CIMProperty.CIMType.Replace('[]', '')
-            $CIMDefinition = $Global:M365DSCSchema | Where-Object -FilterScript { $_.ClassName -eq $CIMName }
+            $CIMDefinition = $Script:M365DSCSchema | Where-Object -FilterScript { $_.ClassName -eq $CIMName }
             $CIMPrimaryKeys = $CIMDefinition.Parameters | Where-Object -FilterScript { $_.Option -eq 'Required' }
 
             $targetObjects = @{}
@@ -5310,6 +5310,45 @@ function Write-M365DSCHost
     }
 }
 
+<#
+.DESCRIPTION
+    This function sends a batch request to the Microsoft Graph API.
+
+.PARAMETER Requests
+    An array of hashtables representing the requests to be sent in the batch.
+    A request hashtable should contain the following keys:
+    - id: A unique identifier for the request.
+    - method: The HTTP method to use (e.g., GET, POST).
+    - url: The API endpoint URL.
+
+.EXAMPLE
+    $requests = @(
+        @{
+            id = '1'
+            method = 'GET'
+            url = '/users'
+        }
+    )
+    Invoke-M365DSCGraphBatchRequest -Requests $requests
+#>
+function Invoke-M365DSCGraphBatchRequest
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.Collections.Hashtable[]]
+        $Requests
+    )
+
+    $request = @{
+        requests = $Requests
+    }
+
+    (Invoke-MgGraphRequest -Method POST `
+        -Uri 'beta/$batch' `
+        -Body ($request | ConvertTo-Json -Depth 10)).responses
+}
+
 Export-ModuleMember -Function @(
     'Assert-M365DSCBlueprint',
     'Confirm-ImportedCmdletIsAvailable',
@@ -5334,6 +5373,7 @@ Export-ModuleMember -Function @(
     'Get-SPOUserProfilePropertyInstance',
     'Get-TeamByName',
     'Install-M365DSCDevBranch',
+    'Invoke-M365DSCGraphBatchRequest',
     'Invoke-PowerShellCoreResource',
     'Join-M365DSCConfiguration',
     'New-M365DSCCmdletDocumentation',

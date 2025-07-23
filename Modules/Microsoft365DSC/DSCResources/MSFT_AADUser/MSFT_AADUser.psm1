@@ -196,16 +196,33 @@ function Get-TargetResource
             $user = $Script:exportedInstance
         }
 
+        $batchRequests = @(
+            @{
+                id     = 'License'
+                method = 'GET'
+                url    = "/users/$($UserPrincipalName)/licenseDetails"
+            }
+            @{
+                id     = 'MemberOf'
+                method = 'GET'
+                url    = "/users/$($UserPrincipalName)/memberOf?`$select=displayName&`$filter=not(groupTypes/any(c:c eq 'DynamicMembership'))"
+                headers = @{
+                    'ConsistencyLevel' = 'eventual'
+                }
+            }
+        )
+        $batchResponse = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
+
         Write-Verbose -Message "Found User $($UserPrincipalName)"
         $currentLicenseAssignment = @()
-        $skus = Get-MgUserLicenseDetail -UserId $UserPrincipalName -ErrorAction Stop
+        $skus = ($batchResponse | Where-Object -FilterScript { $_.id -eq 'License' }).body.value
         foreach ($sku in $skus)
         {
             $currentLicenseAssignment += $sku.SkuPartNumber
         }
 
         # return membership of static groups only
-        [array]$currentMemberOf = (Get-MgUserMemberOfAsGroup -UserId $UserPrincipalName -All | Where-Object -FilterScript { $_.GroupTypes -notcontains 'DynamicMembership' }).DisplayName
+        [array]$currentMemberOf = ($batchResponse | Where-Object -FilterScript { $_.id -eq 'MemberOf' }).body.value | Select-Object -ExpandProperty DisplayName
 
         $userPasswordPolicyInfo = $user | Select-Object UserprincipalName, @{
             N = 'PasswordNeverExpires'; E = { $_.PasswordPolicies -contains 'DisablePasswordExpiration' }

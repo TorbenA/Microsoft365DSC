@@ -1,4 +1,5 @@
 Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADServicePrincipal'
+$Script:PropertiesToExport = "AppDisplayName", "AppId", "Id", "DisplayName", "CustomSecurityAttributes", "AlternativeNames", "AccountEnabled", "AppRoleAssignmentRequired", "ErrorUrl", "Homepage", "LogoutUrl", "Notes", "PreferredSingleSignOnMode", "PublisherName", "ReplyUrls", "SamlMetadataURL", "ServicePrincipalNames", "ServicePrincipalType", "Tags", "KeyCredentials", "PasswordCredentials"
 
 function Get-TargetResource
 {
@@ -160,6 +161,7 @@ function Get-TargetResource
                 if (-not [System.String]::IsNullOrEmpty($ObjectID))
                 {
                     $AADServicePrincipal = Get-MgServicePrincipal -ServicePrincipalId $ObjectId `
+                        -Property $Script:PropertiesToExport
                         -Expand 'AppRoleAssignedTo' `
                         -ErrorAction Stop
                 }
@@ -177,12 +179,16 @@ function Get-TargetResource
                     $appInstance = Get-MgApplication -Filter "DisplayName eq '$($AppId -replace "'", "''")'"
                     if ($appInstance)
                     {
-                        $AADServicePrincipal = Get-MgServicePrincipal -Filter "AppID eq '$($appInstance.AppId)'"
+                        $AADServicePrincipal = Get-MgServicePrincipal -Filter "AppID eq '$($appInstance.AppId)'" `
+                            -Property $Script:PropertiesToExport `
+                            -Expand 'AppRoleAssignedTo'
                     }
                 }
                 else
                 {
-                    $AADServicePrincipal = Get-MgServicePrincipal -Filter "AppID eq '$($AppId)'"
+                    $AADServicePrincipal = Get-MgServicePrincipal -Filter "AppID eq '$($AppId)'" `
+                        -Property $Script:PropertiesToExport `
+                        -Expand 'AppRoleAssignedTo'
                 }
             }
             if ($null -eq $AADServicePrincipal)
@@ -195,8 +201,27 @@ function Get-TargetResource
             $AADServicePrincipal = $Script:exportedInstance
         }
 
+        $batchRequests = @(
+            @{
+                id = 'AppRoleAssignedTo'
+                method = 'GET'
+                url = "/servicePrincipals/$($AADServicePrincipal.Id)/appRoleAssignedTo"
+            }
+            @{
+                id = 'Owners'
+                method = 'GET'
+                url = "/servicePrincipals/$($AADServicePrincipal.Id)/owners"
+            }
+            @{
+                id = 'delegatedPermissionClassifications'
+                method = 'GET'
+                url = "/servicePrincipals/$($AADServicePrincipal.Id)/delegatedPermissionClassifications"
+            }
+        )
+        $batchResponse = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests -ErrorAction SilentlyContinue
+
         $AppRoleAssignedToValues = @()
-        $assignmentsValue = Get-MgServicePrincipalAppRoleAssignedTo -ServicePrincipalId $AADServicePrincipal.Id -All -ErrorAction SilentlyContinue
+        $assignmentsValue = ($batchResponse | Where-Object -FilterScript { $_.id -eq 'AppRoleAssignedTo' }).body.value
         foreach ($principal in $assignmentsValue)
         {
             $currentAssignment = @{
@@ -220,7 +245,7 @@ function Get-TargetResource
         }
 
         $ownersValues = @()
-        $ownersInfo = Get-MgServicePrincipalOwner -ServicePrincipalId $AADServicePrincipal.Id -ErrorAction SilentlyContinue
+        $ownersInfo = ($batchResponse | Where-Object -FilterScript { $_.id -eq 'Owners' }).body.value
         foreach ($ownerInfo in $ownersInfo)
         {
             $info = Get-MgUser -UserId $ownerInfo.Id -ErrorAction SilentlyContinue
@@ -230,16 +255,15 @@ function Get-TargetResource
             }
         }
 
-        [Array]$complexDelegatedPermissionClassifications = @()
         #Managed Identities in AzureGov return exception when pulling delegatedPermissionClassifications
+        [Array]$complexDelegatedPermissionClassifications = @()
         try
         {
-            $Uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "v1.0/servicePrincipals/$($AADServicePrincipal.Id)/delegatedPermissionClassifications"
-            $permissionClassifications = Invoke-MgGraphRequest -Uri $Uri -Method Get
+            $permissionClassifications = ($batchResponse | Where-Object -FilterScript { $_.id -eq 'delegatedPermissionClassifications' }).body.value
         }
         catch
         {
-            Write-Verbose -Message "Service Principal didn't return delegated permission classifications. Expected for Managedidentities."
+            Write-Verbose -Message "Service Principal didn't return delegated permission classifications. Expected for Managed Identities."
         }
 
         foreach ($permissionClassification in $permissionClassifications.Value)
@@ -305,7 +329,7 @@ function Get-TargetResource
             }
         }
 
-        $complexCustomSecurityAttributes = [Array](Get-CustomSecurityAttributes -ServicePrincipalId $AADServicePrincipal.Id)
+        $complexCustomSecurityAttributes = [Array](Get-CustomSecurityAttributes -ServicePrincipal $ServicePrincipal)
         if ($null -eq $complexCustomSecurityAttributes)
         {
             $complexCustomSecurityAttributes = @()
@@ -1031,6 +1055,7 @@ function Export-TargetResource
         [array] $Script:exportedInstances = Get-MgServicePrincipal -All:$true `
             -Filter $Filter `
             -Expand 'AppRoleAssignedTo' `
+            -Property $Script:PropertiesToExport `
             -ErrorAction Stop
         foreach ($AADServicePrincipal in $Script:exportedInstances)
         {
@@ -1285,11 +1310,10 @@ function Get-CustomSecurityAttributes
 {
     [OutputType([System.Array])]
     param (
-        [String]$ServicePrincipalId
+        $ServicePrincipal
     )
 
-    $customSecurityAttributes = Invoke-MgGraphRequest -Uri ((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/servicePrincipals/$($ServicePrincipalId)`?`$select=customSecurityAttributes") -Method Get
-    $customSecurityAttributes = $customSecurityAttributes.customSecurityAttributes
+    $customSecurityAttributes = $ServicePrincipal.customSecurityAttributes
     $newCustomSecurityAttributes = @()
 
     foreach ($key in $customSecurityAttributes.Keys)
