@@ -2,17 +2,37 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Reduced export time by up to 75%.
+* AADGroup
+  * Reduced export time by up to 60%.
+* AADPIMGroupSettings
+  * Reduced export time by 80%.
+* AADGroupEligibilitySchedule
+  * Reduced export time by 80%.
+* AADGroupEligibilityScheduleSettings
+  * Reduced export time by 90%.
 * AADPasswordRuleSettings
   * Updated creation of new DirectorySetting object to explicitly use default values to avoid exception
+* AADRoleEligibilityScheduleRequest
+  * Reduced export time by up to 50%.
+* AADRoleSetting
+  * Reduced export time by 80%.
+* AADServicePrincipal
+  * Reduced export time by 70%.
+* AADUser
+  * Reduced export time by 25%.
 * IntuneMobileAppsBuiltInStoreApp
   * Initial release.
-* IntuneMobileAppsStoreApp
-  * Initial release.
 * IntuneMobileAppsSystemAppAndroid
+  * Initial release.
+* IntuneMobileAppsStoreApp
   * Initial release.
 * IntuneSettingCatalogASRRulesPolicyWindows10
   * Added new options to `EnableControlledFolderAccess` property.
     FIXES [#6353](https://github.com/microsoft/Microsoft365DSC/issues/6353)
+* MISC
+  * Fixed log messages from being out of order for AAD resources.
 
 # 1.25.716.1
 
