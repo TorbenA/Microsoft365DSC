@@ -2,9 +2,13 @@
 
 # UNRELEASED
 
+* AADPasswordRuleSettings
+  * Updated creation of new DirectorySetting object to explicitly use default values to avoid exception
 * IntuneMobileAppsBuiltInStoreApp
   * Initial release.
 * IntuneMobileAppsStoreApp
+  * Initial release.
+* IntuneMobileAppsSystemAppAndroid
   * Initial release.
 * IntuneSettingCatalogASRRulesPolicyWindows10
   * Added new options to `EnableControlledFolderAccess` property.
@@ -24,6 +28,7 @@
   * Fixed incorrect ServicePrincipalRiskLevels parameter type
     FIXES [#6325](https://github.com/microsoft/Microsoft365DSC/issues/6325)
   * Added example for workload identity and dynamic filter based on CustomSecurityAttribute
+
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
 * IntuneMobileAppsDefenderForEndpointMacOS
