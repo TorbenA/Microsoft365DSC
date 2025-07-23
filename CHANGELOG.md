@@ -24,6 +24,8 @@
   * Reduced export time by 25%.
 * IntuneMobileAppsBuiltInStoreApp
   * Initial release.
+* IntuneMobileAppsBundleMacOS
+  * Initial release.
 * IntuneMobileAppsStoreApp
   * Initial release.
 * IntuneMobileAppsSystemAppAndroid
@@ -31,6 +33,8 @@
 * IntuneSettingCatalogCustomPolicyWindows10
   * Add `RoleScopeTagIds` property to functions.
     FIXES [#6348](https://github.com/microsoft/Microsoft365DSC/issues/6348)
+* M365DSCDRGUtil
+  * Added new function `Invoke-M365DSCIntuneMobileAppInitialUpload` for initial mobile app content upload.
 * MISC
   * Fixed log messages from being out of order for AAD resources.
 
