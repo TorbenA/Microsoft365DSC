@@ -1788,6 +1788,12 @@ function ConvertFrom-IntuneMobileAppAssignment
             }
         }
 
+        if ($null -ne $assignment.settings)
+        {
+            $settings = (Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $assignment.settings.AdditionalProperties)
+            $hashAssignment.Add('assignmentSettings', $settings)
+        }
+
         $assignmentResult += $hashAssignment
     }
 
@@ -1893,6 +1899,14 @@ function ConvertTo-IntuneMobileAppAssignment
         if ($target)
         {
             $formattedAssignment.Add('target', $target)
+        }
+
+        if ($null -ne $assignment.assignmentSettings)
+        {
+            $settings = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $assignment.assignmentSettings
+            $formattedAssignment.Add('settings', $settings)
+            $formattedAssignment.settings.Add('@odata.type', $formattedAssignment.settings.odataType)
+            $formattedAssignment.settings.Remove('odataType') | Out-Null
         }
         $assignmentResult += $formattedAssignment
     }
@@ -2234,6 +2248,10 @@ function Update-DeviceAppManagementPolicyAssignment
                 $formattedTarget.Add('deviceAndAppManagementAssignmentFilterId',$target.deviceAndAppManagementAssignmentFilterId)
             }
             $formattedAssignment.Add('target', $formattedTarget)
+            if ($assignment.settings)
+            {
+                $formattedAssignment.Add('settings', $assignment.settings)
+            }
             $appManagementPolicyAssignments += $formattedAssignment
         }
 

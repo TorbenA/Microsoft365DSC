@@ -34,13 +34,15 @@
   * Initial release.
 * IntuneMobileAppsSystemAppAndroid
   * Initial release.
+* IntuneMobileAppsWin32AppWindows10
+  * Initial release.
 * IntuneSettingCatalogCustomPolicyWindows10
   * Add `RoleScopeTagIds` property to functions.
     FIXES [#6348](https://github.com/microsoft/Microsoft365DSC/issues/6348)
 * M365DSCDRGUtil
   * Added new function `Invoke-M365DSCIntuneMobileAppInitialUpload` for initial mobile app content upload.
 * MISC
-  * Fixed log messages from being out of order for AAD resources.
+  * Fixed log messages from being out of order for AAD resource
 
 # 1.25.716.1
 
