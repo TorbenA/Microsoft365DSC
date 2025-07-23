@@ -4,6 +4,8 @@
 
 * AADApplication
   * Reduced export time by up to 75%.
+* AADConditionalAccessPolicy
+  * Added support for the ProtocolFlows property.
 * AADGroup
   * Reduced export time by up to 60%.
 * AADPIMGroupSettings
@@ -24,19 +26,26 @@
   * Reduced export time by 25%.
 * IntuneMobileAppsBuiltInStoreApp
   * Initial release.
+* IntuneMobileAppsManagedGooglePlayApp
+  * Initial release.
 * IntuneMobileAppsBundleMacOS
   * Initial release.
 * IntuneMobileAppsStoreApp
   * Initial release.
 * IntuneMobileAppsSystemAppAndroid
   * Initial release.
+* IntuneMobileAppsWin32AppWindows10
+  * Initial release.
 * IntuneSettingCatalogASRRulesPolicyWindows10
   * Added new options to `EnableControlledFolderAccess` property.
     FIXES [#6353](https://github.com/microsoft/Microsoft365DSC/issues/6353)
+* IntuneSettingCatalogCustomPolicyWindows10
+  * Add `RoleScopeTagIds` property to functions.
+    FIXES [#6348](https://github.com/microsoft/Microsoft365DSC/issues/6348)
 * M365DSCDRGUtil
   * Added new function `Invoke-M365DSCIntuneMobileAppInitialUpload` for initial mobile app content upload.
 * MISC
-  * Fixed log messages from being out of order for AAD resources.
+  * Fixed log messages from being out of order for AAD resource
 
 # 1.25.716.1
 
