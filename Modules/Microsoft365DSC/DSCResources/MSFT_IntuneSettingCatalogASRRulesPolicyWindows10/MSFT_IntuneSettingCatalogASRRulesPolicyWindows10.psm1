@@ -202,7 +202,7 @@ function Get-TargetResource
         $ControlledFolderAccessAllowedApplications,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
+        [ValidateSet('0', '1', '2', '3', '4')]
         [System.String]
         $EnableControlledFolderAccess,
 
@@ -563,7 +563,7 @@ function Set-TargetResource
         $ControlledFolderAccessAllowedApplications,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
+        [ValidateSet('0', '1', '2', '3', '4')]
         [System.String]
         $EnableControlledFolderAccess,
 
@@ -893,7 +893,7 @@ function Test-TargetResource
         $ControlledFolderAccessAllowedApplications,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
+        [ValidateSet('0', '1', '2', '3', '4')]
         [System.String]
         $EnableControlledFolderAccess,
 

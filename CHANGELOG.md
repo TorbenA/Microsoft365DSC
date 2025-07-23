@@ -6,6 +6,9 @@
   * Initial release.
 * IntuneMobileAppsStoreApp
   * Initial release.
+* IntuneSettingCatalogASRRulesPolicyWindows10
+  * Added new options to `EnableControlledFolderAccess` property.
+    FIXES [#6353](https://github.com/microsoft/Microsoft365DSC/issues/6353)
 
 # 1.25.716.1
 
