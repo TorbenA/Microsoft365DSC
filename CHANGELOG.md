@@ -12,6 +12,8 @@
   * Reduced export time by 80%.
 * AADGroupEligibilityScheduleSettings
   * Reduced export time by 90%.
+* AADPasswordRuleSettings
+  * Updated creation of new DirectorySetting object to explicitly use default values to avoid exception
 * AADRoleEligibilityScheduleRequest
   * Reduced export time by up to 50%.
 * AADRoleSetting
@@ -21,6 +23,8 @@
 * AADUser
   * Reduced export time by 25%.
 * IntuneMobileAppsBuiltInStoreApp
+  * Initial release.
+* IntuneMobileAppsSystemAppAndroid
   * Initial release.
 * IntuneMobileAppsStoreApp
   * Initial release.
@@ -41,6 +45,7 @@
   * Fixed incorrect ServicePrincipalRiskLevels parameter type
     FIXES [#6325](https://github.com/microsoft/Microsoft365DSC/issues/6325)
   * Added example for workload identity and dynamic filter based on CustomSecurityAttribute
+
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
 * IntuneMobileAppsDefenderForEndpointMacOS
