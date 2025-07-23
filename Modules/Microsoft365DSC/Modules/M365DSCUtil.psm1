@@ -1131,6 +1131,8 @@ function Test-M365DSCTargetResource
 
     $CurrentValues = & MSFT_$ResourceName\Get-TargetResource @DesiredValues
     $ValuesToCheck = ([Hashtable]$DesiredValues).Clone()
+    $ValuesToCheck.Remove('Id') | Out-Null
+    $ValuesToCheck.Remove('Identity') | Out-Null
 
     # Remove the key parameters from the comparison
     foreach ($keyToRemove in $resourceKeys)
