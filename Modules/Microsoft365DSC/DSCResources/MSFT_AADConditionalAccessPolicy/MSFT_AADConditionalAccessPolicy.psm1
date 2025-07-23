@@ -684,9 +684,9 @@ function Get-TargetResource
     }
 
     $DisableResilienceDefaultsIsEnabledValue = $null
-    if (-not [System.String]::IsNullOrEmpty($Policy.SessionControls.disableResilienceDefaults))
+    if (-not [System.String]::IsNullOrEmpty($Policy.SessionControls.disableResilienceDefaults.isEnabled))
     {
-        $DisableResilienceDefaultsIsEnabledValue = [Boolean]::Parse($Policy.SessionControls.disableResilienceDefaults)
+        $DisableResilienceDefaultsIsEnabledValue = [Boolean]::Parse($Policy.SessionControls.disableResilienceDefaults.isEnabled)
     }
 
     $result = @{
@@ -758,7 +758,7 @@ function Get-TargetResource
         #no translation needed
         PersistentBrowserIsEnabled               = $false -or $Policy.SessionControls.PersistentBrowser.IsEnabled
         #no translation needed
-        DisableResilienceDefaultsIsEnabled       = $DisableResilienceDefaulsIsEnabledValue
+        DisableResilienceDefaultsIsEnabled       = $DisableResilienceDefaultsIsEnabledValue
         #make false if undefined, true if true
         PersistentBrowserMode                    = [System.String]$Policy.SessionControls.PersistentBrowser.Mode
         #no translation needed
