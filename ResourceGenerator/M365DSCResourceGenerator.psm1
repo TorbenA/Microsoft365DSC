@@ -2983,7 +2983,7 @@ function Get-M365DSCResourcePermission
         $APIVersion = 'v1.0'
     )
 
-    $readPermissionsNames = (Find-MgGraphCommand -Command "Get-$CmdLetNoun" -ApiVersion $ApiVersion| Select-Object -First 1 -ExpandProperty Permissions).Name
+    $readPermissionsNames = (Find-MgGraphCommand -Command "Get-$CmdLetNoun" -ApiVersion $ApiVersion| Select-Object -First 1 -ExpandProperty Permissions).Name | Select-Object -Unique
     $leastReadPermissions = @()
 
     foreach ($permission in $readPermissionsNames)
@@ -3002,7 +3002,7 @@ function Get-M365DSCResourcePermission
         }
     }
 
-    $updatePermissionsNames = (Find-MgGraphCommand -Command "$UpdateVerb-$CmdLetNoun" -ApiVersion $ApiVersion | Select-Object -First 1 -ExpandProperty Permissions).Name
+    $updatePermissionsNames = (Find-MgGraphCommand -Command "$UpdateVerb-$CmdLetNoun" -ApiVersion $ApiVersion | Select-Object -First 1 -ExpandProperty Permissions).Name | Select-Object -Unique
 
     switch ($Workload)
     {

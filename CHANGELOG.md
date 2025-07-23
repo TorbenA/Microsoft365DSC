@@ -24,6 +24,8 @@
   * Reduced export time by 70%.
 * AADUser
   * Reduced export time by 25%.
+* IntuneDeviceCleanupRuleV2
+  * Initial release.
 * IntuneMobileAppsBuiltInStoreApp
   * Initial release.
 * IntuneMobileAppsManagedGooglePlayApp
