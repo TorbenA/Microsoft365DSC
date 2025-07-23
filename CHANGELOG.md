@@ -24,6 +24,8 @@
   * Reduced export time by 25%.
 * IntuneMobileAppsBuiltInStoreApp
   * Initial release.
+* IntuneMobileAppsManagedGooglePlayApp
+  * Initial release.
 * IntuneMobileAppsBundleMacOS
   * Initial release.
 * IntuneMobileAppsStoreApp

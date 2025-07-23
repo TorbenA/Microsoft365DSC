@@ -339,30 +339,30 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     Write-Verbose -Message "Updating the Intune Windows Hello For Business Global Policy"
 
-    $updateParameters = ([Hashtable]$BoundParameters).Clone()
+    $updateParameters = ([Hashtable]$boundParameters).Clone()
     $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
 
     $keys = (([Hashtable]$updateParameters).Clone()).Keys
     foreach ($key in $keys)
     {
-        if ($null -ne $pdateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
+        if ($null -ne $updateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
         {
             $updateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.DeviceEnrollmentConfigurationId
         }
     }
 
     #region resource generator code
-    $UpdateParameters.Add("@odata.type", "#microsoft.graph.deviceEnrollmentWindowsHelloForBusinessConfiguration")
+    $updateParameters.Add("@odata.type", "#microsoft.graph.deviceEnrollmentWindowsHelloForBusinessConfiguration")
     $policy = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration | Where-Object -FilterScript {
             $_.AdditionalProperties.'@odata.type' -eq "#microsoft.graph.deviceEnrollmentWindowsHelloForBusinessConfiguration"
         }
     Update-MgBetaDeviceManagementDeviceEnrollmentConfiguration `
         -DeviceEnrollmentConfigurationId $policy.Id `
-        -BodyParameter $UpdateParameters
+        -BodyParameter $updateParameters
 }
 
 function Test-TargetResource
