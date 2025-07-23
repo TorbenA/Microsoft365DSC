@@ -508,9 +508,9 @@ function Set-TargetResource
         $keys = (([Hashtable]$updateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $pdateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
+            if ($null -ne $updateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
             {
-                $updateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.MobileAppId
+                $updateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.$key
             }
         }
 
