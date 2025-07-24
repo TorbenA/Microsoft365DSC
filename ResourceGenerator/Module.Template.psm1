@@ -174,7 +174,7 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
 <#SettingsCatalogProperties#>
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')

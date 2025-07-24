@@ -138,8 +138,7 @@ function New-M365DSCResource
 
         $actualType = $outputType.Replace('IMicrosoftGraph', '')
 
-        $cmdletDefinition = Get-CmdletDefinition -Entity $actualType `
-            -APIVersion $ApiVersion
+        $cmdletDefinition = Get-CmdletDefinition -APIVersion $ApiVersion
 
         # Check if the actual type returns multiple type of policies
         $policyTypes = ($cmdletDefinition.EntityType | Where-Object -FilterScript { $_.basetype -like "*$actualType" }).Name
@@ -601,7 +600,7 @@ $($userDefinitionSettings.MOF -join "`r`n")
         $newDefaultParameterSet = $newCmdlet.ParameterSets | Where-Object -FilterScript { $_.Name -eq 'Create' }
         [Array]$newKeyIdentifier = ($newDefaultParameterSet.Parameters | Where-Object -FilterScript { $_.IsMandatory }).Name
         $defaultCreateParameters = @"
-        `$createParameters = ([Hashtable]`$BoundParameters).Clone()
+        `$createParameters = ([Hashtable]`$boundParameters).Clone()
         `$createParameters = Rename-M365DSCCimInstanceParameter -Properties `$createParameters
         `$createParameters.Remove('Id') | Out-Null
 
@@ -615,7 +614,7 @@ $($userDefinitionSettings.MOF -join "`r`n")
         }
 "@
         $defaultUpdateParameters = @"
-        `$updateParameters = ([Hashtable]`$BoundParameters).Clone()
+        `$updateParameters = ([Hashtable]`$boundParameters).Clone()
         `$updateParameters = Rename-M365DSCCimInstanceParameter -Properties `$updateParameters
 
         `$updateParameters.Remove('Id') | Out-Null
@@ -623,9 +622,9 @@ $($userDefinitionSettings.MOF -join "`r`n")
         `$keys = (([Hashtable]`$updateParameters).Clone()).Keys
         foreach (`$key in `$keys)
         {
-            if (`$null -ne `$pdateParameters.`$key -and `$updateParameters.`$key.GetType().Name -like '*CimInstance*')
+            if (`$null -ne `$updateParameters.`$key -and `$updateParameters.`$key.GetType().Name -like '*CimInstance*')
             {
-                `$updateParameters.`$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject `$updateParameters.$key
+                `$updateParameters.`$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject `$updateParameters.`$key
             }
         }
 
@@ -669,7 +668,7 @@ $($userDefinitionSettings.MOF -join "`r`n")
 
             $defaultCreateParameters = @"
         `$settings = Get-IntuneSettingCatalogPolicySetting ``
-            -DSCParams ([System.Collections.Hashtable]`$BoundParameters) ``
+            -DSCParams ([System.Collections.Hashtable]`$boundParameters) ``
             -TemplateId `$templateReferenceId$(if ($containsDeviceAndUserSettings) { " ```r`n            -ContainsDeviceAndUserSettings" })
 
         `$createParameters = @{
@@ -791,7 +790,7 @@ $($userDefinitionSettings.MOF -join "`r`n")
         $odataType = $null
         if ($true)#$isAdditionalProperty)
         {
-            $odataType = "        `$UpdateParameters.Add(`"@odata.type`", `"#microsoft.graph.$SelectedODataType`")`r`n"
+            $odataType = "        `$updateParameters.Add(`"@odata.type`", `"#microsoft.graph.$SelectedODataType`")`r`n"
         }
 
         $updateCmdletName = "        $updateVerb-$CmdLetNoun"
@@ -802,7 +801,7 @@ $($userDefinitionSettings.MOF -join "`r`n")
             $updateCmdletName = ""
             $defaultUpdateParameters = @"
         `$settings = Get-IntuneSettingCatalogPolicySetting ``
-            -DSCParams ([System.Collections.Hashtable]`$BoundParameters) ``
+            -DSCParams ([System.Collections.Hashtable]`$boundParameters) ``
             -TemplateId `$templateReferenceId$(if ($containsDeviceAndUserSettings) { " ```r`n            -ContainsDeviceAndUserSettings" })
 
         Update-IntuneDeviceConfigurationPolicy ``
@@ -861,7 +860,7 @@ $($userDefinitionSettings.MOF -join "`r`n")
             $AssignmentsGet += "        }`r`n"
             $AssignmentsGet += "        `$results.Add('Assignments', `$assignmentResult)`r`n"
 
-            $AssignmentsRemove += "        `$BoundParameters.Remove(`"Assignments`") | Out-Null`r`n"
+            $AssignmentsRemove += "        `$boundParameters.Remove(`"Assignments`") | Out-Null`r`n"
 
             $AssignmentsNew += ""
             $AssignmentsNew += "`r`n"
@@ -1530,10 +1529,6 @@ function New-M365DSCResourceForGraphCmdLet
 function Get-CmdletDefinition
 {
     param (
-        [Parameter(Mandatory = $true)]
-        [string]
-        $Entity,
-
         [Parameter()]
         [ValidateSet('v1.0', 'beta')]
         [string]
@@ -1549,8 +1544,10 @@ function Get-CmdletDefinition
         $Uri = 'https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/clean_beta_metadata/cleanMetadataWithDescriptionsAndAnnotationsbeta.xml'
     }
 
-    $metadata = ([XML](Invoke-RestMethod  -Uri $Uri)).Edmx.DataServices.schema
-    return $metadata
+    Invoke-RestMethod -Uri $Uri | Out-File -FilePath "Metadata.xml" -Encoding utf8 -Force
+    $schema = ([XML](Get-Content -Path "Metadata.xml" -Raw)).Edmx.DataServices.schema
+    Remove-Item -Path "Metadata.xml" -Force
+    return $schema
 }
 
 # Retrieve all properties from metadata schema
@@ -2986,7 +2983,7 @@ function Get-M365DSCResourcePermission
         $APIVersion = 'v1.0'
     )
 
-    $readPermissionsNames = (Find-MgGraphCommand -Command "Get-$CmdLetNoun" -ApiVersion $ApiVersion| Select-Object -First 1 -ExpandProperty Permissions).Name
+    $readPermissionsNames = (Find-MgGraphCommand -Command "Get-$CmdLetNoun" -ApiVersion $ApiVersion| Select-Object -First 1 -ExpandProperty Permissions).Name | Select-Object -Unique
     $leastReadPermissions = @()
 
     foreach ($permission in $readPermissionsNames)
@@ -3005,7 +3002,7 @@ function Get-M365DSCResourcePermission
         }
     }
 
-    $updatePermissionsNames = (Find-MgGraphCommand -Command "$UpdateVerb-$CmdLetNoun" -ApiVersion $ApiVersion | Select-Object -First 1 -ExpandProperty Permissions).Name
+    $updatePermissionsNames = (Find-MgGraphCommand -Command "$UpdateVerb-$CmdLetNoun" -ApiVersion $ApiVersion | Select-Object -First 1 -ExpandProperty Permissions).Name | Select-Object -Unique
 
     switch ($Workload)
     {

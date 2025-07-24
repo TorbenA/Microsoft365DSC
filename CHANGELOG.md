@@ -1,5 +1,54 @@
 # Change log for Microsoft365DSC
 
+# 1.25.723.1
+
+* AADApplication
+  * Reduced export time by up to 75%.
+* AADConditionalAccessPolicy
+  * Added support for the ProtocolFlows property.
+* AADGroup
+  * Reduced export time by up to 60%.
+* AADPIMGroupSettings
+  * Reduced export time by 80%.
+* AADGroupEligibilitySchedule
+  * Reduced export time by 80%.
+* AADGroupEligibilityScheduleSettings
+  * Reduced export time by 90%.
+* AADPasswordRuleSettings
+  * Updated creation of new DirectorySetting object to explicitly use default values to avoid exception
+* AADRoleEligibilityScheduleRequest
+  * Reduced export time by up to 50%.
+* AADRoleSetting
+  * Reduced export time by 80%.
+* AADServicePrincipal
+  * Reduced export time by 70%.
+* AADUser
+  * Reduced export time by 25%.
+* IntuneDeviceCleanupRuleV2
+  * Initial release.
+* IntuneMobileAppsBuiltInStoreApp
+  * Initial release.
+* IntuneMobileAppsManagedGooglePlayApp
+  * Initial release.
+* IntuneMobileAppsBundleMacOS
+  * Initial release.
+* IntuneMobileAppsStoreApp
+  * Initial release.
+* IntuneMobileAppsSystemAppAndroid
+  * Initial release.
+* IntuneMobileAppsWin32AppWindows10
+  * Initial release.
+* IntuneSettingCatalogASRRulesPolicyWindows10
+  * Added new options to `EnableControlledFolderAccess` property.
+    FIXES [#6353](https://github.com/microsoft/Microsoft365DSC/issues/6353)
+* IntuneSettingCatalogCustomPolicyWindows10
+  * Add `RoleScopeTagIds` property to functions.
+    FIXES [#6348](https://github.com/microsoft/Microsoft365DSC/issues/6348)
+* M365DSCDRGUtil
+  * Added new function `Invoke-M365DSCIntuneMobileAppInitialUpload` for initial mobile app content upload.
+* MISC
+  * Fixed log messages from being out of order for AAD resource
+
 # 1.25.716.1
 
 * AADAdministrativeUnit
@@ -11,6 +60,10 @@
 * AADConditionalAccessPolicy
   * Fixed issue with setting empty ExcludePlatform in Target state when current state contains a value
     FIXES [#6298](https://github.com/microsoft/Microsoft365DSC/issues/6298)
+  * Fixed incorrect ServicePrincipalRiskLevels parameter type
+    FIXES [#6325](https://github.com/microsoft/Microsoft365DSC/issues/6325)
+  * Added example for workload identity and dynamic filter based on CustomSecurityAttribute
+
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
 * IntuneMobileAppsDefenderForEndpointMacOS

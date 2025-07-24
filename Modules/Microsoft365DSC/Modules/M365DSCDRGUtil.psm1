@@ -1788,6 +1788,12 @@ function ConvertFrom-IntuneMobileAppAssignment
             }
         }
 
+        if ($null -ne $assignment.settings)
+        {
+            $settings = (Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $assignment.settings.AdditionalProperties)
+            $hashAssignment.Add('assignmentSettings', $settings)
+        }
+
         $assignmentResult += $hashAssignment
     }
 
@@ -1893,6 +1899,14 @@ function ConvertTo-IntuneMobileAppAssignment
         if ($target)
         {
             $formattedAssignment.Add('target', $target)
+        }
+
+        if ($null -ne $assignment.assignmentSettings)
+        {
+            $settings = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $assignment.assignmentSettings
+            $formattedAssignment.Add('settings', $settings)
+            $formattedAssignment.settings.Add('@odata.type', $formattedAssignment.settings.odataType)
+            $formattedAssignment.settings.Remove('odataType') | Out-Null
         }
         $assignmentResult += $formattedAssignment
     }
@@ -2234,6 +2248,10 @@ function Update-DeviceAppManagementPolicyAssignment
                 $formattedTarget.Add('deviceAndAppManagementAssignmentFilterId',$target.deviceAndAppManagementAssignmentFilterId)
             }
             $formattedAssignment.Add('target', $formattedTarget)
+            if ($assignment.settings)
+            {
+                $formattedAssignment.Add('settings', $assignment.settings)
+            }
             $appManagementPolicyAssignments += $formattedAssignment
         }
 
@@ -3457,7 +3475,8 @@ function Update-IntuneDeviceConfigurationPolicy
     }
 }
 
-function Get-ComplexFunctionsFromFilterQuery {
+function Get-ComplexFunctionsFromFilterQuery
+{
     [CmdletBinding()]
     [OutputType([System.Array])]
     param (
@@ -3472,7 +3491,8 @@ function Get-ComplexFunctionsFromFilterQuery {
     return $complexFunctions
 }
 
-function Remove-ComplexFunctionsFromFilterQuery {
+function Remove-ComplexFunctionsFromFilterQuery
+{
     [CmdletBinding()]
     [OutputType([System.String])]
     param (
@@ -3486,7 +3506,8 @@ function Remove-ComplexFunctionsFromFilterQuery {
     return $basicFilterQuery
 }
 
-function Find-GraphDataUsingComplexFunctions {
+function Find-GraphDataUsingComplexFunctions
+{
     [CmdletBinding()]
     [OutputType([System.Array])]
     param (
@@ -3511,4 +3532,126 @@ function Find-GraphDataUsingComplexFunctions {
     }
 
     return $Policies
+}
+
+function Invoke-M365DSCIntuneMobileAppInitialUpload
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $AppId,
+
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $OdataType,
+
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $FileExtension
+    )
+
+    $OdataType = $OdataType.Replace('#', '')
+    $contentVersionsUri = "beta/deviceAppManagement/mobileApps/$($AppId)/$OdataType/contentVersions"
+    $contentVersion = Invoke-MgGraphRequest -Method POST -Uri $contentVersionsUri -Body @{}
+
+    $fileUri = "beta/deviceAppManagement/mobileApps/$($AppId)/$OdataType/contentVersions/$($contentVersion.id)/files"
+    $file = Invoke-MgGraphRequest -Method POST `
+        -Uri $fileUri `
+        -Body @{
+            '@odata.type' = "#microsoft.graph.mobileAppContentFile"
+            name = "Sample.$($FileExtension)"
+            size = 1
+            sizeEncrypted = 64
+            isDependency = $false
+            manifest = $null
+        }
+
+    $file = Wait-ForFileProcessing -AppId $AppId -OdataType $OdataType -FileId $file.id -ContentVersionId $contentVersion.id -UploadStatePrefix "AzureStorageUriRequest"
+
+    # Upload the encrypted Sample file to Azure Storage
+    Write-Verbose "Uploading file to Azure Storage: $($file.azureStorageUri)"
+    $base64File = "+drh1SKfuLjdp37gfv8EuWqOTt06m0TirqJJ0xQvrd5sm6NkiYBY8vBkFM+9ZwHRskO83NEfsLPtTzLB9FFsKA=="
+    $sasUri = $file.azureStorageUri
+    $uri = "$($sasUri)&comp=block&blockid=0001"
+    $iso = [System.Text.Encoding]::GetEncoding("iso-8859-1");
+    $body = [System.Convert]::FromBase64String($base64File)
+    $encodedBody = $iso.GetString($body)
+    Invoke-WebRequest -Uri $uri -Method PUT -Body $encodedBody -Headers @{
+        "x-ms-blob-type" = "BlockBlob"
+    } | Out-Null
+
+    # Finalize the upload to Azure Storage
+    $uri = "$($sasUri)&comp=blocklist"
+    $xml = '<?xml version="1.0" encoding="utf-8"?><BlockList><Latest>0001</Latest></BlockList>'
+    Invoke-RestMethod -Uri $uri -Method PUT -Body $xml
+
+    # Commit the file and update the app
+    $jsonCommit = @{
+        fileEncryptionInfo = @{
+            fileDigestAlgorithm  = "SHA256"
+            encryptionKey        = "yqjlzT5KYpwU0wkr5eJGGukMB0Ar8iGqYX3B0lJJnKk="
+            initializationVector = "bJujZImAWPLwZBTPvWcB0Q=="
+            fileDigest           = "ypeBEsobvcr6wjGzmiPcTaeG7/gUfE5yuYB3ha/uSLs="
+            mac                  = "+drh1SKfuLjdp37gfv8EuWqOTt06m0TirqJJ0xQvrd4="
+            profileIdentifier    = "ProfileVersion1"
+            macKey               = "mGfhTn/0AB3fftWzENQcoU34xghAfvVq23PoiBD81tM="
+        }
+    }
+    $commitUri = "beta/deviceAppManagement/mobileApps/$AppId/$OdataType/contentVersions/$($contentVersion.id)/files/$($file.id)/commit"
+    Invoke-MgGraphRequest -Method POST -Uri $commitUri -Body $($jsonCommit | ConvertTo-Json -Depth 10)
+
+    Wait-ForFileProcessing -AppId $AppId -OdataType $OdataType -FileId $file.id -ContentVersionId $contentVersion.id -UploadStatePrefix "CommitFile"
+
+    # Update the app with the committed content version
+    Invoke-MgGraphRequest -Method PATCH -Uri "beta/deviceAppManagement/mobileApps/$AppId" -Body @{
+        '@odata.type' = "#$OdataType"
+        committedContentVersion = '1'
+    }
+}
+
+function Wait-ForFileProcessing
+{
+    [CmdletBinding()]
+    [OutputType([System.Object])]
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $AppId,
+
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $OdataType,
+
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $FileId,
+
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $ContentVersionId,
+
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $UploadStatePrefix
+    )
+
+    $fileUri = "beta/deviceAppManagement/mobileApps/$($AppId)/$OdataType/contentVersions/$ContentVersionId/files/$($FileId)"
+
+    Write-Verbose "Waiting for file processing to complete for AppId: $AppId, OdataType: $OdataType, FileId: $FileId, ContentVersionId: $ContentVersionId" -Verbose
+    $file = Invoke-MgGraphRequest -Method GET -Uri $fileUri
+
+    while ($file.uploadState -ne "$($UploadStatePrefix)Success")
+    {
+        if ($file.uploadState -like "*Failed")
+        {
+            throw "File upload failed with state: $($file.uploadState). Please check the file and try again."
+        }
+
+        Start-Sleep -Seconds 1
+        Write-Verbose "Current upload state: $($file.uploadState). Waiting for processing to complete..." -Verbose
+        $file = Invoke-MgGraphRequest -Method GET -Uri $fileUri
+    }
+
+    $file
 }

@@ -336,15 +336,15 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $BoundParameters.Remove('Categories') | Out-Null
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $boundParameters.Remove('Categories') | Out-Null
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating an Intune Mobile Apps Microsoft365 Suite for macOS with DisplayName {$DisplayName}"
-        $BoundParameters.Remove("Assignments") | Out-Null
+        $boundParameters.Remove("Assignments") | Out-Null
 
-        $createParameters = ([Hashtable]$BoundParameters).Clone()
+        $createParameters = ([Hashtable]$boundParameters).Clone()
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
         $createParameters.Remove('Id') | Out-Null
 
@@ -377,9 +377,9 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Intune Mobile Apps Microsoft365 Suite for macOS with Id {$($currentInstance.Id)}"
-        $BoundParameters.Remove("Assignments") | Out-Null
+        $boundParameters.Remove("Assignments") | Out-Null
 
-        $updateParameters = ([Hashtable]$BoundParameters).Clone()
+        $updateParameters = ([Hashtable]$boundParameters).Clone()
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
 
         $updateParameters.Remove('Id') | Out-Null
@@ -387,14 +387,14 @@ function Set-TargetResource
         $keys = (([Hashtable]$updateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $pdateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
+            if ($null -ne $updateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
             {
-                $updateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.MobileAppId
+                $updateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.$key
             }
         }
 
         #region resource generator code
-        $UpdateParameters.Add("@odata.type", "#microsoft.graph.macOSOfficeSuiteApp")
+        $updateParameters.Add("@odata.type", "#microsoft.graph.macOSOfficeSuiteApp")
         Invoke-MgGraphRequest -Method PATCH -Uri "/beta/deviceAppManagement/mobileApps/$($currentInstance.Id)" -Body $($UpdateParameters | ConvertTo-Json -Depth 10)
 
         if ($PSBoundParameters.ContainsKey('Categories'))

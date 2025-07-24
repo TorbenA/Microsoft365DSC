@@ -34,6 +34,10 @@ function Get-TargetResource
         $Settings,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -142,7 +146,7 @@ function Get-TargetResource
             $complexSettingInstance = @{}
             $complexSettingInstance.Add('SettingDefinitionId', $currentSettings.settingInstance.settingDefinitionId)
             $complexSettingInstance.Add('odataType', $currentSettings.settingInstance.AdditionalProperties.'@odata.type')
-            $valueName = $currentSettings.settingInstance.AdditionalProperties.'@odata.type'.replace('#microsoft.graph.deviceManagementConfiguration', '').replace('Instance', 'Value')
+            $valueName = $currentSettings.settingInstance.AdditionalProperties.'@odata.type'.Replace('#microsoft.graph.deviceManagementConfiguration', '').Replace('Instance', 'Value')
             $valueName = Get-StringFirstCharacterToLower -Value $valueName
             $rawValue = $currentSettings.settingInstance.AdditionalProperties.$valueName
             $complexValue = get-SettingValue -SettingValue $rawValue -SettingValueType $currentSettings.settingInstance.AdditionalProperties.'@odata.type'
@@ -172,6 +176,7 @@ function Get-TargetResource
             Description           = $getValue.Description
             Name                  = $getValue.Name
             Platforms             = $enumPlatforms
+            RoleScopeTagIds       = $getValue.RoleScopeTagIds
             Technologies          = $enumTechnologies
             Settings              = $complexSettings
             Id                    = $getValue.Id
@@ -245,6 +250,10 @@ function Set-TargetResource
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Settings,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.String]
@@ -411,6 +420,10 @@ function Test-TargetResource
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Settings,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.String]

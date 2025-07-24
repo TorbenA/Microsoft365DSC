@@ -235,6 +235,11 @@ function Get-TargetResource
         [System.String[]]
         $ServicePrincipalRiskLevels,
 
+        [Parameter()]
+        [ValidateSet("implicitAccessTokenAndGetResponseMode","implicitIdTokenAndGetResponseMode","implicitAccessTokenAndPostResponseMode","implicitIdTokenAndPostResponseMode","authorizationCodeWithoutPkce","authorizationCodeWithPkce","clientCredentials","refreshTokenGrant","encryptedAuthorizeResponse","password","directUserGrant","saml20","kerberos","prtGrant","seamlessSso","prtBrokerBased","prtNonBrokerBased","onBehalfOf","samlOnBehalfOf","deviceCodeFlow","authenticationTransfer")]
+        [System.String[]]
+        $ProtocolFlows,
+
         #generic
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -672,10 +677,16 @@ function Get-TargetResource
         $InsiderRiskLevelsValue = $Policy.Conditions.InsiderRiskLevels.Split(',')
     }
 
-    $ServicePrincipalRiskLevelsValue = $null
-    if (-not [System.String]::IsNullOrEmpty($Policy.Conditions.ServicePrincipalRiskLevels))
+    $ProtocolFlowsValue = @()
+    if ($null -ne $Policy.Conditions.AuthenticationFlows.AdditionalProperties.protocolFlows)
     {
-        $ServicePrincipalRiskLevelsValue = $Policy.Conditions.ServicePrincipalRiskLevels.Split(',')
+        $ProtocolFlowsValue = $Policy.Conditions.AuthenticationFlows.AdditionalProperties.protocolFlows.Split(',')
+    }
+
+    $DisableResilienceDefaultsIsEnabledValue = $null
+    if (-not [System.String]::IsNullOrEmpty($Policy.SessionControls.disableResilienceDefaults.isEnabled))
+    {
+        $DisableResilienceDefaultsIsEnabledValue = [Boolean]::Parse($Policy.SessionControls.disableResilienceDefaults.isEnabled)
     }
 
     $result = @{
@@ -747,17 +758,19 @@ function Get-TargetResource
         #no translation needed
         PersistentBrowserIsEnabled               = $false -or $Policy.SessionControls.PersistentBrowser.IsEnabled
         #no translation needed
-        DisableResilienceDefaultsIsEnabled       = $false -or $Policy.SessionControls.disableResilienceDefaults
+        DisableResilienceDefaultsIsEnabled       = $DisableResilienceDefaultsIsEnabledValue
         #make false if undefined, true if true
         PersistentBrowserMode                    = [System.String]$Policy.SessionControls.PersistentBrowser.Mode
         #no translation needed
         AuthenticationStrength                   = $AuthenticationStrengthValue
         AuthenticationContexts                   = $AuthenticationContextsValues
         TransferMethods                          = [System.String]$Policy.Conditions.AuthenticationFlows.TransferMethods
+        ProtocolFlows                            = $ProtocolFlowsValue
+        #no translation needed, return empty string array if undefined
+        ServicePrincipalRiskLevels               = [System.String[]](@() + $Policy.Conditions.ServicePrincipalRiskLevels)
         #Standard part
         TermsOfUse                               = $termOfUseName
         InsiderRiskLevels                        = $InsiderRiskLevelsValue
-        ServicePrincipalRiskLevels               = $ServicePrincipalRiskLevelsValue
         Ensure                                   = 'Present'
         Credential                               = $Credential
         ApplicationSecret                        = $ApplicationSecret
@@ -1005,6 +1018,11 @@ function Set-TargetResource
         [ValidateSet('low', 'medium', 'high', 'none', 'unknownFutureValue')]
         [System.String[]]
         $ServicePrincipalRiskLevels,
+
+        [Parameter()]
+        [ValidateSet("implicitAccessTokenAndGetResponseMode","implicitIdTokenAndGetResponseMode","implicitAccessTokenAndPostResponseMode","implicitIdTokenAndPostResponseMode","authorizationCodeWithoutPkce","authorizationCodeWithPkce","clientCredentials","refreshTokenGrant","encryptedAuthorizeResponse","password","directUserGrant","saml20","kerberos","prtGrant","seamlessSso","prtBrokerBased","prtNonBrokerBased","onBehalfOf","samlOnBehalfOf","deviceCodeFlow","authenticationTransfer")]
+        [System.String[]]
+        $ProtocolFlows,
 
         #generic
         [Parameter()]
@@ -1732,9 +1750,9 @@ function Set-TargetResource
             $conditions.Add('insiderRiskLevels', $($InsiderRiskLevels -join ','))
         }
 
-        if ([String]::IsNullOrEmpty($ServicePrincipalRiskLevels) -eq $false)
+        if ($ServicePrincipalRiskLevels -is [string[]] -and $ServicePrincipalRiskLevels.Count -gt 0)
         {
-            $conditions.Add('servicePrincipalRiskLevels', $($ServicePrincipalRiskLevels -join ','))
+            $conditions.Add('servicePrincipalRiskLevels', $ServicePrincipalRiskLevels)
         }
 
         Write-Verbose -Message 'Set-Targetresource: process risk levels and app types'
@@ -1761,19 +1779,28 @@ function Set-TargetResource
             #no translation or conversion needed
         }
 
-        Write-Verbose -Message "Set-Targetresource: authenticationFlows transferMethods: $TransferMethods"
-        if ($currentParameters.ContainsKey('TransferMethods'))
+        Write-Verbose -Message "Set-TargetResource: authenticationFlows transferMethods: $TransferMethods"
+        if ($currentParameters.ContainsKey('TransferMethods') -or `
+            $currentParameters.ContainsKey('ProtocolFlows'))
         {
             #create and provision TransferMethods condition object if used
-            $authenticationFlows = if ([System.String]::IsNullOrEmpty($TransferMethods))
+            $authenticationFlows = if ([System.String]::IsNullOrEmpty($TransferMethods) -and [System.String]::IsNullOrEmpty($ProtocolFlows))
             {
                 $null
             }
             else
             {
-                @{
-                    transferMethods = $TransferMethods
+                $value = @{}
+
+                if (-not [System.String]::IsNullOrEmpty($TransferMethods))
+                {
+                    $value.Add('transferMethods', $TransferMethods)
                 }
+                if (-not [System.String]::IsNullOrEmpty($ProtocolFlows))
+                {
+                    $value.Add('protocolFlows', $ProtocolFlows -join ',')
+                }
+                $value
             }
             if (-not $conditions.Contains('authenticationFlows'))
             {
@@ -1783,7 +1810,6 @@ function Set-TargetResource
             {
                 $conditions.authenticationFlows = $authenticationFlows
             }
-
         }
         Write-Verbose -Message 'Set-Targetresource: Adding processed conditions'
         #add all conditions to the parameter list
@@ -1898,7 +1924,7 @@ function Set-TargetResource
                 $sessioncontrols.persistentBrowser.isEnabled = $true
                 $sessioncontrols.persistentBrowser.mode = $PersistentBrowserMode
             }
-            if ($null -ne $DisableResilienceDefaultsIsEnabled)
+            if (-not [System.String]::IsNullOrEmpty($DisableResilienceDefaultsIsEnabled))
             {
                 $sessioncontrols.Add('disableResilienceDefaults', $DisableResilienceDefaultsIsEnabled)
             }
@@ -2220,6 +2246,11 @@ function Test-TargetResource
         [ValidateSet('low', 'medium', 'high', 'none', 'unknownFutureValue')]
         [System.String[]]
         $ServicePrincipalRiskLevels,
+
+        [Parameter()]
+        [ValidateSet("implicitAccessTokenAndGetResponseMode","implicitIdTokenAndGetResponseMode","implicitAccessTokenAndPostResponseMode","implicitIdTokenAndPostResponseMode","authorizationCodeWithoutPkce","authorizationCodeWithPkce","clientCredentials","refreshTokenGrant","encryptedAuthorizeResponse","password","directUserGrant","saml20","kerberos","prtGrant","seamlessSso","prtBrokerBased","prtNonBrokerBased","onBehalfOf","samlOnBehalfOf","deviceCodeFlow","authenticationTransfer")]
+        [System.String[]]
+        $ProtocolFlows,
 
         #generic
         [Parameter()]

@@ -67,7 +67,7 @@ function Get-TargetResource
     $nullResult.Ensure = 'Absent'
     try
     {
-        $instance = Get-FocusedInbox -Identity $Identity
+        $instance = Get-FocusedInbox -Identity $Identity -ErrorAction SilentlyContinue
         if ($null -eq $instance)
         {
             return $nullResult
