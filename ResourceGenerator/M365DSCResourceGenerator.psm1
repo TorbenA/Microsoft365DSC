@@ -1726,7 +1726,7 @@ function Get-TypeProperties
         }
 
         $baseType = $null
-        if (-not [String]::IsNullOrEmpty($entityType.BaseType))
+        if ($entityType.BaseType -is [string] -and -not [String]::IsNullOrEmpty($entityType.BaseType))
         {
             $baseType =  $entityType.BaseType.Replace('graph.','')
         }
@@ -2696,7 +2696,7 @@ function Get-M365DSCFakeValues
         {
             try
             {
-                clear-variable hashValue -force
+                Clear-Variable -Name "hashValue" -Force
             }
             catch {}
         }
@@ -2726,7 +2726,8 @@ function Get-M365DSCFakeValues
             $nestedProperties = @()
             if ($null -ne $parameter.Properties)
             {
-                $nestedProperties = Get-M365DSCFakeValues -ParametersInformation $parameter.Properties `
+                $nestedProperties = Get-M365DSCFakeValues -ParametersInformation $($parameter.Properties | Group-Object "Name" |
+                    Foreach-Object { $_.Group | Select-Object -First 1 }) `
                     -Workload $Workload `
                     -isCmdletCall $isCmdletCall `
                     -isRecursive $true `

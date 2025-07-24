@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCResourceGenerator
+  * Fixed an issue where duplicate parameters would lead to an error during generation.
+    FIXES [#5489](https://github.com/microsoft/Microsoft365DSC/issues/5489)
+
 # 1.25.723.1
 
 * AADApplication
