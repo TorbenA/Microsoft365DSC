@@ -1,4 +1,5 @@
 Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADApplication'
+$Script:PropertiesToRetrieve = "displayName, description, groupMembershipClaims, web, api, id, appId, applicationTemplateId, signInAudience, authenticationBehaviors, keyCredentials, requiredResourceAccess"
 
 function Get-TargetResource
 {
@@ -176,7 +177,7 @@ function Get-TargetResource
                 {
                     $AADApp = Get-MgBetaApplication `
                         -Filter "AppId eq '$AppId'" `
-                        -Property "displayName, description, groupMembershipClaims, web, api, id, appId, applicationTemplateId, signInAudience, authenticationBehaviors, keyCredentials" `
+                        -Property $Script:PropertiesToRetrieve `
                         -ExpandProperty "owners"
                 }
             }
@@ -190,7 +191,7 @@ function Get-TargetResource
                 Write-Verbose -Message "Attempting to retrieve Azure AD Application by DisplayName {$DisplayName}"
                 $AADApp = [Array](Get-MgBetaApplication `
                     -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                    -Property "displayName, description, groupMembershipClaims, web, api, id, appId, applicationTemplateId, signInAudience, authenticationBehaviors, keyCredentials" `
+                    -Property $Script:PropertiesToRetrieve `
                     -ExpandProperty "owners")
             }
             if ($null -ne $AADApp -and $AADApp.Count -gt 1)
@@ -1562,7 +1563,7 @@ function Export-TargetResource
         $Script:ExportMode = $true
         [array] $Script:exportedInstances = Get-MgBetaApplication `
             -Filter $Filter `
-            -Property "displayName, description, groupMembershipClaims, web, api, id, appId, applicationTemplateId, signInAudience, authenticationBehaviors, keyCredentials, requiredResourceAccess" `
+            -Property $Script:PropertiesToRetrieve `
             -ExpandProperty "owners" `
             -All `
             -ErrorAction Stop
