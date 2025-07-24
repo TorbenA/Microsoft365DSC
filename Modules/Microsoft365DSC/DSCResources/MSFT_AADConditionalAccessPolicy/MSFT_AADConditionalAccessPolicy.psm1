@@ -236,7 +236,6 @@ function Get-TargetResource
         $ServicePrincipalRiskLevels,
 
         [Parameter()]
-        [ValidateSet("implicitAccessTokenAndGetResponseMode","implicitIdTokenAndGetResponseMode","implicitAccessTokenAndPostResponseMode","implicitIdTokenAndPostResponseMode","authorizationCodeWithoutPkce","authorizationCodeWithPkce","clientCredentials","refreshTokenGrant","encryptedAuthorizeResponse","password","directUserGrant","saml20","kerberos","prtGrant","seamlessSso","prtBrokerBased","prtNonBrokerBased","onBehalfOf","samlOnBehalfOf","deviceCodeFlow","authenticationTransfer")]
         [System.String[]]
         $ProtocolFlows,
 
@@ -1020,7 +1019,6 @@ function Set-TargetResource
         $ServicePrincipalRiskLevels,
 
         [Parameter()]
-        [ValidateSet("implicitAccessTokenAndGetResponseMode","implicitIdTokenAndGetResponseMode","implicitAccessTokenAndPostResponseMode","implicitIdTokenAndPostResponseMode","authorizationCodeWithoutPkce","authorizationCodeWithPkce","clientCredentials","refreshTokenGrant","encryptedAuthorizeResponse","password","directUserGrant","saml20","kerberos","prtGrant","seamlessSso","prtBrokerBased","prtNonBrokerBased","onBehalfOf","samlOnBehalfOf","deviceCodeFlow","authenticationTransfer")]
         [System.String[]]
         $ProtocolFlows,
 
@@ -2248,7 +2246,6 @@ function Test-TargetResource
         $ServicePrincipalRiskLevels,
 
         [Parameter()]
-        [ValidateSet("implicitAccessTokenAndGetResponseMode","implicitIdTokenAndGetResponseMode","implicitAccessTokenAndPostResponseMode","implicitIdTokenAndPostResponseMode","authorizationCodeWithoutPkce","authorizationCodeWithPkce","clientCredentials","refreshTokenGrant","encryptedAuthorizeResponse","password","directUserGrant","saml20","kerberos","prtGrant","seamlessSso","prtBrokerBased","prtNonBrokerBased","onBehalfOf","samlOnBehalfOf","deviceCodeFlow","authenticationTransfer")]
         [System.String[]]
         $ProtocolFlows,
 

@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADConditionalAccessPolicy
+  * Remove the ValidateSet from the ProtocolFlows property.
+
 # 1.25.723.1
 
 * AADApplication
