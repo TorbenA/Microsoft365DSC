@@ -151,7 +151,9 @@
       IconUri      = 'https://github.com/microsoft/Microsoft365DSC/blob/Dev/Modules/Microsoft365DSC/Dependencies/Images/Logo.png?raw=true'
 
       # ReleaseNotes of this module
-      ReleaseNotes = '* AADConditionalAccessPolicy
+      ReleaseNotes = '* AADApplication
+  * Reduced export time by up to 75%.
+      * AADConditionalAccessPolicy
   * Added support for the ProtocolFlows property.
 * AADGroup
   * Reduced export time by up to 60%.
