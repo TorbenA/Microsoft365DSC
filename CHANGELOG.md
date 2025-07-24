@@ -2,9 +2,6 @@
 
 # 1.25.723.1
 
-* AADApplication
-  * Fixed an issue where the permission lookup would return only the Guid for delegated permissions.
-  * Reduced export time by up to 75%.
 * AADConditionalAccessPolicy
   * Added support for the ProtocolFlows property.
 * AADGroup
