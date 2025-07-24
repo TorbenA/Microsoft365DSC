@@ -1915,7 +1915,7 @@ function Get-M365DSCAzureADAppPermissions
             $currentPermission.Add('SourceAPI', $SourceAPI.DisplayName)
             if ($resourceAccess.Type -eq 'Scope')
             {
-                $scopeInfo = $SourceAPI.Oauth2PermissionScopes | Where-Object -FilterScript { $_.Id -eq $resourceAccess.Id }
+                $scopeInfo = $SourceAPI.publishedPermissionScopes | Where-Object -FilterScript { $_.Id -eq $resourceAccess.Id }
                 $scopeInfoValue = $null
                 if ($null -eq $scopeInfo)
                 {
@@ -1983,4 +1983,3 @@ function Get-M365DSCAzureADAppPermissions
 }
 
 Export-ModuleMember -Function *-TargetResource
-
