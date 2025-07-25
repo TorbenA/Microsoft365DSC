@@ -222,7 +222,7 @@ function Get-TargetResource
         }
 
         # return membership of static groups only
-        [array]$currentMemberOf = ($batchResponse | Where-Object -FilterScript { $_.id -eq 'MemberOf' }).body.value | Select-Object -ExpandProperty DisplayName
+        [array]$currentMemberOf = ($batchResponse | Where-Object -FilterScript { $_.id -eq 'MemberOf' }).body.value.DisplayName
 
         $userPasswordPolicyInfo = $user | Select-Object UserprincipalName, @{
             N = 'PasswordNeverExpires'; E = { $_.PasswordPolicies -contains 'DisablePasswordExpiration' }
