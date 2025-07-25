@@ -335,7 +335,7 @@ function Set-TargetResource
         Write-Verbose -Message "Creating access package {$DisplayName}"
 
         #region basic information
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
 
         $ObjectGuid = [System.Guid]::empty
         if (-not [System.Guid]::TryParse($CreateParameters.CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
@@ -451,7 +451,7 @@ function Set-TargetResource
         Write-Verbose -Message "Updating access package with id {$id} and displayName {$DisplayName}"
 
         #region basic information
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
 
         $ObjectGuid = [System.Guid]::empty
         if (-not [System.Guid]::TryParse($CreateParameters.CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))

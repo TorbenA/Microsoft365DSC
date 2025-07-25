@@ -894,7 +894,7 @@ function Set-TargetResource
     $currentParameters.Remove('Homepage') | Out-Null
     $currentParameters.Remove('OnPremisesPublishing') | Out-Null
 
-    $keys = (([Hashtable]$currentParameters).clone()).Keys
+    $keys = (([Hashtable]$currentParameters).Clone()).Keys
     foreach ($key in $keys)
     {
         if ($null -ne $currentParameters.$key -and $currentParameters.$key.getType().Name -like '*cimInstance*')

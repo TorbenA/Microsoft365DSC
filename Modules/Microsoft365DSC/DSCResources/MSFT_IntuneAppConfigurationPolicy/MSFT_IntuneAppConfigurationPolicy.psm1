@@ -100,7 +100,7 @@ function Get-TargetResource
             Add-M365DSCTelemetryEvent -Data $data
             #endregion
 
-            $nullResult = ([Hashtable]$PSBoundParameters).clone()
+            $nullResult = ([Hashtable]$PSBoundParameters).Clone()
             $nullResult.Ensure = 'Absent'
 
             $configPolicy = $null
@@ -549,7 +549,7 @@ function Test-TargetResource
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
 
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
+    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
     $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
     $ValuesToCheck.Remove('Id') | Out-Null
 
