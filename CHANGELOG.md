@@ -14,6 +14,10 @@
   * Fixed the return values from the Get-TargetResource method.
 * AADUser
   * Fixed an issue when fetching a property from an empty array.
+* MISC
+  * Update documentation for configuring workload authentication.
+  * Update permissions for EXO resources.
+    FIXES [#3841](https://github.com/microsoft/Microsoft365DSC/issues/3841)
 
 # 1.25.723.1
 

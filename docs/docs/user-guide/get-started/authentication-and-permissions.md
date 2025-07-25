@@ -48,15 +48,61 @@ It is also important to note that we have added logic inside of the commands tha
   <figcaption>Export only exports resources that support the used authentication method</figcaption>
 </figure>
 
+## Azure DevOps
+
+TODO
+
+## Azure Permissions
+
+TODO
+
+## Commerce Permissions
+
+TODO
+
+## Defender Permissions
+
+TODO
+
+## Fabric Permissions
+
+In order to authenticate to Fabric using a Service Principal (Certificate Thumbprint or Application Secret), you need to create a security group, add the Service Principal as a member and assign the **Global Reader** role to the group.
+
+![Permissions For Fabric](../../Images/permissionsForFabric.png)
+
+After creating the security group with the Service Principal as a member and assigning the role to the group, you have to allow Service Principal access to Read-Only APIs in the [Fabric admin portal > Tenant Settings](https://app.fabric.microsoft.com/admin-portal/tenantSettings). On the page, scroll down to **Admin API settings** and expand the **Service principals can access read-only admin APIs** option. Toggle the option to **Enabled** and specify the Entra security group which you previously configured with the role and your service principal. Click **Apply** to finish the configuration.
+
+![Fabric Admin Tenant Settings - SPN Read-Only Admin APIs](../../Images/fabricSpnReadOnlyAccess.png)
+
+You now can export the Fabric resources.
+
+## O365 Permissions
+
+TODO
+
+## OneDrive Permissions
+
+TODO
+
 ## Power Apps Permissions
 
-In order to authenticate to Power Apps using a Service Principal (Certificate Thumbprint or ApplicationSecret), you will first need to define your app as a Power App Management app. For details on how to proceed, please refer to the following link: <a href="https://learn.microsoft.com/en-us/power-platform/admin/powershell-create-service-principal#registering-an-admin-management-application">https://learn.microsoft.com/en-us/power-platform/admin/powershell-create-service-principal#registering-an-admin-management-application</a>
+In order to authenticate to Power Apps using a Service Principal (Certificate Thumbprint or Application Secret), you will first need to define your app as a Power App Management app. For details on how to proceed, please refer to the following link: <a href="https://learn.microsoft.com/en-us/power-platform/admin/powershell-create-service-principal#registering-an-admin-management-application">https://learn.microsoft.com/en-us/power-platform/admin/powershell-create-service-principal#registering-an-admin-management-application</a>
 
-Additionally, to be able to authenticate using a Certificate Thumbprint, the underlying Power Apps PowerShell module used by Microsoft365DSC requires the certificate's private key (.pfx) to be registered under the current user's certificate store at <strong>Cert:\CurrentUser\My\</strong>. Omitting to register the private key will result in Microsoft365DSC throwing the following error when trying to authenticate to the Power Platform:
+Additionally, to be able to authenticate using a Certificate Thumbprint, the underlying Power Apps PowerShell module used by Microsoft365DSC requires the certificate's private key (.pfx) to be registered under the current user's certificate store at **Cert:\CurrentUser\My\\**. Omitting to register the private key will result in Microsoft365DSC throwing the following error when trying to authenticate to the Power Platform:
 
 ```powershell
 Get-Item: Cannot find path 'Cert:\CurrentUser\My\****************************************' because it does not exist.
 ```
+
+Registering it for the Local Configuration Manager (LCM) requires a tool like [PSExec](https://learn.microsoft.com/en-us/sysinternals/downloads/psexec), with which you can start the MMC.exe and add the certificate in the Current User certificate store.
+
+## Sentinel Permissions
+
+TODO
+
+## Services Hub Permissions
+
+TODO
 
 ## Microsoft Graph Permissions
 
