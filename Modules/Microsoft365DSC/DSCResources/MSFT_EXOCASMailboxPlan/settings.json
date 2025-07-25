@@ -10,7 +10,7 @@
     ]
   },
   "permissions": {
-    "office365ExchangeOnline": {
+    "Office 365 Exchange Online": {
       "application": {
         "read": [
           {

@@ -1,8 +1,16 @@
 {
   "resourceName": "SCProtectionAlert",
-  "description": "",
+  "description": "This resource configures a Protection Alert in Purview.",
+  "roles": {
+    "read": [
+      "Security Reader"
+    ],
+    "update": [
+      "Compliance Administrator"
+    ]
+  },
   "permissions": {
-    "office365ExchangeOnline": {
+    "Office 365 Exchange Online": {
       "application": {
         "read": [
           {

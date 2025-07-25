@@ -2,8 +2,12 @@
   "resourceName": "SCDeviceConfigurationRule",
   "description": "This resource configures a Device Configuration Rule in Purview.",
   "roles": {
-    "read": [],
-    "update": []
+    "read": [
+      "Security Reader"
+    ],
+    "update": [
+      "Compliance Administrator"
+    ]
   },
   "permissions": {
     "graph": {
@@ -24,7 +28,7 @@
         ]
       }
     },
-    "office365ExchangeOnline": {
+    "Office 365 Exchange Online": {
       "application": {
         "read": [
           {

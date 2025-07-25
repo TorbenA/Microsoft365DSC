@@ -1,8 +1,16 @@
 {
   "resourceName": "SCAutoSensitivityLabelRule",
-  "description": "",
+  "description": "This resource configures an Auto Sensitivity Label Rule in Purview.",
+  "roles": {
+    "read": [
+      "Security Reader"
+    ],
+    "update": [
+      "Compliance Administrator"
+    ]
+  },
   "permissions": {
-    "office365ExchangeOnline": {
+    "Office 365 Exchange Online": {
       "application": {
         "read": [
           {

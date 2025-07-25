@@ -1,8 +1,16 @@
 {
   "resourceName": "SCFilePlanPropertyReferenceId",
-  "description": "",
+  "description": "This resource configures a File Plan Property Reference ID in Purview.",
+  "roles": {
+    "read": [
+      "Compliance Administrator"
+    ],
+    "update": [
+      "Compliance Administrator"
+    ]
+  },
   "permissions": {
-    "office365ExchangeOnline": {
+    "Office 365 Exchange Online": {
       "application": {
         "read": [
           {

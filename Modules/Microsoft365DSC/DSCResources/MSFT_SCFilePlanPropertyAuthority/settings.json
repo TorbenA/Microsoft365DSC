@@ -1,8 +1,16 @@
 {
   "resourceName": "SCFilePlanPropertyAuthority",
-  "description": "",
+  "description": "This resource configures a File Plan Property Authority in Purview.",
+  "roles": {
+    "read": [
+      "Compliance Administrator"
+    ],
+    "update": [
+      "Compliance Administrator"
+    ]
+  },
   "permissions": {
-    "office365ExchangeOnline": {
+    "Office 365 Exchange Online": {
       "application": {
         "read": [
           {

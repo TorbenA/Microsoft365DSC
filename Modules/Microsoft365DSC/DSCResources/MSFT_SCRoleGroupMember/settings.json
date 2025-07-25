@@ -1,8 +1,16 @@
 {
   "resourceName": "SCRoleGroupMember",
-  "description": "",
+  "description": "This resource configures a Role Group Member in Purview.",
+  "roles": {
+    "read": [
+      "Compliance Administrator"
+    ],
+    "update": [
+      "Compliance Administrator"
+    ]
+  },
   "permissions": {
-    "office365ExchangeOnline": {
+    "Office 365 Exchange Online": {
       "application": {
         "read": [
           {

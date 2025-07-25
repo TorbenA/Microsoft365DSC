@@ -2,11 +2,15 @@
   "resourceName": "SCInsiderRiskEntityList",
   "description": "Configures settings for Insider Risk in Purview.",
   "roles": {
-    "read": [],
-    "update": []
+    "read": [
+      "Compliance Administrator"
+    ],
+    "update": [
+      "Compliance Administrator"
+    ]
   },
   "permissions": {
-    "office365ExchangeOnline": {
+    "Office 365 Exchange Online": {
       "application": {
         "read": [
           {

@@ -1,8 +1,16 @@
 {
   "resourceName": "SCRecordReviewNotificationTemplateConfig",
   "description": "Configures Purview Records Management disposition settings.",
+  "roles": {
+    "read": [
+      "Compliance Administrator"
+    ],
+    "update": [
+      "Compliance Administrator"
+    ]
+  },
   "permissions": {
-    "office365ExchangeOnline": {
+    "Office 365 Exchange Online": {
       "application": {
         "read": [
           {

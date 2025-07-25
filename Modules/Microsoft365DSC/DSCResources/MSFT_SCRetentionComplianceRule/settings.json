@@ -1,8 +1,16 @@
 {
   "resourceName": "SCRetentionComplianceRule",
-  "description": "",
+  "description": "This resource configures a Retention Compliance Rule in Purview.",
+  "roles": {
+    "read": [
+      "Compliance Administrator"
+    ],
+    "update": [
+      "Compliance Administrator"
+    ]
+  },
   "permissions": {
-    "office365ExchangeOnline": {
+    "Office 365 Exchange Online": {
       "application": {
         "read": [
           {

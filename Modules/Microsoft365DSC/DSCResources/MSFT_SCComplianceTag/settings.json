@@ -1,8 +1,16 @@
 {
   "resourceName": "SCComplianceTag",
-  "description": "",
+  "description": "This resource configures a Compliance Tag in Purview.",
+  "roles": {
+    "read": [
+      "Compliance Administrator"
+    ],
+    "update": [
+      "Compliance Administrator"
+    ]
+  },
   "permissions": {
-    "office365ExchangeOnline": {
+    "Office 365 Exchange Online": {
       "application": {
         "read": [
           {

@@ -1,8 +1,16 @@
 {
   "resourceName": "SCAuditConfigurationPolicy",
-  "description": "",
+  "description": "This resource configures an Audit Configuration Policy in Purview.",
+  "roles": {
+    "read": [
+      "Compliance Administrator"
+    ],
+    "update": [
+      "Compliance Administrator"
+    ]
+  },
   "permissions": {
-    "office365ExchangeOnline": {
+    "Office 365 Exchange Online": {
       "application": {
         "read": [
           {
