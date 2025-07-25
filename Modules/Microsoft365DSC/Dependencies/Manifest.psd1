@@ -13,6 +13,10 @@
             RequiredVersion = '7.2.0'
         },
         @{
+            ModuleName      = 'Az.Security'
+            RequiredVersion = '1.6.2'
+        },
+        @{
             ModuleName      = 'Az.SecurityInsights'
             RequiredVersion = '3.1.2'
         },

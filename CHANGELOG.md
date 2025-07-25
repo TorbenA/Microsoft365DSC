@@ -1,6 +1,13 @@
 # Change log for Microsoft365DSC
 
-# Release 1.25.723.2
+# UNRELEASED
+
+* ADOPermissionGroupSettings
+  * Reduced export time by 90%.
+* DEPENDENCIES
+  * Include `Az.Security` module for `Defender` workload.
+
+# 1.25.723.2
 
 * AADConditionalAccessPolicy
   * Remove the ValidateSet from the ProtocolFlows property.
@@ -72,7 +79,6 @@
   * Fixed incorrect ServicePrincipalRiskLevels parameter type
     FIXES [#6325](https://github.com/microsoft/Microsoft365DSC/issues/6325)
   * Added example for workload identity and dynamic filter based on CustomSecurityAttribute
-
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
 * IntuneMobileAppsDefenderForEndpointMacOS
