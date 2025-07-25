@@ -1207,8 +1207,8 @@ function Test-M365DSCTargetResource
         }
     }
 
-    Write-Verbose -Message "Current Values: $(ConvertTo-Json $CurrentValues -Depth 10)"
-    Write-Verbose -Message "Target Values: $(ConvertTo-Json $ValuesToCheck -Depth 10)"
+    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
+    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
 
     $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
             -Source $ResourceName `
