@@ -6,6 +6,8 @@
   * Remove the ValidateSet from the ProtocolFlows property.
 * AADCrossTenantAccessPolicyConfigurationDefault
   * Fixed the return values from the Get-TargetResource method.
+* AADUser
+  * Fixed an issue when fetching a property from an empty array.
 
 # 1.25.723.1
 
