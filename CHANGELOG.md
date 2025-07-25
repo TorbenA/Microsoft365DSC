@@ -1,5 +1,14 @@
 # Change log for Microsoft365DSC
 
+# Release 1.25.723.2
+
+* AADConditionalAccessPolicy
+  * Remove the ValidateSet from the ProtocolFlows property.
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Fixed the return values from the Get-TargetResource method.
+* AADUser
+  * Fixed an issue when fetching a property from an empty array.
+
 # 1.25.723.1
 
 * AADApplication
