@@ -4,6 +4,8 @@
 
 * AADConditionalAccessPolicy
   * Remove the ValidateSet from the ProtocolFlows property.
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Fixed the return values from the Get-TargetResource method.
 
 # 1.25.723.1
 
