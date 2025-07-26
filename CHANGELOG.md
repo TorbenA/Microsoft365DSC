@@ -6,6 +6,15 @@
   * Fixed an issue where duplicate parameters would lead to an error during generation.
     FIXES [#5489](https://github.com/microsoft/Microsoft365DSC/issues/5489)
 
+# 1.25.723.2
+
+* AADConditionalAccessPolicy
+  * Remove the ValidateSet from the ProtocolFlows property.
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Fixed the return values from the Get-TargetResource method.
+* AADUser
+  * Fixed an issue when fetching a property from an empty array.
+
 # 1.25.723.1
 
 * AADApplication
