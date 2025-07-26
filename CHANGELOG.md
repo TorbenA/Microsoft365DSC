@@ -1,6 +1,12 @@
 # Change log for Microsoft365DSC
 
-# Release 1.25.723.2
+# UNRELEASED
+
+* AADApplication
+  * Fixed an issue where owners would not be set during creation.
+    FIXES [#6238](https://github.com/microsoft/Microsoft365DSC/issues/6238)
+
+# 1.25.723.2
 
 * AADConditionalAccessPolicy
   * Remove the ValidateSet from the ProtocolFlows property.
