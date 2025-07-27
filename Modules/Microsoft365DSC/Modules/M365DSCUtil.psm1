@@ -5334,19 +5334,28 @@ function Write-M365DSCHost
 function Invoke-M365DSCGraphBatchRequest
 {
     [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable[]])]
     param (
         [Parameter(Mandatory = $true)]
         [System.Collections.Hashtable[]]
         $Requests
     )
 
-    $request = @{
-        requests = $Requests
+    $batchResponses = @()
+    for ($i = 0; $i -lt $Requests.Count; $i += 20)
+    {
+        $batchRequestSized = $Requests[$i..([Math]::Min($i + 19, $Requests.Count - 1))]
+
+        $request = @{
+            requests = $batchRequestSized
+        }
+
+        $batchResponses += (Invoke-MgGraphRequest -Method POST `
+            -Uri 'beta/$batch' `
+            -Body ($request | ConvertTo-Json -Depth 10)).responses
     }
 
-    (Invoke-MgGraphRequest -Method POST `
-        -Uri 'beta/$batch' `
-        -Body ($request | ConvertTo-Json -Depth 10)).responses
+    return ,$batchResponses
 }
 
 Export-ModuleMember -Function @(
