@@ -360,7 +360,7 @@ function Get-TargetResource
         }
         if ($null -ne $label.Settings)
         {
-            $advancedSettingsValue = Convert-StringToAdvancedSettings -AdvancedSettings $label.Settings
+            [array]$advancedSettingsValue = Convert-StringToAdvancedSettings -AdvancedSettings $label.Settings
         }
         Write-Verbose "Found existing Sensitivity Label $($Name)"
 
@@ -1612,34 +1612,28 @@ function Export-TargetResource
             $Script:exportedInstance = $label
             $Results = Get-TargetResource @PSBoundParameters -Name $label.Name
 
+            if ($null -ne $Results.AdvancedSettings)
+            {
+                $complexMapping = @(
+                    @{
+                        Name            = 'AdvancedSettings'
+                        CimInstanceName = 'MSFT_SCLabelSetting'
+                        IsRequired      = $False
+                    }
+                )
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.AdvancedSettings `
+                    -CIMInstanceName 'MSFT_SCLabelSetting' `
+                    -ComplexTypeMapping $complexMapping
 
-
-    # Get the string representation
-    $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
-        -ComplexObject $Results.AdvancedSettings `
-        -CIMInstanceName 'MSFT_SCLabelSetting' `
-        -ComplexTypeMapping $complexMapping
-
-
-    if ([string]::IsNullOrWhiteSpace($complexTypeStringResult))
-    {
-        $complexTypeStringResult = "@()"
-    }
-    else
-    {
-        $lines = $complexTypeStringResult -split "`n" | ForEach-Object { $_.TrimEnd() }
-        $lines = $lines | Where-Object { $_ -ne '' }
-        $indented = $lines | ForEach-Object { '    ' + $_ }
-        $complexTypeStringResult = "@(`n$($indented -join "`n")`n)"
-    }
-    if ($complexTypeStringResult -eq '@()')
-    {
-        $Results.Remove('AdvancedSettings') | Out-Null
-    }
-    else
-    {
-        $Results.AdvancedSettings = $complexTypeStringResult
-    }
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                {
+                    $Results.AdvancedSettings = $complexTypeStringResult
+                }
+                else
+                {
+                    $Results.Remove('AdvancedSettings') | Out-Null
+                }
             }
 
             if ($null -ne $Results.LocaleSettings)
@@ -1804,6 +1798,7 @@ function Convert-StringToAdvancedSettings
                 Value = $values.Trim()
             }
 
+            # Only export the entry if it has a value
             if ([String]::IsNullOrEmpty($entry.Value) -eq $false)
             {
                 $settings += $entry
@@ -2190,4 +2185,3 @@ function Test-AutoLabelingSettings
 }
 
 Export-ModuleMember -Function *-TargetResource
-
