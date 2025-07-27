@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* EXOClientAccessRule
+  * [BREAKING CHANGE] Removed resource.
+
 # Release 1.25.723.2
 
 * AADConditionalAccessPolicy
