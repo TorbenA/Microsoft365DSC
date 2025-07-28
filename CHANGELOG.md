@@ -1,5 +1,8 @@
 # Change log for Microsoft365DSC
 
+* AADEntitlementManagementAccessPackageAssignmentPolicy
+  * Fixes [#6257] Added support for Groups as well as single users
+
 # Release 1.25.723.2
 
 * AADConditionalAccessPolicy
