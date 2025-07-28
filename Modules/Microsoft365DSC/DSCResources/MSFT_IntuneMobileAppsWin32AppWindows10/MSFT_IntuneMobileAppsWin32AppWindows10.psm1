@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneMobileAppsWin32AppWindows10'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
