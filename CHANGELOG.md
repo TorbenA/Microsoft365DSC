@@ -1,6 +1,12 @@
 # Change log for Microsoft365DSC
 
-# Release 1.25.723.2
+# UNRELEASED
+
+* IntuneWindowsUpdateForBusinessHotpatchProfileWindows10
+  * Initial release.
+    FIXES [#6368](https://github.com/microsoft/Microsoft365DSC/issues/6368)
+
+# 1.25.723.2
 
 * AADConditionalAccessPolicy
   * Remove the ValidateSet from the ProtocolFlows property.
