@@ -579,6 +579,11 @@ function Set-TargetResource
         Write-Verbose -Message "Creating an Intune Mobile Apps Win32 App for Windows10 with DisplayName {$DisplayName}"
         $boundParameters.Remove("Assignments") | Out-Null
 
+        if (-not $boundParameters.ContainsKey('FileName') -or [System.String]::IsNullOrEmpty($boundParameters.FileName))
+        {
+            throw "FileName is required to create an Intune Mobile Apps Win32 App for Windows10."
+        }
+
         $createParameters = ([Hashtable]$boundParameters).Clone()
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
         $createParameters.Remove('Id') | Out-Null

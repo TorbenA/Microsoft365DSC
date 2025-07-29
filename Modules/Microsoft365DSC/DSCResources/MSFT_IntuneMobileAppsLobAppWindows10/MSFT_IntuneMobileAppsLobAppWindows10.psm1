@@ -25,7 +25,7 @@ function Get-TargetResource
     param
     (
         #region resource generator code
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -254,7 +254,7 @@ function Set-TargetResource
     param
     (
         #region resource generator code
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -373,9 +373,9 @@ function Set-TargetResource
         Write-Verbose -Message "Creating an Intune Mobile Apps Lob App for Windows10 with DisplayName {$DisplayName}"
         $boundParameters.Remove("Assignments") | Out-Null
 
-        if ([System.String]::IsNullOrEmpty($FileName))
+        if (-not $boundParameters.ContainsKey('FileName') -or [System.String]::IsNullOrEmpty($boundParameters.FileName))
         {
-            throw "The FileName parameter is required when creating a new Intune Mobile Apps Lob App for Windows10."
+            throw "FileName is required to create an Intune Mobile Apps Lob App for Windows10."
         }
 
         $createParameters = ([Hashtable]$boundParameters).Clone()
@@ -393,9 +393,12 @@ function Set-TargetResource
         #region resource generator code
         $fileExtension = $FileName.Split('.')[-1]
         $createParameters.Add("@odata.type", "#microsoft.graph.windowsUniversalAppX")
-        $createParameters.Add('applicableArchitectures', $Script:FileTypeToPropertyMap[$fileExtension].ApplicableArchitectures)
-        $createParameters.Add('applicableDeviceTypes', $Script:FileTypeToPropertyMap[$fileExtension].ApplicableDeviceTypes)
+        $createParameters.Add('applicableArchitectures', $Script:FileTypeToPropertyMap[$fileExtension].ApplicableArchitectures -join ",")
+        $createParameters.Add('applicableDeviceTypes', $Script:FileTypeToPropertyMap[$fileExtension].ApplicableDeviceTypes -join ",")
         $createParameters.Add('minimumSupportedOperatingSystem', @{v10_0 = $true})
+        $createParameters.Add('identityName', 'Sample')
+        $createParameters.Add('identityPublisherHash', 'SamplePublisherHash')
+        $createParameters.Add('identityVersion', '0.0.1')
         if ($fileExtension -like "Msix*")
         {
             $createParameters.Add('isMsix', $true)
@@ -414,7 +417,7 @@ function Set-TargetResource
         }
         $policy = Invoke-MgGraphRequest -Method POST -Uri "/beta/deviceAppManagement/mobileApps" -Body ($createParameters | ConvertTo-Json -Depth 10)
 
-        Invoke-M365DSCIntuneMobileAppInitialUpload -AppId $policy.Id -OdataType "#microsoft.graph.win32LobApp" -FileExtension $fileExtension
+        Invoke-M365DSCIntuneMobileAppInitialUpload -AppId $policy.Id -OdataType "#microsoft.graph.windowsUniversalAppX" -FileExtension $fileExtension
 
         if ($PSBoundParameters.ContainsKey('Categories'))
         {
@@ -480,7 +483,7 @@ function Test-TargetResource
     param
     (
         #region resource generator code
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -773,7 +776,17 @@ function Export-TargetResource
 
             if ($Results.Assignments)
             {
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString -ComplexObject $Results.Assignments -CIMInstanceName DeviceManagementMobileAppAssignment
+                $complexMapping = @(
+                    @{
+                        Name = 'AssignmentSettings'
+                        CIMInstanceName = 'DeviceManagementAppxMobileAppAssignmentSettings'
+                        IsRequired = $false
+                    }
+                )
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.Assignments `
+                    -CIMInstanceName DeviceManagementAppxMobileAppAssignment `
+                    -ComplexTypeMapping $complexMapping
                 if ($complexTypeStringResult)
                 {
                     $Results.Assignments = $complexTypeStringResult

@@ -36,11 +36,15 @@ Configuration Example
             PrivacyInformationUrl = "";
             Publisher             = "Contoso";
             Assignments          = @(
-                MSFT_DeviceManagementMobileAppAssignment {
+                MSFT_DeviceManagementAppxMobileAppAssignment {
                     groupDisplayName = 'All devices'
                     deviceAndAppManagementAssignmentFilterType = 'none'
                     dataType = '#microsoft.graph.allDevicesAssignmentTarget'
                     intent = 'required'
+                    assignmentSettings = MSFT_DeviceManagementAppxMobileAppAssignmentSettings{
+                        useDeviceContext = $true
+                        odataType = "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"
+                    }
                 }
             );
             Categories             = @(

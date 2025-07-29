@@ -10,6 +10,24 @@ class MSFT_DeviceManagementMobileAppAssignment
     [Write, Description("Possible values for the install intent chosen by the admin."), ValueMap{"available", "required", "uninstall", "availableWithoutEnrollment"}, Values{"available", "required", "uninstall", "availableWithoutEnrollment"}] String intent;
 };
 
+[ClassVersion("1.0.0.0")]
+class MSFT_DeviceManagementMobileAppAssignmentSettings
+{
+    [Write, Description("The odata type of the assignment type."), ValueMap{"#microsoft.graph.win32LobAppAssignmentSettings", "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"}, Values{"#microsoft.graph.win32LobAppAssignmentSettings", "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"}] String odataType;
+};
+
+[ClassVersion("1.0.0.0")]
+class MSFT_DeviceManagementAppxMobileAppAssignmentSettings : MSFT_DeviceManagementMobileAppAssignmentSettings
+{
+    [Write, Description("If true, uses device execution context for Windows Universal AppX mobile app. Device-context install is not allowed when this type of app is targeted with Available intent. Defaults to false.")] Boolean useDeviceContext;
+};
+
+[ClassVersion("1.0.0.0")]
+class MSFT_DeviceManagementAppxMobileAppAssignment : MSFT_DeviceManagementMobileAppAssignment
+{
+    [Write, Description("The settings of the assignment."), EmbeddedInstance("MSFT_DeviceManagementAppxMobileAppAssignmentSettings")] String assignmentSettings;
+};
+
 [ClassVersion("1.0.0")]
 class MSFT_DeviceManagementMimeContent
 {
@@ -29,7 +47,7 @@ class MSFT_IntuneMobileAppsLobAppWindows10 : OMI_BaseResource
 {
     [Key, Description("The admin provided or imported title of the app.")] String DisplayName;
     [Write, Description("The unique identifier for an entity. Read-only.")] String Id;
-    [Write, Description("The name of the main Lob application file.")] String FileName;
+    [Write, Description("The name of the main Lob application file. Required for creating the resource.")] String FileName;
     [Write, Description("The description of the app.")] String Description;
     [Write, Description("The developer of the app.")] String Developer;
     [Write, Description("The more information Url.")] String InformationUrl;

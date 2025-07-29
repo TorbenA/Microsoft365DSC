@@ -39,42 +39,108 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-PSSession -MockWith {
             }
 
+            Mock -CommandName Update-DeviceAppManagementAppCategory -MockWith {
+            }
+
+            Mock -CommandName Update-DeviceAppManagementPolicyAssignment -MockWith {
+            }
+
             Mock -CommandName Update-MgBetaDeviceAppManagementMobileApp -MockWith {
             }
 
-            Mock -CommandName New-MgBetaDeviceAppManagementMobileApp -MockWith {
+            Mock -CommandName Invoke-M365DSCIntuneMobileAppInitialUpload -MockWith {
             }
 
             Mock -CommandName Remove-MgBetaDeviceAppManagementMobileApp -MockWith {
             }
 
+            Mock -CommandName Invoke-MgGraphRequest -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        '@odata.type' = "#microsoft.graph.windowsUniversalAppX"
+                        applicableArchitectures = "x86"
+                        applicableDeviceTypes = "desktop"
+                        committedContentVersion = 1
+                        fileName = "FakeStringValue.appx"
+                        identityName = "FakeStringValue"
+                        identityPublisherHash = "FakeStringValue"
+                        identityVersion = "FakeStringValue"
+                        isBundle = $false
+                        minimumSupportedOperatingSystem = @{
+                            v10_0 = $true
+                        }
+                    }
+                    Categories = @(
+                        @{
+                            Id = "FakeStringValue"
+                            DisplayName = "FakeStringValue"
+                        }
+                    )
+                    DependentAppCount = 25
+                    Description = "FakeStringValue"
+                    Developer = "FakeStringValue"
+                    DisplayName = "FakeStringValue"
+                    Id = "FakeStringValue"
+                    InformationUrl = "FakeStringValue"
+                    IsFeatured = $True
+                    LargeIcon = @{
+                        Type = "FakeStringValue"
+                        Value = [System.Convert]::FromBase64String("VGVzdA==")
+                    }
+                    Notes = "FakeStringValue"
+                    Owner = "FakeStringValue"
+                    PrivacyInformationUrl = "FakeStringValue"
+                    Publisher = "FakeStringValue"
+                    PublishingState = "notPublished"
+                    RoleScopeTagIds = @("FakeStringValue")
+                    SupersededAppCount = 25
+                    SupersedingAppCount = 25
+                    UploadState = 25
+                }
+            }
+
             Mock -CommandName Get-MgBetaDeviceAppManagementMobileApp -MockWith {
                 return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = "#microsoft.graph.mobileLobApp"
+                    AdditionalProperties = @{
+                        '@odata.type' = "#microsoft.graph.windowsUniversalAppX"
+                        applicableArchitectures = "x86"
+                        applicableDeviceTypes = "desktop"
+                        committedContentVersion = 1
+                        fileName = "FakeStringValue.appx"
+                        identityName = "FakeStringValue"
+                        identityPublisherHash = "FakeStringValue"
+                        identityVersion = "FakeStringValue"
+                        isBundle = $false
+                        minimumSupportedOperatingSystem = @{
+                            v10_0 = $true
                         }
-                        CommittedContentVersion = "FakeStringValue"
-                        DependentAppCount = 25
-                        Description = "FakeStringValue"
-                        Developer = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        FileName = "FakeStringValue"
-                        Id = "FakeStringValue"
-                        InformationUrl = "FakeStringValue"
-                        IsFeatured = $True
-                        LargeIcon = @{
-                            Type = "FakeStringValue"
+                    }
+                    Categories = @(
+                        @{
+                            Id = "FakeStringValue"
+                            DisplayName = "FakeStringValue"
                         }
-                        Notes = "FakeStringValue"
-                        Owner = "FakeStringValue"
-                        PrivacyInformationUrl = "FakeStringValue"
-                        Publisher = "FakeStringValue"
-                        PublishingState = "notPublished"
-                        RoleScopeTagIds = @("FakeStringValue")
-                        SupersededAppCount = 25
-                        SupersedingAppCount = 25
-                        UploadState = 25
-
+                    )
+                    DependentAppCount = 25
+                    Description = "FakeStringValue"
+                    Developer = "FakeStringValue"
+                    DisplayName = "FakeStringValue"
+                    Id = "FakeStringValue"
+                    InformationUrl = "FakeStringValue"
+                    IsFeatured = $True
+                    LargeIcon = @{
+                        Type = "FakeStringValue"
+                        Value = [System.Convert]::FromBase64String("VGVzdA==")
+                    }
+                    Notes = "FakeStringValue"
+                    Owner = "FakeStringValue"
+                    PrivacyInformationUrl = "FakeStringValue"
+                    Publisher = "FakeStringValue"
+                    PublishingState = "notPublished"
+                    RoleScopeTagIds = @("FakeStringValue")
+                    SupersededAppCount = 25
+                    SupersedingAppCount = 25
+                    UploadState = 25
                 }
             }
 
@@ -89,6 +155,28 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             $Script:ExportMode = $false
 
             Mock -CommandName Get-MgBetaDeviceAppManagementMobileAppAssignment -MockWith {
+                return @(
+                    @{
+                        Id = "12345-12345-12345-12345-12345"
+                        Intent = "required"
+                        Source = "direct"
+                        SourceId = "12345-12345-12345-12345-12345"
+                        Target = @{
+                            AdditionalProperties = @{
+                                "@odata.type" = "#microsoft.graph.groupAssignmentTarget"
+                                groupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
+                            }
+                            "deviceAndAppManagementAssignmentFilterId" = '12345-12345-12345-12345-12345'
+                            "deviceAndAppManagementAssignmentFilterType" = "none"
+                        }
+                        Settings = @{
+                            AdditionalProperties = @{
+                                "@odata.type" = "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"
+                                useDeviceContext = $false
+                            }
+                        }
+                    }
+                )
             }
 
         }
@@ -97,27 +185,37 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The IntuneMobileAppsLobAppWindows10 should exist but it DOES NOT" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    CommittedContentVersion = "FakeStringValue"
-                    DependentAppCount = 25
+                    Assignments = [CimInstance[]]@(
+                        (New-CimInstance -ClassName MSFT_DeviceManagementAppxMobileAppAssignment -Property @{
+                            Id = "12345-12345-12345-12345-12345"
+                            Intent = "required"
+                            DeviceAndAppManagementAssignmentFilterType = "none"
+                            GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
+                            assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementAppxMobileAppAssignmentSettings -Property @{
+                                UseDeviceContext = $false
+                            } -ClientOnly)
+                        } -ClientOnly)
+                    )
+                    Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
+                        Id = "FakeStringValue"
+                        DisplayName = "FakeStringValue"
+                    } -ClientOnly))
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
                     DisplayName = "FakeStringValue"
-                    FileName = "FakeStringValue"
+                    FileName = "FakeStringValue.appx"
                     Id = "FakeStringValue"
                     InformationUrl = "FakeStringValue"
                     IsFeatured = $True
-                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent1 -Property @{
+                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent -Property @{
                         Type = "FakeStringValue"
+                        Value = "VGVzdA==" # Base64 encoded string for "Test"
                     } -ClientOnly)
                     Notes = "FakeStringValue"
                     Owner = "FakeStringValue"
                     PrivacyInformationUrl = "FakeStringValue"
                     Publisher = "FakeStringValue"
-                    PublishingState = "notPublished"
                     RoleScopeTagIds = @("FakeStringValue")
-                    SupersededAppCount = 25
-                    SupersedingAppCount = 25
-                    UploadState = 25
                     Ensure = "Present"
                     Credential = $Credential;
                 }
@@ -134,35 +232,45 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
             It 'Should Create the group from the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName New-MgBetaDeviceAppManagementMobileApp -Exactly 1
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1
             }
         }
 
         Context -Name "The IntuneMobileAppsLobAppWindows10 exists but it SHOULD NOT" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    CommittedContentVersion = "FakeStringValue"
-                    DependentAppCount = 25
+                    Assignments = [CimInstance[]]@(
+                        (New-CimInstance -ClassName MSFT_DeviceManagementAppxMobileAppAssignment -Property @{
+                            Id = "12345-12345-12345-12345-12345"
+                            Intent = "required"
+                            DeviceAndAppManagementAssignmentFilterType = "none"
+                            GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
+                            assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementAppxMobileAppAssignmentSettings -Property @{
+                                UseDeviceContext = $false
+                            } -ClientOnly)
+                        } -ClientOnly)
+                    )
+                    Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
+                        Id = "FakeStringValue"
+                        DisplayName = "FakeStringValue"
+                    } -ClientOnly))
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
                     DisplayName = "FakeStringValue"
-                    FileName = "FakeStringValue"
+                    FileName = "FakeStringValue.appx"
                     Id = "FakeStringValue"
                     InformationUrl = "FakeStringValue"
                     IsFeatured = $True
-                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent1 -Property @{
+                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent -Property @{
                         Type = "FakeStringValue"
+                        Value = "VGVzdA==" # Base64 encoded string for "Test"
                     } -ClientOnly)
                     Notes = "FakeStringValue"
                     Owner = "FakeStringValue"
                     PrivacyInformationUrl = "FakeStringValue"
                     Publisher = "FakeStringValue"
-                    PublishingState = "notPublished"
                     RoleScopeTagIds = @("FakeStringValue")
-                    SupersededAppCount = 25
-                    SupersedingAppCount = 25
-                    UploadState = 25
-                    Ensure = 'Absent'
+                    Ensure = "Absent"
                     Credential = $Credential;
                 }
             }
@@ -184,28 +292,38 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The IntuneMobileAppsLobAppWindows10 Exists and Values are already in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    CommittedContentVersion = "FakeStringValue"
-                    DependentAppCount = 25
+                    Assignments = [CimInstance[]]@(
+                        (New-CimInstance -ClassName MSFT_DeviceManagementAppxMobileAppAssignment -Property @{
+                            Id = "12345-12345-12345-12345-12345"
+                            Intent = "required"
+                            DeviceAndAppManagementAssignmentFilterType = "none"
+                            GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
+                            assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementAppxMobileAppAssignmentSettings -Property @{
+                                UseDeviceContext = $false
+                            } -ClientOnly)
+                        } -ClientOnly)
+                    )
+                    Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
+                        Id = "FakeStringValue"
+                        DisplayName = "FakeStringValue"
+                    } -ClientOnly))
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
                     DisplayName = "FakeStringValue"
-                    FileName = "FakeStringValue"
+                    FileName = "FakeStringValue.appx"
                     Id = "FakeStringValue"
                     InformationUrl = "FakeStringValue"
                     IsFeatured = $True
-                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent1 -Property @{
+                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent -Property @{
                         Type = "FakeStringValue"
+                        Value = "VGVzdA==" # Base64 encoded string for "Test"
                     } -ClientOnly)
                     Notes = "FakeStringValue"
                     Owner = "FakeStringValue"
                     PrivacyInformationUrl = "FakeStringValue"
                     Publisher = "FakeStringValue"
-                    PublishingState = "notPublished"
                     RoleScopeTagIds = @("FakeStringValue")
-                    SupersededAppCount = 25
-                    SupersedingAppCount = 25
-                    UploadState = 25
-                    Ensure = 'Present'
+                    Ensure = "Present"
                     Credential = $Credential;
                 }
             }
@@ -218,28 +336,38 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The IntuneMobileAppsLobAppWindows10 exists and values are NOT in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    CommittedContentVersion = "FakeStringValue"
-                    DependentAppCount = 25
+                    Assignments = [CimInstance[]]@(
+                        (New-CimInstance -ClassName MSFT_DeviceManagementAppxMobileAppAssignment -Property @{
+                            Id = "12345-12345-12345-12345-12345"
+                            Intent = "required"
+                            DeviceAndAppManagementAssignmentFilterType = "none"
+                            GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
+                            assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementAppxMobileAppAssignmentSettings -Property @{
+                                UseDeviceContext = $true # Drift
+                            } -ClientOnly)
+                        } -ClientOnly)
+                    )
+                    Categories = [CimInstance[]]@((New-CimInstance -ClassName MSFT_DeviceManagementMobileAppCategory -Property @{
+                        Id = "FakeStringValue"
+                        DisplayName = "FakeStringValue"
+                    } -ClientOnly))
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
                     DisplayName = "FakeStringValue"
-                    FileName = "FakeStringValue"
+                    FileName = "FakeStringValue.appx"
                     Id = "FakeStringValue"
                     InformationUrl = "FakeStringValue"
                     IsFeatured = $True
-                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent1 -Property @{
+                    LargeIcon = (New-CimInstance -ClassName MSFT_MicrosoftGraphmimeContent -Property @{
                         Type = "FakeStringValue"
+                        Value = "VGVzdA==" # Base64 encoded string for "Test"
                     } -ClientOnly)
                     Notes = "FakeStringValue"
                     Owner = "FakeStringValue"
                     PrivacyInformationUrl = "FakeStringValue"
                     Publisher = "FakeStringValue"
-                    PublishingState = "notPublished"
                     RoleScopeTagIds = @("FakeStringValue")
-                    SupersededAppCount = 25
-                    SupersedingAppCount = 25
-                    UploadState = 25
-                    Ensure = 'Present'
+                    Ensure = "Present"
                     Credential = $Credential;
                 }
             }
@@ -254,7 +382,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName Update-MgBetaDeviceAppManagementMobileApp -Exactly 1
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1
             }
         }
 
