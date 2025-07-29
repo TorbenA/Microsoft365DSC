@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADUser
+  * Added support for Mail attribute.
+
 # Release 1.25.723.2
 
 * AADConditionalAccessPolicy
