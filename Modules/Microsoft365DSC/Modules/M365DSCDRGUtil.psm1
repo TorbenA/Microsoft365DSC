@@ -1788,7 +1788,7 @@ function ConvertFrom-IntuneMobileAppAssignment
             }
         }
 
-        if ($null -ne $assignment.settings)
+        if ($null -ne $assignment.settings -and $assignment.settings.AdditionalProperties.Count -gt 0)
         {
             $settings = (Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $assignment.settings.AdditionalProperties)
             $hashAssignment.Add('assignmentSettings', $settings)
@@ -3556,6 +3556,17 @@ function Invoke-M365DSCIntuneMobileAppInitialUpload
     $contentVersion = Invoke-MgGraphRequest -Method POST -Uri $contentVersionsUri -Body @{}
 
     $fileUri = "beta/deviceAppManagement/mobileApps/$($AppId)/$OdataType/contentVersions/$($contentVersion.id)/files"
+    $manifest = $null
+    if ($OdataType -eq "microsoft.graph.windowsUniversalAppx")
+    {
+        # Manifest is required for Windows Universal Appx
+        $manifest = $([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("Sample.$($FileExtension)".ToUpper())))
+    }
+    elseif ($OdataType -eq "microsoft.graph.windowsMobileMSI")
+    {
+        # Manifest is required for Windows Mobile MSI
+        $manifest = $([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes('<MobileMsiData MsiExecutionContext="User" MsiRequiresReboot="false" MsiUpgradeCode="{00000000-0000-0000-0000-000000000000}" MsiIsMachineInstall="false" MsiIsUserInstall="true" MsiRequiresLogon="true" MsiIncludesServices="false" MsiContainsSystemRegistryKeys="false" MsiContainsSystemFolders="false"></MobileMsiData>')))
+    }
     $file = Invoke-MgGraphRequest -Method POST `
         -Uri $fileUri `
         -Body @{
@@ -3564,7 +3575,7 @@ function Invoke-M365DSCIntuneMobileAppInitialUpload
             size = 1
             sizeEncrypted = 64
             isDependency = $false
-            manifest = $null
+            manifest = $manifest
         }
 
     $file = Wait-ForFileProcessing -AppId $AppId -OdataType $OdataType -FileId $file.id -ContentVersionId $contentVersion.id -UploadStatePrefix "AzureStorageUriRequest"
@@ -3638,7 +3649,7 @@ function Wait-ForFileProcessing
 
     $fileUri = "beta/deviceAppManagement/mobileApps/$($AppId)/$OdataType/contentVersions/$ContentVersionId/files/$($FileId)"
 
-    Write-Verbose "Waiting for file processing to complete for AppId: $AppId, OdataType: $OdataType, FileId: $FileId, ContentVersionId: $ContentVersionId" -Verbose
+    Write-Verbose "Waiting for file processing to complete for AppId: $AppId, OdataType: $OdataType, FileId: $FileId, ContentVersionId: $ContentVersionId"
     $file = Invoke-MgGraphRequest -Method GET -Uri $fileUri
 
     while ($file.uploadState -ne "$($UploadStatePrefix)Success")
@@ -3649,7 +3660,7 @@ function Wait-ForFileProcessing
         }
 
         Start-Sleep -Seconds 1
-        Write-Verbose "Current upload state: $($file.uploadState). Waiting for processing to complete..." -Verbose
+        Write-Verbose "Current upload state: $($file.uploadState). Waiting for processing to complete..."
         $file = Invoke-MgGraphRequest -Method GET -Uri $fileUri
     }
 

@@ -305,6 +305,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             Intent = "required"
                             DeviceAndAppManagementAssignmentFilterType = "none"
                             GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
+                            DataType = "#microsoft.graph.groupAssignmentTarget"
                             assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignmentSettings -Property @{
                                 Notifications = "showAll"
                                 DeliveryOptimizationPriority = "notConfigured"
@@ -408,6 +409,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             Intent = "required"
                             DeviceAndAppManagementAssignmentFilterType = "none"
                             GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
+                            DataType = "#microsoft.graph.groupAssignmentTarget"
                             assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignmentSettings -Property @{
                                 Notifications = "showAll"
                                 DeliveryOptimizationPriority = "notConfigured"
@@ -510,6 +512,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             Intent = "required"
                             DeviceAndAppManagementAssignmentFilterType = "none"
                             GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
+                            DataType = "#microsoft.graph.groupAssignmentTarget"
                             assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignmentSettings -Property @{
                                 Notifications = "showAll"
                                 DeliveryOptimizationPriority = "notConfigured"
@@ -603,6 +606,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             Intent = "required"
                             DeviceAndAppManagementAssignmentFilterType = "none"
                             GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
+                            DataType = "#microsoft.graph.groupAssignmentTarget"
                             assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementWin32MobileAppAssignmentSettings -Property @{
                                 Notifications = "showAll"
                                 DeliveryOptimizationPriority = "notConfigured"
