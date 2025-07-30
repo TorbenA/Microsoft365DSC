@@ -1,6 +1,6 @@
 {
-  "resourceName": "IntuneMobileAppsLobAppApkAndroid",
-  "description": "This resource configures an Intune Mobile Apps Lob App Apk for Android.",
+  "resourceName": "IntuneMobileAppsLobAppAndroid",
+  "description": "This resource configures an Intune Mobile Apps Lob App for Android.",
   "permissions": {
     "graph": {
       "delegated": {

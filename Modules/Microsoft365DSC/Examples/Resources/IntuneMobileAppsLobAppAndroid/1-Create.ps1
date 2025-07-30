@@ -22,7 +22,7 @@ Configuration Example
 
     node localhost
     {
-        IntuneMobileAppsLobAppApkAndroid "IntuneMobileAppsLobAppApkAndroid-Apk App"
+        IntuneMobileAppsLobAppAndroid "IntuneMobileAppsLobAppAndroid-Apk App"
         {
             ApplicationId                   = $ApplicationId;
             Assignments          = @(

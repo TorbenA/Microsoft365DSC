@@ -22,7 +22,7 @@ Configuration Example
     Import-DscResource -ModuleName Microsoft365DSC
     node localhost
     {
-        IntuneMobileAppsLobAppApkAndroid "IntuneMobileAppsLobAppApkAndroid-Apk App"
+        IntuneMobileAppsLobAppAndroid "IntuneMobileAppsLobAppAndroid-Apk App"
         {
             ApplicationId                   = $ApplicationId;
             Assignments          = @(

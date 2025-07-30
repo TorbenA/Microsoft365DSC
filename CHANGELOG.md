@@ -2,7 +2,7 @@
 
 # UNRELEASED
 
-* IntuneMobileAppsLobAppApkAndroid
+* IntuneMobileAppsLobAppAndroid
   * Initial release.
 
 # 1.25.723.2

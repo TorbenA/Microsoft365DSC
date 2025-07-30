@@ -15,7 +15,7 @@ Import-Module -Name (Join-Path -Path $M365DSCTestFolder `
         -Resolve)
 
 $Global:DscHelper = New-M365DscUnitTestHelper -StubModule $CmdletModule `
-    -DscResource "IntuneMobileAppsLobAppApkAndroid" -GenericStubModule $GenericStubPath
+    -DscResource "IntuneMobileAppsLobAppAndroid" -GenericStubModule $GenericStubPath
 Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
     InModuleScope -ModuleName $Global:DscHelper.ModuleName -ScriptBlock {
         Invoke-Command -ScriptBlock $Global:DscHelper.InitializeScript -NoNewScope
@@ -209,7 +209,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         }
 
         # Test contexts
-        Context -Name "The IntuneMobileAppsLobAppApkAndroid should exist but it DOES NOT" -Fixture {
+        Context -Name "The IntuneMobileAppsLobAppAndroid should exist but it DOES NOT" -Fixture {
             BeforeAll {
                 $testParams = @{
                     Assignments = [CimInstance[]]@(
@@ -285,7 +285,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
         }
 
-        Context -Name "The IntuneMobileAppsLobAppApkAndroid exists but it SHOULD NOT" -Fixture {
+        Context -Name "The IntuneMobileAppsLobAppAndroid exists but it SHOULD NOT" -Fixture {
             BeforeAll {
                 $testParams = @{
                     Assignments = [CimInstance[]]@(
@@ -360,7 +360,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
         }
 
-        Context -Name "The IntuneMobileAppsLobAppApkAndroid Exists and Values are already in the desired state" -Fixture {
+        Context -Name "The IntuneMobileAppsLobAppAndroid Exists and Values are already in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
                     Assignments = [CimInstance[]]@(
@@ -426,7 +426,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
         }
 
-        Context -Name "The IntuneMobileAppsLobAppApkAndroid exists and values are NOT in the desired state" -Fixture {
+        Context -Name "The IntuneMobileAppsLobAppAndroid exists and values are NOT in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
                     Assignments = [CimInstance[]]@(

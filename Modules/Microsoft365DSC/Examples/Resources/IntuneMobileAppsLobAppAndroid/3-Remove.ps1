@@ -23,7 +23,7 @@ Configuration Example
 
     node localhost
     {
-        IntuneMobileAppsLobAppApkAndroid "IntuneMobileAppsLobAppApkAndroid-Apk App"
+        IntuneMobileAppsLobAppAndroid "IntuneMobileAppsLobAppAndroid-Apk App"
         {
             DisplayName           = "Apk App";
             Ensure                = "Absent";
