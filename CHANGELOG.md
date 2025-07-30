@@ -1,6 +1,12 @@
 # Change log for Microsoft365DSC
 
-# Release 1.25.723.2
+# UNRELEASED
+
+* SCAutoSensitivityLabelRule
+  * Updated supported values for `Workload` property.
+    FIXES [#4617](https://github.com/microsoft/Microsoft365DSC/issues/4617)
+
+# 1.25.723.2
 
 * AADConditionalAccessPolicy
   * Remove the ValidateSet from the ProtocolFlows property.
