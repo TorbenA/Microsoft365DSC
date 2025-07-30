@@ -23,7 +23,7 @@ Configuration Example
 
     node localhost
     {
-        IntuneMobileAppsLobAppIpaiOS "IntuneMobileAppsLobAppIpaiOS-IPA iOS App"
+        IntuneMobileAppsLobAppiOS "IntuneMobileAppsLobAppiOS-IPA iOS App"
         {
             DisplayName           = "Example IPA iOS App";
             Ensure                = "Absent";

@@ -18,11 +18,11 @@ Configuration Example
         [System.String]
         $CertificateThumbprint
     )
-    Import-DscResource -ModuleName Microsoft365DSC
 
+    Import-DscResource -ModuleName Microsoft365DSC
     node localhost
     {
-        IntuneMobileAppsLobAppIpaiOS "IntuneMobileAppsLobAppIpaiOS-IPA iOS App"
+        IntuneMobileAppsLobAppiOS "IntuneMobileAppsLobAppiOS-IPA iOS App"
         {
             ApplicableDeviceType            = MSFT_MicrosoftGraphIosDeviceType{
                 IPad = $True
@@ -62,8 +62,8 @@ Configuration Example
                 V13_0 = $False
                 V14_0 = $False
                 V15_0 = $False
-                V16_0 = $True
-                V17_0 = $False
+                V16_0 = $False
+                V17_0 = $True # Updated property
                 V18_0 = $False
             };
             Notes                           = "";

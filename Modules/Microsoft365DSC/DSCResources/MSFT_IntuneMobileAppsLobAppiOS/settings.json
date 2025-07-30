@@ -1,6 +1,6 @@
 {
-  "resourceName": "IntuneMobileAppsLobAppIpaiOS",
-  "description": "This resource configures an Intune Mobile Apps Lob App Ipa for iOS.",
+  "resourceName": "IntuneMobileAppsLobAppiOS",
+  "description": "This resource configures an Intune Mobile Apps Lob App for iOS.",
   "permissions": {
     "graph": {
       "application": {

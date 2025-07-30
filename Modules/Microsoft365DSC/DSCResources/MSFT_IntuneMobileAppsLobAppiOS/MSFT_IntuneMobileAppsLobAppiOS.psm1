@@ -120,7 +120,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Getting configuration for the Intune Mobile Apps Lob App Ipa iOS with Id {$Id} and DisplayName {$DisplayName}"
+    Write-Verbose -Message "Getting configuration for the Intune Mobile Apps Lob App iOS with Id {$Id} and DisplayName {$DisplayName}"
 
     try
     {
@@ -155,7 +155,7 @@ function Get-TargetResource
 
             if ($null -eq $getValue)
             {
-                Write-Verbose -Message "Could not find an Intune Mobile Apps Lob App Ipa iOS with Id {$Id}"
+                Write-Verbose -Message "Could not find an Intune Mobile Apps Lob App iOS with Id {$Id}"
 
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
@@ -167,7 +167,7 @@ function Get-TargetResource
             #endregion
             if ($null -eq $getValue)
             {
-                Write-Verbose -Message "Could not find an Intune Mobile Apps Lob App Ipa iOS with DisplayName {$DisplayName}."
+                Write-Verbose -Message "Could not find an Intune Mobile Apps Lob App iOS with DisplayName {$DisplayName}."
                 return $nullResult
             }
 
@@ -178,7 +178,7 @@ function Get-TargetResource
             $getValue = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $Script:exportedInstance.Id -ExpandProperty 'Categories'
         }
         $Id = $getValue.Id
-        Write-Verbose -Message "An Intune Mobile Apps Lob App Ipa iOS with Id {$Id} and DisplayName {$DisplayName} was found"
+        Write-Verbose -Message "An Intune Mobile Apps Lob App iOS with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
         $complexApplicableDeviceType = @{}
@@ -397,7 +397,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting configuration of the Intune Mobile Apps Lob App Ipa iOS with Id {$Id} and DisplayName {$DisplayName}"
+    Write-Verbose -Message "Setting configuration of the Intune Mobile Apps Lob App iOS with Id {$Id} and DisplayName {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -418,7 +418,7 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating an Intune Mobile Apps Lob App Ipa iOS with DisplayName {$DisplayName}"
+        Write-Verbose -Message "Creating an Intune Mobile Apps Lob App iOS with DisplayName {$DisplayName}"
         $boundParameters.Remove("Assignments") | Out-Null
 
         $createParameters = ([Hashtable]$boundParameters).Clone()
@@ -455,7 +455,7 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating the Intune Mobile Apps Lob App Ipa iOS with Id {$($currentInstance.Id)}"
+        Write-Verbose -Message "Updating the Intune Mobile Apps Lob App iOS with Id {$($currentInstance.Id)}"
         $boundParameters.Remove("Assignments") | Out-Null
 
         $updateParameters = ([Hashtable]$boundParameters).Clone()
@@ -489,7 +489,7 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removing the Intune Mobile Apps Lob App Ipa iOS with Id {$($currentInstance.Id)}"
+        Write-Verbose -Message "Removing the Intune Mobile Apps Lob App iOS with Id {$($currentInstance.Id)}"
         #region resource generator code
         Remove-MgBetaDeviceAppManagementMobileApp -MobileAppId $currentInstance.Id
         #endregion
@@ -630,7 +630,7 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune Mobile Apps Lob App Ipa iOS with Id {$Id} and DisplayName {$DisplayName}"
+    Write-Verbose -Message "Testing configuration of the Intune Mobile Apps Lob App iOS with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
     $ValuesToCheck = ([hashtable]$PSBoundParameters).Clone()

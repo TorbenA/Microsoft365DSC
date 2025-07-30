@@ -15,7 +15,7 @@ Import-Module -Name (Join-Path -Path $M365DSCTestFolder `
         -Resolve)
 
 $Global:DscHelper = New-M365DscUnitTestHelper -StubModule $CmdletModule `
-    -DscResource "IntuneMobileAppsLobAppIpaiOS" -GenericStubModule $GenericStubPath
+    -DscResource "IntuneMobileAppsLobAppiOS" -GenericStubModule $GenericStubPath
 Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
     InModuleScope -ModuleName $Global:DscHelper.ModuleName -ScriptBlock {
         Invoke-Command -ScriptBlock $Global:DscHelper.InitializeScript -NoNewScope
@@ -200,7 +200,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         }
 
         # Test contexts
-        Context -Name "The IntuneMobileAppsLobAppIpaiOS should exist but it DOES NOT" -Fixture {
+        Context -Name "The IntuneMobileAppsLobAppiOS should exist but it DOES NOT" -Fixture {
             BeforeAll {
                 $testParams = @{
                     applicableDeviceType = (New-CimInstance -ClassName MSFT_MicrosoftGraphIosDeviceType -Property @{
@@ -272,7 +272,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
         }
 
-        Context -Name "The IntuneMobileAppsLobAppIpaiOS exists but it SHOULD NOT" -Fixture {
+        Context -Name "The IntuneMobileAppsLobAppiOS exists but it SHOULD NOT" -Fixture {
             BeforeAll {
                 $testParams = @{
                     applicableDeviceType = (New-CimInstance -ClassName MSFT_MicrosoftGraphIosDeviceType -Property @{
@@ -343,7 +343,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
         }
 
-        Context -Name "The IntuneMobileAppsLobAppIpaiOS Exists and Values are already in the desired state" -Fixture {
+        Context -Name "The IntuneMobileAppsLobAppiOS Exists and Values are already in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
                     applicableDeviceType = (New-CimInstance -ClassName MSFT_MicrosoftGraphIosDeviceType -Property @{
@@ -405,7 +405,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
         }
 
-        Context -Name "The IntuneMobileAppsLobAppIpaiOS exists and values are NOT in the desired state" -Fixture {
+        Context -Name "The IntuneMobileAppsLobAppiOS exists and values are NOT in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
                     applicableDeviceType = (New-CimInstance -ClassName MSFT_MicrosoftGraphIosDeviceType -Property @{

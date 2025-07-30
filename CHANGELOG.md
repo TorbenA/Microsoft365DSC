@@ -2,7 +2,7 @@
 
 # UNRELEASED
 
-* IntuneMobileAppsLobAppIpaiOS
+* IntuneMobileAppsLobAppiOS
   * Initial release.
 
 # 1.25.723.2
