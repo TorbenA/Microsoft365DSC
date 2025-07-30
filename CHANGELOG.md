@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.25.730.1
 
 * AADServicePrincipal
   * Fixed an issue when translating `AppId` to the corresponding `DisplayName` during test.
