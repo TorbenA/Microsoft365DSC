@@ -94,7 +94,7 @@ function Get-TargetResource
 
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
     }
     catch
@@ -306,16 +306,6 @@ function Set-TargetResource
 
     Write-Verbose -Message "Setting configuration of AzureAD Entitlement Management Access Package Catalog Resource for DisplayName {$DisplayName}"
 
-    try
-    {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters
-    }
-    catch
-    {
-        Write-Verbose -Message $_
-    }
-
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -330,19 +320,11 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $PSBoundParameters.Remove('Ensure') | Out-Null
-    $PSBoundParameters.Remove('Credential') | Out-Null
-    $PSBoundParameters.Remove('ApplicationId') | Out-Null
-    $PSBoundParameters.Remove('ApplicationSecret') | Out-Null
-    $PSBoundParameters.Remove('TenantId') | Out-Null
-    $PSBoundParameters.Remove('CertificateThumbprint') | Out-Null
-    $PSBoundParameters.Remove('ManagedIdentity') | Out-Null
     $PSBoundParameters.Remove('addedBy') | Out-Null
     $PSBoundParameters.Remove('addedOn') | Out-Null
     $PSBoundParameters.Remove('isPendingOnboarding') | Out-Null
-    $PSBoundParameters.Remove('AccessTokens') | Out-Null
 
-    $resource = ([Hashtable]$PSBoundParameters).clone()
+    $resource = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $ObjectGuid = [System.Guid]::empty
     if ($OriginSystem -eq 'AADGroup' -and `
             -not [System.Guid]::TryParse($OriginId, [System.Management.Automation.PSReference]$ObjectGuid))
@@ -370,7 +352,6 @@ function Set-TargetResource
 
         $resource.Remove('Id') | Out-Null
         $resource.Remove('CatalogId') | Out-Null
-        $resource.Remove('Verbose') | Out-Null
 
         #Preparing embedded Cim Instances
         $keys = (([Hashtable]$resource).clone()).Keys
@@ -803,4 +784,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

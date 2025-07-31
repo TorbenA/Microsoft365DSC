@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* MISC
+  * Code cleanup across all AAD, ADO and Azure resources.
+
 # 1.25.730.1
 
 * AADServicePrincipal

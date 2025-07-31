@@ -74,7 +74,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.PartnerTenantId -ne $PartnerTenantId)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -245,15 +245,7 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $OperationParams = ([Hashtable]$PSBoundParameters).Clone()
-    $OperationParams.Remove('Credential') | Out-Null
-    $OperationParams.Remove('ManagedIdentity') | Out-Null
-    $OperationParams.Remove('ApplicationId') | Out-Null
-    $OperationParams.Remove('TenantId') | Out-Null
-    $OperationParams.Remove('CertificateThumbprint') | Out-Null
-    $OperationParams.Remove('ApplicationSecret') | Out-Null
-    $OperationParams.Remove('Ensure') | Out-Null
-    $OperationParams.Remove('AccessTokens') | Out-Null
+    $OperationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($null -ne $OperationParams.B2BCollaborationInbound)
     {
@@ -887,4 +879,3 @@ function Test-M365DSCB2BIsDefault
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -59,7 +59,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'AdminAPI' `
+    $null = New-M365DSCConnection -Workload 'AdminAPI' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -198,13 +198,9 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    New-M365DSCConnection -Workload 'AdminAPI' `
-        -InboundParameters $PSBoundParameters | Out-Null
-
     $currentInstance = Get-TargetResource @PSBoundParameters
 
     Write-Verbose -Message "Retrieved current instance: $($currentInstance.Name) with Id $($currentInstance.Id)"
-    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     $uri = 'https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/authorities/' + $currentInstance.Id
 
@@ -535,4 +531,3 @@ function Invoke-M365DSCVerifiedIdWebRequest
 }
 
 Export-ModuleMember -Function *-TargetResource
-

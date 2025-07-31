@@ -86,8 +86,8 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-                -InboundParameters $PSBoundParameters | Out-Null
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
             Confirm-M365DSCDependencies
@@ -837,4 +837,3 @@ function Test-M365DSCRecurrenceIsConfigured
 }
 
 Export-ModuleMember -Function *-TargetResource
-
