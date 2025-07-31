@@ -227,12 +227,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of DLPCompliancePolicy for $Name"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            Write-Verbose -Message "Getting configuration of DLPCompliancePolicy for $Name"
-            $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+            $null = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
                 -InboundParameters $PSBoundParameters
 
             #region Telemetry
@@ -624,9 +625,6 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-        -InboundParameters $PSBoundParameters
-
     $CurrentRule = Get-TargetResource @PSBoundParameters
 
     if ($null -ne $HeaderMatchesPatterns -and $null -ne $HeaderMatchesPatterns.Name)
@@ -637,7 +635,7 @@ function Set-TargetResource
     if (('Present' -eq $Ensure) -and ('Absent' -eq $CurrentRule.Ensure))
     {
         Write-Verbose "Rule {$($CurrentRule.Name)} doesn't exists but need to. Creating Rule."
-        $CreationParams = $PSBoundParameters
+        $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         if ($null -ne $CreationParams.ContentContainsSensitiveInformation)
         {
             $value = @()
@@ -672,19 +670,6 @@ function Set-TargetResource
             $CreationParams.ExceptIfContentContainsSensitiveInformation = $value
         }
 
-        $CreationParams.Remove('Ensure')
-
-        # Remove authentication parameters
-        $CreationParams.Remove('Credential') | Out-Null
-        $CreationParams.Remove('ApplicationId') | Out-Null
-        $CreationParams.Remove('TenantId') | Out-Null
-        $CreationParams.Remove('CertificatePath') | Out-Null
-        $CreationParams.Remove('CertificatePassword') | Out-Null
-        $CreationParams.Remove('CertificateThumbprint') | Out-Null
-        $CreationParams.Remove('ManagedIdentity') | Out-Null
-        $CreationParams.Remove('ApplicationSecret') | Out-Null
-        $CreationParams.Remove('AccessTokens') | Out-Null
-
         Write-Verbose -Message 'Flipping the parent policy to Mode = TestWithoutNotification while we create the rule'
         $parentPolicy = Get-AutoSensitivityLabelPolicy -Identity $Policy
         $currentMode = $parentPolicy.Mode
@@ -703,7 +688,7 @@ function Set-TargetResource
     elseif (('Present' -eq $Ensure) -and ('Present' -eq $CurrentRule.Ensure))
     {
         Write-Verbose "Rule {$($CurrentRule.Name)} already exists and needs to. Updating Rule."
-        $UpdateParams = $PSBoundParameters
+        $UpdateParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         if ($null -ne $UpdateParams.ContentContainsSensitiveInformation)
         {
@@ -739,21 +724,9 @@ function Set-TargetResource
             $UpdateParams.ExceptIfContentContainsSensitiveInformation = $value
         }
 
-        $UpdateParams.Remove('Ensure') | Out-Null
         $UpdateParams.Remove('Name') | Out-Null
         $UpdateParams.Remove('Policy') | Out-Null
         $UpdateParams.Add('Identity', $Name)
-
-        # Remove authentication parameters
-        $UpdateParams.Remove('Credential') | Out-Null
-        $UpdateParams.Remove('ApplicationId') | Out-Null
-        $UpdateParams.Remove('TenantId') | Out-Null
-        $UpdateParams.Remove('CertificatePath') | Out-Null
-        $UpdateParams.Remove('CertificatePassword') | Out-Null
-        $UpdateParams.Remove('CertificateThumbprint') | Out-Null
-        $UpdateParams.Remove('ManagedIdentity') | Out-Null
-        $UpdateParams.Remove('ApplicationSecret') | Out-Null
-        $UpdateParams.Remove('AccessTokens') | Out-Null
 
         Write-Verbose -Message 'Flipping the parent policy to Mode = TestWithoutNotification while we editing the rule'
         $parentPolicy = Get-AutoSensitivityLabelPolicy -Identity $Policy
@@ -1663,4 +1636,3 @@ function Test-ContainsSensitiveInformationGroups
 }
 
 Export-ModuleMember -Function *-TargetResource
-

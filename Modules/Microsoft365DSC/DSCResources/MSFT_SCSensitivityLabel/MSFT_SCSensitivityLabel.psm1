@@ -303,13 +303,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of Sensitivity Label for $Name"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            Write-Verbose -Message "Getting configuration of Sensitivity Label for $Name"
-
-            $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+            $null = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -940,9 +940,6 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-        -InboundParameters $PSBoundParameters
-
     $label = Get-TargetResource @PSBoundParameters
 
     if (($SiteAndGroupProtectionAllowFullAccess -and $SiteAndGroupProtectionAllowLimitedAccess) -or `
@@ -1097,7 +1094,7 @@ function Set-TargetResource
     if (('Present' -eq $Ensure) -and ('Absent' -eq $label.Ensure))
     {
         Write-Verbose -Message "Label {$Name} doesn't already exist, creating it from the Set-TargetResource function."
-        $CreationParams = ([Hashtable]$PSBoundParameters).Clone()
+        $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         if ($PSBoundParameters.ContainsKey('AdvancedSettings'))
         {
@@ -1124,18 +1121,6 @@ function Set-TargetResource
         }
 
         $CreationParams.Remove('Priority') | Out-Null
-
-        # Remove authentication parameters
-        $CreationParams.Remove('Ensure') | Out-Null
-        $CreationParams.Remove('Credential') | Out-Null
-        $CreationParams.Remove('ApplicationId') | Out-Null
-        $CreationParams.Remove('TenantId') | Out-Null
-        $CreationParams.Remove('CertificatePath') | Out-Null
-        $CreationParams.Remove('CertificatePassword') | Out-Null
-        $CreationParams.Remove('CertificateThumbprint') | Out-Null
-        $CreationParams.Remove('ManagedIdentity') | Out-Null
-        $CreationParams.Remove('ApplicationSecret') | Out-Null
-        $CreationParams.Remove('AccessTokens') | Out-Null
 
         try
         {
@@ -1164,7 +1149,7 @@ function Set-TargetResource
     elseif (('Present' -eq $Ensure) -and ('Present' -eq $label.Ensure))
     {
         Write-Verbose -Message "Label {$Name} already exist, updating it from the Set-TargetResource function."
-        $SetParams = $PSBoundParameters
+        $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         if ($PSBoundParameters.ContainsKey('AdvancedSettings'))
         {
@@ -1192,18 +1177,6 @@ function Set-TargetResource
 
         #Remove unused parameters for Set-Label cmdlet
         $SetParams.Remove('Name') | Out-Null
-
-        # Remove authentication parameters
-        $SetParams.Remove('Ensure') | Out-Null
-        $SetParams.Remove('Credential') | Out-Null
-        $SetParams.Remove('ApplicationId') | Out-Null
-        $SetParams.Remove('TenantId') | Out-Null
-        $SetParams.Remove('CertificatePath') | Out-Null
-        $SetParams.Remove('CertificatePassword') | Out-Null
-        $SetParams.Remove('CertificateThumbprint') | Out-Null
-        $SetParams.Remove('ManagedIdentity') | Out-Null
-        $SetParams.Remove('ApplicationSecret') | Out-Null
-        $SetParams.Remove('AccessTokens') | Out-Null
 
         # Only update the priority if the value is different
         if ($SetParams.Priority -eq $label.Priority)
@@ -1571,6 +1544,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
         -InboundParameters $PSBoundParameters
 
@@ -2185,4 +2159,3 @@ function Test-AutoLabelingSettings
 }
 
 Export-ModuleMember -Function *-TargetResource
-
