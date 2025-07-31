@@ -117,7 +117,7 @@ function Get-TargetResource
 
     Write-Verbose -Message "Setting configuration for Result Source instance $Name"
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+    $null = New-M365DSCConnection -Workload 'PnP' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -299,7 +299,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+    $null = New-M365DSCConnection -Workload 'PnP' `
         -InboundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Absent')
@@ -691,4 +691,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

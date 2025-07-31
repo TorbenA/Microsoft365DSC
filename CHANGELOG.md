@@ -6,6 +6,7 @@
   * Code cleanup across all AAD, ADO and Azure resources.
   * Code cleanup across all EXO, Commerce, Defender and Fabric resources.
   * Code cleanup across all Intune resources.
+  * Code cleanup across all O365, OD and SPO resources.
 
 # 1.25.730.1
 

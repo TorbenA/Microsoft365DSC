@@ -61,7 +61,7 @@ function Get-TargetResource
     {
         Write-Verbose -Message 'Getting configuration of SPO Cdn enabled'
 
-        $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
+        $null = New-M365DSCConnection -Workload 'PNP' `
             -InboundParameters $PSBoundParameters
 
         $nullResult = @{
@@ -187,17 +187,7 @@ function Set-TargetResource
     #endregion
 
     $currentOrgSiteAsset = Get-TargetResource @PSBoundParameters
-    $currentParameters = $PSBoundParameters
-    $currentParameters.Remove('Ensure') | Out-Null
-    $currentParameters.Remove('Credential') | Out-Null
-    $CurrentParameters.Remove('ApplicationId') | Out-Null
-    $CurrentParameters.Remove('TenantId') | Out-Null
-    $CurrentParameters.Remove('CertificatePath') | Out-Null
-    $CurrentParameters.Remove('CertificatePassword') | Out-Null
-    $CurrentParameters.Remove('CertificateThumbprint') | Out-Null
-    $CurrentParameters.Remove('ManagedIdentity') | Out-Null
-    $CurrentParameters.Remove('ApplicationSecret') | Out-Null
-    $CurrentParameters.Remove('AccessTokens') | Out-Null
+    $currentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     #No add only a set
     Set-PnPTenantCdnEnabled @currentParameters
@@ -423,4 +413,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
