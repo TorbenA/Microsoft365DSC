@@ -61,7 +61,8 @@ function Get-TargetResource
 
     Write-Verbose -Message "Getting configuration of Teams channel $DisplayName"
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' -InboundParameters $PSBoundParameters
+    $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -223,7 +224,7 @@ function Set-TargetResource
 
     $channel = Get-TargetResource @PSBoundParameters
 
-    $CurrentParameters = $PSBoundParameters
+    $CurrentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     $team = Get-TeamByName ([System.Net.WebUtility]::UrlEncode($TeamName))
 
@@ -234,13 +235,6 @@ function Set-TargetResource
     Write-Verbose -Message "Retrieve team GroupId: $($team.GroupId)"
 
     $CurrentParameters.Remove('TeamName') | Out-Null
-    $CurrentParameters.Remove('Credential') | Out-Null
-    $CurrentParameters.Remove('ApplicationId') | Out-Null
-    $CurrentParameters.Remove('TenantId') | Out-Null
-    $CurrentParameters.Remove('CertificateThumbprint') | Out-Null
-    $CurrentParameters.Remove('Ensure') | Out-Null
-    $CurrentParameters.Remove('ManagedIdentity') | Out-Null
-    $CurrentParameters.Remove('AccessTokens') | Out-Null
     if ($CurrentParameters.ContainsKey('GroupId'))
     {
         $CurrentParameters.GroupId = $team.GroupId
@@ -400,6 +394,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 
@@ -483,4 +478,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
