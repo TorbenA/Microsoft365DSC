@@ -1,5 +1,12 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADEntitlementManagementRoleAssignment
+  * Added functionality to export groups and service principals.
+    Fixed an issue where the export of `Connected organization administrator` assignments would fail.
+    FIXES [#5620](https://github.com/microsoft/Microsoft365DSC/issues/5620)
+
 # 1.25.730.1
 
 * AADServicePrincipal

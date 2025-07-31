@@ -89,40 +89,54 @@ function Get-TargetResource
 
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaRoleManagementEntitlementManagementRoleAssignment -UnifiedRoleAssignmentId $Id
+                $getValue = Get-MgBetaRoleManagementEntitlementManagementRoleAssignment -UnifiedRoleAssignmentId $Id `
+                    -ExpandProperty 'Principal' `
+                    -ErrorAction SilentlyContinue
             }
-
-            $user = Get-MgUser -UserId $Principal
-            $roleInfo = Get-MgBetaRoleManagementEntitlementManagementRoleDefinition -Filter "DisplayName eq '$($RoleDefinition -replace "'", "''")'"
 
             if ($null -eq $getValue)
             {
-                if (-not [System.String]::IsNullOrEmpty($Id))
+                if ($null -eq $Script:AllRoleAssignments)
                 {
-                    Write-Verbose -Message "Nothing with id {$Id} was found"
+                    $Script:AllRoleAssignments = Get-MgBetaRoleManagementEntitlementManagementRoleAssignment `
+                        -ExpandProperty 'Principal' `
+                        -All
+                }
+                if ($null -eq $Script:AllRoleDefinitions)
+                {
+                    [array]$Script:AllRoleDefinitions = Get-MgBetaRoleManagementEntitlementManagementRoleDefinition -All
+                    $Script:AllRoleDefinitions += @{
+                        Id = 'e65cf63f-9cc2-4b48-8871-cb667e9d90fb'
+                        DisplayName = 'Connected organization administrator'
+                    }
                 }
 
-                if (-not [string]::IsNullOrEmpty($Principal))
-                {
-                    $PrincipalId = $null
-                    if ($null -ne $user)
-                    {
-                        $PrincipalId = $user.Id
-                    }
-
-                    $RoleDefinitionId = $null
-                    if ($null -ne $roleInfo)
-                    {
-                        $RoleDefinitionId = $roleInfo.Id
-                    }
-                    $getValue = Get-MgBetaRoleManagementEntitlementManagementRoleAssignment -Filter "PrincipalId eq '$PrincipalId' and RoleDefinitionId eq '$RoleDefinitionId'"
+                Write-Verbose -Message "Getting role assignment for Principal {$Principal}"
+                $getValue = $Script:AllRoleAssignments | Where-Object {
+                    ($_.Principal.AdditionalProperties.displayName -eq $Principal -or $_.Principal.AdditionalProperties.userPrincipalName -eq $Principal -or $_.Principal.Id -eq $Principal) `
+                     -and ($_.RoleDefinitionId -eq $($Script:AllRoleDefinitions | Where-Object { $_.DisplayName -eq $RoleDefinition }).Id)
                 }
             }
         }
         else
         {
             $getValue = $Script:exportedInstance
-            $user = Get-MgUser -UserId $Principal
+        }
+
+        switch ($getValue.Principal.AdditionalProperties)
+        {
+            '#microsoft.graph.user'
+            {
+                $principalName = $getValue.Principal.AdditionalProperties.userPrincipalName
+            }
+            '#microsoft.graph.group'
+            {
+                $principalName = Get-MgGroup -GroupId $getValue.PrincipalId
+            }
+            '#microsoft.graph.servicePrincipal'
+            {
+                $principalName = $getValue.Principal.AdditionalProperties.displayName
+            }
         }
 
         if ($null -eq $getValue)
@@ -135,8 +149,8 @@ function Get-TargetResource
 
         $results = @{
             Id                    = $getValue.Id
-            Principal             = $user.UserPrincipalName
-            RoleDefinition        = $roleInfo.DisplayName
+            Principal             = $principalName
+            RoleDefinition        = $RoleDefinition
             DisplayName           = $getValue.DisplayName
             AppScopeId            = $getValue.AppScopeId
             DirectoryScopeId      = $getValue.DirectoryScopeId
@@ -250,20 +264,38 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
+    $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-    $PSBoundParameters.Remove('Ensure') | Out-Null
-    $PSBoundParameters.Remove('Credential') | Out-Null
-    $PSBoundParameters.Remove('ApplicationId') | Out-Null
-    $PSBoundParameters.Remove('ApplicationSecret') | Out-Null
-    $PSBoundParameters.Remove('TenantId') | Out-Null
-    $PSBoundParameters.Remove('CertificateThumbprint') | Out-Null
-    $PSBoundParameters.Remove('ManagedIdentity') | Out-Null
-    $PSBoundParameters.Remove('AccessTokens') | Out-Null
+    $batchRequests = @(
+        @{
+            id = 'user'
+            method = 'GET'
+            url = "/users/$($Principal)&`$select=id,userPrincipalName,displayName"
+        }
+        @{
+            id = 'group'
+            method = 'GET'
+            url = "/groups?`$filter=displayName eq '$($Principal -replace "'", "''")'&`$select=id,displayName"
+        }
+        @{
+            id = 'servicePrincipal'
+            method = 'GET'
+            url = "/servicePrincipals?`$filter=displayName eq '$($Principal -replace "'", "''")'&`$select=id,displayName"
+        }
+    )
+    $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
 
-    $setParameters = ([Hashtable]$PSBoundParameters).clone()
-    $userInfo = Get-MgUser -UserId $Principal
+    $objectId = $batchResponses.body.value.id
+    if ($null -eq $objectId)
+    {
+        throw "Principal '$Principal' not found. Ensure the Principal exists and is correctly specified."
+    }
+    if ($objectId -is [array] -and $objectId.Count -gt 1)
+    {
+        throw "Multiple objects found for Principal '$Principal'. Please specify a unique identifier."
+    }
     $roleInfo = Get-MgBetaRoleManagementEntitlementManagementRoleDefinition -Filter "DisplayName eq '$($RoleDefinition -replace "'", "''")'"
-    $setParameters.Add('PrincipalId', $userInfo.Id)
+    $setParameters.Add('PrincipalId', $objectId)
     $setParameters.Add('RoleDefinitionId', $roleInfo.Id)
     $setParameters.Remove('Principal') | Out-Null
     $setParameters.Remove('RoleDefinition') | Out-Null
@@ -414,6 +446,7 @@ function Export-TargetResource
 
         #region resource generator code
         [array]$getValue = Get-MgBetaRoleManagementEntitlementManagementRoleAssignment `
+            -ExpandProperty 'Principal' `
             -All `
             -ErrorAction Stop
 
@@ -435,16 +468,40 @@ function Export-TargetResource
                 $Global:M365DSCExportResourceInstancesCount++
             }
 
+            if ($null -eq $Script:AllRoleDefinitions)
+            {
+                [array]$Script:AllRoleDefinitions = Get-MgBetaRoleManagementEntitlementManagementRoleDefinition -All
+                $Script:AllRoleDefinitions += @{
+                    Id = 'e65cf63f-9cc2-4b48-8871-cb667e9d90fb'
+                    DisplayName = 'Connected organization administrator'
+                }
+            }
+
             $displayedKey = $config.id
             if (-not [String]::IsNullOrEmpty($config.displayName))
             {
                 $displayedKey = $config.displayName
             }
             Write-M365DSCHost -Message "    |---[$i/$($getValue.Count)] $displayedKey" -DeferWrite
-            $roleInfo = Get-MgBetaRoleManagementEntitlementManagementRoleDefinition -UnifiedRoleDefinitionId $config.RoleDefinitionId
+            $roleInfo = $Script:AllRoleDefinitions | Where-Object { $_.Id -eq $config.RoleDefinitionId }
+            switch ($config.Principal.AdditionalProperties.'@odata.type')
+            {
+                '#microsoft.graph.user'
+                {
+                    $principalName = $config.Principal.AdditionalProperties.userPrincipalName
+                }
+                $null
+                {
+                    $principalName = (Get-MgGroup -GroupId $config.PrincipalId).DisplayName
+                }
+                '#microsoft.graph.servicePrincipal'
+                {
+                    $principalName = $config.Principal.AdditionalProperties.displayName
+                }
+            }
             $params = @{
                 Id                    = $config.Id
-                Principal             = $config.PrincipalId
+                Principal             = $principalName
                 RoleDefinition        = $roleInfo.DisplayName
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId
@@ -496,4 +553,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
