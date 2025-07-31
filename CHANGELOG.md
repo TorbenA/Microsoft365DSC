@@ -1,5 +1,13 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* DEPENDENCIES
+  * Updated Az.Accounts to version 5.0.1.
+  * Updated Az.ResourceGraph to version 1.2.1.
+  * Updated Az.Resources to version 8.0.0.
+  * Updated Az.SecurityInsights to version 3.2.0.
+
 # 1.25.730.1
 
 * AADServicePrincipal
