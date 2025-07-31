@@ -478,15 +478,16 @@ function Get-TargetResource
     )
 
     Write-Verbose -Message 'Getting EXOOrganizationConfig'
+
     if ($Global:CurrentModeIsExport)
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters `
             -SkipModuleReload $true
     }
     else
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters
     }
 
@@ -1160,21 +1161,13 @@ function Set-TargetResource
 
     Write-Verbose -Message 'Setting EXOOrganizationConfig'
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
 
     Write-Verbose -Message "Setting EXOOrganizationConfig with values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-    $SetValues = [System.Collections.Hashtable]($PSBoundParameters)
+    $SetValues = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $SetValues.Remove('IsSingleInstance') | Out-Null
-    $SetValues.Remove('Credential') | Out-Null
-    $SetValues.Remove('ApplicationId') | Out-Null
-    $SetValues.Remove('TenantId') | Out-Null
-    $SetValues.Remove('CertificateThumbprint') | Out-Null
-    $SetValues.Remove('CertificatePath') | Out-Null
-    $SetValues.Remove('CertificatePassword') | Out-Null
-    $SetValues.Remove('ManagedIdentity') | Out-Null
-    $SetValues.Remove('AccessTokens') | Out-Null
 
     $isAutoExpandingArchiveEnabled = Get-OrganizationConfig | Select-Object -Property AutoExpandingArchiveEnabled
 
@@ -1803,4 +1796,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -97,15 +97,16 @@ function Get-TargetResource
     )
 
     Write-Verbose -Message "Getting configuration of QuarantinePolicy for $($Identity)"
+
     if ($Global:CurrentModeIsExport)
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters `
             -SkipModuleReload $true
     }
     else
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters
     }
 
@@ -379,6 +380,9 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting configuration of QuarantinePolicy for $($Identity)"
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -390,8 +394,8 @@ function Set-TargetResource
         -Parameters $PSBoundParameters
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
-    Write-Verbose -Message "Setting configuration of QuarantinePolicy for $($Identity)"
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     if ($QuarantinePolicyType -eq 'GlobalQuarantineTag')
@@ -403,17 +407,8 @@ function Set-TargetResource
         $QuarantinePolicies = Get-QuarantinePolicy
         $QuarantinePolicy = $QuarantinePolicies | Where-Object -FilterScript { $_.Identity -eq $Identity }
     }
-    $QuarantinePolicyParams = [System.Collections.Hashtable]($PSBoundParameters)
-    $QuarantinePolicyParams.Remove('Ensure') | Out-Null
-    $QuarantinePolicyParams.Remove('Credential') | Out-Null
-    $QuarantinePolicyParams.Remove('ApplicationId') | Out-Null
-    $QuarantinePolicyParams.Remove('TenantId') | Out-Null
-    $QuarantinePolicyParams.Remove('CertificateThumbprint') | Out-Null
-    $QuarantinePolicyParams.Remove('CertificatePath') | Out-Null
-    $QuarantinePolicyParams.Remove('CertificatePassword') | Out-Null
-    $QuarantinePolicyParams.Remove('ManagedIdentity') | Out-Null
+    $QuarantinePolicyParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $QuarantinePolicyParams.Remove('QuarantinePolicyType') | Out-Null
-    $QuarantinePolicyParams.Remove('AccessTokens') | Out-Null
 
     if (('Present' -eq $Ensure ) -and ($null -eq $QuarantinePolicy))
     {
@@ -612,6 +607,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true
@@ -704,4 +700,3 @@ function Export-TargetResource
     }
 }
 Export-ModuleMember -Function *-TargetResource
-

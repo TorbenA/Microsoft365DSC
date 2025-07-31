@@ -4,6 +4,7 @@
 
 * MISC
   * Code cleanup across all AAD, ADO and Azure resources.
+  * Code cleanup across all EXO, Commerce, Defender and Fabric resources.
 
 # 1.25.730.1
 
