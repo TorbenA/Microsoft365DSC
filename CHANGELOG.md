@@ -8,6 +8,7 @@
   * Code cleanup across all Intune resources.
   * Code cleanup across all O365, OD and SPO resources.
   * Code cleanup across all Sentinel, SH and Teams resources.
+  * Code cleanup across all M365DSC modules.
 
 # 1.25.730.1
 
