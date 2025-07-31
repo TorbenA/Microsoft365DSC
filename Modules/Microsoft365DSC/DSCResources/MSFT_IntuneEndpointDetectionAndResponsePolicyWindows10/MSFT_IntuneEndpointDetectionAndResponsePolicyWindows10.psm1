@@ -80,7 +80,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters `
             -ErrorAction Stop
 
@@ -681,4 +681,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
