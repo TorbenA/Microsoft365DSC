@@ -156,25 +156,18 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            try
+            if (-not [System.String]::IsNullOrEmpty($ObjectID))
             {
-                if (-not [System.String]::IsNullOrEmpty($ObjectID))
-                {
-                    $AADServicePrincipal = Get-MgServicePrincipal -ServicePrincipalId $ObjectId `
-                        -Property $Script:PropertiesToExport
-                        -Expand 'AppRoleAssignedTo' `
-                        -ErrorAction Stop
-                }
-            }
-            catch
-            {
-                Write-Verbose -Message "Azure AD ServicePrincipal with ObjectID: $($ObjectID) could not be retrieved"
+                $AADServicePrincipal = Get-MgServicePrincipal -ServicePrincipalId $ObjectId `
+                    -Property $Script:PropertiesToExport `
+                    -ExpandProperty 'AppRoleAssignedTo' `
+                    -ErrorAction SilentlyContinue
             }
 
             if ($null -eq $AADServicePrincipal)
             {
                 $ObjectGuid = [System.Guid]::empty
-                if (-not [System.Guid]::TryParse($AppId, [System.Management.Automation.PSReference]$ObjectGuid))
+                if (-not [System.Guid]::TryParse($AppId, [ref]$ObjectGuid))
                 {
                     $appInstance = Get-MgApplication -Filter "DisplayName eq '$($AppId -replace "'", "''")'"
                     if ($appInstance)
@@ -193,6 +186,7 @@ function Get-TargetResource
             }
             if ($null -eq $AADServicePrincipal)
             {
+                Write-Verbose -Message "Service Principal with AppId '$AppId' not found."
                 return $nullReturn
             }
         }
@@ -613,11 +607,6 @@ function Set-TargetResource
             Write-Verbose -Message "Updating AppRoleAssignedTo value"
             foreach ($assignment in $AppRoleAssignedTo)
             {
-                $AppRoleAssignedToValues += @{
-                    PrincipalType = $assignment.PrincipalType
-                    Identity      = $assignment.Identity
-                }
-
                 if ($assignment.PrincipalType -eq 'User')
                 {
                     Write-Verbose -Message "Retrieving user {$($assignment.Identity)}"
@@ -630,6 +619,7 @@ function Set-TargetResource
                     $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.Identity -replace "'", "''")'"
                     $PrincipalIdValue = $group.Id
                 }
+
                 $bodyParam = @{
                     principalId = $PrincipalIdValue
                     resourceId  = $newSP.Id
@@ -1001,7 +991,8 @@ function Test-TargetResource
     }
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties @('ObjectId')
     return $result
 }
 

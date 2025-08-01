@@ -1,5 +1,12 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADServicePrincipal
+  * Fixed an issue where a non-existing Service Principal would throw an error during Get.
+    Fixed an issue where assigning members to a Service Principal would throw an error when
+    more than one member was assigned.
+
 # 1.25.730.1
 
 * AADServicePrincipal
