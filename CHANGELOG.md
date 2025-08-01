@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADApplication
+  * Fixed an issue where not all properties were exported.
+
 # 1.25.730.1
 
 * AADServicePrincipal
