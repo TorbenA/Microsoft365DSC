@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* FabricAdminTenantSettings
+  * Fixed the export of the resource.
+    FIXES [#6345](https://github.com/microsoft/Microsoft365DSC/issues/6345)
+
 # 1.25.730.1
 
 * AADServicePrincipal
