@@ -65011,6 +65011,34 @@ function New-CsTeamsEventsPolicy
 
         [Parameter()]
         [System.String]
+        $BroadcastPremiumApps,
+
+        [Parameter()]
+        [System.String]
+        $ImmersiveEvents,
+
+        [Parameter()]
+        [System.String]
+        $RecordingForTownhall,
+
+        [Parameter()]
+        [System.String]
+        $RecordingForWebinar,
+
+        [Parameter()]
+        [System.String]
+        $TownhallEventAttendeeAccess,
+
+        [Parameter()]
+        [System.String]
+        $TranscriptionForTownhall,
+
+        [Parameter()]
+        [System.String]
+        $TranscriptionForWebinar,
+
+        [Parameter()]
+        [System.String]
         $TownhallChatExperience
     )
 }
@@ -66910,6 +66938,34 @@ function Set-CsTeamsEventsPolicy
         [Parameter()]
         [System.String]
         $AllowTownhalls,
+
+        [Parameter()]
+        [System.String]
+        $BroadcastPremiumApps,
+
+        [Parameter()]
+        [System.String]
+        $ImmersiveEvents,
+
+        [Parameter()]
+        [System.String]
+        $RecordingForTownhall,
+
+        [Parameter()]
+        [System.String]
+        $RecordingForWebinar,
+
+        [Parameter()]
+        [System.String]
+        $TownhallEventAttendeeAccess,
+
+        [Parameter()]
+        [System.String]
+        $TranscriptionForTownhall,
+
+        [Parameter()]
+        [System.String]
+        $TranscriptionForWebinar,
 
         [Parameter()]
         [System.String]
