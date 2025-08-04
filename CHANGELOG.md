@@ -7,6 +7,12 @@
 * DEPENDENCIES
   * Include `Az.Security` module for `Defender` workload.
 
+# 1.25.730.1
+
+* AADServicePrincipal
+  * Fixed an issue when translating `AppId` to the corresponding `DisplayName` during test.
+    FIXES [#6382](https://github.com/microsoft/Microsoft365DSC/issues/6382)
+
 # 1.25.723.2
 
 * AADConditionalAccessPolicy

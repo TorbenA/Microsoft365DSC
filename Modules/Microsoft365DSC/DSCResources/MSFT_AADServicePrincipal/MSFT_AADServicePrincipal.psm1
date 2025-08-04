@@ -959,6 +959,12 @@ function Test-TargetResource
         $AccessTokens
     )
 
+    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters
+
+    #Ensure the proper dependencies are installed in the current environment.
+    Confirm-M365DSCDependencies
+
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -982,8 +988,15 @@ function Test-TargetResource
         }
         else
         {
-            $spn = Get-MgServicePrincipal -Filter "AppId eq '$($ValuesToCheck.AppId)'"
-            $ValuesToCheck.AppId = $spn.DisplayName
+            $spn = Get-MgServicePrincipal -Filter "AppId eq '$($PSBoundParameters.AppId)'"
+            if ($null -eq $spn)
+            {
+                Write-Verbose -Message "Application or Service Principal with AppId '$($PSBoundParameters.AppId)' not found. Leaving it as AppId."
+            }
+            else
+            {
+                $PSBoundParameters.AppId = $spn.DisplayName
+            }
         }
     }
 
