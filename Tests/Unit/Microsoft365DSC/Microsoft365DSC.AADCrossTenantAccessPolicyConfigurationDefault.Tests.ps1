@@ -283,7 +283,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         }
                         B2BDirectConnectInbound  = @{
                             applications = @{
-                                accessType = 'blocked'
+                                accessType = 'allowed'
                                 targets    = @(
                                     @{
                                         target     = 'AllApplications'
