@@ -6,6 +6,12 @@
   * Fixed an issue where owners would not be set during creation.
     FIXES [#6238](https://github.com/microsoft/Microsoft365DSC/issues/6238)
 
+# 1.25.730.1
+
+* AADServicePrincipal
+  * Fixed an issue when translating `AppId` to the corresponding `DisplayName` during test.
+    FIXES [#6382](https://github.com/microsoft/Microsoft365DSC/issues/6382)
+
 # 1.25.723.2
 
 * AADConditionalAccessPolicy
