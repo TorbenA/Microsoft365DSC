@@ -4,6 +4,8 @@
 
 * AADApplication
   * Fixed an issue where not all properties were exported.
+* AADUser
+  * Added support for Mail attribute.
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
 
