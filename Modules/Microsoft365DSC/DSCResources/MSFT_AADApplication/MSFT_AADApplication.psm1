@@ -1,5 +1,5 @@
 Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADApplication'
-$Script:PropertiesToRetrieve = "displayName, description, groupMembershipClaims, web, api, id, appId, applicationTemplateId, signInAudience, authenticationBehaviors, keyCredentials, requiredResourceAccess"
+$Script:PropertiesToRetrieve = "displayName, description, groupMembershipClaims, web, api, id, appId, applicationTemplateId, signInAudience, authenticationBehaviors, keyCredentials, requiredResourceAccess, appRoles"
 
 function Get-TargetResource
 {

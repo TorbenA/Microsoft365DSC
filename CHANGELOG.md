@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Fixes an issue where the Get-TargetResource no longer returned
+    values for AppRoles.
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
 
