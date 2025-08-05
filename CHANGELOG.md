@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Fixed an issue where not all properties were exported.
 * IntuneMobileAppsWin32AppWindows10
   * Updated the property name of `autoUpdateSupersededApps` to `autoUpdateSupersededAppsState`.
 * DEPENDENCIES
