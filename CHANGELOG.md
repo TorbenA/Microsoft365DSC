@@ -7,6 +7,8 @@
 * AADEntitlementManagementAccessPackage
   * Fixed an issue where `AccessPackagesIncompatibleWith` would not be populated with a value.
     FIXES [#5063](https://github.com/microsoft/Microsoft365DSC/issues/5063)
+* AADUser
+  * Added support for Mail attribute.
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
 
