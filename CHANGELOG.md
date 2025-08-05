@@ -4,6 +4,8 @@
 
 * AADApplication
   * Fixed an issue where not all properties were exported.
+* DEPENDENCIES
+  * Updated ReverseDSC to version 2.0.0.29.
 
 # 1.25.730.1
 
