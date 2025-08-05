@@ -4,6 +4,8 @@
 
 * AADApplication
   * Fixed an issue where not all properties were exported.
+* AADUser
+  * Added support for Mail attribute.
 * FabricAdminTenantSettings
   * Fixed the export of the resource.
     FIXES [#6345](https://github.com/microsoft/Microsoft365DSC/issues/6345)
