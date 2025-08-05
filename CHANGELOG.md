@@ -3,6 +3,7 @@
 # UNRELEASED
 
 * AADApplication
+  * Fixed an issue where not all properties were exported.
   * Fixed an issue where owners would not be set during creation.
     FIXES [#6238](https://github.com/microsoft/Microsoft365DSC/issues/6238)
 * DEPENDENCIES
