@@ -5,6 +5,8 @@
 * AADAuthenticationMethodPolicyFido2
   * Fixed an issue where the policy was not updated properly.
     FIXES [#6391](https://github.com/microsoft/Microsoft365DSC/issues/6391)
+* DEPENDENCIES
+  * Updated ReverseDSC to version 2.0.0.29.
 
 # 1.25.730.1
 
