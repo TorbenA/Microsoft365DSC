@@ -5,6 +5,8 @@
 * AADApplication
   * Fixed an issue where owners would not be set during creation.
     FIXES [#6238](https://github.com/microsoft/Microsoft365DSC/issues/6238)
+* DEPENDENCIES
+  * Updated ReverseDSC to version 2.0.0.29.
 
 # 1.25.730.1
 
