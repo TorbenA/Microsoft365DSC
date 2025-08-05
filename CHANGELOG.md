@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Fixed an issue where not all properties were exported.
 * AADAuthenticationMethodPolicyFido2
   * Fixed an issue where the policy was not updated properly.
     FIXES [#6391](https://github.com/microsoft/Microsoft365DSC/issues/6391)
