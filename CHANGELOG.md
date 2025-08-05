@@ -2,9 +2,11 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Fixed an issue where not all properties were exported.
 * AADServicePrincipal
   * Fixed an issue where a non-existing Service Principal would throw an error during Get.
-    Fixed an issue where assigning members to a Service Principal would throw an error when
+  * Fixed an issue where assigning members to a Service Principal would throw an error when
     more than one member was assigned.
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
