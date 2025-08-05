@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Fixed an issue where not all properties were exported.
 * AADEntitlementManagementAccessPackage
   * Fixed an issue where `AccessPackagesIncompatibleWith` would not be populated with a value.
     FIXES [#5063](https://github.com/microsoft/Microsoft365DSC/issues/5063)
