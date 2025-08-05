@@ -8,6 +8,8 @@
   * Fixed an issue where a non-existing Service Principal would throw an error during Get.
   * Fixed an issue where assigning members to a Service Principal would throw an error when
     more than one member was assigned.
+* AADUser
+  * Added support for Mail attribute.
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
 
