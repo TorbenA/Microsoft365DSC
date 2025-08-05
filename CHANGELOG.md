@@ -6,6 +6,8 @@
   * Fixed an issue where a non-existing Service Principal would throw an error during Get.
     Fixed an issue where assigning members to a Service Principal would throw an error when
     more than one member was assigned.
+* DEPENDENCIES
+  * Updated ReverseDSC to version 2.0.0.29.
 
 # 1.25.730.1
 
