@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Fixed an issue where not all properties were exported.
 * SCAutoSensitivityLabelRule
   * Updated supported values for `Workload` property.
     FIXES [#4617](https://github.com/microsoft/Microsoft365DSC/issues/4617)
