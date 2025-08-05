@@ -6,6 +6,8 @@
   * Fixed an issue where not all properties were exported.
   * Fixed an issue where owners would not be set during creation.
     FIXES [#6238](https://github.com/microsoft/Microsoft365DSC/issues/6238)
+* AADUser
+  * Added support for Mail attribute.
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
 
