@@ -2,11 +2,14 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Fixed an issue where not all properties were exported.
 * DEPENDENCIES
   * Updated Az.Accounts to version 5.0.1.
   * Updated Az.ResourceGraph to version 1.2.1.
   * Updated Az.Resources to version 8.0.0.
   * Updated Az.SecurityInsights to version 3.2.0.
+  * Updated ReverseDSC to version 2.0.0.29.
 
 # 1.25.730.1
 
