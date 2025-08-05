@@ -5,6 +5,8 @@
 * AADEntitlementManagementAccessPackage
   * Fixed an issue where `AccessPackagesIncompatibleWith` would not be populated with a value.
     FIXES [#5063](https://github.com/microsoft/Microsoft365DSC/issues/5063)
+* DEPENDENCIES
+  * Updated ReverseDSC to version 2.0.0.29.
 
 # 1.25.730.1
 
