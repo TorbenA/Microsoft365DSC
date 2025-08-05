@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Fixed an issue where not all properties were exported.
 * AADCrossTenantAccessPolicyConfigurationDefault
   * Fixed an issue where the export returns an invalid value for `Targets`.
     FIXES [#6397](https://github.com/microsoft/Microsoft365DSC/issues/6397)
