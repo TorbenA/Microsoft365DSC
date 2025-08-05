@@ -7,6 +7,8 @@
 * AADAuthenticationMethodPolicyFido2
   * Fixed an issue where the policy was not updated properly.
     FIXES [#6391](https://github.com/microsoft/Microsoft365DSC/issues/6391)
+* AADUser
+  * Added support for Mail attribute.
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
 
