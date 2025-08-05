@@ -5,6 +5,8 @@
 * AADCrossTenantAccessPolicyConfigurationDefault
   * Fixed an issue where the export returns an invalid value for `Targets`.
     FIXES [#6397](https://github.com/microsoft/Microsoft365DSC/issues/6397)
+* DEPENDENCIES
+  * Updated ReverseDSC to version 2.0.0.29.
 
 # 1.25.730.1
 
