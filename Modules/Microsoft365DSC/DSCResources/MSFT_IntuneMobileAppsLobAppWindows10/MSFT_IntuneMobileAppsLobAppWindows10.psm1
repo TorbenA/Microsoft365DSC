@@ -1,4 +1,22 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneMobileAppsWin32AppWindows10'
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneMobileAppsLobAppWindows10'
+$Script:FileTypeToPropertyMap = @{
+    Appx = @{
+        ApplicableArchitectures = @('x64')
+        ApplicableDeviceTypes = @('desktop')
+    }
+    AppxBundle = @{
+        ApplicableArchitectures = @('x86', 'x64', 'arm')
+        ApplicableDeviceTypes = @('desktop')
+    }
+    Msix = @{
+        ApplicableArchitectures = @('x64')
+        ApplicableDeviceTypes = @('desktop', 'mobile', 'holographic', 'team')
+    }
+    MsixBundle = @{
+        ApplicableArchitectures = @('x86', 'x64')
+        ApplicableDeviceTypes = @('desktop', 'mobile', 'holographic', 'team')
+    }
+}
 
 function Get-TargetResource
 {
@@ -14,6 +32,10 @@ function Get-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
+
+        [Parameter()]
+        [System.String]
+        $FileName,
 
         [Parameter()]
         [System.String]
@@ -52,72 +74,8 @@ function Get-TargetResource
         $Publisher,
 
         [Parameter()]
-        [System.String]
-        $FileName,
-
-        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Categories,
-
-        [Parameter()]
-        [System.String]
-        $InstallCommandLine,
-
-        [Parameter()]
-        [System.String]
-        $UninstallCommandLine,
-
-        [Parameter()]
-        [System.String[]]
-        $AllowedArchitectures,
-
-        [Parameter()]
-        [System.Int32]
-        $MinimumFreeDiskSpaceInMB,
-
-        [Parameter()]
-        [System.Int32]
-        $MinimumMemoryInMB,
-
-        [Parameter()]
-        [System.Int32]
-        $MinimumNumberOfProcessors,
-
-        [Parameter()]
-        [System.Int32]
-        $MinimumCpuSpeedInMHz,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $Rules,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $InstallExperience,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $ReturnCodes,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $MsiInformation,
-
-        [Parameter()]
-        [System.String]
-        $SetupFilePath,
-
-        [Parameter()]
-        [System.String]
-        $MinimumSupportedWindowsRelease,
-
-        [Parameter()]
-        [System.String]
-        $DisplayVersion,
-
-        [Parameter()]
-        [System.Boolean]
-        $AllowAvailableUninstall,
 
         [Parameter()]
         [System.String[]]
@@ -162,7 +120,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Getting configuration for the Intune Mobile Apps Win32 App for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
+    Write-Verbose -Message "Getting configuration for the Intune Mobile Apps Lob App for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
 
     try
     {
@@ -197,12 +155,12 @@ function Get-TargetResource
 
             if ($null -eq $getValue)
             {
-                Write-Verbose -Message "Could not find an Intune Mobile Apps Win32 App for Windows10 with Id {$Id}"
+                Write-Verbose -Message "Could not find an Intune Mobile Apps Lob App for Windows10 with Id {$Id}"
 
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaDeviceAppManagementMobileApp `
-                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.win32LobApp')" `
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.windowsUniversalAppX')" `
                         -ExpandProperty 'Categories' `
                         -All `
                         -ErrorAction SilentlyContinue
@@ -211,7 +169,7 @@ function Get-TargetResource
             #endregion
             if ($null -eq $getValue)
             {
-                Write-Verbose -Message "Could not find an Intune Mobile Apps Win32 App for Windows10 with DisplayName {$DisplayName}."
+                Write-Verbose -Message "Could not find an Intune Mobile Apps Lob App for Windows10 with DisplayName {$DisplayName}."
                 return $nullResult
             }
 
@@ -222,7 +180,7 @@ function Get-TargetResource
             $getValue = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $Script:exportedInstance.Id -ExpandProperty 'Categories'
         }
         $Id = $getValue.Id
-        Write-Verbose -Message "An Intune Mobile Apps Win32 App for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found"
+        Write-Verbose -Message "An Intune Mobile Apps Lob App for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
         $complexCategories = @()
@@ -240,120 +198,34 @@ function Get-TargetResource
             $complexLargeIcon.Add('Type', $getValue.LargeIcon.Type)
             $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($getValue.LargeIcon.Value))
         }
-
-        $complexRules = @()
-        foreach ($rule in $getValue.AdditionalProperties.rules)
-        {
-            $ruleType = $rule.'@odata.type'.Replace('#microsoft.graph.win32LobApp', '').Replace('Rule', '')
-            $baseRule = @{
-                OdataType       = $ruleType
-                RuleType        = $rule.ruleType
-                Operator        = $rule.operator
-                ComparisonValue = $rule.comparisonValue
-            }
-            switch ($ruleType)
-            {
-                'FileSystem' {
-                    $baseRule.Add('Check32BitOn64System', $rule.check32BitOn64System)
-                    $baseRule.Add('Path', $rule.path)
-                    $baseRule.Add('FileOrFolderName', $rule.fileOrFolderName)
-                    $baseRule.Add('FileSystemOperationType', $rule.operationType)
-                }
-                'Registry' {
-                    $baseRule.Add('Check32BitOn64System', $rule.check32BitOn64System)
-                    $baseRule.Add('KeyPath', $rule.keyPath)
-                    $baseRule.Add('RegistryOperationType', $rule.operationType)
-                    $baseRule.Add('ValueName', $rule.valueName)
-                }
-                "ProductCode" {
-                    $baseRule.Add('ProductCode', $rule.productCode)
-                    $baseRule.Add('ProductVersionOperator', $rule.productVersionOperator)
-                    $baseRule.Add('ProductVersion', $rule.productVersion)
-                    $baseRule.Remove('Operator') | Out-Null
-                    $baseRule.Remove('ComparisonValue') | Out-Null
-                }
-                "PowerShellScript" {
-                    $baseRule.Add('DisplayName', $rule.displayName)
-                    $baseRule.Add('Script', [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($rule.scriptContent)))
-                    $baseRule.Add('RunAs32Bit', $rule.runAs32Bit)
-                    $baseRule.Add('EnforceSignatureCheck', $rule.enforceSignatureCheck)
-                    $baseRule.Add('RunAsAccount', $rule.runAsAccount)
-                    $baseRule.Add('PowerShellScriptOperationType', $rule.operationType)
-                }
-            }
-            $complexRules += $baseRule
-        }
-
-        if ($null -ne $getValue.AdditionalProperties.installExperience)
-        {
-            $complexInstallExperience = @{}
-            $complexInstallExperience.Add('DeviceRestartBehavior', $getValue.AdditionalProperties.installExperience.deviceRestartBehavior)
-            $complexInstallExperience.Add('MaxRunTimeInMinutes', $getValue.AdditionalProperties.installExperience.maxRunTimeInMinutes)
-            $complexInstallExperience.Add('RunAsAccount', $getValue.AdditionalProperties.installExperience.runAsAccount)
-        }
-
-        $complexReturnCodes = @()
-        foreach ($returnCode in $getValue.AdditionalProperties.returnCodes)
-        {
-            $complexReturnCodes += @{
-                ReturnCode = $returnCode.returnCode
-                Type = $returnCode.type
-            }
-        }
-
-        if ($null -ne $getValue.AdditionalProperties.msiInformation)
-        {
-            $complexMsiInformation = @{}
-            $complexMsiInformation.Add('ProductCode', $getValue.AdditionalProperties.msiInformation.productCode)
-            $complexMsiInformation.Add('ProductVersion', $getValue.AdditionalProperties.msiInformation.productVersion)
-            $complexMsiInformation.Add('UpgradeCode', $getValue.AdditionalProperties.msiInformation.upgradeCode)
-            $complexMsiInformation.Add('RequiresReboot', $getValue.AdditionalProperties.msiInformation.requiresReboot)
-            $complexMsiInformation.Add('PackageType', $getValue.AdditionalProperties.msiInformation.packageType)
-            $complexMsiInformation.Add('ProductName', $getValue.AdditionalProperties.msiInformation.productName)
-            $complexMsiInformation.Add('Publisher', $getValue.AdditionalProperties.msiInformation.publisher)
-        }
         #endregion
 
         $results = @{
             #region resource generator code
-            AllowedArchitectures            = $getValue.AdditionalProperties.allowedArchitectures -split ","
-            Categories                      = $complexCategories
-            Description                     = $getValue.Description
-            Developer                       = $getValue.Developer
-            DisplayName                     = $getValue.DisplayName
-            FileName                        = $getValue.AdditionalProperties.fileName
-            InformationUrl                  = $getValue.InformationUrl
-            InstallCommandLine              = $getValue.AdditionalProperties.installCommandLine
-            UninstallCommandLine            = $getValue.AdditionalProperties.uninstallCommandLine
-            MinimumFreeDiskSpaceInMB        = $getValue.AdditionalProperties.minimumFreeDiskSpaceInMB
-            MinimumMemoryInMB               = $getValue.AdditionalProperties.minimumMemoryInMB
-            MinimumNumberOfProcessors       = $getValue.AdditionalProperties.minimumNumberOfProcessors
-            MinimumCpuSpeedInMHz            = $getValue.AdditionalProperties.minimumCpuSpeedInMHz
-            InstallExperience               = $complexInstallExperience
-            ReturnCodes                     = $complexReturnCodes
-            Rules                           = $complexRules
-            MsiInformation                  = $complexMsiInformation
-            SetupFilePath                   = $getValue.AdditionalProperties.setupFilePath
-            MinimumSupportedWindowsRelease  = $getValue.AdditionalProperties.minimumSupportedWindowsRelease
-            DisplayVersion                  = $getValue.AdditionalProperties.displayVersion
-            AllowAvailableUninstall         = $getValue.AdditionalProperties.allowAvailableUninstall
-            IsFeatured                      = $getValue.IsFeatured
-            LargeIcon                       = $complexLargeIcon
-            Notes                           = $getValue.Notes
-            Owner                           = $getValue.Owner
-            PrivacyInformationUrl           = $getValue.PrivacyInformationUrl
-            Publisher                       = $getValue.Publisher
-            RoleScopeTagIds                 = $getValue.RoleScopeTagIds
-            Id                              = $getValue.Id
-            Ensure                          = 'Present'
-            Credential                      = $Credential
-            ApplicationId                   = $ApplicationId
-            TenantId                        = $TenantId
-            ApplicationSecret               = $ApplicationSecret
-            CertificateThumbprint           = $CertificateThumbprint
-            ManagedIdentity                 = $ManagedIdentity.IsPresent
+            Categories              = $complexCategories
+            FileName                = $getValue.AdditionalProperties.fileName
+            Description             = $getValue.Description
+            Developer               = $getValue.Developer
+            DisplayName             = $getValue.DisplayName
+            InformationUrl          = $getValue.InformationUrl
+            IsFeatured              = $getValue.IsFeatured
+            LargeIcon               = $complexLargeIcon
+            Notes                   = $getValue.Notes
+            Owner                   = $getValue.Owner
+            PrivacyInformationUrl   = $getValue.PrivacyInformationUrl
+            Publisher               = $getValue.Publisher
+            RoleScopeTagIds         = $getValue.RoleScopeTagIds
+            Id                      = $getValue.Id
+            Ensure                  = 'Present'
+            Credential              = $Credential
+            ApplicationId           = $ApplicationId
+            TenantId                = $TenantId
+            ApplicationSecret       = $ApplicationSecret
+            CertificateThumbprint   = $CertificateThumbprint
+            ManagedIdentity         = $ManagedIdentity.IsPresent
             #endregion
         }
+
         $assignmentsValues = Get-MgBetaDeviceAppManagementMobileAppAssignment -MobileAppId $Id
         $assignmentResult = @()
         if ($assignmentsValues.Count -gt 0)
@@ -392,6 +264,10 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
+        $FileName,
+
+        [Parameter()]
+        [System.String]
         $Description,
 
         [Parameter()]
@@ -427,72 +303,8 @@ function Set-TargetResource
         $Publisher,
 
         [Parameter()]
-        [System.String]
-        $FileName,
-
-        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Categories,
-
-        [Parameter()]
-        [System.String]
-        $InstallCommandLine,
-
-        [Parameter()]
-        [System.String]
-        $UninstallCommandLine,
-
-        [Parameter()]
-        [System.String[]]
-        $AllowedArchitectures,
-
-        [Parameter()]
-        [System.Int32]
-        $MinimumFreeDiskSpaceInMB,
-
-        [Parameter()]
-        [System.Int32]
-        $MinimumMemoryInMB,
-
-        [Parameter()]
-        [System.Int32]
-        $MinimumNumberOfProcessors,
-
-        [Parameter()]
-        [System.Int32]
-        $MinimumCpuSpeedInMHz,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $Rules,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $InstallExperience,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $ReturnCodes,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $MsiInformation,
-
-        [Parameter()]
-        [System.String]
-        $SetupFilePath,
-
-        [Parameter()]
-        [System.String]
-        $MinimumSupportedWindowsRelease,
-
-        [Parameter()]
-        [System.String]
-        $DisplayVersion,
-
-        [Parameter()]
-        [System.Boolean]
-        $AllowAvailableUninstall,
 
         [Parameter()]
         [System.String[]]
@@ -537,7 +349,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting configuration of the Intune Mobile Apps Win32 App for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
+    Write-Verbose -Message "Setting configuration of the Intune Mobile Apps Lob App for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -556,32 +368,14 @@ function Set-TargetResource
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $boundParameters.Remove('Categories') | Out-Null
 
-    if ($boundParameters.ContainsKey('AllowedArchitectures'))
-    {
-        if ($boundParameters.AllowedArchitectures -contains 'none' -and $boundParameters.AllowedArchitectures.Count -gt 1)
-        {
-            throw "AllowedArchitectures cannot contain 'none' when other architectures are specified."
-        }
-
-        $boundParameters.Remove('AllowedArchitectures') | Out-Null
-        $boundParameters.Add('AllowedArchitectures', ($PSBoundParameters.AllowedArchitectures -join ','))
-        $PSBoundParameters.Add('ApplicableArchitectures', 'none')
-        $boundParameters.Add('ApplicableArchitectures', 'none')
-
-        if ([System.String]::IsNullOrEmpty($boundParameters.AllowedArchitectures))
-        {
-            $boundParameters.AllowedArchitectures = $null
-        }
-    }
-
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating an Intune Mobile Apps Win32 App for Windows10 with DisplayName {$DisplayName}"
+        Write-Verbose -Message "Creating an Intune Mobile Apps Lob App for Windows10 with DisplayName {$DisplayName}"
         $boundParameters.Remove("Assignments") | Out-Null
 
         if (-not $boundParameters.ContainsKey('FileName') -or [System.String]::IsNullOrEmpty($boundParameters.FileName))
         {
-            throw "FileName is required to create an Intune Mobile Apps Win32 App for Windows10."
+            throw "FileName is required to create an Intune Mobile Apps Lob App for Windows10."
         }
 
         $createParameters = ([Hashtable]$boundParameters).Clone()
@@ -589,51 +383,41 @@ function Set-TargetResource
         $createParameters.Remove('Id') | Out-Null
 
         $keys = (([Hashtable]$createParameters).Clone()).Keys
-        $allRules = @()
         foreach ($key in $keys)
         {
-            if ($null -ne $createParameters.$key -and $PSBoundParameters.$key.GetType().Name -like '*CimInstance*')
+            if ($null -ne $createParameters.$key -and $createParameters.$key.GetType().Name -like '*CimInstance*')
             {
                 $createParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $createParameters.$key
-
-                if ($key -eq 'Rules')
-                {
-                    $rulesToProcess = @()
-                    $rulesToProcess = $createParameters.$key
-
-                    foreach ($rule in $rulesToProcess)
-                    {
-                        $odataType = $rule.'@odata.type'
-                        $rule.'@odata.type' = "#microsoft.graph.win32LobApp$($odataType)Rule"
-                        switch ($odataType)
-                        {
-                            'FileSystem' {
-                                $rule.Add('operationType', $rule.fileSystemOperationType)
-                                $rule.Remove('fileSystemOperationType') | Out-Null
-                            }
-                            'Registry' {
-                                $rule.Add('operationType', $rule.registryOperationType)
-                                $rule.Remove('registryOperationType') | Out-Null
-                            }
-                            'PowerShellScript' {
-                                $rule.Add('scriptContent', [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($rule.script)))
-                                $rule.Remove('script') | Out-Null
-                                $rule.Add('operationType', $rule.powerShellScriptOperationType)
-                                $rule.Remove('powerShellScriptOperationType') | Out-Null
-                            }
-                        }
-                    }
-
-                    $createParameters.$key = $rulesToProcess
-                    $allRules += $rulesToProcess
-                }
             }
         }
         #region resource generator code
-        $createParameters.Add("@odata.type", "#microsoft.graph.win32LobApp")
+        $fileExtension = $FileName.Split('.')[-1]
+        $createParameters.Add("@odata.type", "#microsoft.graph.windowsUniversalAppX")
+        $createParameters.Add('applicableArchitectures', $Script:FileTypeToPropertyMap[$fileExtension].ApplicableArchitectures -join ",")
+        $createParameters.Add('applicableDeviceTypes', $Script:FileTypeToPropertyMap[$fileExtension].ApplicableDeviceTypes -join ",")
+        $createParameters.Add('minimumSupportedOperatingSystem', @{v10_0 = $true})
+        $createParameters.Add('identityName', 'Sample')
+        $createParameters.Add('identityPublisherHash', 'SamplePublisherHash')
+        $createParameters.Add('identityVersion', '0.0.1')
+        if ($fileExtension -like "Msix*")
+        {
+            $createParameters.Add('isMsix', $true)
+        }
+        else
+        {
+            $createParameters.Add('isMsix', $false)
+        }
+        if ($fileExtension -like "*Bundle")
+        {
+            $createParameters.Add('isBundle', $true)
+        }
+        else
+        {
+            $createParameters.Add('isBundle', $false)
+        }
         $policy = Invoke-MgGraphRequest -Method POST -Uri "/beta/deviceAppManagement/mobileApps" -Body ($createParameters | ConvertTo-Json -Depth 10)
 
-        Invoke-M365DSCIntuneMobileAppInitialUpload -AppId $policy.Id -OdataType "#microsoft.graph.win32LobApp" -FileExtension "intunewin"
+        Invoke-M365DSCIntuneMobileAppInitialUpload -AppId $policy.Id -OdataType "#microsoft.graph.windowsUniversalAppX" -FileExtension $fileExtension
 
         if ($PSBoundParameters.ContainsKey('Categories'))
         {
@@ -651,7 +435,7 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating the Intune Mobile Apps Win32 App for Windows10 with Id {$($currentInstance.Id)}"
+        Write-Verbose -Message "Updating the Intune Mobile Apps Lob App for Windows10 with Id {$($currentInstance.Id)}"
         $boundParameters.Remove("Assignments") | Out-Null
 
         $updateParameters = ([Hashtable]$boundParameters).Clone()
@@ -660,49 +444,16 @@ function Set-TargetResource
         $updateParameters.Remove('Id') | Out-Null
 
         $keys = (([Hashtable]$updateParameters).Clone()).Keys
-        $allRules = @()
         foreach ($key in $keys)
         {
-            if ($null -ne $updateParameters.$key -and $PSBoundParameters.$key.GetType().Name -like '*CimInstance*')
+            if ($null -ne $updateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
             {
                 $updateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.$key
-
-                if ($key -eq 'Rules')
-                {
-                    $rulesToProcess = @()
-                    $rulesToProcess = $updateParameters.$key
-
-                    foreach ($rule in $rulesToProcess)
-                    {
-                        $odataType = $rule.'@odata.type'
-                        $rule.'@odata.type' = "#microsoft.graph.win32LobApp$($odataType)Rule"
-                        switch ($odataType)
-                        {
-                            'FileSystem' {
-                                $rule.Add('operationType', $rule.fileSystemOperationType)
-                                $rule.Remove('fileSystemOperationType') | Out-Null
-                            }
-                            'Registry' {
-                                $rule.Add('operationType', $rule.registryOperationType)
-                                $rule.Remove('registryOperationType') | Out-Null
-                            }
-                            'PowerShellScript' {
-                                $rule.Add('scriptContent', [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($rule.script)))
-                                $rule.Remove('script') | Out-Null
-                                $rule.Add('operationType', $rule.powerShellScriptOperationType)
-                                $rule.Remove('powerShellScriptOperationType') | Out-Null
-                            }
-                        }
-                    }
-
-                    $updateParameters.$key = $rulesToProcess
-                    $allRules += $rulesToProcess
-                }
             }
         }
 
         #region resource generator code
-        $updateParameters.Add("@odata.type", "#microsoft.graph.win32LobApp")
+        $updateParameters.Add("@odata.type", "#microsoft.graph.windowsUniversalAppX")
         Invoke-MgGraphRequest -Method PATCH -Uri "/beta/deviceAppManagement/mobileApps/$($currentInstance.Id)" -Body ($updateParameters | ConvertTo-Json -Depth 10)
 
         if ($PSBoundParameters.ContainsKey('Categories'))
@@ -718,7 +469,7 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removing the Intune Mobile Apps Win32 App for Windows10 with Id {$($currentInstance.Id)}"
+        Write-Verbose -Message "Removing the Intune Mobile Apps Lob App for Windows10 with Id {$($currentInstance.Id)}"
         #region resource generator code
         Remove-MgBetaDeviceAppManagementMobileApp -MobileAppId $currentInstance.Id
         #endregion
@@ -742,6 +493,10 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
+        $FileName,
+
+        [Parameter()]
+        [System.String]
         $Description,
 
         [Parameter()]
@@ -777,72 +532,8 @@ function Test-TargetResource
         $Publisher,
 
         [Parameter()]
-        [System.String]
-        $FileName,
-
-        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Categories,
-
-        [Parameter()]
-        [System.String]
-        $InstallCommandLine,
-
-        [Parameter()]
-        [System.String]
-        $UninstallCommandLine,
-
-        [Parameter()]
-        [System.String[]]
-        $AllowedArchitectures,
-
-        [Parameter()]
-        [System.Int32]
-        $MinimumFreeDiskSpaceInMB,
-
-        [Parameter()]
-        [System.Int32]
-        $MinimumMemoryInMB,
-
-        [Parameter()]
-        [System.Int32]
-        $MinimumNumberOfProcessors,
-
-        [Parameter()]
-        [System.Int32]
-        $MinimumCpuSpeedInMHz,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $Rules,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $InstallExperience,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $ReturnCodes,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $MsiInformation,
-
-        [Parameter()]
-        [System.String]
-        $SetupFilePath,
-
-        [Parameter()]
-        [System.String]
-        $MinimumSupportedWindowsRelease,
-
-        [Parameter()]
-        [System.String]
-        $DisplayVersion,
-
-        [Parameter()]
-        [System.Boolean]
-        $AllowAvailableUninstall,
 
         [Parameter()]
         [System.String[]]
@@ -899,7 +590,7 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune Mobile Apps Win32 App for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
+    Write-Verbose -Message "Testing configuration of the Intune Mobile Apps Lob App for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
     $ValuesToCheck = ([hashtable]$PSBoundParameters).Clone()
@@ -914,7 +605,7 @@ function Test-TargetResource
         {
             $testResult = Compare-M365DSCComplexObject `
                 -Source ($source) `
-                -Target ($target) -Verbose
+                -Target ($target)
 
             if (-not $testResult)
             {
@@ -1001,7 +692,7 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        $baseFilter = "isof('microsoft.graph.win32LobApp')"
+        $baseFilter = "isof('microsoft.graph.windowsUniversalAppX')"
         if (-not [String]::IsNullOrEmpty($Filter))
         {
             $Filter = "($Filter) and ($baseFilter)"
@@ -1068,62 +759,6 @@ function Export-TargetResource
                     $Results.Remove('Categories') | Out-Null
                 }
             }
-            if ($null -ne $Results.Rules)
-            {
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
-                    -ComplexObject $Results.Rules `
-                    -CIMInstanceName 'MicrosoftGraphWin32LobAppRule'
-                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
-                {
-                    $Results.Rules = $complexTypeStringResult
-                }
-                else
-                {
-                    $Results.Remove('Rules') | Out-Null
-                }
-            }
-            if ($null -ne $Results.InstallExperience)
-            {
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
-                    -ComplexObject $Results.InstallExperience `
-                    -CIMInstanceName 'MicrosoftGraphWin32LobAppInstallExperience'
-                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
-                {
-                    $Results.InstallExperience = $complexTypeStringResult
-                }
-                else
-                {
-                    $Results.Remove('InstallExperience') | Out-Null
-                }
-            }
-            if ($null -ne $Results.ReturnCodes)
-            {
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
-                    -ComplexObject $Results.ReturnCodes `
-                    -CIMInstanceName 'MicrosoftGraphWin32LobAppReturnCode'
-                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
-                {
-                    $Results.ReturnCodes = $complexTypeStringResult
-                }
-                else
-                {
-                    $Results.Remove('ReturnCodes') | Out-Null
-                }
-            }
-            if ($null -ne $Results.MsiInformation)
-            {
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
-                    -ComplexObject $Results.MsiInformation `
-                    -CIMInstanceName 'MicrosoftGraphWin32LobAppMsiInformation'
-                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
-                {
-                    $Results.MsiInformation = $complexTypeStringResult
-                }
-                else
-                {
-                    $Results.Remove('MsiInformation') | Out-Null
-                }
-            }
             if ($null -ne $Results.LargeIcon)
             {
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
@@ -1144,28 +779,13 @@ function Export-TargetResource
                 $complexMapping = @(
                     @{
                         Name = 'AssignmentSettings'
-                        CIMInstanceName = 'DeviceManagementWin32MobileAppAssignmentSettings'
-                        IsRequired = $false
-                    },
-                    @{
-                        Name = 'AutoUpdateSettings'
-                        CIMInstanceName = 'DeviceManagementWin32MobileAppAssignmentSettingsAutoUpdateSettings'
-                        IsRequired = $false
-                    },
-                    @{
-                        Name = 'InstallTimeSettings'
-                        CIMInstanceName = 'DeviceManagementWin32MobileAppAssignmentSettingsInstallTimeSettings'
-                        IsRequired = $false
-                    },
-                    @{
-                        Name = 'RestartSettings'
-                        CIMInstanceName = 'DeviceManagementWin32MobileAppAssignmentSettingsRestartSettings'
+                        CIMInstanceName = 'DeviceManagementAppxMobileAppAssignmentSettings'
                         IsRequired = $false
                     }
                 )
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.Assignments `
-                    -CIMInstanceName DeviceManagementWin32MobileAppAssignment `
+                    -CIMInstanceName DeviceManagementAppxMobileAppAssignment `
                     -ComplexTypeMapping $complexMapping
                 if ($complexTypeStringResult)
                 {
@@ -1182,7 +802,7 @@ function Export-TargetResource
                 -ModulePath $PSScriptRoot `
                 -Results $Results `
                 -Credential $Credential `
-                -NoEscape @('Assignments', 'Categories', 'Rules', 'LargeIcon', 'InstallExperience', 'ReturnCodes', 'MsiInformation')
+                -NoEscape @('Assignments', 'Categories', 'LargeIcon')
             $dscContent += $currentDSCBlock
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName

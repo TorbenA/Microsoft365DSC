@@ -58,6 +58,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         allowedArchitectures = "x86,x64"
                         installCommandLine = "IntuneWinAppUtil.exe -s -t 0"
                         uninstallCommandLine = "IntuneWinAppUtil.exe -s -u -t 0"
+                        fileName = "IntuneWinAppUtil.intunewin"
                         installExperience = @{
                             deviceRestartBehavior = "suppress"
                             maxRunTimeInMinutes = 60
@@ -165,6 +166,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             maxRunTimeInMinutes = 60
                             runAsAccount = "system"
                         }
+                        fileName = "IntuneWinAppUtil.intunewin"
                         setupFilePath = "IntuneWinAppUtil.exe"
                         minimumSupportedOperatingSystem = @{
                             v8_0 = $False
@@ -232,7 +234,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
                     DisplayName = "FakeStringValue"
-                    FileName = "FakeStringValue"
                     Id = "FakeStringValue"
                     InformationUrl = "FakeStringValue"
                     IsFeatured = $True
@@ -362,6 +363,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     )
                     InstallCommandLine = "IntuneWinAppUtil.exe -s -t 0"
                     UninstallCommandLine = "IntuneWinAppUtil.exe -s -u -t 0"
+                    FileName = "IntuneWinAppUtil.intunewin"
                     SetupFilePath = "IntuneWinAppUtil.exe"
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
@@ -465,6 +467,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     )
                     InstallCommandLine = "IntuneWinAppUtil.exe -s -t 0"
                     UninstallCommandLine = "IntuneWinAppUtil.exe -s -u -t 0"
+                    FileName = "IntuneWinAppUtil.intunewin"
                     SetupFilePath = "IntuneWinAppUtil.exe"
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
@@ -567,6 +570,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     )
                     InstallCommandLine = "IntuneWinAppUtil.exe -s -t 0"
                     UninstallCommandLine = "IntuneWinAppUtil.exe -s -u -t 0"
+                    FileName = "IntuneWinAppUtil.intunewin"
                     SetupFilePath = "IntuneWinAppUtil.exe"
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
@@ -660,6 +664,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     )
                     InstallCommandLine = "IntuneWinAppUtil.exe -s -t 0"
                     UninstallCommandLine = "IntuneWinAppUtil.exe -s -u -t 0"
+                    FileName = "IntuneWinAppUtil.intunewin"
                     SetupFilePath = "IntuneWinAppUtil.exe"
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
