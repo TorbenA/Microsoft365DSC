@@ -21,7 +21,7 @@ class MSFT_DeviceManagementWin32MobileAppAssignmentSettingsRestartSettings
 [ClassVersion("1.0.0.0")]
 class MSFT_DeviceManagementWin32MobileAppAssignmentSettingsAutoUpdateSettings
 {
-    [Write, Description("The auto-update superseded apps setting for the app assignment. Possible values are notConfigured and enabled. Default value is notConfigured."), ValueMap{"enabled", "notConfigured"}, Values{"enabled", "notConfigured"}] String autoUpdateSupersededApps;
+    [Write, Description("The auto-update superseded apps setting for the app assignment. Possible values are notConfigured and enabled. Default value is notConfigured."), ValueMap{"enabled", "notConfigured"}, Values{"enabled", "notConfigured"}] String autoUpdateSupersededAppsState;
 };
 
 [ClassVersion("1.0.0.0")]
@@ -139,7 +139,7 @@ class MSFT_IntuneMobileAppsWin32AppWindows10 : OMI_BaseResource
     [Write, Description("The owner of the app.")] String Owner;
     [Write, Description("The privacy statement Url.")] String PrivacyInformationUrl;
     [Write, Description("The publisher of the app.")] String Publisher;
-    [Write, Description("The file name of the app.")] String FileName;
+    [Write, Description("The file name of the app. Required for creating the resource.")] String FileName;
     [Write, Description("List of scope tag ids for this mobile app.")] String RoleScopeTagIds[];
 
     [Write, Description("The list of categories for this app."), EmbeddedInstance("MSFT_DeviceManagementMobileAppCategory")] String Categories[];
