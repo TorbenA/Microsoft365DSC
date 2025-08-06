@@ -2,6 +2,27 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Fixed an issue where not all properties were exported.
+* AADServicePrincipal
+  * Fixes for retrieving instance by name.
+* AADUser
+  * Added support for Mail attribute.
+* EXOOrganizationConfig
+  * Added support for the RejectDirectSend property.
+* IntuneMobileAppsLobAppiOS
+  * Initial release.
+* IntuneMobileAppsLobAppAndroid
+  * Initial release.
+* IntuneMobileAppsLobAppWindows10
+  * Initial release.
+* IntuneMobileAppsLobAppMsiWindows10
+  * Initial release.
+* IntuneMobileAppsWin32AppWindows10
+  * Updated the property name of `autoUpdateSupersededApps` to `autoUpdateSupersededAppsState`.
+* SCAutoSensitivityLabelRule
+  * Updated supported values for `Workload` property.
+    FIXES [#4617](https://github.com/microsoft/Microsoft365DSC/issues/4617)
 * TeamsTeam
   * Fixed an issue where an invalid search query was invoked.
     FIXES [#5937](https://github.com/microsoft/Microsoft365DSC/issues/5937)
