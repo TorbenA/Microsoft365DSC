@@ -6,6 +6,8 @@
   * Fixed an issue where not all properties were exported.
 * AADUser
   * Added support for Mail attribute.
+* IntuneMobileAppsWin32AppWindows10
+  * Updated the property name of `autoUpdateSupersededApps` to `autoUpdateSupersededAppsState`.
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
 
