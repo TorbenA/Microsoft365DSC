@@ -351,7 +351,7 @@ function Get-TargetResource
         $alternativeNamesValue = @()
         if ($null -ne $AADServicePrincipal.AlternativeNames)
         {
-            $tagsValue = [Array]($AADServicePrincipal.AlternativeNames)
+            $alternativeNamesValue = [Array]($AADServicePrincipal.AlternativeNames)
         }
 
         $replyUrlsValue = @()
