@@ -3556,6 +3556,12 @@ function Invoke-M365DSCIntuneMobileAppInitialUpload
     $contentVersion = Invoke-MgGraphRequest -Method POST -Uri $contentVersionsUri -Body @{}
 
     $fileUri = "beta/deviceAppManagement/mobileApps/$($AppId)/$OdataType/contentVersions/$($contentVersion.id)/files"
+    $manifest = $null
+    if ($OdataType -eq "microsoft.graph.windowsUniversalAppx")
+    {
+        # Manifest is required for Windows Universal Appx
+        $manifest = $([System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes("Sample.$($FileExtension)".ToUpper())))
+    }
     $file = Invoke-MgGraphRequest -Method POST `
         -Uri $fileUri `
         -Body @{
@@ -3564,22 +3570,35 @@ function Invoke-M365DSCIntuneMobileAppInitialUpload
             size = 1
             sizeEncrypted = 64
             isDependency = $false
-            manifest = $null
+            manifest = $manifest
         }
 
     $file = Wait-ForFileProcessing -AppId $AppId -OdataType $OdataType -FileId $file.id -ContentVersionId $contentVersion.id -UploadStatePrefix "AzureStorageUriRequest"
 
     # Upload the encrypted Sample file to Azure Storage
-    Write-Verbose "Uploading file to Azure Storage: $($file.azureStorageUri)"
-    $base64File = "+drh1SKfuLjdp37gfv8EuWqOTt06m0TirqJJ0xQvrd5sm6NkiYBY8vBkFM+9ZwHRskO83NEfsLPtTzLB9FFsKA=="
-    $sasUri = $file.azureStorageUri
-    $uri = "$($sasUri)&comp=block&blockid=0001"
-    $iso = [System.Text.Encoding]::GetEncoding("iso-8859-1");
-    $body = [System.Convert]::FromBase64String($base64File)
-    $encodedBody = $iso.GetString($body)
-    Invoke-WebRequest -Uri $uri -Method PUT -Body $encodedBody -Headers @{
-        "x-ms-blob-type" = "BlockBlob"
-    } | Out-Null
+    $success = $false
+    $breakCounter = 0
+    do
+    {
+        try
+        {
+            Write-Verbose "Uploading file to Azure Storage: $($file.azureStorageUri)"
+            $base64File = "+drh1SKfuLjdp37gfv8EuWqOTt06m0TirqJJ0xQvrd5sm6NkiYBY8vBkFM+9ZwHRskO83NEfsLPtTzLB9FFsKA=="
+            $sasUri = $file.azureStorageUri
+            $uri = "$($sasUri)&comp=block&blockid=0001"
+            $iso = [System.Text.Encoding]::GetEncoding("iso-8859-1");
+            $body = [System.Convert]::FromBase64String($base64File)
+            $encodedBody = $iso.GetString($body)
+            Invoke-WebRequest -Uri $uri -Method PUT -Body $encodedBody -Headers @{
+                "x-ms-blob-type" = "BlockBlob"
+            } -ErrorAction Stop | Out-Null
+            Write-Verbose "File uploaded successfully to Azure Storage." -Verbose
+            $success = $true
+        } catch {
+            Write-Warning -Message "Failed to upload file to Azure Storage: $($_.Exception.Message)" -Verbose
+            Start-Sleep -Seconds 2
+        }
+    } while ($success -eq $false -and $breakCounter -lt 5)
 
     # Finalize the upload to Azure Storage
     $uri = "$($sasUri)&comp=blocklist"
