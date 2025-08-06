@@ -13,7 +13,11 @@
 * FabricAdminTenantSettings
   * Fixed the export of the resource.
     FIXES [#6345](https://github.com/microsoft/Microsoft365DSC/issues/6345)
+* IntuneMobileAppsLobAppAndroid
+  * Initial release.
 * IntuneMobileAppsLobAppWindows10
+  * Initial release.
+* IntuneMobileAppsLobAppMsiWindows10
   * Initial release.
 * IntuneMobileAppsWin32AppWindows10
   * Updated the property name of `autoUpdateSupersededApps` to `autoUpdateSupersededAppsState`.
