@@ -4,6 +4,8 @@
 
 * AADApplication
   * Fixed an issue where not all properties were exported.
+* AADServicePrincipal
+  * Fixes for retrieving instance by name.
 * AADUser
   * Added support for Mail attribute.
 * EXOOrganizationConfig
