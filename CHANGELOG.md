@@ -4,6 +4,9 @@
 
 * AADApplication
   * Fixed an issue where not all properties were exported.
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Fixed an issue where the export returns an invalid value for `Targets`.
+    FIXES [#6397](https://github.com/microsoft/Microsoft365DSC/issues/6397)
 * AADServicePrincipal
   * Fixes for retrieving instance by name.
 * AADUser
@@ -23,6 +26,9 @@
 * SCAutoSensitivityLabelRule
   * Updated supported values for `Workload` property.
     FIXES [#4617](https://github.com/microsoft/Microsoft365DSC/issues/4617)
+* TeamsEventsPolicy
+  * Added 7 new properties.
+    FIXES [#6403](https://github.com/microsoft/Microsoft365DSC/issues/6403)
 * TeamsTeam
   * Fixed an issue where an invalid search query was invoked.
     FIXES [#5937](https://github.com/microsoft/Microsoft365DSC/issues/5937)
