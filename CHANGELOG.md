@@ -6,8 +6,14 @@
   * Fixed an issue where not all properties were exported.
   * Fixed an issue where owners would not be set during creation.
     FIXES [#6238](https://github.com/microsoft/Microsoft365DSC/issues/6238)
+* AADServicePrincipal
+  * Fixes for retrieving instance by name.
 * AADUser
   * Added support for Mail attribute.
+* EXOOrganizationConfig
+  * Added support for the RejectDirectSend property.
+* IntuneMobileAppsWin32AppWindows10
+  * Updated the property name of `autoUpdateSupersededApps` to `autoUpdateSupersededAppsState`.
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
 
