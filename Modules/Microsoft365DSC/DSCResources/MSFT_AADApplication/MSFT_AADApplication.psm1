@@ -1,5 +1,5 @@
 Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADApplication'
-$Script:PropertiesToRetrieve = "displayName, description, groupMembershipClaims, web, api, id, appId, applicationTemplateId, signInAudience, authenticationBehaviors, keyCredentials, requiredResourceAccess"
+$Script:PropertiesToRetrieve = "appRoles, identifierUris, displayName, description, groupMembershipClaims, optionalClaims, web, api, id, appId, spa, applicationTemplateId, signInAudience, authenticationBehaviors, isFallbackPublicClient, publicClient, keyCredentials, passwordCredentials, requiredResourceAccess"
 
 function Get-TargetResource
 {
@@ -544,7 +544,6 @@ function Get-TargetResource
             AccessTokens             = $AccessTokens
         }
 
-        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
         return $result
     }
     catch
@@ -1232,10 +1231,9 @@ function Set-TargetResource
             }
         }
 
-        Write-Verbose -Message "Updating permissions for Azure AD Application {$($currentAADApp.DisplayName)} with RequiredResourceAccess:`r`n$($allRequiredAccess | Out-String)"
-        Write-Verbose -Message "ResourceAccess:`r`n$($allRequiredAccess.ResourceAccess | Out-String)"
+        Write-Verbose -Message "Updating permissions for Azure AD Application {$($currentAADApp.DisplayName)} with RequiredResourceAccess:`r`n$($allRequiredAccess | ConvertTo-Json -Depth 10)"
         Write-Verbose -Message "Current App Id: $($currentAADApp.AppId)"
-
+        Write-Verbose -Message "Current ObjectId: $($currentAADApp.Id)"
         # Even if the property is named ApplicationId, we need to pass in the ObjectId
         Update-MgApplication -ApplicationId ($currentAADApp.Id) `
             -RequiredResourceAccess $allRequiredAccess | Out-Null
@@ -1594,7 +1592,6 @@ function Export-TargetResource
                 $Results = Get-TargetResource @Params
                 if ($Results.Ensure -eq 'Present')
                 {
-
                     if ($Results.Permissions.Count -gt 0)
                     {
                         $complexMapping = @(
