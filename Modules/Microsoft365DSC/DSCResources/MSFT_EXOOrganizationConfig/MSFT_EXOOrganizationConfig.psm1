@@ -616,6 +616,7 @@ function Get-TargetResource
             PublicFolderShowClientControl                             = $ConfigSettings.PublicFolderShowClientControl
             ReadTrackingEnabled                                       = $ConfigSettings.ReadTrackingEnabled
             RecallReadMessagesEnabled                                 = $ConfigSettings.RecallReadMessagesEnabled
+            RejectDirectSend                                          = $ConfigSettings.RejectDirectSend
             RemotePublicFolderMailboxes                               = $ConfigSettings.RemotePublicFolderMailboxes
             SendFromAliasEnabled                                      = $ConfigSettings.SendFromAliasEnabled
             SharedDomainEmailAddressFlowEnabled                       = $ConfigSettings.SharedDomainEmailAddressFlowEnabled
