@@ -169,12 +169,12 @@ function Get-TargetResource
                 $ObjectGuid = [System.Guid]::empty
                 if (-not [System.Guid]::TryParse($AppId, [ref]$ObjectGuid))
                 {
-                    $appInstance = Get-MgApplication -Filter "DisplayName eq '$($AppId -replace "'", "''")'"
-                    if ($appInstance)
-                    {
-                        $AADServicePrincipal = Get-MgServicePrincipal -Filter "AppID eq '$($appInstance.AppId)'" `
+                    $AADServicePrincipal = [Array](Get-MgServicePrincipal -Filter "DisplayName eq '$($AppId -replace "'", "''")'" `
                             -Property $Script:PropertiesToExport `
-                            -Expand 'AppRoleAssignedTo'
+                            -Expand 'AppRoleAssignedTo')
+                    if ($null -ne $AADServicePrincipal -and $AADServicePrincipal.Count -gt 1)
+                    {
+                        Throw "Multiple Service Principal with the DisplayName $($AppId) exist in the tenant."
                     }
                 }
                 else
@@ -335,12 +335,36 @@ function Get-TargetResource
             $appIdToExport = $AADServicePrincipal.AppId
         }
 
+        $tagsValue = @()
+        if ($null -ne $AADServicePrincipal.Tags)
+        {
+            $tagsValue = [Array]($AADServicePrincipal.Tags)
+        }
+
+        $alternativeNamesValue = @()
+        if ($null -ne $AADServicePrincipal.AlternativeNames)
+        {
+            $alternativeNamesValue = [Array]($AADServicePrincipal.AlternativeNames)
+        }
+
+        $replyUrlsValue = @()
+        if ($null -ne $AADServicePrincipal.ReplyURLs)
+        {
+            $replyUrlsValue = [Array]($AADServicePrincipal.ReplyURLs)
+        }
+
+        $servicePrincipalNamesValue = @()
+        if ($null -ne $AADServicePrincipal.ServicePrincipalNames)
+        {
+            $servicePrincipalNamesValue = [Array]($AADServicePrincipal.ServicePrincipalNames)
+        }
+
         $result = @{
             AppId                              = $appIdToExport
             AppRoleAssignedTo                  = $AppRoleAssignedToValues
             ObjectID                           = $AADServicePrincipal.Id
             DisplayName                        = $AADServicePrincipal.DisplayName
-            AlternativeNames                   = $AADServicePrincipal.AlternativeNames
+            AlternativeNames                   = $alternativeNamesValue
             AccountEnabled                     = [boolean]$AADServicePrincipal.AccountEnabled
             AppRoleAssignmentRequired          = $AADServicePrincipal.AppRoleAssignmentRequired
             CustomSecurityAttributes           = $complexCustomSecurityAttributes
@@ -352,11 +376,11 @@ function Get-TargetResource
             Owners                             = $ownersValues
             PreferredSingleSignOnMode          = $AADServicePrincipal.PreferredSingleSignOnMode
             PublisherName                      = $AADServicePrincipal.PublisherName
-            ReplyURLs                          = $AADServicePrincipal.ReplyURLs
+            ReplyURLs                          = $replyUrlsValue
             SamlMetadataURL                    = $AADServicePrincipal.SamlMetadataURL
-            ServicePrincipalNames              = $AADServicePrincipal.ServicePrincipalNames
+            ServicePrincipalNames              = $servicePrincipalNamesValue
             ServicePrincipalType               = $AADServicePrincipal.ServicePrincipalType
-            Tags                               = $AADServicePrincipal.Tags
+            Tags                               = $tagsValue
             KeyCredentials                     = $complexKeyCredentials
             PasswordCredentials                = $complexPasswordCredentials
             Ensure                             = 'Present'

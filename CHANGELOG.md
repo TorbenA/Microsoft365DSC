@@ -5,11 +5,15 @@
 * AADApplication
   * Fixed an issue where not all properties were exported.
 * AADServicePrincipal
-  * Fixed an issue where a non-existing Service Principal would throw an error during Get.
+  * Fixes for retrieving instance by name.
   * Fixed an issue where assigning members to a Service Principal would throw an error when
     more than one member was assigned.
 * AADUser
   * Added support for Mail attribute.
+* EXOOrganizationConfig
+  * Added support for the RejectDirectSend property.
+* IntuneMobileAppsWin32AppWindows10
+  * Updated the property name of `autoUpdateSupersededApps` to `autoUpdateSupersededAppsState`.
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
 
