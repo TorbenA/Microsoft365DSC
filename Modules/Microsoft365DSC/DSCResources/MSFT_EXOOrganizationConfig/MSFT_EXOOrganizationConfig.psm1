@@ -405,6 +405,10 @@ function Get-TargetResource
         $RecallReadMessagesEnabled,
 
         [Parameter()]
+        [System.Boolean]
+        $RejectDirectSend,
+
+        [Parameter()]
         [System.String[]]
         $RemotePublicFolderMailboxes,
 
@@ -1070,6 +1074,10 @@ function Set-TargetResource
         $RecallReadMessagesEnabled,
 
         [Parameter()]
+        [System.Boolean]
+        $RejectDirectSend,
+
+        [Parameter()]
         [System.String[]]
         $RemotePublicFolderMailboxes,
 
@@ -1589,6 +1597,10 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $RecallReadMessagesEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $RejectDirectSend,
 
         [Parameter()]
         [System.String[]]
