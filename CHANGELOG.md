@@ -7,8 +7,14 @@
 * AADEntitlementManagementAccessPackage
   * Fixed an issue where `AccessPackagesIncompatibleWith` would not be populated with a value.
     FIXES [#5063](https://github.com/microsoft/Microsoft365DSC/issues/5063)
+* AADServicePrincipal
+  * Fixes for retrieving instance by name.
 * AADUser
   * Added support for Mail attribute.
+* EXOOrganizationConfig
+  * Added support for the RejectDirectSend property.
+* IntuneMobileAppsWin32AppWindows10
+  * Updated the property name of `autoUpdateSupersededApps` to `autoUpdateSupersededAppsState`.
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
 
