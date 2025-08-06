@@ -7,8 +7,14 @@
 * AADAuthenticationMethodPolicyFido2
   * Fixed an issue where the policy was not updated properly.
     FIXES [#6391](https://github.com/microsoft/Microsoft365DSC/issues/6391)
+* AADServicePrincipal
+  * Fixes for retrieving instance by name.
 * AADUser
   * Added support for Mail attribute.
+* EXOOrganizationConfig
+  * Added support for the RejectDirectSend property.
+* IntuneMobileAppsWin32AppWindows10
+  * Updated the property name of `autoUpdateSupersededApps` to `autoUpdateSupersededAppsState`.
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
 
