@@ -2,8 +2,20 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Fixed an issue where not all properties were exported.
+* AADServicePrincipal
+  * Fixes for retrieving instance by name.
+* AADUser
+  * Added support for Mail attribute.
+* EXOOrganizationConfig
+  * Added support for the RejectDirectSend property.
 * IntuneMobileAppsLobAppMsiWindows10
   * Initial release.
+* IntuneMobileAppsWin32AppWindows10
+  * Updated the property name of `autoUpdateSupersededApps` to `autoUpdateSupersededAppsState`.
+* DEPENDENCIES
+  * Updated ReverseDSC to version 2.0.0.29.
 
 # 1.25.730.1
 

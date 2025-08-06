@@ -21,7 +21,7 @@ class MSFT_DeviceManagementWin32MobileAppAssignmentSettingsRestartSettings
 [ClassVersion("1.0.0.0")]
 class MSFT_DeviceManagementWin32MobileAppAssignmentSettingsAutoUpdateSettings
 {
-    [Write, Description("The auto-update superseded apps setting for the app assignment. Possible values are notConfigured and enabled. Default value is notConfigured."), ValueMap{"enabled", "notConfigured"}, Values{"enabled", "notConfigured"}] String autoUpdateSupersededApps;
+    [Write, Description("The auto-update superseded apps setting for the app assignment. Possible values are notConfigured and enabled. Default value is notConfigured."), ValueMap{"enabled", "notConfigured"}, Values{"enabled", "notConfigured"}] String autoUpdateSupersededAppsState;
 };
 
 [ClassVersion("1.0.0.0")]
