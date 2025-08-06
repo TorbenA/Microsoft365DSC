@@ -18,6 +18,9 @@
   * Initial release.
 * IntuneMobileAppsWin32AppWindows10
   * Updated the property name of `autoUpdateSupersededApps` to `autoUpdateSupersededAppsState`.
+* SCAutoSensitivityLabelRule
+  * Updated supported values for `Workload` property.
+    FIXES [#4617](https://github.com/microsoft/Microsoft365DSC/issues/4617)
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
 
