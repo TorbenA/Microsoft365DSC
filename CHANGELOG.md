@@ -4,11 +4,17 @@
 
 * AADApplication
   * Fixed an issue where not all properties were exported.
+* AADServicePrincipal
+  * Fixes for retrieving instance by name.
 * AADUser
   * Added support for Mail attribute.
+* EXOOrganizationConfig
+  * Added support for the RejectDirectSend property.
 * FabricAdminTenantSettings
   * Fixed the export of the resource.
     FIXES [#6345](https://github.com/microsoft/Microsoft365DSC/issues/6345)
+* IntuneMobileAppsWin32AppWindows10
+  * Updated the property name of `autoUpdateSupersededApps` to `autoUpdateSupersededAppsState`.
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
 
