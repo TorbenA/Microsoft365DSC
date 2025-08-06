@@ -10,6 +10,8 @@
   * Added support for Mail attribute.
 * EXOOrganizationConfig
   * Added support for the RejectDirectSend property.
+* IntuneMobileAppsLobAppAndroid
+  * Initial release.
 * IntuneMobileAppsLobAppWindows10
   * Initial release.
 * IntuneMobileAppsLobAppMsiWindows10
