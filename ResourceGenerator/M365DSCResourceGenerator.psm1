@@ -141,7 +141,14 @@ function New-M365DSCResource
         $cmdletDefinition = Get-CmdletDefinition -APIVersion $ApiVersion
 
         # Check if the actual type returns multiple type of policies
-        $policyTypes = ($cmdletDefinition.EntityType | Where-Object -FilterScript { $_.basetype -like "*$actualType" }).Name
+        [array]$abstractTypes = ($cmdletDefinition.EntityType | Where-Object -FilterScript { $_.basetype -like "*$actualType" -and $_.abstract -eq 'true' }).Name
+        $typesToSearch = $abstractTypes + $actualType
+        $policyTypes = @()
+        foreach ($typeToSearch in $typesToSearch)
+        {
+            $policyTypes += ($cmdletDefinition.EntityType | Where-Object -FilterScript { $_.basetype -like "*$typeToSearch" }).Name
+        }
+        $policyTypes = $policyTypes | Sort-Object -Unique
         if ($null -ne $policyTypes -and $policyTypes.GetType().Name -like '*[[\]]')
         {
             if ([String]::IsNullOrEmpty($AdditionalPropertiesType))
