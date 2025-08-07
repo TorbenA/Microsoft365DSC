@@ -10,6 +10,9 @@
 * AADCrossTenantAccessPolicyConfigurationDefault
   * Fixed an issue where the export returns an invalid value for `Targets`.
     FIXES [#6397](https://github.com/microsoft/Microsoft365DSC/issues/6397)
+* AADEntitlementManagementAccessPackage
+  * Fixed an issue where `AccessPackagesIncompatibleWith` would not be populated with a value.
+    FIXES [#5063](https://github.com/microsoft/Microsoft365DSC/issues/5063)
 * AADServicePrincipal
   * Fixes for retrieving instance by name.
 * AADUser
