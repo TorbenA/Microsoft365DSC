@@ -4,6 +4,9 @@
 
 * AADApplication
   * Fixed an issue where not all properties were exported.
+* AADAuthenticationMethodPolicyFido2
+  * Fixed an issue where the policy was not updated properly.
+    FIXES [#6391](https://github.com/microsoft/Microsoft365DSC/issues/6391)
 * AADCrossTenantAccessPolicyConfigurationDefault
   * Fixed an issue where the export returns an invalid value for `Targets`.
     FIXES [#6397](https://github.com/microsoft/Microsoft365DSC/issues/6397)
