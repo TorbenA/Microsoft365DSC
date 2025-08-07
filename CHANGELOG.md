@@ -16,6 +16,9 @@
   * Added support for Mail attribute.
 * EXOOrganizationConfig
   * Added support for the RejectDirectSend property.
+* FabricAdminTenantSettings
+  * Fixed the export of the resource.
+    FIXES [#6345](https://github.com/microsoft/Microsoft365DSC/issues/6345)
 * IntuneMobileAppsLobAppiOS
   * Initial release.
 * IntuneMobileAppsLobAppAndroid
