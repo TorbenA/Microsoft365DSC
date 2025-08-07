@@ -35,6 +35,9 @@
 * TeamsEventsPolicy
   * Added 7 new properties.
     FIXES [#6403](https://github.com/microsoft/Microsoft365DSC/issues/6403)
+* M365DSCResourceGenerator
+  * Fixed an issue where duplicate parameters would lead to an error during generation.
+    FIXES [#5489](https://github.com/microsoft/Microsoft365DSC/issues/5489)
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
 
