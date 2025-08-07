@@ -67,7 +67,7 @@ function Get-TargetResource
     $nullResult.Ensure = 'Absent'
     try
     {
-        $instance = Get-FocusedInbox -Identity $Identity -ErrorAction SilentlyContinue
+        $instance = Get-FocusedInbox -Identity $Identity
         if ($null -eq $instance)
         {
             return $nullResult
@@ -309,6 +309,11 @@ function Export-TargetResource
         }
         foreach ($config in $Script:exportedInstances)
         {
+            if ($null -ne $Global:M365DSCExportResourceInstancesCount)
+            {
+                $Global:M365DSCExportResourceInstancesCount++
+            }
+
             $displayedKey = $config.UserPrincipalName
             Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Count)] $displayedKey" -DeferWrite
             $params = @{
