@@ -21,6 +21,11 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $BroadcastPremiumApps,
+
+        [Parameter()]
+        [System.String]
         [ValidateSet('Everyone', 'EveryoneInCompanyExcludingGuests')]
         $EventAccessType,
 
@@ -52,6 +57,36 @@ function Get-TargetResource
         [ValidateSet('None', 'InviteOnly', 'EveryoneInCompanyIncludingGuests', 'Everyone')]
         [System.String]
         $AllowedTownhallTypesForRecordingPublish,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $ImmersiveEvents,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $RecordingForTownhall,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $RecordingForWebinar,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Everyone', 'EveryoneInOrganizationAndGuests')]
+        $TownhallEventAttendeeAccess,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $TranscriptionForTownhall,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $TranscriptionForWebinar,
 
         [Parameter()]
         [ValidateSet('Optimized', 'None')]
@@ -134,6 +169,7 @@ function Get-TargetResource
             Identity                                = $Identity
             Description                             = $policy.Description
             AllowWebinars                           = $policy.AllowWebinars
+            BroadcastPremiumApps                    = $policy.BroadcastPremiumApps
             EventAccessType                         = $policy.EventAccessType
             AllowEmailEditing                       = $policy.AllowEmailEditing
             AllowEventIntegrations                  = $policy.AllowEventIntegrations
@@ -141,7 +177,13 @@ function Get-TargetResource
             AllowedQuestionTypesInRegistrationForm  = $policy.AllowedQuestionTypesInRegistrationForm
             AllowedWebinarTypesForRecordingPublish  = $policy.AllowedWebinarTypesForRecordingPublish
             AllowedTownhallTypesForRecordingPublish = $policy.AllowedTownhallTypesForRecordingPublish
+            ImmersiveEvents                         = $policy.ImmersiveEvents
+            RecordingForTownhall                    = $policy.RecordingForTownhall
+            RecordingForWebinar                     = $policy.RecordingForWebinar
             TownhallChatExperience                  = $policy.TownhallChatExperience
+            TownhallEventAttendeeAccess             = $policy.TownhallEventAttendeeAccess
+            TranscriptionForTownhall                = $policy.TranscriptionForTownhall
+            TranscriptionForWebinar                 = $policy.TranscriptionForWebinar
             UseMicrosoftECDN                        = $policy.UseMicrosoftECDN
             Ensure                                  = 'Present'
             Credential                              = $Credential
@@ -186,6 +228,11 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $BroadcastPremiumApps,
+
+        [Parameter()]
+        [System.String]
         [ValidateSet('Everyone', 'EveryoneInCompanyExcludingGuests')]
         $EventAccessType,
 
@@ -217,6 +264,36 @@ function Set-TargetResource
         [ValidateSet('None', 'InviteOnly', 'EveryoneInCompanyIncludingGuests', 'Everyone')]
         [System.String]
         $AllowedTownhallTypesForRecordingPublish,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $ImmersiveEvents,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $RecordingForTownhall,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $RecordingForWebinar,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Everyone', 'EveryoneInOrganizationAndGuests')]
+        $TownhallEventAttendeeAccess,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $TranscriptionForTownhall,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $TranscriptionForWebinar,
 
         [Parameter()]
         [ValidateSet('Optimized', 'None')]
@@ -323,6 +400,11 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $BroadcastPremiumApps,
+
+        [Parameter()]
+        [System.String]
         [ValidateSet('Everyone', 'EveryoneInCompanyExcludingGuests')]
         $EventAccessType,
 
@@ -354,6 +436,36 @@ function Test-TargetResource
         [ValidateSet('None', 'InviteOnly', 'EveryoneInCompanyIncludingGuests', 'Everyone')]
         [System.String]
         $AllowedTownhallTypesForRecordingPublish,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $ImmersiveEvents,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $RecordingForTownhall,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $RecordingForWebinar,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Everyone', 'EveryoneInOrganizationAndGuests')]
+        $TownhallEventAttendeeAccess,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $TranscriptionForTownhall,
+
+        [Parameter()]
+        [System.String]
+        [ValidateSet('Enabled', 'Disabled')]
+        $TranscriptionForWebinar,
 
         [Parameter()]
         [ValidateSet('Optimized', 'None')]
@@ -473,12 +585,6 @@ function Export-TargetResource
 
     try
     {
-        $organization = ''
-        if ($null -ne $Credential -and $Credential.UserName.Contains('@'))
-        {
-            $organization = $Credential.UserName.Split('@')[1]
-        }
-
         $i = 1
         [array]$policies = Get-CsTeamsEventsPolicy -ErrorAction Stop
         $dscContent = ''
