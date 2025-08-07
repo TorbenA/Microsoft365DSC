@@ -37,6 +37,8 @@
 * SCAutoSensitivityLabelRule
   * Updated supported values for `Workload` property.
     FIXES [#4617](https://github.com/microsoft/Microsoft365DSC/issues/4617)
+* SCSensitivityLabel
+  * Reduced export time by 90%
 * TeamsEventsPolicy
   * Added 7 new properties.
     FIXES [#6403](https://github.com/microsoft/Microsoft365DSC/issues/6403)
