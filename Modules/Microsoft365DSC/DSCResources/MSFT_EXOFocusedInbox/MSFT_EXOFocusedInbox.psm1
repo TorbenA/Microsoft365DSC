@@ -67,7 +67,12 @@ function Get-TargetResource
     $nullResult.Ensure = 'Absent'
     try
     {
-        $instance = Get-FocusedInbox -Identity $Identity
+        $mailbox = Get-Mailbox -Identity $Identity -ErrorAction SilentlyContinue
+        if ($null -ne $mailbox)
+        {
+            $instance = Get-FocusedInbox -Identity $Identity
+        }
+
         if ($null -eq $instance)
         {
             return $nullResult
