@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.25.806.1
 
 * AADApplication
   * Fixed an issue where not all properties were exported.
