@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.25.806.1
 
 * AADApplication
   * Fixes an issue where the Get-TargetResource no longer returned
