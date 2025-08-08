@@ -81,7 +81,8 @@ function Get-TargetResource
         $results = @{
             Identity                     = $Identity
             FocusedInboxOn               = [Boolean]$instance.FocusedInboxOn
-            FocusedInboxOnLastUpdateTime = [DateTime]$instance.FocusedInboxOnLastUpdateTime
+            # DEPRECATED
+            # FocusedInboxOnLastUpdateTime = [DateTime]$instance.FocusedInboxOnLastUpdateTime
             Ensure                       = 'Present'
             Credential                   = $Credential
             ApplicationId                = $ApplicationId
@@ -233,6 +234,7 @@ function Test-TargetResource
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
     $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck.Remove('FocusedInboxOnLastUpdateTime') | Out-Null
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
