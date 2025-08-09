@@ -2,18 +2,53 @@
 
 # UNRELEASED
 
-* AADApplication
-  * Fixed an issue where not all properties were exported.
 * AADServicePrincipal
-  * Fixes for retrieving instance by name.
   * Fixed an issue where assigning members to a Service Principal would throw an error when
     more than one member was assigned.
+
+# 1.25.806.1
+
+* AADApplication
+  * Fixed an issue where not all properties were exported.
+* AADAuthenticationMethodPolicyFido2
+  * Fixed an issue where the policy was not updated properly.
+    FIXES [#6391](https://github.com/microsoft/Microsoft365DSC/issues/6391)
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Fixed an issue where the export returns an invalid value for `Targets`.
+    FIXES [#6397](https://github.com/microsoft/Microsoft365DSC/issues/6397)
+* AADEntitlementManagementAccessPackage
+  * Fixed an issue where `AccessPackagesIncompatibleWith` would not be populated with a value.
+    FIXES [#5063](https://github.com/microsoft/Microsoft365DSC/issues/5063)
+* AADServicePrincipal
+  * Fixes for retrieving instance by name.
 * AADUser
   * Added support for Mail attribute.
 * EXOOrganizationConfig
   * Added support for the RejectDirectSend property.
+* FabricAdminTenantSettings
+  * Fixed the export of the resource.
+    FIXES [#6345](https://github.com/microsoft/Microsoft365DSC/issues/6345)
+* IntuneMobileAppsLobAppiOS
+  * Initial release.
+* IntuneMobileAppsLobAppAndroid
+  * Initial release.
+* IntuneMobileAppsLobAppWindows10
+  * Initial release.
+* IntuneMobileAppsLobAppMsiWindows10
+  * Initial release.
 * IntuneMobileAppsWin32AppWindows10
   * Updated the property name of `autoUpdateSupersededApps` to `autoUpdateSupersededAppsState`.
+* SCAutoSensitivityLabelRule
+  * Updated supported values for `Workload` property.
+    FIXES [#4617](https://github.com/microsoft/Microsoft365DSC/issues/4617)
+* SCSensitivityLabel
+  * Reduced export time by 90%
+* TeamsEventsPolicy
+  * Added 7 new properties.
+    FIXES [#6403](https://github.com/microsoft/Microsoft365DSC/issues/6403)
+* M365DSCResourceGenerator
+  * Fixed an issue where duplicate parameters would lead to an error during generation.
+    FIXES [#5489](https://github.com/microsoft/Microsoft365DSC/issues/5489)
 * DEPENDENCIES
   * Updated ReverseDSC to version 2.0.0.29.
 
