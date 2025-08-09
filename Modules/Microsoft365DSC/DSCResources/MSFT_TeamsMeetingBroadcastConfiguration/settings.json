@@ -30,7 +30,6 @@
     }
   },
   "requiredModules": [
-    "MicrosoftTeams",
-    "ReverseDSC"
+    "MicrosoftTeams"
   ]
 }
