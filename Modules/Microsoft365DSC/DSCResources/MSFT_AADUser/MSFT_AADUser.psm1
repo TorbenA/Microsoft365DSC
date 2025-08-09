@@ -63,6 +63,10 @@ function Get-TargetResource
         $Office,
 
         [Parameter()]
+        [System.String]
+        $Mail,
+
+        [Parameter()]
         [System.String[]]
         $OtherMails,
 
@@ -169,6 +173,7 @@ function Get-TargetResource
                 UsageLocation         = $null
                 LicenseAssignment     = $null
                 MemberOf              = $null
+                Mail                  = $null
                 OtherMails            = $null
                 Password              = $null
                 Credential            = $Credential
@@ -182,7 +187,7 @@ function Get-TargetResource
             }
 
             Write-Verbose -Message "Getting Office 365 User $UserPrincipalName"
-            $propertiesToRetrieve = @('Id', 'UserPrincipalName', 'DisplayName', 'GivenName', 'Surname', 'UsageLocation', 'City', 'Country', 'Department', 'FaxNumber', 'MobilePhone', 'OfficeLocation', 'OtherMails', 'BusinessPhones', 'PostalCode', 'PreferredLanguage', 'State', 'StreetAddress', 'JobTitle', 'UserType', 'PasswordPolicies')
+            $propertiesToRetrieve = @('Id', 'UserPrincipalName', 'DisplayName', 'GivenName', 'Surname', 'UsageLocation', 'City', 'Country', 'Department', 'FaxNumber', 'MobilePhone', 'OfficeLocation', 'Mail', 'OtherMails', 'BusinessPhones', 'PostalCode', 'PreferredLanguage', 'State', 'StreetAddress', 'JobTitle', 'UserType', 'PasswordPolicies')
             $user = Get-MgUser -UserId $UserPrincipalName -Property $propertiesToRetrieve -ErrorAction SilentlyContinue
             if ($null -eq $user)
             {
@@ -261,6 +266,7 @@ function Get-TargetResource
             Fax                   = $user.FaxNumber
             MobilePhone           = $user.MobilePhone
             Office                = $user.OfficeLocation
+            Mail                  = $user.Mail
             OtherMails            = $user.OtherMails
             PasswordNeverExpires  = $passwordNeverExpires
             PasswordPolicies      = $user.PasswordPolicies
@@ -354,6 +360,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Office,
+
+        [Parameter()]
+        [System.String]
+        $Mail,
 
         [Parameter()]
         [System.String[]]
@@ -476,6 +486,7 @@ function Set-TargetResource
             MobilePhone              = $MobilePhone
             PasswordPolicies         = $PasswordPolicies
             OfficeLocation           = $Office
+            Mail                     = $Mail
             OtherMails               = $OtherMails
             PostalCode               = $PostalCode
             PreferredLanguage        = $PreferredLanguage
@@ -791,6 +802,10 @@ function Test-TargetResource
         $Office,
 
         [Parameter()]
+        [System.String]
+        $Mail,
+
+        [Parameter()]
         [System.String[]]
         $OtherMails,
 
@@ -940,7 +955,7 @@ function Export-TargetResource
     try
     {
         $Script:ExportMode = $true
-        $propertiesToRetrieve = @('Id', 'UserPrincipalName', 'DisplayName', 'GivenName', 'Surname', 'UsageLocation', 'City', 'Country', 'Department', 'FacsimileTelephoneNumber', 'Mobile', 'OfficeLocation', 'OtherMails', 'TelephoneNumber', 'PostalCode', 'PreferredLanguage', 'State', 'StreetAddress', 'JobTitle', 'UserType', 'PasswordPolicies')
+        $propertiesToRetrieve = @('Id', 'UserPrincipalName', 'DisplayName', 'GivenName', 'Surname', 'UsageLocation', 'City', 'Country', 'Department', 'FacsimileTelephoneNumber', 'Mobile', 'OfficeLocation', 'Mail', 'OtherMails', 'TelephoneNumber', 'PostalCode', 'PreferredLanguage', 'State', 'StreetAddress', 'JobTitle', 'UserType', 'PasswordPolicies')
         $ExportParameters = @{
             Filter      = $Filter
             All         = [switch]$true
