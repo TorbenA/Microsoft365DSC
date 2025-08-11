@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneSecurityBaselineMicrosoftEdge
+  * Fixed an issue where the latest policy version was not exported.
+    FIXES [#6415](https://github.com/microsoft/Microsoft365DSC/issues/6415)
+
 # 1.25.806.1
 
 * AADApplication
