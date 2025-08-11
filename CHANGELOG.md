@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* PlannerTask
+  * Fixed an issue where a task with a deleted user assigned could not be exported.
+    FIXES [#6054](https://github.com/microsoft/Microsoft365DSC/issues/6054)
+
 # 1.25.806.1
 
 * AADApplication
