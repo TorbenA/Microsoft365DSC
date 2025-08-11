@@ -1,5 +1,13 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneAntivirusPolicyWindows10ConfigMgr
+  * Initial release.
+* IntuneAntivirusPolicySecurityExperienceWindows10ConfigMgr
+  * Initial release.
+    FIXES [#4229](https://github.com/microsoft/Microsoft365DSC/issues/4229)
+
 # 1.25.806.1
 
 * AADApplication
