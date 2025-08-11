@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneDeviceComplianceScriptLinux
+  * Initial release.
+
 # 1.25.806.1
 
 * AADApplication
