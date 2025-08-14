@@ -169,7 +169,7 @@ function Get-TargetResource
         [Array]$query = Get-MgBetaEntitlementManagementAccessPackageIncompatibleWith -AccessPackageId $getValue.id
         if ($query.count -gt 0)
         {
-            $getIncompatibleAccessPackages += $query.id
+            $getAccessPackagesIncompatibleWith += $query.id
         }
 
         $getIncompatibleGroups = @()
@@ -954,4 +954,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
