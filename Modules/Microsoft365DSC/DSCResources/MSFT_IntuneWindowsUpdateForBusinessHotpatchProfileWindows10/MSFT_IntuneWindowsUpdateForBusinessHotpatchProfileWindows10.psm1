@@ -73,8 +73,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -97,7 +96,11 @@ function Get-TargetResource
             #region resource generator code
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
-                $getValue = Invoke-MgGraphRequest -Method GET -Uri "$($Script:BaseUrl)/$Id" -ErrorAction SilentlyContinue
+                $getValue = Invoke-MgGraphRequest -Method GET -Uri "$($Script:BaseUrl)/$Id" -SkipHttpErrorCheck -ErrorAction SilentlyContinue
+                if ($getValue -is [hashtable] -and $getValue.ContainsKey('error'))
+                {
+                    $getValue = $null
+                }
             }
 
             if ($null -eq $getValue)
@@ -106,8 +109,9 @@ function Get-TargetResource
 
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
-                    $getValue = (Invoke-MgGraphRequest -Method GET -Uri "$($Script:BaseUrl)?`$filter=displayName eq '$($DisplayName -replace "'", "''")'" `
-                        -ErrorAction SilentlyContinue).value
+                    $getValue = (Invoke-MgGraphRequest -Method GET -Uri $Script:BaseUrl).value | Where-Object -FilterScript {
+                        $_.displayName -eq $($DisplayName -replace "'", "''")
+                    }
                 }
             }
             #endregion
@@ -121,16 +125,16 @@ function Get-TargetResource
         {
             $getValue = $Script:exportedInstance
         }
-        $Id = $getValue.Id
+        $Id = $getValue.id
         Write-Verbose -Message "An Intune Windows Update For Business Hotpatch Profile for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found"
 
         $results = @{
             #region resource generator code
-            Description                            = $getValue.Description
-            DisplayName                            = $getValue.DisplayName
-            RoleScopeTagIds                        = $getValue.RoleScopeTagIds
-            HotpatchEnabled                        = $getValue.HotpatchEnabled
-            Id                                     = $getValue.Id
+            Description                            = $getValue.description
+            DisplayName                            = $getValue.displayName
+            RoleScopeTagIds                        = $getValue.roleScopeTagIds
+            HotpatchEnabled                        = $getValue.hotpatchEnabled
+            Id                                     = $getValue.id
             Ensure                                 = 'Present'
             Credential                             = $Credential
             ApplicationId                          = $ApplicationId
@@ -245,7 +249,7 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
 
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
+    $boundParameters.Remove('Assignments') | Out-Null
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
