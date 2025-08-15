@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneMobileAppsWin32AppWindows10
+  * Bump CIM instance version to fix invalid property name.
+
 # 1.25.806.1
 
 * AADApplication
