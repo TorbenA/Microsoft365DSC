@@ -3284,8 +3284,9 @@ function Export-IntuneSettingCatalogPolicySettings
         }
         '#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance'
         {
+            $options = $settingDefinition.AdditionalProperties.options
             $settingValue = if ($IsRoot) { $SettingInstance.AdditionalProperties.choiceSettingValue.value } else { $SettingInstance.choiceSettingValue.value }
-            $settingValue = $settingValue.Split('_') | Select-Object -Last 1
+            $settingValue = $options.itemId | Where-Object { $_ -eq $settingValue } | ForEach-Object { $_.Replace("$($settingDefinition.Id)_", "") }
             $childSettings = if ($IsRoot) { $SettingInstance.AdditionalProperties.choiceSettingValue.children } else { $SettingInstance.choiceSettingValue.children }
             foreach ($childSetting in $childSettings)
             {
@@ -3295,10 +3296,11 @@ function Export-IntuneSettingCatalogPolicySettings
         '#microsoft.graph.deviceManagementConfigurationChoiceSettingCollectionInstance'
         {
             $values = @()
+            $options = $settingDefinition.AdditionalProperties.options
             $childValues = if ($IsRoot) { $SettingInstance.AdditionalProperties.choiceSettingCollectionValue.value } else { $SettingInstance.choiceSettingCollectionValue.value }
             foreach ($value in $childValues)
             {
-                $values += $value.Split('_') | Select-Object -Last 1
+                $values += $options.itemId | Where-Object { $_ -eq $value } | ForEach-Object { $_.Replace("$($settingDefinition.Id)_", "") }
             }
             $settingValue = $values
         }

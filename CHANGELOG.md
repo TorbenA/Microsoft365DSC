@@ -1,5 +1,14 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneAccountProtectionLocalUserGroupMembershipPolicy
+  * [BREAKING CHANGE] Renamed properties to match their Settings Catalog counterpart.
+    FIXES [#6342](https://github.com/microsoft/Microsoft365DSC/issues/6432)
+* M365DSCDRGUtil
+  * Fixed an issue where choice values with an underscore in their value were split when
+    exporting an Intune Settings Catalog policy.
+
 # 1.25.806.1
 
 * AADApplication
