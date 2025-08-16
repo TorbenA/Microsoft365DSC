@@ -74,6 +74,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 OffsetUri = 'enabled'
                                 AdditionalProperties = @{
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                    options = @(
+                                        @{
+                                            itemId = 'linux_mdatp_managed_cloudservice_enabled_true'
+                                            name = 'Enabled'
+                                        }
+                                    )
                                 }
                             }
                         )
@@ -148,6 +154,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                         @{
                                             itemId = 'linux_mdatp_managed_antivirusengine_exclusions_item_$type_1'
                                             name = 'Path'
+                                            dependentOn = @(
+                                                @{
+                                                    dependentOn = 'linux_mdatp_managed_antivirusengine_exclusions'
+                                                    parentSettingId = 'linux_mdatp_managed_antivirusengine_exclusions'
+                                                }
+                                            )
+                                        }
+                                        @{
+                                            itemId = 'linux_mdatp_managed_antivirusengine_exclusions_item_$type_2'
+                                            name = 'Process name'
                                             dependentOn = @(
                                                 @{
                                                     dependentOn = 'linux_mdatp_managed_antivirusengine_exclusions'
@@ -343,6 +359,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 OffsetUri = 'enabled'
                                 AdditionalProperties = @{
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                    options = @(
+                                        @{
+                                            itemId = 'linux_mdatp_managed_cloudservice_enabled_true'
+                                            name = 'Enabled'
+                                        }
+                                    )
                                 }
                             }
                         )
@@ -402,6 +424,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                 }
                                             )
                                         }
+                                        @{
+                                            itemId = 'linux_mdatp_managed_antivirusengine_exclusions_item_$type_2'
+                                            name = 'Process name'
+                                            dependentOn = @(
+                                                @{
+                                                    dependentOn = 'linux_mdatp_managed_antivirusengine_exclusions'
+                                                    parentSettingId = 'linux_mdatp_managed_antivirusengine_exclusions'
+                                                }
+                                            )
+                                        }
                                     )
                                 }
                             },
@@ -446,6 +478,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 Name = 'threatTypeSettings'
                                 OffsetUri = 'threatTypeSettings'
                                 AdditionalProperties = @{
+                                    '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSettingGroupCollectionDefinition'
                                     maximumCount = 2147483647
                                     minimumCount = 0
                                     childIds = @(
@@ -459,6 +492,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 Name = 'threatTypeSettings_item_key'
                                 OffsetUri = 'threatTypeSettings/[{0}]/key'
                                 AdditionalProperties = @{
+                                    '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
                                     options = @(
                                         @{
                                             itemId = 'linux_mdatp_managed_antivirusengine_threattypesettings_item_key_0'

@@ -173,7 +173,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
                                     options = @(
                                         @{
-                                            itemId = 'vendor_msft_firewall_mdmstore_hypervfirewallrules_{firewallrulename}_enabled_0'
+                                            itemId = 'vendor_msft_firewall_mdmstore_hypervfirewallrules_{firewallrulename}_enabled_1'
                                             name = 'Enabled'
                                             dependentOn = @(
                                                 @{

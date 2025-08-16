@@ -99,6 +99,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 OffsetUri = '/Config/Connectivity/AllowUSBConnection'
                                 AdditionalProperties = @{
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                    options = @(
+                                        @{
+                                            itemId = 'device_vendor_msft_policy_config_connectivity_allowusbconnection_1'
+                                            name = 'Enabled'
+                                        }
+                                    )
                                 }
                             }
                         )
@@ -111,7 +117,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance'
                                 choiceSettingValue = @{
                                     children = @()
-                                    value = '1'
+                                    value = 'device_vendor_msft_policy_config_connectivity_allowusbconnection_1'
                                 }
                             }
                         }

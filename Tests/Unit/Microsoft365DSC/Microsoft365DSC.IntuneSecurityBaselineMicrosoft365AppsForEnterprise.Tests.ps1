@@ -74,6 +74,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 OffsetUri = '/Config/office16v2~Policy~L_MicrosoftOfficemachine~L_SecuritySettingsMachine~L_IESecurity/L_ProtectionFromZoneElevation'
                                 AdditionalProperties = @{
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                    options = @(
+                                        @{
+                                            itemId = 'device_vendor_msft_policy_config_office16v2~policy~l_microsoftofficemachine~l_securitysettingsmachine~l_iesecurity_l_protectionfromzoneelevation_1'
+                                            name = 'Enabled'
+                                        }
+                                    )
                                 }
                             },
                             @{

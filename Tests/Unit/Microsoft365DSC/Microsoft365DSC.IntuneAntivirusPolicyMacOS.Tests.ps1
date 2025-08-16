@@ -74,6 +74,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 OffsetUri = 'enabled'
                                 AdditionalProperties = @{
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                    options = @(
+                                        @{
+                                            itemId = 'com.apple.managedclient.preferences_enabled_true'
+                                            name = 'Enabled'
+                                        }
+                                    )
                                 }
                             }
                         )
@@ -148,7 +154,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                     options = @(
                                         @{
                                             itemId = 'com.apple.managedclient.preferences_exclusions_item_$type_1'
-                                            name = 'Path'
+                                            name = 'File extension'
+                                            dependentOn = @(
+                                                @{
+                                                    dependentOn = 'com.apple.managedclient.preferences_exclusions'
+                                                    parentSettingId = 'com.apple.managedclient.preferences_exclusions'
+                                                }
+                                            )
+                                        }
+                                        @{
+                                            itemId = 'com.apple.managedclient.preferences_exclusions_item_$type_2'
+                                            name = 'Process name'
                                             dependentOn = @(
                                                 @{
                                                     dependentOn = 'com.apple.managedclient.preferences_exclusions'
@@ -250,6 +266,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 Name = 'threatTypeSettings'
                                 OffsetUri = 'threatTypeSettings'
                                 AdditionalProperties = @{
+                                    '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSettingGroupCollectionDefinition'
                                     maximumCount = 2147483647
                                     minimumCount = 1
                                     childIds = @(
@@ -263,6 +280,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 Name = 'threatTypeSettings_item_key'
                                 OffsetUri = 'threatTypeSettings/[{0}]/key'
                                 AdditionalProperties = @{
+                                    '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
                                     options = @(
                                         @{
                                             itemId = 'com.apple.managedclient.preferences_threattypesettings_item_key_0'
@@ -395,7 +413,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                     options = @(
                                         @{
                                             itemId = 'com.apple.managedclient.preferences_exclusions_item_$type_1'
-                                            name = 'Path'
+                                            name = 'File extension'
+                                            dependentOn = @(
+                                                @{
+                                                    dependentOn = 'com.apple.managedclient.preferences_exclusions'
+                                                    parentSettingId = 'com.apple.managedclient.preferences_exclusions'
+                                                }
+                                            )
+                                        }
+                                        @{
+                                            itemId = 'com.apple.managedclient.preferences_exclusions_item_$type_2'
+                                            name = 'Process name'
                                             dependentOn = @(
                                                 @{
                                                     dependentOn = 'com.apple.managedclient.preferences_exclusions'
@@ -433,6 +461,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 Name = 'threatTypeSettings'
                                 OffsetUri = 'threatTypeSettings'
                                 AdditionalProperties = @{
+                                    '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSettingGroupCollectionDefinition'
                                     maximumCount = 2147483647
                                     minimumCount = 0
                                     childIds = @(
@@ -446,6 +475,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 Name = 'threatTypeSettings_item_key'
                                 OffsetUri = 'threatTypeSettings/[{0}]/key'
                                 AdditionalProperties = @{
+                                    '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
                                     options = @(
                                         @{
                                             itemId = 'com.apple.managedclient.preferences_threattypesettings_item_key_0'

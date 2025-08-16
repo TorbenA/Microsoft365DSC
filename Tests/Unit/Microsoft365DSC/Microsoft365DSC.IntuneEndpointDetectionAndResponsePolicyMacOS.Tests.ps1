@@ -79,7 +79,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             Name = 'tags_item_key'
                             OffsetUri = 'tags/[{0}]/key'
                             AdditionalProperties = @{
-                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSimpleSettingDefinition'
+                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                options = @(
+                                    @{
+                                        itemId = 'com.apple.managedclient.preferences_tags_item_key_0'
+                                        name = 'GROUP'
+                                    }
+                                )
                             }
                         }
                     )

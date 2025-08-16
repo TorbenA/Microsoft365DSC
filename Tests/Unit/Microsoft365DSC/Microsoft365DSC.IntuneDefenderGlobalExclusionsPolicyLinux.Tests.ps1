@@ -104,6 +104,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                 }
                                             )
                                         }
+                                        @{
+                                            itemId = 'linux_mdatp_managed_exclusionsettings_exclusions_item_$type_1'
+                                            name = 'Process name'
+                                            dependentOn = @(
+                                                @{
+                                                    dependentOn = 'linux_mdatp_managed_exclusionsettings_exclusions'
+                                                    parentSettingId = 'linux_mdatp_managed_exclusionsettings_exclusions'
+                                                }
+                                            )
+                                        }
                                     )
                                 }
                             },
@@ -140,7 +150,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 Name = 'exclusions_item_isDirectory'
                                 OffsetUri = 'exclusions/[{0}]/isDirectory'
                                 AdditionalProperties = @{
-                                    '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSimpleSettingDefinition'
+                                    '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
                                     dependentOn = @(
                                         @{
                                             dependentOn = 'linux_mdatp_managed_exclusionsettings_exclusions_item_$type_0'
@@ -149,11 +159,11 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                     )
                                     options = @(
                                         @{
-                                            itemId = 'linux_mdatp_managed_exclusionsettings_exclusions_item_isdirectory_false'
-                                            name = 'Disabled'
+                                            itemId = 'linux_mdatp_managed_exclusionsettings_exclusions_item_isdirectory_true'
+                                            name = 'Enabled'
                                             optionValue = @{
                                                 '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
-                                                value = 'false'
+                                                value = 'true'
                                             }
                                         }
                                     )
