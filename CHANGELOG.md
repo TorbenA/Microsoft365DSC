@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* TeamsCallingPolicy
+  * Added 12 new supported properties.
+
 # 1.25.806.1
 
 * AADApplication
