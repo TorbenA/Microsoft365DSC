@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* TeamsMessagingPolicy
+  * Added support for 12 new properties.
+
 # 1.25.806.1
 
 * AADApplication

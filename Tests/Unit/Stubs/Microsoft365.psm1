@@ -65508,6 +65508,10 @@ function New-CsTeamsMessagingPolicy
     param(
         [Parameter()]
         [System.Boolean]
+        $UsersCanDeleteBotMessages,
+
+        [Parameter()]
+        [System.Boolean]
         $AllowOwnerDeleteMessage,
 
         [Parameter()]
@@ -67508,6 +67512,10 @@ function Set-CsTeamsMessagingPolicy
 {
     [CmdletBinding()]
     param(
+        [Parameter()]
+        [System.Boolean]
+        $UsersCanDeleteBotMessages,
+
         [Parameter()]
         [System.Boolean]
         $AllowOwnerDeleteMessage,
