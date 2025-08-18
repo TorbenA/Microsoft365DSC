@@ -692,7 +692,9 @@ function Set-TargetResource
     {
         Write-Verbose -Message "The Distribution Group {$Identity} exists but shouldn't. Removing it."
         # Use the group identity value retrieved from Get-TargetResource, in case we got the group using PrimarySmtpAddress
-        Remove-DistributionGroup -Identity $currentDistributionGroup.Identity -Confirm:$false
+        Remove-DistributionGroup -Identity $currentDistributionGroup.Identity `
+                                -BypassSecurityGroupManagerCheck `
+                                -Confirm:$false
     }
     # Update even if we just created the group. There are properties that can only be set with the set- cmdlet.
     if ($Ensure -eq 'Present')
