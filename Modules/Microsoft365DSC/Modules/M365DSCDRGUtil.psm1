@@ -3443,7 +3443,11 @@ function Update-IntuneDeviceConfigurationPolicy
 
         [Parameter()]
         [Array]
-        $Settings
+        $Settings,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds
     )
 
     try
@@ -3457,6 +3461,7 @@ function Update-IntuneDeviceConfigurationPolicy
             'templateReference' = @{'templateId' = $TemplateReferenceId }
             'technologies'      = $Technologies
             'settings'          = $Settings
+            'roleScopeTagIds'   = $RoleScopeTagIds
         }
 
         $body = $policy | ConvertTo-Json -Depth 20

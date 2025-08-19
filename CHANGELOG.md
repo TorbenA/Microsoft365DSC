@@ -1,5 +1,12 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* MISC
+  * Fixed an issue across Intune resources using the Settings Catalog which
+    were not correctly setting their `RoleScopeTagIds`.
+    FIXES [#6434](https://github.com/microsoft/Microsoft365DSC/issues/6434)
+
 # 1.25.806.1
 
 * AADApplication
