@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneDeviceRemediation
+  * Made Id optional and enabled creation of remediation scripts using DisplayName only.
+    FIXES [#6445](https://github.com/microsoft/Microsoft365DSC/issues/6445)
+    
 # 1.25.806.1
 
 * AADApplication
