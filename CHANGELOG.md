@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+* IntuneDeviceManagementComplianceSettings
+  * Updated `DeviceComplianceCheckinThresholdDays` to use the default value of 30 days
+    if the backend reports 0 as the value.
+    FIXES [#6450](https://github.com/microsoft/Microsoft365DSC/issues/6450)
+  * Restricted possible values for `DeviceComplianceCheckinThresholdDays` from 1 to 120.
+
 # 1.25.806.1
 
 * AADApplication
