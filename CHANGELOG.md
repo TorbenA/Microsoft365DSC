@@ -1,5 +1,12 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCUtil
+  * Changed logic to provide the global telemetry authentication parameters.
+* M365DSCTelemetryEngine
+  * Changed logic to retrieve the global telemetry authentication parameters.
+
 # 1.25.806.1
 
 * AADApplication
