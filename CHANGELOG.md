@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* IntuneDeviceComplianceNotificationMessageTemplate
+  * Initial release.
 * TeamsMeetingBroadcastConfiguration
   * Fixes an issue where the SdnAPIToken wasn't exported as a string.
 * DEPENDENCIES
