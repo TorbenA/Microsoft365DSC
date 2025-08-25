@@ -5,6 +5,11 @@
 * PlannerTask
   * Fixed an issue where a task with a deleted user assigned could not be exported.
     FIXES [#6054](https://github.com/microsoft/Microsoft365DSC/issues/6054)
+* MISC
+  * Modified the drift logging logic to incllude the MFT_ prefix
+    in the resource name and add back the LCMState parameter.
+* DEPENDENCIES
+  * Updated MicrosoftTeams to version 7.3.1.
 
 # 1.25.806.1
 
