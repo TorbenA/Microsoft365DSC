@@ -153,6 +153,10 @@ function Set-TargetResource
     $SetParameters = $PSBoundParameters
     $SetParameters.Remove('IsSingleInstance') | Out-Null
     $SetParameters.Remove('Credential') | Out-Null
+    $SetParameters.Remove('ApplicationId') | Out-Null
+    $SetParameters.Remove('TenantId') | Out-Null
+    $SetParameters.Remove('CertificateThumbprint') | Out-Null
+    $SetParameters.Remove('ManagedIdentity') | Out-Null
     $SetParameters.Remove('AccessTokens') | Out-Null
 
     Set-CsTeamsSettingsCustomApp @SetParameters
