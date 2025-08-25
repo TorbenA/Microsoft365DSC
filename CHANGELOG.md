@@ -5,6 +5,11 @@
 * EXODistributionGroup
   * Fix regression with distribution group members where RecipientType is 'User'.
     FIXES [#6426](https://github.com/microsoft/Microsoft365DSC/issues/6426)
+* MISC
+  * Modified the drift logging logic to incllude the MFT_ prefix
+    in the resource name and add back the LCMState parameter.
+* DEPENDENCIES
+  * Updated MicrosoftTeams to version 7.3.1.
 
 # 1.25.806.1
 
