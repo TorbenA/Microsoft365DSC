@@ -1,10 +1,17 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
 * IntuneDeviceManagementComplianceSettings
   * Updated `DeviceComplianceCheckinThresholdDays` to use the default value of 30 days
     if the backend reports 0 as the value.
     FIXES [#6450](https://github.com/microsoft/Microsoft365DSC/issues/6450)
   * Restricted possible values for `DeviceComplianceCheckinThresholdDays` from 1 to 120.
+* MISC
+  * Modified the drift logging logic to incllude the MFT_ prefix
+    in the resource name and add back the LCMState parameter.
+* DEPENDENCIES
+  * Updated MicrosoftTeams to version 7.3.1.
 
 # 1.25.806.1
 
