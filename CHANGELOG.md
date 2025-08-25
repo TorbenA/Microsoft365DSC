@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* EXODistributionGroup
+  * Fix regression with distribution group members where RecipientType is 'User'.
+    FIXES [#6426](https://github.com/microsoft/Microsoft365DSC/issues/6426)
 * M365DSCUtil
   * Changed logic to provide the global telemetry authentication parameters.
 * M365DSCTelemetryEngine
