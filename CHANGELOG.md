@@ -1,5 +1,9 @@
 # Change log for Microsoft365DSC
 
+* M365DSCReverse
+  * Switch to output directory during export.
+    FIXES [#6427](https://github.com/microsoft/Microsoft365DSC/issues/6427)
+
 # 1.25.806.1
 
 * AADApplication
