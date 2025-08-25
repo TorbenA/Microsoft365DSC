@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* EXODistributionGroup
+  * Fix regression with distribution group members where RecipientType is 'User'.
+    FIXES [#6426](https://github.com/microsoft/Microsoft365DSC/issues/6426)
 * IntuneDeviceManagementComplianceSettings
   * Updated `DeviceComplianceCheckinThresholdDays` to use the default value of 30 days
     if the backend reports 0 as the value.
