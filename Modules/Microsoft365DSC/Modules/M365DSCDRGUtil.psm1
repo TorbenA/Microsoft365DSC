@@ -1393,6 +1393,11 @@ function Write-M365DSCDriftsToEventLog
             Write-Verbose -Message $_.Exception
         }
 
+        if (-not $ResourceName.StartsWith('MSFT_'))
+        {
+            $ResourceName = "MSFT_" + $ResourceName
+        }
+
         $EventMessage = [System.Text.StringBuilder]::new()
         $EventMessage.Append("<M365DSCEvent>`r`n") | Out-Null
         $EventMessage.Append("    <ConfigurationDrift Source=`"$ResourceName`" TenantId=`"$TenantName`"") | Out-Null
