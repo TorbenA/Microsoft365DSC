@@ -974,7 +974,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source) `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
                                          -ExcludedProperties @('MicrosoftVivaBriefingEmail') # Deprecated parameter
     return $result
 }
