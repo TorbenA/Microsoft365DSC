@@ -7,6 +7,9 @@
     Fixed an issue where the export of `Connected organization administrator` assignments would fail.
     FIXES [#5620](https://github.com/microsoft/Microsoft365DSC/issues/5620)
     FIXES [#5618](https://github.com/microsoft/Microsoft365DSC/issues/5618)
+* EXODistributionGroup
+  * Fix regression with distribution group members where RecipientType is 'User'.
+    FIXES [#6426](https://github.com/microsoft/Microsoft365DSC/issues/6426)
 * MISC
   * Modified the drift logging logic to incllude the MFT_ prefix
     in the resource name and add back the LCMState parameter.
