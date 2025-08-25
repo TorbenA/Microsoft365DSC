@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* MISC
+  * Modified the drift logging logic to incllude the MFT_ prefix
+    in the resource name and add back the LCMState parameter.
+
 # 1.25.806.1
 
 * AADApplication
