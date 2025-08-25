@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* DEPENDENCIES
+  * Updated MicrosoftTeams to version 7.3.1.
+
 # 1.25.806.1
 
 * AADApplication
