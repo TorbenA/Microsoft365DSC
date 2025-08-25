@@ -6,6 +6,11 @@
   * Changed logic to provide the global telemetry authentication parameters.
 * M365DSCTelemetryEngine
   * Changed logic to retrieve the global telemetry authentication parameters.
+* MISC
+  * Modified the drift logging logic to include the MSFT_ prefix
+    in the resource name and add back the LCMState parameter.
+* DEPENDENCIES
+  * Updated MicrosoftTeams to version 7.3.1.
 
 # 1.25.806.1
 
