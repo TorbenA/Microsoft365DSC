@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* EXODistributionGroup
+  * Fix regression with distribution group members where RecipientType is 'User'.
+    FIXES [#6426](https://github.com/microsoft/Microsoft365DSC/issues/6426)
 * M365DSCReverse
   * Switch to output directory during export.
     FIXES [#6427](https://github.com/microsoft/Microsoft365DSC/issues/6427)
