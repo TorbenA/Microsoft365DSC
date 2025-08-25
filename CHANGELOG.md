@@ -4,6 +4,11 @@
 
 * TeamsCallingPolicy
   * Added 12 new supported properties.
+* MISC
+  * Modified the drift logging logic to incllude the MFT_ prefix
+    in the resource name and add back the LCMState parameter.
+* DEPENDENCIES
+  * Updated MicrosoftTeams to version 7.3.1.
 
 # 1.25.806.1
 
