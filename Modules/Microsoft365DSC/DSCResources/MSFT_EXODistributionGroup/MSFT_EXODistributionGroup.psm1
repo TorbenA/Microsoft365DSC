@@ -280,7 +280,15 @@ function Get-TargetResource
         $distributionMembersValue = @()
         foreach ($member in $distributionGroupMembers)
         {
-            $distributionMembersValue += $member.PrimarySmtpAddress
+            if (-not [System.String]::IsNullOrEmpty($member.PrimarySmtpAddress))
+            {
+                $distributionMembersValue += $member.PrimarySmtpAddress
+            }
+            else
+            {
+                 # For RecipientType 'User', PrimarySmtpAddress is unavailable, but WindowsLiveID is, and works with Add-DistributionGroupMember
+                $distributionMembersValue += $member.WindowsLiveID
+            }
         }
 
         Write-Verbose -Message "Found existing Distribution Group {$Identity}."
