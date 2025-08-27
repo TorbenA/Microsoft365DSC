@@ -1,9 +1,74 @@
 # Change log for Microsoft365DSC
 
-* AADEntitlementManagementAccessPackageAssignmentPolicy
-  * Fixes [#6257] Added support for Groups as well as single users
+# UNRELEASED
 
-# Release 1.25.723.2
+* AADEntitlementManagementAccessPackageAssignmentPolicy
+  * Added support for Groups as well as single users.
+    FIXES [#6257](https://github.com/microsoft/Microsoft365DSC/issues/6257)
+* EXODistributionGroup
+  * Fixed an error when removing distribution groups.
+    FIXES [#6435](https://github.com/microsoft/Microsoft365DSC/issues/6435)
+  * Fix regression with distribution group members where RecipientType is 'User'.
+    FIXES [#6426](https://github.com/microsoft/Microsoft365DSC/issues/6426)
+* MISC
+  * Modified the drift logging logic to include the MFT_ prefix
+    in the resource name and add back the LCMState parameter.
+* DEPENDENCIES
+  * Updated MicrosoftTeams to version 7.3.1.
+
+# 1.25.806.1
+
+* AADApplication
+  * Fixed an issue where not all properties were exported.
+* AADAuthenticationMethodPolicyFido2
+  * Fixed an issue where the policy was not updated properly.
+    FIXES [#6391](https://github.com/microsoft/Microsoft365DSC/issues/6391)
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Fixed an issue where the export returns an invalid value for `Targets`.
+    FIXES [#6397](https://github.com/microsoft/Microsoft365DSC/issues/6397)
+* AADEntitlementManagementAccessPackage
+  * Fixed an issue where `AccessPackagesIncompatibleWith` would not be populated with a value.
+    FIXES [#5063](https://github.com/microsoft/Microsoft365DSC/issues/5063)
+* AADServicePrincipal
+  * Fixes for retrieving instance by name.
+* AADUser
+  * Added support for Mail attribute.
+* EXOOrganizationConfig
+  * Added support for the RejectDirectSend property.
+* FabricAdminTenantSettings
+  * Fixed the export of the resource.
+    FIXES [#6345](https://github.com/microsoft/Microsoft365DSC/issues/6345)
+* IntuneMobileAppsLobAppiOS
+  * Initial release.
+* IntuneMobileAppsLobAppAndroid
+  * Initial release.
+* IntuneMobileAppsLobAppWindows10
+  * Initial release.
+* IntuneMobileAppsLobAppMsiWindows10
+  * Initial release.
+* IntuneMobileAppsWin32AppWindows10
+  * Updated the property name of `autoUpdateSupersededApps` to `autoUpdateSupersededAppsState`.
+* SCAutoSensitivityLabelRule
+  * Updated supported values for `Workload` property.
+    FIXES [#4617](https://github.com/microsoft/Microsoft365DSC/issues/4617)
+* SCSensitivityLabel
+  * Reduced export time by 90%
+* TeamsEventsPolicy
+  * Added 7 new properties.
+    FIXES [#6403](https://github.com/microsoft/Microsoft365DSC/issues/6403)
+* M365DSCResourceGenerator
+  * Fixed an issue where duplicate parameters would lead to an error during generation.
+    FIXES [#5489](https://github.com/microsoft/Microsoft365DSC/issues/5489)
+* DEPENDENCIES
+  * Updated ReverseDSC to version 2.0.0.29.
+
+# 1.25.730.1
+
+* AADServicePrincipal
+  * Fixed an issue when translating `AppId` to the corresponding `DisplayName` during test.
+    FIXES [#6382](https://github.com/microsoft/Microsoft365DSC/issues/6382)
+
+# 1.25.723.2
 
 * AADConditionalAccessPolicy
   * Remove the ValidateSet from the ProtocolFlows property.
