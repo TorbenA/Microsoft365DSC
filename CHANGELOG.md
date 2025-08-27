@@ -11,6 +11,8 @@
   * Modified the drift logging logic to include the MFT_ prefix
     in the resource name and add back the LCMState parameter.
 * DEPENDENCIES
+  * Updated ExchangeOnlineManagement to version 3.9.0.
+    FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
   * Updated MicrosoftTeams to version 7.3.1.
 
 # 1.25.806.1
