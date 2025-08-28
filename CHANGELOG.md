@@ -7,6 +7,8 @@
     FIXES [#6435](https://github.com/microsoft/Microsoft365DSC/issues/6435)
   * Fix regression with distribution group members where RecipientType is 'User'.
     FIXES [#6426](https://github.com/microsoft/Microsoft365DSC/issues/6426)
+* M365DSCGraphAPIRuleEvaluation
+  * Initial release.
 * TeamsCallingPolicy
   * Added 12 new supported properties.
 * MISC
