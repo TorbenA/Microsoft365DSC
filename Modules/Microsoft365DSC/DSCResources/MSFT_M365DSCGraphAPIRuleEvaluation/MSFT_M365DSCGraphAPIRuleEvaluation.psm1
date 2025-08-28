@@ -20,6 +20,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
+        $InstanceIdentifier,
+
+        [Parameter()]
+        [System.String]
         $RuleName,
 
         [Parameter()]
@@ -133,6 +137,10 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
+        $InstanceIdentifier,
+
+        [Parameter()]
+        [System.String]
         $RuleName,
 
         [Parameter()]
@@ -224,19 +232,24 @@ function Test-TargetResource
         $afterRuleCountQueryString = "`$instances.Length $AfterRuleCountQuery"
         $afterRuleCountQueryBlock = [Scriptblock]::Create($afterRuleCountQueryString)
         $result = [Boolean](Invoke-Command -ScriptBlock $afterRuleCountQueryBlock)
-        [array]$validInstances = $instances.ResourceInstanceName
-        [array]$invalidInstances = $DSCConvertedInstances.ResourceInstanceName | Where-Object -FilterScript { $_ -notin $validInstances }
+
+        if ($InstanceIdentifier)
+        {
+            [array]$validInstances = $instances.$InstanceIdentifier
+            [array]$invalidInstances = $DSCConvertedInstances.$InstanceIdentifier | Where-Object -FilterScript { $_ -notin $validInstances }
+        }
 
         if (-not $result)
         {
             [void]$message.AppendLine('    <MetQuery>False</MetQuery>')
             [void]$message.AppendLine('  </AfterRuleCount>')
+
             if ($validInstances.Count -gt 0)
             {
                 [void]$message.AppendLine('  <Match>')
                 foreach ($validInstance in $validInstances)
                 {
-                    [void]$message.AppendLine("    <ResourceInstanceName>[$ResourceTypeName]$validInstance</ResourceInstanceName>")
+                    [void]$message.AppendLine("    <$InstanceIdentifier>$validInstance</$InstanceIdentifier>")
                 }
                 [void]$message.AppendLine('  </Match>')
             }
@@ -252,7 +265,7 @@ function Test-TargetResource
             [void]$message.AppendLine('  <Match>')
             foreach ($validInstance in $validInstances)
             {
-                [void]$message.AppendLine("    <ResourceInstanceName>[$ResourceTypeName]$validInstance</ResourceInstanceName>")
+                [void]$message.AppendLine("    <InstanceIdentifier>[$ResourceTypeName]$validInstance</InstanceIdentifier>")
             }
             [void]$message.AppendLine('  </Match>')
         }
@@ -270,7 +283,7 @@ function Test-TargetResource
         else
         {
             [array]$validInstances = @()
-            [array]$invalidInstances = [array]$DSCConvertedInstances.ResourceInstanceName
+            [array]$invalidInstances = [array]$DSCConvertedInstances.$InstanceIdentifier
         }
 
         if ($validInstances.Count -gt 0)
@@ -278,7 +291,7 @@ function Test-TargetResource
             [void]$message.AppendLine('  <Match>')
             foreach ($validInstance in $validInstances)
             {
-                [void]$message.AppendLine("    <ResourceInstanceName>[$ResourceTypeName]$validInstance</ResourceInstanceName>")
+                [void]$message.AppendLine("    <$InstanceIdentifier>$validInstance</$InstanceIdentifier>")
             }
             [void]$message.AppendLine('  </Match>')
         }
@@ -294,7 +307,7 @@ function Test-TargetResource
         [void]$message.AppendLine('  <NotMatch>')
         foreach ($invalidInstance in $invalidInstances)
         {
-            [void]$message.AppendLine("    <ResourceInstanceName>[$ResourceTypeName]$invalidInstance</ResourceInstanceName>")
+            [void]$message.AppendLine("    <$InstanceIdentifier>$invalidInstance</$InstanceIdentifier>")
         }
         [void]$message.AppendLine('  </NotMatch>')
     }
