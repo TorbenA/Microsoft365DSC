@@ -3,13 +3,17 @@
 # UNRELEASED
 
 * EXODistributionGroup
+  * Fixed an error when removing distribution groups.
+    FIXES [#6435](https://github.com/microsoft/Microsoft365DSC/issues/6435)
   * Fix regression with distribution group members where RecipientType is 'User'.
     FIXES [#6426](https://github.com/microsoft/Microsoft365DSC/issues/6426)
+* M365DSCGraphAPIRuleEvaluation
+  * Initial release.
 * PlannerTask
   * Fixed an issue where a task with a deleted user assigned could not be exported.
     FIXES [#6054](https://github.com/microsoft/Microsoft365DSC/issues/6054)
 * MISC
-  * Modified the drift logging logic to incllude the MFT_ prefix
+  * Modified the drift logging logic to include the MFT_ prefix
     in the resource name and add back the LCMState parameter.
 * DEPENDENCIES
   * Updated MicrosoftTeams to version 7.3.1.
