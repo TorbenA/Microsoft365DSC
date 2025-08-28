@@ -16,11 +16,11 @@ Configuration Example
     {
         M365DSCGraphAPIRuleEvaluation 'AllowAnonymousUsersToJoinMeetingAllPolicies'
         {
-            APIUrl            = 'https://graph.microsoft.com/beta/serviceprincipals'
-            InstancesProperty = 'value'
-            RuleDefinition    = "`$_.appCategory -eq 'mdm'"
-            AfterRuleCount    = '-eq 4'
-            Credential        = $CredsCredential
+            APIUrl              = 'https://graph.microsoft.com/beta/serviceprincipals'
+            InstancesProperty   = 'value'
+            RuleDefinition      = "`$_.appCategory -eq 'mdm'"
+            AfterRuleCountQuery = '-eq 4'
+            Credential          = $CredsCredential
         }
     }
 }
