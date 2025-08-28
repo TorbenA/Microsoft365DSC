@@ -18,6 +18,7 @@ Configuration Example
         {
             APIUrl              = 'https://graph.microsoft.com/beta/serviceprincipals'
             InstancesProperty   = 'value'
+            InstanceIdentifier  = 'displayName'
             RuleDefinition      = "`$_.appCategory -eq 'mdm'"
             AfterRuleCountQuery = '-eq 4'
             Credential          = $CredsCredential
