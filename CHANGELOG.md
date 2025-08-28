@@ -3,6 +3,8 @@
 # UNRELEASED
 
 * EXODistributionGroup
+  * Fixed an error when removing distribution groups.
+    FIXES [#6435](https://github.com/microsoft/Microsoft365DSC/issues/6435)
   * Fix regression with distribution group members where RecipientType is 'User'.
     FIXES [#6426](https://github.com/microsoft/Microsoft365DSC/issues/6426)
 * IntuneDeviceManagementComplianceSettings
@@ -10,8 +12,10 @@
     if the backend reports 0 as the value.
     FIXES [#6450](https://github.com/microsoft/Microsoft365DSC/issues/6450)
   * Restricted possible values for `DeviceComplianceCheckinThresholdDays` from 1 to 120.
+* M365DSCGraphAPIRuleEvaluation
+  * Initial release.
 * MISC
-  * Modified the drift logging logic to incllude the MFT_ prefix
+  * Modified the drift logging logic to include the MFT_ prefix
     in the resource name and add back the LCMState parameter.
 * DEPENDENCIES
   * Updated MicrosoftTeams to version 7.3.1.
