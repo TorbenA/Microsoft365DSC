@@ -1,12 +1,15 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.25.827.1
 
 * EXODistributionGroup
   * Fixed an error when removing distribution groups.
     FIXES [#6435](https://github.com/microsoft/Microsoft365DSC/issues/6435)
   * Fix regression with distribution group members where RecipientType is 'User'.
     FIXES [#6426](https://github.com/microsoft/Microsoft365DSC/issues/6426)
+* EXOIRMCOnfiguration
+  * Fixes an export issue where the LicensingLocation parameter wasn't properly
+    captured.
 * M365DSCGraphAPIRuleEvaluation
   * Initial release.
 * MISC
