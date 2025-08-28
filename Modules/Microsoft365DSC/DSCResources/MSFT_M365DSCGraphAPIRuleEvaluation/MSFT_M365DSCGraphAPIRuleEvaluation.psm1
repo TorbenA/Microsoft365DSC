@@ -80,6 +80,10 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
+        $InstanceIdentifier,
+
+        [Parameter()]
+        [System.String]
         $RuleName,
 
         [Parameter()]
