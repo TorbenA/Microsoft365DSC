@@ -8,6 +8,9 @@
   * Changed logic to retrieve the global telemetry authentication parameters.
 * M365DSCUtil
   * Changed logic to provide the global telemetry authentication parameters.
+* DEPENDENCIES
+  * Updated ExchangeOnlineManagement to version 3.9.0.
+    FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
 
 # 1.25.827.1
 
