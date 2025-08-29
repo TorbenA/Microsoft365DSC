@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* TeamsMeetingBroadcastConfiguration
+  * Fixes an issue where the SdnAPIToken wasn't exported as a string.
 * M365DSCTelemetryEngine
   * Changed logic to retrieve the global telemetry authentication parameters.
 * M365DSCUtil
