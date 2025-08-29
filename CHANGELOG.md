@@ -2,11 +2,23 @@
 
 # UNRELEASED
 
+* MISC
+  * Fixed an issue across Intune resources using the Settings Catalog which
+    were not correctly setting their `RoleScopeTagIds`.
+    FIXES [#6434](https://github.com/microsoft/Microsoft365DSC/issues/6434)
+
+# 1.25.827.1
+
 * EXODistributionGroup
   * Fixed an error when removing distribution groups.
     FIXES [#6435](https://github.com/microsoft/Microsoft365DSC/issues/6435)
   * Fix regression with distribution group members where RecipientType is 'User'.
     FIXES [#6426](https://github.com/microsoft/Microsoft365DSC/issues/6426)
+* EXOIRMCOnfiguration
+  * Fixes an export issue where the LicensingLocation parameter wasn't properly
+    captured.
+* M365DSCGraphAPIRuleEvaluation
+  * Initial release.
 * MISC
   * Fixed an issue across Intune resources using the Settings Catalog which
     were not correctly setting their `RoleScopeTagIds`.
@@ -19,6 +31,8 @@
 # 1.25.806.1
 
 * AADApplication
+  * Fixes an issue where the Get-TargetResource no longer returned
+    values for AppRoles.
   * Fixed an issue where not all properties were exported.
 * AADAuthenticationMethodPolicyFido2
   * Fixed an issue where the policy was not updated properly.
