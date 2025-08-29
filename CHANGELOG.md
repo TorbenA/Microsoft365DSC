@@ -2,16 +2,22 @@
 
 # UNRELEASED
 
-* EXODistributionGroup
-  * Fixed an error when removing distribution groups.
-    FIXES [#6435](https://github.com/microsoft/Microsoft365DSC/issues/6435)
-  * Fix regression with distribution group members where RecipientType is 'User'.
-    FIXES [#6426](https://github.com/microsoft/Microsoft365DSC/issues/6426)
 * IntuneDeviceManagementComplianceSettings
   * Updated `DeviceComplianceCheckinThresholdDays` to use the default value of 30 days
     if the backend reports 0 as the value.
     FIXES [#6450](https://github.com/microsoft/Microsoft365DSC/issues/6450)
   * Restricted possible values for `DeviceComplianceCheckinThresholdDays` from 1 to 120.
+
+# 1.25.827.1
+
+* EXODistributionGroup
+  * Fixed an error when removing distribution groups.
+    FIXES [#6435](https://github.com/microsoft/Microsoft365DSC/issues/6435)
+  * Fix regression with distribution group members where RecipientType is 'User'.
+    FIXES [#6426](https://github.com/microsoft/Microsoft365DSC/issues/6426)
+* EXOIRMCOnfiguration
+  * Fixes an export issue where the LicensingLocation parameter wasn't properly
+    captured.
 * M365DSCGraphAPIRuleEvaluation
   * Initial release.
 * MISC
@@ -23,6 +29,8 @@
 # 1.25.806.1
 
 * AADApplication
+  * Fixes an issue where the Get-TargetResource no longer returned
+    values for AppRoles.
   * Fixed an issue where not all properties were exported.
 * AADAuthenticationMethodPolicyFido2
   * Fixed an issue where the policy was not updated properly.
