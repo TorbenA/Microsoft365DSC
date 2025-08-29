@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* TeamsMeetingBroadcastConfiguration
+  * Fixes an issue where the SdnAPIToken wasn't exported as a string.
+
 # 1.25.827.1
 
 * EXODistributionGroup
