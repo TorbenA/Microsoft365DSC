@@ -4,6 +4,9 @@
 
 * TeamsMeetingBroadcastConfiguration
   * Fixes an issue where the SdnAPIToken wasn't exported as a string.
+* DEPENDENCIES
+  * Updated ExchangeOnlineManagement to version 3.9.0.
+    FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
 
 # 1.25.827.1
 
