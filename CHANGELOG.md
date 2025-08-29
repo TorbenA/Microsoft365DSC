@@ -7,6 +7,8 @@
     if the backend reports 0 as the value.
     FIXES [#6450](https://github.com/microsoft/Microsoft365DSC/issues/6450)
   * Restricted possible values for `DeviceComplianceCheckinThresholdDays` from 1 to 120.
+* TeamsMeetingBroadcastConfiguration
+  * Fixes an issue where the SdnAPIToken wasn't exported as a string.
 
 # 1.25.827.1
 
