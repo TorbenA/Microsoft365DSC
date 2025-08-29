@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* TeamsMeetingBroadcastConfiguration
+  * Fixes an issue where the SdnAPIToken wasn't exported as a string.
 * MISC
   * Fixed an issue across Intune resources using the Settings Catalog which
     were not correctly setting their `RoleScopeTagIds`.
