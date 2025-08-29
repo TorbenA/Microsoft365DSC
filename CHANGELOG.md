@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* TeamsMeetingBroadcastConfiguration
+  * Fixes an issue where the SdnAPIToken wasn't exported as a string.
 * M365DSCReverse
   * Switch to output directory during export.
     FIXES [#6427](https://github.com/microsoft/Microsoft365DSC/issues/6427)
