@@ -8,6 +8,9 @@
   * Fixed an issue across Intune resources using the Settings Catalog which
     were not correctly setting their `RoleScopeTagIds`.
     FIXES [#6434](https://github.com/microsoft/Microsoft365DSC/issues/6434)
+* DEPENDENCIES
+  * Updated ExchangeOnlineManagement to version 3.9.0.
+    FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
 
 # 1.25.827.1
 
