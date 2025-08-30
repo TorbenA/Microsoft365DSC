@@ -5,10 +5,35 @@
 * AADApplication
   * Fixed an issue where owners would not be set during creation.
     FIXES [#6238](https://github.com/microsoft/Microsoft365DSC/issues/6238)
+* TeamsMeetingBroadcastConfiguration
+  * Fixes an issue where the SdnAPIToken wasn't exported as a string.
+* DEPENDENCIES
+  * Updated ExchangeOnlineManagement to version 3.9.0.
+    FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
+
+# 1.25.827.1
+
+* EXODistributionGroup
+  * Fixed an error when removing distribution groups.
+    FIXES [#6435](https://github.com/microsoft/Microsoft365DSC/issues/6435)
+  * Fix regression with distribution group members where RecipientType is 'User'.
+    FIXES [#6426](https://github.com/microsoft/Microsoft365DSC/issues/6426)
+* EXOIRMCOnfiguration
+  * Fixes an export issue where the LicensingLocation parameter wasn't properly
+    captured.
+* M365DSCGraphAPIRuleEvaluation
+  * Initial release.
+* MISC
+  * Modified the drift logging logic to include the MFT_ prefix
+    in the resource name and add back the LCMState parameter.
+* DEPENDENCIES
+  * Updated MicrosoftTeams to version 7.3.1.
 
 # 1.25.806.1
 
 * AADApplication
+  * Fixes an issue where the Get-TargetResource no longer returned
+    values for AppRoles.
   * Fixed an issue where not all properties were exported.
 * AADAuthenticationMethodPolicyFido2
   * Fixed an issue where the policy was not updated properly.
