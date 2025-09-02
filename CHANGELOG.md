@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneCloudProvisioningPolicyWindows365
+  * Initial release.
+
 # 1.25.1001.1
 
 * AADAccessReviewDefinition
