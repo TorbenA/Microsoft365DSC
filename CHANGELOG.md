@@ -10,6 +10,8 @@
     FIXES [#6368](https://github.com/microsoft/Microsoft365DSC/issues/6368)
 * TeamsMeetingBroadcastConfiguration
   * Fixes an issue where the SdnAPIToken wasn't exported as a string.
+* MISC
+  * Fixing issues connection SPO to sovereign clouds.
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.0.
     FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
