@@ -13,11 +13,23 @@
         "read": [
           {
             "name": "Application.Read.All"
+          },
+          {
+            "name": "Group.Read.All"
+          },
+          {
+            "name": "User.Read.All"
           }
         ],
         "update": [
           {
             "name": "Application.ReadWrite.All"
+          },
+          {
+            "name": "Group.Read.All"
+          },
+          {
+            "name": "User.Read.All"
           }
         ]
       },
@@ -25,11 +37,23 @@
         "read": [
           {
             "name": "Application.Read.All"
+          },
+          {
+            "name": "Group.Read.All"
+          },
+          {
+            "name": "User.Read.All"
           }
         ],
         "update": [
           {
             "name": "Application.ReadWrite.All"
+          },
+          {
+            "name": "Group.Read.All"
+          },
+          {
+            "name": "User.Read.All"
           }
         ]
       }
