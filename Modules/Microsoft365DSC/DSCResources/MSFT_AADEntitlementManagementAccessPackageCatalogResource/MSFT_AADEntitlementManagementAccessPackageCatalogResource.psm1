@@ -122,7 +122,7 @@ function Get-TargetResource
         $CatalogIdValue = $catalogId
         if (-not [System.String]::IsNullOrEmpty($CatalogId))
         {
-            $resource = ([Hashtable]$PSBoundParameters).clone()
+            $resource = ([Hashtable]$PSBoundParameters).Clone()
             $ObjectGuid = [System.Guid]::empty
             if (-not [System.Guid]::TryParse($CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
             {
@@ -342,7 +342,7 @@ function Set-TargetResource
     $PSBoundParameters.Remove('isPendingOnboarding') | Out-Null
     $PSBoundParameters.Remove('AccessTokens') | Out-Null
 
-    $resource = ([Hashtable]$PSBoundParameters).clone()
+    $resource = ([Hashtable]$PSBoundParameters).Clone()
     $ObjectGuid = [System.Guid]::empty
     if ($OriginSystem -eq 'AADGroup' -and `
             -not [System.Guid]::TryParse($OriginId, [System.Management.Automation.PSReference]$ObjectGuid))
@@ -373,7 +373,7 @@ function Set-TargetResource
         $resource.Remove('Verbose') | Out-Null
 
         #Preparing embedded Cim Instances
-        $keys = (([Hashtable]$resource).clone()).Keys
+        $keys = (([Hashtable]$resource).Clone()).Keys
         foreach ($key in $keys)
         {
             $keyName = $key
@@ -408,7 +408,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating resource {$DisplayName} in catalog {$CatalogId}"
 
-        $resource = ([Hashtable]$PSBoundParameters).clone()
+        $resource = ([Hashtable]$PSBoundParameters).Clone()
         $ObjectGuid = [System.Guid]::empty
         if (-not [System.Guid]::TryParse($CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
         {
@@ -424,7 +424,7 @@ function Set-TargetResource
         $resource.Remove('Verbose') | Out-Null
 
         #Preparing embedded Cim Instances
-        $keys = (([Hashtable]$resource).clone()).Keys
+        $keys = (([Hashtable]$resource).Clone()).Keys
         foreach ($key in $keys)
         {
             $keyName = $key
@@ -459,14 +459,14 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Removing resource {$DisplayName} from catalog {$CatalogId}"
 
-        $resource = ([Hashtable]$PSBoundParameters).clone()
+        $resource = ([Hashtable]$PSBoundParameters).Clone()
 
         $resource.Remove('Id') | Out-Null
         $resource.Remove('CatalogId') | Out-Null
         $resource.Remove('Verbose') | Out-Null
 
         #Preparing embedded Cim Instances
-        $keys = (([Hashtable]$resource).clone()).Keys
+        $keys = (([Hashtable]$resource).Clone()).Keys
         foreach ($key in $keys)
         {
             $keyName = $key

@@ -276,7 +276,7 @@ function Get-TargetResource
         }
         if ($null -ne $getValue.AdditionalProperties.installationSchedule.scheduledInstallDay)
         {
-            $complexInstallationSchedule.Add('ScheduledInstallDay', $getValue.AdditionalProperties.installationSchedule.scheduledInstallDay.toString())
+            $complexInstallationSchedule.Add('ScheduledInstallDay', $getValue.AdditionalProperties.installationSchedule.scheduledInstallDay.ToString())
         }
         if ($null -ne $getValue.AdditionalProperties.installationSchedule.scheduledInstallTime)
         {
@@ -284,7 +284,7 @@ function Get-TargetResource
         }
         if ($null -ne $getValue.AdditionalProperties.installationSchedule.'@odata.type')
         {
-            $complexInstallationSchedule.Add('odataType', $getValue.AdditionalProperties.installationSchedule.'@odata.type'.toString())
+            $complexInstallationSchedule.Add('odataType', $getValue.AdditionalProperties.installationSchedule.'@odata.type'.ToString())
         }
         if ($complexInstallationSchedule.values.Where({ $null -ne $_ }).count -eq 0)
         {
@@ -694,11 +694,11 @@ function Set-TargetResource
         Write-Verbose -Message "Creating an Intune Window Update For Business Ring Update Profile for Windows10 with DisplayName {$DisplayName}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
         $CreateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).clone()).Keys
+        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
@@ -729,12 +729,12 @@ function Set-TargetResource
         Write-Verbose -Message "Updating the Intune Window Update For Business Ring Update Profile for Windows10 with Id {$($currentInstance.Id)}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
@@ -1011,7 +1011,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of the Intune Window Update For Business Ring Update Profile for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
+    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
     $testResult = $true
 
     #Compare Cim instances
