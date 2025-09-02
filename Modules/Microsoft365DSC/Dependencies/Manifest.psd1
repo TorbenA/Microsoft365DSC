@@ -13,6 +13,10 @@
             RequiredVersion = '7.2.0'
         },
         @{
+            ModuleName      = 'Az.Security'
+            RequiredVersion = '1.6.2'
+        },
+        @{
             ModuleName      = 'Az.SecurityInsights'
             RequiredVersion = '3.1.2'
         },
@@ -22,7 +26,7 @@
         },
         @{
             ModuleName      = 'ExchangeOnlineManagement'
-            RequiredVersion = '3.8.0'
+            RequiredVersion = '3.9.0'
         },
         @{
             ModuleName      = 'Microsoft.Graph.Applications'
@@ -122,7 +126,7 @@
         },
         @{
             ModuleName      = 'MicrosoftTeams'
-            RequiredVersion = '7.2.0'
+            RequiredVersion = '7.3.1'
         },
         @{
             ModuleName      = "MSCloudLoginAssistant"
