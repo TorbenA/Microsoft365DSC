@@ -284,7 +284,7 @@ function Set-TargetResource
         $setParameters.Add('Tasks', $taskList)
     }
 
-    $UpdateParameters = ([Hashtable]$setParameters).clone()
+    $UpdateParameters = ([Hashtable]$setParameters).Clone()
 
     $newParams = @{}
     $newParams.Add('workflow', $UpdateParameters)

@@ -11,15 +11,9 @@
         "read": [
           {
             "name": "Directory.Read.All"
-          },
-          {
-            "name": "Group.Read.All"
           }
         ],
         "update": [
-          {
-            "name": "Directory.Read.All"
-          },
           {
             "name": "Directory.ReadWrite.All"
           }
@@ -32,9 +26,6 @@
           }
         ],
         "update": [
-          {
-            "name": "Directory.Read.All"
-          },
           {
             "name": "Directory.ReadWrite.All"
           }
