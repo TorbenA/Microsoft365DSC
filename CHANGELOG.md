@@ -20,6 +20,9 @@
   * Fixed an issue where an empty `EnableTeam` value would throw during Get operation.
 * TeamsMeetingBroadcastConfiguration
   * Fixes an issue where the SdnAPIToken wasn't exported as a string.
+* TeamsTeam
+  * Fixed an issue where an invalid search query was invoked.
+    FIXES [#5937](https://github.com/microsoft/Microsoft365DSC/issues/5937)
 * MISC
   * Fixing issues connection SPO to sovereign clouds.
   * Updated settings and formatting of method names across all resources.
