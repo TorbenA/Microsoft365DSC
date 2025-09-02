@@ -2,6 +2,10 @@
 
 # UNRELEASED
 
+
+* AADAccessReviewDefinition
+  * Added properties `FallbackReviewers` and `Reviewers`.
+    FIXES [#5674](https://github.com/microsoft/Microsoft365DSC/issues/5674)
 * AADEntitlementManagementAccessPackageAssignmentPolicy
   * Added support for Groups as well as single users.
     FIXES [#6257](https://github.com/microsoft/Microsoft365DSC/issues/6257)
@@ -15,6 +19,8 @@
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.0.
     FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
+* M365DSCUtil
+  * Moved sizing of batch requests to `Invoke-M365DSCGraphBatchRequest`.
 
 # 1.25.827.1
 
