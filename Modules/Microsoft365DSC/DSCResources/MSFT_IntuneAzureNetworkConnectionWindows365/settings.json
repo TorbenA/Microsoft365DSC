@@ -1,0 +1,44 @@
+{
+  "resourceName": "IntuneAzureNetworkConnectionWindows365",
+  "description": "This resource configures an Intune Azure Network Connection for Windows365.",
+  "permissions": {
+    "graph": {
+      "application": {
+        "update": [
+          {
+            "name": "Group.Read.All"
+          }
+        ],
+        "read": [
+          {
+            "name": "CloudPC.Read.All"
+          },
+          {
+            "name": "Group.Read.All"
+          }
+        ]
+      },
+      "delegated": {
+        "update": [
+          {
+            "name": "Group.Read.All"
+          }
+        ],
+        "read": [
+          {
+            "name": "CloudPC.Read.All"
+          },
+          {
+            "name": "Group.Read.All"
+          }
+        ]
+      }
+    }
+  },
+  "requiredModules": [
+    "Microsoft.Graph.Authentication",
+    "Microsoft.Graph.Beta.DeviceManagement.Administration",
+    "Microsoft.Graph.Groups"
+  ],
+  "mode": "Configuration"
+}
