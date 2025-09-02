@@ -147,6 +147,13 @@ function Get-TargetResource
         {
             $RMSOnlineKeySharingLocationValue = $IRMConfiguration.RMSOnlineKeySharingLocation.ToString()
         }
+
+        $LicensingLocationValue = $null
+        if ($IRMConfiguration.LicensingLocation)
+        {
+            $LicensingLocationValue = $IRMConfiguration.LicensingLocation.ToString()
+        }
+
         $result = @{
             IsSingleInstance                           = 'Yes'
             AutomaticServiceUpdateEnabled              = $IRMConfiguration.AutomaticServiceUpdateEnabled
@@ -156,7 +163,7 @@ function Get-TargetResource
             EnablePdfEncryption                        = $IRMConfiguration.EnablePdfEncryption
             InternalLicensingEnabled                   = $IRMConfiguration.InternalLicensingEnabled
             JournalReportDecryptionEnabled             = $IRMConfiguration.JournalReportDecryptionEnabled
-            LicensingLocation                          = $IRMConfiguration.LicensingLocation
+            LicensingLocation                          = $LicensingLocationValue
             RejectIfRecipientHasNoRights               = $IRMConfiguration.RejectIfRecipientHasNoRights
             RMSOnlineKeySharingLocation                = $RMSOnlineKeySharingLocationValue
             SearchEnabled                              = $IRMConfiguration.SearchEnabled
