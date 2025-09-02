@@ -2,10 +2,12 @@
 
 # UNRELEASED
 
-
 * AADAccessReviewDefinition
   * Added properties `FallbackReviewers` and `Reviewers`.
     FIXES [#5674](https://github.com/microsoft/Microsoft365DSC/issues/5674)
+* AADApplication
+  * Fixed an issue where owners would not be set during creation.
+    FIXES [#6238](https://github.com/microsoft/Microsoft365DSC/issues/6238)
 * AADEntitlementManagementAccessPackageAssignmentPolicy
   * Added support for Groups as well as single users.
     FIXES [#6257](https://github.com/microsoft/Microsoft365DSC/issues/6257)
