@@ -1,15 +1,27 @@
 {
   "resourceName": "SCSensitivityLabel",
-  "description": "",
+  "description": "This resource configures a Sensitivity Label in Purview.",
+  "roles": {
+    "read": [
+      "Security Reader"
+    ],
+    "update": [
+      "Compliance Administrator"
+    ]
+  },
   "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
+    "Office 365 Exchange Online": {
       "application": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "Exchange.ManageAsApp"
+          }
+        ],
+        "update": [
+          {
+            "name": "Exchange.ManageAsApp"
+          }
+        ]
       }
     }
   },

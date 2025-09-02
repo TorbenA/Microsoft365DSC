@@ -88,8 +88,6 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Getting configuration of AzureAD Entitlement Management Access Package Assignment Policy for DisplayName {$DisplayName}"
-
     try
     {
         $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
@@ -242,10 +240,41 @@ function Get-TargetResource
                 }
                 if (-not [String]::isNullOrEmpty($setting.AdditionalProperties.id))
                 {
-                    $user = Get-MgUser -UserId $setting.AdditionalProperties.id -ErrorAction SilentlyContinue
-                    if ($null -ne $user)
+                    # Check the @odata.type to determine if this is a user or group
+                    $odataType = $setting.AdditionalProperties.'@odata.type'
+                    
+                    if ($odataType -eq '#microsoft.graph.singleUser')
                     {
-                        $setting.add('Id', $user.UserPrincipalName)
+                        # Handle single user - try to resolve to UserPrincipalName
+                        $user = Get-MgUser -UserId $setting.AdditionalProperties.id -ErrorAction SilentlyContinue
+                        if ($null -ne $user)
+                        {
+                            $setting.add('Id', $user.UserPrincipalName)
+                        }
+                        else
+                        {
+                            # If user not found, keep the original ID (could be UPN already)
+                            $setting.add('Id', $setting.AdditionalProperties.id)
+                        }
+                    }
+                    elseif ($odataType -eq '#microsoft.graph.groupMembers')
+                    {
+                        # Handle group members - try to resolve group to DisplayName, fallback to GUID
+                        $group = Get-MgGroup -GroupId $setting.AdditionalProperties.id -ErrorAction SilentlyContinue
+                        if ($null -ne $group)
+                        {
+                            $setting.add('Id', $group.DisplayName)
+                        }
+                        else
+                        {
+                            # If group not found, keep the GUID
+                            $setting.add('Id', $setting.AdditionalProperties.id)
+                        }
+                    }
+                    else
+                    {
+                        # For other types (requestorManager, etc.), keep the original ID
+                        $setting.add('Id', $setting.AdditionalProperties.id)
                     }
                 }
                 if (-not [String]::isNullOrEmpty($setting.AdditionalProperties.managerLevel))
@@ -437,8 +466,6 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting configuration of AzureAD Entitlement Management Access Package Assignment Policy for DisplayName {$DisplayName}"
-
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
@@ -474,13 +501,13 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Creating a new access package assignment policy {$DisplayName}"
 
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters -KeyMapping $keyToRename
 
         $CreateParameters.Remove('Id') | Out-Null
         $CreateParameters.Remove('Verbose') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).clone()).Keys
+        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             $keyValue = $CreateParameters.$key
@@ -539,11 +566,39 @@ function Set-TargetResource
             for ($i = 0; $i -lt $CreateParameters.RequestorSettings.AllowedRequestors.Length; $i++)
             {
                 $requestor = $CreateParameters.RequestorSettings.AllowedRequestors[$i]
-                $user = Get-MgUser -Filter "startswith(UserPrincipalName, '$($requestor.Id.Split('@')[0])')" -ErrorAction SilentlyContinue
-                if ($null -ne $user)
+                $odataType = $requestor.'@odata.type'
+                
+                if ($odataType -eq '#microsoft.graph.singleUser')
                 {
-                    $CreateParameters.RequestorSettings.AllowedRequestors[$i].Id = $user.Id
+                    # Handle single user - convert UPN to GUID
+                    if ($requestor.Id -like '*@*')
+                    {
+                        $user = Get-MgUser -Filter "startswith(UserPrincipalName, '$($requestor.Id.Split('@')[0])')" -ErrorAction SilentlyContinue
+                        if ($null -ne $user)
+                        {
+                            $CreateParameters.RequestorSettings.AllowedRequestors[$i].Id = $user.Id
+                        }
+                    }
+                    # If already a GUID, leave as-is
                 }
+                elseif ($odataType -eq '#microsoft.graph.groupMembers')
+                {
+                    # Handle group members - convert DisplayName to GUID if needed
+                    $ObjectGuid = [System.Guid]::empty
+                    $isGUID = [System.Guid]::TryParse($requestor.Id, [System.Management.Automation.PSReference]$ObjectGuid)
+                    
+                    if (-not $isGUID)
+                    {
+                        # Try to resolve by DisplayName
+                        $group = Get-MgGroup -Filter "displayName eq '$($requestor.Id.Replace("'", "''"))'" -ErrorAction SilentlyContinue
+                        if ($null -ne $group)
+                        {
+                            $CreateParameters.RequestorSettings.AllowedRequestors[$i].Id = $group.Id
+                        }
+                    }
+                    # If already a GUID, leave as-is
+                }
+                # For other types (requestorManager, etc.), leave ID as-is
             }
         }
         If ($null -ne $CreateParameters.CustomExtensionHandlers -and $CreateParameters.CustomExtensionHandlers.count -gt 0 )
@@ -592,13 +647,13 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating the access package assignment policy {$DisplayName}"
 
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters -KeyMapping $keyToRename
 
         $UpdateParameters.Remove('Id') | Out-Null
         $UpdateParameters.Remove('Verbose') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             $keyValue = $UpdateParameters.$key
@@ -660,11 +715,39 @@ function Set-TargetResource
             {
                 #Write-Verbose -Message "Requestor: $($UpdateParameters.RequestorSettings.AllowedRequestors[$i].Id)"
                 $requestor = $UpdateParameters.RequestorSettings.AllowedRequestors[$i]
-                $user = Get-MgUser -Filter "startswith(UserPrincipalName, '$($requestor.Id.Split('@')[0])')" -ErrorAction SilentlyContinue
-                if ($null -ne $user)
+                $odataType = $requestor.'@odata.type'
+                
+                if ($odataType -eq '#microsoft.graph.singleUser')
                 {
-                    $UpdateParameters.RequestorSettings.AllowedRequestors[$i].Id = $user.Id
+                    # Handle single user - convert UPN to GUID
+                    if ($requestor.Id -like '*@*')
+                    {
+                        $user = Get-MgUser -Filter "startswith(UserPrincipalName, '$($requestor.Id.Split('@')[0])')" -ErrorAction SilentlyContinue
+                        if ($null -ne $user)
+                        {
+                            $UpdateParameters.RequestorSettings.AllowedRequestors[$i].Id = $user.Id
+                        }
+                    }
+                    # If already a GUID, leave as-is
                 }
+                elseif ($odataType -eq '#microsoft.graph.groupMembers')
+                {
+                    # Handle group members - convert DisplayName to GUID if needed
+                    $ObjectGuid = [System.Guid]::empty
+                    $isGUID = [System.Guid]::TryParse($requestor.Id, [System.Management.Automation.PSReference]$ObjectGuid)
+                    
+                    if (-not $isGUID)
+                    {
+                        # Try to resolve by DisplayName
+                        $group = Get-MgGroup -Filter "displayName eq '$($requestor.Id.Replace("'", "''"))'" -ErrorAction SilentlyContinue
+                        if ($null -ne $group)
+                        {
+                            $UpdateParameters.RequestorSettings.AllowedRequestors[$i].Id = $group.Id
+                        }
+                    }
+                    # If already a GUID, leave as-is
+                }
+                # For other types (requestorManager, etc.), leave ID as-is
             }
         }
         If ($null -ne $UpdateParameters.CustomExtensionHandlers -and $UpdateParameters.CustomExtensionHandlers.count -gt 0 )
@@ -814,7 +897,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+                                         -ResourceName $ResourceName
     return $result
 }
 
