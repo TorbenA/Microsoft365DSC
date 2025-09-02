@@ -390,7 +390,7 @@ function Export-TargetResource
 
     try
     {
-        #Get all billing account
+        # Get all billing account
         $accounts = Get-M365DSCAzureBillingAccount
 
         $i = 1
