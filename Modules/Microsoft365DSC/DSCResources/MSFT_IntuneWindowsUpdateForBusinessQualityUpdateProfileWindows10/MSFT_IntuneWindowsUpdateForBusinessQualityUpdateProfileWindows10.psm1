@@ -264,11 +264,11 @@ function Set-TargetResource
         Write-Verbose -Message "Creating an Intune Windows Update For Business Quality Update Profile for Windows10 with DisplayName {$DisplayName}"
         $BoundParameters.Remove('Assignments') | Out-Null
 
-        $createParameters = ([Hashtable]$BoundParameters).clone()
+        $createParameters = ([Hashtable]$BoundParameters).Clone()
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
         $createParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$createParameters).clone()).Keys
+        $keys = (([Hashtable]$createParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $createParameters.$key -and $createParameters.$key.GetType().Name -like '*cimInstance*')
@@ -294,11 +294,11 @@ function Set-TargetResource
         Write-Verbose -Message "Updating the Intune Windows Update For Business Quality Update Profile for Windows10 with Id {$($currentInstance.Id)}"
         $BoundParameters.Remove('Assignments') | Out-Null
 
-        $updateParameters = ([Hashtable]$BoundParameters).clone()
+        $updateParameters = ([Hashtable]$BoundParameters).Clone()
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
         $updateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$updateParameters).clone()).Keys
+        $keys = (([Hashtable]$updateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $updateParameters.$key -and $updateParameters.$key.GetType().Name -like '*cimInstance*')
@@ -414,7 +414,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of the Intune Windows Update For Business Quality Update Profile for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
+    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
     $testResult = $true
 
     #Compare Cim instances

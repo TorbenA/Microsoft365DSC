@@ -968,7 +968,11 @@ function Get-TargetResource
                 PowerBISensitivityLabelRemovedFromArtifacts   = ($tenantSettings.ExtensibleIndicators | Where-Object -FilterScript { $_.Name -eq 'PowerBISensitivityLabelRemovedFromArtifacts' }).Enabled
                 HistoricTimeSpan                              = $tenantSettings.TimeSpan.HistoricTimeSpan
                 InScopeTimeSpan                               = $tenantSettings.TimeSpan.InScopeTimeSpan
-                EnableTeam                                    = [Boolean]::Parse($tenantSettings.FeatureSettings.EnableTeam)
+            }
+
+            if (-not [System.String]::IsNullOrEmpty($tenantSettings.FeatureSettings.EnableTeam))
+            {
+                $tenantSettingsHash.Add('EnableTeam', [Boolean]::Parse($tenantSettings.FeatureSettings.EnableTeam))
             }
 
             $AnalyticsNewInsight = $tenantSettings.NotificationPreferences | Where-Object -FilterScript { $_.NotificationType -eq 'AnalyticsNewInsight' }
