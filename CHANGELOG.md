@@ -2,14 +2,27 @@
 
 # UNRELEASED
 
+* AADAccessReviewDefinition
+  * Added properties `FallbackReviewers` and `Reviewers`.
+    FIXES [#5674](https://github.com/microsoft/Microsoft365DSC/issues/5674)
 * AADApplication
   * Fixed an issue where owners would not be set during creation.
     FIXES [#6238](https://github.com/microsoft/Microsoft365DSC/issues/6238)
+* AADEntitlementManagementAccessPackageAssignmentPolicy
+  * Added support for Groups as well as single users.
+    FIXES [#6257](https://github.com/microsoft/Microsoft365DSC/issues/6257)
+* IntuneWindowsUpdateForBusinessHotpatchProfileWindows10
+  * Initial release.
+    FIXES [#6368](https://github.com/microsoft/Microsoft365DSC/issues/6368)
 * TeamsMeetingBroadcastConfiguration
   * Fixes an issue where the SdnAPIToken wasn't exported as a string.
+* MISC
+  * Fixing issues connection SPO to sovereign clouds.
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.0.
     FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
+* M365DSCUtil
+  * Moved sizing of batch requests to `Invoke-M365DSCGraphBatchRequest`.
 
 # 1.25.827.1
 
