@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneWindowsBackupForOrganizationConfiguration
+  * Initial release.
+
 # 1.25.903.1
 
 * AADAccessReviewDefinition
