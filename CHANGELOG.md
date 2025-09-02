@@ -2,6 +2,12 @@
 
 # UNRELEASED
 
+* AADAccessReviewDefinition
+  * Added properties `FallbackReviewers` and `Reviewers`.
+    FIXES [#5674](https://github.com/microsoft/Microsoft365DSC/issues/5674)
+* AADApplication
+  * Fixed an issue where owners would not be set during creation.
+    FIXES [#6238](https://github.com/microsoft/Microsoft365DSC/issues/6238)
 * AADEntitlementManagementAccessPackageAssignmentPolicy
   * Added support for Groups as well as single users.
     FIXES [#6257](https://github.com/microsoft/Microsoft365DSC/issues/6257)
@@ -10,11 +16,28 @@
     Fixed an issue where the export of `Connected organization administrator` assignments would fail.
     FIXES [#5620](https://github.com/microsoft/Microsoft365DSC/issues/5620)
     FIXES [#5618](https://github.com/microsoft/Microsoft365DSC/issues/5618)
+* ADOPermissionGroupSettings
+  * Reduced export time by 90%.
+* IntuneWindowsUpdateForBusinessHotpatchProfileWindows10
+  * Initial release.
+    FIXES [#6368](https://github.com/microsoft/Microsoft365DSC/issues/6368)
+* SCInsiderRiskPolicy
+  * Fixed an issue where an empty `EnableTeam` value would throw during Get operation.
 * TeamsMeetingBroadcastConfiguration
   * Fixes an issue where the SdnAPIToken wasn't exported as a string.
+* MISC
+  * Fixing issues connection SPO to sovereign clouds.
+  * Update documentation for configuring workload authentication.
+  * Update permissions for EXO resources.
+    FIXES [#3841](https://github.com/microsoft/Microsoft365DSC/issues/3841)
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.0.
     FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
+  * Include `Az.Security` module for `Defender` workload.
+* M365DSCUtil
+  * Moved sizing of batch requests to `Invoke-M365DSCGraphBatchRequest`.
+  * Fixed a comparison issue in `Compare-M365DSCComplexObject`.
+    Supersedes [#6196](https://github.com/microsoft/Microsoft365DSC/pull/6196).
 
 # 1.25.827.1
 
@@ -141,6 +164,8 @@
 * IntuneSettingCatalogCustomPolicyWindows10
   * Add `RoleScopeTagIds` property to functions.
     FIXES [#6348](https://github.com/microsoft/Microsoft365DSC/issues/6348)
+* SCSensitivityLabel
+  * Fixes issue where AdvancedSettings in MSFT_SCSensitivityLabel was not always exported as an array block. [#6321](https://github.com/microsoft/Microsoft365DSC/issues/6321)
 * M365DSCDRGUtil
   * Added new function `Invoke-M365DSCIntuneMobileAppInitialUpload` for initial mobile app content upload.
 * MISC
@@ -160,7 +185,6 @@
   * Fixed incorrect ServicePrincipalRiskLevels parameter type
     FIXES [#6325](https://github.com/microsoft/Microsoft365DSC/issues/6325)
   * Added example for workload identity and dynamic filter based on CustomSecurityAttribute
-
 * EXOTransportRule
   * Changed the update logic to handle empty parameters.
 * IntuneMobileAppsDefenderForEndpointMacOS

@@ -2,14 +2,22 @@
   "resourceName": "O365OrgCustomizationSetting",
   "description": "",
   "permissions": {
-    "graph": {
+    "Office 365 Exchange Online": {
       "delegated": {
         "read": [],
         "update": []
       },
       "application": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "Exchange.ManageAsApp"
+          }
+        ],
+        "update": [
+          {
+            "name": "Exchange.ManageAsApp"
+          }
+        ]
       }
     },
     "exchange": {
