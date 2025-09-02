@@ -414,7 +414,7 @@ function Set-TargetResource
     $PSBoundParameters.Remove('Verbose') | Out-Null
     $PSBoundParameters.Remove('AccessTokens') | Out-Null
 
-    $ParametersOps = ([Hashtable]$PSBoundParameters).clone()
+    $ParametersOps = ([Hashtable]$PSBoundParameters).Clone()
 
     if ($PrincipalType -eq 'User')
     {

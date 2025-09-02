@@ -260,7 +260,7 @@ function Set-TargetResource
     $PSBoundParameters.Remove('ManagedIdentity') | Out-Null
     $PSBoundParameters.Remove('AccessTokens') | Out-Null
 
-    $setParameters = ([Hashtable]$PSBoundParameters).clone()
+    $setParameters = ([Hashtable]$PSBoundParameters).Clone()
     $userInfo = Get-MgUser -UserId $Principal
     $roleInfo = Get-MgBetaRoleManagementEntitlementManagementRoleDefinition -Filter "DisplayName eq '$($RoleDefinition -replace "'", "''")'"
     $setParameters.Add('PrincipalId', $userInfo.Id)

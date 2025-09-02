@@ -11,13 +11,37 @@
   },
   "permissions": {
     "graph": {
-      "application": {
+      "delegated": {
         "read": [
+          {
+            "name": "Directory.Read.All"
+          },
           {
             "name": "RoleAssignmentSchedule.Read.Directory"
           }
         ],
         "update": [
+          {
+            "name": "Directory.Read.All"
+          },
+          {
+            "name": "RoleAssignmentSchedule.ReadWrite.Directory"
+          }
+        ]
+      },
+      "application": {
+        "read": [
+          {
+            "name": "Directory.Read.All"
+          },
+          {
+            "name": "RoleAssignmentSchedule.Read.Directory"
+          }
+        ],
+        "update": [
+          {
+            "name": "Directory.Read.All"
+          },
           {
             "name": "RoleAssignmentSchedule.ReadWrite.Directory"
           }

@@ -3,10 +3,18 @@
   "description": "Manages the Self Purchase policies in commerce.",
   "roles": {},
   "permissions": {
-    "aeb86249-8ea3-49e2-900b-54cc8e308f85": {
+    "M365 License Manager": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "LicenseManager.AccessAsUser"
+          }
+        ],
+        "update": [
+          {
+            "name": "LicenseManager.AccessAsUser"
+          }
+        ]
       },
       "application": {
         "read": [
