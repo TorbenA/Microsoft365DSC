@@ -2,8 +2,29 @@
 
 # UNRELEASED
 
+* AADAccessReviewDefinition
+  * Added properties `FallbackReviewers` and `Reviewers`.
+    FIXES [#5674](https://github.com/microsoft/Microsoft365DSC/issues/5674)
+* AADApplication
+  * Fixed an issue where owners would not be set during creation.
+    FIXES [#6238](https://github.com/microsoft/Microsoft365DSC/issues/6238)
+* AADEntitlementManagementAccessPackageAssignmentPolicy
+  * Added support for Groups as well as single users.
+    FIXES [#6257](https://github.com/microsoft/Microsoft365DSC/issues/6257)
 * IntuneMobileAppsWin32AppWindows10
   * Bump CIM instance version to fix invalid property name.
+* IntuneWindowsUpdateForBusinessHotpatchProfileWindows10
+  * Initial release.
+    FIXES [#6368](https://github.com/microsoft/Microsoft365DSC/issues/6368)
+* TeamsMeetingBroadcastConfiguration
+  * Fixes an issue where the SdnAPIToken wasn't exported as a string.
+* MISC
+  * Fixing issues connection SPO to sovereign clouds.
+* DEPENDENCIES
+  * Updated ExchangeOnlineManagement to version 3.9.0.
+    FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
+* M365DSCUtil
+  * Moved sizing of batch requests to `Invoke-M365DSCGraphBatchRequest`.
 
 # 1.25.827.1
 
@@ -130,6 +151,8 @@
 * IntuneSettingCatalogCustomPolicyWindows10
   * Add `RoleScopeTagIds` property to functions.
     FIXES [#6348](https://github.com/microsoft/Microsoft365DSC/issues/6348)
+* SCSensitivityLabel
+  * Fixes issue where AdvancedSettings in MSFT_SCSensitivityLabel was not always exported as an array block. [#6321](https://github.com/microsoft/Microsoft365DSC/issues/6321)
 * M365DSCDRGUtil
   * Added new function `Invoke-M365DSCIntuneMobileAppInitialUpload` for initial mobile app content upload.
 * MISC
