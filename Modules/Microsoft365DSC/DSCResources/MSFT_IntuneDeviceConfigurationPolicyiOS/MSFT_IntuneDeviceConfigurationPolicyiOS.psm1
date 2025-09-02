@@ -1126,8 +1126,8 @@ function Get-TargetResource
             $currentValue = $getValue.AdditionalProperties."mediaContentRating$country"
             if ($null -ne $currentValue)
             {
-                $complexMediaContentRating.Add('MovieRating', $currentValue.movieRating.toString())
-                $complexMediaContentRating.Add('TvRating', $currentValue.tvRating.toString())
+                $complexMediaContentRating.Add('MovieRating', $currentValue.movieRating.ToString())
+                $complexMediaContentRating.Add('TvRating', $currentValue.tvRating.ToString())
             }
             $results.Add("MediaContentRating$country", $complexMediaContentRating)
         }
@@ -2046,7 +2046,7 @@ function Set-TargetResource
         Write-Verbose -Message "Creating {$DisplayName}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
 
         #$AdditionalProperties = Get-M365DSCAdditionalProperties -Properties ($CreateParameters)
@@ -2054,7 +2054,7 @@ function Set-TargetResource
         $CreateParameters.Remove('Id') | Out-Null
         $CreateParameters.Remove('Verbose') | Out-Null
 
-        foreach ($key in ($CreateParameters.clone()).Keys)
+        foreach ($key in ($CreateParameters.Clone()).Keys)
         {
             if ($CreateParameters[$key].getType().Fullname -like '*CimInstance*')
             {
@@ -2088,13 +2088,13 @@ function Set-TargetResource
         Write-Verbose -Message "Updating {$DisplayName}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
         $UpdateParameters.Remove('Id') | Out-Null
         $UpdateParameters.Remove('Verbose') | Out-Null
 
-        foreach ($key in (($UpdateParameters.clone()).Keys | Sort-Object))
+        foreach ($key in (($UpdateParameters.Clone()).Keys | Sort-Object))
         {
             if ($UpdateParameters.$key.getType().Fullname -like '*CimInstance*')
             {
@@ -2962,7 +2962,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of {$id}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
+    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
     $testResult = $true
 
     #Compare Cim instances

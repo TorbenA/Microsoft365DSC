@@ -22,6 +22,7 @@
   * Fixes an issue where the SdnAPIToken wasn't exported as a string.
 * MISC
   * Fixing issues connection SPO to sovereign clouds.
+  * Updated settings and formatting of method names across all resources.
   * Update documentation for configuring workload authentication.
   * Update permissions for EXO resources.
     FIXES [#3841](https://github.com/microsoft/Microsoft365DSC/issues/3841)

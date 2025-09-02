@@ -22,9 +22,6 @@
         ],
         "update": [
           {
-            "name": "AdministrativeUnit.Read.All"
-          },
-          {
             "name": "AdministrativeUnit.ReadWrite.All"
           },
           {
@@ -54,9 +51,6 @@
           }
         ],
         "update": [
-          {
-            "name": "AdministrativeUnit.Read.All"
-          },
           {
             "name": "AdministrativeUnit.ReadWrite.All"
           },
