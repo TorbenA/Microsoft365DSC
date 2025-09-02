@@ -253,7 +253,7 @@ function Set-TargetResource
 
     if (('Present' -eq $Ensure ) -and ($null -eq $DataClassification))
     {
-        Write-Verbose -Message 'Data Classification in Exchange Online are now deprecated in favor of Sensitive Information Types in Security and Compliance.'
+        Write-Verbose -Message 'Data Classification in Exchange Online are now deprecated in favor of Sensitive Information Types in Purview.'
     }
     elseif (('Present' -eq $Ensure ) -and ($Null -ne $DataClassification))
     {
