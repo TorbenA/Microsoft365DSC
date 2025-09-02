@@ -24,6 +24,8 @@ jobs:
           $ErrorActionPreference = "Stop"
           Import-Module -Name .\Modules\Microsoft365DSC\Modules\M365DSCSchemaHandler.psm1
           New-M365DSCSchemaDefinition
+          $content = (Get-Content ./Modules/Microsoft365DSC/SchemaDefinition.json -Raw).Replace('\r\n', '\n').Replace('\n', '\r\n')
+          $content | Set-Content ./Modules/Microsoft365DSC/SchemaDefinition.json -Force -Encoding utf8 -NoNewline
 
       - name: Check for changes
         id: git-check

@@ -2,6 +2,11 @@
 
 # UNRELEASED
 
+* IntuneUserSettingsPolicyWindows365
+  * Initial release.
+
+# UNRELEASED
+
 * AADAdministrativeUnit
   * Reduced export time by 20%.
 * AADApplication
