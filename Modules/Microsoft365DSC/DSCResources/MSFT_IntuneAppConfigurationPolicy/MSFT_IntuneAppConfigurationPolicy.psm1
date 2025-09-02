@@ -106,7 +106,7 @@ function Get-TargetResource
             $configPolicy = $null
             if (-not [string]::IsNullOrEmpty($Id))
             {
-                $configPolicy = Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -TargetedManagedAppConfigurationId $Id -ExpandProperty 'Apps' `
+                $configPolicy = Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -Filter "Id eq '$Id'" -ExpandProperty 'Apps' `
                     -ErrorAction SilentlyContinue
             }
 

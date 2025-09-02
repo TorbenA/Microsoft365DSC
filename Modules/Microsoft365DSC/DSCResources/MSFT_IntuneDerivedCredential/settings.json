@@ -4,12 +4,28 @@
   "permissions": {
     "graph": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "DeviceManagementServiceConfig.Read.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "DeviceManagementServiceConfig.ReadWrite.All"
+          }
+        ]
       },
       "application": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "DeviceManagementServiceConfig.Read.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "DeviceManagementServiceConfig.ReadWrite.All"
+          }
+        ]
       }
     }
   },
