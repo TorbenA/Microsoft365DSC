@@ -71,7 +71,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Id -ne $Id)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -279,7 +279,7 @@ function Set-TargetResource
             $createParameters.Remove('Password') | Out-Null
             $createParameters.Remove('Pkcs12Value') | Out-Null
 
-            if ($username -ne $null)
+            if ($null -ne $username)
             {
                 $createParameters.Add('AuthenticationConfiguration', @{
                         '@odata.type' = 'microsoft.graph.basicAuthentication'
@@ -658,4 +658,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -106,7 +106,7 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting configuration of AzureAD Authorization Policy'
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -309,16 +309,8 @@ function Set-TargetResource
     $currentPolicy = Get-TargetResource @PSBoundParameters
 
     Write-Verbose -Message 'Set-Targetresource: Cleaning up parameters'
-    $desiredParameters = ([hashtable]$PSBoundParameters).Clone()
+    $desiredParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $desiredParameters.Remove('IsSingleInstance') | Out-Null
-    $desiredParameters.Remove('ApplicationId') | Out-Null
-    $desiredParameters.Remove('TenantId') | Out-Null
-    $desiredParameters.Remove('CertificateThumbprint') | Out-Null
-    $desiredParameters.Remove('ApplicationSecret') | Out-Null
-    $desiredParameters.Remove('Ensure') | Out-Null
-    $desiredParameters.Remove('Credential') | Out-Null
-    $desiredParameters.Remove('ManagedIdentity') | Out-Null
-    $desiredParameters.Remove('AccessTokens') | Out-Null
 
     Write-Verbose -Message 'Set-Targetresource: Authorization Policy Ensure Present'
     $UpdateParameters = @{
@@ -728,4 +720,3 @@ function Get-GuestUserRoleNameFromId
 }
 
 Export-ModuleMember -Function *-TargetResource
-
