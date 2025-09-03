@@ -10,9 +10,6 @@
           },
           {
             "name": "RoleManagement.Read.Directory"
-          },
-          {
-            "name": "RoleManagement.Read.All"
           }
         ],
         "update": [
@@ -20,7 +17,7 @@
             "name": "RoleManagementPolicy.ReadWrite.Directory"
           },
           {
-            "name": "RoleManagement.ReadWrite.Directory"
+            "name": "RoleManagement.Read.Directory"
           }
         ]
       },
@@ -31,9 +28,6 @@
           },
           {
             "name": "RoleManagement.Read.Directory"
-          },
-          {
-            "name": "RoleManagement.Read.All"
           }
         ],
         "update": [
@@ -41,7 +35,7 @@
             "name": "RoleManagementPolicy.ReadWrite.Directory"
           },
           {
-            "name": "RoleManagement.ReadWrite.Directory"
+            "name": "RoleManagement.Read.Directory"
           }
         ]
       }

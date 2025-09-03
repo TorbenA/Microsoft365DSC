@@ -3,21 +3,25 @@
   "description": "Configures Insider Risk Policies in Purview.",
   "roles": {
     "read": [
-      "Global Reader"
+      "Compliance Administrator"
     ],
     "update": [
       "Compliance Administrator"
     ]
   },
   "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
+    "Office 365 Exchange Online": {
       "application": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "Exchange.ManageAsApp"
+          }
+        ],
+        "update": [
+          {
+            "name": "Exchange.ManageAsApp"
+          }
+        ]
       }
     }
   },

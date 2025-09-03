@@ -8,8 +8,16 @@
   "permissions": {
     "graph": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "Domain.Read.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "Domain.ReadWrite.All"
+          }
+        ]
       },
       "application": {
         "read": [
