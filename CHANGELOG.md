@@ -11,6 +11,9 @@
 * AADEntitlementManagementAccessPackageAssignmentPolicy
   * Added support for Groups as well as single users.
     FIXES [#6257](https://github.com/microsoft/Microsoft365DSC/issues/6257)
+* AADServicePrincipal
+  * Fixed an issue where assigning members to a Service Principal would throw an error when
+    more than one member was assigned.
 * ADOPermissionGroupSettings
   * Reduced export time by 90%.
 * IntuneWindowsUpdateForBusinessHotpatchProfileWindows10
