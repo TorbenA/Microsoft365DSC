@@ -73,6 +73,10 @@
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.0.
     FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
+
+* IntuneMobileAppsWindowsOfficeSuiteApp
+  * Fixes problem with OfficeConfigurationXml.Changed from type byte to type String as APi expect a string that is encoded in Base64 format.
+  
   * Include `Az.Security` module for `Defender` workload.
 * M365DSCTelemetryEngine
   * Changed logic to retrieve the global telemetry authentication parameters.
@@ -81,6 +85,7 @@
   * Moved sizing of batch requests to `Invoke-M365DSCGraphBatchRequest`.
   * Fixed a comparison issue in `Compare-M365DSCComplexObject`.
     Supersedes [#6196](https://github.com/microsoft/Microsoft365DSC/pull/6196).
+
 
 # 1.25.827.1
 
