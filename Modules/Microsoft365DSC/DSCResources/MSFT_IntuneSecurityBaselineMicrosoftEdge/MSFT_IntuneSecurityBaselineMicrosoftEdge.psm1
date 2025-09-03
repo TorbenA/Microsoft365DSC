@@ -890,7 +890,7 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        $policyTemplateID = 'c66347b7-8325-4954-a235-3bf2233dfbfd_2'
+        $policyTemplateID = 'c66347b7-8325-4954-a235-3bf2233dfbfd_3'
         [array]$getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
             -Filter $Filter `
             -All `

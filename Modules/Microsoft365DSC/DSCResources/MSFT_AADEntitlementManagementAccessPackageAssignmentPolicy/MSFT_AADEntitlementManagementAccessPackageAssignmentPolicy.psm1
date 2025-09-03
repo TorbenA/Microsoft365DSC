@@ -90,7 +90,7 @@ function Get-TargetResource
 
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
         #Ensure the proper dependencies are installed in the current environment.
@@ -242,7 +242,7 @@ function Get-TargetResource
                 {
                     # Check the @odata.type to determine if this is a user or group
                     $odataType = $setting.AdditionalProperties.'@odata.type'
-                    
+
                     if ($odataType -eq '#microsoft.graph.singleUser')
                     {
                         # Handle single user - try to resolve to UserPrincipalName
@@ -466,8 +466,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
+    Write-Verbose -Message "Setting configuration of AzureAD Entitlement Management Access Package Assignment Policy for DisplayName {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -483,16 +482,6 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $PSBoundParameters.Remove('Ensure') | Out-Null
-    $PSBoundParameters.Remove('Credential') | Out-Null
-    $PSBoundParameters.Remove('ApplicationId') | Out-Null
-    $PSBoundParameters.Remove('ApplicationSecret') | Out-Null
-    $PSBoundParameters.Remove('TenantId') | Out-Null
-    $PSBoundParameters.Remove('CertificateThumbprint') | Out-Null
-    $PSBoundParameters.Remove('ManagedIdentity') | Out-Null
-    $PSBoundParameters.Remove('Verbose') | Out-Null
-    $PSBoundParameters.Remove('AccessTokens') | Out-Null
-
     $keyToRename = @{
         'odataType'    = '@odata.type'
         'QuestionText' = 'text'
@@ -501,7 +490,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Creating a new access package assignment policy {$DisplayName}"
 
-        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
+        $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters -KeyMapping $keyToRename
 
         $CreateParameters.Remove('Id') | Out-Null
@@ -511,7 +500,7 @@ function Set-TargetResource
         foreach ($key in $keys)
         {
             $keyValue = $CreateParameters.$key
-            if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
+            if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.GetType().Name -like '*cimInstance*')
             {
                 $keyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters.$key
                 $CreateParameters.$key = $keyValue
@@ -567,7 +556,7 @@ function Set-TargetResource
             {
                 $requestor = $CreateParameters.RequestorSettings.AllowedRequestors[$i]
                 $odataType = $requestor.'@odata.type'
-                
+
                 if ($odataType -eq '#microsoft.graph.singleUser')
                 {
                     # Handle single user - convert UPN to GUID
@@ -586,7 +575,7 @@ function Set-TargetResource
                     # Handle group members - convert DisplayName to GUID if needed
                     $ObjectGuid = [System.Guid]::empty
                     $isGUID = [System.Guid]::TryParse($requestor.Id, [System.Management.Automation.PSReference]$ObjectGuid)
-                    
+
                     if (-not $isGUID)
                     {
                         # Try to resolve by DisplayName
@@ -647,7 +636,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating the access package assignment policy {$DisplayName}"
 
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
+        $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters -KeyMapping $keyToRename
 
         $UpdateParameters.Remove('Id') | Out-Null
@@ -657,7 +646,7 @@ function Set-TargetResource
         foreach ($key in $keys)
         {
             $keyValue = $UpdateParameters.$key
-            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
+            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.GetType().Name -like '*cimInstance*')
             {
                 $keyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
                 $UpdateParameters.$key = $keyValue
@@ -716,7 +705,7 @@ function Set-TargetResource
                 #Write-Verbose -Message "Requestor: $($UpdateParameters.RequestorSettings.AllowedRequestors[$i].Id)"
                 $requestor = $UpdateParameters.RequestorSettings.AllowedRequestors[$i]
                 $odataType = $requestor.'@odata.type'
-                
+
                 if ($odataType -eq '#microsoft.graph.singleUser')
                 {
                     # Handle single user - convert UPN to GUID
@@ -735,7 +724,7 @@ function Set-TargetResource
                     # Handle group members - convert DisplayName to GUID if needed
                     $ObjectGuid = [System.Guid]::empty
                     $isGUID = [System.Guid]::TryParse($requestor.Id, [System.Management.Automation.PSReference]$ObjectGuid)
-                    
+
                     if (-not $isGUID)
                     {
                         # Try to resolve by DisplayName
@@ -1164,4 +1153,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

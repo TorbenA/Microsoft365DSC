@@ -212,10 +212,11 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of the AAD Role Setting with Id {$Id} and DisplayName {$DisplayName}"
+
     if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
     {
-        Write-Verbose -Message "Getting configuration of Role: $DisplayName"
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
         Write-Verbose -Message 'Getting configuration of Role'
@@ -1537,4 +1538,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

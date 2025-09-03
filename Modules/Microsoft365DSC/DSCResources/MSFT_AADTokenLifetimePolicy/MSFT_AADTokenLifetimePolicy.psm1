@@ -64,7 +64,7 @@ function Get-TargetResource
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
             Write-Verbose -Message 'Getting configuration of AzureAD Token Lifetime Policy'
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -223,14 +223,7 @@ function Set-TargetResource
     #endregion
 
     $currentAADPolicy = Get-TargetResource @PSBoundParameters
-    $currentParameters = $PSBoundParameters
-    $currentParameters.Remove('ApplicationId') | Out-Null
-    $currentParameters.Remove('TenantId') | Out-Null
-    $currentParameters.Remove('CertificateThumbprint') | Out-Null
-    $currentParameters.Remove('ManagedIdentity') | Out-Null
-    $currentParameters.Remove('Credential') | Out-Null
-    $currentParameters.Remove('Ensure') | Out-Null
-    $currentParameters.Remove('AccessTokens') | Out-Null
+    $currentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     # Policy should exist but it doesn't
     if ($Ensure -eq 'Present' -and $currentAADPolicy.Ensure -eq 'Absent')
@@ -368,6 +361,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -458,4 +452,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
