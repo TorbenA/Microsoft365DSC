@@ -150,7 +150,7 @@ function Get-TargetResource
         {
             Write-Verbose -Message "Getting configuration of Office 365 User $UserPrincipalName"
 
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -457,9 +457,6 @@ function Set-TargetResource
         -Parameters $PSBoundParameters
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
-
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
 
     $user = Get-TargetResource @PSBoundParameters
     if ($user.Ensure -eq 'Present' -and $Ensure -eq 'Absent')
@@ -939,6 +936,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
@@ -1157,4 +1155,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

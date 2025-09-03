@@ -8,7 +8,7 @@ function Get-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [System.String]
-        $IsSingleInstance = 'Yes',
+        $IsSingleInstance,
 
         [Parameter()]
         [System.String]
@@ -53,8 +53,8 @@ function Get-TargetResource
 
     Write-Verbose -Message "Getting configuration of AzureAD Enriched Audit Logs"
 
-    New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -67,7 +67,7 @@ function Get-TargetResource
         -Parameters $PSBoundParameters
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
-    $nullResults = $PSBoundParameters
+    $nullResult = $PSBoundParameters
     try
     {
         $instance = Get-MgBetaNetworkAccessSettingEnrichedAuditLog -ErrorAction Stop
@@ -107,7 +107,7 @@ function Set-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [System.String]
-        $IsSingleInstance = 'Yes',
+        $IsSingleInstance,
 
         [Parameter()]
         [System.String]
@@ -152,6 +152,9 @@ function Set-TargetResource
 
     Write-Verbose -Message "Setting configuration of AzureAD Enriched Audit Logs"
 
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -193,7 +196,7 @@ function Test-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [System.String]
-        $IsSingleInstance = 'Yes',
+        $IsSingleInstance,
 
         [Parameter()]
         [System.String]
@@ -351,4 +354,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

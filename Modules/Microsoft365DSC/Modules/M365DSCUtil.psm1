@@ -1462,9 +1462,6 @@ function Export-M365DSCConfiguration
     # Suppress Progress overlays
     $Global:ProgressPreference = 'SilentlyContinue'
 
-    # Suppress Warnings
-    $Global:WarningPreference = 'SilentlyContinue'
-
     ##### FIRST CHECK AUTH PARAMETERS
     if ($PSBoundParameters.ContainsKey('Credential') -eq $true -and `
         -not [System.String]::IsNullOrEmpty($Credential))

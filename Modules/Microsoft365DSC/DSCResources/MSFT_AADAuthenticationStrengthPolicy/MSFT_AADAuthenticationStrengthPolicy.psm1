@@ -63,7 +63,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $DisplayName -ne $Script:exportedInstance.DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -218,11 +218,21 @@ function Set-TargetResource
         $BoundParameters.Remove('Id') | Out-Null
         $combinations = $BoundParameters.AllowedCombinations
         $BoundParameters.Remove('AllowedCombinations') | Out-Null
-        Update-MgBetaPolicyAuthenticationStrengthPolicy @BoundParameters
 
-        Write-Verbose -Message "Updating the Azure AD Authentication Strength Policy allowed combination with DisplayName {$DisplayName}"
-        Update-MgBetaPolicyAuthenticationStrengthPolicyAllowedCombination -AuthenticationStrengthPolicyId $currentInstance.Id `
-            -AllowedCombinations $AllowedCombinations
+        # Need to retrieve the policy to make sure we are not trying to update a builtIn one.
+        $policyObject = Get-MgBetaPolicyAuthenticationStrengthPolicy -AuthenticationStrengthPolicyId $currentInstance.Id
+        if ($policyObject.PolicyType -eq 'builtIn')
+        {
+            Write-Error -Message "Authentication Strength Policy {$DisplayName} is a built-in and cannot be updated."
+        }
+        else
+        {
+            Update-MgBetaPolicyAuthenticationStrengthPolicy @BoundParameters
+
+            Write-Verbose -Message "Updating the Azure AD Authentication Strength Policy allowed combination with DisplayName {$DisplayName}"
+            Update-MgBetaPolicyAuthenticationStrengthPolicyAllowedCombination -AuthenticationStrengthPolicyId $currentInstance.Id `
+                -AllowedCombinations $combinations
+        }
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
@@ -356,7 +366,7 @@ function Export-TargetResource
     {
         #region resource generator code
         [array]$getValue = Get-MgBetaPolicyAuthenticationStrengthPolicy `
-            -ErrorAction Stop
+            -ErrorAction Stop | Where-Object -FilterScript { $_.PolicyType -ne 'builtIn' }
         #endregion
 
         $i = 1
@@ -426,4 +436,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
