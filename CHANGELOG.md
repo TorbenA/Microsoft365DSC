@@ -30,6 +30,9 @@
     FIXES [#4229](https://github.com/microsoft/Microsoft365DSC/issues/4229)
 * IntuneDeviceComplianceScriptLinux
   * Initial release.
+* IntuneSecurityBaselineMicrosoftEdge
+  * Fixed an issue where the latest policy version was not exported.
+    FIXES [#6415](https://github.com/microsoft/Microsoft365DSC/issues/6415)
 * IntuneWindowsUpdateForBusinessHotpatchProfileWindows10
   * Initial release.
     FIXES [#6368](https://github.com/microsoft/Microsoft365DSC/issues/6368)
