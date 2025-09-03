@@ -115,7 +115,7 @@ function Get-TargetResource
 
         #region resource generator code
         Write-Verbose 'Processing KeyRestrictions'
-        $complexKeyRestrictions = @{}
+        $complexKeyRestrictions = [ordered]@{}
         $complexKeyRestrictions.Add('AaGuids', $getValue.AdditionalProperties.keyRestrictions.aaGuids)
         if ($null -ne $getValue.AdditionalProperties.keyRestrictions.enforcementType)
         {
@@ -131,7 +131,7 @@ function Get-TargetResource
         $complexExcludeTargets = @()
         foreach ($currentExcludeTargets in $getValue.excludeTargets)
         {
-            $myExcludeTargets = @{}
+            $myExcludeTargets = [ordered]@{}
             if ($currentExcludeTargets.id -ne 'all_users')
             {
                 try
@@ -171,7 +171,7 @@ function Get-TargetResource
         $complexIncludeTargets = @()
         foreach ($currentIncludeTargets in $getValue.AdditionalProperties.includeTargets)
         {
-            $myIncludeTargets = @{}
+            $myIncludeTargets = [ordered]@{}
             if ($currentIncludeTargets.id -ne 'all_users')
             {
                 try

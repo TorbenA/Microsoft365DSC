@@ -273,8 +273,9 @@ function Get-TargetResource
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
+                        -All `
                         -Filter "Name eq '$DisplayName'" `
-                    -ErrorAction SilentlyContinue
+                        -ErrorAction SilentlyContinue
                 }
             }
             #endregion

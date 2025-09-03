@@ -202,7 +202,7 @@ function Get-TargetResource
         $complexCustomSubjectAlternativeNames = @()
         foreach ($currentcustomSubjectAlternativeNames in $getValue.AdditionalProperties.customSubjectAlternativeNames)
         {
-            $mycustomSubjectAlternativeNames = @{}
+            $mycustomSubjectAlternativeNames = [ordered]@{}
             $mycustomSubjectAlternativeNames.Add('Name', $currentcustomSubjectAlternativeNames.name)
             if ($null -ne $currentcustomSubjectAlternativeNames.sanType)
             {
@@ -217,7 +217,7 @@ function Get-TargetResource
         $complexExtendedKeyUsages = @()
         foreach ($currentextendedKeyUsages in $getValue.AdditionalProperties.extendedKeyUsages)
         {
-            $myextendedKeyUsages = @{}
+            $myextendedKeyUsages = [ordered]@{}
             $myextendedKeyUsages.Add('Name', $currentextendedKeyUsages.name)
             $myextendedKeyUsages.Add('ObjectIdentifier', $currentextendedKeyUsages.objectIdentifier)
             if ($myextendedKeyUsages.values.Where({ $null -ne $_ }).count -gt 0)

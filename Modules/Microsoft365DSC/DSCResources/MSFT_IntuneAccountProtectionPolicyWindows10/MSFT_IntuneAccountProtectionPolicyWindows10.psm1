@@ -140,11 +140,11 @@ function Get-TargetResource
             -All `
             -ErrorAction Stop
 
-        $policySettings = @{}
+        $policySettings = [ordered]@{}
         $policySettings = Export-IntuneSettingCatalogPolicySettings -Settings $settings -ReturnHashtable $policySettings -ContainsDeviceAndUserSettings
 
         #region resource generator code
-        $complexDeviceSettings = @{}
+        $complexDeviceSettings = [ordered]@{}
         if ($null -ne $policySettings.deviceSettings.lsaCfgFlags)
         {
             $complexDeviceSettings.Add('LsaCfgFlags', $policySettings.deviceSettings.lsaCfgFlags)
@@ -202,7 +202,7 @@ function Get-TargetResource
             $complexDeviceSettings = $null
         }
 
-        $complexUserSettings = @{}
+        $complexUserSettings = [ordered]@{}
         if ($null -ne $policySettings.userSettings.enablePinRecovery)
         {
             $complexUserSettings.Add('EnablePinRecovery', $policySettings.userSettings.enablePinRecovery)
@@ -248,8 +248,8 @@ function Get-TargetResource
             $complexUserSettings = $null
         }
 
-        $policySettings.Remove('deviceSettings') | Out-Null
-        $policySettings.Remove('userSettings') | Out-Null
+        $policySettings.Remove('DeviceSettings') | Out-Null
+        $policySettings.Remove('UserSettings') | Out-Null
         #endregion
 
         $results = @{

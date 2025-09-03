@@ -240,7 +240,7 @@ function Get-TargetResource
         $complexServers = @()
         foreach ($currentservers in $getValue.AdditionalProperties.server)
         {
-            $myservers = @{}
+            $myservers = [ordered]@{}
             $myservers.Add('address', $currentservers.address)
             $myservers.Add('description', $currentservers.description)
             $myservers.Add('isDefaultServer', $currentservers.isDefaultServer)
@@ -253,7 +253,7 @@ function Get-TargetResource
         $complexProxyServers = @()
         foreach ($currentservers in $getValue.AdditionalProperties.proxyServer)
         {
-            $myservers = @{}
+            $myservers = [ordered]@{}
             $myservers.Add('automaticConfigurationScriptUrl', $currentservers.automaticConfigurationScriptUrl)
             $myservers.Add('address', $currentservers.address)
             $myservers.Add('port', $currentservers.port)
@@ -266,7 +266,7 @@ function Get-TargetResource
         $complexCustomData = @()
         foreach ($value in $getValue.AdditionalProperties.customData)
         {
-            $myCustomdata = @{}
+            $myCustomdata = [ordered]@{}
             $myCustomdata.Add('key', $value.key)
             $myCustomdata.Add('value', $value.value)
             if ($myCustomdata.values.Where({$null -ne $_}).count -gt 0)
@@ -278,7 +278,7 @@ function Get-TargetResource
         $complexCustomKeyValueData = @()
         foreach ($value in $getValue.AdditionalProperties.customKeyValueData)
         {
-            $myCVdata = @{}
+            $myCVdata = [ordered]@{}
             $myCVdata.Add('name', $value.name)
             $myCVdata.Add('value', $value.value)
             if ($myCVdata.values.Where({$null -ne $_}).count -gt 0)
@@ -290,7 +290,7 @@ function Get-TargetResource
         $complexTargetedMobileApps = @()
         foreach ($value in $getValue.AdditionalProperties.targetedMobileApps)
         {
-            $myTMAdata = @{}
+            $myTMAdata = [ordered]@{}
             $myTMAdata.Add('name', $value.name)
             $myTMAdata.Add('publisher', $value.publisher)
             $myTMAdata.Add('appStoreUrl', $value.appStoreUrl)

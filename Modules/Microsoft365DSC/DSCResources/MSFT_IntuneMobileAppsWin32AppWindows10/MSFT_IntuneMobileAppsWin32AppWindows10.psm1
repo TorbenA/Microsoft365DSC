@@ -228,7 +228,7 @@ function Get-TargetResource
         $complexCategories = @()
         foreach ($category in $getValue.Categories)
         {
-            $myCategory = @{}
+            $myCategory = [ordered]@{}
             $myCategory.Add('Id', $category.id)
             $myCategory.Add('DisplayName', $category.displayName)
             $complexCategories += $myCategory
@@ -236,7 +236,7 @@ function Get-TargetResource
         $complexLargeIcon = $null
         if ($null -ne $getValue.LargeIcon.Value)
         {
-            $complexLargeIcon = @{}
+            $complexLargeIcon = [ordered]@{}
             $complexLargeIcon.Add('Type', $getValue.LargeIcon.Type)
             $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($getValue.LargeIcon.Value))
         }
@@ -286,7 +286,7 @@ function Get-TargetResource
 
         if ($null -ne $getValue.AdditionalProperties.installExperience)
         {
-            $complexInstallExperience = @{}
+            $complexInstallExperience = [ordered]@{}
             $complexInstallExperience.Add('DeviceRestartBehavior', $getValue.AdditionalProperties.installExperience.deviceRestartBehavior)
             $complexInstallExperience.Add('MaxRunTimeInMinutes', $getValue.AdditionalProperties.installExperience.maxRunTimeInMinutes)
             $complexInstallExperience.Add('RunAsAccount', $getValue.AdditionalProperties.installExperience.runAsAccount)
@@ -303,7 +303,7 @@ function Get-TargetResource
 
         if ($null -ne $getValue.AdditionalProperties.msiInformation)
         {
-            $complexMsiInformation = @{}
+            $complexMsiInformation = [ordered]@{}
             $complexMsiInformation.Add('ProductCode', $getValue.AdditionalProperties.msiInformation.productCode)
             $complexMsiInformation.Add('ProductVersion', $getValue.AdditionalProperties.msiInformation.productVersion)
             $complexMsiInformation.Add('UpgradeCode', $getValue.AdditionalProperties.msiInformation.upgradeCode)

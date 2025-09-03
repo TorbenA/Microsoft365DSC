@@ -1985,7 +1985,7 @@ function Get-ComplexTypeConstructorToString
         $spacing = $indent * $IndentCount
     }
 
-    $complexString.AppendLine($spacing + "`$$tempPropertyName" + " = @{}") | Out-Null
+    $complexString.AppendLine($spacing + "`$$tempPropertyName" + " = [ordered]@{}") | Out-Null
 
     foreach ($nestedProperty in $property.Properties)
     {

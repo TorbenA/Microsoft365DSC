@@ -1,5 +1,18 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneEpmElevationRulesPolicyWindows10
+  * Initial release.
+* IntuneEpmElevationSettingsPolicyWindows10
+  * Initial release.
+* M365DSCDRGUtil
+  * Changed the way how Settings Catalog properties are exported.
+* MISC
+  * Added ordering to hashtables.
+  * [BREAKING] Changed multiple property values and types in Intune resources. Refer to the
+    breaking change blog post for more information about the affected resources.
+
 # 1.25.903.1
 
 * AADAccessReviewDefinition

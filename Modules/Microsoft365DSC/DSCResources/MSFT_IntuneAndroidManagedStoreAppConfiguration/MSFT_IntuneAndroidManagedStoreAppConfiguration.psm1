@@ -144,9 +144,9 @@ function Get-TargetResource
         $complexPermissionActions = @()
         foreach ($setting in $getValue.AdditionalProperties.permissionActions)
         {
-            $mySettings = @{}
-            $mySettings.Add('permission', $setting['permission'])
+            $mySettings = [ordered]@{}
             $mySettings.Add('action', $setting['action'])
+            $mySettings.Add('permission', $setting['permission'])
 
             if ($mySettings.values.Where({ $null -ne $_ }).count -gt 0)
             {

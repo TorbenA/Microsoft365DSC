@@ -133,7 +133,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Azure AD Access Review Definition with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
-        $complexScope = @{}
+        $complexScope = [ordered]@{}
         $complexScope.Add('Query', $getValue.Scope.AdditionalProperties.query)
         $complexScope.Add('QueryRoot', $getValue.Scope.AdditionalProperties.queryRoot)
         $complexScope.Add('QueryType', $getValue.Scope.AdditionalProperties.queryType)
@@ -141,7 +141,7 @@ function Get-TargetResource
         $complexPrincipalScopes = @()
         foreach ($currentPrincipalScopes in $getValue.Scope.AdditionalProperties.principalScopes)
         {
-            $myPrincipalScopes = @{}
+            $myPrincipalScopes = [ordered]@{}
             $myPrincipalScopes.Add('Query', $currentPrincipalScopes.query)
             $myPrincipalScopes.Add('QueryRoot', $currentPrincipalScopes.queryRoot)
             $myPrincipalScopes.Add('QueryType', $currentPrincipalScopes.queryType)
@@ -158,7 +158,7 @@ function Get-TargetResource
         $complexResourceScopes = @()
         foreach ($currentResourceScopes in $getValue.Scope.AdditionalProperties.resourceScopes)
         {
-            $myResourceScopes = @{}
+            $myResourceScopes = [ordered]@{}
             $myResourceScopes.Add('Query', $currentResourceScopes.query)
             $myResourceScopes.Add('QueryRoot', $currentResourceScopes.queryRoot)
             $myResourceScopes.Add('QueryType', $currentResourceScopes.queryType)
@@ -183,11 +183,11 @@ function Get-TargetResource
             $complexScope = $null
         }
 
-        $complexSettings = @{}
+        $complexSettings = [ordered]@{}
         $complexApplyActions = @()
         foreach ($currentApplyActions in $getValue.Settings.applyActions)
         {
-            $myApplyActions = @{}
+            $myApplyActions = [ordered]@{}
             if ($null -ne $currentApplyActions.AdditionalProperties.'@odata.type')
             {
                 $myApplyActions.Add('odataType', $currentApplyActions.AdditionalProperties.'@odata.type'.ToString())
@@ -208,7 +208,7 @@ function Get-TargetResource
         $complexRecommendationInsightSettings = @()
         foreach ($currentRecommendationInsightSettings in $getValue.Settings.recommendationInsightSettings)
         {
-            $myRecommendationInsightSettings = @{}
+            $myRecommendationInsightSettings = [ordered]@{}
             $myRecommendationInsightSettings.Add('RecommendationLookBackDuration', $currentRecommendationInsightSettings.AdditionalProperties.recommendationLookBackDuration)
             if ($null -ne $currentRecommendationInsightSettings.AdditionalProperties.signInScope)
             {
@@ -230,8 +230,8 @@ function Get-TargetResource
             $complexSettings.Add('RecommendationLookBackDuration', $getValue.Settings.recommendationLookBackDuration.ToString())
         }
         $complexSettings.Add('RecommendationsEnabled', $getValue.Settings.recommendationsEnabled)
-        $complexRecurrence = @{}
-        $complexPattern = @{}
+        $complexRecurrence = [ordered]@{}
+        $complexPattern = [ordered]@{}
         $complexPattern.Add('DayOfMonth', $getValue.settings.recurrence.pattern.dayOfMonth)
         if ($null -ne $getValue.settings.recurrence.pattern.daysOfWeek)
         {
@@ -257,7 +257,7 @@ function Get-TargetResource
             $complexPattern = $null
         }
         $complexRecurrence.Add('Pattern', $complexPattern)
-        $complexRange = @{}
+        $complexRange = [ordered]@{}
         if ($null -ne $getValue.settings.recurrence.range.endDate)
         {
             $complexRange.Add('EndDate', ([DateTime]$getValue.settings.recurrence.range.endDate).ToString(''))
@@ -291,14 +291,14 @@ function Get-TargetResource
         $complexStageSettings = @()
         foreach ($currentStageSettings in $getValue.stageSettings)
         {
-            $myStageSettings = @{}
+            $myStageSettings = [ordered]@{}
             $myStageSettings.Add('DecisionsThatWillMoveToNextStage', $currentStageSettings.decisionsThatWillMoveToNextStage)
             $myStageSettings.Add('DependsOnValue', $currentStageSettings.dependsOn)
             $myStageSettings.Add('DurationInDays', $currentStageSettings.durationInDays)
             $complexRecommendationInsightSettings = @()
             foreach ($currentRecommendationInsightSettings in $currentStageSettings.recommendationInsightSettings)
             {
-                $myRecommendationInsightSettings = @{}
+                $myRecommendationInsightSettings = [ordered]@{}
 
                 if ($null -ne $currentRecommendationInsightSettings.recommendationLookBackDuration)
                 {
@@ -361,7 +361,7 @@ function Get-TargetResource
                         $reviewerType = 'Group'
                     }
                 }
-                $myFallbackReviewer = @{}
+                $myFallbackReviewer = [ordered]@{}
                 $myFallbackReviewer.Add('DisplayName', $currentQuery.body.displayName)
                 $myFallbackReviewer.Add('Type', $reviewerType)
                 $complexFallbackReviewers += $myFallbackReviewer
@@ -410,7 +410,7 @@ function Get-TargetResource
                     $reviewerType = 'Owner'
                 }
             }
-            $myReviewer = @{}
+            $myReviewer = [ordered]@{}
             $myReviewer.Add('DisplayName', $currentQuery.body.displayName)
             $myReviewer.Add('Type', $reviewerType)
             $complexReviewers += $myReviewer

@@ -93,7 +93,7 @@ function Get-TargetResource
         $complexCertificateAuthorities = @()
         foreach ($currentCertificateAuthorities in $getValue.certificateAuthorities)
         {
-            $myCertificateAuthorities = @{}
+            $myCertificateAuthorities = [ordered]@{}
             $myCertificateAuthorities.Add('Certificate', [System.Convert]::ToBase64String($currentCertificateAuthorities.certificate))
             $myCertificateAuthorities.Add('CertificateRevocationListUrl', $currentCertificateAuthorities.certificateRevocationListUrl)
             $myCertificateAuthorities.Add('DeltaCertificateRevocationListUrl', $currentCertificateAuthorities.deltaCertificateRevocationListUrl)

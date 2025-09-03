@@ -140,7 +140,7 @@ function Get-TargetResource
         $complexOmaSettings = @()
         foreach ($currentomaSettings in $getValue.AdditionalProperties.omaSettings)
         {
-            $myomaSettings = @{}
+            $myomaSettings = [ordered]@{}
 
             if ($currentomaSettings.isEncrypted -eq $true)
             {

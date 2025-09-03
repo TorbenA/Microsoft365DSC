@@ -1556,7 +1556,7 @@ function ConvertFrom-IntunePolicyAssignment
     $assignmentResult = @()
     foreach ($assignment in $Assignments)
     {
-        $hashAssignment = @{}
+        $hashAssignment = [ordered]@{}
         if ($null -ne $assignment.Target.'@odata.type')
         {
             $dataType = $assignment.Target.'@odata.type'
@@ -1595,10 +1595,6 @@ function ConvertFrom-IntunePolicyAssignment
                 $groupDisplayName = $group.DisplayName
             }
         }
-        if (-not [string]::IsNullOrEmpty($collectionId))
-        {
-            $hashAssignment.Add('collectionId', $collectionId)
-        }
         if ($dataType -eq '#microsoft.graph.allLicensedUsersAssignmentTarget')
         {
             $groupDisplayName = 'All users'
@@ -1610,6 +1606,10 @@ function ConvertFrom-IntunePolicyAssignment
         if ($null -ne $groupDisplayName)
         {
             $hashAssignment.Add('groupDisplayName', $groupDisplayName)
+        }
+        if (-not [string]::IsNullOrEmpty($collectionId))
+        {
+            $hashAssignment.Add('collectionId', $collectionId)
         }
         if ($IncludeDeviceFilter)
         {
@@ -3167,12 +3167,30 @@ function Get-IntuneSettingCatalogPolicySettingDSCValue
             Value = if ($isArray) { ,$DSCParams[$key] } else { $DSCParams[$key] }
         }
     }
+    elseif ($SettingValueType -like "*ChoiceSetting*" -and $SettingValueType -notlike "*Collection*")
+    {
+        $settingValue = ($SettingDefinition.AdditionalProperties.options | Where-Object { $_.optionValue.value -eq "$($DSCParams[$key])" }).itemId
+        if ([System.String]::IsNullOrEmpty($settingValue))
+        {
+            $settingValue = ($SettingDefinition.AdditionalProperties.options | Where-Object { $_.itemId -eq "$($SettingDefinition.Id)_$($DSCParams[$key])" }).itemId
+        }
+        return @{
+            SettingDefinition = $SettingDefinition
+            SettingValueType = $SettingValueType
+            Value = $settingValue
+        }
+    }
     elseif ($SettingValueType -like "*ChoiceSettingCollection*")
     {
         $values = @()
         foreach ($value in $DSCParams[$key])
         {
-            $values += "$($SettingDefinition.Id)_$value"
+            $valueToAdd = ($SettingDefinition.AdditionalProperties.options | Where-Object { $_.optionValue.value -eq "$value" }).itemId
+            if ([System.String]::IsNullOrEmpty($valueToAdd))
+            {
+                $valueToAdd = ($SettingDefinition.AdditionalProperties.options | Where-Object { $_.itemId -eq "$($SettingDefinition.Id)_$value" }).itemId
+            }
+            $values += $valueToAdd
         }
 
         return @{
@@ -3324,8 +3342,18 @@ function Export-IntuneSettingCatalogPolicySettings
         }
         '#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance'
         {
-            $settingValue = if ($IsRoot) { $SettingInstance.AdditionalProperties.choiceSettingValue.value } else { $SettingInstance.choiceSettingValue.value }
-            $settingValue = $settingValue.Split('_') | Select-Object -Last 1
+            $options = $settingDefinition.AdditionalProperties.options
+            $beforeSettingValue = if ($IsRoot) { $SettingInstance.AdditionalProperties.choiceSettingValue.value } else { $SettingInstance.choiceSettingValue.value }
+
+            $settingValue = ($options | Where-Object { $_.itemId -eq $beforeSettingValue }).optionValue.value
+            if ($settingValue -like "*=*" -or $settingValue -like "*{*}*")
+            {
+                # The value is not an actual value, but rather an assignment string. Fall back to the itemId and strip the prefix
+                # Examples are IntuneFirewallPolicyWindows10 -> target is a GUID, IntuneAntivirusPolicyWindows10ConfigMgr -> *Severity* is an assignment, e.g. 2=2
+                $settingValue = ($options | Where-Object { $_.itemId -eq $beforeSettingValue }).itemId.Replace("$($settingDefinition.Id)_", "")
+            }
+
+            #$settingValue = ($options | Where-Object { $_.itemId -eq $beforeSettingValue }).itemId.Replace("$($settingDefinition.Id)_", "")
             $childSettings = if ($IsRoot) { $SettingInstance.AdditionalProperties.choiceSettingValue.children } else { $SettingInstance.choiceSettingValue.children }
             foreach ($childSetting in $childSettings)
             {
@@ -3335,10 +3363,28 @@ function Export-IntuneSettingCatalogPolicySettings
         '#microsoft.graph.deviceManagementConfigurationChoiceSettingCollectionInstance'
         {
             $values = @()
+            $options = $settingDefinition.AdditionalProperties.options
             $childValues = if ($IsRoot) { $SettingInstance.AdditionalProperties.choiceSettingCollectionValue.value } else { $SettingInstance.choiceSettingCollectionValue.value }
             foreach ($value in $childValues)
             {
-                $values += $value.Split('_') | Select-Object -Last 1
+                $valueToReturn = ($options | Where-Object { $_.itemId -eq $value }).optionValue.value
+                if ($valueToReturn -like "*=*" -or $valueToReturn -like "*{*}*")
+                {
+                    # The value is not an actual value, but rather an assignment string. Fall back to the itemId and strip the prefix
+                    # Examples are IntuneFirewallPolicyWindows10 -> target is a GUID, IntuneAntivirusPolicyWindows10ConfigMgr -> *Severity* is an assignment, e.g. 2=2
+                    $valueToReturn = ($options | Where-Object { $_.itemId -eq $value }).itemId.Replace("$($settingDefinition.Id)_", "")
+                }
+                $values += $valueToReturn
+
+                #$values += ($options | Where-Object { $_.itemId -eq $value }).itemId.Replace("$($settingDefinition.Id)_", "")
+            }
+            if ($options[0].optionValue.'@odata.type' -like "*Integer*")
+            {
+                $values = [int[]]$values
+            }
+            elseif ($options[0].optionValue.'@odata.type' -like "*String*")
+            {
+                $values = [string[]]$values
             }
             $settingValue = $values
         }

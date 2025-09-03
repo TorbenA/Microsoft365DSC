@@ -237,7 +237,7 @@ function Get-TargetResource
         $complexAssociatedApps = @()
         foreach ($currentassociatedApps in $getValue.AdditionalProperties.associatedApps)
         {
-            $myassociatedApps = @{}
+            $myassociatedApps = [ordered]@{}
             if ($null -ne $currentassociatedApps.appType)
             {
                 $myassociatedApps.Add('AppType', $currentassociatedApps.appType.ToString())
@@ -249,7 +249,7 @@ function Get-TargetResource
             }
         }
 
-        $complexCryptographySuite = @{}
+        $complexCryptographySuite = [ordered]@{}
         if ($null -ne $getValue.AdditionalProperties.cryptographySuite.authenticationTransformConstants)
         {
             $complexCryptographySuite.Add('AuthenticationTransformConstants', $getValue.AdditionalProperties.cryptographySuite.authenticationTransformConstants.ToString())
@@ -282,7 +282,7 @@ function Get-TargetResource
         $complexDnsRules = @()
         foreach ($currentdnsRules in $getValue.AdditionalProperties.dnsRules)
         {
-            $mydnsRules = @{}
+            $mydnsRules = [ordered]@{}
             $mydnsRules.Add('AutoTrigger', $currentdnsRules.autoTrigger)
             $mydnsRules.Add('Name', $currentdnsRules.name)
             $mydnsRules.Add('Persistent', $currentdnsRules.persistent)
@@ -294,7 +294,7 @@ function Get-TargetResource
             }
         }
 
-        $complexProxyServer = @{}
+        $complexProxyServer = [ordered]@{}
         $complexProxyServer.Add('BypassProxyServerForLocalAddress', $getValue.AdditionalProperties.proxyServer.bypassProxyServerForLocalAddress)
         $complexProxyServer.Add('Address', $getValue.AdditionalProperties.proxyServer.address)
         $complexProxyServer.Add('AutomaticConfigurationScriptUrl', $getValue.AdditionalProperties.proxyServer.automaticConfigurationScriptUrl)
@@ -312,7 +312,7 @@ function Get-TargetResource
         $complexRoutes = @()
         foreach ($currentroutes in $getValue.AdditionalProperties.routes)
         {
-            $myroutes = @{}
+            $myroutes = [ordered]@{}
             $myroutes.Add('DestinationPrefix', $currentroutes.destinationPrefix)
             $myroutes.Add('PrefixSize', $currentroutes.prefixSize)
             if ($myroutes.values.Where({ $null -ne $_ }).count -gt 0)
@@ -321,7 +321,7 @@ function Get-TargetResource
             }
         }
 
-        $complexSingleSignOnEku = @{}
+        $complexSingleSignOnEku = [ordered]@{}
         $complexSingleSignOnEku.Add('Name', $getValue.AdditionalProperties.singleSignOnEku.name)
         $complexSingleSignOnEku.Add('ObjectIdentifier', $getValue.AdditionalProperties.singleSignOnEku.objectIdentifier)
         if ($complexSingleSignOnEku.values.Where({ $null -ne $_ }).count -eq 0)
@@ -332,7 +332,7 @@ function Get-TargetResource
         $complexTrafficRules = @()
         foreach ($currenttrafficRules in $getValue.AdditionalProperties.trafficRules)
         {
-            $mytrafficRules = @{}
+            $mytrafficRules = [ordered]@{}
             $mytrafficRules.Add('AppId', $currenttrafficRules.appId)
             if ($null -ne $currenttrafficRules.appType)
             {
@@ -342,7 +342,7 @@ function Get-TargetResource
             $complexLocalAddressRanges = @()
             foreach ($currentLocalAddressRanges in $currenttrafficRules.localAddressRanges)
             {
-                $myLocalAddressRanges = @{}
+                $myLocalAddressRanges = [ordered]@{}
                 $myLocalAddressRanges.Add('LowerAddress', $currentLocalAddressRanges.lowerAddress)
                 $myLocalAddressRanges.Add('UpperAddress', $currentLocalAddressRanges.upperAddress)
                 $myLocalAddressRanges.Add('CidrAddress', $currentLocalAddressRanges.cidrAddress)
@@ -359,7 +359,7 @@ function Get-TargetResource
             $complexLocalPortRanges = @()
             foreach ($currentLocalPortRanges in $currenttrafficRules.localPortRanges)
             {
-                $myLocalPortRanges = @{}
+                $myLocalPortRanges = [ordered]@{}
                 $myLocalPortRanges.Add('LowerNumber', $currentLocalPortRanges.lowerNumber)
                 $myLocalPortRanges.Add('UpperNumber', $currentLocalPortRanges.upperNumber)
                 if ($myLocalPortRanges.values.Where({ $null -ne $_ }).count -gt 0)
@@ -373,7 +373,7 @@ function Get-TargetResource
             $complexRemoteAddressRanges = @()
             foreach ($currentRemoteAddressRanges in $currenttrafficRules.remoteAddressRanges)
             {
-                $myRemoteAddressRanges = @{}
+                $myRemoteAddressRanges = [ordered]@{}
                 $myRemoteAddressRanges.Add('LowerAddress', $currentRemoteAddressRanges.lowerAddress)
                 $myRemoteAddressRanges.Add('UpperAddress', $currentRemoteAddressRanges.upperAddress)
                 $myRemoteAddressRanges.Add('CidrAddress', $currentRemoteAddressRanges.cidrAddress)
@@ -390,7 +390,7 @@ function Get-TargetResource
             $complexRemotePortRanges = @()
             foreach ($currentRemotePortRanges in $currenttrafficRules.remotePortRanges)
             {
-                $myRemotePortRanges = @{}
+                $myRemotePortRanges = [ordered]@{}
                 $myRemotePortRanges.Add('LowerNumber', $currentRemotePortRanges.lowerNumber)
                 $myRemotePortRanges.Add('UpperNumber', $currentRemotePortRanges.upperNumber)
                 if ($myRemotePortRanges.values.Where({ $null -ne $_ }).count -gt 0)
@@ -416,7 +416,7 @@ function Get-TargetResource
         $complexServers = @()
         foreach ($currentservers in $getValue.AdditionalProperties.servers)
         {
-            $myservers = @{}
+            $myservers = [ordered]@{}
             $myservers.Add('Address', $currentservers.address)
             $myservers.Add('Description', $currentservers.description)
             $myservers.Add('IsDefaultServer', $currentservers.isDefaultServer)

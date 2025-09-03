@@ -10,7 +10,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
     [Write, Description("The collection Id that is the target of the assignment.(ConfigMgr)")] String collectionId;
 };
 
-[ClassVersion("1.0.0.0"), FriendlyName("IntuneEndpointDetectionAndResponsePolicyMacOS")]
+[ClassVersion("1.0.0.1"), FriendlyName("IntuneEndpointDetectionAndResponsePolicyMacOS")]
 class MSFT_IntuneEndpointDetectionAndResponsePolicyMacOS : OMI_BaseResource
 {
     [Key, Description("Policy name")] String DisplayName;
@@ -18,7 +18,7 @@ class MSFT_IntuneEndpointDetectionAndResponsePolicyMacOS : OMI_BaseResource
     [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];
     [Write, Description("The unique identifier for an entity. Read-only.")] String Id;
     [Write, Description("Value of tag")] String tags_item_value;
-    [Write, Description("Type of tag (0: GROUP)"), ValueMap{"0"}, Values{"0"}] String tags_item_key;
+    [Write, Description("Type of tag. (GROUP)"), ValueMap{"GROUP"}, Values{"GROUP"}] String tags_item_key;
     [Write, Description("Represents the assignment to the Intune policy."), EmbeddedInstance("MSFT_DeviceManagementConfigurationPolicyAssignments")] String Assignments[];
     [Write, Description("Present ensures the policy exists, absent ensures it is removed."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] string Ensure;
     [Write, Description("Credentials of the Admin"), EmbeddedInstance("MSFT_Credential")] string Credential;

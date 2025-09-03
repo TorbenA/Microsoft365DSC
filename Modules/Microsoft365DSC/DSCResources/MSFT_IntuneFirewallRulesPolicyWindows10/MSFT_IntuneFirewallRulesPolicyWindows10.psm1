@@ -137,7 +137,7 @@ function Get-TargetResource
         $complexFirewallRuleName = @()
         foreach ($currentFirewallRuleName in $policySettings.firewallRuleName)
         {
-            $myFirewallRuleName = @{}
+            $myFirewallRuleName = [ordered]@{}
             $myFirewallRuleName.Add('Enabled', $currentFirewallRuleName.enabled)
             $myFirewallRuleName.Add('Name', $currentFirewallRuleName.name)
             $myFirewallRuleName.Add('InterfaceTypes', $currentFirewallRuleName.interfaceTypes)

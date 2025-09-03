@@ -185,6 +185,7 @@ function Get-TargetResource
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
+                        -All `
                         -Filter "Name eq '$($DisplayName -replace "'", "''")' and creationSource eq 'WindowsSecurity' and technologies eq 'configManager'" `
                         -ErrorAction SilentlyContinue
                 }

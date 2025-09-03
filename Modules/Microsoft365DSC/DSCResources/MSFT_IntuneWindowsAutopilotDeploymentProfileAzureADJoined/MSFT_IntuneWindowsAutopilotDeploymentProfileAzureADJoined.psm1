@@ -161,7 +161,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Windows Autopilot Deployment Profile Azure AD Joined with Id {$Id} and DisplayName {$DisplayName} was found."
 
         #region resource generator code
-        $complexEnrollmentStatusScreenSettings = @{}
+        $complexEnrollmentStatusScreenSettings = [ordered]@{}
         $complexEnrollmentStatusScreenSettings.Add('AllowDeviceUseBeforeProfileAndAppInstallComplete', $getValue.EnrollmentStatusScreenSettings.allowDeviceUseBeforeProfileAndAppInstallComplete)
         $complexEnrollmentStatusScreenSettings.Add('AllowDeviceUseOnInstallFailure', $getValue.EnrollmentStatusScreenSettings.allowDeviceUseOnInstallFailure)
         $complexEnrollmentStatusScreenSettings.Add('AllowLogCollectionOnInstallFailure', $getValue.EnrollmentStatusScreenSettings.allowLogCollectionOnInstallFailure)
@@ -174,7 +174,7 @@ function Get-TargetResource
             $complexEnrollmentStatusScreenSettings = $null
         }
 
-        $complexOutOfBoxExperienceSettings = @{}
+        $complexOutOfBoxExperienceSettings = [ordered]@{}
         if ($null -ne $getValue.OutOfBoxExperienceSettings.deviceUsageType)
         {
             $complexOutOfBoxExperienceSettings.Add('DeviceUsageType', $getValue.OutOfBoxExperienceSettings.deviceUsageType.ToString())

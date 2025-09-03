@@ -349,7 +349,7 @@ function Get-TargetResource
         $SubmitSamplesConsent,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
+        [ValidateSet('Onboarding', 'Offboarding')]
         [System.String]
         $TamperProtection,
 
@@ -919,7 +919,7 @@ function Set-TargetResource
         $SubmitSamplesConsent,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
+        [ValidateSet('Onboarding', 'Offboarding')]
         [System.String]
         $TamperProtection,
 
@@ -1451,7 +1451,7 @@ function Test-TargetResource
         $SubmitSamplesConsent,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
+        [ValidateSet('Onboarding', 'Offboarding')]
         [System.String]
         $TamperProtection,
 

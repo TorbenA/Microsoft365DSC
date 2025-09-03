@@ -135,8 +135,8 @@ function Get-TargetResource {
         Write-Verbose -Message "An Azure AD Group Eligibility Schedule with Id {$Id} and DisplayName {$GroupDisplayName} was found"
 
         #region resource generator code
-        $complexScheduleInfo = @{}
-        $complexExpiration = @{}
+        $complexScheduleInfo = [ordered]@{}
+        $complexExpiration = [ordered]@{}
         $complexExpiration.Add('Duration', $getValue.scheduleInfo.expiration.duration)
         if ($null -ne $getValue.scheduleInfo.expiration.endDateTime)
         {
@@ -151,8 +151,8 @@ function Get-TargetResource {
             $complexExpiration = $null
         }
         $complexScheduleInfo.Add('Expiration', $complexExpiration)
-        $complexRecurrence = @{}
-        $complexPattern = @{}
+        $complexRecurrence = [ordered]@{}
+        $complexPattern = [ordered]@{}
         $complexPattern.Add('DayOfMonth', $getValue.scheduleInfo.recurrence.pattern.dayOfMonth)
         if ($null -ne $getValue.scheduleInfo.recurrence.pattern.daysOfWeek)
         {
@@ -177,7 +177,7 @@ function Get-TargetResource {
             $complexPattern = $null
         }
         $complexRecurrence.Add('Pattern', $complexPattern)
-        $complexRange = @{}
+        $complexRange = [ordered]@{}
         if ($null -ne $getValue.scheduleInfo.recurrence.range.endDate)
         {
             $complexRange.Add('EndDate', ([DateTime]$getValue.scheduleInfo.recurrence.range.endDate).ToString(''))

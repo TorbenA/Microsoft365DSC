@@ -158,7 +158,7 @@ function Get-TargetResource
         $complexPermissionActions = @()
         foreach ($currentpermissionActions in $getValue.AdditionalProperties.permissionActions)
         {
-            $mypermissionActions = @{}
+            $mypermissionActions = [ordered]@{}
             if ($null -ne $currentpermissionActions.action)
             {
                 $mypermissionActions.Add('Action', $currentpermissionActions.action.ToString())
@@ -173,7 +173,7 @@ function Get-TargetResource
         $complexSettings = @()
         foreach ($currentsettings in $getValue.AdditionalProperties.settings)
         {
-            $mysettings = @{}
+            $mysettings = [ordered]@{}
             $mysettings.Add('AppConfigKey', $currentsettings.appConfigKey)
             if ($null -ne $currentsettings.appConfigKeyType)
             {

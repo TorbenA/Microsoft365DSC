@@ -186,7 +186,7 @@ function Get-TargetResource
         $complexCategories = @()
         foreach ($category in $instance.Categories)
         {
-            $myCategory = @{}
+            $myCategory = [ordered]@{}
             $myCategory.Add('Id', $category.id)
             $myCategory.Add('DisplayName', $category.displayName)
             $complexCategories += $myCategory
@@ -195,21 +195,21 @@ function Get-TargetResource
         $complexChildApps = @()
         foreach ($childApp in $instance.AdditionalProperties.childApps)
         {
-            $myChildApp = @{}
+            $myChildApp = [ordered]@{}
             $myChildApp.Add('BundleId', $childApp.bundleId)
             $myChildApp.Add('BuildNumber', $childApp.buildNumber)
             $myChildApp.Add('VersionNumber', $childApp.versionNumber)
             $complexChildApps += $myChildApp
         }
 
-        $complexLargeIcon = @{}
+        $complexLargeIcon = [ordered]@{}
         if ($null -ne $instance.LargeIcon.Value)
         {
             $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($instance.LargeIcon.Value))
             $complexLargeIcon.Add('Type', $instance.LargeIcon.Type)
         }
 
-        $complexMinimumSupportedOperatingSystem = @{}
+        $complexMinimumSupportedOperatingSystem = [ordered]@{}
         if ($null -ne $instance.AdditionalProperties.minimumSupportedOperatingSystem)
         {
             $instance.AdditionalProperties.minimumSupportedOperatingSystem.GetEnumerator() | ForEach-Object {

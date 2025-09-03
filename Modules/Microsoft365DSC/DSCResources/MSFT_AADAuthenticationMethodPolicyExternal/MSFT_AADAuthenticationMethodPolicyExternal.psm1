@@ -117,7 +117,7 @@ function Get-TargetResource
         $complexExcludeTargets = @()
         foreach ($currentExcludeTargets in $getValue.excludeTargets)
         {
-            $myExcludeTargets = @{}
+            $myExcludeTargets = [ordered]@{}
             if ($currentExcludeTargets.id -ne 'all_users')
             {
                 try
@@ -156,7 +156,7 @@ function Get-TargetResource
         $complexincludeTargets = @()
         foreach ($currentincludeTargets in $getValue.includeTargets)
         {
-            $myincludeTargets = @{}
+            $myincludeTargets = [ordered]@{}
             if ($currentIncludeTargets.id -ne 'all_users')
             {
                 try

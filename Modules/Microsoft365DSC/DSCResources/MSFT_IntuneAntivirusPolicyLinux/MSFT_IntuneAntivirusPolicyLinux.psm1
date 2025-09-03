@@ -259,7 +259,7 @@ function Get-TargetResource
         $complexExclusions = @()
         foreach ($currentExclusions in $policySettings.exclusions)
         {
-            $myExclusions = @{}
+            $myExclusions = [ordered]@{}
             if ($null -ne $currentExclusions.exclusions_item_type)
             {
                 $myExclusions.Add('Exclusions_item_type', $currentExclusions.exclusions_item_type)
@@ -290,7 +290,7 @@ function Get-TargetResource
         $complexThreatTypeSettings = @()
         foreach ($currentThreatTypeSettings in $policySettings.threatTypeSettings)
         {
-            $myThreatTypeSettings = @{}
+            $myThreatTypeSettings = [ordered]@{}
             if ($null -ne $currentThreatTypeSettings.threatTypeSettings_item_key)
             {
                 $myThreatTypeSettings.Add('ThreatTypeSettings_item_key', $currentThreatTypeSettings.threatTypeSettings_item_key)

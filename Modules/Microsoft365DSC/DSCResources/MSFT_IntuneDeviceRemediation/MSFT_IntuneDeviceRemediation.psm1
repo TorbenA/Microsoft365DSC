@@ -162,7 +162,7 @@ function Get-TargetResource
         $complexDetectionScriptParameters = @()
         foreach ($currentDetectionScriptParameters in $getValue.detectionScriptParameters)
         {
-            $myDetectionScriptParameters = @{}
+            $myDetectionScriptParameters = [ordered]@{}
             $myDetectionScriptParameters.Add('ApplyDefaultValueWhenNotAssigned', $currentDetectionScriptParameters.applyDefaultValueWhenNotAssigned)
             $myDetectionScriptParameters.Add('Description', $currentDetectionScriptParameters.description)
             $myDetectionScriptParameters.Add('IsRequired', $currentDetectionScriptParameters.isRequired)
@@ -181,7 +181,7 @@ function Get-TargetResource
         $complexRemediationScriptParameters = @()
         foreach ($currentRemediationScriptParameters in $getValue.remediationScriptParameters)
         {
-            $myRemediationScriptParameters = @{}
+            $myRemediationScriptParameters = [ordered]@{}
             $myRemediationScriptParameters.Add('ApplyDefaultValueWhenNotAssigned', $currentRemediationScriptParameters.applyDefaultValueWhenNotAssigned)
             $myRemediationScriptParameters.Add('Description', $currentRemediationScriptParameters.description)
             $myRemediationScriptParameters.Add('IsRequired', $currentRemediationScriptParameters.isRequired)

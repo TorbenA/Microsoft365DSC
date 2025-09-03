@@ -204,13 +204,13 @@ function Get-TargetResource
         $complexCategories = @()
         foreach ($category in $instance.Categories)
         {
-            $myCategory = @{}
+            $myCategory = [ordered]@{}
             $myCategory.Add('Id', $category.id)
             $myCategory.Add('DisplayName', $category.displayName)
             $complexCategories += $myCategory
         }
 
-        $complexExcludedApps = @{}
+        $complexExcludedApps = [ordered]@{}
         if ($null -ne $instance.AdditionalProperties.excludedApps)
         {
             $instance.AdditionalProperties.excludedApps.GetEnumerator() | ForEach-Object {

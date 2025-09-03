@@ -183,7 +183,7 @@ function Get-TargetResource
 
         Write-Verbose -Message "Found an Intune Wifi Configuration Policy for Windows10 with id {$Id}"
 
-        $complexDeviceManagementApplicabilityRuleOsEdition = @{}
+        $complexDeviceManagementApplicabilityRuleOsEdition = [ordered]@{}
         $complexDeviceManagementApplicabilityRuleOsEdition.Add('OsEditionTypes', [string[]]$getValue.DeviceManagementApplicabilityRuleOSEdition.OsEditionTypes)
         $complexDeviceManagementApplicabilityRuleOsEdition.Add('RuleType', [string]$getValue.DeviceManagementApplicabilityRuleOSEdition.RuleType)
         if ($complexDeviceManagementApplicabilityRuleOsEdition.values.Where({$null -ne $_}).Count -eq 0)
@@ -191,7 +191,7 @@ function Get-TargetResource
             $complexDeviceManagementApplicabilityRuleOsEdition = $null
         }
 
-        $complexDeviceManagementApplicabilityRuleOsVersion = @{}
+        $complexDeviceManagementApplicabilityRuleOsVersion = [ordered]@{}
         $complexDeviceManagementApplicabilityRuleOsVersion.Add('MaxOSVersion', $getValue.DeviceManagementApplicabilityRuleOSVersion.MaxOSVersion)
         $complexDeviceManagementApplicabilityRuleOsVersion.Add('MinOSVersion', $getValue.DeviceManagementApplicabilityRuleOSVersion.MinOSVersion)
         $complexDeviceManagementApplicabilityRuleOsVersion.Add('RuleType', [string]$getValue.DeviceManagementApplicabilityRuleOSVersion.RuleType)
