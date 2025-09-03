@@ -3487,7 +3487,11 @@ function Update-IntuneDeviceConfigurationPolicy
 
         [Parameter()]
         [Array]
-        $Settings
+        $Settings,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds
     )
 
     try
@@ -3500,6 +3504,7 @@ function Update-IntuneDeviceConfigurationPolicy
             'platforms'         = $Platforms
             'technologies'      = $Technologies
             'settings'          = $Settings
+            'roleScopeTagIds'   = $RoleScopeTagIds
         }
 
         if ($PSBoundParameters.ContainsKey('TemplateReferenceId'))

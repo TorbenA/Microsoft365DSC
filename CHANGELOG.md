@@ -54,10 +54,13 @@
     FIXES [#5937](https://github.com/microsoft/Microsoft365DSC/issues/5937)
 * MISC
   * Code cleanup across all EXO, Commerce, Defender and Fabric resources.
-  * Fixing issues connection SPO to sovereign clouds.
+  * Fixed an issue across Intune resources using the Settings Catalog which
+    were not correctly setting their `RoleScopeTagIds`.
+    FIXES [#6434](https://github.com/microsoft/Microsoft365DSC/issues/6434)
+  * Fixed issues when connecting SPO to sovereign clouds.
   * Updated settings and formatting of method names across all resources.
-  * Update documentation for configuring workload authentication.
-  * Update permissions for EXO resources.
+  * Updated documentation for configuring workload authentication.
+  * Updated permissions for EXO resources.
     FIXES [#3841](https://github.com/microsoft/Microsoft365DSC/issues/3841)
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.0.
