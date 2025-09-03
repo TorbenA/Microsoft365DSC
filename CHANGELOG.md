@@ -45,6 +45,8 @@
   * Added 12 new supported properties.
 * TeamsMeetingBroadcastConfiguration
   * Fixes an issue where the SdnAPIToken wasn't exported as a string.
+* TeamsMessagingPolicy
+  * Added support for 12 new properties.
 * TeamsTeam
   * Fixed an issue where an invalid search query was invoked.
     FIXES [#5937](https://github.com/microsoft/Microsoft365DSC/issues/5937)
