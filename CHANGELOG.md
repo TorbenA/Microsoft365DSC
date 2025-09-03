@@ -18,6 +18,8 @@
     FIXES [#6368](https://github.com/microsoft/Microsoft365DSC/issues/6368)
 * SCInsiderRiskPolicy
   * Fixed an issue where an empty `EnableTeam` value would throw during Get operation.
+* TeamsCallingPolicy
+  * Added 12 new supported properties.
 * TeamsMeetingBroadcastConfiguration
   * Fixes an issue where the SdnAPIToken wasn't exported as a string.
 * TeamsTeam
