@@ -1,13 +1,16 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADAuthenticationStrengthPolicy'
-
+$Script:PropertiesToRetrieve = @('id', 'displayName', 'description', 'settingDefinitionId', 'settingInstance')
 function Get-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
     (
+        #region resource generator code
+        [Parameter()]
+        [System.String]
+        $Description,
+
         [Parameter(Mandatory = $true)]
-        [ValidateLength(1, 30)]
         [System.String]
         $DisplayName,
 
@@ -17,11 +20,8 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
-        $Description,
-
-        [Parameter()]
-        [System.String[]]
-        $AllowedCombinations,
+        $DiscoveryScript,
+        #endregion
 
         [Parameter()]
         [System.String]
@@ -57,13 +57,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Getting the Azure AD Authentication Strength Policy for {$DisplayName}"
+    Write-Verbose -Message "Getting configuration for the Intune Device Compliance Script for Linux with Id {$Id} and Name {$DisplayName}"
 
     try
     {
-        if (-not $Script:exportedInstance -or $DisplayName -ne $Script:exportedInstance.DisplayName)
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -82,19 +82,35 @@ function Get-TargetResource
             $nullResult.Ensure = 'Absent'
 
             $getValue = $null
-
+            #region resource generator code
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaPolicyAuthenticationStrengthPolicy -AuthenticationStrengthPolicyId $Id -ErrorAction 'SilentlyContinue'
+                $getValue = Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings/$($Id)?`$select=$($Script:PropertiesToRetrieve -join ',')" -SkipHttpErrorCheck -ErrorAction SilentlyContinue
+                if ($getValue -is [hashtable] -and $getValue.ContainsKey('error'))
+                {
+                    # Policy does not exist, set it to $null
+                    $getValue = $null
+                }
             }
 
             if ($null -eq $getValue)
             {
-                $getValue = Get-MgBetaPolicyAuthenticationStrengthPolicy | Where-Object -FilterScript { $_.DisplayName -eq $DisplayName } -ErrorAction SilentlyContinue
-            }
+                Write-Verbose -Message "Could not find an Intune Device Compliance Script for Linux with Id {$Id}"
 
+                if (-not [System.String]::IsNullOrEmpty($DisplayName))
+                {
+                    $getValue = (Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings?`$filter=DisplayName eq '$($DisplayName -replace "'", "''")' and settingDefinitionId eq 'linux_customcompliance_discoveryscript_reusablesetting'&select=$($Script:PropertiesToRetrieve -join ',')" `
+                        -ErrorAction SilentlyContinue).value
+                    if ($getValue -is [array] -and $getValue.Count -eq 0)
+                    {
+                        $getValue = $null
+                    }
+                }
+            }
+            #endregion
             if ($null -eq $getValue)
             {
+                Write-Verbose -Message "Could not find an Intune Device Compliance Script for Linux with Name {$DisplayName}."
                 return $nullResult
             }
         }
@@ -102,19 +118,23 @@ function Get-TargetResource
         {
             $getValue = $Script:exportedInstance
         }
+        $Id = $getValue.id
+        Write-Verbose -Message "An Intune Device Compliance Script for Linux with Id {$Id} and Name {$DisplayName} was found"
+
         $results = @{
-            Description           = $getValue.Description
-            DisplayName           = $getValue.DisplayName
-            Id                    = $getValue.Id
-            AllowedCombinations   = $getValue.allowedCombinations
-            Ensure                = 'Present'
-            Credential            = $Credential
-            ApplicationId         = $ApplicationId
-            TenantId              = $TenantId
-            ApplicationSecret     = $ApplicationSecret
-            CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
-            AccessTokens          = $AccessTokens
+            #region resource generator code
+            Description                    = $getValue.description
+            DiscoveryScript                = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($getValue.settingInstance.simpleSettingValue.value))
+            DisplayName                    = $getValue.displayName
+            Id                             = $getValue.id
+            Ensure                         = 'Present'
+            Credential                     = $Credential
+            ApplicationId                  = $ApplicationId
+            TenantId                       = $TenantId
+            ApplicationSecret              = $ApplicationSecret
+            CertificateThumbprint          = $CertificateThumbprint
+            ManagedIdentity                = $ManagedIdentity.IsPresent
+            #endregion
         }
 
         return [System.Collections.Hashtable] $results
@@ -136,8 +156,12 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
+        #region resource generator code
+        [Parameter()]
+        [System.String]
+        $Description,
+
         [Parameter(Mandatory = $true)]
-        [ValidateLength(1, 30)]
         [System.String]
         $DisplayName,
 
@@ -147,11 +171,8 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
-        $Description,
-
-        [Parameter()]
-        [System.String[]]
-        $AllowedCombinations,
+        $DiscoveryScript,
+        #endregion
 
         [Parameter()]
         [System.String]
@@ -187,7 +208,8 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting the Azure AD Authentication Strength Policy for {$DisplayName}"
+
+    Write-Verbose -Message "Setting configuration of the Intune Device Compliance Script for Linux with Id {$Id} and Name {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -203,41 +225,57 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $boundParameters.Remove('DiscoveryScript')
+    $boundParameters.Add('settingDefinitionId', 'linux_customcompliance_discoveryscript_reusablesetting')
+    $boundParameters.Add('settingInstance', @{
+        '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance'
+        settingDefinitionId = 'linux_customcompliance_discoveryscript_reusablesetting'
+        simpleSettingValue = @{
+            '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+            value = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($DiscoveryScript))
+        }
+    })
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating new Azure AD AuthenticationStrengthPolicy {$DisplayName}"
-        $BoundParameters.Remove('Id') | Out-Null
-        New-MgBetaPolicyAuthenticationStrengthPolicy @BoundParameters
+        Write-Verbose -Message "Creating an Intune Device Compliance Script for Linux with Name {$DisplayName}"
+
+        $createParameters = ([Hashtable]$boundParameters).Clone()
+        $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
+        $createParameters.Remove('Id') | Out-Null
+
+        #region resource generator code
+        $null = Invoke-MgGraphRequest -Uri '/beta/deviceManagement/reusablePolicySettings' -Method POST -Body $($createParameters | ConvertTo-Json -Depth 10)
+        #endregion
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating the Azure AD Authentication Strength Policy with DisplayName {$DisplayName}"
-        $BoundParameters.Add('AuthenticationStrengthPolicyId', $currentInstance.Id)
-        $BoundParameters.Remove('Id') | Out-Null
-        $combinations = $BoundParameters.AllowedCombinations
-        $BoundParameters.Remove('AllowedCombinations') | Out-Null
+        Write-Verbose -Message "Updating the Intune Device Compliance Script for Linux with Id {$($currentInstance.Id)}"
 
-        # Need to retrieve the policy to make sure we are not trying to update a builtIn one.
-        $policyObject = Get-MgBetaPolicyAuthenticationStrengthPolicy -AuthenticationStrengthPolicyId $currentInstance.Id
-        if ($policyObject.PolicyType -eq 'builtIn')
-        {
-            Write-Error -Message "Authentication Strength Policy {$DisplayName} is a built-in and cannot be updated."
-        }
-        else
-        {
-            Update-MgBetaPolicyAuthenticationStrengthPolicy @BoundParameters
+        $updateParameters = ([Hashtable]$boundParameters).Clone()
+        $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
+        $updateParameters.Remove('Id') | Out-Null
 
-            Write-Verbose -Message "Updating the Azure AD Authentication Strength Policy allowed combination with DisplayName {$DisplayName}"
-            Update-MgBetaPolicyAuthenticationStrengthPolicyAllowedCombination -AuthenticationStrengthPolicyId $currentInstance.Id `
-                -AllowedCombinations $combinations
-        }
+        #region resource generator code
+        Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings/$($currentInstance.Id)" -Method PUT -Body $($updateParameters | ConvertTo-Json -Depth 10)
+        #endregion
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removing the Azure AD Authentication Method Policy with Id {$($currentInstance.Id)}"
-        Remove-MgBetaPolicyAuthenticationStrengthPolicy -AuthenticationStrengthPolicyId $currentInstance.Id
+        Write-Verbose -Message "Removing the Intune Device Compliance Script for Linux with Id {$($currentInstance.Id)}"
+        #region resource generator code
+        try
+        {
+            Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings/$($currentInstance.Id)" -Method DELETE
+        }
+        catch
+        {
+            $errorMessage = "Failed to remove the Intune Device Compliance Script for Linux with Id {$($currentInstance.Id)} and Name {$($currentInstance.DisplayName)}."
+            $errorMessage += " Please make sure it is not referenced by a Linux compliance policy."
+            throw $errorMessage
+        }
+        #endregion
     }
 }
 
@@ -247,8 +285,12 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
+        #region resource generator code
+        [Parameter()]
+        [System.String]
+        $Description,
+
         [Parameter(Mandatory = $true)]
-        [ValidateLength(1, 30)]
         [System.String]
         $DisplayName,
 
@@ -258,11 +300,8 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
-        $Description,
-
-        [Parameter()]
-        [System.String[]]
-        $AllowedCombinations,
+        $DiscoveryScript,
+        #endregion
 
         [Parameter()]
         [System.String]
@@ -297,6 +336,7 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
 
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
@@ -318,6 +358,10 @@ function Export-TargetResource
     [OutputType([System.String])]
     param
     (
+        [Parameter()]
+        [System.String]
+        $Filter,
+
         [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
@@ -365,8 +409,17 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        [array]$getValue = Get-MgBetaPolicyAuthenticationStrengthPolicy `
-            -ErrorAction Stop | Where-Object -FilterScript { $_.PolicyType -ne 'builtIn' }
+        $baseFilter = "settingDefinitionId eq 'linux_customcompliance_discoveryscript_reusablesetting'"
+        if (-not [System.String]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($Filter) and ($baseFilter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = (Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings?`$select=$($Script:PropertiesToRetrieve -join ',')&`$filter=$Filter" `
+            -ErrorAction Stop).value
         #endregion
 
         $i = 1
@@ -381,38 +434,36 @@ function Export-TargetResource
         }
         foreach ($config in $getValue)
         {
-            if ($null -ne $Global:M365DSCExportResourceInstancesCount)
-            {
-                $Global:M365DSCExportResourceInstancesCount++
-            }
-
             $displayedKey = $config.Id
             if (-not [String]::IsNullOrEmpty($config.displayName))
             {
                 $displayedKey = $config.displayName
             }
+            elseif (-not [string]::IsNullOrEmpty($config.name))
+            {
+                $displayedKey = $config.name
+            }
             Write-M365DSCHost -Message "    |---[$i/$($getValue.Count)] $displayedKey" -DeferWrite
             $params = @{
                 DisplayName           = $config.DisplayName
-                Id                    = $config.Id
                 Ensure                = 'Present'
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
             $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
+
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
                 -ModulePath $PSScriptRoot `
                 -Results $Results `
                 -Credential $Credential
-
             $dscContent += $currentDSCBlock
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
@@ -436,4 +487,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

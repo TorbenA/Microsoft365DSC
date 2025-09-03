@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneSecurityBaselineMicrosoftEdge'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -24,123 +22,90 @@ function Get-TargetResource
         $Id,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $InternetExplorerIntegrationReloadInIEModeAllowed,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableAccountProtectionUI,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $SSLErrorOverrideAllowed,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableAppBrowserUI,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $InternetExplorerIntegrationZoneIdentifierMhtFileAllowed,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableClearTpmButton,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $BrowserLegacyExtensionPointsBlockingEnabled,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableDeviceSecurityUI,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $SitePerProcess,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableFamilyUI,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $EdgeEnhanceImagesEnabled,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableHealthUI,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $ExtensionInstallBlocklist,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableNetworkUI,
 
         [Parameter()]
-        [ValidateLength(0, 2048)]
-        [System.String[]]
-        $ExtensionInstallBlocklistDesc,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableNotifications,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $WebSQLAccess,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableEnhancedNotifications,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $BasicAuthOverHttpEnabled,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableTpmFirmwareUpdateWarning,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $MicrosoftEdge_HTTPAuthentication_AuthSchemes,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableVirusUI,
+
+        [Parameter()]
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $HideRansomwareDataRecovery,
+
+        [Parameter()]
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $HideWindowsSecurityNotificationAreaControl,
 
         [Parameter()]
         [System.String]
-        $AuthSchemes_AuthSchemes,
+        $CompanyName,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
         [System.String]
-        $NativeMessagingUserLevelHosts,
+        $Email,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
         [System.String]
-        $InsecurePrivateNetworkRequestsAllowed,
+        $Phone,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
         [System.String]
-        $InternetExplorerModeToolbarButtonEnabled,
+        $URL,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
+        [ValidateSet('1', '0')]
         [System.String]
-        $SmartScreenEnabled,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $SmartScreenPuaEnabled,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $PreventSmartScreenPromptOverride,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $PreventSmartScreenPromptOverrideForFiles,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $SharedArrayBufferUnrestrictedAccessAllowed,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $TyposquattingCheckerEnabled,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $edge_DynamicCodeSettings,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $DynamicCodeSettings_DynamicCodeSettings,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $ApplicationBoundEncryptionEnabled,
+        $TamperProtection,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -181,14 +146,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Getting configuration of the Intune Security Baseline Microsoft Edge with Id {$Id} and Name {$DisplayName}"
+    Write-Verbose -Message "Getting configuration for the Intune Antivirus Policy Security Experience for Windows10 Config Mgr with Id {$Id} and DisplayName {$DisplayName}"
 
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -216,20 +180,19 @@ function Get-TargetResource
 
             if ($null -eq $getValue)
             {
-                Write-Verbose -Message "Could not find an Intune Security Baseline Microsoft Edge with Id {$Id}"
+                Write-Verbose -Message "Could not find an Intune Antivirus Policy Security Experience for Windows10 Config Mgr with Id {$Id}"
 
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
-                        -All `
-                        -Filter "Name eq '$($DisplayName -replace "'", "''")'" `
+                        -Filter "Name eq '$($DisplayName -replace "'", "''")' and creationSource eq 'WindowsSecurity' and technologies eq 'configManager'" `
                         -ErrorAction SilentlyContinue
                 }
             }
             #endregion
             if ($null -eq $getValue)
             {
-                Write-Verbose -Message "Could not find an Intune Security Baseline Microsoft Edge with Name {$DisplayName}."
+                Write-Verbose -Message "Could not find an Intune Antivirus Policy Security Experience for Windows10 Config Mgr with DisplayName {$DisplayName}."
                 return $nullResult
             }
         }
@@ -238,7 +201,7 @@ function Get-TargetResource
             $getValue = $Script:exportedInstance
         }
         $Id = $getValue.Id
-        Write-Verbose -Message "An Intune Security Baseline Microsoft Edge with Id {$Id} and Name {$DisplayName} was found"
+        Write-Verbose -Message "An Intune Antivirus Policy Security Experience for Windows10 Config Mgr with Id {$Id} and DisplayName {$DisplayName} was found"
 
         # Retrieve policy specific settings
         [array]$settings = Get-MgBetaDeviceManagementConfigurationPolicySetting `
@@ -312,128 +275,96 @@ function Set-TargetResource
         $Id,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $InternetExplorerIntegrationReloadInIEModeAllowed,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableAccountProtectionUI,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $SSLErrorOverrideAllowed,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableAppBrowserUI,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $InternetExplorerIntegrationZoneIdentifierMhtFileAllowed,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableClearTpmButton,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $BrowserLegacyExtensionPointsBlockingEnabled,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableDeviceSecurityUI,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $SitePerProcess,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableFamilyUI,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $EdgeEnhanceImagesEnabled,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableHealthUI,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $ExtensionInstallBlocklist,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableNetworkUI,
 
         [Parameter()]
-        [ValidateLength(0, 2048)]
-        [System.String[]]
-        $ExtensionInstallBlocklistDesc,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableNotifications,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $WebSQLAccess,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableEnhancedNotifications,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $BasicAuthOverHttpEnabled,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableTpmFirmwareUpdateWarning,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $MicrosoftEdge_HTTPAuthentication_AuthSchemes,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableVirusUI,
+
+        [Parameter()]
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $HideRansomwareDataRecovery,
+
+        [Parameter()]
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $HideWindowsSecurityNotificationAreaControl,
 
         [Parameter()]
         [System.String]
-        $AuthSchemes_AuthSchemes,
+        $CompanyName,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
         [System.String]
-        $NativeMessagingUserLevelHosts,
+        $Email,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
         [System.String]
-        $InsecurePrivateNetworkRequestsAllowed,
+        $Phone,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
         [System.String]
-        $InternetExplorerModeToolbarButtonEnabled,
+        $URL,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
+        [ValidateSet('1', '0')]
         [System.String]
-        $SmartScreenEnabled,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $SmartScreenPuaEnabled,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $PreventSmartScreenPromptOverride,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $PreventSmartScreenPromptOverrideForFiles,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $SharedArrayBufferUnrestrictedAccessAllowed,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $TyposquattingCheckerEnabled,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $edge_DynamicCodeSettings,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $DynamicCodeSettings_DynamicCodeSettings,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $ApplicationBoundEncryptionEnabled,
+        $TamperProtection,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Assignments,
         #endregion
+
         [Parameter()]
         [System.String]
         [ValidateSet('Absent', 'Present')]
@@ -468,19 +399,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting configuration of the Intune Security Baseline Microsoft Edge with Id {$Id} and Name {$Name}"
-
-    if ($PSBoundParameters.ContainsKey('WebSQLAccess'))
-    {
-        Write-Warning -Message "The WebSQLAccess parameter is deprecated and will be removed in a future version. It will not be used in the current operation."
-        $PSBoundParameters.Remove('WebSQLAccess') | Out-Null
-    }
-
-    if ($PSBoundParameters.ContainsKey('EdgeEnhanceImagesEnabled'))
-    {
-        Write-Warning -Message "The EdgeEnhanceImagesEnabled parameter is deprecated and will be removed in a future version. It will not be used in the current operation."
-        $PSBoundParameters.Remove('EdgeEnhanceImagesEnabled') | Out-Null
-    }
+    Write-Verbose -Message "Setting configuration of the Intune Antivirus Policy Security Experience for Windows10 Config Mgr with Id {$Id} and DisplayName {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -495,26 +414,56 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $boundParameters.Remove('TamperProtection') | Out-Null
 
-    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
-    $templateReferenceId = 'c66347b7-8325-4954-a235-3bf2233dfbfd_3'
+    $templateReferenceId = 'd948ff9b-99cb-4ee0-8012-1fbc09685377_1'
     $platforms = 'windows10'
-    $technologies = 'mdm'
+    $technologies = 'configManager'
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating an Intune Security Baseline Microsoft Edge with Name {$DisplayName}"
-        $BoundParameters.Remove("Assignments") | Out-Null
+        Write-Verbose -Message "Creating an Intune Antivirus Policy Security Experience for Windows10 Config Mgr with Name {$DisplayName}"
+        $boundParameters.Remove("Assignments") | Out-Null
 
-        $settings = Get-IntuneSettingCatalogPolicySetting `
-            -DSCParams ([System.Collections.Hashtable]$BoundParameters) `
+        [array]$settings = Get-IntuneSettingCatalogPolicySetting `
+            -DSCParams ([System.Collections.Hashtable]$boundParameters) `
             -TemplateId $templateReferenceId
+
+        if ($PSBoundParameters.ContainsKey('DisableNotifications'))
+        {
+            $settings += @{
+                '@odata.type'     = '#microsoft.graph.deviceManagementConfigurationSetting'
+                settingInstance = @{
+                    '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance'
+                    choiceSettingValue = @{
+                        children = @()
+                        value = "device_vendor_msft_policy_config_windowsdefendersecuritycenter_disablenotifications_$DisableNotifications"
+                    }
+                    settingDefinitionId = 'device_vendor_msft_policy_config_windowsdefendersecuritycenter_disablenotifications'
+                }
+            }
+        }
+
+        if ($PSBoundParameters.ContainsKey('TamperProtection'))
+        {
+            $settings += @{
+                '@odata.type'     = '#microsoft.graph.deviceManagementConfigurationSetting'
+                settingInstance = @{
+                    '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance'
+                    choiceSettingValue = @{
+                        children = @()
+                        value = "vendor_msft_defender_configuration_tamperprotection_$TamperProtection"
+                    }
+                    settingDefinitionId = 'vendor_msft_defender_configuration_tamperprotection'
+                }
+            }
+        }
 
         $createParameters = @{
             Name              = $DisplayName
             Description       = $Description
-            TemplateReference = @{ templateId = $templateReferenceId }
+            CreationSource    = 'WindowsSecurity'
             Platforms         = $platforms
             Technologies      = $technologies
             Settings          = $settings
@@ -535,23 +484,54 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating the Intune Security Baseline Microsoft Edge with Id {$($currentInstance.Id)}"
-        $BoundParameters.Remove("Assignments") | Out-Null
+        Write-Verbose -Message "Updating the Intune Antivirus Policy Security Experience for Windows10 Config Mgr with Id {$($currentInstance.Id)}"
+        $boundParameters.Remove("Assignments") | Out-Null
 
-        $settings = Get-IntuneSettingCatalogPolicySetting `
-            -DSCParams ([System.Collections.Hashtable]$BoundParameters) `
+        [array]$settings = Get-IntuneSettingCatalogPolicySetting `
+            -DSCParams ([System.Collections.Hashtable]$boundParameters) `
             -TemplateId $templateReferenceId
+
+        if ($PSBoundParameters.ContainsKey('DisableNotifications'))
+        {
+            $settings += @{
+                '@odata.type'     = '#microsoft.graph.deviceManagementConfigurationSetting'
+                settingInstance = @{
+                    '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance'
+                    choiceSettingValue = @{
+                        children = @()
+                        value = "device_vendor_msft_policy_config_windowsdefendersecuritycenter_disablenotifications_$DisableNotifications"
+                    }
+                    settingDefinitionId = 'device_vendor_msft_policy_config_windowsdefendersecuritycenter_disablenotifications'
+                }
+            }
+        }
+
+        if ($PSBoundParameters.ContainsKey('TamperProtection'))
+        {
+            $settings += @{
+                '@odata.type'     = '#microsoft.graph.deviceManagementConfigurationSetting'
+                settingInstance = @{
+                    '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance'
+                    choiceSettingValue = @{
+                        children = @()
+                        value = "vendor_msft_defender_configuration_tamperprotection_$TamperProtection"
+                    }
+                    settingDefinitionId = 'vendor_msft_defender_configuration_tamperprotection'
+                }
+            }
+        }
 
         Update-IntuneDeviceConfigurationPolicy `
             -DeviceConfigurationPolicyId $currentInstance.Id `
             -Name $DisplayName `
             -Description $Description `
-            -TemplateReferenceId $templateReferenceId `
+            -CreationSource 'WindowsSecurity' `
             -Platforms $platforms `
             -Technologies $technologies `
             -Settings $settings
 
         #region resource generator code
+
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
         Update-DeviceConfigurationPolicyAssignment `
             -DeviceConfigurationPolicyId $currentInstance.Id `
@@ -561,7 +541,7 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removing the Intune Security Baseline Microsoft Edge with Id {$($currentInstance.Id)}"
+        Write-Verbose -Message "Removing the Intune Antivirus Policy Security Experience for Windows10 Config Mgr with Id {$($currentInstance.Id)}"
         #region resource generator code
         Remove-MgBetaDeviceManagementConfigurationPolicy -DeviceManagementConfigurationPolicyId $currentInstance.Id
         #endregion
@@ -592,123 +572,90 @@ function Test-TargetResource
         $Id,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $InternetExplorerIntegrationReloadInIEModeAllowed,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableAccountProtectionUI,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $SSLErrorOverrideAllowed,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableAppBrowserUI,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $InternetExplorerIntegrationZoneIdentifierMhtFileAllowed,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableClearTpmButton,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $BrowserLegacyExtensionPointsBlockingEnabled,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableDeviceSecurityUI,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $SitePerProcess,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableFamilyUI,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $EdgeEnhanceImagesEnabled,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableHealthUI,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $ExtensionInstallBlocklist,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableNetworkUI,
 
         [Parameter()]
-        [ValidateLength(0, 2048)]
-        [System.String[]]
-        $ExtensionInstallBlocklistDesc,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableNotifications,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $WebSQLAccess,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableEnhancedNotifications,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $BasicAuthOverHttpEnabled,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableTpmFirmwareUpdateWarning,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $MicrosoftEdge_HTTPAuthentication_AuthSchemes,
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $DisableVirusUI,
+
+        [Parameter()]
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $HideRansomwareDataRecovery,
+
+        [Parameter()]
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $HideWindowsSecurityNotificationAreaControl,
 
         [Parameter()]
         [System.String]
-        $AuthSchemes_AuthSchemes,
+        $CompanyName,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
         [System.String]
-        $NativeMessagingUserLevelHosts,
+        $Email,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
         [System.String]
-        $InsecurePrivateNetworkRequestsAllowed,
+        $Phone,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
         [System.String]
-        $InternetExplorerModeToolbarButtonEnabled,
+        $URL,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
+        [ValidateSet('1', '0')]
         [System.String]
-        $SmartScreenEnabled,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $SmartScreenPuaEnabled,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $PreventSmartScreenPromptOverride,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $PreventSmartScreenPromptOverrideForFiles,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $SharedArrayBufferUnrestrictedAccessAllowed,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $TyposquattingCheckerEnabled,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $edge_DynamicCodeSettings,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $DynamicCodeSettings_DynamicCodeSettings,
-
-        [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
-        $ApplicationBoundEncryptionEnabled,
+        $TamperProtection,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -749,18 +696,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    if ($PSBoundParameters.ContainsKey('WebSQLAccess'))
-    {
-        Write-Warning -Message "The WebSQLAccess parameter is deprecated and will be removed in a future version. It will not be used in the current operation."
-        $PSBoundParameters.Remove('WebSQLAccess') | Out-Null
-    }
-
-    if ($PSBoundParameters.ContainsKey('EdgeEnhanceImagesEnabled'))
-    {
-        Write-Warning -Message "The EdgeEnhanceImagesEnabled parameter is deprecated and will be removed in a future version. It will not be used in the current operation."
-        $PSBoundParameters.Remove('EdgeEnhanceImagesEnabled') | Out-Null
-    }
-
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -773,10 +708,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune Security Baseline Microsoft Edge with Id {$Id} and Name {$DisplayName}"
+    Write-Verbose -Message "Testing configuration of the Intune Antivirus Policy Security Experience for Windows10 Config Mgr with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    [Hashtable]$ValuesToCheck = @{}
+    [hashtable]$ValuesToCheck = @{}
     $MyInvocation.MyCommand.Parameters.GetEnumerator() | ForEach-Object {
         if ($_.Key -notlike '*Variable' -or $_.Key -notin @('Verbose', 'Debug', 'ErrorAction', 'WarningAction', 'InformationAction'))
         {
@@ -888,14 +823,19 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        $policyTemplateID = 'c66347b7-8325-4954-a235-3bf2233dfbfd_3'
+        $baseFilter = "creationSource eq 'WindowsSecurity' and technologies eq 'configManager'"
+        if (-not [System.String]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($Filter) and ($baseFilter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
+        }
         [array]$getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
             -Filter $Filter `
             -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.TemplateReference.TemplateId -eq $policyTemplateID
-            }
+            -ErrorAction Stop
         #endregion
 
         $i = 1
@@ -978,4 +918,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
