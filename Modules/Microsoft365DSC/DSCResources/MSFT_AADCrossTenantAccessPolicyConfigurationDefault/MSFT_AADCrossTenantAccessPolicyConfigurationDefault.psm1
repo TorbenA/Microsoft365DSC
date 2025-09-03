@@ -101,11 +101,11 @@ function Get-TargetResource
             $B2BCollaborationInboundValue = @{
                 Applications = @{
                     AccessType = $getValue.B2BCollaborationInbound.Applications.AccessType
-                    Targets    = [System.String[]] $getValue.B2BCollaborationInbound.Applications.Targets
+                    Targets    = [System.Array]$getValue.B2BCollaborationInbound.Applications.Targets
                 }
                 UsersAndGroups =@{
                     AccessType = $getValue.B2BCollaborationInbound.UsersAndGroups.AccessType
-                    Targets    = [System.String[]] $getValue.B2BCollaborationInbound.UsersAndGroups.Targets
+                    Targets    = [System.Array] $getValue.B2BCollaborationInbound.UsersAndGroups.Targets
                 }
             }
         }
@@ -114,11 +114,11 @@ function Get-TargetResource
             $B2BCollaborationOutboundValue = @{
                 Applications = @{
                     AccessType = $getValue.B2BCollaborationOutbound.Applications.AccessType
-                    Targets    = [System.String[]] $getValue.B2BCollaborationOutbound.Applications.Targets
+                    Targets    = [System.Array] $getValue.B2BCollaborationOutbound.Applications.Targets
                 }
                 UsersAndGroups =@{
                     AccessType = $getValue.B2BCollaborationOutbound.UsersAndGroups.AccessType
-                    Targets    = [System.String[]] $getValue.B2BCollaborationOutbound.UsersAndGroups.Targets
+                    Targets    = [System.Array] $getValue.B2BCollaborationOutbound.UsersAndGroups.Targets
                 }
             }
         }
@@ -127,11 +127,11 @@ function Get-TargetResource
             $B2BDirectConnectInboundValue = @{
                 Applications = @{
                     AccessType = $getValue.B2BDirectConnectInbound.Applications.AccessType
-                    Targets    = [System.String[]] $getValue.B2BDirectConnectInbound.Applications.Targets
+                    Targets    = [System.Array] $getValue.B2BDirectConnectInbound.Applications.Targets
                 }
                 UsersAndGroups =@{
                     AccessType = $getValue.B2BDirectConnectInbound.UsersAndGroups.AccessType
-                    Targets    = [System.String[]] $getValue.B2BDirectConnectInbound.UsersAndGroups.Targets
+                    Targets    = [System.Array] $getValue.B2BDirectConnectInbound.UsersAndGroups.Targets
                 }
             }
         }
@@ -140,11 +140,11 @@ function Get-TargetResource
             $B2BDirectConnectOutboundValue = @{
                 Applications = @{
                     AccessType = $getValue.B2BDirectConnectOutbound.Applications.AccessType
-                    Targets    = [System.String[]] $getValue.B2BDirectConnectOutbound.Applications.Targets
+                    Targets    = [System.Array] $getValue.B2BDirectConnectOutbound.Applications.Targets
                 }
                 UsersAndGroups =@{
                     AccessType = $getValue.B2BDirectConnectOutbound.UsersAndGroups.AccessType
-                    Targets    = [System.String[]] $getValue.B2BDirectConnectOutbound.UsersAndGroups.Targets
+                    Targets    = [System.Array] $getValue.B2BDirectConnectOutbound.UsersAndGroups.Targets
                 }
             }
         }

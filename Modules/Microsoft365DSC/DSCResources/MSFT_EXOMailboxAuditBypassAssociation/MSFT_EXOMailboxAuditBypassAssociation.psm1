@@ -67,9 +67,8 @@ function Get-TargetResource
         {
             # We need the Where-Object clause because calling the cmdlet by Identity only can retrieve similar
             # patterns.
-            $instance = Get-MailboxAuditBypassAssociation -Identity $Identity.Replace("`r",'') -ErrorAction Stop |
-                Where-Object -FilterScript {$_.Identity -eq $Identity.Replace("`r",'')}
-
+            $instance = Get-MailboxAuditBypassAssociation -Identity $Identity.Replace("`r",'') -ErrorAction SilentlyContinue
+            $instance = $instance | Where-Object -FilterScript {$_.Identity -eq $Identity.Replace("`r",'')}
         }
         if ($null -eq $instance)
         {

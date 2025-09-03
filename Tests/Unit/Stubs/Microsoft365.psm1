@@ -3728,7 +3728,11 @@ function Get-MgBetaRoleManagementEntitlementManagementRoleAssignment
 
         [Parameter()]
         [Switch]
-        $All
+        $All,
+
+        [Parameter()]
+        [System.String]
+        $ExpandProperty
     )
 }
 function Update-MgBetaEntitlementManagementSetting
@@ -64718,6 +64722,34 @@ function New-CsTeamsCallingPolicy
         $Identity,
 
         [Parameter()]
+        [System.String]
+        $AIInterpreter,
+
+        [Parameter()]
+        [System.UInt32]
+        $CallingSpendUserLimit,
+
+        [Parameter()]
+        [System.String]
+        $Copilot,
+
+        [Parameter()]
+        [System.Boolean]
+        $EnableSpendLimits,
+
+        [Parameter()]
+        [System.String]
+        $RealTimeText,
+
+        [Parameter()]
+        [System.Boolean]
+        $ShowTeamsCallsInCallLog,
+
+        [Parameter()]
+        [System.String]
+        $VoiceSimulationInInterpreter,
+
+        [Parameter()]
         [System.Boolean]
         $PreventTollBypass,
 
@@ -65008,6 +65040,34 @@ function New-CsTeamsEventsPolicy
         [Parameter()]
         [System.String]
         $AllowTownhalls,
+
+        [Parameter()]
+        [System.String]
+        $BroadcastPremiumApps,
+
+        [Parameter()]
+        [System.String]
+        $ImmersiveEvents,
+
+        [Parameter()]
+        [System.String]
+        $RecordingForTownhall,
+
+        [Parameter()]
+        [System.String]
+        $RecordingForWebinar,
+
+        [Parameter()]
+        [System.String]
+        $TownhallEventAttendeeAccess,
+
+        [Parameter()]
+        [System.String]
+        $TranscriptionForTownhall,
+
+        [Parameter()]
+        [System.String]
+        $TranscriptionForWebinar,
 
         [Parameter()]
         [System.String]
@@ -65478,6 +65538,10 @@ function New-CsTeamsMessagingPolicy
 {
     [CmdletBinding()]
     param(
+        [Parameter()]
+        [System.Boolean]
+        $UsersCanDeleteBotMessages,
+
         [Parameter()]
         [System.Boolean]
         $AllowOwnerDeleteMessage,
@@ -66620,6 +66684,34 @@ function Set-CsTeamsCallingPolicy
         $Identity,
 
         [Parameter()]
+        [System.String]
+        $AIInterpreter,
+
+        [Parameter()]
+        [System.UInt32]
+        $CallingSpendUserLimit,
+
+        [Parameter()]
+        [System.String]
+        $Copilot,
+
+        [Parameter()]
+        [System.Boolean]
+        $EnableSpendLimits,
+
+        [Parameter()]
+        [System.String]
+        $RealTimeText,
+
+        [Parameter()]
+        [System.Boolean]
+        $ShowTeamsCallsInCallLog,
+
+        [Parameter()]
+        [System.String]
+        $VoiceSimulationInInterpreter,
+
+        [Parameter()]
         [System.Boolean]
         $PreventTollBypass,
 
@@ -66910,6 +67002,34 @@ function Set-CsTeamsEventsPolicy
         [Parameter()]
         [System.String]
         $AllowTownhalls,
+
+        [Parameter()]
+        [System.String]
+        $BroadcastPremiumApps,
+
+        [Parameter()]
+        [System.String]
+        $ImmersiveEvents,
+
+        [Parameter()]
+        [System.String]
+        $RecordingForTownhall,
+
+        [Parameter()]
+        [System.String]
+        $RecordingForWebinar,
+
+        [Parameter()]
+        [System.String]
+        $TownhallEventAttendeeAccess,
+
+        [Parameter()]
+        [System.String]
+        $TranscriptionForTownhall,
+
+        [Parameter()]
+        [System.String]
+        $TranscriptionForWebinar,
 
         [Parameter()]
         [System.String]
@@ -67452,6 +67572,10 @@ function Set-CsTeamsMessagingPolicy
 {
     [CmdletBinding()]
     param(
+        [Parameter()]
+        [System.Boolean]
+        $UsersCanDeleteBotMessages,
+
         [Parameter()]
         [System.Boolean]
         $AllowOwnerDeleteMessage,

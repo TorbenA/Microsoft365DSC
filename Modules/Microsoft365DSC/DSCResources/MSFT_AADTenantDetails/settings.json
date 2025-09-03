@@ -17,9 +17,6 @@
         ],
         "update": [
           {
-            "name": "Organization.Read.All"
-          },
-          {
             "name": "Organization.ReadWrite.All"
           }
         ]
@@ -31,9 +28,6 @@
           }
         ],
         "update": [
-          {
-            "name": "Organization.Read.All"
-          },
           {
             "name": "Organization.ReadWrite.All"
           }

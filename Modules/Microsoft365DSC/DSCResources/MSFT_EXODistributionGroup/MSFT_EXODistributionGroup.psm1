@@ -281,7 +281,15 @@ function Get-TargetResource
         $distributionMembersValue = @()
         foreach ($member in $distributionGroupMembers)
         {
-            $distributionMembersValue += $member.PrimarySmtpAddress
+            if (-not [System.String]::IsNullOrEmpty($member.PrimarySmtpAddress))
+            {
+                $distributionMembersValue += $member.PrimarySmtpAddress
+            }
+            else
+            {
+                 # For RecipientType 'User', PrimarySmtpAddress is unavailable, but WindowsLiveID is, and works with Add-DistributionGroupMember
+                $distributionMembersValue += $member.WindowsLiveID
+            }
         }
 
         Write-Verbose -Message "Found existing Distribution Group {$Identity}."
@@ -674,7 +682,9 @@ function Set-TargetResource
     {
         Write-Verbose -Message "The Distribution Group {$Identity} exists but shouldn't. Removing it."
         # Use the group identity value retrieved from Get-TargetResource, in case we got the group using PrimarySmtpAddress
-        Remove-DistributionGroup -Identity $currentDistributionGroup.Identity -Confirm:$false
+        Remove-DistributionGroup -Identity $currentDistributionGroup.Identity `
+                                -BypassSecurityGroupManagerCheck `
+                                -Confirm:$false
     }
     # Update even if we just created the group. There are properties that can only be set with the set- cmdlet.
     if ($Ensure -eq 'Present')

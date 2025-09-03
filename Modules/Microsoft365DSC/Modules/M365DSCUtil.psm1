@@ -1461,9 +1461,6 @@ function Export-M365DSCConfiguration
     # Suppress Progress overlays
     $Global:ProgressPreference = 'SilentlyContinue'
 
-    # Suppress Warnings
-    $Global:WarningPreference = 'SilentlyContinue'
-
     ##### FIRST CHECK AUTH PARAMETERS
     if ($PSBoundParameters.ContainsKey('Credential') -eq $true -and `
         -not [System.String]::IsNullOrEmpty($Credential))
@@ -1553,6 +1550,14 @@ function Export-M365DSCConfiguration
     $data.Add('M365DSCExportId', $currentExportID)
     $data.Add('ConnectionMode', $ConnectionMode)
 
+    $Global:M365DSCTelemetryConnectionToGraphParams = @{
+        ApplicationId         = $ApplicationId
+        TenantId              = $TenantId
+        CertificateThumbprint = $CertificateThumbprint
+        Credential            = $Credential
+        AccessTokens          = $AccessTokens
+        ManagedIdentity       = $ManagedIdentity
+    }
     Add-M365DSCTelemetryEvent -Type 'ExportInitiated' -Data $data
     if ($null -ne $Workloads)
     {
@@ -5334,19 +5339,28 @@ function Write-M365DSCHost
 function Invoke-M365DSCGraphBatchRequest
 {
     [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable[]])]
     param (
         [Parameter(Mandatory = $true)]
         [System.Collections.Hashtable[]]
         $Requests
     )
 
-    $request = @{
-        requests = $Requests
+    $batchResponses = @()
+    for ($i = 0; $i -lt $Requests.Count; $i += 20)
+    {
+        $batchRequestSized = $Requests[$i..([Math]::Min($i + 19, $Requests.Count - 1))]
+
+        $request = @{
+            requests = $batchRequestSized
+        }
+
+        $batchResponses += (Invoke-MgGraphRequest -Method POST `
+            -Uri 'beta/$batch' `
+            -Body ($request | ConvertTo-Json -Depth 10)).responses
     }
 
-    (Invoke-MgGraphRequest -Method POST `
-        -Uri 'beta/$batch' `
-        -Body ($request | ConvertTo-Json -Depth 10)).responses
+    return ,$batchResponses
 }
 
 Export-ModuleMember -Function @(
