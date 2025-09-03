@@ -158,7 +158,7 @@ function Test-TargetResource
         if (($null -ne $CurrentValues[$key]) `
                 -and ($CurrentValues[$key].GetType().Name -eq 'DateTime'))
         {
-            $CurrentValues[$key] = $CurrentValues[$key].toString()
+            $CurrentValues[$key] = $CurrentValues[$key].ToString()
         }
     }
 

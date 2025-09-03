@@ -376,7 +376,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of the Intune Role Scope Tag with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
+    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
     $testResult = $true
 
     #Compare Cim instances

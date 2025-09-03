@@ -11,6 +11,9 @@
 * AADEntitlementManagementAccessPackageAssignmentPolicy
   * Added support for Groups as well as single users.
     FIXES [#6257](https://github.com/microsoft/Microsoft365DSC/issues/6257)
+* AADServicePrincipal
+  * Fixed an issue where assigning members to a Service Principal would throw an error when
+    more than one member was assigned.
 * ADOPermissionGroupSettings
   * Reduced export time by 90%.
 * IntuneAntivirusPolicyWindows10ConfigMgr
@@ -18,15 +21,23 @@
 * IntuneAntivirusPolicySecurityExperienceWindows10ConfigMgr
   * Initial release.
     FIXES [#4229](https://github.com/microsoft/Microsoft365DSC/issues/4229)
+* IntuneDeviceComplianceScriptLinux
+  * Initial release.
 * IntuneWindowsUpdateForBusinessHotpatchProfileWindows10
   * Initial release.
     FIXES [#6368](https://github.com/microsoft/Microsoft365DSC/issues/6368)
 * SCInsiderRiskPolicy
   * Fixed an issue where an empty `EnableTeam` value would throw during Get operation.
+* TeamsCallingPolicy
+  * Added 12 new supported properties.
 * TeamsMeetingBroadcastConfiguration
   * Fixes an issue where the SdnAPIToken wasn't exported as a string.
+* TeamsTeam
+  * Fixed an issue where an invalid search query was invoked.
+    FIXES [#5937](https://github.com/microsoft/Microsoft365DSC/issues/5937)
 * MISC
   * Fixing issues connection SPO to sovereign clouds.
+  * Updated settings and formatting of method names across all resources.
   * Update documentation for configuring workload authentication.
   * Update permissions for EXO resources.
     FIXES [#3841](https://github.com/microsoft/Microsoft365DSC/issues/3841)
@@ -103,6 +114,10 @@
   * Fixed an issue where duplicate parameters would lead to an error during generation.
     FIXES [#5489](https://github.com/microsoft/Microsoft365DSC/issues/5489)
 * DEPENDENCIES
+  * Updated Az.Accounts to version 5.0.1.
+  * Updated Az.ResourceGraph to version 1.2.1.
+  * Updated Az.Resources to version 8.0.0.
+  * Updated Az.SecurityInsights to version 3.2.0.
   * Updated ReverseDSC to version 2.0.0.29.
 
 # 1.25.730.1
