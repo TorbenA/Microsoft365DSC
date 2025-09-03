@@ -6,18 +6,33 @@
     "update": []
   },
   "permissions": {
-    "graph": {
+    "Azure Service Management": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "user_impersonation"
+          }
+        ],
+        "update": [
+          {
+            "name": "user_impersonation"
+          }
+        ]
       },
       "application": {
         "read": [],
         "update": []
       }
+    },
+    "azure": {
+      "requiredRoles": [
+        "Security Reader",
+        "Security Admin"
+      ]
     }
   },
   "requiredModules": [
-    "Az.Accounts"
+    "Az.Accounts",
+    "Az.Security"
   ]
 }

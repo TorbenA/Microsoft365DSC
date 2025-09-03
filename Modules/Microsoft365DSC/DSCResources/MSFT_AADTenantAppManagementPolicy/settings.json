@@ -8,18 +8,26 @@
   "permissions": {
     "graph": {
       "delegated": {
-        "read": [],
-        "update": []
-      },
-      "application": {
         "read": [
           {
-            "name": "Policy.Read.All"
+            "name": "Policy.Read.ApplicationConfiguration"
           }
         ],
         "update": [
           {
+            "name": "Policy.ReadWrite.ApplicationConfiguration"
+          }
+        ]
+      },
+      "application": {
+        "read": [
+          {
             "name": "Policy.Read.ApplicationConfiguration"
+          }
+        ],
+        "update": [
+          {
+            "name": "Policy.ReadWrite.ApplicationConfiguration"
           }
         ]
       }

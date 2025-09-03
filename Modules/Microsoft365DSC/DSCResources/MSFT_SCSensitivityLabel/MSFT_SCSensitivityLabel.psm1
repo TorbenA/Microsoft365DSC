@@ -373,7 +373,7 @@ function Get-TargetResource
         }
         if ($null -ne $label.Settings)
         {
-            $advancedSettingsValue = Convert-StringToAdvancedSettings -AdvancedSettings $label.Settings
+            [array]$advancedSettingsValue = Convert-StringToAdvancedSettings -AdvancedSettings $label.Settings
         }
         Write-Verbose "Found existing Sensitivity Label $($Name)"
 
@@ -2198,4 +2198,3 @@ function Test-AutoLabelingSettings
 }
 
 Export-ModuleMember -Function *-TargetResource
-
