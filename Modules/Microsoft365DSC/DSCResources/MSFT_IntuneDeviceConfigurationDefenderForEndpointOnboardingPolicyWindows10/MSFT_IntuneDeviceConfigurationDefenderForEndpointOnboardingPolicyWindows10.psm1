@@ -311,7 +311,7 @@ function Set-TargetResource
         Write-Verbose -Message "Creating an Intune Device Configuration Defender For Endpoint Onboarding Policy for Windows10 with DisplayName {$DisplayName}"
         $BoundParameters.Remove('Assignments') | Out-Null
 
-        $CreateParameters = ([Hashtable]$BoundParameters).Clone()
+        $CreateParameters = ([Hashtable]$BoundParameters).clone()
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
 
         if ($AdvancedThreatProtectionAutoPopulateOnboardingBlob -and `
@@ -322,7 +322,7 @@ function Set-TargetResource
 
         $CreateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
+        $keys = (([Hashtable]$CreateParameters).clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
@@ -348,7 +348,7 @@ function Set-TargetResource
         Write-Verbose -Message "Updating the Intune Device Configuration Defender For Endpoint Onboarding Policy for Windows10 with Id {$($currentInstance.Id)}"
         $BoundParameters.Remove('Assignments') | Out-Null
 
-        $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
+        $UpdateParameters = ([Hashtable]$BoundParameters).clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
         if ($AdvancedThreatProtectionAutoPopulateOnboardingBlob -and `
@@ -359,7 +359,7 @@ function Set-TargetResource
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')

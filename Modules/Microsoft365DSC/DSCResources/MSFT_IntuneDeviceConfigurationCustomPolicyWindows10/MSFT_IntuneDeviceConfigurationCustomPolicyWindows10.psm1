@@ -169,7 +169,7 @@ function Get-TargetResource
             }
             if ($null -ne $currentomaSettings.'@odata.type')
             {
-                $myomaSettings.Add('odataType', $currentomaSettings.'@odata.type'.ToString())
+                $myomaSettings.Add('odataType', $currentomaSettings.'@odata.type'.toString())
             }
             if ($myomaSettings.values.Where({ $null -ne $_ }).count -gt 0)
             {
@@ -318,11 +318,11 @@ function Set-TargetResource
         Write-Verbose -Message "Creating an Intune Device Configuration Custom Policy for Windows10 with DisplayName {$DisplayName}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
+        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
         $CreateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
+        $keys = (([Hashtable]$CreateParameters).clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
@@ -361,12 +361,12 @@ function Set-TargetResource
         Write-Verbose -Message "Updating the Intune Device Configuration Custom Policy for Windows10 with Id {$($currentInstance.Id)}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
+        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
