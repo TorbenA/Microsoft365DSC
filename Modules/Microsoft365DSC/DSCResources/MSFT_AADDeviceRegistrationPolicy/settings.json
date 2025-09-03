@@ -12,8 +12,22 @@
   "permissions": {
     "graph": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "Policy.Read.DeviceConfiguration"
+          },
+          {
+            "name": "Group.Read.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "Policy.ReadWrite.DeviceConfiguration"
+          },
+          {
+            "name": "Group.Read.All"
+          }
+        ]
       },
       "application": {
         "read": [

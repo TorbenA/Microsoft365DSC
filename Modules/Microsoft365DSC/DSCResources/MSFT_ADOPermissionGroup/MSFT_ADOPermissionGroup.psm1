@@ -485,7 +485,7 @@ function Export-TargetResource
 
         $i = 1
         $dscContent = ''
-        if ($accounts.count -eq 0)
+        if ($accounts.Count -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
             return ''
@@ -503,14 +503,6 @@ function Export-TargetResource
 
             $i = 1
             $dscContent = ''
-            if ($Script:exportedInstances.Length -eq 0)
-            {
-                Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
-            }
-            else
-            {
-                Write-M365DSCHost -Message "`r`n" -DeferWrite
-            }
             foreach ($config in $Script:exportedInstances)
             {
                 $displayedKey = $config.principalName
@@ -584,6 +576,7 @@ function Set-M365DSCADOPermissionGroupMember
         [System.String]
         $Method = 'Put'
     )
+
     if ($null -eq $Script:allUsers)
     {
         $uri = "https://vsaex.dev.azure.com/$($OrganizationName)/_apis/userentitlements?api-version=7.2-preview.4"
