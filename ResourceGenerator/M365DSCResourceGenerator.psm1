@@ -1551,8 +1551,11 @@ function Get-CmdletDefinition
         $Uri = 'https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/clean_beta_metadata/cleanMetadataWithDescriptionsAndAnnotationsbeta.xml'
     }
 
+    # Zero width no break space
+    $zwnbsp = [char] 0xFEFF
     Invoke-RestMethod -Uri $Uri | Out-File -FilePath "Metadata.xml" -Encoding utf8 -Force
-    $schema = ([XML](Get-Content -Path "Metadata.xml" -Raw)).Edmx.DataServices.schema
+    $metadata = (Get-Content -Path "Metadata.xml" -Raw) -replace $zwnbsp, ""
+    $schema = ([XML]$metadata).Edmx.DataServices.schema
     Remove-Item -Path "Metadata.xml" -Force
     return $schema
 }

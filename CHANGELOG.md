@@ -28,8 +28,15 @@
 * IntuneAntivirusPolicySecurityExperienceWindows10ConfigMgr
   * Initial release.
     FIXES [#4229](https://github.com/microsoft/Microsoft365DSC/issues/4229)
+* IntuneDeviceComplianceNotificationMessageTemplate
+  * Initial release.
 * IntuneDeviceComplianceScriptLinux
   * Initial release.
+* IntuneDeviceManagementComplianceSettings
+  * Updated `DeviceComplianceCheckinThresholdDays` to use the default value of 30 days
+    if the backend reports 0 as the value.
+    FIXES [#6450](https://github.com/microsoft/Microsoft365DSC/issues/6450)
+  * Restricted possible values for `DeviceComplianceCheckinThresholdDays` from 1 to 120.
 * IntuneMobileAppsWin32AppWindows10
   * Bump CIM instance version to fix invalid property name.
 * IntuneSecurityBaselineMicrosoftEdge
@@ -54,6 +61,8 @@
     FIXES [#5937](https://github.com/microsoft/Microsoft365DSC/issues/5937)
 * MISC
   * Code cleanup across all EXO, Commerce, Defender and Fabric resources.
+  * Code cleanup across all AAD, ADO and Azure resources.
+  * Fixing issues connection SPO to sovereign clouds.
   * Fixed an issue across Intune resources using the Settings Catalog which
     were not correctly setting their `RoleScopeTagIds`.
     FIXES [#6434](https://github.com/microsoft/Microsoft365DSC/issues/6434)
@@ -65,11 +74,19 @@
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.0.
     FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
+
+* IntuneMobileAppsWindowsOfficeSuiteApp
+  * Fixes problem with OfficeConfigurationXml.Changed from type byte to type String as APi expect a string that is encoded in Base64 format.
+  
   * Include `Az.Security` module for `Defender` workload.
+* M365DSCTelemetryEngine
+  * Changed logic to retrieve the global telemetry authentication parameters.
 * M365DSCUtil
+  * Changed logic to provide the global telemetry authentication parameters.
   * Moved sizing of batch requests to `Invoke-M365DSCGraphBatchRequest`.
   * Fixed a comparison issue in `Compare-M365DSCComplexObject`.
     Supersedes [#6196](https://github.com/microsoft/Microsoft365DSC/pull/6196).
+
 
 # 1.25.827.1
 
@@ -87,8 +104,7 @@
   * Fixed an issue where a task with a deleted user assigned could not be exported.
     FIXES [#6054](https://github.com/microsoft/Microsoft365DSC/issues/6054)
 * MISC
-  * Code cleanup across all AAD, ADO and Azure resources.
-  * Modified the drift logging logic to include the MFT_ prefix
+  * Modified the drift logging logic to include the MSFT_ prefix
     in the resource name and add back the LCMState parameter.
 * DEPENDENCIES
   * Updated MicrosoftTeams to version 7.3.1.
