@@ -1550,14 +1550,22 @@ function Export-M365DSCConfiguration
     $data.Add('M365DSCExportId', $currentExportID)
     $data.Add('ConnectionMode', $ConnectionMode)
 
-    $Global:M365DSCTelemetryConnectionToGraphParams = @{
-        ApplicationId         = $ApplicationId
-        TenantId              = $TenantId
-        CertificateThumbprint = $CertificateThumbprint
-        Credential            = $Credential
-        AccessTokens          = $AccessTokens
-        ManagedIdentity       = $ManagedIdentity
+    # Define connection to Graph parameters because it is required by the telemetry.
+    if ($null -eq $Global:M365DSCTelemetryConnectionToGraphParams)
+    {
+        $Global:M365DSCTelemetryConnectionToGraphParams = @{
+            Credential            = $Credential
+            ApplicationId         = $ApplicationId
+            TenantId              = $TenantId
+            ApplicationSecret     = $ApplicationSecret
+            CertificateThumbprint = $CertificateThumbprint
+            CertificatePassword   = $CertificatePassword
+            CertificatePath       = $CertificatePath
+            ManagedIdentity       = $ManagedIdentity.IsPresent
+            AccessTokens          = $AccessTokens
+        }
     }
+
     Add-M365DSCTelemetryEvent -Type 'ExportInitiated' -Data $data
     if ($null -ne $Workloads)
     {
