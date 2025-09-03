@@ -7,6 +7,9 @@
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.0.
     FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
+	
+*IntuneMobileAppsWindowsOfficeSuiteApp
+  *Fixes problem with OfficeConfigurationXml.Changed from type byte to type String as APi expect a string that is eccided in Base64 format.
 
 # 1.25.827.1
 
