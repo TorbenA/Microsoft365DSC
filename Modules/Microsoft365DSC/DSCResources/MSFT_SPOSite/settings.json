@@ -6,9 +6,6 @@
       "delegated": {
         "read": [
           {
-            "name": "Application.Read.All"
-          },
-          {
             "name": "Domain.Read.All"
           }
         ],
@@ -20,9 +17,6 @@
       },
       "application": {
         "read": [
-          {
-            "name": "Application.Read.All"
-          },
           {
             "name": "Domain.Read.All"
           }

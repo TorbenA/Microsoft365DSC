@@ -12,8 +12,16 @@
   "permissions": {
     "graph": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "Policy.Read.ConditionalAccess"
+          }
+        ],
+        "update": [
+          {
+            "name": "Policy.ReadWrite.ConditionalAccess"
+          }
+        ]
       },
       "application": {
         "read": [

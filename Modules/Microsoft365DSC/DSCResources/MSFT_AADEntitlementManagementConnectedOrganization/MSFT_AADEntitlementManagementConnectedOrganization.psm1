@@ -431,14 +431,14 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Creating a new Entitlement Management Connected Organization {$DisplayName}"
 
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters -KeyMapping $keyToRename
 
         $CreateParameters.Remove('Id') | Out-Null
         $CreateParameters.Remove('ExternalSponsors') | Out-Null
         $CreateParameters.Remove('InternalSponsors') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).clone()).Keys
+        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
@@ -484,7 +484,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating a new Entitlement Management Connected Organization {$($currentInstance.Id)}"
 
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters -KeyMapping $keyToRename
 
         $UpdateParameters.Remove('Id') | Out-Null
@@ -492,7 +492,7 @@ function Set-TargetResource
         $UpdateParameters.Remove('InternalSponsors') | Out-Null
 
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
