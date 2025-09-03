@@ -11,6 +11,8 @@
 * AADEntitlementManagementAccessPackageAssignmentPolicy
   * Added support for Groups as well as single users.
     FIXES [#6257](https://github.com/microsoft/Microsoft365DSC/issues/6257)
+* AADAuthenticationStrengthPolicy
+  * Filter out built-in policies because they cannot be modified.
 * ADOPermissionGroupSettings
   * Reduced export time by 90%.
 * IntuneWindowsUpdateForBusinessHotpatchProfileWindows10
