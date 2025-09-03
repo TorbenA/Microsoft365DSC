@@ -11,15 +11,30 @@
 * AADEntitlementManagementAccessPackageAssignmentPolicy
   * Added support for Groups as well as single users.
     FIXES [#6257](https://github.com/microsoft/Microsoft365DSC/issues/6257)
+* AADServicePrincipal
+  * Fixed an issue where assigning members to a Service Principal would throw an error when
+    more than one member was assigned.
 * ADOPermissionGroupSettings
   * Reduced export time by 90%.
+* IntuneAntivirusPolicyWindows10ConfigMgr
+  * Initial release.
+* IntuneAntivirusPolicySecurityExperienceWindows10ConfigMgr
+  * Initial release.
+    FIXES [#4229](https://github.com/microsoft/Microsoft365DSC/issues/4229)
 * IntuneDeviceComplianceNotificationMessageTemplate
+  * Initial release.
+* IntuneDeviceComplianceScriptLinux
   * Initial release.
 * IntuneWindowsUpdateForBusinessHotpatchProfileWindows10
   * Initial release.
     FIXES [#6368](https://github.com/microsoft/Microsoft365DSC/issues/6368)
+* PPPowerAppsEnvironment
+  * Fixed a variable naming conflict for environments provisioned through Microsoft Teams.
+    FIXES [#6404](https://github.com/microsoft/Microsoft365DSC/issues/6404)
 * SCInsiderRiskPolicy
   * Fixed an issue where an empty `EnableTeam` value would throw during Get operation.
+* TeamsCallingPolicy
+  * Added 12 new supported properties.
 * TeamsMeetingBroadcastConfiguration
   * Fixes an issue where the SdnAPIToken wasn't exported as a string.
 * TeamsTeam
@@ -104,6 +119,10 @@
   * Fixed an issue where duplicate parameters would lead to an error during generation.
     FIXES [#5489](https://github.com/microsoft/Microsoft365DSC/issues/5489)
 * DEPENDENCIES
+  * Updated Az.Accounts to version 5.0.1.
+  * Updated Az.ResourceGraph to version 1.2.1.
+  * Updated Az.Resources to version 8.0.0.
+  * Updated Az.SecurityInsights to version 3.2.0.
   * Updated ReverseDSC to version 2.0.0.29.
 
 # 1.25.730.1
