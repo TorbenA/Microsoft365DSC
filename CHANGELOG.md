@@ -55,6 +55,10 @@
 * MISC
   * Code cleanup across all AAD, ADO and Azure resources.
   * Fixing issues connection SPO to sovereign clouds.
+  * Fixed an issue across Intune resources using the Settings Catalog which
+    were not correctly setting their `RoleScopeTagIds`.
+    FIXES [#6434](https://github.com/microsoft/Microsoft365DSC/issues/6434)
+  * Fixed issues when connecting SPO to sovereign clouds.
   * Updated settings and formatting of method names across all resources.
   * Updated documentation for configuring workload authentication.
   * Updated permissions for EXO resources.
