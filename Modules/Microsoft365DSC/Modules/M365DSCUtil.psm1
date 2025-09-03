@@ -1552,9 +1552,11 @@ function Export-M365DSCConfiguration
     $data.Add('ConnectionMode', $ConnectionMode)
 
     # Define connection to Graph parameters because it is required by the telemetry.
-    if ($null -eq $Global:M365DSCTelemetryConnectionToGraphParams)
+    if ($null -eq $Script:M365DSCTelemetryConnectionToGraphParams -or `
+        ($null -ne $Script:M365DSCTelemetryConnectionToGraphParams -and `
+        $Script:M365DSCTelemetryConnectionToGraphParams.Keys.Count -eq 0))
     {
-        $Global:M365DSCTelemetryConnectionToGraphParams = @{
+        $Script:M365DSCTelemetryConnectionToGraphParams = @{
             Credential            = $Credential
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
