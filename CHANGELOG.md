@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# 1.25.101.1
+
+* AADEnrichedAuditLogs
+  * BREAKING - Removed resource due to deprecation
+
 # UNRELEASED
 
 * AADAccessReviewDefinition
@@ -13,6 +18,7 @@
     FIXES [#6257](https://github.com/microsoft/Microsoft365DSC/issues/6257)
 * AADAuthenticationStrengthPolicy
   * Filter out built-in policies because they cannot be modified.
+
 * AADEntitlementManagementRoleAssignment
   * Added functionality to export groups and service principals.
     Fixed an issue where the export of `Connected organization administrator` assignments would fail.
@@ -76,7 +82,7 @@
 
 * IntuneMobileAppsWindowsOfficeSuiteApp
   * Fixes problem with OfficeConfigurationXml.Changed from type byte to type String as APi expect a string that is encoded in Base64 format.
-  
+
   * Include `Az.Security` module for `Defender` workload.
 * M365DSCTelemetryEngine
   * Changed logic to retrieve the global telemetry authentication parameters.
