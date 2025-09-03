@@ -13,6 +13,11 @@
     FIXES [#6257](https://github.com/microsoft/Microsoft365DSC/issues/6257)
 * AADAuthenticationStrengthPolicy
   * Filter out built-in policies because they cannot be modified.
+* AADEntitlementManagementRoleAssignment
+  * Added functionality to export groups and service principals.
+    Fixed an issue where the export of `Connected organization administrator` assignments would fail.
+    FIXES [#5620](https://github.com/microsoft/Microsoft365DSC/issues/5620)
+    FIXES [#5618](https://github.com/microsoft/Microsoft365DSC/issues/5618)
 * AADServicePrincipal
   * Fixed an issue where assigning members to a Service Principal would throw an error when
     more than one member was assigned.

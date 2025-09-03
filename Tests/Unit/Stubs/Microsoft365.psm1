@@ -3728,7 +3728,11 @@ function Get-MgBetaRoleManagementEntitlementManagementRoleAssignment
 
         [Parameter()]
         [Switch]
-        $All
+        $All,
+
+        [Parameter()]
+        [System.String]
+        $ExpandProperty
     )
 }
 function Update-MgBetaEntitlementManagementSetting
