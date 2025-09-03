@@ -9,6 +9,18 @@
   },
   "permissions": {
     "graph": {
+      "delegated": {
+        "read": [
+          {
+            "name": "Policy.Read.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "Policy.ReadWrite.ExternalIdentities"
+          }
+        ]
+      },
       "application": {
         "read": [
           {

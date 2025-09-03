@@ -64722,6 +64722,34 @@ function New-CsTeamsCallingPolicy
         $Identity,
 
         [Parameter()]
+        [System.String]
+        $AIInterpreter,
+
+        [Parameter()]
+        [System.UInt32]
+        $CallingSpendUserLimit,
+
+        [Parameter()]
+        [System.String]
+        $Copilot,
+
+        [Parameter()]
+        [System.Boolean]
+        $EnableSpendLimits,
+
+        [Parameter()]
+        [System.String]
+        $RealTimeText,
+
+        [Parameter()]
+        [System.Boolean]
+        $ShowTeamsCallsInCallLog,
+
+        [Parameter()]
+        [System.String]
+        $VoiceSimulationInInterpreter,
+
+        [Parameter()]
         [System.Boolean]
         $PreventTollBypass,
 
@@ -66650,6 +66678,34 @@ function Set-CsTeamsCallingPolicy
         [Parameter()]
         [System.String]
         $Identity,
+
+        [Parameter()]
+        [System.String]
+        $AIInterpreter,
+
+        [Parameter()]
+        [System.UInt32]
+        $CallingSpendUserLimit,
+
+        [Parameter()]
+        [System.String]
+        $Copilot,
+
+        [Parameter()]
+        [System.Boolean]
+        $EnableSpendLimits,
+
+        [Parameter()]
+        [System.String]
+        $RealTimeText,
+
+        [Parameter()]
+        [System.Boolean]
+        $ShowTeamsCallsInCallLog,
+
+        [Parameter()]
+        [System.String]
+        $VoiceSimulationInInterpreter,
 
         [Parameter()]
         [System.Boolean]

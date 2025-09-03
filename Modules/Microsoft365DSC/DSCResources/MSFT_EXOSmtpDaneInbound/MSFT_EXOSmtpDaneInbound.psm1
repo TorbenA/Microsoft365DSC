@@ -254,7 +254,7 @@ function Test-TargetResource
     Write-Verbose -Message "Current Values: DomainName=$($currentValue.DomainName), Ensure=$($currentValues.Ensure)"
     Write-Verbose -Message "Target Values: DomainName=$DomainName, Ensure=$Ensure"
 
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
+    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
     $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
     $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
         -Source $($MyInvocation.MyCommand.Source) `

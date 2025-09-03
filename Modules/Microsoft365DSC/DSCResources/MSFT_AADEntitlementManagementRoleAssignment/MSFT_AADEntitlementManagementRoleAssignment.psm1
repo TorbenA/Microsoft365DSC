@@ -294,6 +294,19 @@ function Set-TargetResource
     {
         throw "Multiple objects found for Principal '$Principal'. Please specify a unique identifier."
     }
+
+    $PSBoundParameters.Remove('Ensure') | Out-Null
+    $PSBoundParameters.Remove('Credential') | Out-Null
+    $PSBoundParameters.Remove('ApplicationId') | Out-Null
+    $PSBoundParameters.Remove('ApplicationSecret') | Out-Null
+    $PSBoundParameters.Remove('TenantId') | Out-Null
+    $PSBoundParameters.Remove('CertificateThumbprint') | Out-Null
+    $PSBoundParameters.Remove('ManagedIdentity') | Out-Null
+    $PSBoundParameters.Remove('AccessTokens') | Out-Null
+
+    $setParameters = ([Hashtable]$PSBoundParameters).Clone()
+    $userInfo = Get-MgUser -UserId $Principal
+
     $roleInfo = Get-MgBetaRoleManagementEntitlementManagementRoleDefinition -Filter "DisplayName eq '$($RoleDefinition -replace "'", "''")'"
     $setParameters.Add('PrincipalId', $objectId)
     $setParameters.Add('RoleDefinitionId', $roleInfo.Id)
