@@ -138,7 +138,7 @@ function Get-TargetResource
         if (-not $Script:exportedInstance -or $Script:exportedInstance.AppId -ne $AppId)
         {
             Write-Verbose -Message 'Getting configuration of Azure AD ServicePrincipal'
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -539,9 +539,6 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
-
     Write-Verbose -Message 'Setting configuration of Azure AD ServicePrincipal'
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -556,16 +553,8 @@ function Set-TargetResource
     #endregion
 
     $currentAADServicePrincipal = Get-TargetResource @PSBoundParameters
-    $currentParameters = $PSBoundParameters
-    $currentParameters.Remove('ApplicationId') | Out-Null
-    $currentParameters.Remove('TenantId') | Out-Null
-    $currentParameters.Remove('CertificateThumbprint') | Out-Null
-    $currentParameters.Remove('ManagedIdentity') | Out-Null
-    $currentParameters.Remove('Credential') | Out-Null
-    $currentParameters.Remove('Ensure') | Out-Null
+    $currentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $currentParameters.Remove('ObjectID') | Out-Null
-    $currentParameters.Remove('ApplicationSecret') | Out-Null
-    $currentParameters.Remove('AccessTokens') | Out-Null
     $currentParameters.Remove('Owners') | Out-Null
 
     # update the custom security attributes to be cmdlet comsumable
@@ -973,7 +962,7 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -1057,8 +1046,8 @@ function Export-TargetResource
         [Parameter()]
         [System.String[]]
         $AccessTokens
-
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
@@ -1289,7 +1278,7 @@ function Get-M365DSCAADServicePrincipalCustomSecurityAttributesAsCmdletHashtable
 }
 
 # Function to create MSFT_AttributeValue
-function Create-AttributeValue
+function New-AttributeValue
 {
     param (
         [string]$AttributeName,
@@ -1363,7 +1352,7 @@ function Get-CustomSecurityAttributes
             $attributeName = $attribute # Keep the attribute name as it is
 
             # Create the attribute value and add it to the set
-            $attributeSet.AttributeValues += Create-AttributeValue -AttributeName $attributeName -Value $value
+            $attributeSet.AttributeValues += New-AttributeValue -AttributeName $attributeName -Value $value
         }
 
         #Add the attribute set to the final structure
@@ -1375,4 +1364,3 @@ function Get-CustomSecurityAttributes
 }
 
 Export-ModuleMember -Function *-TargetResource
-

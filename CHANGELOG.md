@@ -83,6 +83,7 @@
   * Fixed an issue where a task with a deleted user assigned could not be exported.
     FIXES [#6054](https://github.com/microsoft/Microsoft365DSC/issues/6054)
 * MISC
+  * Code cleanup across all AAD, ADO and Azure resources.
   * Modified the drift logging logic to include the MFT_ prefix
     in the resource name and add back the LCMState parameter.
 * DEPENDENCIES
