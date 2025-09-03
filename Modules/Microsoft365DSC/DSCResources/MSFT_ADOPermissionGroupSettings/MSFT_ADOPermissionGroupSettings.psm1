@@ -51,8 +51,10 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'AzureDevOPS' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting configuration for ADO Permission Group Settings for Organization {$OrganizationName} and Group {$GroupName}"
+
+    $null = New-M365DSCConnection -Workload 'AzureDevOPS' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -311,6 +313,8 @@ function Test-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration for ADO Permission Group Settings for Organization {$OrganizationName} and Group {$GroupName}"
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -324,7 +328,7 @@ function Test-TargetResource
     #endregion
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     # Evaluate Permissions
     $testResult = $true
@@ -410,6 +414,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'AzureDevOPS' `
         -InboundParameters $PSBoundParameters
 
@@ -681,4 +686,3 @@ function Get-M365DSCADOGroupPermission
 }
 
 Export-ModuleMember -Function *-TargetResource
-

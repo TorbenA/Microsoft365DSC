@@ -85,7 +85,8 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -381,7 +382,7 @@ function Set-TargetResource
     )
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters `
 
     }
@@ -403,18 +404,7 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
-    $PSBoundParameters.Remove('Ensure') | Out-Null
-    $PSBoundParameters.Remove('Credential') | Out-Null
-    $PSBoundParameters.Remove('ApplicationId') | Out-Null
-    $PSBoundParameters.Remove('ApplicationSecret') | Out-Null
-    $PSBoundParameters.Remove('TenantId') | Out-Null
-    $PSBoundParameters.Remove('CertificateThumbprint') | Out-Null
-    $PSBoundParameters.Remove('ManagedIdentity') | Out-Null
-    $PSBoundParameters.Remove('Verbose') | Out-Null
-    $PSBoundParameters.Remove('AccessTokens') | Out-Null
-
-    $ParametersOps = ([Hashtable]$PSBoundParameters).Clone()
+    $ParametersOps = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($PrincipalType -eq 'User')
     {
@@ -891,4 +881,3 @@ function Test-M365DSCRecurrenceIsConfigured
 }
 
 Export-ModuleMember -Function *-TargetResource
-

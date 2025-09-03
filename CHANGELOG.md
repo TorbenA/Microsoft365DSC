@@ -35,6 +35,8 @@
     if the backend reports 0 as the value.
     FIXES [#6450](https://github.com/microsoft/Microsoft365DSC/issues/6450)
   * Restricted possible values for `DeviceComplianceCheckinThresholdDays` from 1 to 120.
+* IntuneMobileAppsWin32AppWindows10
+  * Bump CIM instance version to fix invalid property name.
 * IntuneSecurityBaselineMicrosoftEdge
   * Fixed an issue where the latest policy version was not exported.
     FIXES [#6415](https://github.com/microsoft/Microsoft365DSC/issues/6415)
@@ -56,10 +58,13 @@
   * Fixed an issue where an invalid search query was invoked.
     FIXES [#5937](https://github.com/microsoft/Microsoft365DSC/issues/5937)
 * MISC
-  * Fixing issues connection SPO to sovereign clouds.
+  * Fixed an issue across Intune resources using the Settings Catalog which
+    were not correctly setting their `RoleScopeTagIds`.
+    FIXES [#6434](https://github.com/microsoft/Microsoft365DSC/issues/6434)
+  * Fixed issues when connecting SPO to sovereign clouds.
   * Updated settings and formatting of method names across all resources.
-  * Update documentation for configuring workload authentication.
-  * Update permissions for EXO resources.
+  * Updated documentation for configuring workload authentication.
+  * Updated permissions for EXO resources.
     FIXES [#3841](https://github.com/microsoft/Microsoft365DSC/issues/3841)
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.0.
@@ -86,6 +91,7 @@
   * Fixed an issue where a task with a deleted user assigned could not be exported.
     FIXES [#6054](https://github.com/microsoft/Microsoft365DSC/issues/6054)
 * MISC
+  * Code cleanup across all AAD, ADO and Azure resources.
   * Modified the drift logging logic to include the MFT_ prefix
     in the resource name and add back the LCMState parameter.
 * DEPENDENCIES
