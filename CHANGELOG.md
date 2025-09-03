@@ -3,7 +3,7 @@
 # UNRELEASED
    
 * IntuneDeviceRemediation
-  * Made Id optional and enabled creation of remediation scripts using DisplayName only.
+  * [BREAKING CHANGE] Made Id optional and enabled creation of remediation scripts using DisplayName only.
     FIXES [#6445](https://github.com/microsoft/Microsoft365DSC/issues/6445)
 * TeamsMeetingBroadcastConfiguration
   * Fixes an issue where the SdnAPIToken wasn't exported as a string.
