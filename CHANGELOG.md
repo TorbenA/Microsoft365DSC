@@ -16,6 +16,11 @@
     more than one member was assigned.
 * ADOPermissionGroupSettings
   * Reduced export time by 90%.
+* IntuneAntivirusPolicyWindows10ConfigMgr
+  * Initial release.
+* IntuneAntivirusPolicySecurityExperienceWindows10ConfigMgr
+  * Initial release.
+    FIXES [#4229](https://github.com/microsoft/Microsoft365DSC/issues/4229)
 * IntuneDeviceComplianceScriptLinux
   * Initial release.
 * IntuneWindowsUpdateForBusinessHotpatchProfileWindows10
