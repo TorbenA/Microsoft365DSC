@@ -260,7 +260,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Creating {$DisplayName}"
 
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $CreateParameters.Remove('Id') | Out-Null
         $CreateParameters.Remove('Verbose') | Out-Null
 
@@ -276,7 +276,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating {$DisplayName}"
 
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
 
         $UpdateParameters.Remove('Id') | Out-Null
         $UpdateParameters.Remove('Verbose') | Out-Null

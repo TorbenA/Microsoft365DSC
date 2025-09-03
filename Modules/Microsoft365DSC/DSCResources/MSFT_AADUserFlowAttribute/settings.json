@@ -13,9 +13,18 @@
         "read": [
           {
             "name": "IdentityUserFlow.Read.All"
-          },
+          }
+        ],
+        "update": [
           {
             "name": "IdentityUserFlow.ReadWrite.All"
+          }
+        ]
+      },
+      "application": {
+        "read": [
+          {
+            "name": "IdentityUserFlow.Read.All"
           }
         ],
         "update": [

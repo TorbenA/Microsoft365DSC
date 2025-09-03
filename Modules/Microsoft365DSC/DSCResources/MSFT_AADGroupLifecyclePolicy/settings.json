@@ -17,9 +17,6 @@
         ],
         "update": [
           {
-            "name": "Directory.Read.All"
-          },
-          {
             "name": "Directory.ReadWrite.All"
           }
         ]
@@ -31,9 +28,6 @@
           }
         ],
         "update": [
-          {
-            "name": "Directory.Read.All"
-          },
           {
             "name": "Directory.ReadWrite.All"
           }

@@ -9,7 +9,11 @@
             "name": "AccessReview.Read.All"
           }
         ],
-        "update": []
+        "update": [
+          {
+            "name": "AccessReview.ReadWrite.All"
+          }
+        ]
       },
       "application": {
         "read": [
@@ -17,7 +21,11 @@
             "name": "AccessReview.Read.All"
           }
         ],
-        "update": []
+        "update": [
+          {
+            "name": "AccessReview.ReadWrite.All"
+          }
+        ]
       }
     }
   },

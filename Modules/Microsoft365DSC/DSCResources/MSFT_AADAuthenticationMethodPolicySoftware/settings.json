@@ -14,10 +14,10 @@
       "delegated": {
         "read": [
           {
-            "name": "Policy.ReadWrite.AuthenticationMethod"
+            "name": "Policy.Read.AuthenticationMethod"
           },
           {
-            "name": "Policy.Read.All"
+            "name": "Group.Read.All"
           }
         ],
         "update": [
@@ -25,17 +25,17 @@
             "name": "Policy.ReadWrite.AuthenticationMethod"
           },
           {
-            "name": "Policy.Read.All"
+            "name": "Group.Read.All"
           }
         ]
       },
       "application": {
         "read": [
           {
-            "name": "Policy.ReadWrite.AuthenticationMethod"
+            "name": "Policy.Read.AuthenticationMethod"
           },
           {
-            "name": "Policy.Read.All"
+            "name": "Group.Read.All"
           }
         ],
         "update": [
@@ -43,7 +43,7 @@
             "name": "Policy.ReadWrite.AuthenticationMethod"
           },
           {
-            "name": "Policy.Read.All"
+            "name": "Group.Read.All"
           }
         ]
       }

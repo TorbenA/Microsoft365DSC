@@ -171,8 +171,8 @@ function Add-M365DSCTelemetryEvent
                     {
                         $telemetryParameters = Get-M365DSCTelemetryConnectionParameter
                         Connect-M365Tenant -Workload 'MicrosoftGraph' @telemetryParameters -ErrorAction Stop
-                        $Script:M365DSCCurrentRoles = @()
 
+                        $Script:M365DSCCurrentRoles = @()
                         $sp = Get-MgServicePrincipal -Filter "AppId eq '$($telemetryParameters.ApplicationId)'" `
                                 -ErrorAction 'SilentlyContinue'
                         if ($null -ne $sp)

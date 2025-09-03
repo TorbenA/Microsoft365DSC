@@ -245,7 +245,7 @@ function Get-TargetResource
                 $myRanges.Add('UpperAddress', $currentRanges.AdditionalProperties.upperAddress)
                 if ($null -ne $currentRanges.AdditionalProperties.'@odata.type')
                 {
-                    $myRanges.Add('odataType', $currentRanges.AdditionalProperties.'@odata.type'.toString())
+                    $myRanges.Add('odataType', $currentRanges.AdditionalProperties.'@odata.type'.ToString())
                 }
                 if ($myRanges.values.Where({ $null -ne $_ }).count -gt 0)
                 {
@@ -332,7 +332,7 @@ function Get-TargetResource
             $myExemptApps.Add('BinaryVersionLow', $currentExemptApps.AdditionalProperties.binaryVersionLow)
             if ($null -ne $currentExemptApps.AdditionalProperties.'@odata.type')
             {
-                $myExemptApps.Add('odataType', $currentExemptApps.AdditionalProperties.'@odata.type'.toString())
+                $myExemptApps.Add('odataType', $currentExemptApps.AdditionalProperties.'@odata.type'.ToString())
             }
             if ($myExemptApps.values.Where({ $null -ne $_ }).count -gt 0)
             {
@@ -366,7 +366,7 @@ function Get-TargetResource
             $myProtectedApps.Add('BinaryVersionLow', $currentProtectedApps.AdditionalProperties.binaryVersionLow)
             if ($null -ne $currentProtectedApps.AdditionalProperties.'@odata.type')
             {
-                $myProtectedApps.Add('odataType', $currentProtectedApps.AdditionalProperties.'@odata.type'.toString())
+                $myProtectedApps.Add('odataType', $currentProtectedApps.AdditionalProperties.'@odata.type'.ToString())
             }
             if ($myProtectedApps.values.Where({ $null -ne $_ }).count -gt 0)
             {
@@ -626,11 +626,11 @@ function Set-TargetResource
         Write-Verbose -Message "Creating an Intune Windows Information Protection Policy for Windows10 Mdm Enrolled with DisplayName {$DisplayName}"
 
         $PSBoundParameters.remove('Assignments') | Out-Null
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
         $CreateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).clone()).Keys
+        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
@@ -657,12 +657,12 @@ function Set-TargetResource
         Write-Verbose -Message "Updating the Intune Windows Information Protection Policy for Windows10 Mdm Enrolled with Id {$($currentInstance.Id)}"
 
         $PSBoundParameters.remove('Assignments') | Out-Null
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
@@ -854,7 +854,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of the Intune Windows Information Protection Policy for Windows10 Mdm Enrolled with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
+    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
     $testResult = $true
 
     #Compare Cim instances
