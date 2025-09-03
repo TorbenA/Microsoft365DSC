@@ -21,6 +21,9 @@
 * IntuneWindowsUpdateForBusinessHotpatchProfileWindows10
   * Initial release.
     FIXES [#6368](https://github.com/microsoft/Microsoft365DSC/issues/6368)
+* PPPowerAppsEnvironment
+  * Fixed a variable naming conflict for environments provisioned through Microsoft Teams.
+    FIXES [#6404](https://github.com/microsoft/Microsoft365DSC/issues/6404)
 * SCInsiderRiskPolicy
   * Fixed an issue where an empty `EnableTeam` value would throw during Get operation.
 * TeamsCallingPolicy
