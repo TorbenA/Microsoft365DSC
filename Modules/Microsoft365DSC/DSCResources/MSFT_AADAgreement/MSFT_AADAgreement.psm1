@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADAgreement'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -76,8 +78,8 @@ function Get-TargetResource
 
     Write-Verbose -Message "Getting configuration for the Azure AD Agreement with DisplayName {$DisplayName}"
 
-    New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -243,12 +245,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters | Out-Null
-
     $currentInstance = Get-TargetResource @PSBoundParameters
-
-    Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters | Out-Null
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -303,7 +300,6 @@ function Set-TargetResource
         }
 
         $UpdateParameters = Remove-NullEntriesFromHashtable -Hash $UpdateParameters
-
         Update-MgBetaAgreement -AgreementId $currentInstance.Id -BodyParameter $UpdateParameters
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
@@ -404,7 +400,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration for the Azure AD Agreement with DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($CurrentValues.Ensure -ne $Ensure)
     {

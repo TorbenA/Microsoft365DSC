@@ -181,7 +181,7 @@ function Get-TargetResource
             $myDetectionScriptParameters.Add('DefaultValue', $currentDetectionScriptParameters.defaultValue)
             if ($null -ne $currentDetectionScriptParameters.'@odata.type')
             {
-                $myDetectionScriptParameters.Add('odataType', $currentDetectionScriptParameters.'@odata.type'.toString())
+                $myDetectionScriptParameters.Add('odataType', $currentDetectionScriptParameters.'@odata.type'.ToString())
             }
             if ($myDetectionScriptParameters.values.Where({ $null -ne $_ }).count -gt 0)
             {
@@ -200,7 +200,7 @@ function Get-TargetResource
             $myRemediationScriptParameters.Add('DefaultValue', $currentRemediationScriptParameters.defaultValue)
             if ($null -ne $currentRemediationScriptParameters.'@odata.type')
             {
-                $myRemediationScriptParameters.Add('odataType', $currentRemediationScriptParameters.'@odata.type'.toString())
+                $myRemediationScriptParameters.Add('odataType', $currentRemediationScriptParameters.'@odata.type'.ToString())
             }
             if ($myRemediationScriptParameters.values.Where({ $null -ne $_ }).count -gt 0)
             {

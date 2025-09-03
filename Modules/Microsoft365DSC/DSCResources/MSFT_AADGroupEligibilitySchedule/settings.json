@@ -6,18 +6,44 @@
       "delegated": {
         "read": [
           {
-            "name": "PrivilegedEligibilitySchedule.Read.AzureADGroup"
-          }
-        ],
-        "update": []
-      },
-      "application": {
-        "read": [
+            "name": "Directory.Read.All"
+          },
           {
             "name": "PrivilegedEligibilitySchedule.Read.AzureADGroup"
           }
         ],
-        "update": []
+        "update": [
+          {
+            "name": "Directory.Read.All"
+          },
+          {
+            "name": "PrivilegedEligibilitySchedule.ReadWrite.AzureADGroup"
+          },
+          {
+            "name": "RoleManagementPolicy.ReadWrite.Directory"
+          }
+        ]
+      },
+      "application": {
+        "read": [
+          {
+            "name": "Directory.Read.All"
+          },
+          {
+            "name": "PrivilegedEligibilitySchedule.Read.AzureADGroup"
+          }
+        ],
+        "update": [
+          {
+            "name": "Directory.Read.All"
+          },
+          {
+            "name": "PrivilegedEligibilitySchedule.ReadWrite.AzureADGroup"
+          },
+          {
+            "name": "RoleManagementPolicy.ReadWrite.Directory"
+          }
+        ]
       }
     }
   },

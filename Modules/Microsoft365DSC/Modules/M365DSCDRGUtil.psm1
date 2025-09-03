@@ -460,7 +460,7 @@ function Get-M365DSCDRGComplexTypeToString
                 {
                     if ($currentValue.GetType().Name -eq 'String')
                     {
-                         $currentValue = $currentValue.Replace("'", "''").Replace("�", "''")
+                         $currentValue = $currentValue.Replace("�", "''")
                     }
                     $currentProperty += Get-M365DSCDRGSimpleObjectTypeToString -Key $key -Value $currentValue -Space ($indent)
                 }
@@ -900,7 +900,8 @@ function Compare-M365DSCComplexObject
                             -DifferenceObject ($differenceObject) -PassThru
                     }
 
-                    if ($null -ne $compareResult -and $compareResult.Length -gt 0)
+                    if ($null -ne $compareResult -and (($compareResult -is [System.Boolean] -and -not $compareResult) -or `
+                        ($compareResult -is [System.Collections.IEnumerable] -and $compareResult.Count -gt 0)))
                     {
                         Write-Verbose -Message "Configuration drift - simple object key: $key"
                         Write-Verbose -Message "Source {$sourceValue}"
@@ -1300,10 +1301,11 @@ function Compare-M365DSCComplexObjectV2
                     {
                         $compareResult = Compare-Object `
                             -ReferenceObject ($referenceObject) `
-                            -DifferenceObject ($differenceObject)
+                            -DifferenceObject ($differenceObject) -PassThru
                     }
 
-                    if ($null -ne $compareResult -and $compareResult.Length -gt 0)
+                    if ($null -ne $compareResult -and (($compareResult -is [System.Boolean] -and -not $compareResult) -or `
+                        ($compareResult -is [System.Collections.IEnumerable] -and $compareResult.Count -gt 0)))
                     {
                         Write-Verbose -Message "Configuration drift - simple object key: $key"
                         Write-Verbose -Message "Source {$sourceValue}"
@@ -3480,8 +3482,16 @@ function Update-IntuneDeviceConfigurationPolicy
         $TemplateReferenceId,
 
         [Parameter()]
+        [System.String]
+        $CreationSource,
+
+        [Parameter()]
         [Array]
-        $Settings
+        $Settings,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds
     )
 
     try
@@ -3492,9 +3502,19 @@ function Update-IntuneDeviceConfigurationPolicy
             'name'              = $Name
             'description'       = $Description
             'platforms'         = $Platforms
-            'templateReference' = @{'templateId' = $TemplateReferenceId }
             'technologies'      = $Technologies
             'settings'          = $Settings
+            'roleScopeTagIds'   = $RoleScopeTagIds
+        }
+
+        if ($PSBoundParameters.ContainsKey('TemplateReferenceId'))
+        {
+            $policy.Add('templateReference', @{ 'templateId' = $TemplateReferenceId })
+        }
+
+        if ($PSBoundParameters.ContainsKey('CreationSource'))
+        {
+            $policy.Add('creationSource', $CreationSource)
         }
 
         $body = $policy | ConvertTo-Json -Depth 20

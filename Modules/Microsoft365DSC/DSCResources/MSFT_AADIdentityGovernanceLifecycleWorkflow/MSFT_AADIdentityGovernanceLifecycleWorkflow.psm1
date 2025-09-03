@@ -72,8 +72,8 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            New-M365DSCConnection -Workload 'MicrosoftGraph' `
-                -InboundParameters $PSBoundParameters | Out-Null
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
             Confirm-M365DSCDependencies
@@ -284,7 +284,7 @@ function Set-TargetResource
         $setParameters.Add('Tasks', $taskList)
     }
 
-    $UpdateParameters = ([Hashtable]$setParameters).clone()
+    $UpdateParameters = ([Hashtable]$setParameters).Clone()
 
     $newParams = @{}
     $newParams.Add('workflow', $UpdateParameters)
@@ -674,4 +674,3 @@ function Get-M365DSCIdentityGovernanceWorkflowExecutionConditions
 }
 
 Export-ModuleMember -Function *-TargetResource
-

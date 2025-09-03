@@ -9,7 +9,11 @@
             "name": "Organization.Read.All"
           }
         ],
-        "update": []
+        "update": [
+          {
+            "name": "Organization.ReadWrite.All"
+          }
+        ]
       },
       "application": {
         "read": [
@@ -17,7 +21,11 @@
             "name": "Organization.Read.All"
           }
         ],
-        "update": []
+        "update": [
+          {
+            "name": "Organization.ReadWrite.All"
+          }
+        ]
       }
     }
   },
