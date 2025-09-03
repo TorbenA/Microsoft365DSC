@@ -30,6 +30,8 @@
     FIXES [#4229](https://github.com/microsoft/Microsoft365DSC/issues/4229)
 * IntuneDeviceComplianceScriptLinux
   * Initial release.
+* IntuneMobileAppsWin32AppWindows10
+  * Bump CIM instance version to fix invalid property name.
 * IntuneSecurityBaselineMicrosoftEdge
   * Fixed an issue where the latest policy version was not exported.
     FIXES [#6415](https://github.com/microsoft/Microsoft365DSC/issues/6415)
