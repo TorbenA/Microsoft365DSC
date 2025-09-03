@@ -16,6 +16,8 @@
     more than one member was assigned.
 * ADOPermissionGroupSettings
   * Reduced export time by 90%.
+* IntuneDeviceComplianceScriptLinux
+  * Initial release.
 * IntuneWindowsUpdateForBusinessHotpatchProfileWindows10
   * Initial release.
     FIXES [#6368](https://github.com/microsoft/Microsoft365DSC/issues/6368)
