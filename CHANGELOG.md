@@ -104,6 +104,10 @@
   * Fixed an issue where duplicate parameters would lead to an error during generation.
     FIXES [#5489](https://github.com/microsoft/Microsoft365DSC/issues/5489)
 * DEPENDENCIES
+  * Updated Az.Accounts to version 5.0.1.
+  * Updated Az.ResourceGraph to version 1.2.1.
+  * Updated Az.Resources to version 8.0.0.
+  * Updated Az.SecurityInsights to version 3.2.0.
   * Updated ReverseDSC to version 2.0.0.29.
 
 # 1.25.730.1
