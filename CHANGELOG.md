@@ -28,6 +28,8 @@
 * IntuneAntivirusPolicySecurityExperienceWindows10ConfigMgr
   * Initial release.
     FIXES [#4229](https://github.com/microsoft/Microsoft365DSC/issues/4229)
+* IntuneDeviceComplianceNotificationMessageTemplate
+  * Initial release.
 * IntuneDeviceComplianceScriptLinux
   * Initial release.
 * IntuneDeviceManagementComplianceSettings
