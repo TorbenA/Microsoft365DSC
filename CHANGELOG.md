@@ -53,6 +53,8 @@
   * Fixed an issue where an invalid search query was invoked.
     FIXES [#5937](https://github.com/microsoft/Microsoft365DSC/issues/5937)
 * MISC
+  * Code cleanup across all AAD, ADO and Azure resources.
+  * Fixing issues connection SPO to sovereign clouds.
   * Fixed an issue across Intune resources using the Settings Catalog which
     were not correctly setting their `RoleScopeTagIds`.
     FIXES [#6434](https://github.com/microsoft/Microsoft365DSC/issues/6434)
@@ -65,7 +67,10 @@
   * Updated ExchangeOnlineManagement to version 3.9.0.
     FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
   * Include `Az.Security` module for `Defender` workload.
+* M365DSCTelemetryEngine
+  * Changed logic to retrieve the global telemetry authentication parameters.
 * M365DSCUtil
+  * Changed logic to provide the global telemetry authentication parameters.
   * Moved sizing of batch requests to `Invoke-M365DSCGraphBatchRequest`.
   * Fixed a comparison issue in `Compare-M365DSCComplexObject`.
     Supersedes [#6196](https://github.com/microsoft/Microsoft365DSC/pull/6196).
@@ -86,8 +91,7 @@
   * Fixed an issue where a task with a deleted user assigned could not be exported.
     FIXES [#6054](https://github.com/microsoft/Microsoft365DSC/issues/6054)
 * MISC
-  * Code cleanup across all AAD, ADO and Azure resources.
-  * Modified the drift logging logic to include the MFT_ prefix
+  * Modified the drift logging logic to include the MSFT_ prefix
     in the resource name and add back the LCMState parameter.
 * DEPENDENCIES
   * Updated MicrosoftTeams to version 7.3.1.
