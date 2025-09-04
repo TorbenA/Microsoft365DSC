@@ -25,5 +25,8 @@
       }
     }
   },
-  "requiredModules": []
+  "requiredModules": [],
+  "supportedEnvironments": [
+    "Global"
+  ]
 }
