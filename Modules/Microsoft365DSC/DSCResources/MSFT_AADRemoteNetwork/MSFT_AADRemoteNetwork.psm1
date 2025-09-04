@@ -64,7 +64,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Id -ne $Id)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -687,4 +687,3 @@ function Get-MicrosoftGraphRemoteNetworkDeviceLinksHashtable
 }
 
 Export-ModuleMember -Function *-TargetResource
-

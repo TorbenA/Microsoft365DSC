@@ -12,6 +12,7 @@ function Get-TargetResource
         $IsSingleInstance,
 
         [Parameter()]
+        [ValidateRange(1, 120)]
         [System.UInt32]
         $DeviceComplianceCheckinThresholdDays,
 
@@ -72,9 +73,15 @@ function Get-TargetResource
         $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + 'beta/deviceManagement/settings'
         $settings = Invoke-MgGraphRequest -Method 'GET' -Uri $uri
 
+        $thresholdInDays = $settings.deviceComplianceCheckinThresholdDays
+        if ($thresholdInDays -eq 0)
+        {
+            Write-Verbose -Message 'DeviceComplianceCheckinThresholdDays is set to 0, which means it is not configured. Setting to the default value of 30.'
+            $thresholdInDays = 30
+        }
         $results = @{
             IsSingleInstance                     = 'Yes'
-            DeviceComplianceCheckinThresholdDays = $settings.deviceComplianceCheckinThresholdDays
+            DeviceComplianceCheckinThresholdDays = $thresholdInDays
             SecureByDefault                      = [Boolean]$settings.secureByDefault
             Credential                           = $Credential
             ApplicationId                        = $ApplicationId
@@ -111,6 +118,7 @@ function Set-TargetResource
         $IsSingleInstance,
 
         [Parameter()]
+        [ValidateRange(1, 120)]
         [System.UInt32]
         $DeviceComplianceCheckinThresholdDays,
 
@@ -182,6 +190,7 @@ function Test-TargetResource
         $IsSingleInstance,
 
         [Parameter()]
+        [ValidateRange(1, 120)]
         [System.UInt32]
         $DeviceComplianceCheckinThresholdDays,
 

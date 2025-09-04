@@ -69,8 +69,10 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'AzureDevOPS' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting configuration of ADO Permission Group for Organization {$OrganizationName} and Principal {$PrincipalName}"
+
+    $null = New-M365DSCConnection -Workload 'AzureDevOPS' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -234,8 +236,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    New-M365DSCConnection -Workload 'AzureDevOPS' `
-        -InboundParameters $PSBoundParameters | Out-Null
+
+    Write-Verbose -Message "Setting configuration of ADO Permission Group for Organization {$OrganizationName} and Principal {$PrincipalName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -409,7 +411,7 @@ function Test-TargetResource
     #endregion
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
@@ -483,7 +485,7 @@ function Export-TargetResource
 
         $i = 1
         $dscContent = ''
-        if ($accounts.count -eq 0)
+        if ($accounts.Count -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
             return ''
@@ -501,14 +503,6 @@ function Export-TargetResource
 
             $i = 1
             $dscContent = ''
-            if ($Script:exportedInstances.Length -eq 0)
-            {
-                Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
-            }
-            else
-            {
-                Write-M365DSCHost -Message "`r`n" -DeferWrite
-            }
             foreach ($config in $Script:exportedInstances)
             {
                 $displayedKey = $config.principalName
@@ -582,6 +576,7 @@ function Set-M365DSCADOPermissionGroupMember
         [System.String]
         $Method = 'Put'
     )
+
     if ($null -eq $Script:allUsers)
     {
         $uri = "https://vsaex.dev.azure.com/$($OrganizationName)/_apis/userentitlements?api-version=7.2-preview.4"
@@ -594,4 +589,3 @@ function Set-M365DSCADOPermissionGroupMember
 }
 
 Export-ModuleMember -Function *-TargetResource
-

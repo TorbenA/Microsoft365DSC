@@ -278,7 +278,7 @@ function Get-TargetResource
 
     if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
         #Ensure the proper dependencies are installed in the current environment.
@@ -1071,18 +1071,8 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Set-Targetresource: Running Get-TargetResource'
     $currentPolicy = Get-TargetResource @PSBoundParameters
-    Write-Verbose -Message 'Set-Targetresource: Cleaning up parameters'
-    $currentParameters = $PSBoundParameters
-    $currentParameters.Remove('ApplicationId') | Out-Null
-    $currentParameters.Remove('TenantId') | Out-Null
-    $currentParameters.Remove('CertificateThumbprint') | Out-Null
-    $currentParameters.Remove('ApplicationSecret') | Out-Null
-    $currentParameters.Remove('Ensure') | Out-Null
-    $currentParameters.Remove('Credential') | Out-Null
-    $currentParameters.Remove('ManagedIdentity') | Out-Null
-    $currentParameters.Remove('AccessTokens') | Out-Null
+    $currentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present')#create policy attribute objects
     {
@@ -1091,7 +1081,6 @@ function Set-TargetResource
         $NewParameters.Add('displayName', $DisplayName)
         $NewParameters.Add('state', $State)
         #create Conditions object
-        Write-Verbose -Message 'Set-Targetresource: create Conditions object'
         $conditions = @{
             applications = @{}
         }
@@ -2422,4 +2411,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
