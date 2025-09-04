@@ -2,6 +2,11 @@
 
 # UNRELEASED
 
+* IntuneMobileAppsMicrosoftStoreAppWindows10
+  * Initial release.
+
+# 1.25.903.1
+
 * AADAccessReviewDefinition
   * Added properties `FallbackReviewers` and `Reviewers`.
     FIXES [#5674](https://github.com/microsoft/Microsoft365DSC/issues/5674)
@@ -37,12 +42,11 @@
     if the backend reports 0 as the value.
     FIXES [#6450](https://github.com/microsoft/Microsoft365DSC/issues/6450)
   * Restricted possible values for `DeviceComplianceCheckinThresholdDays` from 1 to 120.
-* IntuneMobileAppsMicrosoftStoreAppWindows10
-  * Initial release.
 * IntuneMobileAppsWin32AppWindows10
   * Bump CIM instance version to fix invalid property name.
 * IntuneMobileAppsWindowsOfficeSuiteApp
-  * Fixes problem with OfficeConfigurationXml.Changed from type byte to type String as APi expect a string that is encoded in Base64 format.
+  * Fixes problem with OfficeConfigurationXml.Changed from type byte to type
+    String as APi expect a string that is encoded in Base64 format.
 * IntuneSecurityBaselineMicrosoftEdge
   * Fixed an issue where the latest policy version was not exported.
     FIXES [#6415](https://github.com/microsoft/Microsoft365DSC/issues/6415)
@@ -64,6 +68,7 @@
   * Fixed an issue where an invalid search query was invoked.
     FIXES [#5937](https://github.com/microsoft/Microsoft365DSC/issues/5937)
 * MISC
+  * Code cleanup across all EXO, Commerce, Defender and Fabric resources.
   * Code cleanup across all AAD, ADO and Azure resources.
   * Fixing issues connection SPO to sovereign clouds.
   * Fixed an issue across Intune resources using the Settings Catalog which
@@ -85,7 +90,6 @@
   * Moved sizing of batch requests to `Invoke-M365DSCGraphBatchRequest`.
   * Fixed a comparison issue in `Compare-M365DSCComplexObject`.
     Supersedes [#6196](https://github.com/microsoft/Microsoft365DSC/pull/6196).
-
 
 # 1.25.827.1
 
