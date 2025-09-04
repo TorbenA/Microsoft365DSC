@@ -69,7 +69,7 @@ function Get-TargetResource
 
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
         #Ensure the proper dependencies are installed in the current environment.
@@ -98,24 +98,65 @@ function Get-TargetResource
         $B2BCollaborationInboundValue = $null
         if ($null -ne $getValue.B2BCollaborationInbound)
         {
-            $B2BCollaborationInboundValue = $getValue.B2BCollaborationInbound
+            $B2BCollaborationInboundValue = @{
+                Applications = @{
+                    AccessType = $getValue.B2BCollaborationInbound.Applications.AccessType
+                    Targets    = [System.Array]$getValue.B2BCollaborationInbound.Applications.Targets
+                }
+                UsersAndGroups =@{
+                    AccessType = $getValue.B2BCollaborationInbound.UsersAndGroups.AccessType
+                    Targets    = [System.Array] $getValue.B2BCollaborationInbound.UsersAndGroups.Targets
+                }
+            }
         }
         if ($null -ne $getValue.B2BCollaborationOutbound)
         {
-            $B2BCollaborationOutboundValue = $getValue.B2BCollaborationOutbound
+            $B2BCollaborationOutboundValue = @{
+                Applications = @{
+                    AccessType = $getValue.B2BCollaborationOutbound.Applications.AccessType
+                    Targets    = [System.Array] $getValue.B2BCollaborationOutbound.Applications.Targets
+                }
+                UsersAndGroups =@{
+                    AccessType = $getValue.B2BCollaborationOutbound.UsersAndGroups.AccessType
+                    Targets    = [System.Array] $getValue.B2BCollaborationOutbound.UsersAndGroups.Targets
+                }
+            }
         }
         if ($null -ne $getValue.B2BDirectConnectInbound)
         {
-            $B2BDirectConnectInboundValue = $getValue.B2BDirectConnectInbound
+            $B2BDirectConnectInboundValue = @{
+                Applications = @{
+                    AccessType = $getValue.B2BDirectConnectInbound.Applications.AccessType
+                    Targets    = [System.Array] $getValue.B2BDirectConnectInbound.Applications.Targets
+                }
+                UsersAndGroups =@{
+                    AccessType = $getValue.B2BDirectConnectInbound.UsersAndGroups.AccessType
+                    Targets    = [System.Array] $getValue.B2BDirectConnectInbound.UsersAndGroups.Targets
+                }
+            }
         }
         if ($null -ne $getValue.B2BDirectConnectOutbound)
         {
-            $B2BDirectConnectOutboundValue = $getValue.B2BDirectConnectOutbound
+            $B2BDirectConnectOutboundValue = @{
+                Applications = @{
+                    AccessType = $getValue.B2BDirectConnectOutbound.Applications.AccessType
+                    Targets    = [System.Array] $getValue.B2BDirectConnectOutbound.Applications.Targets
+                }
+                UsersAndGroups =@{
+                    AccessType = $getValue.B2BDirectConnectOutbound.UsersAndGroups.AccessType
+                    Targets    = [System.Array] $getValue.B2BDirectConnectOutbound.UsersAndGroups.Targets
+                }
+            }
         }
         if ($null -ne $getValue.InboundTrust)
         {
-            $InboundTrustValue = $getValue.InboundTrust
+            $InboundTrustValue = @{
+                IsCompliantDeviceAccepted           = $getValue.InboundTrust.IsCompliantDeviceAccepted
+                IsHybridAzureADJoinedDeviceAccepted = $getValue.InboundTrust.IsHybridAzureADJoinedDeviceAccepted
+                IsMfaAccepted                       = $getValue.InboundTrust.IsMfaAccepted
+            }
         }
+
         $results = @{
             IsSingleInstance         = 'Yes'
             B2BCollaborationInbound  = $B2BCollaborationInboundValue
@@ -227,16 +268,8 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $OperationParams = ([Hashtable]$PSBoundParameters).Clone()
-    $OperationParams.Remove('Credential') | Out-Null
-    $OperationParams.Remove('ManagedIdentity') | Out-Null
-    $OperationParams.Remove('ApplicationId') | Out-Null
-    $OperationParams.Remove('TenantId') | Out-Null
-    $OperationParams.Remove('CertificateThumbprint') | Out-Null
-    $OperationParams.Remove('ApplicationSecret') | Out-Null
-    $OperationParams.Remove('Ensure') | Out-Null
+    $OperationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $OperationParams.Remove('IsSingleInstance') | Out-Null
-    $OperationParams.Remove('AccessTokens') | Out-Null
 
     if ($null -ne $OperationParams.B2BCollaborationInbound)
     {
@@ -796,4 +829,3 @@ function Get-M365DSCAADCrossTenantAccessPolicyInboundTrust
 }
 
 Export-ModuleMember -Function *-TargetResource
-

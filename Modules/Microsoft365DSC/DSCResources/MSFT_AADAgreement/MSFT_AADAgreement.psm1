@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADAgreement'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -76,8 +78,8 @@ function Get-TargetResource
 
     Write-Verbose -Message "Getting configuration for the Azure AD Agreement with DisplayName {$DisplayName}"
 
-    New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -243,12 +245,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters | Out-Null
-
     $currentInstance = Get-TargetResource @PSBoundParameters
-
-    Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters | Out-Null
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -303,7 +300,6 @@ function Set-TargetResource
         }
 
         $UpdateParameters = Remove-NullEntriesFromHashtable -Hash $UpdateParameters
-
         Update-MgBetaAgreement -AgreementId $currentInstance.Id -BodyParameter $UpdateParameters
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
@@ -404,7 +400,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration for the Azure AD Agreement with DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($CurrentValues.Ensure -ne $Ensure)
     {
@@ -481,11 +477,7 @@ function Export-TargetResource
         $dscContent = ''
         if ($Script:exportedInstances.Length -eq 0)
         {
-            Write-M365DSCHost -Message $Global:M365DSCEmojiYellowCircle
-        }
-        else
-        {
-            Write-M365DSCHost -Message "Found $($Script:exportedInstances.Count) Azure AD Agreement(s)"
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckmark -CommitWrite
         }
 
         foreach ($config in $Script:exportedInstances)
@@ -515,13 +507,13 @@ function Export-TargetResource
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
             $i++
-            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
         return $dscContent
     }
     catch
     {
-        Write-M365DSCHost -Message $Global:M365DSCEmojiRedX
+        Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
 
         New-M365DSCLogEntry -Message 'Error during Export:' `
             -Exception $_ `

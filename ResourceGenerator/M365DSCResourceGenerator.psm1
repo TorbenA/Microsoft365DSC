@@ -141,7 +141,14 @@ function New-M365DSCResource
         $cmdletDefinition = Get-CmdletDefinition -APIVersion $ApiVersion
 
         # Check if the actual type returns multiple type of policies
-        $policyTypes = ($cmdletDefinition.EntityType | Where-Object -FilterScript { $_.basetype -like "*$actualType" }).Name
+        [array]$abstractTypes = ($cmdletDefinition.EntityType | Where-Object -FilterScript { $_.basetype -like "*$actualType" -and $_.abstract -eq 'true' }).Name
+        $typesToSearch = $abstractTypes + $actualType
+        $policyTypes = @()
+        foreach ($typeToSearch in $typesToSearch)
+        {
+            $policyTypes += ($cmdletDefinition.EntityType | Where-Object -FilterScript { $_.basetype -like "*$typeToSearch" }).Name
+        }
+        $policyTypes = $policyTypes | Sort-Object -Unique
         if ($null -ne $policyTypes -and $policyTypes.GetType().Name -like '*[[\]]')
         {
             if ([String]::IsNullOrEmpty($AdditionalPropertiesType))
@@ -622,9 +629,9 @@ $($userDefinitionSettings.MOF -join "`r`n")
         `$keys = (([Hashtable]`$updateParameters).Clone()).Keys
         foreach (`$key in `$keys)
         {
-            if (`$null -ne `$pdateParameters.`$key -and `$updateParameters.`$key.GetType().Name -like '*CimInstance*')
+            if (`$null -ne `$updateParameters.`$key -and `$updateParameters.`$key.GetType().Name -like '*CimInstance*')
             {
-                `$updateParameters.`$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject `$updateParameters.$key
+                `$updateParameters.`$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject `$updateParameters.`$key
             }
         }
 
@@ -1544,8 +1551,11 @@ function Get-CmdletDefinition
         $Uri = 'https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/clean_beta_metadata/cleanMetadataWithDescriptionsAndAnnotationsbeta.xml'
     }
 
+    # Zero width no break space
+    $zwnbsp = [char] 0xFEFF
     Invoke-RestMethod -Uri $Uri | Out-File -FilePath "Metadata.xml" -Encoding utf8 -Force
-    $schema = ([XML](Get-Content -Path "Metadata.xml" -Raw)).Edmx.DataServices.schema
+    $metadata = (Get-Content -Path "Metadata.xml" -Raw) -replace $zwnbsp, ""
+    $schema = ([XML]$metadata).Edmx.DataServices.schema
     Remove-Item -Path "Metadata.xml" -Force
     return $schema
 }
@@ -1726,7 +1736,7 @@ function Get-TypeProperties
         }
 
         $baseType = $null
-        if (-not [String]::IsNullOrEmpty($entityType.BaseType))
+        if ($entityType.BaseType -is [string] -and -not [String]::IsNullOrEmpty($entityType.BaseType))
         {
             $baseType =  $entityType.BaseType.Replace('graph.','')
         }
@@ -2696,7 +2706,7 @@ function Get-M365DSCFakeValues
         {
             try
             {
-                clear-variable hashValue -force
+                Clear-Variable -Name "hashValue" -Force
             }
             catch {}
         }
@@ -2726,7 +2736,8 @@ function Get-M365DSCFakeValues
             $nestedProperties = @()
             if ($null -ne $parameter.Properties)
             {
-                $nestedProperties = Get-M365DSCFakeValues -ParametersInformation $parameter.Properties `
+                $nestedProperties = Get-M365DSCFakeValues -ParametersInformation $($parameter.Properties | Group-Object "Name" |
+                    Foreach-Object { $_.Group | Select-Object -First 1 }) `
                     -Workload $Workload `
                     -isCmdletCall $isCmdletCall `
                     -isRecursive $true `
@@ -2983,7 +2994,7 @@ function Get-M365DSCResourcePermission
         $APIVersion = 'v1.0'
     )
 
-    $readPermissionsNames = (Find-MgGraphCommand -Command "Get-$CmdLetNoun" -ApiVersion $ApiVersion| Select-Object -First 1 -ExpandProperty Permissions).Name
+    $readPermissionsNames = (Find-MgGraphCommand -Command "Get-$CmdLetNoun" -ApiVersion $ApiVersion| Select-Object -First 1 -ExpandProperty Permissions).Name | Select-Object -Unique
     $leastReadPermissions = @()
 
     foreach ($permission in $readPermissionsNames)
@@ -3002,7 +3013,7 @@ function Get-M365DSCResourcePermission
         }
     }
 
-    $updatePermissionsNames = (Find-MgGraphCommand -Command "$UpdateVerb-$CmdLetNoun" -ApiVersion $ApiVersion | Select-Object -First 1 -ExpandProperty Permissions).Name
+    $updatePermissionsNames = (Find-MgGraphCommand -Command "$UpdateVerb-$CmdLetNoun" -ApiVersion $ApiVersion | Select-Object -First 1 -ExpandProperty Permissions).Name | Select-Object -Unique
 
     switch ($Workload)
     {

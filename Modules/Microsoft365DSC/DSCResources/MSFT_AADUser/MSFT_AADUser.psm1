@@ -63,6 +63,10 @@ function Get-TargetResource
         $Office,
 
         [Parameter()]
+        [System.String]
+        $Mail,
+
+        [Parameter()]
         [System.String[]]
         $OtherMails,
 
@@ -146,7 +150,7 @@ function Get-TargetResource
         {
             Write-Verbose -Message "Getting configuration of Office 365 User $UserPrincipalName"
 
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -169,6 +173,7 @@ function Get-TargetResource
                 UsageLocation         = $null
                 LicenseAssignment     = $null
                 MemberOf              = $null
+                Mail                  = $null
                 OtherMails            = $null
                 Password              = $null
                 Credential            = $Credential
@@ -182,7 +187,7 @@ function Get-TargetResource
             }
 
             Write-Verbose -Message "Getting Office 365 User $UserPrincipalName"
-            $propertiesToRetrieve = @('Id', 'UserPrincipalName', 'DisplayName', 'GivenName', 'Surname', 'UsageLocation', 'City', 'Country', 'Department', 'FaxNumber', 'MobilePhone', 'OfficeLocation', 'OtherMails', 'BusinessPhones', 'PostalCode', 'PreferredLanguage', 'State', 'StreetAddress', 'JobTitle', 'UserType', 'PasswordPolicies')
+            $propertiesToRetrieve = @('Id', 'UserPrincipalName', 'DisplayName', 'GivenName', 'Surname', 'UsageLocation', 'City', 'Country', 'Department', 'FaxNumber', 'MobilePhone', 'OfficeLocation', 'Mail', 'OtherMails', 'BusinessPhones', 'PostalCode', 'PreferredLanguage', 'State', 'StreetAddress', 'JobTitle', 'UserType', 'PasswordPolicies')
             $user = Get-MgUser -UserId $UserPrincipalName -Property $propertiesToRetrieve -ErrorAction SilentlyContinue
             if ($null -eq $user)
             {
@@ -196,16 +201,33 @@ function Get-TargetResource
             $user = $Script:exportedInstance
         }
 
+        $batchRequests = @(
+            @{
+                id     = 'License'
+                method = 'GET'
+                url    = "/users/$($UserPrincipalName)/licenseDetails"
+            }
+            @{
+                id     = 'MemberOf'
+                method = 'GET'
+                url    = "/users/$($UserPrincipalName)/memberOf?`$select=displayName&`$filter=not(groupTypes/any(c:c eq 'DynamicMembership'))"
+                headers = @{
+                    'ConsistencyLevel' = 'eventual'
+                }
+            }
+        )
+        $batchResponse = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
+
         Write-Verbose -Message "Found User $($UserPrincipalName)"
         $currentLicenseAssignment = @()
-        $skus = Get-MgUserLicenseDetail -UserId $UserPrincipalName -ErrorAction Stop
+        $skus = ($batchResponse | Where-Object -FilterScript { $_.id -eq 'License' }).body.value
         foreach ($sku in $skus)
         {
             $currentLicenseAssignment += $sku.SkuPartNumber
         }
 
         # return membership of static groups only
-        [array]$currentMemberOf = (Get-MgUserMemberOfAsGroup -UserId $UserPrincipalName -All | Where-Object -FilterScript { $_.GroupTypes -notcontains 'DynamicMembership' }).DisplayName
+        [array]$currentMemberOf = ($batchResponse | Where-Object -FilterScript { $_.id -eq 'MemberOf' }).body.value.DisplayName
 
         $userPasswordPolicyInfo = $user | Select-Object UserprincipalName, @{
             N = 'PasswordNeverExpires'; E = { $_.PasswordPolicies -contains 'DisablePasswordExpiration' }
@@ -244,6 +266,7 @@ function Get-TargetResource
             Fax                   = $user.FaxNumber
             MobilePhone           = $user.MobilePhone
             Office                = $user.OfficeLocation
+            Mail                  = $user.Mail
             OtherMails            = $user.OtherMails
             PasswordNeverExpires  = $passwordNeverExpires
             PasswordPolicies      = $user.PasswordPolicies
@@ -339,6 +362,10 @@ function Set-TargetResource
         $Office,
 
         [Parameter()]
+        [System.String]
+        $Mail,
+
+        [Parameter()]
         [System.String[]]
         $OtherMails,
 
@@ -431,9 +458,6 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
-
     $user = Get-TargetResource @PSBoundParameters
     if ($user.Ensure -eq 'Present' -and $Ensure -eq 'Absent')
     {
@@ -462,6 +486,7 @@ function Set-TargetResource
             MobilePhone              = $MobilePhone
             PasswordPolicies         = $PasswordPolicies
             OfficeLocation           = $Office
+            Mail                     = $Mail
             OtherMails               = $OtherMails
             PostalCode               = $PostalCode
             PreferredLanguage        = $PreferredLanguage
@@ -777,6 +802,10 @@ function Test-TargetResource
         $Office,
 
         [Parameter()]
+        [System.String]
+        $Mail,
+
+        [Parameter()]
         [System.String[]]
         $OtherMails,
 
@@ -907,6 +936,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
@@ -925,7 +955,7 @@ function Export-TargetResource
     try
     {
         $Script:ExportMode = $true
-        $propertiesToRetrieve = @('Id', 'UserPrincipalName', 'DisplayName', 'GivenName', 'Surname', 'UsageLocation', 'City', 'Country', 'Department', 'FacsimileTelephoneNumber', 'Mobile', 'OfficeLocation', 'OtherMails', 'TelephoneNumber', 'PostalCode', 'PreferredLanguage', 'State', 'StreetAddress', 'JobTitle', 'UserType', 'PasswordPolicies')
+        $propertiesToRetrieve = @('Id', 'UserPrincipalName', 'DisplayName', 'GivenName', 'Surname', 'UsageLocation', 'City', 'Country', 'Department', 'FacsimileTelephoneNumber', 'Mobile', 'OfficeLocation', 'Mail', 'OtherMails', 'TelephoneNumber', 'PostalCode', 'PreferredLanguage', 'State', 'StreetAddress', 'JobTitle', 'UserType', 'PasswordPolicies')
         $ExportParameters = @{
             Filter      = $Filter
             All         = [switch]$true
@@ -1125,4 +1155,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

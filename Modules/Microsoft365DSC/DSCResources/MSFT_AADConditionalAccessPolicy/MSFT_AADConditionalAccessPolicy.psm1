@@ -235,6 +235,10 @@ function Get-TargetResource
         [System.String[]]
         $ServicePrincipalRiskLevels,
 
+        [Parameter()]
+        [System.String[]]
+        $ProtocolFlows,
+
         #generic
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -274,7 +278,7 @@ function Get-TargetResource
 
     if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
         #Ensure the proper dependencies are installed in the current environment.
@@ -672,6 +676,18 @@ function Get-TargetResource
         $InsiderRiskLevelsValue = $Policy.Conditions.InsiderRiskLevels.Split(',')
     }
 
+    $ProtocolFlowsValue = @()
+    if ($null -ne $Policy.Conditions.AuthenticationFlows.AdditionalProperties.protocolFlows)
+    {
+        $ProtocolFlowsValue = $Policy.Conditions.AuthenticationFlows.AdditionalProperties.protocolFlows.Split(',')
+    }
+
+    $DisableResilienceDefaultsIsEnabledValue = $null
+    if (-not [System.String]::IsNullOrEmpty($Policy.SessionControls.disableResilienceDefaults.isEnabled))
+    {
+        $DisableResilienceDefaultsIsEnabledValue = [Boolean]::Parse($Policy.SessionControls.disableResilienceDefaults.isEnabled)
+    }
+
     $result = @{
         DisplayName                              = $Policy.DisplayName
         Id                                       = $Policy.Id
@@ -741,13 +757,14 @@ function Get-TargetResource
         #no translation needed
         PersistentBrowserIsEnabled               = $false -or $Policy.SessionControls.PersistentBrowser.IsEnabled
         #no translation needed
-        DisableResilienceDefaultsIsEnabled       = $false -or $Policy.SessionControls.disableResilienceDefaults
+        DisableResilienceDefaultsIsEnabled       = $DisableResilienceDefaultsIsEnabledValue
         #make false if undefined, true if true
         PersistentBrowserMode                    = [System.String]$Policy.SessionControls.PersistentBrowser.Mode
         #no translation needed
         AuthenticationStrength                   = $AuthenticationStrengthValue
         AuthenticationContexts                   = $AuthenticationContextsValues
         TransferMethods                          = [System.String]$Policy.Conditions.AuthenticationFlows.TransferMethods
+        ProtocolFlows                            = $ProtocolFlowsValue
         #no translation needed, return empty string array if undefined
         ServicePrincipalRiskLevels               = [System.String[]](@() + $Policy.Conditions.ServicePrincipalRiskLevels)
         #Standard part
@@ -1001,6 +1018,10 @@ function Set-TargetResource
         [System.String[]]
         $ServicePrincipalRiskLevels,
 
+        [Parameter()]
+        [System.String[]]
+        $ProtocolFlows,
+
         #generic
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -1050,18 +1071,8 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Set-Targetresource: Running Get-TargetResource'
     $currentPolicy = Get-TargetResource @PSBoundParameters
-    Write-Verbose -Message 'Set-Targetresource: Cleaning up parameters'
-    $currentParameters = $PSBoundParameters
-    $currentParameters.Remove('ApplicationId') | Out-Null
-    $currentParameters.Remove('TenantId') | Out-Null
-    $currentParameters.Remove('CertificateThumbprint') | Out-Null
-    $currentParameters.Remove('ApplicationSecret') | Out-Null
-    $currentParameters.Remove('Ensure') | Out-Null
-    $currentParameters.Remove('Credential') | Out-Null
-    $currentParameters.Remove('ManagedIdentity') | Out-Null
-    $currentParameters.Remove('AccessTokens') | Out-Null
+    $currentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present')#create policy attribute objects
     {
@@ -1070,7 +1081,6 @@ function Set-TargetResource
         $NewParameters.Add('displayName', $DisplayName)
         $NewParameters.Add('state', $State)
         #create Conditions object
-        Write-Verbose -Message 'Set-Targetresource: create Conditions object'
         $conditions = @{
             applications = @{}
         }
@@ -1756,19 +1766,28 @@ function Set-TargetResource
             #no translation or conversion needed
         }
 
-        Write-Verbose -Message "Set-Targetresource: authenticationFlows transferMethods: $TransferMethods"
-        if ($currentParameters.ContainsKey('TransferMethods'))
+        Write-Verbose -Message "Set-TargetResource: authenticationFlows transferMethods: $TransferMethods"
+        if ($currentParameters.ContainsKey('TransferMethods') -or `
+            $currentParameters.ContainsKey('ProtocolFlows'))
         {
             #create and provision TransferMethods condition object if used
-            $authenticationFlows = if ([System.String]::IsNullOrEmpty($TransferMethods))
+            $authenticationFlows = if ([System.String]::IsNullOrEmpty($TransferMethods) -and [System.String]::IsNullOrEmpty($ProtocolFlows))
             {
                 $null
             }
             else
             {
-                @{
-                    transferMethods = $TransferMethods
+                $value = @{}
+
+                if (-not [System.String]::IsNullOrEmpty($TransferMethods))
+                {
+                    $value.Add('transferMethods', $TransferMethods)
                 }
+                if (-not [System.String]::IsNullOrEmpty($ProtocolFlows))
+                {
+                    $value.Add('protocolFlows', $ProtocolFlows -join ',')
+                }
+                $value
             }
             if (-not $conditions.Contains('authenticationFlows'))
             {
@@ -1778,7 +1797,6 @@ function Set-TargetResource
             {
                 $conditions.authenticationFlows = $authenticationFlows
             }
-
         }
         Write-Verbose -Message 'Set-Targetresource: Adding processed conditions'
         #add all conditions to the parameter list
@@ -1893,7 +1911,7 @@ function Set-TargetResource
                 $sessioncontrols.persistentBrowser.isEnabled = $true
                 $sessioncontrols.persistentBrowser.mode = $PersistentBrowserMode
             }
-            if ($null -ne $DisableResilienceDefaultsIsEnabled)
+            if (-not [System.String]::IsNullOrEmpty($DisableResilienceDefaultsIsEnabled))
             {
                 $sessioncontrols.Add('disableResilienceDefaults', $DisableResilienceDefaultsIsEnabled)
             }
@@ -2216,6 +2234,10 @@ function Test-TargetResource
         [System.String[]]
         $ServicePrincipalRiskLevels,
 
+        [Parameter()]
+        [System.String[]]
+        $ProtocolFlows,
+
         #generic
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -2389,4 +2411,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

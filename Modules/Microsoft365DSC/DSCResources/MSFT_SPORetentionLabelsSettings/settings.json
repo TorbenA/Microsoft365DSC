@@ -18,8 +18,16 @@
     },
     "sharepoint": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "Sites.FullControl.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "Sites.FullControl.All"
+          }
+        ]
       },
       "application": {
         "read": [

@@ -329,8 +329,16 @@ function Get-TargetResource
 
             try
             {
-                $label = Get-Label -Identity $Name -ErrorAction SilentlyContinue `
-                    -IncludeDetailedLabelActions
+                if ($null -eq $Script:AllLabels)
+                {
+                    [array]$Script:AllLabels = Get-Label -IncludeDetailedLabelActions
+                }
+                $label = $Script:AllLabels | Where-Object { $_.Name -eq $Name }
+
+                if ($null -eq $label)
+                {
+                    $label = Get-Label -Identity $Name -IncludeDetailedLabelActions -ErrorAction SilentlyContinue
+                }
             }
             catch
             {
@@ -351,7 +359,12 @@ function Get-TargetResource
         $parentLabelID = $null
         if ($null -ne $label.ParentId)
         {
-            $parentLabel = Get-Label -Identity $label.ParentId -IncludeDetailedLabelActions -ErrorAction 'SilentlyContinue'
+            $parentLabel = $Script:AllLabels | Where-Object { $_.Name -eq $label.ParentId }
+            if ($null -eq $parentLabel)
+            {
+                $parentLabel = Get-Label -Identity $label.ParentId -IncludeDetailedLabelActions -ErrorAction SilentlyContinue
+                $Script:AllLabels += $parentLabel
+            }
             $parentLabelID = $parentLabel.Name
         }
         if ($null -ne $label.LocaleSettings)
@@ -360,7 +373,7 @@ function Get-TargetResource
         }
         if ($null -ne $label.Settings)
         {
-            $advancedSettingsValue = Convert-StringToAdvancedSettings -AdvancedSettings $label.Settings
+            [array]$advancedSettingsValue = Convert-StringToAdvancedSettings -AdvancedSettings $label.Settings
         }
         Write-Verbose "Found existing Sensitivity Label $($Name)"
 
@@ -1588,11 +1601,11 @@ function Export-TargetResource
 
     try
     {
-        [array]$labels = Get-Label -ErrorAction Stop
+        [array]$Script:AllLabels = Get-Label -IncludeDetailedLabelActions -ErrorAction Stop
 
         $dscContent = ''
         $i = 1
-        if ($labels.Length -eq 0)
+        if ($Script:AllLabels.Count -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
@@ -1600,14 +1613,14 @@ function Export-TargetResource
         {
             Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
-        foreach ($label in $labels)
+        foreach ($label in $Script:AllLabels)
         {
             if ($null -ne $Global:M365DSCExportResourceInstancesCount)
             {
                 $Global:M365DSCExportResourceInstancesCount++
             }
 
-            Write-M365DSCHost -Message "    |---[$i/$($labels.Count)] $($label.Name)" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$i/$($Script:AllLabels.Count)] $($label.Name)" -DeferWrite
 
             $Script:exportedInstance = $label
             $Results = Get-TargetResource @PSBoundParameters -Name $label.Name
@@ -2185,4 +2198,3 @@ function Test-AutoLabelingSettings
 }
 
 Export-ModuleMember -Function *-TargetResource
-

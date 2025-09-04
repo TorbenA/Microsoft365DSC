@@ -202,7 +202,7 @@ function Get-TargetResource
         $ControlledFolderAccessAllowedApplications,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
+        [ValidateSet('0', '1', '2', '3', '4')]
         [System.String]
         $EnableControlledFolderAccess,
 
@@ -563,7 +563,7 @@ function Set-TargetResource
         $ControlledFolderAccessAllowedApplications,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
+        [ValidateSet('0', '1', '2', '3', '4')]
         [System.String]
         $EnableControlledFolderAccess,
 
@@ -644,6 +644,7 @@ function Set-TargetResource
             Platforms         = $platforms
             Technologies      = $technologies
             Settings          = $settings
+            RoleScopeTagIds   = $RoleScopeTagIds
         }
         $policy = New-MgBetaDeviceManagementConfigurationPolicy -BodyParameter $createParameters
 
@@ -674,7 +675,8 @@ function Set-TargetResource
             -TemplateReferenceId $templateReferenceId `
             -Platforms $platforms `
             -Technologies $technologies `
-            -Settings $settings
+            -Settings $settings `
+            -RoleScopeTagIds $RoleScopeTagIds
 
         #region Assignments
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
@@ -893,7 +895,7 @@ function Test-TargetResource
         $ControlledFolderAccessAllowedApplications,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
+        [ValidateSet('0', '1', '2', '3', '4')]
         [System.String]
         $EnableControlledFolderAccess,
 

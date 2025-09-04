@@ -1,14 +1,13 @@
 Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADGroupEligibilitySchedule'
 
-function Get-TargetResource
-{
+function Get-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     param
     (
         #region resource generator code
         [Parameter()]
-        [ValidateSet('owner','member','unknownFutureValue')]
+        [ValidateSet('owner', 'member', 'unknownFutureValue')]
         [System.String]
         $AccessId,
 
@@ -21,7 +20,7 @@ function Get-TargetResource
         $GroupDisplayName,
 
         [Parameter()]
-        [ValidateSet('direct','group','unknownFutureValue')]
+        [ValidateSet('direct', 'group', 'unknownFutureValue')]
         [System.String]
         $MemberType,
 
@@ -85,46 +84,54 @@ function Get-TargetResource
 
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters
-
-        #Ensure the proper dependencies are installed in the current environment.
-        Confirm-M365DSCDependencies
-
-        #region Telemetry
-        $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-        $CommandName = $MyInvocation.MyCommand
-        $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-            -CommandName $CommandName `
-            -Parameters $PSBoundParameters
-        Add-M365DSCTelemetryEvent -Data $data
-        #endregion
-
-        $nullResult = $PSBoundParameters
-        $nullResult.Ensure = 'Absent'
-
-        $getValue = $null
-        if($GroupId.Length -eq 0){
-            $Filter = "DisplayName eq '" + $GroupDisplayName + "'"
-            $GroupId = (Get-MgGroup -Filter $Filter).Id
-        }
-        if ($Id -notmatch '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}_member_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') {
-            $getId = Get-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilitySchedule `
-                -Filter "Groupid eq '$GroupId'" `
-                -ErrorAction SilentlyContinue
-                $Id = $getId.Id
-        }
-
-        $uri = "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)v1.0/identityGovernance/privilegedAccess/group/eligibilitySchedules/" + $Id
-        $getvalue = Invoke-GraphRequest -Uri $uri -Method Get -ErrorAction SilentlyContinue
-
-        #endregion
-        if ($null -eq $getValue)
+        if (-not $Script:exportedInstance)
         {
-            Write-Verbose -Message "Could not find an Azure AD Group Eligibility Schedule with {$GroupDisplayName}."
-            return $nullResult
+
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullResult = $PSBoundParameters
+            $nullResult.Ensure = 'Absent'
+
+            $getValue = $null
+            if ([System.String]::IsNullOrEmpty($GroupId))
+            {
+                $Filter = "DisplayName eq '" + $GroupDisplayName + "'"
+                $Script:CurrentGroup = Get-MgGroup -Filter $Filter
+                $GroupId = $Script:CurrentGroup.Id
+            }
+            if ($Id -notmatch '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}_member_[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
+            {
+                $getValue = Get-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilitySchedule `
+                    -Filter "Groupid eq '$GroupId'" `
+                    -ErrorAction SilentlyContinue
+            }
+
+            #endregion
+            if ($null -eq $getValue)
+            {
+                Write-Verbose -Message "Could not find an Azure AD Group Eligibility Schedule with {$GroupDisplayName}."
+                return $nullResult
+            }
+        }
+        else
+        {
+            $getValue = $Script:exportedInstance
         }
         $Id = $getValue.Id
+
         Write-Verbose -Message "An Azure AD Group Eligibility Schedule with Id {$Id} and DisplayName {$GroupDisplayName} was found"
 
         #region resource generator code
@@ -139,11 +146,11 @@ function Get-TargetResource
         {
             $complexExpiration.Add('Type', $getValue.scheduleInfo.expiration.type.ToString())
         }
-        if ($complexExpiration.values.Where({$null -ne $_}).Count -eq 0)
+        if ($complexExpiration.values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexExpiration = $null
         }
-        $complexScheduleInfo.Add('Expiration',$complexExpiration)
+        $complexScheduleInfo.Add('Expiration', $complexExpiration)
         $complexRecurrence = @{}
         $complexPattern = @{}
         $complexPattern.Add('DayOfMonth', $getValue.scheduleInfo.recurrence.pattern.dayOfMonth)
@@ -165,11 +172,11 @@ function Get-TargetResource
         {
             $complexPattern.Add('Type', $getValue.scheduleInfo.recurrence.pattern.type.ToString())
         }
-        if ($complexPattern.values.Where({$null -ne $_}).Count -eq 0)
+        if ($complexPattern.values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexPattern = $null
         }
-        $complexRecurrence.Add('Pattern',$complexPattern)
+        $complexRecurrence.Add('Pattern', $complexPattern)
         $complexRange = @{}
         if ($null -ne $getValue.scheduleInfo.recurrence.range.endDate)
         {
@@ -185,21 +192,21 @@ function Get-TargetResource
         {
             $complexRange.Add('Type', $getValue.scheduleInfo.recurrence.range.type.ToString())
         }
-        if ($complexRange.values.Where({$null -ne $_}).Count -eq 0)
+        if ($complexRange.values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexRange = $null
         }
-        $complexRecurrence.Add('Range',$complexRange)
-        if ($complexRecurrence.values.Where({$null -ne $_}).Count -eq 0)
+        $complexRecurrence.Add('Range', $complexRange)
+        if ($complexRecurrence.values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexRecurrence = $null
         }
-        $complexScheduleInfo.Add('Recurrence',$complexRecurrence)
+        $complexScheduleInfo.Add('Recurrence', $complexRecurrence)
         if ($null -ne $getValue.ScheduleInfo.startDateTime)
         {
             $complexScheduleInfo.Add('StartDateTime', ([DateTimeOffset]$getValue.ScheduleInfo.startDateTime).ToString('o'))
         }
-        if ($complexScheduleInfo.values.Where({$null -ne $_}).Count -eq 0)
+        if ($complexScheduleInfo.values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexScheduleInfo = $null
         }
@@ -225,27 +232,25 @@ function Get-TargetResource
         }
 
        	switch ($getValue.PrincipalType)
-       	{
+        {
        	    'group' {
-		$PrincipalDisplayName = (Get-MgGroup -GroupId $getvalue.PrincipalId).DisplayName
+                $PrincipalDisplayName = (Get-MgGroup -GroupId $getvalue.PrincipalId).DisplayName
             }
        	    'user' {
-		$PrincipalDisplayName = (Get-MgUser -UserId $getvalue.PrincipalId).DisplayName
+                $PrincipalDisplayName = (Get-MgUser -UserId $getvalue.PrincipalId).DisplayName
        	    }
        	    'unknown' {
-		        $objectInfo = Get-MgBetaDirectoryObjectById -Ids $getvalue.PrincipalId -ErrorAction SilentlyContinue
-            	$getValue.PrincipalType = $objectInfo.AdditionalProperties['@odata.type'].Split('.')[2]
-		        $PrincipalDisplayName = $objectInfo.AdditionalProperties['displayName']
+                $objectInfo = Get-MgBetaDirectoryObjectById -Ids $getvalue.PrincipalId -ErrorAction SilentlyContinue
+                $getValue.PrincipalType = $objectInfo.AdditionalProperties['@odata.type'].Split('.')[2]
+                $PrincipalDisplayName = $objectInfo.AdditionalProperties['displayName']
        	    }
        	}
-
-	$GroupDisplayName = (Get-MgGroup -GroupId $getvalue.GroupId).DisplayName
 
         $results = @{
             #region resource generator code
             AccessId              = $enumAccessId
             GroupId               = $getValue.groupId
-            GroupDisplayName      = $GroupDisplayName
+            GroupDisplayName      = $Script:CurrentGroup.DisplayName
             MemberType            = $enumMemberType
             PrincipalType         = $getValue.PrincipalType
             PrincipalDisplayname  = $PrincipalDisplayName
@@ -275,14 +280,13 @@ function Get-TargetResource
     }
 }
 
-function Set-TargetResource
-{
+function Set-TargetResource {
     [CmdletBinding()]
     param
     (
         #region resource generator code
         [Parameter()]
-        [ValidateSet('owner','member','unknownFutureValue')]
+        [ValidateSet('owner', 'member', 'unknownFutureValue')]
         [System.String]
         $AccessId,
 
@@ -295,7 +299,7 @@ function Set-TargetResource
         $GroupDisplayName,
 
         [Parameter()]
-        [ValidateSet('direct','group','unknownFutureValue')]
+        [ValidateSet('direct', 'group', 'unknownFutureValue')]
         [System.String]
         $MemberType,
 
@@ -372,7 +376,6 @@ function Set-TargetResource
 
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating an Azure AD Group Eligibility Schedule for Group {$GroupDisplayName}"
@@ -388,51 +391,55 @@ function Set-TargetResource
         $GroupFilter = "DisplayName eq '" + $GroupDisplayName + "'"
         $GroupId = (Get-MgGroup -Filter $GroupFilter).Id
 
-        if($ScheduleInfo.Expiration.Type -eq 'noExpiration'){
+        if ($ScheduleInfo.Expiration.Type -eq 'noExpiration')
+        {
             $p = Get-MgBetaPolicyRoleManagementPolicyAssignment -Filter $("scopeId eq '{0}' and scopeType eq 'Group' and RoleDefinitionId eq 'member'" -f $GroupId)
             $unifiedRoleManagementPolicyId = $p.PolicyId
             $unifiedRoleManagementPolicyRuleId = "Expiration_Admin_Eligibility"
             $isExpirationRequired = (Get-MgBetaPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $unifiedRoleManagementPolicyId -UnifiedRoleManagementPolicyRuleId $unifiedRoleManagementPolicyRuleId).AdditionalProperties.isExpirationRequired
-            if($isExpirationRequired){
+            if ($isExpirationRequired)
+            {
                 $params = @{
-                    "@odata.type" = "#microsoft.graph.unifiedRoleManagementPolicyExpirationRule"
-                    id = "Expiration_Admin_Eligibility"
+                    "@odata.type"        = "#microsoft.graph.unifiedRoleManagementPolicyExpirationRule"
+                    id                   = "Expiration_Admin_Eligibility"
                     isExpirationRequired = $false
-                    target = @{
-                        caller = "Admin"
-                        operations = @(
+                    target               = @{
+                        caller              = "Admin"
+                        operations          = @(
                             "All"
                         )
-                        level = "Eligibility"
+                        level               = "Eligibility"
                         inheritableSettings = @(
                         )
-                        enforcedSettings = @(
+                        enforcedSettings    = @(
                         )
                     }
                 }
                 Update-MgBetaPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $unifiedRoleManagementPolicyId -UnifiedRoleManagementPolicyRuleId $unifiedRoleManagementPolicyRuleId -BodyParameter $params
             }
         }
-        elseif($ScheduleInfo.Expiration.Type -match "^after"){
+        elseif ($ScheduleInfo.Expiration.Type -match "^after")
+        {
             $p = Get-MgBetaPolicyRoleManagementPolicyAssignment -Filter $("scopeId eq '{0}' and scopeType eq 'Group' and RoleDefinitionId eq 'member'" -f $GroupId)
             $unifiedRoleManagementPolicyId = $p.PolicyId
             $unifiedRoleManagementPolicyRuleId = "Expiration_Admin_Eligibility"
             $isExpirationRequired = (Get-MgBetaPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $unifiedRoleManagementPolicyId -UnifiedRoleManagementPolicyRuleId $unifiedRoleManagementPolicyRuleId).AdditionalProperties.isExpirationRequired
-            if(-not $isExpirationRequired){
+            if (-not $isExpirationRequired)
+            {
                 $params = @{
-                    "@odata.type" = "#microsoft.graph.unifiedRoleManagementPolicyExpirationRule"
-                    id = "Expiration_Admin_Eligibility"
+                    "@odata.type"        = "#microsoft.graph.unifiedRoleManagementPolicyExpirationRule"
+                    id                   = "Expiration_Admin_Eligibility"
                     isExpirationRequired = $true
-                    maximumDuration = 'P365D'
-                    target = @{
-                        caller = "Admin"
-                        operations = @(
+                    maximumDuration      = 'P365D'
+                    target               = @{
+                        caller              = "Admin"
+                        operations          = @(
                             "All"
                         )
-                        level = "Eligibility"
+                        level               = "Eligibility"
                         inheritableSettings = @(
                         )
-                        enforcedSettings = @(
+                        enforcedSettings    = @(
                         )
                     }
                 }
@@ -442,10 +449,12 @@ function Set-TargetResource
 
         $createParameters.Add('GroupId', $GroupId)
         $Filter = "DisplayName eq '" + $PrincipalDisplayname + "'"
-        if($PrincipalType -eq 'group'){
+        if ($PrincipalType -eq 'group')
+        {
             $PrincipalId = (Get-MgGroup -Filter $Filter).Id
         }
-        else{
+        else
+        {
             $PrincipalId = (Get-MgUser -Filter $Filter).Id
         }
         $createParameters.Add('PrincipalId', $PrincipalId)
@@ -468,10 +477,12 @@ function Set-TargetResource
 
         $scheduledStart = $currentInstance.ScheduleInfo.StartDateTime
         $scheduledEnd = $currentInstance.ScheduleInfo.Expiration.EndDateTime
-        if($scheduledStart -ne $ScheduleInfo.StartDateTime -or $scheduledEnd -ne $ScheduleInfo.Expiration.EndDateTime){
+        if ($scheduledStart -ne $ScheduleInfo.StartDateTime -or $scheduledEnd -ne $ScheduleInfo.Expiration.EndDateTime)
+        {
             $Action = 'adminExtend'
         }
-        else{
+        else
+        {
             $Action = 'adminUpdate'
         }
         $updateParameters = ([Hashtable]$BoundParameters).Clone()
@@ -485,25 +496,27 @@ function Set-TargetResource
 
         $GroupFilter = "DisplayName eq '" + $GroupDisplayName + "'"
         $GroupId = (Get-MgGroup -Filter $GroupFilter).Id
-        if($ScheduleInfo.Expiration.Type -eq 'noExpiration'){
+        if ($ScheduleInfo.Expiration.Type -eq 'noExpiration')
+        {
             $p = Get-MgBetaPolicyRoleManagementPolicyAssignment -Filter $("scopeId eq '{0}' and scopeType eq 'Group' and RoleDefinitionId eq 'member'" -f $GroupId)
             $unifiedRoleManagementPolicyId = $p.PolicyId
             $unifiedRoleManagementPolicyRuleId = "Expiration_Admin_Eligibility"
             $isExpirationRequired = (Get-MgBetaPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $unifiedRoleManagementPolicyId -UnifiedRoleManagementPolicyRuleId $unifiedRoleManagementPolicyRuleId).AdditionalProperties.isExpirationRequired
-            if($isExpirationRequired){
+            if ($isExpirationRequired)
+            {
                 $params = @{
-                    "@odata.type" = "#microsoft.graph.unifiedRoleManagementPolicyExpirationRule"
-                    id = "Expiration_Admin_Eligibility"
+                    "@odata.type"        = "#microsoft.graph.unifiedRoleManagementPolicyExpirationRule"
+                    id                   = "Expiration_Admin_Eligibility"
                     isExpirationRequired = $false
-                    target = @{
-                        caller = "Admin"
-                        operations = @(
+                    target               = @{
+                        caller              = "Admin"
+                        operations          = @(
                             "All"
                         )
-                        level = "Eligibility"
+                        level               = "Eligibility"
                         inheritableSettings = @(
                         )
-                        enforcedSettings = @(
+                        enforcedSettings    = @(
                         )
                     }
                 }
@@ -511,26 +524,28 @@ function Set-TargetResource
                 Update-MgBetaPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $unifiedRoleManagementPolicyId -UnifiedRoleManagementPolicyRuleId $unifiedRoleManagementPolicyRuleId -BodyParameter $params
             }
         }
-        elseif($ScheduleInfo.Expiration.Type -match "^after"){
+        elseif ($ScheduleInfo.Expiration.Type -match "^after")
+        {
             $p = Get-MgBetaPolicyRoleManagementPolicyAssignment -Filter $("scopeId eq '{0}' and scopeType eq 'Group' and RoleDefinitionId eq 'member'" -f $GroupId)
             $unifiedRoleManagementPolicyId = $p.PolicyId
             $unifiedRoleManagementPolicyRuleId = "Expiration_Admin_Eligibility"
             $isExpirationRequired = (Get-MgBetaPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $unifiedRoleManagementPolicyId -UnifiedRoleManagementPolicyRuleId $unifiedRoleManagementPolicyRuleId).AdditionalProperties.isExpirationRequired
-            if(-not $isExpirationRequired){
+            if (-not $isExpirationRequired)
+            {
                 $params = @{
-                    "@odata.type" = "#microsoft.graph.unifiedRoleManagementPolicyExpirationRule"
-                    id = "Expiration_Admin_Eligibility"
+                    "@odata.type"        = "#microsoft.graph.unifiedRoleManagementPolicyExpirationRule"
+                    id                   = "Expiration_Admin_Eligibility"
                     isExpirationRequired = $true
-                    maximumDuration = 'P365D'
-                    target = @{
-                        caller = "Admin"
-                        operations = @(
+                    maximumDuration      = 'P365D'
+                    target               = @{
+                        caller              = "Admin"
+                        operations          = @(
                             "All"
                         )
-                        level = "Eligibility"
+                        level               = "Eligibility"
                         inheritableSettings = @(
                         )
-                        enforcedSettings = @(
+                        enforcedSettings    = @(
                         )
                     }
                 }
@@ -540,10 +555,11 @@ function Set-TargetResource
         }
         $updateParameters.Add('GroupId', $GroupId)
         $Filter = "DisplayName eq '" + $PrincipalDisplayname + "'"
-        if($PrincipalType -eq 'group'){
+        if ($PrincipalType -eq 'group')
+        {
             $PrincipalId = (Get-MgGroup -Filter $Filter).Id
         }
-        else{
+        else {
             $PrincipalId = (Get-MgUser -Filter $Filter).Id
         }
         $updateParameters.Add('PrincipalId', $PrincipalId)
@@ -551,7 +567,7 @@ function Set-TargetResource
         $keys = (([Hashtable]$updateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $pdateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
+            if ($null -ne $updateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
             {
                 $updateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.PrivilegedAccessGroupEligibilityScheduleId
             }
@@ -578,10 +594,11 @@ function Set-TargetResource
         $GroupId = (Get-MgGroup -Filter $GroupFilter).Id
         $updateParameters.Add('GroupId', $GroupId)
         $Filter = "DisplayName eq '" + $PrincipalDisplayname + "'"
-        if($PrincipalType -eq 'group'){
+        if ($PrincipalType -eq 'group')
+        {
             $PrincipalId = (Get-MgGroup -Filter $Filter).Id
         }
-        else{
+        else {
             $PrincipalId = (Get-MgUser -Filter $Filter).Id
         }
         $updateParameters.Add('PrincipalId', $PrincipalId)
@@ -589,7 +606,7 @@ function Set-TargetResource
         $keys = (([Hashtable]$updateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $pdateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
+            if ($null -ne $updateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
             {
                 $updateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.PrivilegedAccessGroupEligibilityScheduleId
             }
@@ -601,15 +618,14 @@ function Set-TargetResource
     }
 }
 
-function Test-TargetResource
-{
+function Test-TargetResource {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param
     (
         #region resource generator code
         [Parameter()]
-        [ValidateSet('owner','member','unknownFutureValue')]
+        [ValidateSet('owner', 'member', 'unknownFutureValue')]
         [System.String]
         $AccessId,
 
@@ -622,7 +638,7 @@ function Test-TargetResource
         $GroupDisplayName,
 
         [Parameter()]
-        [ValidateSet('direct','group','unknownFutureValue')]
+        [ValidateSet('direct', 'group', 'unknownFutureValue')]
         [System.String]
         $MemberType,
 
@@ -696,8 +712,7 @@ function Test-TargetResource
     return $result
 }
 
-function Export-TargetResource
-{
+function Export-TargetResource {
     [CmdletBinding()]
     [OutputType([System.String])]
     param
@@ -752,28 +767,35 @@ function Export-TargetResource
 
     try
     {
-
         $groups = Get-MgGroup -Filter "MailEnabled eq false and NOT(groupTypes/any(x:x eq 'DynamicMembership'))" -Property "displayname,Id" -CountVariable CountVar -All -ConsistencyLevel eventual -ErrorAction Stop
         $j = 1
         if ($groups.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
-        else
-        {
+        else {
             Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
 
         $dscContent = ''
+        $batchRequests = @()
+        foreach ($group in $groups)
+        {
+            $batchRequests += @{
+                id     = $group.Id
+                method = 'GET'
+                url    = "/identityGovernance/privilegedAccess/group/eligibilitySchedules?`$filter=groupId eq '$($group.Id)'"
+            }
+        }
+
+        $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
 
         foreach ($group in $groups)
         {
-            Write-M365DSCHost -Message  "    |---[$j/$($groups.Count)] $($group.DisplayName)" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$j/$($groups.Count)] $($group.DisplayName)" -DeferWrite
             #region resource generator code
-            $getValue = Get-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilitySchedule `
-                -Filter "groupId eq '$($group.Id)'" `
-                -All `
-                -ErrorAction SilentlyContinue
+            $getValue = ($batchResponses | Where-Object { $_.id -eq $group.Id }).body.value
+            $Script:CurrentGroup = $group
 
             $i = 1
 
@@ -781,8 +803,7 @@ function Export-TargetResource
             {
                 Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
             }
-            else
-            {
+            else {
                 Write-M365DSCHost -Message "`r`n" -DeferWrite
             }
             foreach ($config in $getValue)
@@ -794,6 +815,7 @@ function Export-TargetResource
                 Write-M365DSCHost -Message "        |---[$i/$($getValue.Count)] $($config.Id)" -DeferWrite
                 $params = @{
                     Id                    = $config.Id
+                    GroupId               = $group.Id
                     GroupDisplayName      = $group.DisplayName
                     Ensure                = 'Present'
                     Credential            = $Credential
@@ -805,35 +827,36 @@ function Export-TargetResource
                     AccessTokens          = $AccessTokens
                 }
 
+                $Script:exportedInstance = $config
                 $Results = Get-TargetResource @Params
 
                 if ($null -ne $Results.ScheduleInfo)
                 {
                     $complexMapping = @(
                         @{
-                            Name = 'ScheduleInfo'
+                            Name            = 'ScheduleInfo'
                             CimInstanceName = 'MicrosoftGraphRequestSchedule'
-                            IsRequired = $True
+                            IsRequired      = $True
                         }
                         @{
-                            Name = 'Expiration'
+                            Name            = 'Expiration'
                             CimInstanceName = 'MicrosoftGraphExpirationPattern'
-                            IsRequired = $False
+                            IsRequired      = $False
                         }
                         @{
-                            Name = 'Recurrence'
+                            Name            = 'Recurrence'
                             CimInstanceName = 'MicrosoftGraphPatternedRecurrence1'
-                            IsRequired = $False
+                            IsRequired      = $False
                         }
                         @{
-                            Name = 'Pattern'
+                            Name            = 'Pattern'
                             CimInstanceName = 'MicrosoftGraphRecurrencePattern1'
-                            IsRequired = $False
+                            IsRequired      = $False
                         }
                         @{
-                            Name = 'Range'
+                            Name            = 'Range'
                             CimInstanceName = 'MicrosoftGraphRecurrenceRange1'
-                            IsRequired = $False
+                            IsRequired      = $False
                         }
                     )
                     $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
@@ -883,4 +906,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

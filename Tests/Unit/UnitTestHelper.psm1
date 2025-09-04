@@ -46,7 +46,7 @@ function New-M365DscUnitTestHelper
 
     $Global:IsTestEnvironment = $true
 
-    Import-Module -Name $moduleToLoad -Global
+    Import-Module -Name $moduleToLoad -Global -Force
 
     $initScript = @"
             Remove-Module -Name "AzureAD" -Force -ErrorAction SilentlyContinue

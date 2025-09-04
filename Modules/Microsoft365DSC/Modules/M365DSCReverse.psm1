@@ -976,7 +976,7 @@ function Start-M365DSCConfigurationExtract
                 }
                 else
                 {
-                    Write-Warning -Message "Cannot export Local Configuration Manager settings. This process isn't executed with Administrative Privileges!"
+                    Write-Verbose -Message "Cannot export Local Configuration Manager settings. This process isn't executed with Administrative Privileges."
                 }
             }
             catch
