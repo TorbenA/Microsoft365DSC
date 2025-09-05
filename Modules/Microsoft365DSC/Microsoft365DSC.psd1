@@ -157,7 +157,9 @@
 * IntuneWindowsBackupForOrganizationConfiguration
   * Initial release.
 * MISC
-  * Code cleanup across all EXO, Commerce, Defender and Fabric resources.'
+  * Code cleanup across all EXO, Commerce, Defender and Fabric resources.
+* DEPENDENCIES
+  * Update ReverseDSC to version 2.0.0.30.'
 
       # Flag to indicate whether the module requires explicit user acceptance for install/update
       # RequireLicenseAcceptance = $false

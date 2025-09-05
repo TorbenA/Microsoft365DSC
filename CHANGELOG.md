@@ -9,6 +9,8 @@
   * Initial release.
 * MISC
   * Code cleanup across all EXO, Commerce, Defender and Fabric resources.
+* DEPENDENCIES
+  * Update ReverseDSC to version 2.0.0.30.
 
 # 1.25.903.1
 
