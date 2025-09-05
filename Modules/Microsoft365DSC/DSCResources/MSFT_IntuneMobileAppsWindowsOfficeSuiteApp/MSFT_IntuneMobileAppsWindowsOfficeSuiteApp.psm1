@@ -94,7 +94,7 @@ function Get-TargetResource
         $UpdateVersion,
 
         [Parameter()]
-        [System.Byte[]]
+        [System.String]
         $OfficeConfigurationXml,
 
         [Parameter()]
@@ -392,7 +392,7 @@ function Set-TargetResource
         $UpdateVersion,
 
         [Parameter()]
-        [System.Byte[]]
+        [System.String]
         $OfficeConfigurationXml,
 
         [Parameter()]
@@ -686,7 +686,7 @@ function Test-TargetResource
         $UpdateVersion,
 
         [Parameter()]
-        [System.Byte[]]
+        [System.String]
         $OfficeConfigurationXml,
 
         [Parameter()]

@@ -240,7 +240,7 @@ function Get-TargetResource
             $myassociatedApps = @{}
             if ($null -ne $currentassociatedApps.appType)
             {
-                $myassociatedApps.Add('AppType', $currentassociatedApps.appType.toString())
+                $myassociatedApps.Add('AppType', $currentassociatedApps.appType.ToString())
             }
             $myassociatedApps.Add('Identifier', $currentassociatedApps.identifier)
             if ($myassociatedApps.values.Where({ $null -ne $_ }).count -gt 0)
@@ -252,27 +252,27 @@ function Get-TargetResource
         $complexCryptographySuite = @{}
         if ($null -ne $getValue.AdditionalProperties.cryptographySuite.authenticationTransformConstants)
         {
-            $complexCryptographySuite.Add('AuthenticationTransformConstants', $getValue.AdditionalProperties.cryptographySuite.authenticationTransformConstants.toString())
+            $complexCryptographySuite.Add('AuthenticationTransformConstants', $getValue.AdditionalProperties.cryptographySuite.authenticationTransformConstants.ToString())
         }
         if ($null -ne $getValue.AdditionalProperties.cryptographySuite.cipherTransformConstants)
         {
-            $complexCryptographySuite.Add('CipherTransformConstants', $getValue.AdditionalProperties.cryptographySuite.cipherTransformConstants.toString())
+            $complexCryptographySuite.Add('CipherTransformConstants', $getValue.AdditionalProperties.cryptographySuite.cipherTransformConstants.ToString())
         }
         if ($null -ne $getValue.AdditionalProperties.cryptographySuite.dhGroup)
         {
-            $complexCryptographySuite.Add('DhGroup', $getValue.AdditionalProperties.cryptographySuite.dhGroup.toString())
+            $complexCryptographySuite.Add('DhGroup', $getValue.AdditionalProperties.cryptographySuite.dhGroup.ToString())
         }
         if ($null -ne $getValue.AdditionalProperties.cryptographySuite.encryptionMethod)
         {
-            $complexCryptographySuite.Add('EncryptionMethod', $getValue.AdditionalProperties.cryptographySuite.encryptionMethod.toString())
+            $complexCryptographySuite.Add('EncryptionMethod', $getValue.AdditionalProperties.cryptographySuite.encryptionMethod.ToString())
         }
         if ($null -ne $getValue.AdditionalProperties.cryptographySuite.integrityCheckMethod)
         {
-            $complexCryptographySuite.Add('IntegrityCheckMethod', $getValue.AdditionalProperties.cryptographySuite.integrityCheckMethod.toString())
+            $complexCryptographySuite.Add('IntegrityCheckMethod', $getValue.AdditionalProperties.cryptographySuite.integrityCheckMethod.ToString())
         }
         if ($null -ne $getValue.AdditionalProperties.cryptographySuite.pfsGroup)
         {
-            $complexCryptographySuite.Add('PfsGroup', $getValue.AdditionalProperties.cryptographySuite.pfsGroup.toString())
+            $complexCryptographySuite.Add('PfsGroup', $getValue.AdditionalProperties.cryptographySuite.pfsGroup.ToString())
         }
         if ($complexCryptographySuite.values.Where({ $null -ne $_ }).count -eq 0)
         {
@@ -302,7 +302,7 @@ function Get-TargetResource
         $complexProxyServer.Add('AutomaticallyDetectProxySettings', $getValue.AdditionalProperties.proxyServer.automaticallyDetectProxySettings)
         if ($null -ne $getValue.AdditionalProperties.proxyServer.'@odata.type')
         {
-            $complexProxyServer.Add('odataType', $getValue.AdditionalProperties.proxyServer.'@odata.type'.toString())
+            $complexProxyServer.Add('odataType', $getValue.AdditionalProperties.proxyServer.'@odata.type'.ToString())
         }
         if ($complexProxyServer.values.Where({ $null -ne $_ }).count -eq 0)
         {
@@ -336,7 +336,7 @@ function Get-TargetResource
             $mytrafficRules.Add('AppId', $currenttrafficRules.appId)
             if ($null -ne $currenttrafficRules.appType)
             {
-                $mytrafficRules.Add('AppType', $currenttrafficRules.appType.toString())
+                $mytrafficRules.Add('AppType', $currenttrafficRules.appType.ToString())
             }
             $mytrafficRules.Add('Claims', $currenttrafficRules.claims)
             $complexLocalAddressRanges = @()
@@ -348,7 +348,7 @@ function Get-TargetResource
                 $myLocalAddressRanges.Add('CidrAddress', $currentLocalAddressRanges.cidrAddress)
                 if ($null -ne $currentLocalAddressRanges.'@odata.type')
                 {
-                    $myLocalAddressRanges.Add('odataType', $currentLocalAddressRanges.'@odata.type'.toString())
+                    $myLocalAddressRanges.Add('odataType', $currentLocalAddressRanges.'@odata.type'.ToString())
                 }
                 if ($myLocalAddressRanges.values.Where({ $null -ne $_ }).count -gt 0)
                 {
@@ -379,7 +379,7 @@ function Get-TargetResource
                 $myRemoteAddressRanges.Add('CidrAddress', $currentRemoteAddressRanges.cidrAddress)
                 if ($null -ne $currentRemoteAddressRanges.'@odata.type')
                 {
-                    $myRemoteAddressRanges.Add('odataType', $currentRemoteAddressRanges.'@odata.type'.toString())
+                    $myRemoteAddressRanges.Add('odataType', $currentRemoteAddressRanges.'@odata.type'.ToString())
                 }
                 if ($myRemoteAddressRanges.values.Where({ $null -ne $_ }).count -gt 0)
                 {
@@ -401,11 +401,11 @@ function Get-TargetResource
             $mytrafficRules.Add('RemotePortRanges', $complexRemotePortRanges)
             if ($null -ne $currenttrafficRules.routingPolicyType)
             {
-                $mytrafficRules.Add('RoutingPolicyType', $currenttrafficRules.routingPolicyType.toString())
+                $mytrafficRules.Add('RoutingPolicyType', $currenttrafficRules.routingPolicyType.ToString())
             }
             if ($null -ne $currenttrafficRules.vpnTrafficDirection)
             {
-                $mytrafficRules.Add('VpnTrafficDirection', $currenttrafficRules.vpnTrafficDirection.toString())
+                $mytrafficRules.Add('VpnTrafficDirection', $currenttrafficRules.vpnTrafficDirection.ToString())
             }
             if ($mytrafficRules.values.Where({ $null -ne $_ }).count -gt 0)
             {
@@ -711,11 +711,11 @@ function Set-TargetResource
         Write-Verbose -Message "Creating an Intune Device Configuration Vpn Policy for Windows10 with DisplayName {$DisplayName}"
         $BoundParameters.Remove('Assignments') | Out-Null
 
-        $CreateParameters = ([Hashtable]$BoundParameters).clone()
+        $CreateParameters = ([Hashtable]$BoundParameters).Clone()
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters -KeyMapping $keyToRename
         $CreateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).clone()).Keys
+        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
@@ -741,12 +741,12 @@ function Set-TargetResource
         Write-Verbose -Message "Updating the Intune Device Configuration Vpn Policy for Windows10 with Id {$($currentInstance.Id)}"
         $BoundParameters.Remove('Assignments') | Out-Null
 
-        $UpdateParameters = ([Hashtable]$BoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters -KeyMapping $keyToRename
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')

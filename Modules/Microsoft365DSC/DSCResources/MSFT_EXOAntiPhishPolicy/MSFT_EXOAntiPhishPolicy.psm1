@@ -536,11 +536,11 @@ function Set-TargetResource
     if (('Present' -eq $Ensure ) -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating new instance of AntiPhish Policy {$Identity}"
-        $CreateParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-        $CreateParams.Remove('Ensure') | Out-Null
+        $createParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+        $createParams.Remove('Ensure') | Out-Null
         $createParams.Add('Name', $Identity)
         $createParams.Remove('Identity') | Out-Null
-        New-AntiPhishPolicy @PSBoundParameters
+        New-AntiPhishPolicy @createParams
     }
     elseif (('Present' -eq $Ensure ) -and $currentInstance.Ensure -eq 'Present')
     {

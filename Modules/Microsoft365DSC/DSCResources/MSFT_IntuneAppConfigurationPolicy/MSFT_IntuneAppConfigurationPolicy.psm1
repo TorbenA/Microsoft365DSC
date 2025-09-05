@@ -100,13 +100,13 @@ function Get-TargetResource
             Add-M365DSCTelemetryEvent -Data $data
             #endregion
 
-            $nullResult = ([Hashtable]$PSBoundParameters).clone()
+            $nullResult = ([Hashtable]$PSBoundParameters).Clone()
             $nullResult.Ensure = 'Absent'
 
             $configPolicy = $null
             if (-not [string]::IsNullOrEmpty($Id))
             {
-                $configPolicy = Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -TargetedManagedAppConfigurationId $Id -ExpandProperty 'Apps' `
+                $configPolicy = Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -Filter "Id eq '$Id'" -ExpandProperty 'Apps' `
                     -ErrorAction SilentlyContinue
             }
 

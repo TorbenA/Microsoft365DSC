@@ -152,7 +152,7 @@ function Get-TargetResource
             $definitionValue.Add('Id', $setting.Id)
             if ($null -ne $setting.ConfigurationType)
             {
-                $definitionValue.Add('ConfigurationType', $setting.ConfigurationType.toString())
+                $definitionValue.Add('ConfigurationType', $setting.ConfigurationType.ToString())
             }
             $definitionValue.Add('Enabled', $setting.Enabled)
             $definition = Get-MgBetaDeviceManagementGroupPolicyConfigurationDefinitionValueDefinition `
@@ -393,7 +393,7 @@ function Set-TargetResource
         $CreateParameters.Remove('Id') | Out-Null
         $CreateParameters.Remove('DefinitionValues') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).clone()).Keys
+        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
@@ -429,14 +429,14 @@ function Set-TargetResource
             $enumConfigurationType = $null
             if ($null -ne $definitionValue.ConfigurationType)
             {
-                $enumConfigurationType = $definitionValue.ConfigurationType.toString()
+                $enumConfigurationType = $definitionValue.ConfigurationType.ToString()
             }
             $complexPresentationValues = @()
             if ($null -ne $definitionValue.PresentationValues)
             {
                 foreach ($presentationValue in [Hashtable[]]$definitionValue.PresentationValues)
                 {
-                    $value = $presentationValue.clone()
+                    $value = $presentationValue.Clone()
                     $value = Rename-M365DSCCimInstanceParameter -Properties $value -KeyMapping $keyToRename
                     $value.add('presentation@odata.bind', (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceManagement/groupPolicyDefinitions('$($definitionValue.Definition.Id)')/presentations('$($presentationValue.presentationDefinitionId)')")
                     $value.remove('PresentationDefinitionId')
@@ -469,7 +469,7 @@ function Set-TargetResource
         $UpdateParameters.Remove('Id') | Out-Null
         $UpdateParameters.Remove('DefinitionValues') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
@@ -525,14 +525,14 @@ function Set-TargetResource
             $enumConfigurationType = $null
             if ($null -ne $definitionValue.ConfigurationType)
             {
-                $enumConfigurationType = $definitionValue.ConfigurationType.toString()
+                $enumConfigurationType = $definitionValue.ConfigurationType.ToString()
             }
             $complexPresentationValues = @()
             if ($null -ne $definitionValue.PresentationValues)
             {
                 foreach ($presentationValue in [Hashtable[]]$definitionValue.PresentationValues)
                 {
-                    $value = $presentationValue.clone()
+                    $value = $presentationValue.Clone()
                     $value = Rename-M365DSCCimInstanceParameter -Properties $value -KeyMapping $keyToRename
                     $value.add('presentation@odata.bind', "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)beta/deviceManagement/groupPolicyDefinitions('$($definitionValue.Definition.Id)')/presentations('$($presentationValue.presentationDefinitionId)')")
                     $value.remove('PresentationDefinitionId')
@@ -558,7 +558,7 @@ function Set-TargetResource
             $enumConfigurationType = $null
             if ($null -ne $definitionValue.ConfigurationType)
             {
-                $enumConfigurationType = $definitionValue.ConfigurationType.toString()
+                $enumConfigurationType = $definitionValue.ConfigurationType.ToString()
             }
             $complexPresentationValues = @()
             if ($null -ne $definitionValue.PresentationValues)
@@ -566,7 +566,7 @@ function Set-TargetResource
                 foreach ($presentationValue in [Hashtable[]]$definitionValue.PresentationValues)
                 {
                     $currentPresentationValue = $currentDefinitionValue.PresentationValues | Where-Object { $_.PresentationDefinitionId -eq $presentationValue.presentationDefinitionId }
-                    $value = $presentationValue.clone()
+                    $value = $presentationValue.Clone()
                     $value = Rename-M365DSCCimInstanceParameter -Properties $value -KeyMapping $keyToRename
                     $value.add('presentation@odata.bind', "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)beta/deviceManagement/groupPolicyDefinitions('$($definitionValue.Definition.Id)')/presentations('$($presentationValue.presentationDefinitionId)')")
                     $value.remove('PresentationDefinitionId')

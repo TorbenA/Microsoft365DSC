@@ -1126,8 +1126,8 @@ function Get-TargetResource
             $currentValue = $getValue.AdditionalProperties."mediaContentRating$country"
             if ($null -ne $currentValue)
             {
-                $complexMediaContentRating.Add('MovieRating', $currentValue.movieRating.toString())
-                $complexMediaContentRating.Add('TvRating', $currentValue.tvRating.toString())
+                $complexMediaContentRating.Add('MovieRating', $currentValue.movieRating.ToString())
+                $complexMediaContentRating.Add('TvRating', $currentValue.tvRating.ToString())
             }
             $results.Add("MediaContentRating$country", $complexMediaContentRating)
         }
@@ -2038,7 +2038,7 @@ function Set-TargetResource
         $CreateParameters.Remove('Id') | Out-Null
         $CreateParameters.Remove('Verbose') | Out-Null
 
-        foreach ($key in ($CreateParameters.clone()).Keys)
+        foreach ($key in ($CreateParameters.Clone()).Keys)
         {
             if ($CreateParameters[$key].getType().Fullname -like '*CimInstance*')
             {
@@ -2078,7 +2078,7 @@ function Set-TargetResource
         $UpdateParameters.Remove('Id') | Out-Null
         $UpdateParameters.Remove('Verbose') | Out-Null
 
-        foreach ($key in (($UpdateParameters.clone()).Keys | Sort-Object))
+        foreach ($key in (($UpdateParameters.Clone()).Keys | Sort-Object))
         {
             if ($UpdateParameters.$key.getType().Fullname -like '*CimInstance*')
             {

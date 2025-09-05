@@ -229,7 +229,7 @@ function Get-TargetResource
     $nullResult.Ensure = 'Absent'
     try
     {
-        $config = Get-MailboxCalendarConfiguration -Identity $Identity -ErrorAction Stop
+        $config = Get-MailboxCalendarConfiguration -Identity $Identity -ErrorAction SilentlyContinue
 
         if ($null -eq $config)
         {
