@@ -3352,8 +3352,6 @@ function Export-IntuneSettingCatalogPolicySettings
                 # Examples are IntuneFirewallPolicyWindows10 -> target is a GUID, IntuneAntivirusPolicyWindows10ConfigMgr -> *Severity* is an assignment, e.g. 2=2
                 $settingValue = ($options | Where-Object { $_.itemId -eq $beforeSettingValue }).itemId.Replace("$($settingDefinition.Id)_", "")
             }
-
-            #$settingValue = ($options | Where-Object { $_.itemId -eq $beforeSettingValue }).itemId.Replace("$($settingDefinition.Id)_", "")
             $childSettings = if ($IsRoot) { $SettingInstance.AdditionalProperties.choiceSettingValue.children } else { $SettingInstance.choiceSettingValue.children }
             foreach ($childSetting in $childSettings)
             {
@@ -3375,8 +3373,6 @@ function Export-IntuneSettingCatalogPolicySettings
                     $valueToReturn = ($options | Where-Object { $_.itemId -eq $value }).itemId.Replace("$($settingDefinition.Id)_", "")
                 }
                 $values += $valueToReturn
-
-                #$values += ($options | Where-Object { $_.itemId -eq $value }).itemId.Replace("$($settingDefinition.Id)_", "")
             }
             if ($options[0].optionValue.'@odata.type' -like "*Integer*")
             {

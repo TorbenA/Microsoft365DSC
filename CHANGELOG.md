@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* IntuneAccountProtectionLocalUserGroupMembershipPolicy
+  * [BREAKING CHANGE] Renamed properties to match their Settings Catalog counterpart.
+    FIXES [#6342](https://github.com/microsoft/Microsoft365DSC/issues/6432)
 * IntuneEpmElevationRulesPolicyWindows10
   * Initial release.
 * IntuneEpmElevationSettingsPolicyWindows10

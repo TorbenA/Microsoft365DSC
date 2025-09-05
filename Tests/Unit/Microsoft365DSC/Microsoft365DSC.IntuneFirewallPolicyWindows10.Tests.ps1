@@ -76,6 +76,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 OffsetUri = '/MdmStore/Global/DisableStatefulFtp'
                                 AdditionalProperties = @{
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                    options = @(
+                                        @{
+                                            itemId = 'vendor_msft_firewall_mdmstore_global_disablestatefulftp_false'
+                                            name = 'Stateful FTP enabled'
+                                        }
+                                    )
                                 }
                             }
                         )
@@ -102,6 +108,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 OffsetUri = '/MdmStore/DomainProfile/EnableFirewall'
                                 AdditionalProperties = @{
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                    options = @(
+                                        @{
+                                            itemId = 'vendor_msft_firewall_mdmstore_domainprofile_enablefirewall_true'
+                                            name = 'Enable Firewall'
+                                        }
+                                    )
                                 }
                             },
                             @{
@@ -124,6 +136,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 OffsetUri = '/MdmStore/PublicProfile/EnableFirewall'
                                 AdditionalProperties = @{
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                    options = @(
+                                        @{
+                                            itemId = 'vendor_msft_firewall_mdmstore_publicprofile_enablefirewall_true'
+                                            name = 'Enable Firewall'
+                                        }
+                                    )
                                 }
                             },
                             @{

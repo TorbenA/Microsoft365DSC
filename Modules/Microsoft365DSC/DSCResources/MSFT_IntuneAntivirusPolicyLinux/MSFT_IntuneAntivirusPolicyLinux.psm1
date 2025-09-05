@@ -246,11 +246,11 @@ function Get-TargetResource
             -All `
             -ErrorAction Stop
         $policyTemplateId = $getValue.TemplateReference.TemplateId
-        [array]$settingDefinitions = Get-MgBetaDeviceManagementConfigurationPolicyTemplateSettingTemplate `
+        [array]$settingDefinitions = (Get-MgBetaDeviceManagementConfigurationPolicyTemplateSettingTemplate `
             -DeviceManagementConfigurationPolicyTemplateId $policyTemplateId `
             -ExpandProperty 'settingDefinitions' `
             -All `
-            -ErrorAction Stop | Select-Object -ExpandProperty SettingDefinitions
+            -ErrorAction Stop).SettingDefinitions
 
         $policySettings = @{}
         $policySettings = Export-IntuneSettingCatalogPolicySettings -Settings $settings -ReturnHashtable $policySettings -AllSettingDefinitions $settingDefinitions

@@ -131,7 +131,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                     options = @(
                                         @{
                                             name = 'Disable PDE on the folder. If the folder is currently protected by PDE, this will result in unprotecting the folder.'
-                                            itemId = 'user_vendor_msft_pde_protectfolders_protectdocuments_1'
+                                            itemId = 'user_vendor_msft_pde_protectfolders_protectdocuments_0'
                                             dependentOn = @(
                                                 @{
                                                     dependentOn = 'user_vendor_msft_pde_enablepersonaldataencryption_1'
