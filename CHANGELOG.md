@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.25.903.2
 
 * AADServicePrincipal
   * Change in logic to evaluate instances in Test-TargetResource when
