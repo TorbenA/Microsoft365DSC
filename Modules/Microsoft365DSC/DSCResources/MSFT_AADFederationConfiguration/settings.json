@@ -36,5 +36,9 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

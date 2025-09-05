@@ -36,5 +36,9 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.NetworkAccess"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

@@ -47,5 +47,9 @@
     "Microsoft.Graph.DeviceManagement.Administration",
     "Microsoft.Graph.Groups",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }
