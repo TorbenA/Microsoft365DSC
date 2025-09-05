@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneASRRulesPolicyWindows10
+  * [BREAKING CHANGE] Removed resource. It was replaced with `IntuneSettingCatalogASRRulesPolicyWindows10`.
+
 # 1.25.903.1
 
 * AADAccessReviewDefinition
