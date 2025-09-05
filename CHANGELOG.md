@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneDeviceCleanupRule
+  * [BREAKING CHANGE] Removed resource. Successor is `IntuneDeviceCleanupRuleV2`.
+
 # 1.25.903.1
 
 * AADAccessReviewDefinition
