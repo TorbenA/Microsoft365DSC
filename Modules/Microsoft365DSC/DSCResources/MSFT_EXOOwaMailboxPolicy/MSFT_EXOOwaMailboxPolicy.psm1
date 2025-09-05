@@ -399,15 +399,16 @@ function Get-TargetResource
     )
 
     Write-Verbose -Message "Getting OWA Mailbox Policy configuration for $Name"
+
     if ($Global:CurrentModeIsExport)
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters `
             -SkipModuleReload $true
     }
     else
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters
     }
 
@@ -966,7 +967,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     $NewOwaMailboxPolicyParams = @{
@@ -975,19 +976,9 @@ function Set-TargetResource
         Confirm   = $false
     }
 
-    $SetOwaMailboxPolicyParams = $PSBoundParameters
-    $SetOwaMailboxPolicyParams.Remove('Credential') | Out-Null
-    $SetOwaMailboxPolicyParams.Remove('ApplicationId') | Out-Null
-    $SetOwaMailboxPolicyParams.Remove('TenantId') | Out-Null
-    $SetOwaMailboxPolicyParams.Remove('ApplicationSecret') | Out-Null
-    $SetOwaMailboxPolicyParams.Remove('CertificateThumbprint') | Out-Null
-    $SetOwaMailboxPolicyParams.Remove('CertificatePath') | Out-Null
-    $SetOwaMailboxPolicyParams.Remove('CertificatePassword') | Out-Null
-    $SetOwaMailboxPolicyParams.Remove('ManagedIdentity') | Out-Null
-    $SetOwaMailboxPolicyParams.Remove('Ensure') | Out-Null
+    $SetOwaMailboxPolicyParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $SetOwaMailboxPolicyParams.Add('Identity', $Name)
     $SetOwaMailboxPolicyParams.Remove('Name') | Out-Null
-    $SetOwaMailboxPolicyParams.Remove('AccessTokens') | Out-Null
 
     # CASE: OWA Mailbox Policy doesn't exist but should;
     if ($Ensure -eq 'Present' -and $currentOwaMailboxPolicyConfig.Ensure -eq 'Absent')
@@ -1481,6 +1472,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true
@@ -1561,5 +1553,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
-

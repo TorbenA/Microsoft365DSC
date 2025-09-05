@@ -63,6 +63,7 @@
   * Fixed an issue where an invalid search query was invoked.
     FIXES [#5937](https://github.com/microsoft/Microsoft365DSC/issues/5937)
 * MISC
+  * Code cleanup across all EXO, Commerce, Defender and Fabric resources.
   * Code cleanup across all AAD, ADO and Azure resources.
   * Fixing issues connection SPO to sovereign clouds.
   * Fixed an issue across Intune resources using the Settings Catalog which
