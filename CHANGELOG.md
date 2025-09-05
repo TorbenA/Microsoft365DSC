@@ -5,6 +5,8 @@
 * AADServicePrincipal
   * Change in logic to evaluate instances in Test-TargetResource when
     multiple instances exist with the same display name.
+* IntuneWindowsBackupForOrganizationConfiguration
+  * Initial release.
 * MISC
   * Code cleanup across all EXO, Commerce, Defender and Fabric resources.
 
