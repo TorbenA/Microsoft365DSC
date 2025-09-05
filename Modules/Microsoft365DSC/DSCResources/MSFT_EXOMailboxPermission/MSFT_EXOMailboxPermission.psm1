@@ -70,13 +70,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting permissions for Mailbox {$Identity}"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Identity -ne $Identity)
         {
-            Write-Verbose -Message "Getting permissions for Mailbox {$Identity}"
-
-            $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+            $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -229,20 +229,8 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters
-
     $currentValues = Get-TargetResource @PSBoundParameters
-    $instanceParams = [System.Collections.Hashtable]($PSBoundParameters)
-    $instanceParams.Remove('Ensure') | Out-Null
-    $instanceParams.Remove('Credential') | Out-Null
-    $instanceParams.Remove('ApplicationId') | Out-Null
-    $instanceParams.Remove('TenantId') | Out-Null
-    $instanceParams.Remove('CertificateThumbprint') | Out-Null
-    $instanceParams.Remove('CertificatePath') | Out-Null
-    $instanceParams.Remove('CertificatePassword') | Out-Null
-    $instanceParams.Remove('ManagedIdentity') | Out-Null
-    $instanceParams.Remove('AccessTokens') | Out-Null
+    $instanceParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present' -and $currentValues.Ensure -eq 'Absent')
     {
@@ -394,6 +382,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true
@@ -497,4 +486,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

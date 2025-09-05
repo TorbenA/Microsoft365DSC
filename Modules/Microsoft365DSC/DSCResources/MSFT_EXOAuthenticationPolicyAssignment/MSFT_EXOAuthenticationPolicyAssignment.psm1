@@ -53,7 +53,8 @@ function Get-TargetResource
     )
 
     Write-Verbose -Message "Getting Authentication Policy configuration for $Identity"
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -178,7 +179,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     # CASE: Authentication Policy doesn't exist but should;
@@ -314,6 +315,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
@@ -409,4 +411,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

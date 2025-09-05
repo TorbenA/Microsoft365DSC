@@ -291,6 +291,7 @@ function Set-TargetResource
         $createParameters.Add('templateReference', @{
             templateId = $templateReferenceId
         })
+        $createParameters.Add('roleScopeTagIds', $RoleScopeTagIds)
         $policy = New-MgBetaDeviceManagementConfigurationPolicy -BodyParameter $createParameters
 
         #region Assignments
@@ -320,7 +321,8 @@ function Set-TargetResource
             -TemplateReferenceId $templateReferenceId `
             -Platforms $platforms `
             -Technologies $technologies `
-            -Settings $settings
+            -Settings $settings `
+            -RoleScopeTagIds $RoleScopeTagIds
 
         #region Assignments
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments

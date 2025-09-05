@@ -18,7 +18,7 @@ class MSFT_DeviceManagementWin32MobileAppAssignmentSettingsRestartSettings
     [Write, Description("The number of minutes to snooze the restart notification dialog when the snooze button is selected.")] SInt32 restartNotificationSnoozeDurationInMinutes;
 };
 
-[ClassVersion("1.0.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_DeviceManagementWin32MobileAppAssignmentSettingsAutoUpdateSettings
 {
     [Write, Description("The auto-update superseded apps setting for the app assignment. Possible values are notConfigured and enabled. Default value is notConfigured."), ValueMap{"enabled", "notConfigured"}, Values{"enabled", "notConfigured"}] String autoUpdateSupersededAppsState;

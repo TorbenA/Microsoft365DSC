@@ -3484,8 +3484,16 @@ function Update-IntuneDeviceConfigurationPolicy
         $TemplateReferenceId,
 
         [Parameter()]
+        [System.String]
+        $CreationSource,
+
+        [Parameter()]
         [Array]
-        $Settings
+        $Settings,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds
     )
 
     try
@@ -3496,9 +3504,19 @@ function Update-IntuneDeviceConfigurationPolicy
             'name'              = $Name
             'description'       = $Description
             'platforms'         = $Platforms
-            'templateReference' = @{'templateId' = $TemplateReferenceId }
             'technologies'      = $Technologies
             'settings'          = $Settings
+            'roleScopeTagIds'   = $RoleScopeTagIds
+        }
+
+        if ($PSBoundParameters.ContainsKey('TemplateReferenceId'))
+        {
+            $policy.Add('templateReference', @{ 'templateId' = $TemplateReferenceId })
+        }
+
+        if ($PSBoundParameters.ContainsKey('CreationSource'))
+        {
+            $policy.Add('creationSource', $CreationSource)
         }
 
         $body = $policy | ConvertTo-Json -Depth 20
