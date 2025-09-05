@@ -98,6 +98,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                     parentSettingId = 'linux_mdatp_managed_antivirusengine_exclusions'
                                                 }
                                             )
+                                            optionValue = @{
+                                                '@odata.type' = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
+                                                value = 'excludedPath'
+                                            }
                                         }
                                     )
                                 }
@@ -237,11 +241,11 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Exclusions = [CimInstance[]]@(
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions -Property @{
                             Exclusions_item_extension = '.exe'
-                            Exclusions_item_type = '1'
+                            Exclusions_item_type = 'excludedFileExtension'
                         } -ClientOnly)
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions -Property @{
                             Exclusions_item_name = 'Test'
-                            Exclusions_item_type = '2'
+                            Exclusions_item_type = 'excludedFileName'
                         } -ClientOnly)
                     );
                     Id = "12345-12345-12345-12345-12345"
@@ -281,11 +285,11 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Exclusions = [CimInstance[]]@(
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions -Property @{
                             Exclusions_item_extension = '.exe'
-                            Exclusions_item_type = '1'
+                            Exclusions_item_type = 'excludedFileExtension'
                         } -ClientOnly)
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions -Property @{
                             Exclusions_item_name = 'Test'
-                            Exclusions_item_type = '2'
+                            Exclusions_item_type = 'excludedFileName'
                         } -ClientOnly)
                     );
                     Id = "12345-12345-12345-12345-12345"
@@ -323,11 +327,11 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Exclusions = [CimInstance[]]@(
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions -Property @{
                             Exclusions_item_extension = '.exe'
-                            Exclusions_item_type = '1'
+                            Exclusions_item_type = 'excludedFileExtension'
                         } -ClientOnly)
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions -Property @{
                             Exclusions_item_name = 'Test'
-                            Exclusions_item_type = '2'
+                            Exclusions_item_type = 'excludedFileName'
                         } -ClientOnly)
                     );
                     Id = "12345-12345-12345-12345-12345"
@@ -357,11 +361,11 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Exclusions = [CimInstance[]]@(
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions -Property @{
                             Exclusions_item_extension = '.bat' # Drift
-                            Exclusions_item_type = '1'
+                            Exclusions_item_type = 'excludedFileExtension'
                         } -ClientOnly)
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions -Property @{
                             Exclusions_item_name = 'Test'
-                            Exclusions_item_type = '2'
+                            Exclusions_item_type = 'excludedFileName'
                         } -ClientOnly)
                     );
                     Id = "12345-12345-12345-12345-12345"

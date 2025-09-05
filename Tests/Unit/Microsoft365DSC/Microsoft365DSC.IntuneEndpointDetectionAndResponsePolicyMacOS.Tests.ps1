@@ -84,6 +84,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                     @{
                                         itemId = 'com.apple.managedclient.preferences_tags_item_key_0'
                                         name = 'GROUP'
+                                        optionValue = @{
+                                            '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                            value = 'GROUP'
+                                        }
                                     }
                                 )
                             }

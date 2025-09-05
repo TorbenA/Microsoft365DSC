@@ -139,6 +139,24 @@ function Get-TargetResource
             -ErrorAction Stop
         $returnHashtable = Export-IntuneSettingCatalogPolicySettings -Settings $settings -ReturnHashtable $returnHashtable
 
+        foreach ($group in $returnHashtable.AccessGroup)
+        {
+            for ($i = 0; $i -lt $group.desc.Count; $i++)
+            {
+                $member = $group.desc[$i]
+                switch ($member)
+                {
+                    "S-1-5-32-544" { $member = "administrators" }
+                    "S-1-5-32-545" { $member = "users" }
+                    "S-1-5-32-546" { $member = "guests" }
+                    "S-1-5-32-547" { $member = "powerusers" }
+                    "S-1-5-32-555" { $member = "remotedesktopusers" }
+                    "S-1-5-32-580" { $member = "RemoteManagementUsers" }
+                }
+                $group.desc[$i] = $member
+            }
+        }
+
         Write-Verbose -Message "Found Account Protection Local User Group Membership Policy {$DisplayName}"
 
         $returnHashtable.Add('Ensure', 'Present')
@@ -269,6 +287,24 @@ function Set-TargetResource
     $templateReferenceId = '22968f54-45fa-486c-848e-f8224aa69772_1'
     $platforms = 'windows10'
     $technologies = 'mdm'
+
+    foreach ($group in $boundParameters.AccessGroup)
+    {
+        for ($i = 0; $i -lt $group.desc.Count; $i++)
+        {
+            $member = $group.desc[$i]
+            switch ($member)
+            {
+                "administrators" { $member = "S-1-5-32-544" }
+                "users" { $member = "S-1-5-32-545" }
+                "guests" { $member = "S-1-5-32-546" }
+                "powerusers" { $member = "S-1-5-32-547" }
+                "remotedesktopusers" { $member = "S-1-5-32-555" }
+                "RemoteManagementUsers" { $member = "S-1-5-32-580" }
+            }
+            $group.desc[$i] = $member
+        }
+    }
 
     if ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Absent')
     {

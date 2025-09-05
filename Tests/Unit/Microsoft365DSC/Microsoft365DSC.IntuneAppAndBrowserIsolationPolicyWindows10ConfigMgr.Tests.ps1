@@ -87,6 +87,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                         @{
                                             itemId = 'device_vendor_msft_windowsdefenderapplicationguard_settings_allowwindowsdefenderapplicationguard_1'
                                             name = 'Enable Microsoft Defender Application Guard for Microsoft Edge ONLY'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 1
+                                            }
                                         }
                                     )
                                 }
@@ -100,6 +104,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                         @{
                                             itemId = 'device_vendor_msft_windowsdefenderapplicationguard_settings_allowpersistence_0'
                                             name = 'Application Guard discards user-downloaded files and other items (such as, cookies, Favorites, and so on) during machine restart or user log-off.'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 0
+                                            }
                                         }
                                     )
                                 }
@@ -113,6 +121,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                         @{
                                             itemId = 'device_vendor_msft_windowsdefenderapplicationguard_settings_allowvirtualgpu_0'
                                             name = 'Cannot access the vGPU and uses the CPU to support rendering graphics. When the policy is not configured, it is the same as disabled (0).'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 0
+                                            }
                                         }
                                     )
                                 }
@@ -126,6 +138,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                         @{
                                             itemId = 'device_vendor_msft_windowsdefenderapplicationguard_settings_allowcameramicrophoneredirection_1'
                                             name = 'Turns on the functionality to allow Microsoft Defender Application Guard to access the device''s camera and microphone.'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 1
+                                            }
                                         }
                                     )
                                 }

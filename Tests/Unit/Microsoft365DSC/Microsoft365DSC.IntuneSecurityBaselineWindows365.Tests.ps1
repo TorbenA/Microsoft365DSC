@@ -142,6 +142,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                         @{
                                             name ='Enabled'
                                             itemId = 'device_vendor_msft_policy_config_connectivity_hardeneduncpaths_1'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 1
+                                            }
                                         }
                                     )
                                 }

@@ -120,6 +120,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                     parentSettingId = 'vendor_msft_firewall_mdmstore_firewallrules_{firewallrulename}'
                                                 }
                                             )
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                                value = 'OUT'
+                                            }
                                         }
                                     )
                                 }
@@ -142,6 +146,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                     parentSettingId = 'vendor_msft_firewall_mdmstore_firewallrules_{firewallrulename}'
                                                 }
                                             )
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                                value = 'Lan'
+                                            }
                                         }
                                     )
                                 }
@@ -234,6 +242,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                     parentSettingId = 'vendor_msft_firewall_mdmstore_firewallrules_{firewallrulename}'
                                                 }
                                             )
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 1
+                                            }
                                         }
                                     )
                                 }
@@ -254,6 +266,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                     parentSettingId = 'vendor_msft_firewall_mdmstore_firewallrules_{firewallrulename}'
                                                 }
                                             )
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 1
+                                            }
                                         }
                                     )
                                 }

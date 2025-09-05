@@ -92,6 +92,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                 parentSettingId = 'device_vendor_msft_policy_config_localusersandgroups_configure_groupconfiguration_accessgroup_desc'
                                             }
                                         )
+                                        optionValue = @{
+                                            '@odata.type' = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
+                                            value = 'S-1-5-32-544'
+                                        }
                                     }
                                 )
                             }
@@ -112,6 +116,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                 parentSettingId = 'device_vendor_msft_policy_config_localusersandgroups_configure_groupconfiguration_accessgroup_desc'
                                             }
                                         )
+                                        optionValue = @{
+                                            '@odata.type' = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
+                                            value = 'AddUpdate'
+                                        }
                                     }
                                 )
                             }
@@ -153,6 +161,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                 parentSettingId = 'device_vendor_msft_policy_config_localusersandgroups_configure_groupconfiguration_accessgroup_desc'
                                             }
                                         )
+                                        optionValue = @{
+                                            '@odata.type' = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
+                                            value = 'users'
+                                        }
                                     }
                                 )
                             }
@@ -276,6 +288,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                     parentSettingId = 'device_vendor_msft_policy_config_localusersandgroups_configure_groupconfiguration_accessgroup_desc'
                                                 }
                                             )
+                                            optionValue = @{
+                                                '@odata.type' = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
+                                                value = 'S-1-5-32-544'
+                                            }
                                         }
                                     )
                                 }
@@ -296,6 +312,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                     parentSettingId = 'device_vendor_msft_policy_config_localusersandgroups_configure_groupconfiguration_accessgroup_desc'
                                                 }
                                             )
+                                            optionValue = @{
+                                                '@odata.type' = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
+                                                value = 'AddUpdate'
+                                            }
                                         }
                                     )
                                 }
@@ -337,6 +357,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                     parentSettingId = 'device_vendor_msft_policy_config_localusersandgroups_configure_groupconfiguration_accessgroup_desc'
                                                 }
                                             )
+                                            optionValue = @{
+                                                '@odata.type' = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
+                                                value = 'users'
+                                            }
                                         }
                                     )
                                 }
@@ -414,7 +438,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogAccessGroup -Property @{
                             desc = @('administrators')
                             member = @('S-1-12-1-1167842105-1150511762-402702254-1917434032')
-                            action = 'add_update'
+                            action = 'AddUpdate'
                             userselectiontype = 'users'
                         } -ClientOnly)
                     )
@@ -498,7 +522,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogAccessGroup -Property @{
                             desc = @('administrators')
                             member = @('S-1-12-1-1167842105-1150511762-402702254-1917434032')
-                            action = 'add_update'
+                            action = 'AddUpdate'
                             userselectiontype = 'users'
                         } -ClientOnly)
                     )
@@ -524,7 +548,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogAccessGroup -Property @{
                             desc = @('administrators')
                             member = @('S-1-12-1-1167842105-1150511762-402702254-1917434032')
-                            action = 'add_update'
+                            action = 'AddUpdate'
                             userselectiontype = 'users'
                         } -ClientOnly)
                     )

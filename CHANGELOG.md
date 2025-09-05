@@ -13,7 +13,7 @@
   * Changed the way how Settings Catalog properties are exported.
 * MISC
   * Added ordering to hashtables.
-  * [BREAKING] Changed multiple property values and types in Intune resources. Refer to the
+  * [BREAKING CHANGE] Changed multiple property values and types in Intune resources. Refer to the
     breaking change blog post for more information about the affected resources.
 
 # 1.25.903.1

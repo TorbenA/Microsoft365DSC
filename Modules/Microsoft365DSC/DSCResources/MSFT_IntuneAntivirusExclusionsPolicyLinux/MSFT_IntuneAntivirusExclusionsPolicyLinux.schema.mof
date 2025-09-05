@@ -13,11 +13,11 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions
 {
-    [Write, Description("Type - Depends on exclusions (excludedPath: Path, excludedFileExtensions: File extension, excludedFileName: Process name)"), ValueMap{"excludedPath", "excludedFileExtensions", "excludedFileName"}, Values{"excludedPath", "excludedFileExtensions", "excludedFileName"}] String exclusions_item_type;
-    [Write, Description("File extension - Depends on exclusions_item_type=excludedFileExtensions")] String exclusions_item_extension;
+    [Write, Description("Type - Depends on exclusions (excludedPath: Path, excludedFileExtension: File extension, excludedFileName: Process name)"), ValueMap{"excludedPath", "excludedFileExtension", "excludedFileName"}, Values{"excludedPath", "excludedFileExtension", "excludedFileName"}] String exclusions_item_type;
+    [Write, Description("File extension - Depends on exclusions_item_type=excludedFileExtension")] String exclusions_item_extension;
     [Write, Description("File name - exclusions_item_type=excludedFileName")] String exclusions_item_name;
-    [Write, Description("Path - exclusions_item_type=Path")] String exclusions_item_path;
-    [Write, Description("Is directory (false: Disabled, true: Enabled) - Depends on exclusions_item_type=Path"), ValueMap{"false", "true"}, Values{"false", "true"}] String exclusions_item_isDirectory;
+    [Write, Description("Path - exclusions_item_type=excludedPath")] String exclusions_item_path;
+    [Write, Description("Is directory (false: Disabled, true: Enabled) - Depends on exclusions_item_type=excludedPath"), ValueMap{"false", "true"}, Values{"false", "true"}] String exclusions_item_isDirectory;
 };
 
 [ClassVersion("1.0.0.0"), FriendlyName("IntuneAntivirusExclusionsPolicyLinux")]

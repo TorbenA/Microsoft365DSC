@@ -37,7 +37,7 @@ Configuration Example
                 MSFT_MicrosoftGraphIntuneSettingsCatalogAccessGroup{
                     desc = @('administrators', 'users')
                     member = @('S-1-12-1-1167842105-1150511762-402702254-1917434032')
-                    action = 'add_update'
+                    action = 'AddUpdate'
                     userselectiontype = 'users'
                 }
             );

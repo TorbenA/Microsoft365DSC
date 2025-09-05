@@ -82,6 +82,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                     @{
                                         itemId = 'device_vendor_msft_bitlocker_identificationfield_1'
                                         name = 'Enabled'
+                                        optionValue = @{
+                                            '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                            value = 1
+                                        }
                                     }
                                 )
                             }

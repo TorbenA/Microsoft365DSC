@@ -80,6 +80,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                         @{
                                             itemId = 'vendor_msft_firewall_mdmstore_global_disablestatefulftp_false'
                                             name = 'Stateful FTP enabled'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                                value = 'false'
+                                            }
                                         }
                                     )
                                 }
@@ -112,6 +116,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                         @{
                                             itemId = 'vendor_msft_firewall_mdmstore_domainprofile_enablefirewall_true'
                                             name = 'Enable Firewall'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                                value = 'true'
+                                            }
                                         }
                                     )
                                 }
@@ -140,6 +148,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                         @{
                                             itemId = 'vendor_msft_firewall_mdmstore_publicprofile_enablefirewall_true'
                                             name = 'Enable Firewall'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                                value = 'true'
+                                            }
                                         }
                                     )
                                 }
@@ -202,6 +214,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                     parentSettingId = 'vendor_msft_firewall_mdmstore_hypervvmsettings_{vmcreatorid}_target'
                                                 }
                                             )
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                                value = 'true'
+                                            }
                                         }
                                     )
                                 }
@@ -223,6 +239,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                     parentSettingId = 'vendor_msft_firewall_mdmstore_hypervvmsettings_{vmcreatorid}_target'
                                                 }
                                             )
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                                value = 'true'
+                                            }
                                         }
                                     )
                                 }
@@ -243,6 +263,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                             )
                                             name = 'WSL'
                                             itemId = 'vendor_msft_firewall_mdmstore_hypervvmsettings_{vmcreatorid}_target_wsl'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                                value = '{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}'
+                                            }
                                         }
                                     )
                                 }
@@ -378,6 +402,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                     parentSettingId = 'vendor_msft_firewall_mdmstore_hypervvmsettings_{vmcreatorid}_target'
                                                 }
                                             )
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                                value = 'true'
+                                            }
                                         }
                                     )
                                 }
@@ -399,6 +427,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                     parentSettingId = 'vendor_msft_firewall_mdmstore_hypervvmsettings_{vmcreatorid}_target'
                                                 }
                                             )
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                                value = 'true'
+                                            }
                                         }
                                     )
                                 }
@@ -419,6 +451,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                             )
                                             name = 'WSL'
                                             itemId = 'vendor_msft_firewall_mdmstore_hypervvmsettings_{vmcreatorid}_target_wsl'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                                value = '{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}'
+                                            }
                                         }
                                     )
                                 }

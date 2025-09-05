@@ -31,11 +31,11 @@ Configuration Example
             Exclusions  = @(
                 MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions{
                     Exclusions_item_extension = '.exe'
-                    Exclusions_item_type = '1'
+                    Exclusions_item_type = 'excludedFileExtension'
                 }
                 MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions{
                     Exclusions_item_name = 'process1'
-                    Exclusions_item_type = '2'
+                    Exclusions_item_type = 'excludedFileName'
                 }
             );
             RoleScopeTagIds                    = @("0");

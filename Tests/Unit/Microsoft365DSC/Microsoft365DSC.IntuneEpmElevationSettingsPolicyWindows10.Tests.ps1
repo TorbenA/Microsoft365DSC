@@ -99,6 +99,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                             )
                                             itemId = 'device_vendor_msft_policy_elevationclientsettings_defaultelevationresponse_0'
                                             name = 'DenyAllRequests'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 0
+                                            }
                                         }
                                     )
                                 }
@@ -119,6 +123,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                             )
                                             itemId = 'device_vendor_msft_policy_elevationclientsettings_allowelevationdetection_0'
                                             name = 'No'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 0
+                                            }
                                         }
                                     )
                                 }
@@ -141,6 +149,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                             )
                                             itemId = 'device_vendor_msft_policy_privilegemanagement_elevationclientsettings_defaultelevationresponse_validation_0'
                                             name = 'Business Justification'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 0
+                                            }
                                         }
                                     )
                                 }
@@ -161,6 +173,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                             )
                                             itemId = 'device_vendor_msft_policy_elevationclientsettings_senddata_1'
                                             name = 'Yes'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 1
+                                            }
                                         }
                                     )
                                 }
@@ -181,6 +197,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                             )
                                             itemId = 'device_vendor_msft_policy_elevationclientsettings_reportingscope_1'
                                             name = 'DiagnosticDataAndManagedElevationsOnly'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 1
+                                            }
                                         }
                                     )
                                 }
@@ -195,6 +215,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                         @{
                                             itemId = 'device_vendor_msft_policy_elevationclientsettings_enableepm_1'
                                             name = 'Enabled'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 1
+                                            }
                                         }
                                     )
                                 }
@@ -263,6 +287,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                             )
                                             itemId = 'device_vendor_msft_policy_elevationclientsettings_defaultelevationresponse_0'
                                             name = 'DenyAllRequests'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 0
+                                            }
                                         }
                                     )
                                 }
@@ -283,6 +311,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                             )
                                             itemId = 'device_vendor_msft_policy_elevationclientsettings_allowelevationdetection_0'
                                             name = 'No'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 0
+                                            }
                                         }
                                     )
                                 }
@@ -305,6 +337,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                             )
                                             itemId = 'device_vendor_msft_policy_privilegemanagement_elevationclientsettings_defaultelevationresponse_validation_0'
                                             name = 'Business Justification'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 0
+                                            }
                                         }
                                     )
                                 }
@@ -325,6 +361,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                             )
                                             itemId = 'device_vendor_msft_policy_elevationclientsettings_senddata_1'
                                             name = 'Yes'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 1
+                                            }
                                         }
                                     )
                                 }
@@ -345,6 +385,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                             )
                                             itemId = 'device_vendor_msft_policy_elevationclientsettings_reportingscope_1'
                                             name = 'DiagnosticDataAndManagedElevationsOnly'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 1
+                                            }
                                         }
                                     )
                                 }
@@ -359,6 +403,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                         @{
                                             itemId = 'device_vendor_msft_policy_elevationclientsettings_enableepm_1'
                                             name = 'Enabled'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 1
+                                            }
                                         }
                                     )
                                 }

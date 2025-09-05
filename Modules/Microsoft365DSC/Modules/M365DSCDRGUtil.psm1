@@ -171,7 +171,6 @@ function Get-M365DSCDRGComplexTypeToHashtable
                 if ($keyType -like '*CimInstance*' -or $keyType -like '*Dictionary*' -or $keyType -like 'Microsoft.Graph.PowerShell.Models.*' -or $keyType -like 'Microsoft.Graph.Beta.PowerShell.Models.*' -or $keyType -like '*[[\]]')
                 {
                     $hash = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject $ComplexObject.$key
-
                     $results.Add($keyName, $hash)
                 }
                 else
@@ -636,7 +635,8 @@ function Compare-M365DSCComplexObject
         [Parameter()]
         $Target
     )
-    #Comparing full objects
+
+    # Comparing full objects
     if ($null -eq $Source -and $null -eq $Target)
     {
         return $true
@@ -661,12 +661,12 @@ function Compare-M365DSCComplexObject
 
     if ($Source.GetType().FullName -like '*CimInstance[[\]]' -or $Source.GetType().FullName -like '*Hashtable[[\]]')
     {
-        if ($Source.Length -ne $Target.Length)
+        if ($Source.Count -ne $Target.Count)
         {
-            Write-Verbose -Message "Configuration drift - The complex array have different number of items: Source {$($Source.Length)}, Target {$($Target.Length)}"
+            Write-Verbose -Message "Configuration drift - The complex array have different number of items: Source {$($Source.Count)}, Target {$($Target.Count)}"
             return $false
         }
-        if ($Source.Length -eq 0)
+        if ($Source.Count -eq 0)
         {
             return $true
         }
@@ -772,7 +772,7 @@ function Compare-M365DSCComplexObject
             }
         }
     }
-    elseif ($Target.GetType().FullName -like "*Hashtable")
+    elseif ($Target.GetType().FullName -like "*Hashtable" -or $Target.GetType().FullName -like "*OrderedDictionary")
     {
         $targetKeys = $Target.Keys | Where-Object -FilterScript { $_ -ne 'PSComputerName' }
     }
@@ -787,7 +787,7 @@ function Compare-M365DSCComplexObject
         if (($target.GetType().Name -eq 'Hashtable' -and $target.ContainsKey($key)) -or `
             ($target.GetType().Name -eq 'CIMInstance' -and $null -ne $target.$key))
         {
-            #Matching possible key names between Source and Target
+            # Matching possible key names between Source and Target
             $sourceValue = $Source.$key
 
             # Some classes might contain default properties that have the same name as the key,
@@ -801,7 +801,7 @@ function Compare-M365DSCComplexObject
                 $targetValue = $null
             }
 
-            #One of the item is null and not the other
+            # One of the item is null and not the other
             if (($Source.$key.Length -eq 0) -xor ($targetValue.Length -eq 0))
             {
                 if ($null -eq $Source.$key)
@@ -820,7 +820,7 @@ function Compare-M365DSCComplexObject
                 return $false
             }
 
-            #Both keys aren't null or empty
+            # Both keys aren't null or empty
             if (($null -ne $Source.$key) -and ($null -ne $Target.$key))
             {
                 if ($Source.$key.GetType().FullName -like '*CimInstance*' -or $Source.$key.GetType().FullName -like '*hashtable*' -or `
@@ -854,11 +854,11 @@ function Compare-M365DSCComplexObject
                 }
                 else
                 {
-                    #Simple object comparison
+                    # Simple object comparison
                     $referenceObject = $Target.$key
                     $differenceObject = $Source.$key
 
-                    #Identifying date from the current values
+                    # Identifying date from the current values
                     $targetType = ($Target.$key.GetType()).Name
                     if ($targetType -like '*Date*')
                     {
@@ -981,13 +981,13 @@ function Compare-M365DSCComplexObjectV2
 
     if ($Source.GetType().FullName -like '*CimInstance[[\]]' -or $Source.GetType().FullName -like '*Hashtable[[\]]')
     {
-        if ($Source.Length -ne $Target.Length)
+        if ($Source.Count -ne $Target.Count)
         {
-            Write-Verbose -Message "Configuration drift - The complex array have different number of items: Source {$($Source.Length)}, Target {$($Target.Length)}"
+            Write-Verbose -Message "Configuration drift - The complex array have different number of items: Source {$($Source.Count)}, Target {$($Target.Count)}"
             $Global:AllDrifts.DriftInfo += @{
                 PropertyName = $PropertyName
-                CurrentValue = "Current value has {$($Source.Length)} items"
-                DesiredValue = "Desired value has {$($Target.Length)} items"
+                CurrentValue = "Current value has {$($Source.Count)} items"
+                DesiredValue = "Desired value has {$($Target.Count)} items"
             }
 
             $returnValue = $false

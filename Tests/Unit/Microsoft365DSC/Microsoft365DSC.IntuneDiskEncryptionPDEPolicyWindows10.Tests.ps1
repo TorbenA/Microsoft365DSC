@@ -78,6 +78,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                         @{
                                             name = 'Enable Personal Data Encryption.'
                                             itemId = 'user_vendor_msft_pde_enablepersonaldataencryption_1'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 1
+                                            }
                                         }
                                     )
                                 }
@@ -98,6 +102,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                     parentSettingId = 'user_vendor_msft_pde_enablepersonaldataencryption'
                                                 }
                                             )
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 0
+                                            }
                                         }
                                     )
                                 }
@@ -118,6 +126,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                     parentSettingId = 'user_vendor_msft_pde_enablepersonaldataencryption'
                                                 }
                                             )
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 0
+                                            }
                                         }
                                     )
                                 }
@@ -138,6 +150,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                                     parentSettingId = 'user_vendor_msft_pde_enablepersonaldataencryption'
                                                 }
                                             )
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 0
+                                            }
                                         }
                                     )
                                 }

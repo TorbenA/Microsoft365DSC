@@ -42,8 +42,8 @@ Configuration Example
                     Elevationtype = "self"
                     FileName = "file.exe"
                     ElevationTypeValidation = @(
-                        "0"
-                        "1"
+                        1
+                        2
                     )
                     Name = "Rule name"
                     RestrictArguments = "allow"
@@ -52,7 +52,7 @@ Configuration Example
                     AppliesTo = "allusers"
                     ProductName = "Product name"
                     InternalName = "Internal name"
-                    SignatureSource = "0"
+                    SignatureSource = 0
                 }
                 MSFT_MicrosoftGraphIntuneSettingsCatalogElevationRuleName{
                     ChildProcessBehavior = "allowrunelevatedrulerequired"
@@ -62,7 +62,7 @@ Configuration Example
                     Name = "Rule 2"
                     CertificatePayloadWithReusableSetting = "IntuneEpmCertificatePolicySetting_1"
                     AppliesTo = "allusers"
-                    SignatureSource = "0"
+                    SignatureSource = 0
                 }
             );
             Ensure                      = "Present";

@@ -29,8 +29,8 @@ class MSFT_MicrosoftGraphIntuneSettingsCatalogElevationRuleName
     [Write, Description("Certificate")] String CertificatePayloadWithReusableSetting;
     [Write, Description("File upload")] String CertificateFileUpload;
     [Required, Description("Elevation type (self: Userconfirmed, automatic: Automatic, deny: Deny, supportarbitrated: Supportapproved, userconfirmeduser: UserConfirmedUser)"), ValueMap{"self", "automatic", "deny", "supportarbitrated", "userconfirmeduser"}, Values{"self", "automatic", "deny", "supportarbitrated", "userconfirmeduser"}] String Elevationtype;
-    [Write, Description("User Confirmed User Validation (0: Windows Authentication)"), ValueMap{"0"}, Values{"0"}] SInt32 UserConfirmedUserElevationTypeValidation[];
-    [Write, Description("Validation (0: Business Justification, 1: Windows Authentication)"), ValueMap{"0", "1"}, Values{"0", "1"}] SInt32 ElevationTypeValidation[];
+    [Write, Description("User Confirmed User Validation (2: Windows Authentication)"), ValueMap{"2"}, Values{"2"}] SInt32 UserConfirmedUserElevationTypeValidation[];
+    [Write, Description("Validation (1: Business Justification, 2: Windows Authentication)"), ValueMap{"1", "2"}, Values{"1", "2"}] SInt32 ElevationTypeValidation[];
     [Write, Description("Restrict Arguments (allow: Allow)"), ValueMap{"allow"}, Values{"allow"}] String RestrictArguments;
     [Write, Description("Argument List")] String ArgumentList[];
 };
