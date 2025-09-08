@@ -466,7 +466,7 @@ function Export-TargetResource
         {
             if ($_.Exception -like "*The operation couldn't be performed because object*")
             {
-                Write-M365DSCHost -Message "`r`n    $($Global:M365DSCEmojiYellowCircle) The current tenant is not registered to allow for Application Access Policies"
+                Write-M365DSCHost -Message "`r`n    $($Global:M365DSCEmojiYellowCircle) The current tenant is not registered to allow for Application Access Policies" -CommitWrite
                 return ''
             }
             throw $_

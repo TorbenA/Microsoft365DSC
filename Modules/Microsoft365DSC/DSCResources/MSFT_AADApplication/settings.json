@@ -48,5 +48,9 @@
     "Microsoft.Graph.Beta.Identity.DirectoryManagement",
     "Microsoft.Graph.Users",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

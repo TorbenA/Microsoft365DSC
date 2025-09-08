@@ -425,7 +425,7 @@ function Export-TargetResource
         }
         else
         {
-            Write-M365DSCHost -Message "`r`n    $($Global:M365DSCEmojiYellowCircle) The current tenant is not registered for Policy Tip Configurations."
+            Write-M365DSCHost -Message "`r`n    $($Global:M365DSCEmojiYellowCircle) The current tenant is not registered for Policy Tip Configurations." -CommitWrite
         }
         return $dscContent
     }

@@ -47,5 +47,9 @@
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Groups",
     "Microsoft.Graph.Users"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }
