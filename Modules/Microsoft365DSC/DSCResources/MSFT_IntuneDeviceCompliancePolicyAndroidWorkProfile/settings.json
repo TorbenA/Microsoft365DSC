@@ -46,5 +46,9 @@
     "Microsoft.Graph.Beta.DeviceManagement",
     "Microsoft.Graph.Groups",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

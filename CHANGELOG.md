@@ -11,7 +11,21 @@
   * Other performance improvements to speed up resource processing.
   * Update required modules for Intune resources doing assignments to groups.
 
-# UNRELEASED
+# 1.25.903.2
+
+* AADEnrichedAuditLogs
+  * DEPRECATED resource.
+* AADServicePrincipal
+  * Change in logic to evaluate instances in Test-TargetResource when
+    multiple instances exist with the same display name.
+* IntuneWindowsBackupForOrganizationConfiguration
+  * Initial release.
+* MISC
+  * Code cleanup across all EXO, Commerce, Defender and Fabric resources.
+* DEPENDENCIES
+  * Update ReverseDSC to version 2.0.0.30.
+
+# 1.25.903.1
 
 * AADAccessReviewDefinition
   * Added properties `FallbackReviewers` and `Reviewers`.
@@ -50,6 +64,9 @@
   * Restricted possible values for `DeviceComplianceCheckinThresholdDays` from 1 to 120.
 * IntuneMobileAppsWin32AppWindows10
   * Bump CIM instance version to fix invalid property name.
+* IntuneMobileAppsWindowsOfficeSuiteApp
+  * Fixes problem with OfficeConfigurationXml.Changed from type byte to type
+    String as APi expect a string that is encoded in Base64 format.
 * IntuneSecurityBaselineMicrosoftEdge
   * Fixed an issue where the latest policy version was not exported.
     FIXES [#6415](https://github.com/microsoft/Microsoft365DSC/issues/6415)
@@ -84,10 +101,6 @@
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.0.
     FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
-
-* IntuneMobileAppsWindowsOfficeSuiteApp
-  * Fixes problem with OfficeConfigurationXml.Changed from type byte to type String as APi expect a string that is encoded in Base64 format.
-
   * Include `Az.Security` module for `Defender` workload.
 * M365DSCTelemetryEngine
   * Changed logic to retrieve the global telemetry authentication parameters.
@@ -96,7 +109,6 @@
   * Moved sizing of batch requests to `Invoke-M365DSCGraphBatchRequest`.
   * Fixed a comparison issue in `Compare-M365DSCComplexObject`.
     Supersedes [#6196](https://github.com/microsoft/Microsoft365DSC/pull/6196).
-
 
 # 1.25.827.1
 

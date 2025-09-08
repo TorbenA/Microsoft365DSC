@@ -55,5 +55,8 @@
     "Microsoft.Graph.Beta.Identity.Governance",
     "Microsoft.Graph.Groups",
     "Microsoft.Graph.Users"
+  ],
+  "supportedEnvironments": [
+    "Global"
   ]
 }

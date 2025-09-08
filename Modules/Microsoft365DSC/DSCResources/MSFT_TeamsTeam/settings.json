@@ -72,5 +72,9 @@
     "Microsoft.Graph.Users",
     "MicrosoftTeams",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }
