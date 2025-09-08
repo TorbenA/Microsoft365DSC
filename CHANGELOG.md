@@ -11,8 +11,10 @@
 * IntuneRoleAssignment
   * Fixed an issue where deleted groups would throw an error during export.
 
-# UNRELEASED
+# 1.25.903.2
 
+* AADEnrichedAuditLogs
+  * DEPRECATED resource.
 * AADServicePrincipal
   * Change in logic to evaluate instances in Test-TargetResource when
     multiple instances exist with the same display name.
@@ -20,6 +22,8 @@
   * Initial release.
 * MISC
   * Code cleanup across all EXO, Commerce, Defender and Fabric resources.
+* DEPENDENCIES
+  * Update ReverseDSC to version 2.0.0.30.
 
 # 1.25.903.1
 
