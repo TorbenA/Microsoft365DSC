@@ -41,5 +41,9 @@
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.Governance",
     "Microsoft.Graph.Groups"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

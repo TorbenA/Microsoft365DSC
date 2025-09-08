@@ -70,5 +70,9 @@
   "requiredModules": [
     "Microsoft.Graph.Groups",
     "PnP.PowerShell"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

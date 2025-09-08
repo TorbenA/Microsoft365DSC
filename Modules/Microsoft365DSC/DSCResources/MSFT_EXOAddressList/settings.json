@@ -27,5 +27,9 @@
       "requiredrolegroups": []
     }
   },
-  "requiredModules": []
+  "requiredModules": [],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ]
 }

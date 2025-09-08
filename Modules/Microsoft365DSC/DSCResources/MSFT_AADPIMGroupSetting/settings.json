@@ -68,5 +68,9 @@
     "Microsoft.Graph.Groups",
     "Microsoft.Graph.Identity.SignIns",
     "Microsoft.Graph.Users"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }
