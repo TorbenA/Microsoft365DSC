@@ -2,6 +2,8 @@
 
 # 1.25.903.2
 
+* AADEnrichedAuditLogs
+  * DEPRECATED resource.
 * AADServicePrincipal
   * Change in logic to evaluate instances in Test-TargetResource when
     multiple instances exist with the same display name.
