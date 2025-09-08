@@ -37,5 +37,8 @@
     "Microsoft.Graph.Applications",
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.Governance"
+  ],
+  "supportedEnvironments": [
+    "Global"
   ]
 }

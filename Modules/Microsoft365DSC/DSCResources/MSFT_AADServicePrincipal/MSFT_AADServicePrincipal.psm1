@@ -329,10 +329,17 @@ function Get-TargetResource
             $complexCustomSecurityAttributes = @()
         }
 
-        $appIdToExport = $AADServicePrincipal.AppDisplayName
-        if ([System.String]::IsNullOrEmpty($appIdToExport))
+        # If the App Id was passed in as a Guid, return it as a GUID. Otherwise return it as text.
+        $ObjectGuid = [System.Guid]::empty
+        if (-not [System.String]::IsNullOrEmpty($AppId) -and [System.Guid]::TryParse($AppId, [ref]$ObjectGuid))
         {
+            Write-Verbose -Message "Returning AppId as GUID since the provided value was in GUID format."
             $appIdToExport = $AADServicePrincipal.AppId
+        }
+        else
+        {
+            Write-Verbose -Message "Returning AppId as Display Name since the provided value was NOT in GUID format."
+            $appIdToExport = $AADServicePrincipal.DisplayName
         }
 
         $tagsValue = @()
@@ -976,32 +983,6 @@ function Test-TargetResource
         -Parameters $PSBoundParameters
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
-
-    # Evaluate AppId in GUID or DisplayName form.
-    $ObjectGuid = [System.Guid]::Empty
-    if ([System.Guid]::TryParse($PSBoundParameters.AppId, [System.Management.Automation.PSReference]$ObjectGuid))
-    {
-        # AppId was provided as a GUID, but Get-TargetResource returns it as Display name.
-        # Evaluate the translation to display name
-        Write-Verbose -Message "AppId was provided as a GUID, translating into a DisplayName"
-        $appInstance = Get-MgApplication -Filter "AppId eq '$($PSBoundParameters.AppId)'" -ErrorAction SilentlyContinue
-        if ($null -ne $appInstance)
-        {
-            $PSBoundParameters.AppId = $appInstance.DisplayName
-        }
-        else
-        {
-            $spn = Get-MgServicePrincipal -Filter "AppId eq '$($PSBoundParameters.AppId)'"
-            if ($null -eq $spn)
-            {
-                Write-Verbose -Message "Application or Service Principal with AppId '$($PSBoundParameters.AppId)' not found. Leaving it as AppId."
-            }
-            else
-            {
-                $PSBoundParameters.AppId = $spn.DisplayName
-            }
-        }
-    }
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
                                          -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
