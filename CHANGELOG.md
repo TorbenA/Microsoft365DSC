@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCDRGUtil
+  * Fixed an issue where group filtering would not find the specified groups.
+
 # 1.25.903.2
 
 * AADEnrichedAuditLogs
