@@ -2,6 +2,17 @@
 
 # UNRELEASED
 
+* IntuneMobileAppsMacOSLobApp
+  * Added filter capability.
+* IntuneMobileAppsWebLink
+  * Fixed an issue where filtering was applied after fetching all apps.
+* IntuneMobileAppsWindowsOfficeSuiteApp
+  * Added filter capability.
+* IntuneRoleAssignment
+  * Fixed an issue where deleted groups would throw an error during export.
+
+# UNRELEASED
+
 * AADServicePrincipal
   * Change in logic to evaluate instances in Test-TargetResource when
     multiple instances exist with the same display name.

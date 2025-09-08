@@ -134,7 +134,7 @@ function Get-TargetResource
         $Id = $getValue.Id
         Write-Verbose -Message "An Intune Role Assignment with Id {$Id} and DisplayName {$DisplayName} was found"
 
-        #Get Roledefinition first, loop through all roledefinitions and find the assignment that matches the Id
+        # Get Roledefinition first, loop through all roledefinitions and find the assignment that matches the Id
         $tempRoleDefinitions = Get-MgDeviceManagementRoleDefinition
         foreach ($tempRoleDefinition in $tempRoleDefinitions)
         {
@@ -150,13 +150,25 @@ function Get-TargetResource
         $ResourceScopesDisplayNames = @()
         foreach ($ResourceScope in $getValue.ResourceScopes)
         {
-            $ResourceScopesDisplayNames += (Get-MgGroup -GroupId $ResourceScope).DisplayName
+            $group = Get-MgGroup -GroupId $ResourceScope -ErrorAction SilentlyContinue
+            if ($null -eq $group)
+            {
+                Write-Warning -Message "Could not find group with Id {$ResourceScope} when retrieving resource scope display names"
+                continue
+            }
+            $ResourceScopesDisplayNames += $group.DisplayName
         }
 
         $MembersDisplayNames = @()
         foreach ($tempMember in $getValue.Members)
         {
-            $MembersDisplayNames += (Get-MgGroup -GroupId $tempMember).DisplayName
+            $group = Get-MgGroup -GroupId $tempMember -ErrorAction SilentlyContinue
+            if ($null -eq $group)
+            {
+                Write-Warning -Message "Could not find group with Id {$tempMember} when retrieving member display names"
+                continue
+            }
+            $MembersDisplayNames += $group.DisplayName
         }
 
         $scopeTypeValue = $null
@@ -721,4 +733,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
