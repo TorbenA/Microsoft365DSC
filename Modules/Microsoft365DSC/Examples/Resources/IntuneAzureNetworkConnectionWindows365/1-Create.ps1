@@ -22,24 +22,37 @@ Configuration Example
 
     node localhost
     {
-        IntuneAccountProtectionLocalAdministratorPasswordSolutionPolicy "My Account Protection LAPS Policy"
+        IntuneAzureNetworkConnectionWindows365 "IntuneAzureNetworkConnectionWindows365-IntuneWindows365AzureNetworkConnection_Hybrid"
         {
-            DisplayName              = "Account Protection LAPS Policy";
-            Description              = "My revised description";
-            Ensure                   = "Present";
-            Assignments              = @(
-                MSFT_IntuneAccountProtectionLocalAdministratorPasswordSolutionPolicyAssignments{
-                    deviceAndAppManagementAssignmentFilterType = 'none'
-                    dataType = '#microsoft.graph.allLicensedUsersAssignmentTarget'
-                }
-            );
-            BackupDirectory          = "1";
-            passwordagedays_aad      = 10;
-            AdministratorAccountName = "Administrator";
-            PasswordAgeDays          = 20;
+            AdDomainName          = "contoso.com";
+            AdDomainUsername      = "username@contoso.com";
+            AdDomainPassword      = "securePassword";
+            ConnectionType        = "hybridAzureADJoin";
+            DisplayName           = "IntuneWindows365AzureNetworkConnection_Hybrid";
+            Ensure                = "Present";
+            OrganizationalUnit    = "OU=Test,DC=contoso,DC=com";
+            ResourceGroupId       = "/subscriptions/subscription-name/resourceGroups/resource-group-name";
+            RoleScopeTagIds       = @("0");
+            SubnetId              = "/subscriptions/subscription-name/resourceGroups/resource-group-name/providers/Microsoft.Network/virtualNetworks/virtual-network-name/subnets/default";
+            SubscriptionName      = "subscription-name";
+            VirtualNetworkId      = "/subscriptions/subscription-name/resourceGroups/resource-group-name/providers/Microsoft.Network/virtualNetworks/virtual-network-name";
             ApplicationId         = $ApplicationId;
-            TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;
+            TenantId              = $TenantId;
+        }
+        IntuneAzureNetworkConnectionWindows365 "IntuneAzureNetworkConnectionWindows365-IntuneWindows365AzureNetworkConnection_Entra"
+        {
+            ConnectionType        = "azureADJoin";
+            DisplayName           = "IntuneWindows365AzureNetworkConnection_Entra_1";
+            Ensure                = "Present";
+            ResourceGroupId       = "/subscriptions/subscription-name/resourceGroups/resource-group-name";
+            RoleScopeTagIds       = @("0");
+            SubnetId              = "/subscriptions/subscription-name/resourceGroups/resource-group-name/providers/Microsoft.Network/virtualNetworks/virtual-network-name/subnets/default";
+            SubscriptionName      = "subscription-name";
+            VirtualNetworkId      = "/subscriptions/subscription-name/resourceGroups/resource-group-name/providers/Microsoft.Network/virtualNetworks/virtual-network-name";
+            ApplicationId         = $ApplicationId;
+            CertificateThumbprint = $CertificateThumbprint;
+            TenantId              = $TenantId;
         }
     }
 }

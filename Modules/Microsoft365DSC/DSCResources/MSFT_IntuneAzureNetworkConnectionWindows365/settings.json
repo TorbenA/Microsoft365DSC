@@ -6,39 +6,42 @@
       "application": {
         "update": [
           {
-            "name": "Group.Read.All"
+            "name": "CloudPC.ReadWrite.All"
           }
         ],
         "read": [
           {
             "name": "CloudPC.Read.All"
-          },
-          {
-            "name": "Group.Read.All"
           }
         ]
       },
       "delegated": {
         "update": [
           {
-            "name": "Group.Read.All"
+            "name": "CloudPC.ReadWrite.All"
           }
         ],
         "read": [
           {
             "name": "CloudPC.Read.All"
-          },
+          }
+        ]
+      }
+    },
+    "Azure Resource Manager": {
+      "delegated": {
+        "read": [
           {
-            "name": "Group.Read.All"
+            "name": "user_impersonation"
           }
         ]
       }
     }
   },
   "requiredModules": [
+    "Az.Accounts",
     "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Beta.DeviceManagement.Administration",
-    "Microsoft.Graph.Groups"
+    "Microsoft.Graph.Beta.DeviceManagement.Administration"
   ],
   "mode": "Configuration"
 }

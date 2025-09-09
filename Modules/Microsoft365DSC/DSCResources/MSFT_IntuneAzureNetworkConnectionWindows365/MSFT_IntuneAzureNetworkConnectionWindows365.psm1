@@ -17,11 +17,7 @@ function Get-TargetResource
         [System.String]
         $AdDomainUsername,
 
-        [Parameter()]
-        [System.String]
-        $AlternateResourceUrl,
-
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('hybridAzureADJoin','azureADJoin')]
         [System.String]
         $ConnectionType,
@@ -31,76 +27,32 @@ function Get-TargetResource
         $DisplayName,
 
         [Parameter()]
-        [System.Boolean]
-        $HealthCheckPaused,
-
-        [Parameter()]
-        [ValidateSet('pending','running','passed','failed','warning','informational')]
-        [System.String]
-        $HealthCheckStatus,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $HealthCheckStatusDetail,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $HealthCheckStatusDetails,
-
-        [Parameter()]
-        [System.Boolean]
-        $InUse,
-
-        [Parameter()]
-        [System.Boolean]
-        $InUseByCloudPc,
-
-        [Parameter()]
-        [ValidateSet('windows365','devBox','rpaBox')]
-        [System.String]
-        $ManagedBy,
-
-        [Parameter()]
         [System.String]
         $OrganizationalUnit,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $ResourceGroupId,
 
-        [Parameter()]
-        [System.String[]]
-        $ScopeIds,
-
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $SubnetId,
 
-        [Parameter()]
-        [System.String]
-        $SubscriptionId,
-
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $SubscriptionName,
 
-        [Parameter()]
-        [ValidateSet('hybridAzureADJoin','azureADJoin')]
-        [System.String]
-        $Type,
-
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $VirtualNetworkId,
 
         [Parameter()]
-        [System.String]
-        $VirtualNetworkLocation,
+        [System.String[]]
+        $RoleScopeTagIds,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
-
         #endregion
 
         [Parameter()]
@@ -145,6 +97,8 @@ function Get-TargetResource
         {
             $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
+            $null = New-M365DSCConnection -Workload 'Azure' `
+                -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
             Confirm-M365DSCDependencies
@@ -177,10 +131,7 @@ function Get-TargetResource
                 {
                     $getValue = Get-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection `
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                        -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq "#microsoft.graph.CloudPcOnPremisesConnection"
-                        }
+                        -ErrorAction SilentlyContinue
                 }
             }
             #endregion
@@ -198,147 +149,25 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Azure Network Connection for Windows365 with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
-        $complexHealthCheckStatusDetail = @{}
-        if ($null -ne $getValue.HealthCheckStatusDetail.endDateTime)
-        {
-            $complexHealthCheckStatusDetail.Add('EndDateTime', ([DateTimeOffset]$getValue.HealthCheckStatusDetail.endDateTime).ToString('o'))
-        }
-        $complexHealthChecks = @()
-        foreach ($currentHealthChecks in $getValue.HealthCheckStatusDetail.healthChecks)
-        {
-            $myHealthChecks = @{}
-            $myHealthChecks.Add('AdditionalDetail', $currentHealthChecks.additionalDetail)
-            $myHealthChecks.Add('AdditionalDetails', $currentHealthChecks.additionalDetails)
-            $myHealthChecks.Add('CorrelationId', $currentHealthChecks.correlationId)
-            $myHealthChecks.Add('DisplayName', $currentHealthChecks.displayName)
-            if ($null -ne $currentHealthChecks.endDateTime)
-            {
-                $myHealthChecks.Add('EndDateTime', ([DateTimeOffset]$currentHealthChecks.endDateTime).ToString(''))
-            }
-            if ($null -ne $currentHealthChecks.errorType)
-            {
-                $myHealthChecks.Add('ErrorType', $currentHealthChecks.errorType.ToString())
-            }
-            $myHealthChecks.Add('RecommendedAction', $currentHealthChecks.recommendedAction)
-            if ($null -ne $currentHealthChecks.startDateTime)
-            {
-                $myHealthChecks.Add('StartDateTime', ([DateTimeOffset]$currentHealthChecks.startDateTime).ToString(''))
-            }
-            if ($null -ne $currentHealthChecks.status)
-            {
-                $myHealthChecks.Add('Status', $currentHealthChecks.status.ToString())
-            }
-            if ($myHealthChecks.values.Where({$null -ne $_}).Count -gt 0)
-            {
-                $complexHealthChecks += $myHealthChecks
-            }
-        }
-        $complexHealthCheckStatusDetail.Add('HealthChecks',$complexHealthChecks)
-        if ($null -ne $getValue.HealthCheckStatusDetail.startDateTime)
-        {
-            $complexHealthCheckStatusDetail.Add('StartDateTime', ([DateTimeOffset]$getValue.HealthCheckStatusDetail.startDateTime).ToString('o'))
-        }
-        if ($complexHealthCheckStatusDetail.Values.Where({ $null -ne $_ }).Count -eq 0)
-        {
-            $complexHealthCheckStatusDetail = $null
-        }
-
-        $complexHealthCheckStatusDetails = @{}
-        if ($null -ne $getValue.HealthCheckStatusDetails.endDateTime)
-        {
-            $complexHealthCheckStatusDetails.Add('EndDateTime', ([DateTimeOffset]$getValue.HealthCheckStatusDetails.endDateTime).ToString('o'))
-        }
-        $complexHealthChecks = @()
-        foreach ($currentHealthChecks in $getValue.HealthCheckStatusDetails.healthChecks)
-        {
-            $myHealthChecks = @{}
-            $myHealthChecks.Add('AdditionalDetail', $currentHealthChecks.additionalDetail)
-            $myHealthChecks.Add('AdditionalDetails', $currentHealthChecks.additionalDetails)
-            $myHealthChecks.Add('CorrelationId', $currentHealthChecks.correlationId)
-            $myHealthChecks.Add('DisplayName', $currentHealthChecks.displayName)
-            if ($null -ne $currentHealthChecks.endDateTime)
-            {
-                $myHealthChecks.Add('EndDateTime', ([DateTimeOffset]$currentHealthChecks.endDateTime).ToString(''))
-            }
-            if ($null -ne $currentHealthChecks.errorType)
-            {
-                $myHealthChecks.Add('ErrorType', $currentHealthChecks.errorType.ToString())
-            }
-            $myHealthChecks.Add('RecommendedAction', $currentHealthChecks.recommendedAction)
-            if ($null -ne $currentHealthChecks.startDateTime)
-            {
-                $myHealthChecks.Add('StartDateTime', ([DateTimeOffset]$currentHealthChecks.startDateTime).ToString(''))
-            }
-            if ($null -ne $currentHealthChecks.status)
-            {
-                $myHealthChecks.Add('Status', $currentHealthChecks.status.ToString())
-            }
-            if ($myHealthChecks.values.Where({$null -ne $_}).Count -gt 0)
-            {
-                $complexHealthChecks += $myHealthChecks
-            }
-        }
-        $complexHealthCheckStatusDetails.Add('HealthChecks',$complexHealthChecks)
-        if ($null -ne $getValue.HealthCheckStatusDetails.startDateTime)
-        {
-            $complexHealthCheckStatusDetails.Add('StartDateTime', ([DateTimeOffset]$getValue.HealthCheckStatusDetails.startDateTime).ToString('o'))
-        }
-        if ($complexHealthCheckStatusDetails.Values.Where({ $null -ne $_ }).Count -eq 0)
-        {
-            $complexHealthCheckStatusDetails = $null
-        }
-        #endregion
-
-        #region resource generator code
         $enumConnectionType = $null
         if ($null -ne $getValue.ConnectionType)
         {
             $enumConnectionType = $getValue.ConnectionType.ToString()
-        }
-
-        $enumHealthCheckStatus = $null
-        if ($null -ne $getValue.HealthCheckStatus)
-        {
-            $enumHealthCheckStatus = $getValue.HealthCheckStatus.ToString()
-        }
-
-        $enumManagedBy = $null
-        if ($null -ne $getValue.ManagedBy)
-        {
-            $enumManagedBy = $getValue.ManagedBy.ToString()
-        }
-
-        $enumType = $null
-        if ($null -ne $getValue.Type)
-        {
-            $enumType = $getValue.Type.ToString()
         }
         #endregion
 
         $results = @{
             #region resource generator code
             AdDomainName             = $getValue.AdDomainName
-            AdDomainPassword         = $getValue.AdDomainPassword
             AdDomainUsername         = $getValue.AdDomainUsername
-            AlternateResourceUrl     = $getValue.AlternateResourceUrl
             ConnectionType           = $enumConnectionType
             DisplayName              = $getValue.DisplayName
-            HealthCheckPaused        = $getValue.HealthCheckPaused
-            HealthCheckStatus        = $enumHealthCheckStatus
-            HealthCheckStatusDetail  = $complexHealthCheckStatusDetail
-            HealthCheckStatusDetails = $complexHealthCheckStatusDetails
-            InUse                    = $getValue.InUse
-            InUseByCloudPc           = $getValue.InUseByCloudPc
-            ManagedBy                = $enumManagedBy
             OrganizationalUnit       = $getValue.OrganizationalUnit
-            ResourceGroupId          = $getValue.ResourceGroupId
-            ScopeIds                 = $getValue.ScopeIds
-            SubnetId                 = $getValue.SubnetId
-            SubscriptionId           = $getValue.SubscriptionId
+            ResourceGroupId          = $getValue.ResourceGroupId.Replace("/subscriptions/$($getValue.SubscriptionId)/", "/subscriptions/$($getValue.SubscriptionName)/")
+            RoleScopeTagIds          = $getValue.ScopeIds
+            SubnetId                 = $getValue.SubnetId.Replace("/subscriptions/$($getValue.SubscriptionId)/", "/subscriptions/$($getValue.SubscriptionName)/")
             SubscriptionName         = $getValue.SubscriptionName
-            Type                     = $enumType
-            VirtualNetworkId         = $getValue.VirtualNetworkId
-            VirtualNetworkLocation   = $getValue.VirtualNetworkLocation
+            VirtualNetworkId         = $getValue.VirtualNetworkId.Replace("/subscriptions/$($getValue.SubscriptionId)/", "/subscriptions/$($getValue.SubscriptionName)/")
             Id                       = $getValue.Id
             Ensure                   = 'Present'
             Credential               = $Credential
@@ -348,6 +177,13 @@ function Get-TargetResource
             CertificateThumbprint    = $CertificateThumbprint
             ManagedIdentity          = $ManagedIdentity.IsPresent
             #endregion
+        }
+
+        if ($enumConnectionType -eq 'azureADJoin')
+        {
+            $results.Remove('AdDomainName')
+            $results.Remove('AdDomainUsername')
+            $results.Remove('OrganizationalUnit')
         }
 
         return [System.Collections.Hashtable] $results
@@ -382,11 +218,7 @@ function Set-TargetResource
         [System.String]
         $AdDomainUsername,
 
-        [Parameter()]
-        [System.String]
-        $AlternateResourceUrl,
-
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('hybridAzureADJoin','azureADJoin')]
         [System.String]
         $ConnectionType,
@@ -396,77 +228,34 @@ function Set-TargetResource
         $DisplayName,
 
         [Parameter()]
-        [System.Boolean]
-        $HealthCheckPaused,
-
-        [Parameter()]
-        [ValidateSet('pending','running','passed','failed','warning','informational')]
-        [System.String]
-        $HealthCheckStatus,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $HealthCheckStatusDetail,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $HealthCheckStatusDetails,
-
-        [Parameter()]
-        [System.Boolean]
-        $InUse,
-
-        [Parameter()]
-        [System.Boolean]
-        $InUseByCloudPc,
-
-        [Parameter()]
-        [ValidateSet('windows365','devBox','rpaBox')]
-        [System.String]
-        $ManagedBy,
-
-        [Parameter()]
         [System.String]
         $OrganizationalUnit,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $ResourceGroupId,
 
-        [Parameter()]
-        [System.String[]]
-        $ScopeIds,
-
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $SubnetId,
 
-        [Parameter()]
-        [System.String]
-        $SubscriptionId,
-
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $SubscriptionName,
 
-        [Parameter()]
-        [ValidateSet('hybridAzureADJoin','azureADJoin')]
-        [System.String]
-        $Type,
-
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $VirtualNetworkId,
 
         [Parameter()]
-        [System.String]
-        $VirtualNetworkLocation,
+        [System.String[]]
+        $RoleScopeTagIds,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
-
         #endregion
+
         [Parameter()]
         [System.String]
         [ValidateSet('Absent', 'Present')]
@@ -503,6 +292,11 @@ function Set-TargetResource
 
     Write-Verbose -Message "Setting configuration of the Intune Azure Network Connection for Windows365 with Id {$Id} and DisplayName {$DisplayName}"
 
+    if ($Type -eq 'hybridAzureADJoin' -and ($PSBoundParameters.ContainsKey('AdDomainName') -or $PSBoundParameters.ContainsKey('AdDomainPassword') -or $PSBoundParameters.ContainsKey('AdDomainUsername')))
+    {
+        throw "AdDomainName, AdDomainPassword and AdDomainUsername are required for hybridAzureADJoin"
+    }
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -516,9 +310,32 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
+    $subscription = Get-AzSubscription -SubscriptionName $SubscriptionName -ErrorAction SilentlyContinue
+    if ($null -eq $subscription)
+    {
+        throw "Could not find a subscription with name '$SubscriptionName'. Please verify the SubscriptionName is correct and that the identity has access to it."
+    }
+    $boundParameters.Remove('SubscriptionName') | Out-Null
+    $boundParameters.Add('SubscriptionId', $subscription.Id)
+    $boundParameters.ResourceGroupId = $boundParameters.ResourceGroupId.Replace("/subscriptions/$SubscriptionName/", "/subscriptions/$($subscription.Id)/")
+    $boundParameters.SubnetId = $boundParameters.SubnetId.Replace("/subscriptions/$SubscriptionName/", "/subscriptions/$($subscription.Id)/")
+    $boundParameters.VirtualNetworkId = $boundParameters.VirtualNetworkId.Replace("/subscriptions/$SubscriptionName/", "/subscriptions/$($subscription.Id)/")
+
+    if ($boundParameters.ContainsKey('RoleScopeTagIds'))
+    {
+        $boundParameters.Add('ScopeIds', $boundParameters['RoleScopeTagIds'])
+        $boundParameters.Remove('RoleScopeTagIds') | Out-Null
+    }
+
+    if ($Type -eq 'azureADJoin')
+    {
+        $boundParameters.Remove('AdDomainName') | Out-Null
+        $boundParameters.Remove('AdDomainPassword') | Out-Null
+        $boundParameters.Remove('AdDomainUsername') | Out-Null
+        $boundParameters.Remove('OrganizationalUnit') | Out-Null
+    }
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -527,18 +344,10 @@ function Set-TargetResource
         $createParameters = ([Hashtable]$boundParameters).Clone()
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
         $createParameters.Remove('Id') | Out-Null
+        $createParameters.Add('ManagedBy', 'windows365')
 
-        $keys = (([Hashtable]$createParameters).Clone()).Keys
-        foreach ($key in $keys)
-        {
-            if ($null -ne $createParameters.$key -and $createParameters.$key.GetType().Name -like '*CimInstance*')
-            {
-                $createParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $createParameters.$key
-            }
-        }
         #region resource generator code
-        $createParameters.Add("@odata.type", "#microsoft.graph.CloudPcOnPremisesConnection")
-        $policy = New-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection -BodyParameter $createParameters
+        $null = New-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection -BodyParameter $createParameters
         #endregion
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
@@ -547,23 +356,20 @@ function Set-TargetResource
 
         $updateParameters = ([Hashtable]$boundParameters).Clone()
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
-
         $updateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$updateParameters).Clone()).Keys
-        foreach ($key in $keys)
-        {
-            if ($null -ne $updateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
-            {
-                $updateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.$key
-            }
-        }
-
         #region resource generator code
-        $updateParameters.Add("@odata.type", "#microsoft.graph.CloudPcOnPremisesConnection")
-        Update-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection `
-            -CloudPcOnPremisesConnectionId $currentInstance.Id `
-            -BodyParameter $UpdateParameters
+        try
+        {
+            Update-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection `
+                -CloudPcOnPremisesConnectionId $currentInstance.Id `
+                -BodyParameter $updateParameters `
+                -ErrorAction Stop
+        }
+        catch
+        {
+            throw "Failed to update the Intune Azure Network Connection for Windows365 with Id {$($currentInstance.Id)}. Please make sure it is not referenced by any Cloud Provisioning Policies or in checking state. Error: $($_.Exception.Message)"
+        }
 
         #endregion
     }
@@ -571,7 +377,14 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Removing the Intune Azure Network Connection for Windows365 with Id {$($currentInstance.Id)}"
         #region resource generator code
-        Remove-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection -CloudPcOnPremisesConnectionId $currentInstance.Id
+        try
+        {
+            Remove-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection -CloudPcOnPremisesConnectionId $currentInstance.Id -ErrorAction Stop
+        }
+        catch
+        {
+            throw "Failed to remove the Intune Azure Network Connection for Windows365 with Id {$($currentInstance.Id)}. Please make sure it is not referenced by any Cloud Provisioning Policies or in checking state. Error: $($_.Exception.Message)"
+        }
         #endregion
     }
 }
@@ -595,11 +408,7 @@ function Test-TargetResource
         [System.String]
         $AdDomainUsername,
 
-        [Parameter()]
-        [System.String]
-        $AlternateResourceUrl,
-
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [ValidateSet('hybridAzureADJoin','azureADJoin')]
         [System.String]
         $ConnectionType,
@@ -609,76 +418,32 @@ function Test-TargetResource
         $DisplayName,
 
         [Parameter()]
-        [System.Boolean]
-        $HealthCheckPaused,
-
-        [Parameter()]
-        [ValidateSet('pending','running','passed','failed','warning','informational')]
-        [System.String]
-        $HealthCheckStatus,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $HealthCheckStatusDetail,
-
-        [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance]
-        $HealthCheckStatusDetails,
-
-        [Parameter()]
-        [System.Boolean]
-        $InUse,
-
-        [Parameter()]
-        [System.Boolean]
-        $InUseByCloudPc,
-
-        [Parameter()]
-        [ValidateSet('windows365','devBox','rpaBox')]
-        [System.String]
-        $ManagedBy,
-
-        [Parameter()]
         [System.String]
         $OrganizationalUnit,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $ResourceGroupId,
 
-        [Parameter()]
-        [System.String[]]
-        $ScopeIds,
-
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $SubnetId,
 
-        [Parameter()]
-        [System.String]
-        $SubscriptionId,
-
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $SubscriptionName,
 
-        [Parameter()]
-        [ValidateSet('hybridAzureADJoin','azureADJoin')]
-        [System.String]
-        $Type,
-
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $VirtualNetworkId,
 
         [Parameter()]
-        [System.String]
-        $VirtualNetworkLocation,
+        [System.String[]]
+        $RoleScopeTagIds,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
-
         #endregion
 
         [Parameter()]
@@ -715,9 +480,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -727,49 +489,17 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune Azure Network Connection for Windows365 with Id {$Id} and DisplayName {$DisplayName}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([hashtable]$PSBoundParameters).Clone()
-    $testResult = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
+    $excludedProperties = @('SubscriptionName', 'AdDomainPassword')
+    if ($ConnectionType -eq 'azureADJoin')
     {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-not $testResult)
-            {
-                break
-            }
-
-            $ValuesToCheck.Remove($key) | Out-Null
-        }
+        $excludedProperties += @('AdDomainName', 'AdDomainUsername', 'OrganizationalUnit')
     }
 
-    $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    if ($testResult)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -IncludedProperties @('ResourceGroupId', 'SubnetId', 'SubscriptionName', 'VirtualNetworkId') `
+                                         -ExcludedProperties $excludedProperties
+    return $result
 }
 
 function Export-TargetResource
@@ -812,6 +542,8 @@ function Export-TargetResource
     )
 
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters
+    $null = New-M365DSCConnection -Workload 'Azure' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -860,6 +592,11 @@ function Export-TargetResource
             $params = @{
                 Id                    = $config.Id
                 DisplayName           = $config.DisplayName
+                ConnectionType        = $config.ConnectionType
+                ResourceGroupId       = $config.ResourceGroupId
+                SubnetId              = $config.SubnetId
+                SubscriptionName      = $config.SubscriptionName
+                VirtualNetworkId      = $config.VirtualNetworkId
                 Ensure                = 'Present'
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId
@@ -872,69 +609,12 @@ function Export-TargetResource
 
             $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
-            if ($null -ne $Results.HealthCheckStatusDetail)
-            {
-                $complexMapping = @(
-                    @{
-                        Name = 'HealthCheckStatusDetail'
-                        CimInstanceName = 'MicrosoftGraphCloudPcOnPremisesConnectionStatusDetail'
-                        IsRequired = $False
-                    }
-                    @{
-                        Name = 'HealthChecks'
-                        CimInstanceName = 'MicrosoftGraphCloudPcOnPremisesConnectionHealthCheck'
-                        IsRequired = $False
-                    }
-                )
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
-                    -ComplexObject $Results.HealthCheckStatusDetail `
-                    -CIMInstanceName 'MicrosoftGraphcloudPcOnPremisesConnectionStatusDetail' `
-                    -ComplexTypeMapping $complexMapping
-
-                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
-                {
-                    $Results.HealthCheckStatusDetail = $complexTypeStringResult
-                }
-                else
-                {
-                    $Results.Remove('HealthCheckStatusDetail') | Out-Null
-                }
-            }
-            if ($null -ne $Results.HealthCheckStatusDetails)
-            {
-                $complexMapping = @(
-                    @{
-                        Name = 'HealthCheckStatusDetails'
-                        CimInstanceName = 'MicrosoftGraphCloudPcOnPremisesConnectionStatusDetails'
-                        IsRequired = $False
-                    }
-                    @{
-                        Name = 'HealthChecks'
-                        CimInstanceName = 'MicrosoftGraphCloudPcOnPremisesConnectionHealthCheck'
-                        IsRequired = $False
-                    }
-                )
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
-                    -ComplexObject $Results.HealthCheckStatusDetails `
-                    -CIMInstanceName 'MicrosoftGraphcloudPcOnPremisesConnectionStatusDetails' `
-                    -ComplexTypeMapping $complexMapping
-
-                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
-                {
-                    $Results.HealthCheckStatusDetails = $complexTypeStringResult
-                }
-                else
-                {
-                    $Results.Remove('HealthCheckStatusDetails') | Out-Null
-                }
-            }
 
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
                 -ModulePath $PSScriptRoot `
                 -Results $Results `
-                -Credential $Credential `
-                -NoEscape @('HealthCheckStatusDetail', 'HealthCheckStatusDetails')
+                -Credential $Credential
             $dscContent += $currentDSCBlock
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName

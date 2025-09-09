@@ -32370,7 +32370,7 @@ function New-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
 
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
-        $ProxyUseDefaultCredentials
+        $ProxyUseDefaultCredentials,
 
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
@@ -32425,7 +32425,7 @@ function Remove-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
 
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
-        $ProxyUseDefaultCredentials
+        $ProxyUseDefaultCredentials,
 
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
@@ -32568,7 +32568,7 @@ function Update-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
 
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
-        $ProxyUseDefaultCredentials
+        $ProxyUseDefaultCredentials,
 
         [Parameter()]
         [System.Management.Automation.SwitchParameter]

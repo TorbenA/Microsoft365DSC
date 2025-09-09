@@ -50,65 +50,68 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection -MockWith {
                 return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = "#microsoft.graph.CloudPcOnPremisesConnection"
-                        }
-                        AdDomainName = "FakeStringValue"
-                        AdDomainPassword = "FakeStringValue"
-                        AdDomainUsername = "FakeStringValue"
-                        AlternateResourceUrl = "FakeStringValue"
-                        ConnectionType = "hybridAzureADJoin"
-                        DisplayName = "FakeStringValue"
-                        HealthCheckPaused = $True
-                        HealthCheckStatus = "pending"
-                        HealthCheckStatusDetail = @{
-                            HealthChecks = @(
-                                @{
-                                    AdditionalDetails = "FakeStringValue"
-                                    DisplayName = "FakeStringValue"
-                                    RecommendedAction = "FakeStringValue"
-                                    ErrorType = "dnsCheckFqdnNotFound"
-                                    Status = "pending"
-                                    StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                    CorrelationId = "FakeStringValue"
-                                    EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                    AdditionalDetail = "FakeStringValue"
-                                }
-                            )
-                            StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                            EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                        }
-                        HealthCheckStatusDetails = @{
-                            HealthChecks = @(
-                                @{
-                                    AdditionalDetails = "FakeStringValue"
-                                    DisplayName = "FakeStringValue"
-                                    RecommendedAction = "FakeStringValue"
-                                    ErrorType = "dnsCheckFqdnNotFound"
-                                    Status = "pending"
-                                    StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                    CorrelationId = "FakeStringValue"
-                                    EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                    AdditionalDetail = "FakeStringValue"
-                                }
-                            )
-                            StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                            EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                        }
-                        Id = "FakeStringValue"
-                        InUse = $True
-                        InUseByCloudPc = $True
-                        ManagedBy = "windows365"
-                        OrganizationalUnit = "FakeStringValue"
-                        ResourceGroupId = "FakeStringValue"
-                        ScopeIds = @("FakeStringValue")
-                        SubnetId = "FakeStringValue"
-                        SubscriptionId = "FakeStringValue"
-                        SubscriptionName = "FakeStringValue"
-                        Type = "hybridAzureADJoin"
-                        VirtualNetworkId = "FakeStringValue"
-                        VirtualNetworkLocation = "FakeStringValue"
+                    AdDomainName = "FakeStringValue"
+                    AdDomainPassword = "FakeStringValue"
+                    AdDomainUsername = "FakeStringValue"
+                    AlternateResourceUrl = "FakeStringValue"
+                    ConnectionType = "hybridAzureADJoin"
+                    DisplayName = "FakeStringValue"
+                    HealthCheckPaused = $True
+                    HealthCheckStatus = "pending"
+                    HealthCheckStatusDetail = @{
+                        HealthChecks = @(
+                            @{
+                                AdditionalDetails = "FakeStringValue"
+                                DisplayName = "FakeStringValue"
+                                RecommendedAction = "FakeStringValue"
+                                ErrorType = "dnsCheckFqdnNotFound"
+                                Status = "pending"
+                                StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
+                                CorrelationId = "FakeStringValue"
+                                EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
+                                AdditionalDetail = "FakeStringValue"
+                            }
+                        )
+                        StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
+                        EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
+                    }
+                    HealthCheckStatusDetails = @{
+                        HealthChecks = @(
+                            @{
+                                AdditionalDetails = "FakeStringValue"
+                                DisplayName = "FakeStringValue"
+                                RecommendedAction = "FakeStringValue"
+                                ErrorType = "dnsCheckFqdnNotFound"
+                                Status = "pending"
+                                StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
+                                CorrelationId = "FakeStringValue"
+                                EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
+                                AdditionalDetail = "FakeStringValue"
+                            }
+                        )
+                        StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
+                        EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
+                    }
+                    Id = "FakeStringValue"
+                    InUse = $True
+                    InUseByCloudPc = $True
+                    ManagedBy = "windows365"
+                    OrganizationalUnit = "FakeStringValue"
+                    ResourceGroupId = "/subscriptions/FakeStringValue/resourceGroups/FakeStringValue"
+                    ScopeIds = @("FakeStringValue")
+                    SubnetId = "/subscriptions/FakeStringValue/resourceGroups/FakeStringValue/providers/Microsoft.Network/virtualNetworks/FakeStringValue/subnets/FakeStringValue"
+                    SubscriptionId = "/subscriptions/FakeStringValue"
+                    SubscriptionName = "FakeStringValue"
+                    Type = "hybridAzureADJoin"
+                    VirtualNetworkId = "/subscriptions/FakeStringValue/resourceGroups/FakeStringValue/providers/Microsoft.Network/virtualNetworks/FakeStringValue"
+                    VirtualNetworkLocation = "FakeStringValue"
+                }
+            }
 
+            Mock -CommandName Get-AzSubscription -MockWith {
+                return @{
+                    Id = "FakeStringValue"
+                    Name = "FakeStringValue"
                 }
             }
 
@@ -128,60 +131,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     AdDomainName = "FakeStringValue"
-                    AdDomainPassword = "FakeStringValue"
                     AdDomainUsername = "FakeStringValue"
-                    AlternateResourceUrl = "FakeStringValue"
                     ConnectionType = "hybridAzureADJoin"
                     DisplayName = "FakeStringValue"
-                    HealthCheckPaused = $True
-                    HealthCheckStatus = "pending"
-                    HealthCheckStatusDetail = (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionStatusDetail -Property @{
-                        HealthChecks = [CimInstance[]]@(
-                            (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionHealthCheck -Property @{
-                                AdditionalDetails = "FakeStringValue"
-                                DisplayName = "FakeStringValue"
-                                RecommendedAction = "FakeStringValue"
-                                ErrorType = "dnsCheckFqdnNotFound"
-                                Status = "pending"
-                                StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                CorrelationId = "FakeStringValue"
-                                EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                AdditionalDetail = "FakeStringValue"
-                            } -ClientOnly)
-                        )
-                        StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                        EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                    } -ClientOnly)
-                    HealthCheckStatusDetails = (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionStatusDetails -Property @{
-                        HealthChecks = [CimInstance[]]@(
-                            (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionHealthCheck -Property @{
-                                AdditionalDetails = "FakeStringValue"
-                                DisplayName = "FakeStringValue"
-                                RecommendedAction = "FakeStringValue"
-                                ErrorType = "dnsCheckFqdnNotFound"
-                                Status = "pending"
-                                StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                CorrelationId = "FakeStringValue"
-                                EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                AdditionalDetail = "FakeStringValue"
-                            } -ClientOnly)
-                        )
-                        StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                        EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                    } -ClientOnly)
                     Id = "FakeStringValue"
-                    InUse = $True
-                    InUseByCloudPc = $True
-                    ManagedBy = "windows365"
                     OrganizationalUnit = "FakeStringValue"
-                    ResourceGroupId = "FakeStringValue"
-                    ScopeIds = @("FakeStringValue")
-                    SubnetId = "FakeStringValue"
-                    SubscriptionId = "FakeStringValue"
+                    ResourceGroupId = "/subscriptions/FakeStringValue/resourceGroups/FakeStringValue"
+                    RoleScopeTagIds = @("FakeStringValue")
+                    SubnetId = "/subscriptions/FakeStringValue/resourceGroups/FakeStringValue/providers/Microsoft.Network/virtualNetworks/FakeStringValue/subnets/FakeStringValue"
                     SubscriptionName = "FakeStringValue"
-                    Type = "hybridAzureADJoin"
-                    VirtualNetworkId = "FakeStringValue"
-                    VirtualNetworkLocation = "FakeStringValue"
+                    VirtualNetworkId = "/subscriptions/FakeStringValue/resourceGroups/FakeStringValue/providers/Microsoft.Network/virtualNetworks/FakeStringValue"
                     Ensure = "Present"
                     Credential = $Credential;
                 }
@@ -206,61 +165,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     AdDomainName = "FakeStringValue"
-                    AdDomainPassword = "FakeStringValue"
                     AdDomainUsername = "FakeStringValue"
-                    AlternateResourceUrl = "FakeStringValue"
                     ConnectionType = "hybridAzureADJoin"
                     DisplayName = "FakeStringValue"
-                    HealthCheckPaused = $True
-                    HealthCheckStatus = "pending"
-                    HealthCheckStatusDetail = (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionStatusDetail -Property @{
-                        HealthChecks = [CimInstance[]]@(
-                            (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionHealthCheck -Property @{
-                                AdditionalDetails = "FakeStringValue"
-                                DisplayName = "FakeStringValue"
-                                RecommendedAction = "FakeStringValue"
-                                ErrorType = "dnsCheckFqdnNotFound"
-                                Status = "pending"
-                                StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                CorrelationId = "FakeStringValue"
-                                EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                AdditionalDetail = "FakeStringValue"
-                            } -ClientOnly)
-                        )
-                        StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                        EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                    } -ClientOnly)
-                    HealthCheckStatusDetails = (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionStatusDetails -Property @{
-                        HealthChecks = [CimInstance[]]@(
-                            (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionHealthCheck -Property @{
-                                AdditionalDetails = "FakeStringValue"
-                                DisplayName = "FakeStringValue"
-                                RecommendedAction = "FakeStringValue"
-                                ErrorType = "dnsCheckFqdnNotFound"
-                                Status = "pending"
-                                StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                CorrelationId = "FakeStringValue"
-                                EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                AdditionalDetail = "FakeStringValue"
-                            } -ClientOnly)
-                        )
-                        StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                        EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                    } -ClientOnly)
                     Id = "FakeStringValue"
-                    InUse = $True
-                    InUseByCloudPc = $True
-                    ManagedBy = "windows365"
                     OrganizationalUnit = "FakeStringValue"
-                    ResourceGroupId = "FakeStringValue"
-                    ScopeIds = @("FakeStringValue")
-                    SubnetId = "FakeStringValue"
-                    SubscriptionId = "FakeStringValue"
+                    ResourceGroupId = "/subscriptions/FakeStringValue/resourceGroups/FakeStringValue"
+                    RoleScopeTagIds = @("FakeStringValue")
+                    SubnetId = "/subscriptions/FakeStringValue/resourceGroups/FakeStringValue/providers/Microsoft.Network/virtualNetworks/FakeStringValue/subnets/FakeStringValue"
                     SubscriptionName = "FakeStringValue"
-                    Type = "hybridAzureADJoin"
-                    VirtualNetworkId = "FakeStringValue"
-                    VirtualNetworkLocation = "FakeStringValue"
-                    Ensure = 'Absent'
+                    VirtualNetworkId = "/subscriptions/FakeStringValue/resourceGroups/FakeStringValue/providers/Microsoft.Network/virtualNetworks/FakeStringValue"
+                    Ensure = "Absent"
                     Credential = $Credential;
                 }
             }
@@ -283,61 +198,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     AdDomainName = "FakeStringValue"
-                    AdDomainPassword = "FakeStringValue"
                     AdDomainUsername = "FakeStringValue"
-                    AlternateResourceUrl = "FakeStringValue"
                     ConnectionType = "hybridAzureADJoin"
                     DisplayName = "FakeStringValue"
-                    HealthCheckPaused = $True
-                    HealthCheckStatus = "pending"
-                    HealthCheckStatusDetail = (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionStatusDetail -Property @{
-                        HealthChecks = [CimInstance[]]@(
-                            (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionHealthCheck -Property @{
-                                AdditionalDetails = "FakeStringValue"
-                                DisplayName = "FakeStringValue"
-                                RecommendedAction = "FakeStringValue"
-                                ErrorType = "dnsCheckFqdnNotFound"
-                                Status = "pending"
-                                StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                CorrelationId = "FakeStringValue"
-                                EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                AdditionalDetail = "FakeStringValue"
-                            } -ClientOnly)
-                        )
-                        StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                        EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                    } -ClientOnly)
-                    HealthCheckStatusDetails = (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionStatusDetails -Property @{
-                        HealthChecks = [CimInstance[]]@(
-                            (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionHealthCheck -Property @{
-                                AdditionalDetails = "FakeStringValue"
-                                DisplayName = "FakeStringValue"
-                                RecommendedAction = "FakeStringValue"
-                                ErrorType = "dnsCheckFqdnNotFound"
-                                Status = "pending"
-                                StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                CorrelationId = "FakeStringValue"
-                                EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                AdditionalDetail = "FakeStringValue"
-                            } -ClientOnly)
-                        )
-                        StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                        EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                    } -ClientOnly)
                     Id = "FakeStringValue"
-                    InUse = $True
-                    InUseByCloudPc = $True
-                    ManagedBy = "windows365"
                     OrganizationalUnit = "FakeStringValue"
-                    ResourceGroupId = "FakeStringValue"
-                    ScopeIds = @("FakeStringValue")
-                    SubnetId = "FakeStringValue"
-                    SubscriptionId = "FakeStringValue"
+                    ResourceGroupId = "/subscriptions/FakeStringValue/resourceGroups/FakeStringValue"
+                    RoleScopeTagIds = @("FakeStringValue")
+                    SubnetId = "/subscriptions/FakeStringValue/resourceGroups/FakeStringValue/providers/Microsoft.Network/virtualNetworks/FakeStringValue/subnets/FakeStringValue"
                     SubscriptionName = "FakeStringValue"
-                    Type = "hybridAzureADJoin"
-                    VirtualNetworkId = "FakeStringValue"
-                    VirtualNetworkLocation = "FakeStringValue"
-                    Ensure = 'Present'
+                    VirtualNetworkId = "/subscriptions/FakeStringValue/resourceGroups/FakeStringValue/providers/Microsoft.Network/virtualNetworks/FakeStringValue"
+                    Ensure = "Present"
                     Credential = $Credential;
                 }
             }
@@ -351,61 +222,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     AdDomainName = "FakeStringValue"
-                    AdDomainPassword = "FakeStringValue"
                     AdDomainUsername = "FakeStringValue"
-                    AlternateResourceUrl = "FakeStringValue"
                     ConnectionType = "hybridAzureADJoin"
                     DisplayName = "FakeStringValue"
-                    HealthCheckPaused = $True
-                    HealthCheckStatus = "pending"
-                    HealthCheckStatusDetail = (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionStatusDetail -Property @{
-                        HealthChecks = [CimInstance[]]@(
-                            (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionHealthCheck -Property @{
-                                AdditionalDetails = "FakeStringValue"
-                                DisplayName = "FakeStringValue"
-                                RecommendedAction = "FakeStringValue"
-                                ErrorType = "dnsCheckFqdnNotFound"
-                                Status = "pending"
-                                StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                CorrelationId = "FakeStringValue"
-                                EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                AdditionalDetail = "FakeStringValue"
-                            } -ClientOnly)
-                        )
-                        StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                        EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                    } -ClientOnly)
-                    HealthCheckStatusDetails = (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionStatusDetails -Property @{
-                        HealthChecks = [CimInstance[]]@(
-                            (New-CimInstance -ClassName MSFT_MicrosoftGraphcloudPcOnPremisesConnectionHealthCheck -Property @{
-                                AdditionalDetails = "FakeStringValue"
-                                DisplayName = "FakeStringValue"
-                                RecommendedAction = "FakeStringValue"
-                                ErrorType = "dnsCheckFqdnNotFound"
-                                Status = "pending"
-                                StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                CorrelationId = "FakeStringValue"
-                                EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                                AdditionalDetail = "FakeStringValue"
-                            } -ClientOnly)
-                        )
-                        StartDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                        EndDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                    } -ClientOnly)
                     Id = "FakeStringValue"
-                    InUse = $True
-                    InUseByCloudPc = $True
-                    ManagedBy = "windows365"
                     OrganizationalUnit = "FakeStringValue"
-                    ResourceGroupId = "FakeStringValue"
-                    ScopeIds = @("FakeStringValue")
-                    SubnetId = "FakeStringValue"
-                    SubscriptionId = "FakeStringValue"
+                    ResourceGroupId = "/subscriptions/FakeStringValue/resourceGroups/FakeStringValue"
+                    RoleScopeTagIds = @("FakeStringValue")
+                    SubnetId = "/subscriptions/FakeStringValue/resourceGroups/FakeStringValue/providers/Microsoft.Network/virtualNetworks/FakeStringValue-2/subnets/FakeStringValue" # Drift
                     SubscriptionName = "FakeStringValue"
-                    Type = "hybridAzureADJoin"
-                    VirtualNetworkId = "FakeStringValue"
-                    VirtualNetworkLocation = "FakeStringValue"
-                    Ensure = 'Present'
+                    VirtualNetworkId = "/subscriptions/FakeStringValue/resourceGroups/FakeStringValue/providers/Microsoft.Network/virtualNetworks/FakeStringValue-2" # Drift
+                    Ensure = "Present"
                     Credential = $Credential;
                 }
             }
