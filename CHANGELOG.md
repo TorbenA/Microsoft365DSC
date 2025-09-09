@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* MISC
+  * Update most resource testing to use the new comparison function.
+
 # 1.25.903.2
 
 * AADEnrichedAuditLogs
