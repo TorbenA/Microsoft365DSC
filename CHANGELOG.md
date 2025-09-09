@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Evaluate users and groups by display name.
+
 # 1.25.903.2
 
 * AADEnrichedAuditLogs
