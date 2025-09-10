@@ -237,6 +237,7 @@ function Get-TargetResource
     }
 
     $result = @{
+        Ensure                                  = 'Present'
         Identity                                = $Identity
         ActiveSyncAllowedDeviceIDs              = $mailboxCasSettings.ActiveSyncAllowedDeviceIDs
         ActiveSyncBlockedDeviceIDs              = $mailboxCasSettings.ActiveSyncBlockedDeviceIDs

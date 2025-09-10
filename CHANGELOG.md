@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* EXOAtpPolicyForO365
+  * [BREAKING CHANGE] Removed `Ensure` property.
 * MISC
   * Update most resource testing to use the new comparison function.
 

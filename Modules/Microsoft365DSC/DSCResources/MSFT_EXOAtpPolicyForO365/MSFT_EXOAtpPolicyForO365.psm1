@@ -8,7 +8,7 @@ function Get-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [ValidateSet('Yes')]
-        [String]
+        [System.String]
         $IsSingleInstance,
 
         [Parameter()]
@@ -16,21 +16,16 @@ function Get-TargetResource
         $Identity = 'Default',
 
         [Parameter()]
-        [Boolean]
+        [System.Boolean]
         $AllowSafeDocsOpen = $false,
 
         [Parameter()]
-        [Boolean]
+        [System.Boolean]
         $EnableATPForSPOTeamsODB = $false,
 
         [Parameter()]
-        [Boolean]
+        [System.Boolean]
         $EnableSafeDocs = $false,
-
-        [Parameter()]
-        [ValidateSet('Present')]
-        [System.String]
-        $Ensure = 'Present',
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -146,7 +141,7 @@ function Set-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [ValidateSet('Yes')]
-        [String]
+        [System.String]
         $IsSingleInstance,
 
         [Parameter()]
@@ -154,21 +149,16 @@ function Set-TargetResource
         $Identity = 'Default',
 
         [Parameter()]
-        [Boolean]
+        [System.Boolean]
         $AllowSafeDocsOpen = $false,
 
         [Parameter()]
-        [Boolean]
+        [System.Boolean]
         $EnableATPForSPOTeamsODB = $false,
 
         [Parameter()]
-        [Boolean]
+        [System.Boolean]
         $EnableSafeDocs = $false,
-
-        [Parameter()]
-        [ValidateSet('Present')]
-        [System.String]
-        $Ensure = 'Present',
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -240,7 +230,7 @@ function Test-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [ValidateSet('Yes')]
-        [String]
+        [System.String]
         $IsSingleInstance,
 
         [Parameter()]
@@ -248,21 +238,16 @@ function Test-TargetResource
         $Identity = 'Default',
 
         [Parameter()]
-        [Boolean]
+        [System.Boolean]
         $AllowSafeDocsOpen = $false,
 
         [Parameter()]
-        [Boolean]
+        [System.Boolean]
         $EnableATPForSPOTeamsODB = $false,
 
         [Parameter()]
-        [Boolean]
+        [System.Boolean]
         $EnableSafeDocs = $false,
-
-        [Parameter()]
-        [ValidateSet('Present')]
-        [System.String]
-        $Ensure = 'Present',
 
         [Parameter()]
         [System.Management.Automation.PSCredential]

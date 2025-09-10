@@ -84,6 +84,7 @@ function Get-TargetResource
             -ErrorAction Stop
 
         $result = @{
+            Ensure                = 'Present'
             CdnType               = $CdnType
             Enable                = $cdnEnabled.Value
             Credential            = $Credential

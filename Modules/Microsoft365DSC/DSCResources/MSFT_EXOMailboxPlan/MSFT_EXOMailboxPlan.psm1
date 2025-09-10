@@ -137,6 +137,7 @@ function Get-TargetResource
         }
 
         $result = @{
+            Ensure                   = 'Present'
             Identity                 = $Identity
             DisplayName              = $MailboxPlan.DisplayName
             IssueWarningQuota        = $MailboxPlan.IssueWarningQuota

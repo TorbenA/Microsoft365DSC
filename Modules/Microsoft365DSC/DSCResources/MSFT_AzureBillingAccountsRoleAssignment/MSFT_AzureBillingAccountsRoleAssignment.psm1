@@ -203,7 +203,6 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $currentInstance = Get-TargetResource @PSBoundParameters
     $billingAccounts = Get-M365DSCAzureBillingAccount
     $account = $billingAccounts.value | Where-Object -FilterScript { $_.properties.displayName -eq $BillingAccount }
     $PrincipalIdValue = Get-M365DSCPrincipalIdFromName -PrincipalName $PrincipalName `

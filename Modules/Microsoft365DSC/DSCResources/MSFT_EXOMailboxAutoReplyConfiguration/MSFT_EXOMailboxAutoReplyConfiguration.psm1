@@ -499,7 +499,7 @@ function Export-TargetResource
         $dscContent = ''
         $i = 1
 
-        if ($AntiphishPolicies.Length -eq 0)
+        if ($mailboxes.Count -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }

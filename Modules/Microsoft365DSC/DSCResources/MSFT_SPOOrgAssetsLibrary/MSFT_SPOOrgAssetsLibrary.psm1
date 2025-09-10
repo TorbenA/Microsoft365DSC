@@ -100,7 +100,7 @@ function Get-TargetResource
             $cdn = $null
             if ($CdnType -eq 'Public')
             {
-                if (Get-PnPTenantCdnEnabled -CdnType $CdnType)
+                if ((Get-PnPTenantCdnEnabled -CdnType $CdnType).Value)
                 {
                     $cdn = 'Public'
                 }
@@ -108,7 +108,7 @@ function Get-TargetResource
 
             if ($CdnType -eq 'Private')
             {
-                if (Get-PnPTenantCdnEnabled -CdnType $CdnType)
+                if ((Get-PnPTenantCdnEnabled -CdnType $CdnType).Value)
                 {
                     $cdn = 'Private'
                 }

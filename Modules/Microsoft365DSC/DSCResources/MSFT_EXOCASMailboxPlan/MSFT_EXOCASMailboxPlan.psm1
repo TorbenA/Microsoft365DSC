@@ -96,6 +96,7 @@ function Get-TargetResource
 
     $nullResult = @{
         Identity = $Identity
+        Ensure   = 'Absent'
     }
 
     try
@@ -123,6 +124,7 @@ function Get-TargetResource
         }
 
         $result = @{
+            Ensure                = 'Present'
             Identity              = $Identity
             DisplayName           = $CASMailboxPlan.DisplayName
             ActiveSyncEnabled     = $CASMailboxPlan.ActiveSyncEnabled
@@ -134,7 +136,7 @@ function Get-TargetResource
             CertificateThumbprint = $CertificateThumbprint
             CertificatePath       = $CertificatePath
             CertificatePassword   = $CertificatePassword
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             TenantId              = $TenantId
             AccessTokens          = $AccessTokens
         }

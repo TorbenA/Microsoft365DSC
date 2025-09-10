@@ -737,7 +737,7 @@ function Test-TargetResource
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
                                          -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludeProperties @('OrganizationalUnit')
+                                         -ExcludedProperties @('OrganizationalUnit')
     return $result
 }
 

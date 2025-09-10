@@ -26,7 +26,6 @@ Configuration Example
         {
             IsSingleInstance        = "Yes"
             EnableATPForSPOTeamsODB = $true
-            Ensure                  = "Present"
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint
