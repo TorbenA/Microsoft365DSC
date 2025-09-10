@@ -68,12 +68,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of Office 365 Shared Mailbox $DisplayName"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            Write-Verbose -Message "Getting configuration of Office 365 Shared Mailbox $DisplayName"
-            $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+            $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -264,8 +265,6 @@ function Set-TargetResource
     #endregion
 
     $CurrentParameters = $PSBoundParameters
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters
 
     # CASE: Mailbox doesn't exist but should;
     if ($Ensure -eq 'Present' -and $currentMailbox.Ensure -eq 'Absent')
@@ -497,6 +496,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true
@@ -584,4 +584,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -325,6 +325,8 @@ Add-eDiscoveryCaseAdmin -User $SPN.Name
 </ol>
 <p>We are now ready to authenticate using our app registration to test and confirm that all is working as expected. To do so, you can use the Connect-M365Tenant cmdlet and pass it the information related to your app registration. Below is an example using our app registration. Replace the appid, tenantid and certificatethumbprint parameters by your own. If you are getting an error connecting, you probably haven't granted the Exchange ManageAsApp permission to your app as described in the following article: <a href="https://learn.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2?view=exchange-ps#step-2-assign-api-permissions-to-the-application">https://learn.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2?view=exchange-ps#step-2-assign-api-permissions-to-the-application</a></p>
 
+<p><strong>Important</strong>: For GCC High, you will also need to grant the Exchange.ManageAsApp permission from the Microsoft Exchange Online Protection API in addition to the Office 365 Exchange Online API permissions.</p>
+
 <a href="/Images/GetComplianceCase.png"><img src="/Images/GetComplianceCase.png" alt="Connecting using your app registration and retrieving cases." /></a>
 
 ``` PowerShell

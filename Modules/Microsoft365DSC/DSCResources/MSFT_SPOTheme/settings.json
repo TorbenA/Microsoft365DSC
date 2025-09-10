@@ -57,5 +57,9 @@
   },
   "requiredModules": [
     "PnP.PowerShell"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

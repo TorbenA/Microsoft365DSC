@@ -1,7 +1,27 @@
 # Change log for Microsoft365DSC
 
 # UNRELEASED
-   
+
+* IntuneDeviceRemediation
+  * [BREAKING CHANGE] Made Id optional and enabled creation of remediation scripts using DisplayName only.
+    FIXES [#6445](https://github.com/microsoft/Microsoft365DSC/issues/6445)  
+
+# 1.25.903.2
+
+* AADEnrichedAuditLogs
+  * DEPRECATED resource.
+* AADServicePrincipal
+  * Change in logic to evaluate instances in Test-TargetResource when
+    multiple instances exist with the same display name.
+* IntuneWindowsBackupForOrganizationConfiguration
+  * Initial release.
+* MISC
+  * Code cleanup across all EXO, Commerce, Defender and Fabric resources.
+* DEPENDENCIES
+  * Update ReverseDSC to version 2.0.0.30.
+
+# 1.25.903.1
+
 * AADAccessReviewDefinition
   * Added properties `FallbackReviewers` and `Reviewers`.
     FIXES [#5674](https://github.com/microsoft/Microsoft365DSC/issues/5674)
@@ -42,6 +62,9 @@
   * Restricted possible values for `DeviceComplianceCheckinThresholdDays` from 1 to 120.
 * IntuneMobileAppsWin32AppWindows10
   * Bump CIM instance version to fix invalid property name.
+* IntuneMobileAppsWindowsOfficeSuiteApp
+  * Fixes problem with OfficeConfigurationXml.Changed from type byte to type
+    String as APi expect a string that is encoded in Base64 format.
 * IntuneSecurityBaselineMicrosoftEdge
   * Fixed an issue where the latest policy version was not exported.
     FIXES [#6415](https://github.com/microsoft/Microsoft365DSC/issues/6415)

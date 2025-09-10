@@ -479,6 +479,10 @@ function Export-TargetResource
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckmark -CommitWrite
         }
+        else
+        {
+            Write-M365DSCHost -Message "`r`n" -DeferWrite
+        }
 
         foreach ($config in $Script:exportedInstances)
         {

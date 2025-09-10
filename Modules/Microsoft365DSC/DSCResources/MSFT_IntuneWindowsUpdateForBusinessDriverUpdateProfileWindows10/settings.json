@@ -43,5 +43,9 @@
   },
   "requiredModules": [
     "Microsoft.Graph.Authentication"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }
