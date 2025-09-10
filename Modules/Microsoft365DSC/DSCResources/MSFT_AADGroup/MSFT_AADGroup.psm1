@@ -697,11 +697,7 @@ function Set-TargetResource
                 if ($null -eq $directoryObject)
                 {
                     Write-Verbose -Message "Trying to retrieve Service Principal {$($diff.InputObject)}"
-                    $app = Get-MgApplication -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
-                    if ($null -ne $app)
-                    {
-                        $directoryObject = Get-MgServicePrincipal -Filter "AppId eq '$($app.AppId)'"
-                    }
+                    $directoryObject = Get-MgServicePrincipal -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
                 }
                 if ($diff.SideIndicator -eq '=>')
                 {
@@ -758,11 +754,7 @@ function Set-TargetResource
                 if ($null -eq $directoryObject)
                 {
                     Write-Verbose -Message "Trying to retrieve Service Principal {$($diff.InputObject)}"
-                    $app = Get-MgApplication -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
-                    if ($null -ne $app)
-                    {
-                        $directoryObject = Get-MgServicePrincipal -Filter "AppId eq '$($app.AppId)'"
-                    }
+                    $directoryObject = Get-MgServicePrincipal -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
                 }
 
                 if ($null -eq $directoryObject)
