@@ -89,13 +89,7 @@ function Get-TargetResource
     }
     catch
     {
-        New-M365DSCLogEntry -Message 'Error retrieving data:' `
-            -Exception $_ `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -TenantId $TenantId `
-            -Credential $Credential
-
-        Write-Error -Message $_
+        Write-Warning -Message "This resource is deprected and will be removed in the next major release."
         return $nullResult
     }
 }
@@ -150,42 +144,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting configuration of AzureAD Enriched Audit Logs"
-
-    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    Write-Verbose -Message 'Updating Enriched Audit Logs settings'
-
-    $values = @{
-        '@odata.type' = '#microsoft.graph.networkaccess.enrichedAuditLogs'
-        exchange      = @{
-            '@odata.type' = '#microsoft.graph.networkaccess.enrichedAuditLogsSettings'
-            status        = $ExchangeOnline
-        }
-        sharepoint    = @{
-            '@odata.type' = '#microsoft.graph.networkaccess.enrichedAuditLogsSettings'
-            status        = $SharePoint
-        }
-        teams         = @{
-            '@odata.type' = '#microsoft.graph.networkaccess.enrichedAuditLogsSettings'
-            status        = $Teams
-        }
-    }
-    $body = ConvertTo-Json $values -Depth 10 -Compress
-    Invoke-MgGraphRequest -Uri ((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + 'beta/networkAccess/settings/enrichedAuditLogs') -Method PATCH -Body $body
+    Write-Warning -Message "This resource is deprected and will be removed in the next major release."
 }
 
 function Test-TargetResource
@@ -239,18 +198,8 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
-    return $result
+    Write-Warning -Message "This resource is deprected and will be removed in the next major release."
+    return $true
 }
 
 function Export-TargetResource
