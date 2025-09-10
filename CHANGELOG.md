@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADGroup
+  * Fixed multi-tenant Service Principal support for owners and members.
+  FIXES [#6498](https://github.com/microsoft/Microsoft365DSC/issues/6498)
+
 # 1.25.903.2
 
 * AADEnrichedAuditLogs
