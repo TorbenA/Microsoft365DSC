@@ -487,7 +487,7 @@ function Set-TargetResource
     $currentValuesToCheck = @()
     if ($currentGroup.AssignedLicenses.Length -gt 0)
     {
-        $currentValuesToCheck = $currentGroup.AssignedLicenses.SkuId
+        $currentValuesToCheck = $currentGroup.AssignedLicenses.SkuId -replace [char]0xFEFF
     }
     $desiredValuesToCheck = @()
     if ($AssignedLicenses.Length -gt 0)
@@ -1341,7 +1341,7 @@ function Get-M365DSCCombinedLicenses
         {
             Write-Verbose -Message "Including Current $license"
             $result += @{
-                SkuId         = $license.SkuId
+                SkuId         = $license.SkuId -replace [char]0xFEFF
                 DisabledPlans = $license.DisabledPlans
             }
         }
@@ -1351,19 +1351,20 @@ function Get-M365DSCCombinedLicenses
     {
         foreach ($license in $DesiredLicenses)
         {
+            $licenseSkuId = $license.SkuId -replace [char]0xFEFF
             if ($result.Length -eq 0)
             {
                 $result += @{
-                    SkuId         = $license.SkuId
+                    SkuId         = $licenseSkuId
                     DisabledPlans = $license.DisabledPlans
                 }
             }
             else
             {
-                if (-not $result.SkuId.Contains($license.SkuId))
+                if (-not $result.SkuId.Contains($licenseSkuId))
                 {
                     $result += @{
-                        SkuId         = $license.SkuId
+                        SkuId         = $licenseSkuId
                         DisabledPlans = $license.DisabledPlans
                     }
                 }
@@ -1372,7 +1373,7 @@ function Get-M365DSCCombinedLicenses
                     # Set the Desired Disabled Plans if the sku is already added to the list
                     foreach ($item in $result)
                     {
-                        if ($item.SkuId -eq $license.SkuId)
+                        if ($item.SkuId -eq $licenseSkuId)
                         {
                             $item.DisabledPlans = $license.DisabledPlans
                         }
