@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Fixed an issue with `AdminConsentGranted` not being correct if the
+    permissions are from multiple source APIs.
 * AADCrossTenantAccessPolicyConfigurationDefault
   * Evaluate users and groups by display name to be consistent with
     other resources.
