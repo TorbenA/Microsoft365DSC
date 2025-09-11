@@ -8,6 +8,8 @@
 * AADCrossTenantAccessPolicyConfigurationDefault
   * Evaluate users and groups by display name to be consistent with
     other resources.
+* EXOTransportRule
+  * Fixed an issue where deprecated properties were exported.
 
 # 1.25.903.2
 
