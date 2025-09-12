@@ -84,7 +84,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     DisplayName               = 'App1'
-                    AvailableToOtherTenants   = $false
                     Description               = 'App description'
                     GroupMembershipClaims     = '0'
                     Homepage                  = 'https://app.contoso.com'
@@ -120,7 +119,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     ObjectId                  = '5dcb2237-c61b-4258-9c85-eae2aaeba9d6'
                     DisplayName               = 'App1'
-                    AvailableToOtherTenants   = $false
                     Description               = 'App description'
                     GroupMembershipClaims     = '0'
                     Homepage                  = 'https://app.contoso.com'
@@ -171,7 +169,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     DisplayName               = 'App1'
-                    AvailableToOtherTenants   = $false
                     Description               = 'App description'
                     GroupMembershipClaims     = '0'
                     Homepage                  = 'https://app.contoso.com'
@@ -246,7 +243,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     AuthenticationBehaviors   = New-CimInstance -ClassName MSFT_MicrosoftGraphAuthenticationBehaviors -Property @{
                              blockAzureADGraphAccess       = 'false'
                              removeUnverifiedEmailClaim    = 'true'
-                             requireClientServicePrincipal = 'false'
                      } -ClientOnly
                     Api = New-CimInstance -ClassName MSFT_MicrosoftGraphapiApplication -Property @{
                         PreAuthorizedApplications = [CimInstance[]]@(
@@ -348,7 +344,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     $AADApp | Add-Member -MemberType NoteProperty -Name AuthenticationBehaviors -Value @{
                          blockAzureADGraphAccess       = 'false'
                          removeUnverifiedEmailClaim    = 'true'
-                         requireClientServicePrincipal = 'false'
                     }
                     return $AADApp
                 }
@@ -368,7 +363,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     DisplayName               = 'App1'
-                    AvailableToOtherTenants   = $false
                     Description               = 'App description'
                     GroupMembershipClaims     = '0'
                     Homepage                  = 'https://app1.contoso.com' #drift
@@ -418,7 +412,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     DisplayName               = 'App1'
-                    AvailableToOtherTenants   = $false
                     Description               = 'App description'
                     GroupMembershipClaims     = '0'
                     IdentifierUris            = 'https://app.contoso.com'
@@ -429,7 +422,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     AuthenticationBehaviors   = New-CimInstance -ClassName MSFT_MicrosoftGraphAuthenticationBehaviors -Property @{
                             blockAzureADGraphAccess       = 'false'
                             removeUnverifiedEmailClaim    = 'true'
-                            requireClientServicePrincipal = 'false'
                     } -ClientOnly
                     Ensure                  = 'Present'
                     Credential              = $Credential
@@ -466,7 +458,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     DisplayName               = 'App1'
-                    AvailableToOtherTenants   = $false
                     Description               = 'App description'
                     GroupMembershipClaims     = '0'
                     IdentifierUris            = 'https://app.contoso.com'

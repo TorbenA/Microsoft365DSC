@@ -1,5 +1,48 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADApplication
+  * [BREAKING CHANGE] Removed deprecated parameters `AvailableToOtherTenants` and `RequireClientServicePrincipal`.
+* AADAuthenticationMethodPolicy
+  * [BREAKING CHANGE] Removed deprecated parameter `PolicyMigrationState`.
+* AADAuthenticationMethodPolicyAuthenticator
+  * [BREAKING CHANGE] Removed deprecated parameter `NumberMatchingRequiredState`.
+* AADEnrichedAuditLogs
+  * [BREAKING CHANGE] Removed deprecated resource.
+* AADCustomSecurityAttributeDefinition
+  * [BREAKING CHANGE] Restricted accepted values for `Status` to `Available` and `Deprecated`.
+* EXOFocusedInbox
+  * [BREAKING CHANGE] Removed deprecated parameter `FocusedInboxOnLastUpdateTime`.
+* EXOHostedContentFilterPolicy
+  * [BREAKING CHANGE] Removed deprecated parameters `EnableEndUserSpamNotifications`, `EndUserSpamNotificationLanguage`,
+    `EndUserSpamNotificationFrequency` and `EndUserSpamNotificationCustomSubject`.
+* EXOSafeAttachmentPolicy
+  * [BREAKING CHANGE] Removed deprecated parameter `ActionOnError`.
+* EXOTransportRule
+  * [BREAKING CHANGE] Removed deprecated parameters `ExceptIfHasSenderOverride`, `MessageContainsDataClassifications`,
+    `ExceptIfMessageContainsDataClassifications`, `HasSenderOverride`, `NotifySender`, `ApplyOME` and `RemoveOME`.
+* IntuneAccountProtectionPolicy
+  * [BREAKING CHANGE] Removed deprecated resource.
+* IntuneDeviceCleanupRule
+  * [BREAKING CHANGE] Removed non-functional resource.
+* O365OrgSettings
+  * [BREAKING CHANGE] Removed deprecated parameter `MicrosoftVivaBriefingEmail`.
+* ODSettings
+  * [BREAKING CHANGE] Removed deprecated parameter `NotifyOwnersWhenInvitationsAccepted`.
+* SPOSharingSettings
+  * [BREAKING CHANGE] Removed deprecated parameter `RequireAcceptingAccountMatchInvitedAccount`.
+* SPOTenantSettings
+  * [BREAKING CHANGE] Removed deprecated parameter `UserVoiceForFeedbackEnabled`.
+* TeamsFederationConfiguration
+  * [BREAKING CHANGE] Removed deprecated parameter `AllowPublicUsers`.
+* TeamsMeetingPolicy
+  * [BREAKING CHANGE] Removed deprecated parameter `ForceStreamingAttendeeMode`.
+* TeamsShiftsPolicy
+  * [BREAKING CHANGE] Removed deprecated parameter `EnableShiftPresence`.
+* TeamsTenantDialPlan
+  * [BREAKING CHANGE] Removed deprecated parameter `OptimizeDeviceDialing` and `ExternalAccessPrefix`.
+
 # 1.25.910.1
 
 * AADApplication

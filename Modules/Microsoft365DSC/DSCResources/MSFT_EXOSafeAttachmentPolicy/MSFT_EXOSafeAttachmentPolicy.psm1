@@ -16,10 +16,6 @@ function Get-TargetResource
         $Action = 'Block',
 
         [Parameter()]
-        [Boolean]
-        $ActionOnError = $false,
-
-        [Parameter()]
         [System.String]
         $AdminDisplayName,
 
@@ -122,7 +118,6 @@ function Get-TargetResource
                 Ensure                = 'Present'
                 Identity              = $Identity
                 Action                = $SafeAttachmentPolicy.Action
-                ActionOnError         = $SafeAttachmentPolicy.ActionOnError
                 AdminDisplayName      = $SafeAttachmentPolicy.AdminDisplayName
                 Enable                = $SafeAttachmentPolicy.Enable
                 QuarantineTag         = $SafeAttachmentPolicy.QuarantineTag
@@ -168,10 +163,6 @@ function Set-TargetResource
         [ValidateSet('Block', 'Replace', 'Allow', 'DynamicDelivery')]
         [System.String]
         $Action = 'Block',
-
-        [Parameter()]
-        [Boolean]
-        $ActionOnError = $false,
 
         [Parameter()]
         [System.String]
@@ -259,11 +250,6 @@ function Set-TargetResource
         $StopProcessingPolicy = $false
         if ($Redirect -eq $true)
         {
-            if ($ActionOnError -eq $true)
-            {
-                Write-Verbose -Message 'The ActionOnError parameter is deprecated'
-                $SafeAttachmentPolicyParams.Remove('ActionOnError') | Out-Null
-            }
             $Message = 'Cannot proceed with processing of SafeAttachmentPolicy because Redirect is set to true '
             if ([String]::IsNullOrEmpty($RedirectAddress))
             {
@@ -367,10 +353,6 @@ function Test-TargetResource
         [ValidateSet('Block', 'Replace', 'Allow', 'DynamicDelivery')]
         [System.String]
         $Action = 'Block',
-
-        [Parameter()]
-        [Boolean]
-        $ActionOnError = $false,
 
         [Parameter()]
         [System.String]

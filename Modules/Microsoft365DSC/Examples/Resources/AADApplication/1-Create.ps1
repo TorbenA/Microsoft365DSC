@@ -24,7 +24,6 @@ Configuration Example
         AADApplication 'AADApp1'
         {
             DisplayName               = "AppDisplayName"
-            AvailableToOtherTenants   = $false
             Description               = "Application Description"
             GroupMembershipClaims     = "None"
             Homepage                  = "https://$TenantId"

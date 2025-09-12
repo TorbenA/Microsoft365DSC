@@ -59,7 +59,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Ensure                       = "Present";
                     FocusedInboxOn               = $True;
-                    FocusedInboxOnLastUpdateTime = "1/1/0001 12:00:00 AM";
                     Identity                     = "admin@contoso.com";
                 }
 
@@ -91,7 +90,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Ensure                       = "Present";
                     FocusedInboxOn               = $True;
-                    FocusedInboxOnLastUpdateTime = "1/1/0001 12:00:00 AM";
                     Identity                     = "admin@contoso.com";
                 }
 
@@ -118,7 +116,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Ensure                       = "Present";
                     FocusedInboxOn               = $True;
-                    FocusedInboxOnLastUpdateTime = "1/1/0001 12:00:00 AM";
                     Identity                     = "admin@contoso.com";
                 }
 

@@ -1,4 +1,4 @@
-[ClassVersion("1.0.0.0"), FriendlyName("O365OrgSettings")]
+[ClassVersion("1.0.0.1"), FriendlyName("O365OrgSettings")]
 class MSFT_O365OrgSettings : OMI_BaseResource
 {
     [Key, Description("Specifies the resource is a single instance, the value must be 'Yes'"), ValueMap{"Yes"}, Values{"Yes"}] String IsSingleInstance;
@@ -16,7 +16,6 @@ class MSFT_O365OrgSettings : OMI_BaseResource
     [Write, Description("Phishing protection.")] Boolean FormsIsInOrgFormsPhishingScanEnabled;
     [Write, Description("Record names of people in your org.")] Boolean FormsIsRecordIdentityByDefaultEnabled;
     [Write, Description("Let users open files stored in third-party storage services in Microsoft 365 on the Web.")] Boolean M365WebEnableUsersToOpenFilesFrom3PStorage;
-    [Write, Description("Specifies whether or not to let people in your organization receive Briefing email from Microsoft Viva.")] Boolean MicrosoftVivaBriefingEmail;
     [Write, Description("Specifies whether or not to allow users to have access to use the Viva Insights web experience.")] Boolean VivaInsightsWebExperience;
     [Write, Description("Specifies whether or not to allow users to have access to use the Viva Insights digest email feature.")] Boolean VivaInsightsDigestEmail;
     [Write, Description("Specifies whether or not to allow users to have access to use the Viva Insights Outlook add-in and inline suggestions.")] Boolean VivaInsightsOutlookAddInAndInlineSuggestions;

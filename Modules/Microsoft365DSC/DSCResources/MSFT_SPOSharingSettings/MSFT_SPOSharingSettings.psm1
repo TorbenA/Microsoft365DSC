@@ -107,10 +107,6 @@ function Get-TargetResource
         $DefaultLinkPermission,
 
         [Parameter()]
-        [System.boolean]
-        $RequireAcceptingAccountMatchInvitedAccount,
-
-        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
@@ -223,9 +219,6 @@ function Get-TargetResource
             FolderAnonymousLinkType                  = $SPOSharingSettings.FolderAnonymousLinkType.ToString()
             NotifyOwnersWhenItemsReshared            = $SPOSharingSettings.NotifyOwnersWhenItemsReshared
             DefaultLinkPermission                    = $DefaultLinkPermission
-
-            #DEPRECATED
-            #RequireAcceptingAccountMatchInvitedAccount = $SPOSharingSettings.RequireAcceptingAccountMatchInvitedAccount
             Credential                               = $Credential
             ApplicationId                            = $ApplicationId
             TenantId                                 = $TenantId
@@ -367,10 +360,6 @@ function Set-TargetResource
         $DefaultLinkPermission,
 
         [Parameter()]
-        [System.boolean]
-        $RequireAcceptingAccountMatchInvitedAccount,
-
-        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
@@ -442,9 +431,6 @@ function Set-TargetResource
     $CurrentParameters.Remove('ManagedIdentity') | Out-Null
     $CurrentParameters.Remove('ApplicationSecret') | Out-Null
     $CurrentParameters.Remove('AccessTokens') | Out-Null
-
-    # DEPRECATED
-    $CurrentParameters.Remove('RequireAcceptingAccountMatchInvitedAccount') | Out-Null
 
     [bool]$SetMySharingCapability = $false
     if ($null -ne $CurrentParameters['MySiteSharingCapability'])
@@ -632,10 +618,6 @@ function Test-TargetResource
         $DefaultLinkPermission,
 
         [Parameter()]
-        [System.boolean]
-        $RequireAcceptingAccountMatchInvitedAccount,
-
-        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
@@ -706,9 +688,6 @@ function Test-TargetResource
     $ValuesToCheck.Remove('CertificateThumbprint') | Out-Null
     $ValuesToCheck.Remove('ManagedIdentity') | Out-Null
     $ValuesToCheck.Remove('AccessTokens') | Out-Null
-
-    # DEPRECATED
-    $ValuesToCheck.Remove('RequireAcceptingAccountMatchInvitedAccount') | Out-Null
 
     if ($DefaultLinkPermission -eq 'None')
     {
