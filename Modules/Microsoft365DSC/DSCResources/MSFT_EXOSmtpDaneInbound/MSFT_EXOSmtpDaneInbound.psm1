@@ -88,7 +88,7 @@ function Get-TargetResource
             TenantId              = $TenantId
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

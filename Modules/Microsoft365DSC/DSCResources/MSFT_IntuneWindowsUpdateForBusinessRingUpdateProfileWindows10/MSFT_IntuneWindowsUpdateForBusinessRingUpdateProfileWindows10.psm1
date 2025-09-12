@@ -445,7 +445,7 @@ function Get-TargetResource
             $assignmentResult += ConvertFrom-IntunePolicyAssignment -Assignments $rawAssignments
         }
         $results.Add('Assignments', $assignmentResult)
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

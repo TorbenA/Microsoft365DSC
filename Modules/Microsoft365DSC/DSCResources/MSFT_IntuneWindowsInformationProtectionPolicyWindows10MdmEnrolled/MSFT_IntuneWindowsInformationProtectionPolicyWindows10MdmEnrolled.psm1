@@ -437,7 +437,7 @@ function Get-TargetResource
             $results.Add('Assignments', (ConvertFrom-IntunePolicyAssignment -Assignments $getValue.assignments -IncludeDeviceFilter $false))
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

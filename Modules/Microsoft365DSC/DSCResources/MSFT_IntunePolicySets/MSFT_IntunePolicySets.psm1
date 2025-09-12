@@ -188,7 +188,7 @@ function Get-TargetResource
 
         $results.Add('Items', $itemResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

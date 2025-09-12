@@ -4,6 +4,9 @@
 
 * AADAdministrativeUnit
   * Reduced export time by 20%.
+* AADGroup
+  * Fixed an issue where the `SkuId` could contain NBSP characters.
+    FIXES [#6476](https://github.com/microsoft/Microsoft365DSC/issues/6476)
 * EXOCalendarProcessing
   * Added caching for export.
 * EXOMailboxAutoReplyConfiguration
@@ -28,7 +31,8 @@
   * Reduced export time by up to 85%.
 * MISC
   * Fixed typo in `ManagedIdentity` property across all resources.
-  * Reduced repeated logins during export of SPO resources.
+  * Reduced repeated logins during export of SPO and Teams resources.
+  * Removed unnecessary type casting across all resources.
 
 # 1.25.910.1
 

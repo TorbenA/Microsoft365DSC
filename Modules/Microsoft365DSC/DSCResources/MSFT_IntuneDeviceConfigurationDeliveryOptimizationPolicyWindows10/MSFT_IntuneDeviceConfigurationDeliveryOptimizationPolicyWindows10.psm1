@@ -330,7 +330,7 @@ function Get-TargetResource
                 -Assignments ($graphAssignments)
         }
         $results.Add('Assignments', $returnAssignments)
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

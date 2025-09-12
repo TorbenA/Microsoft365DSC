@@ -272,7 +272,7 @@ function Get-TargetResource
             $results.Add('ScopedRoleMembers', $scopedRoleMemberSpec)
         }
         Write-Verbose -Message "AU {$DisplayName} return results"
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -881,7 +881,7 @@ function Test-TargetResource
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
                                          -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludedProperties @('Visibility')
+                                         -ExcludedProperties @('Visibility') -Verbose
     return $result
 }
 

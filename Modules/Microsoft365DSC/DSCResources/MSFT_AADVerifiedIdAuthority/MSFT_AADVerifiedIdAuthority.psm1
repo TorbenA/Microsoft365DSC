@@ -113,7 +113,7 @@ function Get-TargetResource
             ApplicationSecret     = $ApplicationSecret
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
 
     }
     catch

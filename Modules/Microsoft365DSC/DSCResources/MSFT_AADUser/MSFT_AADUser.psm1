@@ -286,7 +286,7 @@ function Get-TargetResource
             Ensure                = 'Present'
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

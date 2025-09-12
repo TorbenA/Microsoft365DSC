@@ -144,7 +144,7 @@ function Get-TargetResource
             $results.Add('notallowedResourceActions', $getValue.RolePermissions.ResourceActions.notAllowedResourceActions)
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

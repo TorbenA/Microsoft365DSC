@@ -487,7 +487,7 @@ function Set-TargetResource
     $currentValuesToCheck = @()
     if ($currentGroup.AssignedLicenses.Length -gt 0)
     {
-        $currentValuesToCheck = $currentGroup.AssignedLicenses.SkuId -replace [char]0xFEFF
+        $currentValuesToCheck = $currentGroup.AssignedLicenses.SkuId
     }
     $desiredValuesToCheck = @()
     if ($AssignedLicenses.Length -gt 0)
@@ -540,7 +540,7 @@ function Set-TargetResource
 
     foreach ($assignedLicense in $AllLicenses)
     {
-        $skuInfo = $allSkus | Where-Object -FilterScript { $_.SkuPartNumber -eq $assignedLicense.SkuId }
+        $skuInfo = $allSkus | Where-Object -FilterScript { ($_.SkuPartNumber -replace [char]0xFEFF, '') -eq $assignedLicense.SkuId }
         if ($skuInfo)
         {
             if ($toAdd.Contains($assignedLicense.SkuId))
@@ -552,7 +552,7 @@ function Set-TargetResource
                     $disabledPlansValues += $foundItem.ServicePlanId
                 }
 
-                $skuInfo = $allSkus | Where-Object -FilterScript { $_.SkuPartNumber -eq $assignedLicense.SkuId }
+                $skuInfo = $allSkus | Where-Object -FilterScript { ($_.SkuPartNumber -replace [char]0xFEFF, '') -eq $assignedLicense.SkuId }
                 $licensesToAdd += @{
                     DisabledPlans = $disabledPlansValues
                     SkuId         = $skuInfo.SkuId
@@ -1312,7 +1312,7 @@ function Get-M365DSCAzureADGroupLicenses
         }
         $currentLicense = @{
             DisabledPlans = $disabledPlansValues
-            SkuId         = $skuPartNumber.SkuPartNumber
+            SkuId         = $skuPartNumber.SkuPartNumber -replace [char]0xFEFF
         }
         $returnValue += $currentLicense
     }
@@ -1341,7 +1341,7 @@ function Get-M365DSCCombinedLicenses
         {
             Write-Verbose -Message "Including Current $license"
             $result += @{
-                SkuId         = $license.SkuId -replace [char]0xFEFF
+                SkuId         = $license.SkuId
                 DisabledPlans = $license.DisabledPlans
             }
         }
@@ -1351,7 +1351,7 @@ function Get-M365DSCCombinedLicenses
     {
         foreach ($license in $DesiredLicenses)
         {
-            $licenseSkuId = $license.SkuId -replace [char]0xFEFF
+            $licenseSkuId = $license.SkuId
             if ($result.Length -eq 0)
             {
                 $result += @{

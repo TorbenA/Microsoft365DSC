@@ -171,7 +171,7 @@ function Get-TargetResource
             AccessTokens              = $AccessTokens
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

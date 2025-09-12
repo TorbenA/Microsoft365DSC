@@ -226,7 +226,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
         Write-Verbose -Message "Returning {$DisplayName}"
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

@@ -312,7 +312,7 @@ function Get-TargetResource
             if ($null -eq $Script:RecipientsCache)
             {
                 $Script:RecipientsCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
-                $Script:RecipientsCache = Get-Recipient -ResultSize Unlimited | Foreach-Object {
+                Get-Recipient -ResultSize Unlimited | Foreach-Object {
                     $Script:RecipientsCache[$_.Name] = @{
                         PrimarySmtpAddress = $_.PrimarySmtpAddress
                         WindowsLiveID      = $_.WindowsLiveID
@@ -344,7 +344,7 @@ function Get-TargetResource
             if ($null -eq $Script:RecipientsCache)
             {
                 $Script:RecipientsCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
-                $Script:RecipientsCache = Get-Recipient -ResultSize Unlimited | Foreach-Object {
+                Get-Recipient -ResultSize Unlimited | Foreach-Object {
                     $Script:RecipientsCache[$_.Name] = @{
                         PrimarySmtpAddress = $_.PrimarySmtpAddress
                         WindowsLiveID      = $_.WindowsLiveID
@@ -1036,7 +1036,7 @@ function Test-TargetResource
     $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
         -Source $($MyInvocation.MyCommand.Source) `
         -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
+        -ValuesToCheck $ValuesToCheck.Keys -Verbose
 
     Write-Verbose -Message "Test-TargetResource returned $TestResult"
 

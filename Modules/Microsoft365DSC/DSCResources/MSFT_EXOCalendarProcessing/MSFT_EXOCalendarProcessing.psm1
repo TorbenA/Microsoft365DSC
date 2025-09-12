@@ -246,15 +246,6 @@ function Get-TargetResource
         if ($null -eq $Script:UsersCache)
         {
             $Script:UsersCache = [System.Collections.Generic.Dictionary[System.String, System.String]]::new()
-            if ($Script:currentModeIsExport)
-            {
-                Get-User -ResultSize 'Unlimited' | ForEach-Object {
-                    $Script:UsersCache[$_.Identity] = $_.UserPrincipalName
-                }
-                Get-Recipient -ResultSize 'Unlimited' | ForEach-Object {
-                    $Script:UsersCache[$_.Identity] = $_.PrimarySmtpAddress
-                }
-            }
         }
 
         $RequestInPolicyValue = @()
@@ -262,6 +253,7 @@ function Get-TargetResource
         {
             foreach ($user in $calendarProc.RequestInPolicy)
             {
+                $userInfo = $null
                 if ($Script:UsersCache.TryGetValue($user, [ref]$userInfo))
                 {
                     $RequestInPolicyValue += $userInfo
@@ -929,6 +921,16 @@ function Export-TargetResource
         else
         {
             Write-M365DSCHost -Message "`r`n" -DeferWrite
+        }
+
+        Write-Verbose -Message "Fetching all users for caching purposes"
+        $Script:UsersCache = [System.Collections.Generic.Dictionary[System.String, System.String]]::new()
+        Get-User -ResultSize 'Unlimited' | ForEach-Object {
+            $Script:UsersCache[$_.Identity] = $_.UserPrincipalName
+        }
+        Write-Verbose -Message "Fetching all recipients for caching purposes"
+        Get-Recipient -ResultSize 'Unlimited' | ForEach-Object {
+            $Script:UsersCache[$_.Identity] = $_.PrimarySmtpAddress
         }
 
         $i = 1

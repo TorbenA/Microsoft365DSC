@@ -131,7 +131,7 @@ function Get-TargetResource
 
     try
     {
-        if ($null -eq $Script:RecentMPExtract)
+        if (-not $Script:exportMode)
         {
             $null = New-M365DSCConnection -Workload 'PnP' `
                 -InboundParameters $PSBoundParameters `
@@ -933,6 +933,7 @@ function Export-TargetResource
         $SearchConfig = [Xml] (Get-PnPSearchConfiguration -Scope Subscription -ErrorAction Stop)
         [array]$properties = $SearchConfig.SearchConfigurationSettings.SearchSchemaConfigurationSettings.ManagedProperties.dictionary.KeyValueOfstringManagedPropertyInfoy6h3NzC8
         $Script:RecentMPExtract = $SearchConfig
+        $Script:exportMode = $true
 
         $dscContent = ''
         $i = 1
