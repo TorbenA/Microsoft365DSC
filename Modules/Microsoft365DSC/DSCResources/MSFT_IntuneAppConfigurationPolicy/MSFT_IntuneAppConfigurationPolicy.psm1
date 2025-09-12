@@ -188,7 +188,7 @@ function Get-TargetResource
             TenantId                    = $TenantId
             ApplicationSecret           = $ApplicationSecret
             CertificateThumbprint       = $CertificateThumbprint
-            Managedidentity             = $ManagedIdentity.IsPresent
+            ManagedIdentity             = $ManagedIdentity.IsPresent
             AccessTokens                = $AccessTokens
             RoleScopeTagIds             = $configPolicy.RoleScopeTagIds
             TargetedAppManagementLevels = [String]$configPolicy.TargetedAppManagementLevels
@@ -681,7 +681,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

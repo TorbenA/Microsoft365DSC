@@ -52,8 +52,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'PnP' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message 'Getting current SharePoint Online Retention Labels Settings configuration'
+
+    if (-not $Script:ExportMode)
+    {
+        New-M365DSCConnection -Workload 'PnP' `
+            -InboundParameters $PSBoundParameters | Out-Null
+    }
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies

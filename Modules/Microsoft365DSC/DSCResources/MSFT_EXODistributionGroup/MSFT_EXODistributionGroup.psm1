@@ -309,11 +309,25 @@ function Get-TargetResource
         if ($null -ne $distributionGroup.ManagedBy)
         {
             Write-Verbose -Message "Getting Distribution Group managers for $Identity"
+            if ($null -eq $Script:RecipientsCache)
+            {
+                $Script:RecipientsCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
+                $Script:RecipientsCache = Get-Recipient -ResultSize Unlimited | Foreach-Object {
+                    $Script:RecipientsCache[$_.Name] = @{
+                        PrimarySmtpAddress = $_.PrimarySmtpAddress
+                        WindowsLiveID      = $_.WindowsLiveID
+                    }
+                }
+            }
             foreach ($manager in $distributionGroup.ManagedBy)
             {
                 try
                 {
-                    $recipient = Get-Recipient -Identity $manager -ErrorAction Stop
+                    $recipient = $Script:RecipientsCache[$manager]
+                    if ($null -eq $recipient)
+                    {
+                        throw "Recipient not found in cache"
+                    }
                     $ManagedByValue += $recipient.PrimarySmtpAddress
                 }
                 catch
@@ -327,11 +341,25 @@ function Get-TargetResource
         if ($null -ne $distributionGroup.ModeratedBy)
         {
             Write-Verbose -Message "Getting Distribution Group moderators for $Identity"
+            if ($null -eq $Script:RecipientsCache)
+            {
+                $Script:RecipientsCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
+                $Script:RecipientsCache = Get-Recipient -ResultSize Unlimited | Foreach-Object {
+                    $Script:RecipientsCache[$_.Name] = @{
+                        PrimarySmtpAddress = $_.PrimarySmtpAddress
+                        WindowsLiveID      = $_.WindowsLiveID
+                    }
+                }
+            }
             foreach ($moderator in $distributionGroup.ModeratedBy)
             {
                 try
                 {
-                    $recipient = Get-Recipient -Identity $moderator -ErrorAction Stop
+                    $recipient = $Script:RecipientsCache[$moderator]
+                    if ($null -eq $recipient)
+                    {
+                        throw "Recipient not found in cache"
+                    }
                     $ModeratedByValue += $recipient.PrimarySmtpAddress
                 }
                 catch
@@ -340,6 +368,7 @@ function Get-TargetResource
                 }
             }
         }
+
         $result = @{
             Identity                               = $distributionGroup.Identity
             Alias                                  = $distributionGroup.Alias
@@ -390,7 +419,7 @@ function Get-TargetResource
             CertificateThumbprint                  = $CertificateThumbprint
             CertificatePath                        = $CertificatePath
             CertificatePassword                    = $CertificatePassword
-            Managedidentity                        = $ManagedIdentity.IsPresent
+            ManagedIdentity                        = $ManagedIdentity.IsPresent
             TenantId                               = $TenantId
             AccessTokens                           = $AccessTokens
         }
@@ -1099,7 +1128,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }

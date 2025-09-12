@@ -439,7 +439,7 @@ function Export-TargetResource
                     CertificateThumbprint = $CertificateThumbprint
                     ApplicationSecret     = $ApplicationSecret
                     Credential            = $Credential
-                    Managedidentity       = $ManagedIdentity.IsPresent
+                    ManagedIdentity       = $ManagedIdentity.IsPresent
                     AccessTokens          = $AccessTokens
                 }
 

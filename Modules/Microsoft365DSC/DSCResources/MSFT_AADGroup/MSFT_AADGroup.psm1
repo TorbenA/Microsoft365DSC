@@ -321,7 +321,7 @@ function Get-TargetResource
             CertificateThumbprint         = $CertificateThumbprint
             ApplicationSecret             = $ApplicationSecret
             Credential                    = $Credential
-            Managedidentity               = $ManagedIdentity.IsPresent
+            ManagedIdentity               = $ManagedIdentity.IsPresent
             AccessTokens                  = $AccessTokens
         }
         $result += $policySettings
@@ -1211,7 +1211,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 Credential            = $Credential
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
             $Script:exportedInstance = $group

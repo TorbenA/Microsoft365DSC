@@ -1,5 +1,35 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADAdministrativeUnit
+  * Reduced export time by 20%.
+* EXOCalendarProcessing
+  * Added caching for export.
+* EXOMailboxAutoReplyConfiguration
+  * Added conditional user lookup.
+* EXOMailboxCalendarFolder
+  * Added conditional user lookup.
+* EXOMailContact
+  * Added caching for export.
+* EXOMailboxPermission
+  * Added additional caching for export.
+* EXOMailboxSettings
+  * Added caching for export.
+* EXORecipientPermission
+  * Added additional caching for export.
+* SPOPropertyBag
+  * Reduced export time by 85%.
+* SPOSite
+  * Added additional caching.
+* TeamsChannel
+  * Reduced export time by up to 75%.
+* TeamsChannelTab
+  * Reduced export time by up to 85%.
+* MISC
+  * Fixed typo in `ManagedIdentity` property across all resources.
+  * Reduced repeated logins during export of SPO resources.
+
 # 1.25.910.1
 
 * AADApplication
