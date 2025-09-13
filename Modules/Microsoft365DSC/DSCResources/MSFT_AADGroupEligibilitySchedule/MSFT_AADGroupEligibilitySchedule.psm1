@@ -43,7 +43,6 @@ function Get-TargetResource {
         [Parameter()]
         [System.String]
         $Id,
-
         #endregion
 
         [Parameter()]
@@ -86,7 +85,6 @@ function Get-TargetResource {
     {
         if (-not $Script:exportedInstance)
         {
-
             $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
@@ -140,7 +138,7 @@ function Get-TargetResource {
         $complexExpiration.Add('Duration', $getValue.scheduleInfo.expiration.duration)
         if ($null -ne $getValue.scheduleInfo.expiration.endDateTime)
         {
-            $complexExpiration.Add('EndDateTime', ([DateTimeOffset]$getValue.scheduleInfo.expiration.endDateTime).ToString(''))
+            $complexExpiration.Add('EndDateTime', ([DateTimeOffset]$getValue.scheduleInfo.expiration.endDateTime).ToString('o'))
         }
         if ($null -ne $getValue.scheduleInfo.expiration.type)
         {
@@ -661,7 +659,6 @@ function Test-TargetResource {
         [Parameter()]
         [System.String]
         $Id,
-
         #endregion
 
         [Parameter()]

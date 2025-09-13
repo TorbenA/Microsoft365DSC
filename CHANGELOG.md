@@ -1,5 +1,16 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADAppManagementPolicy
+  * Updated `RestrictForAppsCreatedAfterDateTime` to "o" format.
+* AADGroupEligiblitySchedule
+  * Aligned date time format for `Expiration.EndDateTime` with `Expiration.StartDateTime`.
+* M365DSCDRGUtil
+  * Fixed an issue where a null drift would throw an exception.
+* MISC
+  * Streamline test cases.
+
 # 1.25.910.1
 
 * AADApplication

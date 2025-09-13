@@ -46,6 +46,34 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-DistributionGroup -MockWith {
             }
 
+            Mock -CommandName Get-DistributionGroup -MockWith {
+                return @{
+                    Alias                              = 'demodg'
+                    BccBlocked                         = $False
+                    BypassNestedModerationEnabled      = $False
+                    DisplayName                        = 'My Demo DG'
+                    HiddenGroupMembershipEnabled       = $True
+                    ManagedBy                          = @('john.smith@contoso.com')
+                    MemberDepartRestriction            = 'Open'
+                    MemberJoinRestriction              = 'Closed'
+                    ModeratedBy                        = @('john.smith@contoso.com')
+                    ModerationEnabled                  = $False
+                    Identity                           = 'DemoDG'
+                    Name                               = 'DemoDG'
+                    OrganizationalUnit                 = 'nampr03a010.prod.outlook.com/Microsoft Exchange Hosted Organizations/contoso.com'
+                    PrimarySmtpAddress                 = 'demodg@contoso.com'
+                    RequireSenderAuthenticationEnabled = $True
+                    SendModerationNotifications        = 'Always'
+                    GroupType                          = @('Universal')
+                }
+            }
+
+            Mock -CommandName Get-Recipient -MockWith {
+                return @{
+                    PrimarySmtpAddress = 'john.smith@contoso.com'
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -110,7 +138,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     HiddenGroupMembershipEnabled       = $True
                     ManagedBy                          = @('john.smith@contoso.com')
                     MemberDepartRestriction            = 'Open'
-                    MemberJoinRestriction              = 'Closed'
+                    MemberJoinRestriction              = 'Open' # Drift
                     ModeratedBy                        = @('john.smith@contoso.com')
                     ModerationEnabled                  = $False
                     Identity                           = 'DemoDG'
@@ -120,35 +148,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     RequireSenderAuthenticationEnabled = $True
                     SendModerationNotifications        = 'Always'
                     Credential                         = $Credential
-                }
-
-
-                Mock -CommandName Get-Recipient -MockWith {
-                    return @{
-                        PrimarySmtpAddress = 'john.smith@contoso.com'
-                    }
-                }
-
-                Mock -CommandName Get-DistributionGroup -MockWith {
-                    return @{
-                        Alias                              = 'demodg'
-                        BccBlocked                         = $False
-                        BypassNestedModerationEnabled      = $False
-                        DisplayName                        = 'My Demo DG'
-                        HiddenGroupMembershipEnabled       = $True
-                        ManagedBy                          = @('john.smith@contoso.com')
-                        MemberDepartRestriction            = 'Open'
-                        MemberJoinRestriction              = 'Open' # Drift
-                        ModeratedBy                        = @('john.smith@contoso.com')
-                        ModerationEnabled                  = $False
-                        Identity                           = 'DemoDG'
-                        Name                               = 'DemoDG'
-                        OrganizationalUnit                 = 'nampr03a010.prod.outlook.com/Microsoft Exchange Hosted Organizations/contoso.com'
-                        PrimarySmtpAddress                 = 'demodg@contoso.com'
-                        RequireSenderAuthenticationEnabled = $True
-                        SendModerationNotifications        = 'Always'
-                        GroupType                          = @('Universal')
-                    }
                 }
             }
 
@@ -188,34 +187,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     SendModerationNotifications        = 'Always'
                     Credential                         = $Credential
                 }
-
-                Mock -CommandName Get-Recipient -MockWith {
-                    return @{
-                        PrimarySmtpAddress = 'john.smith@contoso.com'
-                    }
-                }
-
-                Mock -CommandName Get-DistributionGroup -MockWith {
-                    return @{
-                        Alias                              = 'demodg'
-                        BccBlocked                         = $False
-                        BypassNestedModerationEnabled      = $False
-                        DisplayName                        = 'My Demo DG'
-                        HiddenGroupMembershipEnabled       = $True
-                        ManagedBy                          = @('john.smith@contoso.com')
-                        MemberDepartRestriction            = 'Open'
-                        MemberJoinRestriction              = 'Closed'
-                        ModeratedBy                        = @('john.smith@contoso.com')
-                        ModerationEnabled                  = $False
-                        Identity                           = 'DemoDG'
-                        Name                               = 'DemoDG'
-                        OrganizationalUnit                 = 'nampr03a010.prod.outlook.com/Microsoft Exchange Hosted Organizations/contoso.com'
-                        PrimarySmtpAddress                 = 'demodg@contoso.com'
-                        RequireSenderAuthenticationEnabled = $True
-                        SendModerationNotifications        = 'Always'
-                        GroupType                          = @('Universal')
-                    }
-                }
             }
 
             It 'Should return false from the Test method' {
@@ -249,34 +220,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     SendModerationNotifications        = 'Always'
                     Credential                         = $Credential
                 }
-
-                Mock -CommandName Get-Recipient -MockWith {
-                    return @{
-                        PrimarySmtpAddress = 'john.smith@contoso.com'
-                    }
-                }
-
-                Mock -CommandName Get-DistributionGroup -MockWith {
-                    return @{
-                        Alias                              = 'demodg'
-                        BccBlocked                         = $False
-                        BypassNestedModerationEnabled      = $False
-                        DisplayName                        = 'My Demo DG'
-                        HiddenGroupMembershipEnabled       = $True
-                        ManagedBy                          = @('john.smith@contoso.com')
-                        MemberDepartRestriction            = 'Open'
-                        MemberJoinRestriction              = 'Closed'
-                        ModeratedBy                        = @('john.smith@contoso.com')
-                        ModerationEnabled                  = $False
-                        Identity                           = 'DemoDG'
-                        Name                               = 'DemoDG'
-                        OrganizationalUnit                 = 'nampr03a010.prod.outlook.com/Microsoft Exchange Hosted Organizations/contoso.com'
-                        PrimarySmtpAddress                 = 'demodg@contoso.com'
-                        RequireSenderAuthenticationEnabled = $True
-                        SendModerationNotifications        = 'Always'
-                        GroupType                          = @('Universal')
-                    }
-                }
             }
 
             It 'Should return false from the Test method' {
@@ -299,34 +242,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-Recipient -MockWith {
-                    return @{
-                        PrimarySmtpAddress = 'john.smith@contoso.com'
-                    }
-                }
-
-                Mock -CommandName Get-DistributionGroup -MockWith {
-                    return @{
-                        Alias                              = 'demodg'
-                        BccBlocked                         = $False
-                        BypassNestedModerationEnabled      = $False
-                        DisplayName                        = 'My Demo DG'
-                        HiddenGroupMembershipEnabled       = $True
-                        ManagedBy                          = @('john.smith@contoso.com')
-                        MemberDepartRestriction            = 'Open'
-                        MemberJoinRestriction              = 'Closed'
-                        ModeratedBy                        = @('admin@contoso.com')
-                        ModerationEnabled                  = $False
-                        Identity                           = 'DemoDG'
-                        Name                               = 'DemoDG'
-                        OrganizationalUnit                 = 'nampr03a010.prod.outlook.com/Microsoft Exchange Hosted Organizations/contoso.com'
-                        PrimarySmtpAddress                 = 'demodg@contoso.com'
-                        RequireSenderAuthenticationEnabled = $True
-                        SendModerationNotifications        = 'Always'
-                        GroupType                          = @('Universal')
-                    }
                 }
             }
 

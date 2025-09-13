@@ -1056,8 +1056,11 @@ function Compare-M365DSCComplexObjectV2
                 }
                 else
                 {
-                    $Global:AllDrifts.DriftInfo += $Global:PotentialDrifts[-1]
-                    $Global:PotentialDrifts = @()
+                    if ($null -ne $Global:PotentialDrifts[-1])
+                    {
+                        $Global:AllDrifts.DriftInfo += $Global:PotentialDrifts[-1]
+                        $Global:PotentialDrifts = @()
+                    }
                 }
 
                 return $false
@@ -1102,8 +1105,11 @@ function Compare-M365DSCComplexObjectV2
                     }
                     else
                     {
-                        $Global:AllDrifts.DriftInfo += $Global:PotentialDrifts[-1]
-                        $Global:PotentialDrifts = @()
+                        if ($null -ne $Global:PotentialDrifts[-1])
+                        {
+                            $Global:AllDrifts.DriftInfo += $Global:PotentialDrifts[-1]
+                            $Global:PotentialDrifts = @()
+                        }
                     }
                 }
 
