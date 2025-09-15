@@ -168,7 +168,7 @@ function Get-TargetResource
         $MaxPasswordFailedAttempts,
 
         [Parameter()]
-        [System.String]
+        [System.Int32]
         $MinPasswordComplexCharacters,
 
         [Parameter()]
@@ -184,7 +184,7 @@ function Get-TargetResource
         $PasswordExpiration,
 
         [Parameter()]
-        [System.String]
+        [System.Int32]
         $PasswordHistory,
 
         [Parameter()]
@@ -353,13 +353,11 @@ function Get-TargetResource
                 MaxEmailHTMLBodyTruncationSize           = $MobileDeviceMailboxPolicy.MaxEmailHTMLBodyTruncationSize
                 MaxInactivityTimeLock                    = $MobileDeviceMailboxPolicy.MaxInactivityTimeLock
                 MaxPasswordFailedAttempts                = $MobileDeviceMailboxPolicy.MaxPasswordFailedAttempts
-                # The MinPasswordComplexCharacters property is an integer, but the DSC resource expects a string.
-                MinPasswordComplexCharacters             = if ($null -ne $MobileDeviceMailboxPolicy.MinPasswordComplexCharacters) { $MobileDeviceMailboxPolicy.MinPasswordComplexCharacters.ToString() } else { $null }
+                MinPasswordComplexCharacters             = $MobileDeviceMailboxPolicy.MinPasswordComplexCharacters
                 MinPasswordLength                        = $MobileDeviceMailboxPolicy.MinPasswordLength
                 PasswordEnabled                          = $MobileDeviceMailboxPolicy.PasswordEnabled
                 PasswordExpiration                       = $MobileDeviceMailboxPolicy.PasswordExpiration
-                # The PasswordHistory property is an integer, but the DSC resource expects a string.
-                PasswordHistory                          = if ($null -ne $MobileDeviceMailboxPolicy.PasswordHistory) { $MobileDeviceMailboxPolicy.PasswordHistory.ToString() } else { $null }
+                PasswordHistory                          = $MobileDeviceMailboxPolicy.PasswordHistory
                 PasswordRecoveryEnabled                  = $MobileDeviceMailboxPolicy.PasswordRecoveryEnabled
                 RequireDeviceEncryption                  = $MobileDeviceMailboxPolicy.RequireDeviceEncryption
                 RequireEncryptedSMIMEMessages            = $MobileDeviceMailboxPolicy.RequireSignedSMIMEMessages
@@ -565,7 +563,7 @@ function Set-TargetResource
         $MaxPasswordFailedAttempts,
 
         [Parameter()]
-        [System.String]
+        [System.Int32]
         $MinPasswordComplexCharacters,
 
         [Parameter()]
@@ -581,7 +579,7 @@ function Set-TargetResource
         $PasswordExpiration,
 
         [Parameter()]
-        [System.String]
+        [System.Int32]
         $PasswordHistory,
 
         [Parameter()]
@@ -947,7 +945,7 @@ function Test-TargetResource
         $MaxPasswordFailedAttempts,
 
         [Parameter()]
-        [System.String]
+        [System.Int32]
         $MinPasswordComplexCharacters,
 
         [Parameter()]
@@ -963,7 +961,7 @@ function Test-TargetResource
         $PasswordExpiration,
 
         [Parameter()]
-        [System.String]
+        [System.Int32]
         $PasswordHistory,
 
         [Parameter()]
