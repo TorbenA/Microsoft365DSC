@@ -17,7 +17,8 @@ This function does not generate any output.
 | FileName | False | String |  |  | Specifies the name of the file in which the exported DSC configuration should be stored. |
 | ConfigurationName | False | String |  |  | Specifies the name of the configuration that will be generated. |
 | Components | False | String[] |  |  | Specifies the components for which an export should be created. |
-| Workloads | False | String[] |  | AAD, DEFENDER, FABRIC, SPO, EXO, INTUNE, SC, OD, O365, PLANNER, PP, TEAMS | Specifies the workload for which an export should be created for all resources. |
+| ExcludeComponents | False | String[] |  |  | Specifies the components to skip when creating the export |
+| Workloads | False | String[] |  | AAD, ADO, AZURE, COMMERCE, DEFENDER, EXO, FABRIC, INTUNE, O365, OD, PLANNER, PP, SC, SENTINEL, SH, SPO, TEAMS | Specifies the workload for which an export should be created for all resources. |
 | Mode | False | String | Default | Lite, Default, Full | Specifies the mode of the export: Lite, Default or Full. |
 | GenerateInfo | False | Boolean |  |  | Specifies if each exported resource should get a link to the Wiki article of the resource. |
 | Filters | False | Hashtable |  |  | Specifies resource level filters to apply in order to reduce the number of instances exported. |
@@ -49,5 +50,9 @@ This function does not generate any output.
 -------------------------- EXAMPLE 4 --------------------------
 
 `Export-M365DSCConfiguration -Credential $Credential -Filters @{AADApplication = "DisplayName eq 'MyApp'"}`
+
+-------------------------- EXAMPLE 5 --------------------------
+
+`Export-M365DSCConfiguration -Workloads @("SPO") -ExcludeComponents @("SPOPropertyBag") -Credential $Credential`
 
 
