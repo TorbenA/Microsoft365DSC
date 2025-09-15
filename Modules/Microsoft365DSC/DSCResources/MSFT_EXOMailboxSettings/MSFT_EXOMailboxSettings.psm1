@@ -82,7 +82,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.UserPrincipalName -ne $DisplayName)
         {
-            Write-Verbose -Message "No cached instance found, retrieving from service." -Verbose
+            Write-Verbose -Message "No cached instance found, retrieving from service."
             if ($Global:CurrentModeIsExport)
             {
                 $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
