@@ -2,8 +2,27 @@
 
 # UNRELEASED
 
+* IntuneMobileAppsMacOSLobApp
+  * Added filter capability.
 * IntuneMobileAppsMicrosoftStoreAppWindows10
   * Initial release.
+* IntuneMobileAppsWebLink
+  * Fixed an issue where filtering was applied after fetching all apps.
+* IntuneMobileAppsWindowsOfficeSuiteApp
+  * Added filter capability.
+* IntuneRoleAssignment
+  * Fixed an issue where deleted groups would throw an error during export.
+* MISC
+  * Code cleanup across all Intune resources.
+
+# 1.25.910.1
+
+* AADApplication
+  * Fixed an issue with `AdminConsentGranted` not being correct if the
+    permissions are from multiple source APIs.
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Evaluate users and groups by display name to be consistent with
+    other resources.
 
 # 1.25.903.2
 
