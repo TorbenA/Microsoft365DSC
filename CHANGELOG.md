@@ -5,6 +5,8 @@
 * EXOMobileDeviceMailboxPolicy
   * [BREAKING CHANGE] Updated properties `MinPasswordComplexCharacters` and `PasswordHistory` to integer types.
     FIXES [#6022](https://github.com/microsoft/Microsoft365DSC/issues/6022)
+* MISC
+  * Code cleanup across all Intune resources.
 
 # 1.25.910.1
 
