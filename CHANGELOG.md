@@ -10,6 +10,8 @@
   * Added filter capability.
 * IntuneRoleAssignment
   * Fixed an issue where deleted groups would throw an error during export.
+* MISC
+  * Code cleanup across all Intune resources.
 
 # 1.25.910.1
 
