@@ -3,9 +3,27 @@
 # UNRELEASED
 
 * EXOAtpPolicyForO365
-  * [BREAKING CHANGE] Removed `Ensure` property.
+  * [BREAKING CHANGE] Removed `Ensure` property.  
+* IntuneMobileAppsMacOSLobApp
+  * Added filter capability.
+* IntuneMobileAppsWebLink
+  * Fixed an issue where filtering was applied after fetching all apps.
+* IntuneMobileAppsWindowsOfficeSuiteApp
+  * Added filter capability.
+* IntuneRoleAssignment
+  * Fixed an issue where deleted groups would throw an error during export.
 * MISC
+  * Code cleanup across all Intune resources.
   * Update most resource testing to use the new comparison function.
+
+# 1.25.910.1
+
+* AADApplication
+  * Fixed an issue with `AdminConsentGranted` not being correct if the
+    permissions are from multiple source APIs.
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Evaluate users and groups by display name to be consistent with
+    other resources.
 
 # 1.25.903.2
 
