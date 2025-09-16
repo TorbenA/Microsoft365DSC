@@ -973,18 +973,18 @@ function Get-TargetResource
         {
             $propertyInfo = $inputParams.$key
             $curVar = $TransportRule.$key
-            if ($propertyInfo.ParameterType.Name -eq 'String[]' -and $curVar -eq $null)
+            if ($result.ContainsKey($key) -and $propertyInfo.ParameterType.Name -eq 'String[]' -and $null -eq $curVar)
             {
                 $result.$key = @()
             }
         }
 
         # Formats DateTime as String
-        if ($null -ne $result.ActivationDate)
+        if ($null -ne $TransportRule.ActivationDate)
         {
             $result.ActivationDate = $TransportRule.ActivationDate.ToUniversalTime().ToString()
         }
-        if ($null -ne $result.ExpiryDate)
+        if ($null -ne $TransportRule.ExpiryDate)
         {
             $result.ExpiryDate = $TransportRule.ExpiryDate.ToUniversalTime().ToString()
         }

@@ -4,6 +4,9 @@
 
 * AADAppManagementPolicy
   * Updated `RestrictForAppsCreatedAfterDateTime` to "o" format.
+* AADGroup
+  * Fixed an issue where GroupAsMembers not being added during initial group creation.
+    FIXES [#6489](https://github.com/microsoft/Microsoft365DSC/issues/6489)
 * AADGroupEligiblitySchedule
   * Aligned date time format for `Expiration.EndDateTime` with `Expiration.StartDateTime`.
 * IntuneMobileAppsMacOSLobApp
@@ -16,6 +19,7 @@
   * Fixed an issue where deleted groups would throw an error during export.
 * M365DSCDRGUtil
   * Fixed an issue where a null drift would throw an exception.
+  * Fixed an issue where group filtering would not find the specified groups.
 * MISC
   * Code cleanup across all Intune resources.
   * Streamline test cases.
@@ -28,6 +32,8 @@
 * AADCrossTenantAccessPolicyConfigurationDefault
   * Evaluate users and groups by display name to be consistent with
     other resources.
+* EXOTransportRule
+  * Fixed an issue where deprecated properties were exported.
 
 # 1.25.903.2
 
