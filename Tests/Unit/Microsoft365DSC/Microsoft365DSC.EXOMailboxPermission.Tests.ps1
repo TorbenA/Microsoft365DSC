@@ -59,6 +59,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-User -MockWith {
                 return @{
+                    Identity          = 'john.smith'
                     UserPrincipalName = 'john.smith'
                 }
             }
