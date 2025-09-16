@@ -263,7 +263,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $resultAssignments)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

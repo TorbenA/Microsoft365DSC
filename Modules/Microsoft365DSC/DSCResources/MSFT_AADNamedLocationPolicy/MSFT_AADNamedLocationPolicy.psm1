@@ -157,7 +157,7 @@ function Get-TargetResource
             TenantId                          = $TenantId
             CertificateThumbprint             = $CertificateThumbprint
             Credential                        = $Credential
-            Managedidentity                   = $ManagedIdentity.IsPresent
+            ManagedIdentity                   = $ManagedIdentity.IsPresent
             AccessTokens                      = $AccessTokens
         }
 
@@ -525,7 +525,7 @@ function Export-TargetResource
                 DisplayName           = $AADNamedLocation.DisplayName
                 ID                    = $AADNamedLocation.ID
                 Credential            = $Credential
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
             $Script:exportedInstance = $AADNamedLocation

@@ -45,7 +45,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Remove-DistributionGroup -MockWith {
             }
-
             Mock -CommandName Get-DistributionGroup -MockWith {
                 return @{
                     Alias                              = 'demodg'
@@ -67,13 +66,11 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     GroupType                          = @('Universal')
                 }
             }
-
             Mock -CommandName Get-Recipient -MockWith {
                 return @{
                     PrimarySmtpAddress = 'john.smith@contoso.com'
                 }
             }
-
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -189,7 +186,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
             }
 
-            It 'Should return false from the Test method' {
+            It 'Should return true from the Test method' {
                 Test-TargetResource @testParams | Should -Be $true
             }
 

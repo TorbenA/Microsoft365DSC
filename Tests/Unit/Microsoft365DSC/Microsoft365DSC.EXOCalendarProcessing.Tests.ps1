@@ -91,8 +91,57 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-User -MockWith {
                 return @{
-                    Id                = '12345-12345-12345-12345-12345'
+                    Identity          = '12345-12345-12345-12345-12345'
                     UserPrincipalName = "Bob.Houle@contoso.com"
+                }
+            }
+
+            Mock -CommandName Get-Recipient -MockWith {
+                return @{
+                    Identity           = '12345-12345-12345-12345-12345'
+                    PrimarySmtpAddress = "Bob.Houle@contoso.com"
+                }
+            }
+
+            Mock -CommandName Get-CalendarProcessing -MockWith {
+                return @{
+                    AddAdditionalResponse                = $False;
+                    AddNewRequestsTentatively            = $True;
+                    AddOrganizerToSubject                = $True;
+                    AllBookInPolicy                      = $True;
+                    AllowConflicts                       = $False;
+                    AllowRecurringMeetings               = $True;
+                    AllRequestInPolicy                   = $False;
+                    AllRequestOutOfPolicy                = $False;
+                    AutomateProcessing                   = "AutoUpdate";
+                    BookingType                          = "Standard";
+                    BookingWindowInDays                  = 180;
+                    BookInPolicy                         = @();
+                    ConflictPercentageAllowed            = 0;
+                    DeleteAttachments                    = $True;
+                    DeleteComments                       = $True;
+                    DeleteNonCalendarItems               = $True;
+                    DeleteSubject                        = $True;
+                    EnableAutoRelease                    = $False;
+                    EnableResponseDetails                = $True;
+                    EnforceCapacity                      = $False;
+                    EnforceSchedulingHorizon             = $True;
+                    ForwardRequestsToDelegates           = $True;
+                    Identity                             = "John.Smith";
+                    MaximumConflictInstances             = 0;
+                    MaximumDurationInMinutes             = 1440;
+                    MinimumDurationInMinutes             = 0;
+                    OrganizerInfo                        = $True;
+                    PostReservationMaxClaimTimeInMinutes = 10;
+                    ProcessExternalMeetingMessages       = $False;
+                    RemoveCanceledMeetings               = $False;
+                    RemoveForwardedMeetingNotifications  = $False;
+                    RemoveOldMeetingMessages             = $False;
+                    RemovePrivateProperty                = $True;
+                    RequestInPolicy                      = @('12345-12345-12345-12345-12345');
+                    ResourceDelegates                    = @();
+                    ScheduleOnlyDuringWorkHours          = $False;
+                    TentativePendingApproval             = $True;
                 }
             }
         }
