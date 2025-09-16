@@ -4,7 +4,30 @@
 
 * AADGroup
   * Fixed multi-tenant Service Principal support for owners and members.
-  FIXES [#6498](https://github.com/microsoft/Microsoft365DSC/issues/6498)
+    FIXES [#6498](https://github.com/microsoft/Microsoft365DSC/issues/6498)
+  * Fixed an issue where GroupAsMembers not being added during initial group creation.
+    FIXES [#6489](https://github.com/microsoft/Microsoft365DSC/issues/6489)
+* IntuneMobileAppsMacOSLobApp
+  * Added filter capability.
+* IntuneMobileAppsWebLink
+  * Fixed an issue where filtering was applied after fetching all apps.
+* IntuneMobileAppsWindowsOfficeSuiteApp
+  * Added filter capability.
+* IntuneRoleAssignment
+  * Fixed an issue where deleted groups would throw an error during export.
+* MISC
+  * Code cleanup across all Intune resources.
+* M365DSCDRGUtil
+  * Fixed an issue where group filtering would not find the specified groups.
+
+# 1.25.910.1
+
+* AADApplication
+  * Fixed an issue with `AdminConsentGranted` not being correct if the
+    permissions are from multiple source APIs.
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Evaluate users and groups by display name to be consistent with
+    other resources.
 
 # 1.25.903.2
 
