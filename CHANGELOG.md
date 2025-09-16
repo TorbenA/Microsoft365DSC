@@ -9,6 +9,7 @@
 * M365DSCDRGUtil
   * Fixed an issue where a null drift would throw an exception.
 * MISC
+  * Code cleanup across all Intune resources.
   * Streamline test cases.
 
 # 1.25.910.1
