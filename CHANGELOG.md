@@ -25,6 +25,8 @@
   * Added additional caching for export.
 * IntuneMobileAppsMacOSLobApp
   * Added filter capability.
+* IntuneMobileAppsMicrosoftStoreAppWindows10
+  * Initial release.
 * IntuneMobileAppsWebLink
   * Fixed an issue where filtering was applied after fetching all apps.
 * IntuneMobileAppsWindowsOfficeSuiteApp
