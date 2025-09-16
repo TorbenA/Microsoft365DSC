@@ -2,9 +2,27 @@
 
 # UNRELEASED
 
+* AADAdministrativeUnit
+  * Reduced export time by 20%.
 * AADGroup
+  * Fixed an issue where the `SkuId` could contain NBSP characters.
+    FIXES [#6476](https://github.com/microsoft/Microsoft365DSC/issues/6476)
   * Fixed an issue where GroupAsMembers not being added during initial group creation.
     FIXES [#6489](https://github.com/microsoft/Microsoft365DSC/issues/6489)
+* EXOCalendarProcessing
+  * Added caching for export.
+* EXOMailboxAutoReplyConfiguration
+  * Added conditional user lookup.
+* EXOMailboxCalendarFolder
+  * Added conditional user lookup.
+* EXOMailContact
+  * Added caching for export.
+* EXOMailboxPermission
+  * Added additional caching for export.
+* EXOMailboxSettings
+  * Added caching for export.
+* EXORecipientPermission
+  * Added additional caching for export.
 * IntuneMobileAppsMacOSLobApp
   * Added filter capability.
 * IntuneMobileAppsWebLink
@@ -13,8 +31,19 @@
   * Added filter capability.
 * IntuneRoleAssignment
   * Fixed an issue where deleted groups would throw an error during export.
+* SPOPropertyBag
+  * Reduced export time by 85%.
+* SPOSite
+  * Added additional caching.
+* TeamsChannel
+  * Reduced export time by up to 75%.
+* TeamsChannelTab
+  * Reduced export time by up to 85%.
 * MISC
   * Code cleanup across all Intune resources.
+  * Fixed typo in `ManagedIdentity` property across all resources.
+  * Reduced repeated logins during export of SPO and Teams resources.
+  * Removed unnecessary type casting across all resources.
 * M365DSCDRGUtil
   * Fixed an issue where group filtering would not find the specified groups.
 
