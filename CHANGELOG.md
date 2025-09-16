@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADGroup
+  * Fixed an issue where GroupAsMembers not being added during initial group creation.
+    FIXES [#6489](https://github.com/microsoft/Microsoft365DSC/issues/6489)
 * IntuneMobileAppsMacOSLobApp
   * Added filter capability.
 * IntuneMobileAppsWebLink
