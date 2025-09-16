@@ -21,6 +21,14 @@
   * Added caching for export.
 * EXORecipientPermission
   * Added additional caching for export.
+* IntuneMobileAppsMacOSLobApp
+  * Added filter capability.
+* IntuneMobileAppsWebLink
+  * Fixed an issue where filtering was applied after fetching all apps.
+* IntuneMobileAppsWindowsOfficeSuiteApp
+  * Added filter capability.
+* IntuneRoleAssignment
+  * Fixed an issue where deleted groups would throw an error during export.
 * SPOPropertyBag
   * Reduced export time by 85%.
 * SPOSite
@@ -30,6 +38,7 @@
 * TeamsChannelTab
   * Reduced export time by up to 85%.
 * MISC
+  * Code cleanup across all Intune resources.
   * Fixed typo in `ManagedIdentity` property across all resources.
   * Reduced repeated logins during export of SPO and Teams resources.
   * Removed unnecessary type casting across all resources.

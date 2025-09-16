@@ -16,8 +16,6 @@
 | **ManagedIdentity** | Write | Boolean | Managed ID being used for authentication. | |
 | **AccessTokens** | Write | StringArray[] | Access token used for authentication. | |
 
-
-# AADIdentityGovernanceProgram
 ## Description
 
 Azure AD Identity Governance Program.

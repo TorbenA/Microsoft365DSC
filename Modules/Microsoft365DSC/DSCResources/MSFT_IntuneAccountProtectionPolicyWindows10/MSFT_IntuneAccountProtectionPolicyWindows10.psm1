@@ -76,7 +76,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -197,7 +197,7 @@ function Get-TargetResource
         {
             $complexDeviceSettings.Add('UsePassportForWork', $policySettings.deviceSettings.usePassportForWork)
         }
-        if ($complexDeviceSettings.Values.Where({ $_ -ne $null }).Count -eq 0)
+        if ($complexDeviceSettings.Values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexDeviceSettings = $null
         }
@@ -243,7 +243,7 @@ function Get-TargetResource
         {
             $complexUserSettings.Add('UsePassportForWork', $policySettings.userSettings.usePassportForWork)
         }
-        if ($complexUserSettings.Values.Where({ $_ -ne $null }).Count -eq 0)
+        if ($complexUserSettings.Values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexUserSettings = $null
         }
@@ -773,4 +773,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

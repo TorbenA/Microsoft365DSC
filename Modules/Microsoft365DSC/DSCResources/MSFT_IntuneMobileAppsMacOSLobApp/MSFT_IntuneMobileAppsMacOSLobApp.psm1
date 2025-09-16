@@ -131,8 +131,8 @@ function Get-TargetResource
 
     try
     {
-        New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters | Out-Null
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            -InboundParameters $PSBoundParameters
 
         #Ensure the proper dependencies are installed in the current environment.
         Confirm-M365DSCDependencies
@@ -149,9 +149,10 @@ function Get-TargetResource
         $nullResult = $PSBoundParameters
         $nullResult.Ensure = 'Absent'
 
-        $instance = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $Id `
-            -ExpandProperty 'categories' `
-            -ErrorAction SilentlyContinue
+        if (-not [System.String]::IsNullOrEmpty($Id))
+        {
+            $instance = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $Id -ExpandProperty 'categories' -ErrorAction SilentlyContinue
+        }
 
         if ($null -eq $instance)
         {
@@ -170,9 +171,9 @@ function Get-TargetResource
                 $instance = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $instance.Id `
                     -ExpandProperty 'categories' `
                     -ErrorAction SilentlyContinue
-                $Id = $instance.Id
             }
         }
+        $Id = $instance.Id
 
         if ($null -eq $instance)
         {
@@ -626,7 +627,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of the Intune MacOS Lob App with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $testResult = $true
 
     #Compare Cim instances
@@ -655,7 +656,6 @@ function Test-TargetResource
     $PSBoundParameters.Remove('LargeIcon') | Out-Null
 
     $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
@@ -730,8 +730,18 @@ function Export-TargetResource
     try
     {
         $Script:ExportMode = $true
+        $baseFilter = "isof('microsoft.graph.macOSLobApp')"
+        if (-not [String]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($Filter) and ($baseFilter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
+        }
         [array] $getValue = Get-MgBetaDeviceAppManagementMobileApp `
-            -Filter "isof('microsoft.graph.macOSLobApp')" `
+            -All `
+            -Filter $Filter `
             -ErrorAction Stop
 
         $i = 1
@@ -887,4 +897,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
