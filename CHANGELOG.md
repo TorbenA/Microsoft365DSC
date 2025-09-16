@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* MISC
+  * Code cleanup across all Intune resources.
+
 # 1.25.910.1
 
 * AADApplication
