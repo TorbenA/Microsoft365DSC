@@ -6,6 +6,14 @@
   * Updated `RestrictForAppsCreatedAfterDateTime` to "o" format.
 * AADGroupEligiblitySchedule
   * Aligned date time format for `Expiration.EndDateTime` with `Expiration.StartDateTime`.
+* IntuneMobileAppsMacOSLobApp
+  * Added filter capability.
+* IntuneMobileAppsWebLink
+  * Fixed an issue where filtering was applied after fetching all apps.
+* IntuneMobileAppsWindowsOfficeSuiteApp
+  * Added filter capability.
+* IntuneRoleAssignment
+  * Fixed an issue where deleted groups would throw an error during export.
 * M365DSCDRGUtil
   * Fixed an issue where a null drift would throw an exception.
 * MISC
