@@ -12,6 +12,8 @@
   * Fixed an issue where deleted groups would throw an error during export.
 * MISC
   * Code cleanup across all Intune resources.
+* M365DSCDRGUtil
+  * Fixed an issue where group filtering would not find the specified groups.
 
 # 1.25.910.1
 
