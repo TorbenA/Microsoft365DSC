@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOHostedContentFilterPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -286,13 +288,13 @@ function Get-TargetResource
 
     if ($Global:CurrentModeIsExport)
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters `
             -SkipModuleReload $true
     }
     else
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters
     }
 
@@ -729,7 +731,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     Write-Verbose (Get-HostedContentFilterPolicy | Out-String)
@@ -1060,11 +1062,12 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `

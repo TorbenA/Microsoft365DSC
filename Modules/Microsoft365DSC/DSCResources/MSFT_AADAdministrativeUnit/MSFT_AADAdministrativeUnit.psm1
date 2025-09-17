@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADAdministrativeUnit'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -82,19 +84,15 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Getting configuration for Administrative Unit '$DisplayName'"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            try
-            {
-                $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-                    -InboundParameters $PSBoundParameters
-            }
-            catch
-            {
-                Write-Verbose -Message ($_)
-            }
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
             Confirm-M365DSCDependencies
@@ -137,6 +135,7 @@ function Get-TargetResource
         {
             $getValue = $Script:exportedInstance
         }
+
         $Id = $getValue.Id
         Write-Verbose -Message "An Azure AD Administrative Unit with Id {$Id} and DisplayName {$DisplayName} was found."
         $results = @{
@@ -174,7 +173,7 @@ function Get-TargetResource
         if ($results.MembershipType -ne 'Dynamic')
         {
             Write-Verbose -Message "AU {$DisplayName} get Members"
-            [array]$auMembers = Get-MgDirectoryAdministrativeUnitMember -AdministrativeUnitId $getValue.Id -All
+            [array]$auMembers = Get-MgDirectoryAdministrativeUnitMember -AdministrativeUnitId $getValue.Id -All -Property @('id', 'displayName', 'userPrincipalName')
             if ($auMembers.Count -gt 0)
             {
                 Write-Verbose -Message "AU {$DisplayName} process $($auMembers.Count) members"
@@ -211,14 +210,28 @@ function Get-TargetResource
         Write-Verbose -Message "AU {$DisplayName} get Scoped Role Members"
         $ErrorActionPreference = 'Stop'
         [array]$auScopedRoleMembers = Get-MgDirectoryAdministrativeUnitScopedRoleMember -AdministrativeUnitId $getValue.Id -All
+        $scopedRoleMemberRequests = [System.Collections.Generic.List[System.Object]]::new($auScopedRoleMembers.Count)
+        foreach ($auScopedRoleMemberId in ($auScopedRoleMembers.RoleMemberInfo.Id | Select-Object -Unique))
+        {
+            $scopedRoleMemberRequests.Add(@{
+                id = $auScopedRoleMemberId
+                method = 'GET'
+                url = "/directoryObjects/$($auScopedRoleMemberId)?`$select=id"
+            })
+        }
+        if ($null -eq $Script:DirectoryRoles)
+        {
+            $Script:DirectoryRoles = Get-MgDirectoryRole -All
+        }
         if ($auScopedRoleMembers.Count -gt 0)
         {
             Write-Verbose -Message "AU {$DisplayName} process $($auScopedRoleMembers.Count) scoped role members"
+            $memberObjectResponses = Invoke-M365DSCGraphBatchRequest -Requests $scopedRoleMemberRequests -AsList
             $scopedRoleMemberSpec = @()
             foreach ($auScopedRoleMember in $auScopedRoleMembers)
             {
                 Write-Verbose -Message "AU {$DisplayName} verify RoleId {$($auScopedRoleMember.RoleId)}"
-                $roleObject = Get-MgDirectoryRole -DirectoryRoleId $auScopedRoleMember.RoleId -ErrorAction Stop
+                $roleObject = $Script:DirectoryRoles | Where-Object { $_.Id -eq $auScopedRoleMember.RoleId }
                 Write-Verbose -Message "Found DirectoryRole '$($roleObject.DisplayName)' with id $($roleObject.Id)"
                 $scopedRoleMember = [ordered]@{
                     RoleName       = $roleObject.DisplayName
@@ -228,8 +241,7 @@ function Get-TargetResource
                     }
                 }
                 Write-Verbose -Message "AU {$DisplayName} verify RoleMemberInfo.Id {$($auScopedRoleMember.RoleMemberInfo.Id)}"
-                $url = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "v1.0/directoryObjects/$($auScopedRoleMember.RoleMemberInfo.Id)"
-                $memberObject = Invoke-MgGraphRequest -Uri $url
+                $memberObject = $memberObjectResponses.Where({ $_.id -eq $auScopedRoleMember.RoleMemberInfo.Id }).body
                 Write-Verbose -Message "AU {$DisplayName} @odata.Type={$($memberObject.'@odata.type')}"
                 if (($memberObject.'@odata.type') -match 'user')
                 {
@@ -260,7 +272,7 @@ function Get-TargetResource
             $results.Add('ScopedRoleMembers', $scopedRoleMemberSpec)
         }
         Write-Verbose -Message "AU {$DisplayName} return results"
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -357,15 +369,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    try
-    {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters
-    }
-    catch
-    {
-        Write-Verbose -Message $_
-    }
+
+    Write-Verbose -Message "Setting configuration for Administrative Unit '$DisplayName'"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -381,16 +386,6 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $PSBoundParameters.Remove('Ensure') | Out-Null
-    $PSBoundParameters.Remove('Credential') | Out-Null
-    $PSBoundParameters.Remove('ApplicationId') | Out-Null
-    $PSBoundParameters.Remove('ApplicationSecret') | Out-Null
-    $PSBoundParameters.Remove('TenantId') | Out-Null
-    $PSBoundParameters.Remove('CertificateThumbprint') | Out-Null
-    $PSBoundParameters.Remove('ManagedIdentity') | Out-Null
-    $PSBoundParameters.Remove('Verbose') | Out-Null
-    $PSBoundParameters.Remove('AccessTokens') | Out-Null
-
     $backCurrentMembers = $currentInstance.Members
     $backCurrentScopedRoleMembers = $currentInstance.ScopedRoleMembers
 
@@ -400,14 +395,14 @@ function Set-TargetResource
         {
             throw "AU {$($DisplayName)}: Members is not allowed when MembershipType is Dynamic"
         }
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
         $CreateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).clone()).Keys
+        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
+            if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.GetType().Name -like '*cimInstance*')
             {
                 $CreateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters.$key
             }
@@ -584,15 +579,15 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating the Azure AD Administrative Unit with Id {$($currentInstance.Id)}"
 
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
+            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.GetType().Name -like '*cimInstance*')
             {
                 $UpdateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
             }
@@ -875,9 +870,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -887,62 +879,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Azure AD Administrative Unit with Id {$Id} and DisplayName {$DisplayName}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
-    $testResult = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($source.getType().Name -like '*CimInstance*')
-        {
-            $source = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject $source
-
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-Not $testResult)
-            {
-                Write-Verbose -Message "Difference found for $key"
-                $testResult = $false
-                break
-            }
-
-            $ValuesToCheck.Remove($key) | Out-Null
-
-        }
-    }
-
-    $ValuesToCheck.Remove('Id') | Out-Null
-
-    # Visibility is currently not returned by Get-TargetResource
-    $ValuesToCheck.Remove('Visibility') | Out-Null
-
-    if ($ValuesToCheck.ContainsKey('MembershipType') -and $MembershipType -ne 'Dynamic' -and $CurrentValues.MembershipType -ne 'Dynamic')
-    {
-        # MembershipType may be returned as null or Assigned with same effect. Only compare if Dynamic is specified or returned
-        $ValuesToCheck.Remove('MembershipType') | Out-Null
-    }
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    if ($testResult)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties @('Visibility')
+    return $result
 }
 
 function Export-TargetResource
@@ -1023,7 +963,7 @@ function Export-TargetResource
         $query = $Filter
 
         # Match all words in the query
-        $matches = [regex]::matches($query, $pattern)
+        $matches = [regex]::Matches($query, $pattern)
 
         # Extract the matched argument into an array
         $arguments = @()
@@ -1043,7 +983,7 @@ function Export-TargetResource
         }
 
         # If all conditions match the support, add parameters to $ExportParameters
-        if ($allConditionsMatched -or $Filter -like '*endsWith*')
+        if ($allConditionsMatched -or ($Filter -like '*endsWith*') -or ($Filter -like '*not*'))
         {
             $ExportParameters.Add('CountVariable', 'count')
             $ExportParameters.Add('headers', @{'ConsistencyLevel' = 'Eventual' })
@@ -1120,7 +1060,6 @@ function Export-TargetResource
                 }
             }
 
-
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
                 -ModulePath $PSScriptRoot `
@@ -1138,8 +1077,6 @@ function Export-TargetResource
     }
     catch
     {
-        Write-Verbose -Message "Exception: $($_.Exception.Message)"
-
         Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
 
         New-M365DSCLogEntry -Message 'Error during Export:' `

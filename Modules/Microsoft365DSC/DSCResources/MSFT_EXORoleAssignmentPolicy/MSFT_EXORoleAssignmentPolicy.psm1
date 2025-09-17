@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXORoleAssignmentPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -59,13 +61,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting Role Assignment Policy configuration for $Name"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            Write-Verbose -Message "Getting Role Assignment Policy configuration for $Name"
-
-            $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+            $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -204,9 +206,6 @@ function Set-TargetResource
         -Parameters $PSBoundParameters
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
-
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters
 
     $NewRoleAssignmentPolicyParams = @{
         Name        = $Name
@@ -399,6 +398,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true
@@ -480,4 +480,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

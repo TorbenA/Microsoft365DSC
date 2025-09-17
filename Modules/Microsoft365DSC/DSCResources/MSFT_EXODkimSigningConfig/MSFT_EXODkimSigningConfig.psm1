@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXODkimSigningConfig'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -70,15 +72,16 @@ function Get-TargetResource
     )
 
     Write-Verbose -Message "Getting configuration of DkimSigningConfig for $Identity"
+
     if ($Global:CurrentModeIsExport)
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters `
             -SkipModuleReload $true
     }
     else
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters
     }
 
@@ -226,9 +229,6 @@ function Set-TargetResource
         -Parameters $PSBoundParameters
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
-
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters
 
     $DkimSigningConfig = Get-TargetResource @PSBoundParameters
     $PSBoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
@@ -395,6 +395,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true

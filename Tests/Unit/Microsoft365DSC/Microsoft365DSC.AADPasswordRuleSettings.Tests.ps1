@@ -24,7 +24,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             $secpasswd = ConvertTo-SecureString (New-Guid | Out-String) -AsPlainText -Force
             $Credential = New-Object System.Management.Automation.PSCredential ('tenantadmin@mydomain.com', $secpasswd)
 
-            Mock -CommandName Confirm-M365DSCDependencies -MockWith {
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
             }
 
             Mock -CommandName Get-PSSession -MockWith {
@@ -40,6 +40,40 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
 
             Mock -CommandName New-MgBetaDirectorySetting -MockWith {
+            }
+
+            Mock -CommandName Get-MgBetaDirectorySettingTemplate -MockWith {
+                return @{
+                            DisplayName = 'Password Rule Settings'
+                            Id          = '5cf42378-d67d-4f36-ba46-e8b86229381d'
+                            Values      = @(
+                                @{
+                                    Name         = 'BannedPasswordCheckOnPremisesMode'
+                                    DefaultValue = 'Audit'
+                                },
+                                @{
+                                    Name         = 'EnableBannedPasswordCheckOnPremises'
+                                    DefaultValue = $true
+                                },
+                                @{
+                                    Name         = 'EnableBannedPasswordCheck'
+                                    DefaultValue = $true
+                                },
+                                @{
+                                    Name         = 'LockoutDurationInSeconds'
+                                    DefaultValue = 60
+                                },
+                                @{
+                                    Name         = 'LockoutThreshold'
+                                    DefaultValue = 10
+                                },
+                                @{
+                                    Name         = 'BannedPasswordList'
+                                    DefaultValue = $null
+                                }
+                            )
+                        }
+
             }
 
             # Mock Write-M365DSCHost to hide output during the tests

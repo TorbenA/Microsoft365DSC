@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SPOUserProfileProperty'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -49,20 +51,23 @@ function Get-TargetResource
 
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
-            -InboundParameters $PSBoundParameters
+        if (-not $Script:ExportMode)
+        {
+            $null = New-M365DSCConnection -Workload 'PNP' `
+                -InboundParameters $PSBoundParameters
 
-        #Ensure the proper dependencies are installed in the current environment.
-        Confirm-M365DSCDependencies
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
 
-        #region Telemetry
-        $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-        $CommandName = $MyInvocation.MyCommand
-        $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-            -CommandName $CommandName `
-            -Parameters $PSBoundParameters
-        Add-M365DSCTelemetryEvent -Data $data
-        #endregion
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+        }
 
         $nullReturn = @{
             UserName = $UserName
@@ -96,8 +101,6 @@ function Get-TargetResource
             Ensure                = 'Present'
             AccessTokens          = $AccessTokens
         }
-
-        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
 
         return $result
     }
@@ -324,6 +327,7 @@ function Export-TargetResource
         $dscContent = ''
         Write-M365DSCHost -Message "`r`n" -DeferWrite
         $i = 1
+        $Script:ExportMode = $true
         foreach ($instance in $Instances)
         {
             Write-M365DSCHost -Message "    |---[$i/$($Instances.Count)] $($instance.Email)" -DeferWrite
@@ -424,3 +428,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

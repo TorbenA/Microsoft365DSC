@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOTeamsProtectionPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -60,8 +62,9 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Getting configuration of Teams Protection Policy"
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    Write-Verbose -Message "Getting configuration of EXO Teams Protection Policy"
+
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -200,9 +203,6 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
     Write-Verbose -Message "Setting configuration of Teams Protection Policy"
-
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters
 
     $currentValues = Get-TargetResource @PSBoundParameters
 
@@ -352,6 +352,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true
@@ -423,4 +424,3 @@ function Export-TargetResource
     }
 }
 Export-ModuleMember -Function *-TargetResource
-

@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOOfflineAddressBook'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -64,15 +66,16 @@ function Get-TargetResource
     )
 
     Write-Verbose -Message "Getting Offline Address Book configuration for $Name"
+
     if ($Global:CurrentModeIsExport)
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters `
             -SkipModuleReload $true
     }
     else
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters
     }
     #Ensure the proper dependencies are installed in the current environment.
@@ -220,7 +223,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     $NewOfflineAddressBookParams = @{
@@ -397,6 +400,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true
@@ -483,4 +487,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
