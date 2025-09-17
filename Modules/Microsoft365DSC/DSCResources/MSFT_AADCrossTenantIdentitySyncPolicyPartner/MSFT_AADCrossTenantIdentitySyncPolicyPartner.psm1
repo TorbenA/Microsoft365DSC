@@ -196,7 +196,7 @@ function Set-TargetResource
         $body = $params | ConvertTo-Json -Depth 10
         Write-Verbose -Message "Updating Cross-Tenant Identity Sync Policy for Tenant {$CrossTenantAccessPolicyConfigurationPartnerTenantId} with:`r`n$body"
         Invoke-MgGraphRequest 'PATCH' `
-            -Uri "https://graph.microsoft.com/beta/policies/crossTenantAccessPolicy/partners/$($CrossTenantAccessPolicyConfigurationPartnerTenantId)/identitySynchronization" `
+            -Uri "/beta/policies/crossTenantAccessPolicy/partners/$($CrossTenantAccessPolicyConfigurationPartnerTenantId)/identitySynchronization" `
             -Body $body -ErrorAction Stop | Out-Null
     }
     # REMOVE
