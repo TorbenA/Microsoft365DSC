@@ -1,0 +1,42 @@
+{
+  "resourceName": "AADGroupEligibilityScheduleSettings",
+  "description": "This resource configures an Azure AD Group Eligibility Schedule Settings.",
+  "permissions": {
+    "graph": {
+      "delegated": {
+        "read": [
+          {
+            "name": "RoleManagementPolicy.Read.Directory"
+          }
+        ],
+        "update": [
+          {
+            "name": "RoleManagementPolicy.ReadWrite.Directory"
+          }
+        ]
+      },
+      "application": {
+        "read": [
+          {
+            "name": "RoleManagementPolicy.Read.Directory"
+          }
+        ],
+        "update": [
+          {
+            "name": "RoleManagementPolicy.ReadWrite.Directory"
+          }
+        ]
+      }
+    }
+  },
+  "requiredModules": [
+    "Microsoft.Graph.Authentication",
+    "Microsoft.Graph.Beta.Identity.SignIns",
+    "Microsoft.Graph.Groups",
+    "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ]
+}

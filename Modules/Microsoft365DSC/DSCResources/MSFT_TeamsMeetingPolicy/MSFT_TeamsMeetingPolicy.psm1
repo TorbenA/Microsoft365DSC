@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_TeamsMeetingPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -477,6 +479,7 @@ function Get-TargetResource
             ParticipantNameChange                      = $policy.ParticipantNameChange
             PreferredMeetingProviderForIslandsMode     = $policy.PreferredMeetingProviderForIslandsMode
             QnAEngagementMode                          = $policy.QnAEngagementMode
+            RoomAttributeUserOverride                  = $policy.RoomAttributeUserOverride
             RoomPeopleNameUserOverride                 = $policy.RoomPeopleNameUserOverride
             ScreenSharingMode                          = $policy.ScreenSharingMode
             SpeakerAttributionMode                     = $policy.SpeakerAttributionMode
@@ -1478,3 +1481,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

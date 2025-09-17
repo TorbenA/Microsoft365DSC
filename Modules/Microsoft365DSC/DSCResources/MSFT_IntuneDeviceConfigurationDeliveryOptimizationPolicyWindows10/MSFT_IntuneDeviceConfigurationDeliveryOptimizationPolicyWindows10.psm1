@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -135,13 +137,15 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Warning -Message "This resource is deprecated and will be removed in a future release. Please use the IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10V2 resource instead."
+
     Write-Verbose -Message "Getting configuration of the Intune Device Configuration Delivery Optimization Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
 
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -163,7 +167,7 @@ function Get-TargetResource
             #region resource generator code
             if (-not [string]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $Id -ErrorAction SilentlyContinue
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "Id eq '$Id'" -ErrorAction SilentlyContinue
             }
 
             if ($null -eq $getValue)
@@ -226,7 +230,7 @@ function Get-TargetResource
         $complexBandwidthMode.Add('MaximumForegroundBandwidthPercentage', $getValue.AdditionalProperties.bandwidthMode.maximumForegroundBandwidthPercentage)
         if ($null -ne $getValue.AdditionalProperties.bandwidthMode.'@odata.type')
         {
-            $complexBandwidthMode.Add('odataType', $getValue.AdditionalProperties.bandwidthMode.'@odata.type'.toString())
+            $complexBandwidthMode.Add('odataType', $getValue.AdditionalProperties.bandwidthMode.'@odata.type'.ToString())
         }
         if ($complexBandwidthMode.values.Where({ $null -ne $_ }).count -eq 0)
         {
@@ -237,11 +241,11 @@ function Get-TargetResource
         $complexGroupIdSource.Add('GroupIdCustom', $getValue.AdditionalProperties.groupIdSource.groupIdCustom)
         if ($null -ne $getValue.AdditionalProperties.groupIdSource.groupIdSourceOption)
         {
-            $complexGroupIdSource.Add('GroupIdSourceOption', $getValue.AdditionalProperties.groupIdSource.groupIdSourceOption.toString())
+            $complexGroupIdSource.Add('GroupIdSourceOption', $getValue.AdditionalProperties.groupIdSource.groupIdSourceOption.ToString())
         }
         if ($null -ne $getValue.AdditionalProperties.groupIdSource.'@odata.type')
         {
-            $complexGroupIdSource.Add('odataType', $getValue.AdditionalProperties.groupIdSource.'@odata.type'.toString())
+            $complexGroupIdSource.Add('odataType', $getValue.AdditionalProperties.groupIdSource.'@odata.type'.ToString())
         }
         if ($complexGroupIdSource.values.Where({ $null -ne $_ }).count -eq 0)
         {
@@ -253,7 +257,7 @@ function Get-TargetResource
         $complexMaximumCacheSize.Add('MaximumCacheSizePercentage', $getValue.AdditionalProperties.maximumCacheSize.maximumCacheSizePercentage)
         if ($null -ne $getValue.AdditionalProperties.maximumCacheSize.'@odata.type')
         {
-            $complexMaximumCacheSize.Add('odataType', $getValue.AdditionalProperties.maximumCacheSize.'@odata.type'.toString())
+            $complexMaximumCacheSize.Add('odataType', $getValue.AdditionalProperties.maximumCacheSize.'@odata.type'.ToString())
         }
         if ($complexMaximumCacheSize.values.Where({ $null -ne $_ }).count -eq 0)
         {
@@ -313,7 +317,7 @@ function Get-TargetResource
             TenantId                                                  = $TenantId
             ApplicationSecret                                         = $ApplicationSecret
             CertificateThumbprint                                     = $CertificateThumbprint
-            Managedidentity                                           = $ManagedIdentity.IsPresent
+            ManagedIdentity                                           = $ManagedIdentity.IsPresent
             AccessTokens                                              = $AccessTokens
             #endregion
         }
@@ -326,7 +330,7 @@ function Get-TargetResource
                 -Assignments ($graphAssignments)
         }
         $results.Add('Assignments', $returnAssignments)
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -475,6 +479,8 @@ function Set-TargetResource
         $AccessTokens
     )
 
+    Write-Warning -Message "This resource is deprecated and will be removed in a future release. Please use the IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10V2 resource instead."
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -495,11 +501,11 @@ function Set-TargetResource
         Write-Verbose -Message "Creating an Intune Device Configuration Delivery Optimization Policy for Windows10 with DisplayName {$DisplayName}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
         $CreateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).clone()).Keys
+        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
@@ -525,12 +531,12 @@ function Set-TargetResource
         Write-Verbose -Message "Updating the Intune Device Configuration Delivery Optimization Policy for Windows10 with Id {$($currentInstance.Id)}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
@@ -695,6 +701,8 @@ function Test-TargetResource
         $AccessTokens
     )
 
+    Write-Warning -Message "This resource is deprecated and will be removed in a future release. Please use the IntuneDeviceConfigurationDeliveryOptimizationPolicyWindows10V2 resource instead."
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -711,8 +719,7 @@ function Test-TargetResource
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
 
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $ValuesToCheck.Remove('Id') | Out-Null
     $testResult = $true
 
@@ -850,7 +857,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

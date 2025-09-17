@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXODistributionGroup'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -217,13 +219,14 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Getting configuration of Distribution Group for $Identity"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            Write-Verbose -Message "Getting configuration of Distribution Group for $Identity"
-
-            $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+            $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -278,7 +281,15 @@ function Get-TargetResource
         $distributionMembersValue = @()
         foreach ($member in $distributionGroupMembers)
         {
-            $distributionMembersValue += $member.PrimarySmtpAddress
+            if (-not [System.String]::IsNullOrEmpty($member.PrimarySmtpAddress))
+            {
+                $distributionMembersValue += $member.PrimarySmtpAddress
+            }
+            else
+            {
+                 # For RecipientType 'User', PrimarySmtpAddress is unavailable, but WindowsLiveID is, and works with Add-DistributionGroupMember
+                $distributionMembersValue += $member.WindowsLiveID
+            }
         }
 
         Write-Verbose -Message "Found existing Distribution Group {$Identity}."
@@ -298,11 +309,25 @@ function Get-TargetResource
         if ($null -ne $distributionGroup.ManagedBy)
         {
             Write-Verbose -Message "Getting Distribution Group managers for $Identity"
+            if ($null -eq $Script:RecipientsCache)
+            {
+                $Script:RecipientsCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
+                Get-Recipient -ResultSize Unlimited | Foreach-Object {
+                    $Script:RecipientsCache[$_.Name] = @{
+                        PrimarySmtpAddress = $_.PrimarySmtpAddress
+                        WindowsLiveID      = $_.WindowsLiveID
+                    }
+                }
+            }
             foreach ($manager in $distributionGroup.ManagedBy)
             {
                 try
                 {
-                    $recipient = Get-Recipient -Identity $manager -ErrorAction Stop
+                    $recipient = $Script:RecipientsCache[$manager]
+                    if ($null -eq $recipient)
+                    {
+                        throw "Recipient not found in cache"
+                    }
                     $ManagedByValue += $recipient.PrimarySmtpAddress
                 }
                 catch
@@ -316,11 +341,25 @@ function Get-TargetResource
         if ($null -ne $distributionGroup.ModeratedBy)
         {
             Write-Verbose -Message "Getting Distribution Group moderators for $Identity"
+            if ($null -eq $Script:RecipientsCache)
+            {
+                $Script:RecipientsCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
+                Get-Recipient -ResultSize Unlimited | Foreach-Object {
+                    $Script:RecipientsCache[$_.Name] = @{
+                        PrimarySmtpAddress = $_.PrimarySmtpAddress
+                        WindowsLiveID      = $_.WindowsLiveID
+                    }
+                }
+            }
             foreach ($moderator in $distributionGroup.ModeratedBy)
             {
                 try
                 {
-                    $recipient = Get-Recipient -Identity $moderator -ErrorAction Stop
+                    $recipient = $Script:RecipientsCache[$moderator]
+                    if ($null -eq $recipient)
+                    {
+                        throw "Recipient not found in cache"
+                    }
                     $ModeratedByValue += $recipient.PrimarySmtpAddress
                 }
                 catch
@@ -329,6 +368,7 @@ function Get-TargetResource
                 }
             }
         }
+
         $result = @{
             Identity                               = $distributionGroup.Identity
             Alias                                  = $distributionGroup.Alias
@@ -379,7 +419,7 @@ function Get-TargetResource
             CertificateThumbprint                  = $CertificateThumbprint
             CertificatePath                        = $CertificatePath
             CertificatePassword                    = $CertificatePassword
-            Managedidentity                        = $ManagedIdentity.IsPresent
+            ManagedIdentity                        = $ManagedIdentity.IsPresent
             TenantId                               = $TenantId
             AccessTokens                           = $AccessTokens
         }
@@ -617,17 +657,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    if ($Global:CurrentModeIsExport)
-    {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
-            -InboundParameters $PSBoundParameters `
-            -SkipModuleReload $true
-    }
-    else
-    {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
-            -InboundParameters $PSBoundParameters
-    }
+    Write-Verbose -Message "Setting configuration of Distribution Group for $Identity"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -643,22 +673,13 @@ function Set-TargetResource
 
     $currentDistributionGroup = Get-TargetResource @PSBoundParameters
 
-    $currentParameters = $PSBoundParameters
-    $currentParameters.Remove('Ensure') | Out-Null
-    $currentParameters.Remove('Credential') | Out-Null
-    $currentParameters.Remove('ApplicationId') | Out-Null
-    $currentParameters.Remove('TenantId') | Out-Null
-    $currentParameters.Remove('CertificateThumbprint') | Out-Null
-    $currentParameters.Remove('CertificatePath') | Out-Null
-    $currentParameters.Remove('CertificatePassword') | Out-Null
-    $currentParameters.Remove('ManagedIdentity') | Out-Null
-    $currentParameters.Remove('AccessTokens') | Out-Null
+    $currentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     # Distribution group doesn't exist but it should
     $newGroup = $null
     if ($Ensure -eq 'Present' -and $currentDistributionGroup.Ensure -eq 'Absent')
     {
-        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
+        $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         Write-Verbose -Message "The Distribution Group {$Identity} does not exist but it should. Creating it."
         $CreateParameters.Remove('Identity') | Out-Null
         $CreateParameters.Remove('AcceptMessagesOnlyFrom') | Out-Null
@@ -689,11 +710,24 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Absent' -and $currentDistributionGroup.Ensure -eq 'Present')
     {
         Write-Verbose -Message "The Distribution Group {$Identity} exists but shouldn't. Removing it."
-        Remove-DistributionGroup -Identity $Identity -Confirm:$false
+        # Use the group identity value retrieved from Get-TargetResource, in case we got the group using PrimarySmtpAddress
+        Remove-DistributionGroup -Identity $currentDistributionGroup.Identity `
+                                -BypassSecurityGroupManagerCheck `
+                                -Confirm:$false
     }
-    # Update even if we just created the group. There are properties that can only be set with th set- cmdlet.
+    # Update even if we just created the group. There are properties that can only be set with the set- cmdlet.
     if ($Ensure -eq 'Present')
     {
+        # If this is a newly created group, use the new group identity
+        if ($null -ne $newGroup)
+        {
+            $currentParameters.Identity = $newGroup.Identity
+        }
+        # Otherwise, use the existing group identity (using the value retrieved from Get-TargetResource, in the event that we got the group using PrimarySmtpAddress)
+        else {
+            $currentParameters.Identity = $currentDistributionGroup.Identity
+        }
+
         $currentParameters.Remove('Type') | Out-Null
         Write-Verbose -Message "Updating Distribution Group {$Identity} with values: $(Convert-M365DscHashtableToString -Hashtable $currentParameters)"
 
@@ -725,19 +759,20 @@ function Set-TargetResource
             foreach ($member in $membersToAdd)
             {
                 Write-Verbose -Message "Adding member {$member}"
-                Add-DistributionGroupMember -Identity $Identity -Member $member -BypassSecurityGroupManagerCheck
+                # Use the group identity value retrieved from Get-TargetResource, in case we got the group using PrimarySmtpAddress
+                Add-DistributionGroupMember -Identity $currentParameters.Identity -Member $member -BypassSecurityGroupManagerCheck
             }
             foreach ($member in $membersToRemove)
             {
                 Write-Verbose -Message "Removing member {$member}"
-                Remove-DistributionGroupMember -Identity $Identity `
+                # Use the group identity value retrieved from Get-TargetResource, in case we got the group using PrimarySmtpAddress
+                Remove-DistributionGroupMember -Identity $currentParameters.Identity `
                                             -Member $member `
                                             -BypassSecurityGroupManagerCheck `
                                             -Confirm:$false
             }
             $currentParameters.Remove('Members') | Out-Null
         }
-
 
         if ($EmailAddresses.Length -gt 0)
         {
@@ -748,11 +783,6 @@ function Set-TargetResource
         {
             $currentParameters.Remove('AcceptMessagesOnlyFromDLMembers') | Out-Null
             $currentParameters.Remove('AcceptMessagesOnlyFromSendersOrMembers') | Out-Null
-        }
-
-        if ($null -ne $newGroup)
-        {
-            $currentParameters.Identity = $newGroup.Identity
         }
         Set-DistributionGroup @currentParameters -BypassSecurityGroupManagerCheck
     }
@@ -1050,6 +1080,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true
@@ -1097,7 +1128,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }
