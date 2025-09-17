@@ -243,23 +243,46 @@ function Get-TargetResource
             return $nullReturn
         }
 
+        if ($null -eq $Script:UsersCache)
+        {
+            $Script:UsersCache = [System.Collections.Generic.Dictionary[System.String, System.String]]::new()
+        }
+
         $RequestInPolicyValue = @()
         if ($null -ne $calendarProc.RequestInPolicy)
         {
             foreach ($user in $calendarProc.RequestInPolicy)
             {
-                $userInfo = Get-User -Identity $user
-                $RequestInPolicyValue += $userInfo.UserPrincipalName
+                $userInfo = $null
+                if ($Script:UsersCache.TryGetValue($user, [ref]$userInfo))
+                {
+                    $RequestInPolicyValue += $userInfo
+                }
+                else
+                {
+                    $userInfo = (Get-User -Identity $user).UserPrincipalName
+                    $Script:UsersCache[$user] = $userInfo
+                    $RequestInPolicyValue += $userInfo
+                }
             }
         }
 
-        $RequestOutPolicyValue = @()
-        if ($null -ne $calendarProc.RequestOutPolicy)
+        $RequestOutOfPolicyValue = @()
+        if ($null -ne $calendarProc.RequestOutOfPolicy)
         {
-            foreach ($user in $calendarProc.RequestOutPolicy)
+            foreach ($user in $calendarProc.RequestOutOfPolicy)
             {
-                $userInfo = Get-User -Identity $user
-                $RequestOutPolicyValue += $userInfo.UserPrincipalName
+                $userInfo = $null
+                if ($Script:UsersCache.TryGetValue($user, [ref]$userInfo))
+                {
+                    $RequestOutOfPolicyValue += $userInfo
+                }
+                else
+                {
+                    $userInfo = (Get-User -Identity $user).UserPrincipalName
+                    $Script:UsersCache[$user] = $userInfo
+                    $RequestOutOfPolicyValue += $userInfo
+                }
             }
         }
 
@@ -268,8 +291,17 @@ function Get-TargetResource
         {
             foreach ($user in $calendarProc.ResourceDelegates)
             {
-                $userInfo = Get-Recipient -Identity $user
-                $ResourceDelegatesValue += $userInfo.PrimarySmtpAddress
+                $userInfo = $null
+                if ($Script:UsersCache.TryGetValue($user, [ref]$userInfo))
+                {
+                    $ResourceDelegatesValue += $userInfo
+                }
+                else
+                {
+                    $userInfo = (Get-Recipient -Identity $user).PrimarySmtpAddress
+                    $Script:UsersCache[$user] = $userInfo
+                    $ResourceDelegatesValue += $userInfo
+                }
             }
         }
 
@@ -319,7 +351,7 @@ function Get-TargetResource
             CertificateThumbprint                = $CertificateThumbprint
             CertificatePath                      = $CertificatePath
             CertificatePassword                  = $CertificatePassword
-            Managedidentity                      = $ManagedIdentity.IsPresent
+            ManagedIdentity                      = $ManagedIdentity.IsPresent
             TenantId                             = $TenantId
             AccessTokens                         = $AccessTokens
         }
@@ -878,6 +910,7 @@ function Export-TargetResource
 
     try
     {
+        $Script:currentModeIsExport = $true
         $mailboxes = Get-Mailbox -ResultSize 'Unlimited' -ErrorAction Stop
 
         if ($null -eq $mailboxes)
@@ -888,6 +921,16 @@ function Export-TargetResource
         else
         {
             Write-M365DSCHost -Message "`r`n" -DeferWrite
+        }
+
+        Write-Verbose -Message "Fetching all users for caching purposes"
+        $Script:UsersCache = [System.Collections.Generic.Dictionary[System.String, System.String]]::new()
+        Get-User -ResultSize 'Unlimited' | ForEach-Object {
+            $Script:UsersCache[$_.Identity] = $_.UserPrincipalName
+        }
+        Write-Verbose -Message "Fetching all recipients for caching purposes"
+        Get-Recipient -ResultSize 'Unlimited' | ForEach-Object {
+            $Script:UsersCache[$_.Identity] = $_.PrimarySmtpAddress
         }
 
         $i = 1
@@ -906,7 +949,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }
