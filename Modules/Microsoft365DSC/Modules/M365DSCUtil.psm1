@@ -5449,10 +5449,14 @@ function Invoke-M365DSCGraphBatchRequest
     param (
         [Parameter(Mandatory = $true)]
         [System.Collections.Hashtable[]]
-        $Requests
+        $Requests,
+
+        [Parameter()]
+        [switch]
+        $AsList
     )
 
-    $batchResponses = @()
+    $batchResponses = [System.Collections.Generic.List[System.Collections.Hashtable]]::new()
     for ($i = 0; $i -lt $Requests.Count; $i += 20)
     {
         $batchRequestSized = $Requests[$i..([Math]::Min($i + 19, $Requests.Count - 1))]
@@ -5461,12 +5465,16 @@ function Invoke-M365DSCGraphBatchRequest
             requests = $batchRequestSized
         }
 
-        $batchResponses += (Invoke-MgGraphRequest -Method POST `
+        $batchResponses.AddRange([System.Collections.Hashtable[]](Invoke-MgGraphRequest -Method POST `
             -Uri 'beta/$batch' `
-            -Body ($request | ConvertTo-Json -Depth 10)).responses
+            -Body ($request | ConvertTo-Json -Depth 10)).responses)
     }
 
-    return ,$batchResponses
+    if ($AsList)
+    {
+        return $batchResponses
+    }
+    return $batchResponses.ToArray()
 }
 
 Export-ModuleMember -Function @(

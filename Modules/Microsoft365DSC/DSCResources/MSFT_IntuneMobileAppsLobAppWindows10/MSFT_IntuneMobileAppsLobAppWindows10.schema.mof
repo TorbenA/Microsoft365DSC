@@ -10,10 +10,10 @@ class MSFT_DeviceManagementMobileAppAssignment
     [Write, Description("Possible values for the install intent chosen by the admin."), ValueMap{"available", "required", "uninstall", "availableWithoutEnrollment"}, Values{"available", "required", "uninstall", "availableWithoutEnrollment"}] String intent;
 };
 
-[ClassVersion("1.0.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_DeviceManagementMobileAppAssignmentSettings
 {
-    [Write, Description("The odata type of the assignment type."), ValueMap{"#microsoft.graph.win32LobAppAssignmentSettings", "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"}, Values{"#microsoft.graph.win32LobAppAssignmentSettings", "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"}] String odataType;
+    [Write, Description("The odata type of the assignment type."), ValueMap{"#microsoft.graph.win32LobAppAssignmentSettings", "#microsoft.graph.winGetAppAssignmentSettings", "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"}, Values{"#microsoft.graph.win32LobAppAssignmentSettings", "#microsoft.graph.winGetAppAssignmentSettings", "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"}] String odataType;
 };
 
 [ClassVersion("1.0.0.0")]

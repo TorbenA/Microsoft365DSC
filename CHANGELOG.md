@@ -2,14 +2,70 @@
 
 # UNRELEASED
 
+* AADAdministrativeUnit
+  * Reduced export time by 20%.
+* AADGroup
+  * Fixed an issue where the `SkuId` could contain NBSP characters.
+    FIXES [#6476](https://github.com/microsoft/Microsoft365DSC/issues/6476)
+  * Fixed an issue where GroupAsMembers not being added during initial group creation.
+    FIXES [#6489](https://github.com/microsoft/Microsoft365DSC/issues/6489)
+* EXOCalendarProcessing
+  * Added caching for export.
+* EXOMailboxAutoReplyConfiguration
+  * Added conditional user lookup.
+* EXOMailboxCalendarFolder
+  * Added conditional user lookup.
+* EXOMailContact
+  * Added caching for export.
+* EXOMailboxPermission
+  * Added additional caching for export.
+* EXOMailboxSettings
+  * Added caching for export.
+* EXORecipientPermission
+  * Added additional caching for export.
+* IntuneMobileAppsMacOSLobApp
+  * Added filter capability.
+* IntuneMobileAppsMicrosoftStoreAppWindows10
+  * Initial release.
+* IntuneMobileAppsWebLink
+  * Fixed an issue where filtering was applied after fetching all apps.
+* IntuneMobileAppsWindowsOfficeSuiteApp
+  * Added filter capability.
+* IntuneRoleAssignment
+  * Fixed an issue where deleted groups would throw an error during export.
+* SPOPropertyBag
+  * Reduced export time by 85%.
+* SPOSite
+  * Added additional caching.
+* TeamsChannel
+  * Reduced export time by up to 75%.
+* TeamsChannelTab
+  * Reduced export time by up to 85%.
 * M365DSCUtil
   * Added parameter `-Parallel` to `Export-M365DSCConfiguration`.
   * Renamed function `Get-M365DSCWorkloadsListFromResourceNames` to `Get-M365DSCConnectedWorkloadList`.
   * Added function `Get-M365DSCWorkloadForResource` to look up the workload of a resource.
 * MISC
-  * Improve module import speed by up to 60%.
-  * Other performance improvements to speed up resource processing.
-  * Update required modules for Intune resources doing assignments to groups.
+  * Added performance improvements to speed up resource processing.
+  * Code cleanup across all Intune resources.
+  * Fixed typo in `ManagedIdentity` property across all resources.
+  * Improved module import speed by up to 60%.
+  * Reduced repeated logins during export of SPO and Teams resources.
+  * Removed unnecessary type casting across all resources.
+  * Updated required modules for Intune resources doing assignments to groups.
+* M365DSCDRGUtil
+  * Fixed an issue where group filtering would not find the specified groups.
+
+# 1.25.910.1
+
+* AADApplication
+  * Fixed an issue with `AdminConsentGranted` not being correct if the
+    permissions are from multiple source APIs.
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Evaluate users and groups by display name to be consistent with
+    other resources.
+* EXOTransportRule
+  * Fixed an issue where deprecated properties were exported.
 
 # 1.25.903.2
 
