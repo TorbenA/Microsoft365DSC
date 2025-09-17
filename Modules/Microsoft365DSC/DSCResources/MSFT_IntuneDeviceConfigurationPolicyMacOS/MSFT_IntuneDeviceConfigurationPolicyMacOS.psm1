@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceConfigurationPolicyMacOS'
+
 # More information on the properties can be found here:
 # - https://learn.microsoft.com/en-us/graph/api/intune-deviceconfig-macosgeneraldeviceconfiguration-create?view=graph-rest-beta
 # - https://learn.microsoft.com/en-us/graph/api/resources/intune-deviceconfig-applistitem?view=graph-rest-beta
@@ -22,6 +24,10 @@ function Get-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -307,7 +313,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -328,13 +334,13 @@ function Get-TargetResource
             $getValue = $null
             if (-not [string]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $Id -ErrorAction SilentlyContinue
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter "Id eq '$Id'" -All -ErrorAction SilentlyContinue
             }
 
             #region resource generator code
             if ($null -eq $getValue)
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$Displayname'" -ErrorAction SilentlyContinue | Where-Object `
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
                     -FilterScript { `
                         $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.macOSGeneralDeviceConfiguration' `
                 }
@@ -360,6 +366,7 @@ function Get-TargetResource
             Id                                              = $getValue.Id
             Description                                     = $getValue.Description
             DisplayName                                     = $getValue.DisplayName
+            RoleScopeTagIds                                 = $getValue.RoleScopeTagIds
             AddingGameCenterFriendsBlocked                  = $getValue.AdditionalProperties.addingGameCenterFriendsBlocked
             AirDropBlocked                                  = $getValue.AdditionalProperties.airDropBlocked
             AppleWatchBlockAutoUnlock                       = $getValue.AdditionalProperties.appleWatchBlockAutoUnlock
@@ -423,7 +430,7 @@ function Get-TargetResource
             TenantId                                        = $TenantId
             ApplicationSecret                               = $ApplicationSecret
             CertificateThumbprint                           = $CertificateThumbprint
-            Managedidentity                                 = $ManagedIdentity.IsPresent
+            ManagedIdentity                                 = $ManagedIdentity.IsPresent
             AccessTokens                                    = $AccessTokens
         }
         if ($getValue.additionalProperties.compliantAppsList)
@@ -445,7 +452,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -476,6 +483,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -755,15 +766,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    try
-    {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters
-    }
-    catch
-    {
-        Write-Verbose -Message $_
-    }
+    Write-Verbose -Message "Setting configuration of the Intune Device Configuration Policy for MacOS with Id {$Id} and DisplayName {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -793,12 +796,12 @@ function Set-TargetResource
         Write-Verbose -Message "Creating {$DisplayName}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $CreateParameters
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
         $CreateParameters.Remove('Id') | Out-Null
 
-        foreach ($key in ($CreateParameters.clone()).Keys)
+        foreach ($key in ($CreateParameters.Clone()).Keys)
         {
             if ($CreateParameters[$key].getType().Fullname -like '*CimInstance*')
             {
@@ -829,7 +832,7 @@ function Set-TargetResource
         Write-Verbose -Message "Updating {$DisplayName}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $UpdateParameters
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
@@ -845,7 +848,7 @@ function Set-TargetResource
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        foreach ($key in ($UpdateParameters.clone()).Keys)
+        foreach ($key in ($UpdateParameters.Clone()).Keys)
         {
             if ($UpdateParameters[$key].getType().Fullname -like '*CimInstance*')
             {
@@ -901,6 +904,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -1195,8 +1202,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of {$id}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $ValuesToCheck.Remove('Id') | Out-Null
     $testResult = $true
 
@@ -1230,7 +1236,7 @@ function Test-TargetResource
         if (($null -ne $CurrentValues[$key]) `
                 -and ($CurrentValues[$key].getType().Name -eq 'DateTime'))
         {
-            $CurrentValues[$key] = $CurrentValues[$key].toString()
+            $CurrentValues[$key] = $CurrentValues[$key].ToString()
         }
     }
 
@@ -1338,7 +1344,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

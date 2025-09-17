@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCComplianceTag'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -576,7 +578,7 @@ function Export-TargetResource
                 else
                 {
                     $Results.Remove('FilePlanProperty') | Out-Null
-                }   
+                }
             }
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
@@ -690,3 +692,4 @@ function Test-SCFilePlanProperties
 }
 
 Export-ModuleMember -Function *-TargetResource
+

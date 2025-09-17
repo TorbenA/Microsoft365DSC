@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneAccountProtectionLocalAdministratorPasswordSolutionPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -15,6 +17,10 @@ function Get-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Int32]
@@ -145,7 +151,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters `
                 -ErrorAction Stop
 
@@ -180,7 +186,7 @@ function Get-TargetResource
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $policy = Get-MgBetaDeviceManagementConfigurationPolicy `
-                        -Filter "Name eq '$DisplayName' and templateReference/TemplateId eq '$templateReferenceId'" `
+                        -Filter "Name eq '$($DisplayName -replace "'", "''")' and templateReference/TemplateId eq '$templateReferenceId'" `
                         -ErrorAction SilentlyContinue
 
                     if ($policy.Length -gt 1)
@@ -212,6 +218,7 @@ function Get-TargetResource
         $returnHashtable.Add('Identity', $Identity)
         $returnHashtable.Add('DisplayName', $policy.Name)
         $returnHashtable.Add('Description', $policy.Description)
+        $returnHashtable.Add('RoleScopeTagIds', $policy.RoleScopeTagIds)
 
         $returnHashtable = Export-IntuneSettingCatalogPolicySettings -Settings $settings -ReturnHashtable $returnHashtable
 
@@ -278,6 +285,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Int32]
@@ -439,6 +450,7 @@ function Set-TargetResource
             Platforms         = $platforms
             Technologies      = $technologies
             Settings          = $settings
+            RoleScopeTagIds   = $RoleScopeTagIds
         }
         $policy = New-MgBetaDeviceManagementConfigurationPolicy -BodyParameter $createParameters
 
@@ -469,7 +481,8 @@ function Set-TargetResource
             -TemplateReferenceId $templateReferenceId `
             -Platforms $platforms `
             -Technologies $technologies `
-            -Settings $settings
+            -Settings $settings `
+            -RoleScopeTagIds $RoleScopeTagIds
 
         #region update policy assignments
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
@@ -503,6 +516,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Int32]

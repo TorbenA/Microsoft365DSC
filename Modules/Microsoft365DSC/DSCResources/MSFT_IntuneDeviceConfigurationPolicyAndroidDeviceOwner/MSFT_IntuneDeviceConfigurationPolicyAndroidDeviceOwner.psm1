@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceConfigurationPolicyAndroidDeviceOwner'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -16,6 +18,10 @@ function Get-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -621,7 +627,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -644,12 +650,12 @@ function Get-TargetResource
             #region resource generator code
             if (-not [string]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $Id -ErrorAction SilentlyContinue
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "Id eq '$Id'" -ErrorAction SilentlyContinue
             }
 
             if (-not $getValue)
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$Displayname'" -ErrorAction SilentlyContinue | Where-Object `
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
                     -FilterScript { `
                         $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerGeneralDeviceConfiguration' `
                 }
@@ -831,7 +837,7 @@ function Get-TargetResource
             #DeviceManagementApplicabilityRuleOsEdition               = $getValue.DeviceManagementApplicabilityRuleOsEdition
             #DeviceManagementApplicabilityRuleOsVersion               = $getValue.DeviceManagementApplicabilityRuleOsVersion
             DisplayName                                              = $getValue.DisplayName
-            #RoleScopeTagIds                                          = $getValue.RoleScopeTagIds
+            RoleScopeTagIds                                          = $getValue.RoleScopeTagIds
             AccountsBlockModification                                = $getValue.AdditionalProperties.accountsBlockModification
             AppsAllowInstallFromUnknownSources                       = $getValue.AdditionalProperties.appsAllowInstallFromUnknownSources
             AppsAutoUpdatePolicy                                     = $getValue.AdditionalProperties.appsAutoUpdatePolicy
@@ -972,7 +978,7 @@ function Get-TargetResource
             TenantId                                                 = $TenantId
             ApplicationSecret                                        = $ApplicationSecret
             CertificateThumbprint                                    = $CertificateThumbprint
-            Managedidentity                                          = $ManagedIdentity.IsPresent
+            ManagedIdentity                                          = $ManagedIdentity.IsPresent
             AccessTokens                                             = $AccessTokens
         }
 
@@ -986,7 +992,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -1018,6 +1024,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -1617,15 +1627,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    try
-    {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters
-    }
-    catch
-    {
-        Write-Verbose -Message $_
-    }
+    Write-Verbose -Message "Setting configuration of the Intune Device Configuration Policy Android Device Owner with Id {$Id} and DisplayName {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -1641,20 +1643,12 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $PSBoundParameters.Remove('Ensure') | Out-Null
-    $PSBoundParameters.Remove('Credential') | Out-Null
-    $PSBoundParameters.Remove('ApplicationId') | Out-Null
-    $PSBoundParameters.Remove('ApplicationSecret') | Out-Null
-    $PSBoundParameters.Remove('TenantId') | Out-Null
-    $PSBoundParameters.Remove('CertificateThumbprint') | Out-Null
-    $PSBoundParameters.Remove('AccessTokens') | Out-Null
-
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating {$DisplayName}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
+        $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
 
         $CreateParameters.Remove('Id') | Out-Null
@@ -1707,7 +1701,7 @@ function Set-TargetResource
         Write-Verbose -Message "Updating {$DisplayName}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
+        $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
         $UpdateParameters.Remove('Id') | Out-Null
@@ -1780,6 +1774,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -2394,7 +2392,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of {$id}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $testResult = $true
 
     #Compare Cim instances
@@ -2530,7 +2528,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

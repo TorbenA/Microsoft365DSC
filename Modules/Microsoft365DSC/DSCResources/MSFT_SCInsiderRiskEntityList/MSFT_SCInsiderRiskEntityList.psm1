@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCInsiderRiskEntityList'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -110,25 +112,29 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-        -InboundParameters $PSBoundParameters | Out-Null
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullResult = $PSBoundParameters
-    $nullResult.Ensure = 'Absent'
     try
     {
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
+        {
+            $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+                -InboundParameters $PSBoundParameters | Out-Null
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullResult = $PSBoundParameters
+            $nullResult.Ensure = 'Absent'
+        }
+
         $instance = Get-InsiderRiskEntityList -Identity $Name -ErrorAction Stop
 
         if ($null -eq $instance)
@@ -360,7 +366,7 @@ function Get-TargetResource
             ManagedIdentity                        = $ManagedIdentity.IsPresent
             AccessTokens                           = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -1069,7 +1075,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         [array] $Script:exportedInstances = @()
         $availableTypes = @('HveLists', 'DomainLists', 'CriticalAssetLists', 'WindowsFilePathRegexLists', 'SensitiveTypeLists', 'SiteLists', 'KeywordLists', `
                 'CustomDomainLists', 'CustomSiteLists', 'CustomKeywordLists', 'CustomFileTypeLists', 'CustomFilePathRegexLists', `
@@ -1111,6 +1116,7 @@ function Export-TargetResource
                 AccessTokens          = $AccessTokens
             }
 
+            $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
             if ($null -ne $Results.Domains -and $Results.Domains.Length -gt 0 -and `
                 ($Results.ListType -eq 'CustomDomainLists' -or $Results.ListType -eq 'DomainLists'))
@@ -1143,7 +1149,6 @@ function Export-TargetResource
                     $Results.Remove('Sites') | Out-Null
                 }
             }
-
 
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
@@ -1216,3 +1221,4 @@ function Set-M365DSCSCInsiderRiskExclusionGroup
 }
 
 Export-ModuleMember -Function *-TargetResource
+

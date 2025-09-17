@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneWifiConfigurationPolicyMacOS'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -27,6 +29,15 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
+        [ValidateSet('deviceChannel', 'userChannel')]
+        $DeploymentChannel,
+
+        [Parameter()]
+        [System.Boolean]
+        $ForcePreSharedKeyUpdate,
+
+        [Parameter()]
+        [System.String]
         $NetworkName,
 
         [Parameter()]
@@ -49,6 +60,10 @@ function Get-TargetResource
         [ValidateSet('none', 'manual', 'automatic')]
         [System.String]
         $ProxySettings,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.String]
@@ -98,13 +113,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Getting configuration of the Intune Wifi Configuration Policy for MacOS with id {$Id} and DisplayName {$DisplayName}"
+    Write-Verbose -Message "Getting configuration of the Intune Wifi Configuration Policy for MacOS with Id {$Id} and DisplayName {$DisplayName}"
 
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -125,22 +140,22 @@ function Get-TargetResource
             $getValue = $null
             if (-not [string]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $Id -ErrorAction SilentlyContinue
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "Id eq '$Id'" -ErrorAction SilentlyContinue
             }
 
             #region resource generator code
             if ($null -eq $getValue)
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$DisplayName'" -ErrorAction SilentlyContinue | Where-Object `
-                    -FilterScript { `
-                        $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.macOSWiFiConfiguration' `
-                }
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
+                    -FilterScript {
+                        $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.macOSWiFiConfiguration'
+                    }
             }
             #endregion
 
             if ($null -eq $getValue)
             {
-                Write-Verbose -Message "No Intune Wifi Configuration Policy for MacOS with id {$Id} was found"
+                Write-Verbose -Message "No Intune Wifi Configuration Policy for MacOS with Id {$Id} was found"
                 return $nullResult
             }
         }
@@ -150,7 +165,7 @@ function Get-TargetResource
         }
         $Id = $getValue.Id
 
-        Write-Verbose -Message "Found an Intune Wifi Configuration Policy for MacOS with id {$Id}"
+        Write-Verbose -Message "Found an Intune Wifi Configuration Policy for MacOS with Id {$Id}"
         $results = @{
             #region resource generator code
             Id                             = $getValue.Id
@@ -158,12 +173,14 @@ function Get-TargetResource
             DisplayName                    = $getValue.DisplayName
             ConnectAutomatically           = $getValue.AdditionalProperties.connectAutomatically
             ConnectWhenNetworkNameIsHidden = $getValue.AdditionalProperties.connectWhenNetworkNameIsHidden
+            DeploymentChannel              = $getValue.AdditionalProperties.deploymentChannel
             NetworkName                    = $getValue.AdditionalProperties.networkName
             PreSharedKey                   = $getValue.AdditionalProperties.preSharedKey
             ProxyAutomaticConfigurationUrl = $getValue.AdditionalProperties.proxyAutomaticConfigurationUrl
             ProxyManualAddress             = $getValue.AdditionalProperties.proxyManualAddress
             ProxyManualPort                = $getValue.AdditionalProperties.proxyManualPort
             ProxySettings                  = $getValue.AdditionalProperties.proxySettings
+            RoleScopeTagIds                = $getValue.RoleScopeTagIds
             Ssid                           = $getValue.AdditionalProperties.ssid
             WiFiSecurityType               = $getValue.AdditionalProperties.wiFiSecurityType
             Ensure                         = 'Present'
@@ -172,7 +189,7 @@ function Get-TargetResource
             TenantId                       = $TenantId
             ApplicationSecret              = $ApplicationSecret
             CertificateThumbprint          = $CertificateThumbprint
-            Managedidentity                = $ManagedIdentity.IsPresent
+            ManagedIdentity                = $ManagedIdentity.IsPresent
             AccessTokens                   = $AccessTokens
         }
 
@@ -186,7 +203,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -228,6 +245,15 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
+        [ValidateSet('deviceChannel', 'userChannel')]
+        $DeploymentChannel,
+
+        [Parameter()]
+        [System.Boolean]
+        $ForcePreSharedKeyUpdate,
+
+        [Parameter()]
+        [System.String]
         $NetworkName,
 
         [Parameter()]
@@ -250,6 +276,10 @@ function Set-TargetResource
         [ValidateSet('none', 'manual', 'automatic')]
         [System.String]
         $ProxySettings,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.String]
@@ -299,14 +329,12 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    try
-    {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters
+    if ($ProxySettings -ne 'automatic' -and $ProxyAutomaticConfigurationUrl -ne '') {
+        throw 'ProxyAutomaticConfigurationUrl must be empty if ProxySettings is not "automatic"'
     }
-    catch
-    {
-        Write-Verbose -Message $_
+
+    if ($WiFiSecurityType -eq 'wpaPersonal' -and [string]::IsNullOrEmpty($PreSharedKey)) {
+        throw 'PreSharedKey is required but was not set.'
     }
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -326,9 +354,10 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating {$DisplayName}"
+        Write-Verbose -Message "Creating an Intune Wifi Configuration Policy for MacOS with DisplayName {$DisplayName}"
         $CreateParameters = ([Hashtable]$BoundParameters).Clone()
         $CreateParameters.Remove('Assignments') | Out-Null
+        $CreateParameters.Remove('ForcePreSharedKeyUpdate') | Out-Null
 
         $AdditionalProperties = Get-M365DSCAdditionalProperties -Properties ($CreateParameters)
         foreach ($key in $AdditionalProperties.keys)
@@ -351,6 +380,9 @@ function Set-TargetResource
 
         if ($AdditionalProperties)
         {
+            if ($AdditionalProperties['proxyAutomaticConfigurationUrl'] -eq '') {
+                $AdditionalProperties['proxyAutomaticConfigurationUrl'] = $null
+            }
             $CreateParameters.Add('AdditionalProperties', $AdditionalProperties)
         }
 
@@ -369,9 +401,10 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating {$DisplayName}"
+        Write-Verbose -Message "Updating the Intune Wifi Configuration Policy for MacOS with Id {$($currentInstance.Id)} and DisplayName {$DisplayName}"
         $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
         $UpdateParameters.Remove('Assignments') | Out-Null
+        $UpdateParameters.Remove('ForcePreSharedKeyUpdate') | Out-Null
 
         $AdditionalProperties = Get-M365DSCAdditionalProperties -Properties ($UpdateParameters)
         foreach ($key in $AdditionalProperties.keys)
@@ -394,6 +427,9 @@ function Set-TargetResource
 
         if ($AdditionalProperties)
         {
+            if ($AdditionalProperties['proxyAutomaticConfigurationUrl'] -eq '') {
+                $AdditionalProperties['proxyAutomaticConfigurationUrl'] = $null
+            }
             $UpdateParameters.Add('AdditionalProperties', $AdditionalProperties)
         }
 
@@ -409,7 +445,7 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removing {$DisplayName}"
+        Write-Verbose -Message "Removing the Intune Wifi Configuration Policy for MacOS with Id {$($currentInstance.Id)} and DisplayName {$DisplayName}"
         #region resource generator code
         Remove-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $currentInstance.Id
         #endregion
@@ -445,6 +481,15 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
+        [ValidateSet('deviceChannel', 'userChannel')]
+        $DeploymentChannel,
+
+        [Parameter()]
+        [System.Boolean]
+        $ForcePreSharedKeyUpdate,
+
+        [Parameter()]
+        [System.String]
         $NetworkName,
 
         [Parameter()]
@@ -467,6 +512,10 @@ function Test-TargetResource
         [ValidateSet('none', 'manual', 'automatic')]
         [System.String]
         $ProxySettings,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.String]
@@ -528,43 +577,29 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of {$Id}"
+    Write-Verbose -Message "Testing the Intune Wifi Configuration policy for MacOS with Id {$Id} and DisplayName {$DisplayName}"
+
+    if ($ProxySettings -ne 'automatic' -and $ProxyAutomaticConfigurationUrl -ne '') {
+        throw 'ProxyAutomaticConfigurationUrl must be empty if ProxySettings is not "automatic".'
+    }
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $testResult = $true
 
+    #Compare Cim instances
     foreach ($key in $PSBoundParameters.Keys)
     {
-        if ($PSBoundParameters[$key].GetType().Name -like '*CimInstance*')
+        $source = $PSBoundParameters.$key
+        $target = $CurrentValues.$key
+        if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
         {
-            $CIMArraySource = @()
-            $CIMArrayTarget = @()
-            $CIMArraySource += $PSBoundParameters[$key]
-            $CIMArrayTarget += $CurrentValues.$key
-            if ($CIMArraySource.Count -ne $CIMArrayTarget.Count)
-            {
-                Write-Verbose -Message "Configuration drift:Number of items does not match: Source=$($CIMArraySource.count) Target=$($CIMArrayTarget.count)"
-                $testResult = $false
-                break
-            }
-            $i = 0
-            foreach ($item in $CIMArraySource )
-            {
-                $testResult = Compare-M365DSCComplexObject `
-                    -Source (Get-M365DSCDRGComplexTypeToHashtable -ComplexObject $CIMArraySource[$i]) `
-                    -Target ($CIMArrayTarget[$i])
+            $testResult = Compare-M365DSCComplexObject `
+                -Source ($source) `
+                -Target ($target)
 
-                $i++
-                if (-Not $testResult)
-                {
-                    $testResult = $false
-                    break
-                }
-            }
-            if (-Not $testResult)
+            if (-not $testResult)
             {
-                $testResult = $false
                 break
             }
 
@@ -572,19 +607,10 @@ function Test-TargetResource
         }
     }
     $ValuesToCheck.Remove('Id') | Out-Null
+    $ValuesToCheck.Remove('PreSharedKey') | Out-Null
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    #Convert any DateTime to String
-    foreach ($key in $ValuesToCheck.Keys)
-    {
-        if (($null -ne $CurrentValues[$key]) `
-                -and ($CurrentValues[$key].GetType().Name -eq 'DateTime'))
-        {
-            $CurrentValues[$key] = $CurrentValues[$key].ToString()
-        }
-    }
 
     if ($testResult)
     {
@@ -690,7 +716,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
@@ -761,6 +787,7 @@ function Get-M365DSCAdditionalProperties
     $additionalProperties = @(
         'ConnectAutomatically'
         'ConnectWhenNetworkNameIsHidden'
+        'DeploymentChannel'
         'NetworkName'
         'PreSharedKey'
         'ProxyAutomaticConfigurationUrl'

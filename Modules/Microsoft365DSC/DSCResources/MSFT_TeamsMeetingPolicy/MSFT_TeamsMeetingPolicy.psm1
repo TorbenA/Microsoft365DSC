@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_TeamsMeetingPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -179,6 +181,10 @@ function Get-TargetResource
         [Parameter()]
         [System.String]
         $BlockedAnonymousJoinClientTypes,
+
+        [Parameter()]
+        [System.String]
+        $CaptchaVerificationForMeetingJoin,
 
         [Parameter()]
         [ValidateSet('Allow', 'Block')]
@@ -370,27 +376,35 @@ function Get-TargetResource
 
     Write-Verbose -Message "Getting the Teams Meeting Policy $($Identity)"
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = $PSBoundParameters
-    $nullReturn.Ensure = 'Absent'
     try
     {
-        $policy = Get-CsTeamsMeetingPolicy -Identity $Identity `
-            -ErrorAction 'SilentlyContinue'
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Identity -ne $Identity)
+        {
+            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullReturn = $PSBoundParameters
+            $nullReturn.Ensure = 'Absent'
+
+            $policy = Get-CsTeamsMeetingPolicy -Identity $Identity `
+                -ErrorAction 'SilentlyContinue'
+        }
+        else
+        {
+            $policy = $Script:exportedInstance
+        }
 
         if ($null -eq $policy)
         {
@@ -441,6 +455,7 @@ function Get-TargetResource
             AutomaticallyStartCopilot                  = $policy.AutomaticallyStartCopilot
             AutoRecording                              = $policy.AutoRecording
             BlockedAnonymousJoinClientTypes            = $policy.BlockedAnonymousJoinClientTypes
+            CaptchaVerificationForMeetingJoin          = $policy.CaptchaVerificationForMeetingJoin
             ChannelRecordingDownload                   = $policy.ChannelRecordingDownload
             ConnectToMeetingControls                   = $policy.ConnectToMeetingControls
             ContentSharingInExternalMeetings           = $policy.ContentSharingInExternalMeetings
@@ -464,6 +479,7 @@ function Get-TargetResource
             ParticipantNameChange                      = $policy.ParticipantNameChange
             PreferredMeetingProviderForIslandsMode     = $policy.PreferredMeetingProviderForIslandsMode
             QnAEngagementMode                          = $policy.QnAEngagementMode
+            RoomAttributeUserOverride                  = $policy.RoomAttributeUserOverride
             RoomPeopleNameUserOverride                 = $policy.RoomPeopleNameUserOverride
             ScreenSharingMode                          = $policy.ScreenSharingMode
             SpeakerAttributionMode                     = $policy.SpeakerAttributionMode
@@ -673,6 +689,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $BlockedAnonymousJoinClientTypes,
+
+        [Parameter()]
+        [System.String]
+        $CaptchaVerificationForMeetingJoin,
 
         [Parameter()]
         [ValidateSet('Allow', 'Block')]
@@ -1123,6 +1143,10 @@ function Test-TargetResource
         $BlockedAnonymousJoinClientTypes,
 
         [Parameter()]
+        [System.String]
+        $CaptchaVerificationForMeetingJoin,
+
+        [Parameter()]
         [ValidateSet('Allow', 'Block')]
         [System.String]
         $ChannelRecordingDownload,
@@ -1426,6 +1450,8 @@ function Export-TargetResource
                 ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
+
+            $Script:exportedInstance = $policy
             $Results = Get-TargetResource @Params
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
@@ -1455,3 +1481,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

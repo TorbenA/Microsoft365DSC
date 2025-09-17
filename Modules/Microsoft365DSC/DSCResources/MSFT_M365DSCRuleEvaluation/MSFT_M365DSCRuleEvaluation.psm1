@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_M365DSCRuleEvaluation'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -174,8 +176,6 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Testing configuration of Tenant Details'
-
     $Global:PartialExportFileName = "$((New-Guid).ToString()).partial"
     $module = Join-Path -Path $PSScriptRoot -ChildPath "..\MSFT_$ResourceTypeName\MSFT_$ResourceTypeName.psm1" -Resolve
     if ($null -ne $module)
@@ -220,8 +220,8 @@ function Test-TargetResource
 
         [Array]$instances = &$cmdName @params
 
-        #Write-Verbose -Message "Unloading module {$module} from memory"
-        #Remove-Module $module -Force
+        Write-Verbose -Message "Unloading module {MSFT_$($ResourceTypeName)} from memory"
+        Remove-Module "MSFT_$($ResourceTypeName)" -Force
 
         $DSCStringContent = @"
         # Generated with Microsoft365DSC version 1.23.906.1
@@ -428,3 +428,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

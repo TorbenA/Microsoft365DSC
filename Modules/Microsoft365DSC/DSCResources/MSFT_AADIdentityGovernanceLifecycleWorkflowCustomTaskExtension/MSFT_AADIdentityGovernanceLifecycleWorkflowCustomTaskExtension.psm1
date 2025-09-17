@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADIdentityGovernanceLifecycleWorkflowCustomTaskExtension'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -62,47 +64,42 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters | Out-Null
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullResult = $PSBoundParameters
-    $nullResult.Ensure = 'Absent'
     try
     {
-        if ($null -ne $Script:exportedInstances -and $Script:ExportMode)
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Id -ne $Id)
         {
-            if (-not [System.String]::IsNullOrEmpty($Id))
-            {
-                $instance = $Script:exportedInstances | Where-Object -FilterScript { $_.Id -eq $Id }
-            }
-            if ($null -eq $instance)
-            {
-                $instance = $Script:exportedInstances | Where-Object -FilterScript { $_.DisplayName -eq $DisplayName }
-            }
-        }
-        else
-        {
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullResult = $PSBoundParameters
+            $nullResult.Ensure = 'Absent'
+
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
                 $instance = Get-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension -CustomTaskExtensionId $Id
             }
             if ($null -eq $instance)
             {
-                $instance = Get-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension -Filter "DisplayName eq '$($DisplayName)'"
+                $instance = Get-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
             }
         }
+        else
+        {
+            $instance = $Script:exportedInstance
+        }
+
         if ($null -eq $instance)
         {
             return $nullResult
@@ -157,7 +154,7 @@ function Get-TargetResource
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -281,7 +278,7 @@ function Set-TargetResource
             $appsValue = @()
             foreach ($app in $CallbackConfiguration.AuthorizedApps)
             {
-                $appInfo = Get-MgApplication -Filter "DisplayName eq '$app'" -ErrorAction SilentlyContinue
+                $appInfo = Get-MgApplication -Filter "DisplayName eq '$($app -replace "'", "''")'" -ErrorAction SilentlyContinue
                 if ($null -ne $appInfo)
                 {
                     $appsValue += $appInfo.Id
@@ -375,9 +372,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -387,49 +381,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-    $testTargetResource = $true
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-not $testResult)
-            {
-                Write-Verbose "TestResult returned False for $source"
-                $testTargetResource = $false
-            }
-            else
-            {
-                $ValuesToCheck.Remove($key) | Out-Null
-            }
-        }
-    }
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    if (-not $TestResult)
-    {
-        $testTargetResource = $false
-    }
-    Write-Verbose -Message "Test-TargetResource returned $testTargetResource"
-    return $testTargetResource
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -484,7 +438,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         [array] $Script:exportedInstances = Get-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension -ErrorAction Stop
 
         $i = 1
@@ -518,6 +471,7 @@ function Export-TargetResource
                 AccessTokens          = $AccessTokens
             }
 
+            $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
             if ($null -ne $Results.EndpointConfiguration)
             {

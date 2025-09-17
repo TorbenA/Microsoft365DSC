@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_O365Group'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -153,7 +155,7 @@ function Get-TargetResource
                 ApplicationSecret     = $ApplicationSecret
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 Ensure                = 'Present'
                 AccessTokens          = $AccessTokens
             }
@@ -499,11 +501,9 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -511,20 +511,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of Office 365 Group $DisplayName"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -589,7 +578,7 @@ function Export-TargetResource
             All         = [switch]$true
             ErrorAction = 'Stop'
         }
-        if ($Filter -like '*endsWith*')
+        if ( ($Filter -like '*endsWith*') -or ($Filter -like '*not*') )
         {
             $ExportParameters.Add('CountVariable', 'count')
             $ExportParameters.Add('ConsistencyLevel', 'eventual')
@@ -613,7 +602,7 @@ function Export-TargetResource
                 ApplicationId         = $ApplicationId
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 ApplicationSecret     = $ApplicationSecret
                 DisplayName           = $group.DisplayName
                 ManagedBy             = 'DummyUser'
@@ -651,3 +640,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

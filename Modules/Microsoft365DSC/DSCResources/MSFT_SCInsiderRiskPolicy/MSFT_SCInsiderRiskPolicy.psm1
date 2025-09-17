@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCInsiderRiskPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -726,32 +728,33 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-        -InboundParameters $PSBoundParameters | Out-Null
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullResult = $PSBoundParameters
-    $nullResult.Ensure = 'Absent'
     try
     {
-        if ($null -ne $Script:exportedInstances -and $Script:ExportMode)
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            $instance = $Script:exportedInstances | Where-Object -FilterScript { $_.Name -eq $Name }
+            $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+                -InboundParameters $PSBoundParameters | Out-Null
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullResult = $PSBoundParameters
+            $nullResult.Ensure = 'Absent'
+
+            $instance = Get-InsiderRiskPolicy -Identity $Name
         }
         else
         {
-            $instance = Get-InsiderRiskPolicy -Identity $Name
+            $instance = $Script:exportedInstance
         }
 
         if ($null -eq $instance)
@@ -965,7 +968,11 @@ function Get-TargetResource
                 PowerBISensitivityLabelRemovedFromArtifacts   = ($tenantSettings.ExtensibleIndicators | Where-Object -FilterScript { $_.Name -eq 'PowerBISensitivityLabelRemovedFromArtifacts' }).Enabled
                 HistoricTimeSpan                              = $tenantSettings.TimeSpan.HistoricTimeSpan
                 InScopeTimeSpan                               = $tenantSettings.TimeSpan.InScopeTimeSpan
-                EnableTeam                                    = [Boolean]::Parse($tenantSettings.FeatureSettings.EnableTeam)
+            }
+
+            if (-not [System.String]::IsNullOrEmpty($tenantSettings.FeatureSettings.EnableTeam))
+            {
+                $tenantSettingsHash.Add('EnableTeam', [Boolean]::Parse($tenantSettings.FeatureSettings.EnableTeam))
             }
 
             $AnalyticsNewInsight = $tenantSettings.NotificationPreferences | Where-Object -FilterScript { $_.NotificationType -eq 'AnalyticsNewInsight' }
@@ -1090,7 +1097,7 @@ function Get-TargetResource
             $results += $tenantSettingsHash
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -2791,7 +2798,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         [array] $Script:exportedInstances = Get-InsiderRiskPolicy -ErrorAction Stop
 
         $dscContent = ''
@@ -2823,6 +2829,7 @@ function Export-TargetResource
                 AccessTokens          = $AccessTokens
             }
 
+            $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
 
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
@@ -2853,3 +2860,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneWindowsAutopilotDeploymentProfileAzureADJoined'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -51,6 +53,10 @@ function Get-TargetResource
         $Id,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Assignments,
         #endregion
@@ -95,7 +101,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -129,7 +135,7 @@ function Get-TargetResource
                 {
                     $getValue = Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile `
                         -All `
-                        -Filter "DisplayName eq '$DisplayName'" `
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue `
                     | Where-Object -FilterScript { $null -ne $_.DisplayName }
                 }
@@ -171,7 +177,7 @@ function Get-TargetResource
         $complexOutOfBoxExperienceSettings = @{}
         if ($null -ne $getValue.OutOfBoxExperienceSettings.deviceUsageType)
         {
-            $complexOutOfBoxExperienceSettings.Add('DeviceUsageType', $getValue.OutOfBoxExperienceSettings.deviceUsageType.toString())
+            $complexOutOfBoxExperienceSettings.Add('DeviceUsageType', $getValue.OutOfBoxExperienceSettings.deviceUsageType.ToString())
         }
         $complexOutOfBoxExperienceSettings.Add('HideEscapeLink', $getValue.OutOfBoxExperienceSettings.hideEscapeLink)
         $complexOutOfBoxExperienceSettings.Add('HideEULA', $getValue.OutOfBoxExperienceSettings.hideEULA)
@@ -179,7 +185,7 @@ function Get-TargetResource
         $complexOutOfBoxExperienceSettings.Add('SkipKeyboardSelectionPage', $getValue.OutOfBoxExperienceSettings.skipKeyboardSelectionPage)
         if ($null -ne $getValue.OutOfBoxExperienceSettings.userType)
         {
-            $complexOutOfBoxExperienceSettings.Add('UserType', $getValue.OutOfBoxExperienceSettings.userType.toString())
+            $complexOutOfBoxExperienceSettings.Add('UserType', $getValue.OutOfBoxExperienceSettings.userType.ToString())
         }
         if ($complexOutOfBoxExperienceSettings.values.Where({ $null -ne $_ }).count -eq 0)
         {
@@ -208,13 +214,14 @@ function Get-TargetResource
             ManagementServiceAppId         = $getValue.ManagementServiceAppId
             OutOfBoxExperienceSettings     = $complexOutOfBoxExperienceSettings
             Id                             = $getValue.Id
+            RoleScopeTagIds                = $getValue.RoleScopeTagIds
             Ensure                         = 'Present'
             Credential                     = $Credential
             ApplicationId                  = $ApplicationId
             TenantId                       = $TenantId
             ApplicationSecret              = $ApplicationSecret
             CertificateThumbprint          = $CertificateThumbprint
-            Managedidentity                = $ManagedIdentity.IsPresent
+            ManagedIdentity                = $ManagedIdentity.IsPresent
             AccessTokens                   = $AccessTokens
             #endregion
         }
@@ -228,7 +235,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -294,6 +301,10 @@ function Set-TargetResource
         $Id,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Assignments,
         #endregion
@@ -351,11 +362,11 @@ function Set-TargetResource
         Write-Verbose -Message "Creating an Intune Windows Autopilot Deployment Profile Azure AD Joined with DisplayName {$DisplayName}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
         $CreateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).clone()).Keys
+        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
@@ -387,12 +398,12 @@ function Set-TargetResource
         Write-Verbose -Message "Updating the Intune Windows Autopilot Deployment Profile Azure AD Joined with Id {$($currentInstance.Id)}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
@@ -509,6 +520,10 @@ function Test-TargetResource
         $Id,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Assignments,
         #endregion
@@ -562,8 +577,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of the Intune Windows Autopilot Deployment Profile Azure AD Joined with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $ValuesToCheck.Remove('Id') | Out-Null
     $testResult = $true
 
@@ -699,7 +713,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

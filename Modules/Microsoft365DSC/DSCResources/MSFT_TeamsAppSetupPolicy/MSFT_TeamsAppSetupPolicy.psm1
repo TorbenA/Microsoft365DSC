@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_TeamsAppSetupPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -66,39 +68,72 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'MicrosoftTeams' `
-        -InboundParameters $PSBoundParameters | Out-Null
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullResult = $PSBoundParameters
-    $nullResult.Ensure = 'Absent'
     try
     {
-        $instance = Get-CsTeamsAppSetupPolicy -Identity $Identity -ErrorAction SilentlyContinue
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Identity -ne $Identity)
+        {
+            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+                -InboundParameters $PSBoundParameters | Out-Null
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullResult = $PSBoundParameters
+            $nullResult.Ensure = 'Absent'
+
+            $instance = Get-CsTeamsAppSetupPolicy -Identity $Identity -ErrorAction SilentlyContinue
+        }
+        else
+        {
+            $instance = $Script:exportedInstance
+        }
+
         if ($null -eq $instance)
         {
             return $nullResult
+        }
+
+        $AppPresetListValue = $instance.AppPresetList.Id
+        if ($instance.AppPresetList.Count -eq 0)
+        {
+            $AppPresetListValue = @()
+        }
+
+        $AppPresetMeetingListValue = $instance.AppPresetMeetingList.Id
+        if ($instance.AppPresetMeetingList.Count -eq 0)
+        {
+            $AppPresetMeetingListValue = @()
+        }
+
+        $PinnedAppBarAppsValue = $instance.PinnedAppBarApps.Id
+        if ($instance.PinnedAppBarApps.Count -eq 0)
+        {
+            $PinnedAppBarAppsValue = @()
+        }
+
+        $PinnedMessageBarAppsValue = $instance.PinnedMessageBarApps.Id
+        if ($instance.PinnedMessageBarApps.Count -eq 0)
+        {
+            $PinnedMessageBarAppsValue = @()
         }
 
         Write-Verbose -Message "Found an instance with Identity {$Identity}"
         $results = @{
             Identity              = $instance.Identity.Replace('Tag:', '')
             Description           = $instance.Description
-            AppPresetList         = $instance.AppPresetList.Id
-            AppPresetMeetingList  = $instance.AppPresetMeetingList.Id
-            PinnedAppBarApps      = $instance.PinnedAppBarApps.Id
-            PinnedMessageBarApps  = $instance.PinnedMessageBarApps.Id
+            AppPresetList         = [Array]$AppPresetListValue
+            AppPresetMeetingList  = [Array]$AppPresetMeetingListValue
+            PinnedAppBarApps      = [Array]$PinnedAppBarAppsValue
+            PinnedMessageBarApps  = [Array]$PinnedMessageBarAppsValue
             AllowUserPinning      = $instance.AllowUserPinning
             AllowSideLoading      = $instance.AllowSideLoading
             Ensure                = 'Present'
@@ -109,7 +144,7 @@ function Get-TargetResource
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -190,7 +225,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'MicrosoftTeams' `
+    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters | Out-Null
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -374,8 +409,6 @@ function Test-TargetResource
     $CurrentValues = Get-TargetResource @PSBoundParameters
     $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
 
-
-
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
 
@@ -473,6 +506,7 @@ function Export-TargetResource
                 AccessTokens          = $AccessTokens
             }
 
+            $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
 
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
@@ -503,3 +537,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

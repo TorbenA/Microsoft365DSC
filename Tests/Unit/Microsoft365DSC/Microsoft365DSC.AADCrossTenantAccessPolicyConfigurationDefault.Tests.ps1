@@ -24,7 +24,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             $secpasswd = ConvertTo-SecureString (New-Guid | Out-String) -AsPlainText -Force
             $Credential = New-Object System.Management.Automation.PSCredential ('tenantadmin@mydomain.com', $secpasswd)
 
-            Mock -CommandName Confirm-M365DSCDependencies -MockWith {
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
             }
 
             Mock -CommandName Update-MgBetaPolicyCrossTenantAccessPolicyDefault -MockWith {
@@ -100,7 +100,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         UsersAndGroups = (New-CimInstance -ClassName MSFT_AADCrossTenantAccessPolicyTargetConfiguration -Property @{
                             AccessType = 'allowed'
                             Targets    = [CimInstance[]]@((New-CimInstance -ClassName MSFT_AADCrossTenantAccessPolicyTarget -Property @{
-                                    Target     = 'AllUsers'
+                                    Target     = 'John.Smith@contoso.com'
                                     TargetType = 'user'
                                 } -ClientOnly))
                         } -ClientOnly)
@@ -126,7 +126,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 accessType = 'allowed'
                                 targets    = @(
                                     @{
-                                        target     = 'AllUsers'
+                                        target     = 'John.Smith@contoso.com'
                                         targetType = 'user'
                                     }
                                 )
@@ -283,7 +283,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         }
                         B2BDirectConnectInbound  = @{
                             applications = @{
-                                accessType = 'blocked'
+                                accessType = 'allowed'
                                 targets    = @(
                                     @{
                                         target     = 'AllApplications'
@@ -303,16 +303,18 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         }
                     }
                 }
+                Mock -CommandName Invoke-MGGraphRequest -MockWith {
+                }
             }
             It 'Should return Values from the Get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
             }
-            It 'Should return true from the Test method' {
+            It 'Should return false from the Test method' {
                 Test-TargetResource @testParams | Should -Be $false
             }
             It 'Should update the instance from the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName Update-MgBetaPolicyCrossTenantAccessPolicyDefault -Exactly 1
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1
             }
         }
 

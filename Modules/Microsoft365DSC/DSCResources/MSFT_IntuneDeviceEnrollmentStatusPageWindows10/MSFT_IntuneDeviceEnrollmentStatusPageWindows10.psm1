@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceEnrollmentStatusPageWindows10'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -16,6 +18,10 @@ function Get-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -118,7 +124,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -157,7 +163,7 @@ function Get-TargetResource
                 {
                     $getValue = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration `
                         -All `
-                        -Filter "DisplayName eq '$DisplayName'" `
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue | Where-Object `
                         -FilterScript { `
                             $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10EnrollmentCompletionPageConfiguration' `
@@ -210,6 +216,7 @@ function Get-TargetResource
             Description                             = $getValue.Description
             DisplayName                             = $getValue.DisplayName
             Id                                      = $getValue.Id
+            RoleScopeTagIds                         = $getValue.RoleScopeTagIds
             Ensure                                  = 'Present'
             Credential                              = $Credential
             ApplicationId                           = $ApplicationId
@@ -231,7 +238,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -262,6 +269,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -380,7 +391,7 @@ function Set-TargetResource
         Write-Verbose -Message 'Converting SelectedMobileAppNames to SelectedMobileAppIds'
         if ($PSBoundParameters.SelectedMobileAppNames.Count -ne 0)
         {
-            [Array]$mobileAppIds = $SelectedMobileAppNames | ForEach-Object { (Get-MgBetaDeviceAppManagementMobileApp -Filter "DisplayName eq '$_'").Id }
+            [Array]$mobileAppIds = $SelectedMobileAppNames | ForEach-Object { (Get-MgBetaDeviceAppManagementMobileApp -Filter "DisplayName eq '$($_ -replace "'", "''")'").Id }
             $PSBoundParameters.SelectedMobileAppIds = $mobileAppIds
         }
         else
@@ -394,7 +405,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Creating an Intune Device Enrollment Configuration for Windows10 with DisplayName {$DisplayName}"
 
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
         $CreateParameters.Remove('Id') | Out-Null
         $CreateParameters.Remove('Assignments') | Out-Null
@@ -441,7 +452,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating the Intune Device Enrollment Configuration for Windows10 with Id {$($currentInstance.Id)}"
 
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
         $UpdateParameters.Remove('Assignments') | Out-Null
         $UpdateParameters.Remove('Priority') | Out-Null
@@ -506,6 +517,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.Boolean]
@@ -625,8 +640,7 @@ function Test-TargetResource
     }
     $PSBoundParameters.Remove('SelectedMobileAppIds') | Out-Null
 
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $ValuesToCheck.Remove('Id') | Out-Null
     $testResult = $true
 
@@ -764,7 +778,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

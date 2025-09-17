@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOHostedContentFilterPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -263,13 +265,13 @@ function Get-TargetResource
 
     if ($Global:CurrentModeIsExport)
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters `
             -SkipModuleReload $true
     }
     else
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters
     }
 
@@ -375,7 +377,7 @@ function Get-TargetResource
                 CertificateThumbprint                = $CertificateThumbprint
                 CertificatePath                      = $CertificatePath
                 CertificatePassword                  = $CertificatePassword
-                Managedidentity                      = $ManagedIdentity.IsPresent
+                ManagedIdentity                      = $ManagedIdentity.IsPresent
                 TenantId                             = $TenantId
                 AccessTokens                         = $AccessTokens
             }
@@ -677,24 +679,18 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     Write-Verbose (Get-HostedContentFilterPolicy | Out-String)
-    $HostedContentFilterPolicies = Get-HostedContentFilterPolicy
+    $HostedContentFilterPolicy = Get-HostedContentFilterPolicy -Identity $Identity
 
-    $HostedContentFilterPolicy = $HostedContentFilterPolicies | Where-Object -FilterScript { $_.Identity -eq $Identity }
-    $HostedContentFilterPolicyParams = [System.Collections.Hashtable]($PSBoundParameters)
-    $HostedContentFilterPolicyParams.Remove('Ensure') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('Credential') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('MakeDefault') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('ApplicationId') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('TenantId') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('CertificateThumbprint') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('CertificatePath') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('CertificatePassword') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('ManagedIdentity') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('AccessTokens') | Out-Null
+    $HostedContentFilterPolicyParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+
+    if ($IntraOrgFilterState -eq 'Default')
+    {
+        $HostedContentFilterPolicyParams.IntraOrgFilterState = 'HighConfidencePhish'
+    }
 
     if (('Present' -eq $Ensure ) -and ($null -eq $HostedContentFilterPolicy))
     {
@@ -707,6 +703,7 @@ function Set-TargetResource
         if ($PSBoundParameters.MakeDefault)
         {
             Write-Verbose -Message 'Updating Policy as default'
+            $HostedContentFilterPolicyParams.Remove('MakeDefault') | Out-Null
             Set-HostedContentFilterPolicy @HostedContentFilterPolicyParams -MakeDefault -Confirm:$false
         }
     }
@@ -716,6 +713,7 @@ function Set-TargetResource
         if ($PSBoundParameters.MakeDefault)
         {
             Write-Verbose -Message 'Updating Policy as default'
+            $HostedContentFilterPolicyParams.Remove('MakeDefault') | Out-Null
             Set-HostedContentFilterPolicy @HostedContentFilterPolicyParams -MakeDefault -Confirm:$false
         }
         else
@@ -990,11 +988,12 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -1010,6 +1009,11 @@ function Test-TargetResource
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
 
     $ValuesToCheck = $PSBoundParameters
+
+    if ($CurrentValues.IntraOrgFilterState -ne $IntraOrgFilterState -and $IntraOrgFilterState -eq 'Default')
+    {
+        $ValuesToCheck.IntraOrgFilterState = 'HighConfidencePhish'
+    }
 
     $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
         -Source $($MyInvocation.MyCommand.Source) `
@@ -1104,7 +1108,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }

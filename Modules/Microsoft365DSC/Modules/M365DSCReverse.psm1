@@ -21,6 +21,10 @@ function Start-M365DSCConfigurationExtract
         $Components,
 
         [Parameter()]
+        [System.String[]]
+        $ExcludeComponents,
+
+        [Parameter()]
         [Switch]
         $AllComponents,
 
@@ -37,11 +41,7 @@ function Start-M365DSCConfigurationExtract
         $ConfigurationName = 'M365TenantConfig',
 
         [Parameter()]
-        [ValidateRange(1, 100)]
-        $MaxProcesses = 16,
-
-        [Parameter()]
-        [ValidateSet('AAD', 'ADO', 'AZURE', 'COMMERCE', 'DEFENDER', 'EXO', 'FABRIC', 'INTUNE', 'O365', 'OD', 'PLANNER', 'PP', 'SC', 'SENTINEL', 'SH', 'SPO', 'TEAMS')]
+        [ValidateSet('AAD', 'ADO', 'AZURE', 'COMMERCE', 'DEFENDER', 'EXO', 'FABRIC', 'INTUNE', 'O365', 'OD', 'PLANNER', 'PP', 'SC', 'SENTINEL', 'SH', 'SPO', 'TEAMS', 'VIVA')]
         [System.String[]]
         $Workloads,
 
@@ -141,6 +141,10 @@ function Start-M365DSCConfigurationExtract
         elseif ($Mode -eq 'Lite' -and $null -eq $Components)
         {
             $ComponentsToSkip = $Global:DefaultComponents + $Global:FullComponents
+        }
+
+        if( $null -ne $ExcludeComponents ) {
+            $ComponentsToSkip += $ExcludeComponents
         }
 
         # Check to validate that based on the received authentication parameters
@@ -351,7 +355,7 @@ function Start-M365DSCConfigurationExtract
 
             if ([System.String]::IsNullOrEmpty($ConfigurationName))
             {
-                $ConfigurationName = $FileName.Replace('.' + $FileParts[$FileParts.Length - 1], '')
+                $ConfigurationName = $FileName.Replace('.' + $FileParts[$FileParts.Length - 1], '').Replace(' ', '_')
             }
         }
         if ([System.String]::IsNullOrEmpty($ConfigurationName))
@@ -594,7 +598,6 @@ function Start-M365DSCConfigurationExtract
             $mostSecureAuthMethod = ($allSupportedResourcesWithMostSecureAuthMethod | Where-Object { $_.Resource -eq $resourceName }).AuthMethod
 
             Import-Module $resource.FullName | Out-Null
-            $MaxProcessesExists = (Get-Command 'Export-TargetResource').Parameters.Keys.Contains('MaxProcesses')
             $FilterExists = (Get-Command 'Export-TargetResource').Parameters.Keys.Contains('Filter')
 
             $parameters = @{}
@@ -642,11 +645,6 @@ function Start-M365DSCConfigurationExtract
                     $parameters.Add('AccessTokens', $AccessTokens)
                     $parameters.Add('TenantId', $TenantId)
                 }
-            }
-
-            if ($MaxProcessesExists -and -not [System.String]::IsNullOrEmpty($MaxProcesses))
-            {
-                $parameters.Add('MaxProcesses', $MaxProcesses)
             }
 
             if ($ComponentsToSkip -notcontains $resourceName)
@@ -918,7 +916,7 @@ function Start-M365DSCConfigurationExtract
                 }
                 else
                 {
-                    Write-Warning -Message "Cannot export Local Configuration Manager settings. This process isn't executed with Administrative Privileges!"
+                    Write-Verbose -Message "Cannot export Local Configuration Manager settings. This process isn't executed with Administrative Privileges."
                 }
             }
             catch

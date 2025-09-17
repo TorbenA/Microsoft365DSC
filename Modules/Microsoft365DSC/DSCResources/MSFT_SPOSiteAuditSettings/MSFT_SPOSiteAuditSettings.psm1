@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SPOSiteAuditSettings'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -51,28 +53,28 @@ function Get-TargetResource
 
     Write-Verbose -Message "Getting SPOSiteAuditSettings for {$Url}"
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
-        -InboundParameters $PSBoundParameters `
-        -Url $Url -ErrorAction SilentlyContinue
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = @{
-        IsSingleInstance = 'Yes'
-    }
-
     try
     {
+        $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
+            -InboundParameters $PSBoundParameters `
+            -Url $Url -ErrorAction SilentlyContinue
+
+        #Ensure the proper dependencies are installed in the current environment.
+        Confirm-M365DSCDependencies
+
+        #region Telemetry
+        $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+        $CommandName = $MyInvocation.MyCommand
+        $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+            -CommandName $CommandName `
+            -Parameters $PSBoundParameters
+        Add-M365DSCTelemetryEvent -Data $data
+        #endregion
+
+        $nullReturn = @{
+            IsSingleInstance = 'Yes'
+        }
+
         $auditSettings = Get-PnPAuditing -ErrorAction Stop
         $auditFlag = $auditSettings.AuditFlags
         if ($null -eq $auditFlag)
@@ -89,7 +91,7 @@ function Get-TargetResource
             CertificatePassword   = $CertificatePassword
             CertificatePath       = $CertificatePath
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
     }
@@ -369,7 +371,7 @@ function Export-TargetResource
                     CertificatePassword   = $CertificatePassword
                     CertificatePath       = $CertificatePath
                     CertificateThumbprint = $CertificateThumbprint
-                    Managedidentity       = $ManagedIdentity.IsPresent
+                    ManagedIdentity       = $ManagedIdentity.IsPresent
                     Credential            = $Credential
                     AccessTokens          = $AccessTokens
                 }
@@ -441,3 +443,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

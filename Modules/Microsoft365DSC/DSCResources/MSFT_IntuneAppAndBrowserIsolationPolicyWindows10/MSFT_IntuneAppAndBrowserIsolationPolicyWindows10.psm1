@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneAppAndBrowserIsolationPolicyWindows10'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -154,7 +156,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -187,7 +189,7 @@ function Get-TargetResource
                 {
                     $getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
                         -All `
-                        -Filter "Name eq '$DisplayName'" `
+                        -Filter "Name eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue
 
                     if ($getValue.Length -gt 1)
@@ -214,6 +216,7 @@ function Get-TargetResource
         [array]$settings = Get-MgBetaDeviceManagementConfigurationPolicySetting `
             -DeviceManagementConfigurationPolicyId $Id `
             -ExpandProperty 'settingDefinitions' `
+            -All `
             -ErrorAction Stop
 
         $policySettings = @{}
@@ -244,7 +247,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -448,6 +451,7 @@ function Set-TargetResource
             Platforms         = $platforms
             Technologies      = $technologies
             Settings          = $settings
+            RoleScopeTagIds   = $RoleScopeTagIds
         }
 
         #region resource generator code
@@ -479,7 +483,8 @@ function Set-TargetResource
             -TemplateReferenceId $templateReferenceId `
             -Platforms $platforms `
             -Technologies $technologies `
-            -Settings $settings
+            -Settings $settings `
+            -RoleScopeTagIds $RoleScopeTagIds
 
         #region resource generator code
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments

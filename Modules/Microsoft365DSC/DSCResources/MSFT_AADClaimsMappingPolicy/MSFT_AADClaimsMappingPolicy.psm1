@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADClaimsMappingPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -24,7 +26,6 @@ function Get-TargetResource
         [Parameter()]
         [System.String]
         $Id,
-
         #endregion
 
         [Parameter()]
@@ -61,11 +62,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting the Azure AD Claims Mapping Policy for DisplayName {$DisplayName}"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -94,7 +97,7 @@ function Get-TargetResource
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaPolicyClaimMappingPolicy `
-                        -Filter "DisplayName eq '$DisplayName'" `
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue
                 }
             }
@@ -182,7 +185,7 @@ function Get-TargetResource
             #endregion
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -221,8 +224,8 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Id,
-
         #endregion
+
         [Parameter()]
         [System.String]
         [ValidateSet('Absent', 'Present')]
@@ -257,6 +260,8 @@ function Set-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Setting the Azure AD Claims Mapping Policy for DisplayName {$DisplayName}"
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -272,7 +277,6 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
 
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -310,7 +314,7 @@ function Set-TargetResource
         $keys = (([Hashtable]$updateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $pdateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
+            if ($null -ne $updateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
             {
                 $updateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.ClaimsMappingPolicyId
             }
@@ -399,9 +403,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -411,51 +412,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Azure AD Claims Mapping Policy with Id {$Id} and DisplayName {$DisplayName}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
-    $testResult = $true
-    $testTargetResource = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-not $testResult)
-            {
-                $testTargetResource = $false
-                break
-            }
-
-            $ValuesToCheck.Remove($key) | Out-Null
-        }
-    }
-
-    $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    if (-not $TestResult)
-    {
-        $testTargetResource = $false
-    }
-    Write-Verbose -Message "Test-TargetResource returned $testTargetResource"
-    return $testTargetResource
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource

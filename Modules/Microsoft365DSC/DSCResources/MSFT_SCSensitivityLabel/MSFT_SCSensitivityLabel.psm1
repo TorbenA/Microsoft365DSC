@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCSensitivityLabel'
+
 $allTrainableClassifiers = @(
     [PSCustomObject]@{ Name = 'Actuary reports'; Id = 'b27df2ee-fd14-4ce9-b02f-4070a5d68132' }
     [PSCustomObject]@{ Name = 'Agreements'; Id = '7f12e403-5335-4da8-a91e-6c2210b7a2b1' }
@@ -327,8 +329,16 @@ function Get-TargetResource
 
             try
             {
-                $label = Get-Label -Identity $Name -ErrorAction SilentlyContinue `
-                    -IncludeDetailedLabelActions
+                if ($null -eq $Script:AllLabels)
+                {
+                    [array]$Script:AllLabels = Get-Label -IncludeDetailedLabelActions
+                }
+                $label = $Script:AllLabels | Where-Object { $_.Name -eq $Name }
+
+                if ($null -eq $label)
+                {
+                    $label = Get-Label -Identity $Name -IncludeDetailedLabelActions -ErrorAction SilentlyContinue
+                }
             }
             catch
             {
@@ -349,7 +359,12 @@ function Get-TargetResource
         $parentLabelID = $null
         if ($null -ne $label.ParentId)
         {
-            $parentLabel = Get-Label -Identity $label.ParentId -IncludeDetailedLabelActions -ErrorAction 'SilentlyContinue'
+            $parentLabel = $Script:AllLabels | Where-Object { $_.Name -eq $label.ParentId }
+            if ($null -eq $parentLabel)
+            {
+                $parentLabel = Get-Label -Identity $label.ParentId -IncludeDetailedLabelActions -ErrorAction SilentlyContinue
+                $Script:AllLabels += $parentLabel
+            }
             $parentLabelID = $parentLabel.Name
         }
         if ($null -ne $label.LocaleSettings)
@@ -358,7 +373,7 @@ function Get-TargetResource
         }
         if ($null -ne $label.Settings)
         {
-            $advancedSettingsValue = Convert-StringToAdvancedSettings -AdvancedSettings $label.Settings
+            [array]$advancedSettingsValue = Convert-StringToAdvancedSettings -AdvancedSettings $label.Settings
         }
         Write-Verbose "Found existing Sensitivity Label $($Name)"
 
@@ -554,7 +569,7 @@ function Get-TargetResource
 
             $autoApplyType = ''
             $policyTip = ''
-            $groups = foreach ($group in $currConditions.$($operator))
+            [array]$groups = foreach ($group in $currConditions.$($operator))
             {
                 $grpObject = @{
                     Name     = ''
@@ -1137,14 +1152,14 @@ function Set-TargetResource
 
         try
         {
-            Write-Verbose -Message "Creating Label {$Name}"
+            Write-Verbose -Message "Creating Label {$Name} with:`r`n$(ConvertTo-Json $CreationParams -Depth 10)"
             $newLabel = New-Label @CreationParams -ErrorAction Stop
 
             ## Can't set priority until label created
             if ($PSBoundParameters.ContainsKey('Priority') -and $Priority -lt $newLabel.Priority)
             {
                 Start-Sleep 5
-                Write-Verbose -Message "Updating the priority for newly created label {$Name}"
+                Write-Verbose -Message "Updating the priority for newly created label {$Name} and Priority {$priority})"
                 Set-Label -Identity $Name -priority $Priority -ErrorAction Stop
             }
         }
@@ -1211,6 +1226,7 @@ function Set-TargetResource
 
         try
         {
+            Write-Verbose -Message "Updating label {$Name} with:`r`n$(ConvertTo-Json $SetParams -Depth 10)"
             Set-Label @SetParams -Identity $Name -ErrorAction Stop
         }
         catch
@@ -1585,11 +1601,11 @@ function Export-TargetResource
 
     try
     {
-        [array]$labels = Get-Label -ErrorAction Stop
+        [array]$Script:AllLabels = Get-Label -IncludeDetailedLabelActions -ErrorAction Stop
 
         $dscContent = ''
         $i = 1
-        if ($labels.Length -eq 0)
+        if ($Script:AllLabels.Count -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
@@ -1597,14 +1613,14 @@ function Export-TargetResource
         {
             Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
-        foreach ($label in $labels)
+        foreach ($label in $Script:AllLabels)
         {
             if ($null -ne $Global:M365DSCExportResourceInstancesCount)
             {
                 $Global:M365DSCExportResourceInstancesCount++
             }
 
-            Write-M365DSCHost -Message "    |---[$i/$($labels.Count)] $($label.Name)" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$i/$($Script:AllLabels.Count)] $($label.Name)" -DeferWrite
 
             $Script:exportedInstance = $label
             $Results = Get-TargetResource @PSBoundParameters -Name $label.Name
@@ -1794,7 +1810,12 @@ function Convert-StringToAdvancedSettings
                 Key   = $settingKey
                 Value = $values.Trim()
             }
-            $settings += $entry
+
+            # Only export the entry if it has a value
+            if ([String]::IsNullOrEmpty($entry.Value) -eq $false)
+            {
+                $settings += $entry
+            }
         }
     }
     return $settings

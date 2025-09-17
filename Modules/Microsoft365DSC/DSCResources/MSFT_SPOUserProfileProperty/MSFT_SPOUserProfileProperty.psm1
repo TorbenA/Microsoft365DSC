@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SPOUserProfileProperty'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -47,28 +49,31 @@ function Get-TargetResource
 
     Write-Verbose -Message "Getting SPO Profile Properties for user {$UserName}"
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = @{
-        UserName = $UserName
-        Ensure   = 'Absent'
-    }
-
     try
     {
+        if (-not $Script:ExportMode)
+        {
+            $null = New-M365DSCConnection -Workload 'PNP' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+        }
+
+        $nullReturn = @{
+            UserName = $UserName
+            Ensure   = 'Absent'
+        }
+
         $currentProperties = Get-PnPUserProfileProperty -Account $UserName -ErrorAction Stop
 
         if ($null -eq $currentProperties.AccountName)
@@ -92,12 +97,10 @@ function Get-TargetResource
             TenantId              = $TenantId
             ApplicationSecret     = $ApplicationSecret
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             Ensure                = 'Present'
             AccessTokens          = $AccessTokens
         }
-
-        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
 
         return $result
     }
@@ -274,10 +277,6 @@ function Export-TargetResource
     param
     (
         [Parameter()]
-        [ValidateRange(1, 100)]
-        $MaxProcesses = 16,
-
-        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -328,6 +327,7 @@ function Export-TargetResource
         $dscContent = ''
         Write-M365DSCHost -Message "`r`n" -DeferWrite
         $i = 1
+        $Script:ExportMode = $true
         foreach ($instance in $Instances)
         {
             Write-M365DSCHost -Message "    |---[$i/$($Instances.Count)] $($instance.Email)" -DeferWrite
@@ -337,7 +337,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 Credential            = $Credential
                 AccessTokens          = $AccessTokens
             }
@@ -428,3 +428,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

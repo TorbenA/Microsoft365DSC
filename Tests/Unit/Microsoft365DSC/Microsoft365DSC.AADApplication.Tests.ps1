@@ -23,7 +23,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             $secpasswd = ConvertTo-SecureString (New-Guid | Out-String) -AsPlainText -Force
             $Credential = New-Object System.Management.Automation.PSCredential ('tenantadmin@mydomain.com', $secpasswd)
 
-            Mock -CommandName Confirm-M365DSCDependencies -MockWith {
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
             }
 
             Mock -CommandName Get-MSCloudLoginConnectionProfile -MockWith {
@@ -60,7 +60,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Get-MgServicePrincipal -MockWith {
                 $servicePrincipal = New-Object PSCustomObject
                 $servicePrincipal | Add-Member -MemberType NoteProperty -Name DisplayName -Value 'Microsoft Graph'
-                $servicePrincipal | Add-Member -MemberType NoteProperty -Name ObjectID -Value '12345-12345-12345-12345-12345'                
+                $servicePrincipal | Add-Member -MemberType NoteProperty -Name ObjectID -Value '12345-12345-12345-12345-12345'
                 $servicePrincipal | Add-Member -MemberType NoteProperty -Name AppRoles -Value @(@{Value = "User.Read.All";Id="123"})
                 return $servicePrincipal
             }
@@ -154,7 +154,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return values from the get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
-                Should -Invoke -CommandName 'Get-MgBetaApplication' -Exactly 3
+                Should -Invoke -CommandName 'Get-MgBetaApplication' -Exactly 1
             }
 
             It 'Should return false from the test method' {
@@ -316,14 +316,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             DisplayName = 'Writers'
                         }
                     )
-                    $AADApp | Add-Member -MemberType NoteProperty -Name KeyCredentials -Value @{
-                        Usage = 'Verify'
-                        StartDateTime = '2024-09-25T09:13:11.0000000+00:00'
-                        Type = 'AsymmetricX509Cert'
-                        KeyId = 'Key ID'
-                        EndDateTime = '2025-09-25T09:33:11.0000000+00:00'
-                        DisplayName = 'anexas_test_2'
-                    }
+                    $AADApp | Add-Member -MemberType NoteProperty -Name KeyCredentials -Value @(
+                        @{
+                            Usage = 'Verify'
+                            StartDateTime = '2024-09-25T09:13:11.0000000+00:00'
+                            Type = 'AsymmetricX509Cert'
+                            KeyId = 'Key ID'
+                            EndDateTime = '2025-09-25T09:33:11.0000000+00:00'
+                            DisplayName = 'anexas_test_2'
+                        }
+                    )
                     $AADApp | Add-Member -MemberType NoteProperty -Name PasswordCredentials -Value @{
                         KeyId = 'keyid'
                         EndDateTime = '2025-03-15T19:50:29.0310000+00:00'
@@ -354,7 +356,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return Values from the get method' {
                 Get-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgBetaApplication' -Exactly 3
+                Should -Invoke -CommandName 'Get-MgBetaApplication' -Exactly 1
             }
 
             It 'Should return true from the test method' {
@@ -399,7 +401,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return values from the get method' {
                 Get-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgBetaApplication' -Exactly 3
+                Should -Invoke -CommandName 'Get-MgBetaApplication' -Exactly 1
             }
 
             It 'Should return false from the test method' {
@@ -446,7 +448,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return values from the get method' {
                 Get-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgBetaApplication' -Exactly 3
+                Should -Invoke -CommandName 'Get-MgBetaApplication' -Exactly 1
             }
 
             It 'Should return false from the test method' {
@@ -455,9 +457,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the new method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName 'Invoke-MgGraphRequest' -Exactly 2
+                Should -Invoke -CommandName 'Invoke-MgGraphRequest' -Exactly 1
+                Should -Invoke -CommandName 'Update-MgBetaApplication' -Exactly 1
             }
-
         }
 
         Context -Name 'Assigning Permissions to a new Application' -Fixture {

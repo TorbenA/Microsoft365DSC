@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCDeviceConfigurationRule'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -234,29 +236,31 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-        -InboundParameters $PSBoundParameters | Out-Null
-
-    New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters | Out-Null
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullResult = $PSBoundParameters
-    $nullResult.Ensure = 'Absent'
     try
     {
-        $policyObj = Get-DeviceConfigurationPolicy | Where-Object -FilterScript { $_.Name -eq $Policy }
+        $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+            -InboundParameters $PSBoundParameters | Out-Null
+
+        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            -InboundParameters $PSBoundParameters | Out-Null
+
+        #Ensure the proper dependencies are installed in the current environment.
+        Confirm-M365DSCDependencies
+
+        #region Telemetry
+        $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+        $CommandName = $MyInvocation.MyCommand
+        $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+            -CommandName $CommandName `
+            -Parameters $PSBoundParameters
+        Add-M365DSCTelemetryEvent -Data $data
+        #endregion
+
+        $nullResult = $PSBoundParameters
+        $nullResult.Ensure = 'Absent'
+
+        $policyObj = Get-DeviceConfigurationPolicy -ErrorAction SilentlyContinue
+        $policyObj = $policyObj | Where-Object -FilterScript { $_.Name -eq $Policy }
         if ($null -ne $policyObj)
         {
             Write-Verbose -Message "Found policy object {$Policy}"
@@ -358,7 +362,7 @@ function Get-TargetResource
             ManagedIdentity               = $ManagedIdentity.IsPresent
             AccessTokens                  = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -630,7 +634,7 @@ function Set-TargetResource
         foreach ($group in $TargetGroups)
         {
             $groupValue = ''
-            $entry = Get-MgGroup -Filter "DisplayName eq '$group'" -ErrorAction SilentlyContinue
+            $entry = Get-MgGroup -Filter "DisplayName eq '$($group -replace "'", "''")'" -ErrorAction SilentlyContinue
             if ($null -eq $entry)
             {
                 $entry = Get-MgUser -UserId $group -ErrorAction SilentlyContinue
@@ -1056,3 +1060,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

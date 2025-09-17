@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneASRRulesPolicyWindows10'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -15,6 +17,10 @@ function Get-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         # In next Breaking Change set it to 'notConfigured', 'block', 'auditMode', 'warn', 'disable', don't forget to update the schema as well
         [Parameter()]
@@ -165,7 +171,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters `
                 -ErrorAction Stop
 
@@ -196,7 +202,9 @@ function Get-TargetResource
                 Write-Verbose -Message "No Endpoint Protection Attack Surface Protection rules Policy with identity {$Identity} was found"
                 if (-not [String]::IsNullOrEmpty($DisplayName))
                 {
-                    $policy = Get-MgBetaDeviceManagementIntent -All -Filter "DisplayName eq '$DisplayName'" -ErrorAction SilentlyContinue
+                    $filter = "DisplayName eq '$($DisplayName -replace "'", "''")' and (TemplateId eq '0e237410-1367-4844-bd7f-15fb0f08943b')"
+                    $policy = Get-MgBetaDeviceManagementIntent -All `
+                                                               -Filter $filter -ErrorAction SilentlyContinue
                 }
 
                 if (([array]$policy).count -gt 1)
@@ -224,6 +232,7 @@ function Get-TargetResource
         $returnHashtable.Add('Identity', $policy.Id)
         $returnHashtable.Add('DisplayName', $policy.DisplayName)
         $returnHashtable.Add('Description', $policy.Description)
+        $returnHashtable.Add('RoleScopeTagIds', $policy.RoleScopeTagIds)
 
         foreach ($setting in $settings)
         {
@@ -293,6 +302,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         # In next Breaking Change set it to 'notConfigured', 'block', 'auditMode', 'warn', 'disable', don't forget to update the schema as well
         [Parameter()]
@@ -437,8 +450,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
+    Write-Verbose -Message "Setting configuration of the Intune ASR Rules Policy for Windows10 with Id {$Identity} and DisplayName {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -453,14 +465,7 @@ function Set-TargetResource
     #endregion
 
     $currentPolicy = Get-TargetResource @PSBoundParameters
-    $PSBoundParameters.Remove('Ensure') | Out-Null
-    $PSBoundParameters.Remove('Credential') | Out-Null
-    $PSBoundParameters.Remove('ApplicationId') | Out-Null
-    $PSBoundParameters.Remove('TenantId') | Out-Null
-    $PSBoundParameters.Remove('ApplicationSecret') | Out-Null
-    $PSBoundParameters.Remove('CertificateThumbprint') | Out-Null
-    $PSBoundParameters.Remove('ManagedIdentity') | Out-Null
-    $PSBoundParameters.Remove('AccessTokens') | Out-Null
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     $IncorrectParameters = @{
         BlockPersistenceThroughWmiType                  = @('userDefined', 'warn')
@@ -484,7 +489,7 @@ function Set-TargetResource
         $InvalidValue = $IncorrectParameters[$Key]
         if (![string]::IsNullOrEmpty($InvalidValue))
         {
-            $Value = $PSBoundParameters.$Key
+            $Value = $boundParameters.$Key
             if ($Value -in $InvalidValue)
             {
                 $ExceptionMessage += "Property {0} set to invalid value {1}`n" -f $Key, $Value
@@ -492,7 +497,7 @@ function Set-TargetResource
         }
     }
 
-    if (![string]::IsNullOrEmpty($ExceptionMessage))
+    if (-not [string]::IsNullOrEmpty($ExceptionMessage))
     {
         $ExceptionMessage += 'Please update your configuration.'
         Write-Verbose -Message $ExceptionMessage
@@ -510,20 +515,20 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating new Endpoint Protection Attack Surface Protection rules Policy {$DisplayName}"
-        $PSBoundParameters.Remove('Identity') | Out-Null
-        $PSBoundParameters.Remove('Assignments') | Out-Null
-        $PSBoundParameters.Remove('DisplayName') | Out-Null
-        $PSBoundParameters.Remove('Description') | Out-Null
+        $boundParameters.Remove('Identity') | Out-Null
+        $boundParameters.Remove('Assignments') | Out-Null
+        $boundParameters.Remove('DisplayName') | Out-Null
+        $boundParameters.Remove('Description') | Out-Null
 
         $settings = Get-M365DSCIntuneDeviceConfigurationSettings `
-            -Properties ([System.Collections.Hashtable]$PSBoundParameters) `
+            -Properties ([System.Collections.Hashtable]$boundParameters) `
             -TemplateId $policyTemplateID
 
         $createParameters = @{}
-        $createParameters.add('DisplayName', $DisplayName)
-        $createParameters.add('Description', $Description)
-        $createParameters.add('Settings', $settings)
-        $createParameters.add('TemplateId', $policyTemplateID)
+        $createParameters.Add('DisplayName', $DisplayName)
+        $createParameters.Add('Description', $Description)
+        $createParameters.Add('Settings', $settings)
+        $createParameters.Add('TemplateId', $policyTemplateID)
         $policy = New-MgBetaDeviceManagementIntent -BodyParameter $createParameters
 
         #region Assignments
@@ -541,23 +546,20 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating existing Endpoint Protection Attack Surface Protection rules Policy {$DisplayName}"
 
-        $PSBoundParameters.Remove('Identity') | Out-Null
-        $PSBoundParameters.Remove('DisplayName') | Out-Null
-        $PSBoundParameters.Remove('Description') | Out-Null
-        $PSBoundParameters.Remove('Assignments') | Out-Null
+        $boundParameters.Remove('Identity') | Out-Null
+        $boundParameters.Remove('DisplayName') | Out-Null
+        $boundParameters.Remove('Description') | Out-Null
+        $boundParameters.Remove('Assignments') | Out-Null
 
         $settings = Get-M365DSCIntuneDeviceConfigurationSettings `
-            -Properties ([System.Collections.Hashtable]$PSBoundParameters) `
+            -Properties ([System.Collections.Hashtable]$boundParameters) `
             -TemplateId $policyTemplateID
 
         $updateParameters = @{}
-        $updateParameters.add('DisplayName', $DisplayName)
-        $updateParameters.add('Description', $Description)
+        $updateParameters.Add('DisplayName', $DisplayName)
+        $updateParameters.Add('Description', $Description)
         Update-MgBetaDeviceManagementIntent -DeviceManagementIntentId $currentPolicy.Identity -BodyParameter $updateParameters
 
-        #Update-MgBetaDeviceManagementIntent does not support updating the property settings
-        #Update-MgBetaDeviceManagementIntentSetting only support updating a single setting at a time
-        #Using Rest to reduce the number of calls
         $Uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceManagement/intents/$($currentPolicy.Identity)/updateSettings"
         $body = @{'settings' = $settings }
         Invoke-MgGraphRequest -Method POST -Uri $Uri -Body ($body | ConvertTo-Json -Depth 20) -ContentType 'application/json' 4> $null
@@ -593,6 +595,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         # In next Breaking Change set it to 'notConfigured', 'block', 'auditMode', 'warn', 'disable', don't forget to update the schema as well
         [Parameter()]
@@ -750,12 +756,12 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of Endpoint Protection Attack Surface Protection rules Policy {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $ValuesToCheck.Remove('Identity') | Out-Null
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
 
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-    $ValuesToCheck.Remove('Identity') | Out-Null
     $testResult = $true
     #region Assignments
     if ($testResult)
@@ -868,7 +874,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
@@ -927,76 +933,6 @@ function Export-TargetResource
 
         return ''
     }
-}
-
-function Get-M365DSCIntuneDeviceConfigurationSettings
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-        [Parameter(Mandatory = 'true')]
-        [System.Collections.Hashtable]
-        $Properties,
-
-        [Parameter()]
-        [System.String]
-        $TemplateId
-    )
-
-    $templateCategoryId = (Get-MgBetaDeviceManagementTemplateCategory -DeviceManagementTemplateId $TemplateId).Id
-    $templateSettings = Get-MgBetaDeviceManagementTemplateCategoryRecommendedSetting `
-        -DeviceManagementTemplateId $TemplateId `
-        -DeviceManagementTemplateSettingCategoryId $templateCategoryId
-
-    $results = @()
-    foreach ($setting in $templateSettings)
-    {
-        $result = @{}
-        $settingType = $setting.AdditionalProperties.'@odata.type'
-        $settingValue = $null
-        $currentValueKey = $Properties.keys | Where-Object -FilterScript { $setting.DefinitionId -like "*$_" }
-        if ($null -ne $currentValueKey)
-        {
-            $settingValue = $Properties.$currentValueKey
-        }
-
-        switch ($settingType)
-        {
-            '#microsoft.graph.deviceManagementStringSettingInstance'
-            {
-                if ([String]::IsNullOrEmpty($settingValue))
-                {
-                    $settingValue = $setting.ValueJson
-                }
-                else
-                {
-                    $settingValue = ConvertTo-Json -InputObject $settingValue
-                }
-            }
-            '#microsoft.graph.deviceManagementCollectionSettingInstance'
-            {
-                if ($null -eq $settingValue)
-                {
-                    $settingValue = ConvertTo-Json -InputObject @()
-                }
-                else
-                {
-                    $settingValue = ConvertTo-Json -InputObject ([Array]$settingValue)
-                }
-            }
-            Default
-            {
-                $settingValue = $setting.ValueJson
-            }
-        }        $result.Add('@odata.type', $settingType)
-        $result.Add('Id', $setting.Id)
-        $result.Add('definitionId', $setting.DefinitionId)
-        $result.Add('valueJson', ($settingValue ))
-
-        $results += $result
-    }
-    return $results
 }
 
 Export-ModuleMember -Function *-TargetResource

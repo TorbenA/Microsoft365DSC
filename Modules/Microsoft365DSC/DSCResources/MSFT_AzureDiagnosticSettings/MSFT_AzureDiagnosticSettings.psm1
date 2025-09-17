@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AzureDiagnosticSettings'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -62,36 +64,40 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'Azure' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting configuration of Azure Diagnostic Settings for Name $Name"
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullResult = $PSBoundParameters
-    $nullResult.Ensure = 'Absent'
     try
     {
-        if ($null -ne $Script:exportedInstances -and $Script:ExportMode)
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            $instance = $Script:exportedInstances | Where-Object -FilterScript { $_.name -eq $Name }
-        }
-        else
-        {
+            $null = New-M365DSCConnection -Workload 'Azure' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullResult = $PSBoundParameters
+            $nullResult.Ensure = 'Absent'
+
             $response = Invoke-AzRest -Uri 'https://management.azure.com/providers/microsoft.aadiam/diagnosticsettings?api-version=2017-04-01-preview' `
                 -Method Get
             $instances = (ConvertFrom-Json $response.Content).value
             $instance = $instances | Where-Object -FilterScript { $_.name -eq $Name }
         }
+        else
+        {
+            $instance = $Script:exportedInstance
+        }
+
         if ($null -eq $instance)
         {
             return $nullResult
@@ -122,7 +128,7 @@ function Get-TargetResource
             ManagedIdentity             = $ManagedIdentity.IsPresent
             AccessTokens                = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -199,6 +205,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting configuration of Azure Diagnostic Settings for Name $Name"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -352,7 +360,7 @@ function Test-TargetResource
     #endregion
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
@@ -477,6 +485,7 @@ function Export-TargetResource
                 AccessTokens          = $AccessTokens
             }
 
+            $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
 
             if ($Results.Categories)

@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneWindowsUpdateForBusinessFeatureUpdateProfileWindows10'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -16,6 +18,10 @@ function Get-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.String]
@@ -78,7 +84,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
             #Ensure the proper dependencies are installed in the current environment.
             Confirm-M365DSCDependencies
@@ -151,6 +157,7 @@ function Get-TargetResource
             #region resource generator code
             Description                                       = $getValue.Description
             DisplayName                                       = $getValue.DisplayName
+            RoleScopeTagIds                                   = $getValue.RoleScopeTagIds
             FeatureUpdateVersion                              = $getValue.FeatureUpdateVersion
             InstallFeatureUpdatesOptional                     = $getValue.InstallFeatureUpdatesOptional
             InstallLatestWindows10OnWindows11IneligibleDevice = $getValue.InstallLatestWindows10OnWindows11IneligibleDevice
@@ -177,7 +184,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -208,6 +215,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
 
         [Parameter()]
         [System.String]
@@ -493,6 +504,10 @@ function Test-TargetResource
         $Description,
 
         [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
         [System.String]
         $FeatureUpdateVersion,
 
@@ -562,7 +577,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of the Intune Windows Update For Business Feature Update Profile for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $testResult = $true
 
     # Cannot be changed after creation
