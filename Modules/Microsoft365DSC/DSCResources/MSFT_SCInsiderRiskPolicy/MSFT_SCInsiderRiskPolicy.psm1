@@ -1097,7 +1097,7 @@ function Get-TargetResource
             $results += $tenantSettingsHash
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

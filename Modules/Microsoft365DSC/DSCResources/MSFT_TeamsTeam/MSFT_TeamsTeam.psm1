@@ -194,7 +194,7 @@ function Get-TargetResource
         [array]$Owners = Get-TeamUser -GroupId $team.GroupId | Where-Object { $_.Role -eq 'owner' }
         if ($null -eq $Owners)
         {
-            # Without Users, Get-TeamUser return null instead on empty array
+            # Without Users, Get-TeamUser returns null instead of an empty array
             $Owners = @()
         }
 

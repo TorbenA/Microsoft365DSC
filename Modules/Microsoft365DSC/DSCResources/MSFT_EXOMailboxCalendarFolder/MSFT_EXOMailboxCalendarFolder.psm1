@@ -107,7 +107,13 @@ function Get-TargetResource
     try
     {
         $IdentityParts = $Identity.Split(':')
-        $userInfo = Get-User -Identity $IdentityParts[0]
+        $userInfo = @{
+            UserPrincipalName = $IdentityParts[0]
+        }
+        if ($IdentityParts[0] -notlike '*@*')
+        {
+            $userInfo = Get-User -Identity $IdentityParts[0]
+        }
         $IdentityValue = $userInfo.UserPrincipalName + ":" + $IdentityParts[1]
         $folder = Get-MailboxCalendarFolder -Identity $Identity -ErrorAction SilentlyContinue
 
@@ -130,7 +136,7 @@ function Get-TargetResource
             CertificateThumbprint       = $CertificateThumbprint
             CertificatePath             = $CertificatePath
             CertificatePassword         = $CertificatePassword
-            Managedidentity             = $ManagedIdentity.IsPresent
+            ManagedIdentity             = $ManagedIdentity.IsPresent
             TenantId                    = $TenantId
             AccessTokens                = $AccessTokens
         }
@@ -430,7 +436,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }

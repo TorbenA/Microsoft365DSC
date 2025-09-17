@@ -10,7 +10,7 @@
       "delegated": {
         "read": [
           {
-            "name": "Policy.Read.ApplicationConfiguration"
+            "name": "Policy.Read.All"
           }
         ],
         "update": [
@@ -22,7 +22,7 @@
       "application": {
         "read": [
           {
-            "name": "Policy.Read.ApplicationConfiguration"
+            "name": "Policy.Read.All"
           }
         ],
         "update": [

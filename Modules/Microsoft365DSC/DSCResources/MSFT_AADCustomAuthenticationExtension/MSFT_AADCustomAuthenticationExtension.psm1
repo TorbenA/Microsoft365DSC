@@ -200,7 +200,7 @@ function Get-TargetResource
         $results.Add('EndPointConfiguration', $endpointConfigurationInstance)
         $results.Add('ClaimsForTokenConfiguration', $ClaimsForTokenConfigurationInstance)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

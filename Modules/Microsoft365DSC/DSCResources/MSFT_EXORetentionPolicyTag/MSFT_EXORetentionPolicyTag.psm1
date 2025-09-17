@@ -123,7 +123,7 @@ function Get-TargetResource
         {
             $results.Add('AgeLimitForRetention', $instance.AgeLimitForRetention.Split('.')[0])
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

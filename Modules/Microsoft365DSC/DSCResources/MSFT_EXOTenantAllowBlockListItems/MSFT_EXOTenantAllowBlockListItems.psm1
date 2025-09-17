@@ -120,7 +120,7 @@ function Get-TargetResource
             CertificateThumbprint = $CertificateThumbprint
             ApplicationSecret     = $ApplicationSecret
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

@@ -105,16 +105,17 @@ function Get-TargetResource
                 Write-Verbose -Message "Permission for mailbox {$($Identity)} do not exist."
                 return $nullResult
             }
+
+            $userInfo = (Get-User -Identity $permission.Identity).UserPrincipalName
         }
         else
         {
             $permission = $Script:exportedInstance
+            $userInfo = $Script:UsersCache[$permission.Identity]
         }
 
-        $userInfo = Get-User -Identity $permission.Identity
-
         $result = @{
-            Identity              = $userInfo.UserPrincipalName
+            Identity              = $userInfo
             AccessRights          = [Array]$permission.AccessRights.Replace(' ', '').Split(',')
             InheritanceType       = $permission.InheritanceType
             Owner                 = $permission.Owner
@@ -126,7 +127,7 @@ function Get-TargetResource
             CertificateThumbprint = $CertificateThumbprint
             CertificatePath       = $CertificatePath
             CertificatePassword   = $CertificatePassword
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             TenantId              = $TenantId
             AccessTokens          = $AccessTokens
         }
@@ -397,6 +398,13 @@ function Export-TargetResource
         }
         $dscContent = ''
         $i = 1
+        if ($null -eq $Script:UsersCache)
+        {
+            $Script:UsersCache = [System.Collections.Generic.Dictionary[System.String, System.String]]::new()
+            Get-User -ResultSize Unlimited | ForEach-Object {
+                $Script:UsersCache[$_.Identity] = $_.UserPrincipalName
+            }
+        }
         foreach ($mailbox in $mailboxes)
         {
             Write-M365DSCHost -Message "    |---[$i/$($mailboxes.Count)] $($mailbox.UserPrincipalName)" -DeferWrite
@@ -423,7 +431,7 @@ function Export-TargetResource
                     TenantId              = $TenantId
                     CertificateThumbprint = $CertificateThumbprint
                     CertificatePassword   = $CertificatePassword
-                    Managedidentity       = $ManagedIdentity.IsPresent
+                    ManagedIdentity       = $ManagedIdentity.IsPresent
                     CertificatePath       = $CertificatePath
                     AccessTokens          = $AccessTokens
                 }

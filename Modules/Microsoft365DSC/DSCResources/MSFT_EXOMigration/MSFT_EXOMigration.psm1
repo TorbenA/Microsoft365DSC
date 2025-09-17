@@ -158,7 +158,7 @@ function Get-TargetResource
             $results.Add('StartAfter', $instance.CompleteAfter.ToString('MM/dd/yyyy hh:mm tt'))
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

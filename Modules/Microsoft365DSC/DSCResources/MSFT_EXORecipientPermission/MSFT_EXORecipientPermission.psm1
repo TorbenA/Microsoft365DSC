@@ -88,7 +88,6 @@ function Get-TargetResource
 
     try
     {
-
         if ($null -ne $Script:recipientPermissions -and $Script:ExportMode)
         {
             $recipientPermission = $Script:recipientPermissions | Where-Object -FilterScript {
@@ -99,7 +98,11 @@ function Get-TargetResource
             {
                 try
                 {
-                    $userValue = Get-User -Identity $Identity
+                    $userValue = $Script:UsersCache[$Identity]
+                    if ($null -eq $userValue)
+                    {
+                        $userValue = Get-User -Identity $Identity
+                    }
                     $recipientPermission = $Script:recipientPermissions | Where-Object -FilterScript {
                         $_.Identity -eq $userValue.Identity -and $_.Trustee -eq $Trustee -and $_.AccessRights -eq $AccessRights
                     }
@@ -146,7 +149,7 @@ function Get-TargetResource
             CertificateThumbprint = $CertificateThumbprint
             CertificatePath       = $CertificatePath
             CertificatePassword   = $CertificatePassword
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             TenantId              = $TenantId
             AccessTokens          = $AccessTokens
         }
@@ -424,6 +427,16 @@ function Export-TargetResource
             Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
         $ObjectGuid = [System.Guid]::empty
+        if ($null -eq $Script:UsersCache)
+        {
+            $Script:UsersCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
+            Get-User -ResultSize Unlimited | ForEach-Object {
+                $Script:UsersCache[$_.Identity] = @{
+                    Identity = $_.Identity
+                    UserPrincipalName = $_.UserPrincipalName
+                }
+            }
+        }
         foreach ($recipientPermission in $recipientPermissions)
         {
             if ($null -ne $Global:M365DSCExportResourceInstancesCount)
@@ -434,8 +447,7 @@ function Export-TargetResource
             $IdentityValue = $recipientPermission.Identity
             if ([System.Guid]::TryParse($IdentityValue, [System.Management.Automation.PSReference]$ObjectGuid))
             {
-                $user = Get-User -Identity $IdentityValue
-                $IdentityValue = $user.UserPrincipalName
+                $IdentityValue = $Script:UsersCache[$IdentityValue].UserPrincipalName
             }
             Write-M365DSCHost -Message "    |---[$i/$($recipientPermissions.Length)] $($IdentityValue)" -DeferWrite
 
@@ -448,7 +460,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }
