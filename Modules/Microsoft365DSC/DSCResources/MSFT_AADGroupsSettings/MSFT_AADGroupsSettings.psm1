@@ -82,7 +82,7 @@ function Get-TargetResource
     )
 
     Write-Verbose -Message 'Getting configuration of AzureAD Groups Settings'
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -146,7 +146,7 @@ function Get-TargetResource
                 ApplicationSecret         = $ApplicationSecret
                 CertificateThumbprint     = $CertificateThumbprint
                 Credential                = $Credential
-                Managedidentity           = $ManagedIdentity.IsPresent
+                ManagedIdentity           = $ManagedIdentity.IsPresent
                 AccessTokens              = $AccessTokens
             }
             if (-not [System.String]::IsNullOrEmpty($valueNewUnifiedGroupWritebackDefault.Value))
@@ -518,7 +518,7 @@ function Export-TargetResource
             IsSingleInstance      = 'Yes'
             ApplicationSecret     = $ApplicationSecret
             Credential            = $Credential
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
         $dscContent = ''
@@ -549,4 +549,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

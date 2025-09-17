@@ -2,19 +2,23 @@
     Dependencies = @(
         @{
             ModuleName      = 'Az.Accounts'
-            RequiredVersion = '3.0.2'
+            RequiredVersion = '5.0.1'
         },
         @{
             ModuleName      = 'Az.ResourceGraph'
-            RequiredVersion = '1.0.0'
+            RequiredVersion = '1.2.1'
         },
         @{
             ModuleName      = 'Az.Resources'
-            RequiredVersion = '7.2.0'
+            RequiredVersion = '8.0.0'
+        },
+        @{
+            ModuleName      = 'Az.Security'
+            RequiredVersion = '1.6.2'
         },
         @{
             ModuleName      = 'Az.SecurityInsights'
-            RequiredVersion = '3.1.2'
+            RequiredVersion = '3.2.0'
         },
         @{
             ModuleName      = 'DSCParser'
@@ -22,7 +26,7 @@
         },
         @{
             ModuleName      = 'ExchangeOnlineManagement'
-            RequiredVersion = '3.8.0'
+            RequiredVersion = '3.9.0'
         },
         @{
             ModuleName      = 'Microsoft.Graph.Applications'
@@ -122,7 +126,7 @@
         },
         @{
             ModuleName      = 'MicrosoftTeams'
-            RequiredVersion = '7.2.0'
+            RequiredVersion = '7.3.1'
         },
         @{
             ModuleName      = "MSCloudLoginAssistant"
@@ -142,7 +146,7 @@
         },
         @{
             ModuleName      = 'ReverseDSC'
-            RequiredVersion = '2.0.0.28'
+            RequiredVersion = '2.0.0.30'
         }
     )
 }

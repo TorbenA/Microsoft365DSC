@@ -110,13 +110,13 @@ function Get-TargetResource
 
     if ($Global:CurrentModeIsExport)
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters `
             -SkipModuleReload $true
     }
     else
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters
     }
 
@@ -145,10 +145,14 @@ function Get-TargetResource
         }
         else
         {
-            $ownerValue = Get-User -Identity $config.Identity
+            $userPrincipalName = $Identity
+            if ($userPrincipalName -notlike '*@*')
+            {
+                $userPrincipalName = (Get-User -Identity $Identity).UserPrincipalName
+            }
             $result = @{
-                Identity                         = $ownerValue.UserPrincipalName
-                Owner                            = $ownerValue.UserPrincipalName
+                Identity                         = $userPrincipalName
+                Owner                            = $userPrincipalName
                 AutoDeclineFutureRequestsWhenOOF = [Boolean]$config.AutoDeclineFutureRequestsWhenOOF
                 AutoReplyState                   = $config.AutoReplyState
                 CreateOOFEvent                   = [Boolean]$config.CreateOOFEvent
@@ -168,7 +172,7 @@ function Get-TargetResource
                 CertificateThumbprint            = $CertificateThumbprint
                 CertificatePath                  = $CertificatePath
                 CertificatePassword              = $CertificatePassword
-                Managedidentity                  = $ManagedIdentity.IsPresent
+                ManagedIdentity                  = $ManagedIdentity.IsPresent
                 TenantId                         = $TenantId
                 AccessTokens                     = $AccessTokens
             }
@@ -309,21 +313,13 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
-    $PSBoundParameters.Remove('Ensure') | Out-Null
-    $PSBoundParameters.Remove('ApplicationId') | Out-Null
-    $PSBoundParameters.Remove('TenantId') | Out-Null
-    $PSBoundParameters.Remove('CertificateThumbprint') | Out-Null
-    $PSBoundParameters.Remove('CertificatePassword') | Out-Null
-    $PSBoundParameters.Remove('ManagedIdentity') | Out-Null
-    $PSBoundParameters.Remove('CertificatePath') | Out-Null
-    $PSBoundParameters.Remove('Credential') | Out-Null
-    $PSBoundParameters.Remove('Owner') | Out-Null
-    $PSBoundParameters.Remove('AccessTokens') | Out-Null
+    $updateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $updateParameters.Remove('Owner') | Out-Null
 
-    Set-MailboxAutoReplyConfiguration @PSBoundParameters
+    Set-MailboxAutoReplyConfiguration @updateParameters
 }
 
 function Test-TargetResource
@@ -501,6 +497,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true
@@ -547,7 +544,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }
@@ -580,4 +577,3 @@ function Export-TargetResource
     }
 }
 Export-ModuleMember -Function *-TargetResource
-

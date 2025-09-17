@@ -48,8 +48,10 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting configuration of FocusedInbox with Identity $Identity"
+
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -67,7 +69,12 @@ function Get-TargetResource
     $nullResult.Ensure = 'Absent'
     try
     {
-        $instance = Get-FocusedInbox -Identity $Identity -ErrorAction SilentlyContinue
+        $mailbox = Get-Mailbox -Identity $Identity -ErrorAction SilentlyContinue
+        if ($null -ne $mailbox)
+        {
+            $instance = Get-FocusedInbox -Identity $Identity
+        }
+
         if ($null -eq $instance)
         {
             return $nullResult
@@ -76,7 +83,8 @@ function Get-TargetResource
         $results = @{
             Identity                     = $Identity
             FocusedInboxOn               = [Boolean]$instance.FocusedInboxOn
-            FocusedInboxOnLastUpdateTime = [DateTime]$instance.FocusedInboxOnLastUpdateTime
+            # DEPRECATED
+            # FocusedInboxOnLastUpdateTime = [DateTime]$instance.FocusedInboxOnLastUpdateTime
             Ensure                       = 'Present'
             Credential                   = $Credential
             ApplicationId                = $ApplicationId
@@ -85,7 +93,7 @@ function Get-TargetResource
             ManagedIdentity              = $ManagedIdentity.IsPresent
             AccessTokens                 = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -146,6 +154,8 @@ function Set-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Setting configuration of FocusedInbox with Identity $Identity"
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -161,7 +171,6 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
 
     $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
     $SetParameters.Remove('FocusedInboxOnLastUpdateTime') | Out-Null
     Set-FocusedInbox @SetParameters
 }
@@ -227,7 +236,8 @@ function Test-TargetResource
     #endregion
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $ValuesToCheck.Remove('FocusedInboxOnLastUpdateTime') | Out-Null
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
@@ -309,6 +319,11 @@ function Export-TargetResource
         }
         foreach ($config in $Script:exportedInstances)
         {
+            if ($null -ne $Global:M365DSCExportResourceInstancesCount)
+            {
+                $Global:M365DSCExportResourceInstancesCount++
+            }
+
             $displayedKey = $config.UserPrincipalName
             Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Count)] $displayedKey" -DeferWrite
             $params = @{
@@ -351,4 +366,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

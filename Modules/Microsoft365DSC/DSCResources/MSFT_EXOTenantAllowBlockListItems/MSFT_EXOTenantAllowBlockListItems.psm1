@@ -66,8 +66,10 @@ function Get-TargetResource
         $ApplicationSecret
     )
 
-    New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting configuration for Tenant Allow/Block List Items with Action {$Action} and Value {$Value}"
+
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -118,7 +120,7 @@ function Get-TargetResource
             CertificateThumbprint = $CertificateThumbprint
             ApplicationSecret     = $ApplicationSecret
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -197,8 +199,7 @@ function Set-TargetResource
         $ApplicationSecret
     )
 
-    New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Setting configuration for Tenant Allow/Block List Items with Action {$Action} and Value {$Value}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -213,7 +214,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
@@ -363,14 +363,13 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of {$Value}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($null -ne $ValuesToCheck.ExpirationDate -and $ValuesToCheck.ExpirationDate.Kind -eq 'Local')
     {
         $ValuesToCheck.ExpirationDate = $ValuesToCheck.ExpirationDate.ToUniversalTime().ToString()
     }
 
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
     $ValuesToCheck.Remove('Entries') | Out-Null
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
@@ -527,4 +526,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -11,7 +11,18 @@
   },
   "permissions": {
     "graph": {
-      "delegated": {},
+      "delegated": {
+        "read": [
+          {
+            "name": "Policy.Read.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "Policy.ReadWrite.AuthenticationFlows"
+          }
+        ]
+      },
       "application": {
         "read": [
           {
@@ -29,5 +40,9 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.SignIns"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

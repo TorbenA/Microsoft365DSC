@@ -77,7 +77,7 @@ function Get-TargetResource
         if ($null -eq $Script:exportedInstance)
         {
 
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -154,7 +154,7 @@ function Get-TargetResource
             ManagedIdentity           = $ManagedIdentity.IsPresent
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -237,8 +237,9 @@ function Set-TargetResource
         [Parameter()]
         [System.String[]]
         $AccessTokens
-
     )
+
+    Write-Verbose -Message "Setting configuration of the AAD Group Eligibility Schedule Settings with Id {$Id} and GroupDisplayName {$GroupDisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -253,8 +254,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
-    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     Write-Verbose -Message "Updating the Azure AD PIM Group Management Policy Rule with Id {$($currentInstance.Id)}"
     $body = @{
@@ -408,7 +407,6 @@ function Test-TargetResource
         [Parameter()]
         [System.String[]]
         $AccessTokens
-
     )
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -426,7 +424,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of the Azure AD PIM Group Management Policy Rule with Id {$Id} and DisplayName {$groupDisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $testResult = $true
 
     #Compare Cim instances
@@ -450,7 +448,6 @@ function Test-TargetResource
     }
 
     $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
@@ -543,12 +540,7 @@ function Export-TargetResource
             }
         }
 
-        $batchResponses = @()
-        for ($i = 0; $i -lt $batchRequests.Count; $i += 20)
-        {
-            $batchRequestSized = $batchRequests[$i..([Math]::Min($i + 19, $batchRequests.Count - 1))]
-            $batchResponses += Invoke-M365DSCGraphBatchRequest -Requests $batchRequestSized
-        }
+        $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
 
         foreach ($group in $groups)
         {
@@ -576,7 +568,7 @@ function Export-TargetResource
                         CertificateThumbprint = $CertificateThumbprint
                         ApplicationSecret     = $ApplicationSecret
                         Credential            = $Credential
-                        Managedidentity       = $ManagedIdentity.IsPresent
+                        ManagedIdentity       = $ManagedIdentity.IsPresent
                         AccessTokens          = $AccessTokens
                     }
 
@@ -939,4 +931,3 @@ function Get-M365DSCRoleManagementPolicyRuleObject
 }
 
 Export-ModuleMember -Function *-TargetResource
-

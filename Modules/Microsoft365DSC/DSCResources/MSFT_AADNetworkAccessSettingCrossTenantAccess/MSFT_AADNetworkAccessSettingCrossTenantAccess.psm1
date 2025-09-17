@@ -43,8 +43,10 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting the AAD Network Access Setting Cross Tenant Access"
+
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -73,7 +75,7 @@ function Get-TargetResource
             ManagedIdentity            = $ManagedIdentity.IsPresent
             AccessTokens               = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -130,7 +132,9 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    Write-Verbose -Message "Setting the AAD Network Access Setting Cross Tenant Access"
+
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -145,7 +149,6 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Updating the Cross Tenant Access Settings'
     Update-MgBetaNetworkAccessSettingCrossTenantAccess -NetworkPacketTaggingStatus $NetworkPacketTaggingStatus
 }
 
@@ -302,4 +305,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

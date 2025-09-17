@@ -85,7 +85,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -148,7 +148,7 @@ function Get-TargetResource
             $myExcludeTargets.Add('Id', $currentExcludeTargets.id)
             if ($null -ne $currentExcludeTargets.targetType)
             {
-                $myExcludeTargets.Add('TargetType', $currentExcludeTargets.targetType.toString())
+                $myExcludeTargets.Add('TargetType', $currentExcludeTargets.targetType.ToString())
             }
             if ($myExcludeTargets.values.Where({ $null -ne $_ }).count -gt 0)
             {
@@ -164,7 +164,7 @@ function Get-TargetResource
             $myIncludeTargets.Add('TargetedAuthenticationMethod', $currentIncludeTargets.targetedAuthenticationMethod)
             if ($null -ne $currentIncludeTargets.targetType)
             {
-                $myIncludeTargets.Add('TargetType', $currentIncludeTargets.targetType.toString())
+                $myIncludeTargets.Add('TargetType', $currentIncludeTargets.targetType.ToString())
             }
             if ($myIncludeTargets.values.Where({ $null -ne $_ }).count -gt 0)
             {
@@ -175,7 +175,7 @@ function Get-TargetResource
         $complexAuthenticationMethodsRegistrationCampaign.Add('SnoozeDurationInDays', $getValue.registrationEnforcement.authenticationMethodsRegistrationCampaign.snoozeDurationInDays)
         if ($null -ne $getValue.registrationEnforcement.authenticationMethodsRegistrationCampaign.state)
         {
-            $complexAuthenticationMethodsRegistrationCampaign.Add('State', $getValue.registrationEnforcement.authenticationMethodsRegistrationCampaign.state.toString())
+            $complexAuthenticationMethodsRegistrationCampaign.Add('State', $getValue.registrationEnforcement.authenticationMethodsRegistrationCampaign.state.ToString())
         }
         if ($complexAuthenticationMethodsRegistrationCampaign.values.Where({ $null -ne $_ }).count -eq 0)
         {
@@ -192,13 +192,13 @@ function Get-TargetResource
         $newComplexIncludeTarget.Add('Id', $getValue.ReportSuspiciousActivitySettings.IncludeTarget.id)
         if ($null -ne $getValue.ReportSuspiciousActivitySettings.IncludeTarget.targetType)
         {
-            $newComplexIncludeTarget.Add('TargetType', $getValue.ReportSuspiciousActivitySettings.IncludeTarget.targetType.toString())
+            $newComplexIncludeTarget.Add('TargetType', $getValue.ReportSuspiciousActivitySettings.IncludeTarget.targetType.ToString())
         }
         $complexReportSuspiciousActivitySettings.Add('IncludeTarget', $newComplexIncludeTarget)
 
         if ($null -ne $getValue.ReportSuspiciousActivitySettings.state)
         {
-            $complexReportSuspiciousActivitySettings.Add('State', $getValue.ReportSuspiciousActivitySettings.state.toString())
+            $complexReportSuspiciousActivitySettings.Add('State', $getValue.ReportSuspiciousActivitySettings.state.ToString())
         }
         if ($null -ne $getValue.ReportSuspiciousActivitySettings.VoiceReportingCode)
         {
@@ -217,7 +217,7 @@ function Get-TargetResource
             $myExcludeTargets.Add('Id', $currentExcludeTargets.id)
             if ($null -ne $currentExcludeTargets.targetType)
             {
-                $myExcludeTargets.Add('TargetType', $currentExcludeTargets.targetType.toString())
+                $myExcludeTargets.Add('TargetType', $currentExcludeTargets.targetType.ToString())
             }
             if ($myExcludeTargets.values.Where({ $null -ne $_ }).count -gt 0)
             {
@@ -232,7 +232,7 @@ function Get-TargetResource
             $myIncludeTargets.Add('Id', $currentIncludeTargets.id)
             if ($null -ne $currentIncludeTargets.targetType)
             {
-                $myIncludeTargets.Add('TargetType', $currentIncludeTargets.targetType.toString())
+                $myIncludeTargets.Add('TargetType', $currentIncludeTargets.targetType.ToString())
             }
             if ($myIncludeTargets.values.Where({ $null -ne $_ }).count -gt 0)
             {
@@ -242,7 +242,7 @@ function Get-TargetResource
         $complexSystemCredentialPreferences.Add('IncludeTargets', $complexIncludeTargets)
         if ($null -ne $getValue.SystemCredentialPreferences.state)
         {
-            $complexSystemCredentialPreferences.Add('State', $getValue.SystemCredentialPreferences.state.toString())
+            $complexSystemCredentialPreferences.Add('State', $getValue.SystemCredentialPreferences.state.ToString())
         }
         if ($complexSystemCredentialPreferences.values.Where({ $null -ne $_ }).count -eq 0)
         {
@@ -267,12 +267,12 @@ function Get-TargetResource
             TenantId                         = $TenantId
             ApplicationSecret                = $ApplicationSecret
             CertificateThumbprint            = $CertificateThumbprint
-            Managedidentity                  = $ManagedIdentity.IsPresent
+            ManagedIdentity                  = $ManagedIdentity.IsPresent
             AccessTokens                     = $AccessTokens
             #endregion
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -390,12 +390,12 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating the Azure AD Authentication Method Policy with Id {$($currentInstance.Id)}"
 
-        $UpdateParameters = ([Hashtable]$BoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
@@ -740,4 +740,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

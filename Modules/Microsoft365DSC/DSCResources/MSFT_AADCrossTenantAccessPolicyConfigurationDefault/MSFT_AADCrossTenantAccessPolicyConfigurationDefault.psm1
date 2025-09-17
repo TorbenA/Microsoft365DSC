@@ -69,7 +69,7 @@ function Get-TargetResource
 
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
         #Ensure the proper dependencies are installed in the current environment.
@@ -101,37 +101,109 @@ function Get-TargetResource
             $B2BCollaborationInboundValue = @{
                 Applications = @{
                     AccessType = $getValue.B2BCollaborationInbound.Applications.AccessType
-                    Targets    = [System.String[]] $getValue.B2BCollaborationInbound.Applications.Targets
+                    Targets    = [System.Array]$getValue.B2BCollaborationInbound.Applications.Targets
                 }
                 UsersAndGroups =@{
                     AccessType = $getValue.B2BCollaborationInbound.UsersAndGroups.AccessType
-                    Targets    = [System.String[]] $getValue.B2BCollaborationInbound.UsersAndGroups.Targets
+                    Targets    = [System.Array] $getValue.B2BCollaborationInbound.UsersAndGroups.Targets
                 }
             }
+
+            # Convert users back to UPN
+            $newValue = @()
+            foreach ($valueEntry in $B2BCollaborationInboundValue.UsersAndGroups.Targets)
+            {
+                $currentEntry = @{
+                    Target     = $valueEntry.Target
+                    TargetType = $valueEntry.TargetType
+                }
+                if ($valueEntry.TargetType -eq 'user')
+                {
+                    $user = Get-MgUser -UserId $valueEntry.Target -ErrorAction SilentlyContinue
+                    if ($null -ne $user)
+                    {
+                        $currentEntry.Target = $user.UserPrincipalName
+                    }
+                    else
+                    {
+                        $currentEntry.Target = $valueEntry.Target
+                    }
+                }
+                else
+                {
+                    $group = [System.Array] (Get-MgGroup -GroupId $valueEntry.Target -ErrorAction SilentlyContinue)
+                    if ($null -ne $group -and $group.Length -eq 1)
+                    {
+                        $currentEntry.Target = $group.DisplayName
+                    }
+                    else
+                    {
+                        $currentEntry.Target = $valueEntry.Target
+                    }
+                }
+                $newValue += $currentEntry
+            }
+            $B2BCollaborationInboundValue.UsersAndGroups.Targets = $newValue
         }
         if ($null -ne $getValue.B2BCollaborationOutbound)
         {
             $B2BCollaborationOutboundValue = @{
                 Applications = @{
                     AccessType = $getValue.B2BCollaborationOutbound.Applications.AccessType
-                    Targets    = [System.String[]] $getValue.B2BCollaborationOutbound.Applications.Targets
+                    Targets    = [System.Array] $getValue.B2BCollaborationOutbound.Applications.Targets
                 }
                 UsersAndGroups =@{
                     AccessType = $getValue.B2BCollaborationOutbound.UsersAndGroups.AccessType
-                    Targets    = [System.String[]] $getValue.B2BCollaborationOutbound.UsersAndGroups.Targets
+                    Targets    = [System.Array] $getValue.B2BCollaborationOutbound.UsersAndGroups.Targets
                 }
             }
+
+            # Convert users back to UPN
+            $newValue = @()
+            foreach ($valueEntry in $B2BCollaborationOutboundValue.UsersAndGroups.Targets)
+            {
+                $currentEntry = @{
+                    Target     = $valueEntry.Target
+                    TargetType = $valueEntry.TargetType
+                }
+                if ($valueEntry.TargetType -eq 'user')
+                {
+                    $user = Get-MgUser -UserId $valueEntry.Target -ErrorAction SilentlyContinue
+                    if ($null -ne $user)
+                    {
+                        $currentEntry.Target = $user.UserPrincipalName
+                    }
+                    else
+                    {
+                        $currentEntry.Target = $valueEntry.Target
+                    }
+                }
+                else
+                {
+                    $group = [System.Array] (Get-MgGroup -GroupId $valueEntry.Target -ErrorAction SilentlyContinue)
+                    if ($null -ne $group -and $group.Length -eq 1)
+                    {
+                        $currentEntry.Target = $group.DisplayName
+                    }
+                    else
+                    {
+                        $currentEntry.Target = $valueEntry.Target
+                    }
+                }
+                $newValue += $currentEntry
+            }
+            $B2BCollaborationOutboundValue.UsersAndGroups.Targets = $newValue
         }
         if ($null -ne $getValue.B2BDirectConnectInbound)
         {
             $B2BDirectConnectInboundValue = @{
                 Applications = @{
                     AccessType = $getValue.B2BDirectConnectInbound.Applications.AccessType
-                    Targets    = [System.String[]] $getValue.B2BDirectConnectInbound.Applications.Targets
+                    Targets    = [System.Array] $getValue.B2BDirectConnectInbound.Applications.Targets
                 }
                 UsersAndGroups =@{
                     AccessType = $getValue.B2BDirectConnectInbound.UsersAndGroups.AccessType
-                    Targets    = [System.String[]] $getValue.B2BDirectConnectInbound.UsersAndGroups.Targets
+                    Targets    = [System.Array] $getValue.B2BDirectConnectInbound.UsersAndGroups.Targets
                 }
             }
         }
@@ -140,13 +212,48 @@ function Get-TargetResource
             $B2BDirectConnectOutboundValue = @{
                 Applications = @{
                     AccessType = $getValue.B2BDirectConnectOutbound.Applications.AccessType
-                    Targets    = [System.String[]] $getValue.B2BDirectConnectOutbound.Applications.Targets
+                    Targets    = [System.Array] $getValue.B2BDirectConnectOutbound.Applications.Targets
                 }
                 UsersAndGroups =@{
                     AccessType = $getValue.B2BDirectConnectOutbound.UsersAndGroups.AccessType
-                    Targets    = [System.String[]] $getValue.B2BDirectConnectOutbound.UsersAndGroups.Targets
+                    Targets    = [System.Array] $getValue.B2BDirectConnectOutbound.UsersAndGroups.Targets
                 }
             }
+            # Convert users back to UPN
+            $newValue = @()
+            foreach ($valueEntry in $B2BDirectConnectOutboundValue.UsersAndGroups.Targets)
+            {
+                $currentEntry = @{
+                    Target     = $valueEntry.Target
+                    TargetType = $valueEntry.TargetType
+                }
+                if ($valueEntry.TargetType -eq 'user')
+                {
+                    $user = Get-MgUser -UserId $valueEntry.Target -ErrorAction SilentlyContinue
+                    if ($null -ne $user)
+                    {
+                        $currentEntry.Target = $user.UserPrincipalName
+                    }
+                    else
+                    {
+                        $currentEntry.Target = $valueEntry.Target
+                    }
+                }
+                else
+                {
+                    $group = [System.Array] (Get-MgGroup -GroupId $valueEntry.Target -ErrorAction SilentlyContinue)
+                    if ($null -ne $group -and $group.Length -eq 1)
+                    {
+                        $currentEntry.Target = $group.DisplayName
+                    }
+                    else
+                    {
+                        $currentEntry.Target = $valueEntry.Target
+                    }
+                }
+                $newValue += $currentEntry
+            }
+            $B2BDirectConnectOutboundValue.UsersAndGroups.Targets = $newValue
         }
         if ($null -ne $getValue.InboundTrust)
         {
@@ -174,7 +281,7 @@ function Get-TargetResource
             AccessTokens             = $AccessTokens
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -268,16 +375,8 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $OperationParams = ([Hashtable]$PSBoundParameters).Clone()
-    $OperationParams.Remove('Credential') | Out-Null
-    $OperationParams.Remove('ManagedIdentity') | Out-Null
-    $OperationParams.Remove('ApplicationId') | Out-Null
-    $OperationParams.Remove('TenantId') | Out-Null
-    $OperationParams.Remove('CertificateThumbprint') | Out-Null
-    $OperationParams.Remove('ApplicationSecret') | Out-Null
-    $OperationParams.Remove('Ensure') | Out-Null
+    $OperationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $OperationParams.Remove('IsSingleInstance') | Out-Null
-    $OperationParams.Remove('AccessTokens') | Out-Null
 
     if ($null -ne $OperationParams.B2BCollaborationInbound)
     {
@@ -477,7 +576,7 @@ function Export-TargetResource
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint
             Credential            = $Credential
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
         $Results = Get-TargetResource @Params
@@ -783,6 +882,8 @@ function Get-M365DSCAADCrossTenantAccessPolicyB2BSetting
         $targets = @()
         foreach ($currentTarget in $Setting.usersAndGroups.targets)
         {
+            $user  = $null
+            $group = $null
             if ($currentTarget.targetType -eq 'User')
             {
                 $user = Get-MgUser -UserId $currentTarget.target -ErrorAction SilentlyContinue
@@ -837,4 +938,3 @@ function Get-M365DSCAADCrossTenantAccessPolicyInboundTrust
 }
 
 Export-ModuleMember -Function *-TargetResource
-

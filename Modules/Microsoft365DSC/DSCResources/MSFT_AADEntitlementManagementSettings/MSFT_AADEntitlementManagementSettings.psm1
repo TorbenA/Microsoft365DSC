@@ -8,7 +8,7 @@ function Get-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [System.String]
-        $IsSingleInstance = 'Yes',
+        $IsSingleInstance,
 
         [Parameter()]
         [System.UInt32]
@@ -49,8 +49,8 @@ function Get-TargetResource
 
     Write-Verbose -Message "Getting configuration for Entitlement Management Settings"
 
-    New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -85,7 +85,7 @@ function Get-TargetResource
             ManagedIdentity                          = $ManagedIdentity.IsPresent
             AccessTokens                             = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -107,7 +107,7 @@ function Set-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [System.String]
-        $IsSingleInstance = 'Yes',
+        $IsSingleInstance,
 
         [Parameter()]
         [System.UInt32]
@@ -148,6 +148,9 @@ function Set-TargetResource
 
     Write-Verbose -Message "Setting configuration for Entitlement Management Settings"
 
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -174,7 +177,7 @@ function Test-TargetResource
     (
         [Parameter(Mandatory = $true)]
         [System.String]
-        $IsSingleInstance = 'Yes',
+        $IsSingleInstance,
 
         [Parameter()]
         [System.UInt32]
@@ -324,4 +327,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

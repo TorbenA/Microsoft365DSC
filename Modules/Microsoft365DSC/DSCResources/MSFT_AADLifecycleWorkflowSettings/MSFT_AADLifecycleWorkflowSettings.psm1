@@ -55,8 +55,8 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance)
         {
-            New-M365DSCConnection -Workload 'MicrosoftGraph' `
-                -InboundParameters $PSBoundParameters | Out-Null
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
             Confirm-M365DSCDependencies
@@ -96,7 +96,7 @@ function Get-TargetResource
             ManagedIdentity                 = $ManagedIdentity.IsPresent
             AccessTokens                    = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -165,6 +165,11 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting the AAD Lifecycle Workflow Settings"
+
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -384,4 +389,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

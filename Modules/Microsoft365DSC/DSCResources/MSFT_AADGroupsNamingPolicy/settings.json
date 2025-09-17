@@ -17,9 +17,6 @@
         ],
         "update": [
           {
-            "name": "Directory.Read.All"
-          },
-          {
             "name": "Directory.ReadWrite.All"
           }
         ]
@@ -32,9 +29,6 @@
         ],
         "update": [
           {
-            "name": "Directory.Read.All"
-          },
-          {
             "name": "Directory.ReadWrite.All"
           }
         ]
@@ -44,5 +38,9 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.DirectoryManagement"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

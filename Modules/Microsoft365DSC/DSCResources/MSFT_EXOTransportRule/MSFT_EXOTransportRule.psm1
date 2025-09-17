@@ -750,7 +750,7 @@ function Get-TargetResource
 
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+            $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -964,7 +964,7 @@ function Get-TargetResource
             CertificateThumbprint                        = $CertificateThumbprint
             CertificatePath                              = $CertificatePath
             CertificatePassword                          = $CertificatePassword
-            Managedidentity                              = $ManagedIdentity.IsPresent
+            ManagedIdentity                              = $ManagedIdentity.IsPresent
             TenantId                                     = $TenantId
             AccessTokens                                 = $AccessTokens
         }
@@ -973,18 +973,18 @@ function Get-TargetResource
         {
             $propertyInfo = $inputParams.$key
             $curVar = $TransportRule.$key
-            if ($propertyInfo.ParameterType.Name -eq 'String[]' -and $curVar -eq $null)
+            if ($result.ContainsKey($key) -and $propertyInfo.ParameterType.Name -eq 'String[]' -and $null -eq $curVar)
             {
                 $result.$key = @()
             }
         }
 
         # Formats DateTime as String
-        if ($null -ne $result.ActivationDate)
+        if ($null -ne $TransportRule.ActivationDate)
         {
             $result.ActivationDate = $TransportRule.ActivationDate.ToUniversalTime().ToString()
         }
-        if ($null -ne $result.ExpiryDate)
+        if ($null -ne $TransportRule.ExpiryDate)
         {
             $result.ExpiryDate = $TransportRule.ExpiryDate.ToUniversalTime().ToString()
         }
@@ -1759,37 +1759,26 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' -InboundParameters $PSBoundParameters
-
-    $NewTransportRuleParams = [System.Collections.Hashtable]($PSBoundParameters)
-    $NewTransportRuleParams.Remove('Ensure') | Out-Null
-    $NewTransportRuleParams.Remove('Credential') | Out-Null
-    $NewTransportRuleParams.Remove('MakeDefault') | Out-Null
-    $NewTransportRuleParams.Remove('ApplicationId') | Out-Null
-    $NewTransportRuleParams.Remove('TenantId') | Out-Null
-    $NewTransportRuleParams.Remove('CertificateThumbprint') | Out-Null
-    $NewTransportRuleParams.Remove('CertificatePath') | Out-Null
-    $NewTransportRuleParams.Remove('CertificatePassword') | Out-Null
-    $NewTransportRuleParams.Remove('ManagedIdentity') | Out-Null
-    $NewTransportRuleParams.Remove('AccessTokens') | Out-Null
+    $newTransportRuleParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $newTransportRuleParams.Remove('MakeDefault') | Out-Null
 
     # check for deprecated DLP parameters and remove them
-    if ($NewTransportRuleParams.ContainsKey('MessageContainsDataClassifications') `
-            -or $NewTransportRuleParams.ContainsKey('ExceptIfMessageContainsDataClassifications') `
-            -or $NewTransportRuleParams.ContainsKey('HasSenderOverride') `
-            -or $NewTransportRuleParams.ContainsKey('ExceptIfHasSenderOverride') `
-            -or $NewTransportRuleParams.ContainsKey('NotifySender'))
+    if ($newTransportRuleParams.ContainsKey('MessageContainsDataClassifications') `
+            -or $newTransportRuleParams.ContainsKey('ExceptIfMessageContainsDataClassifications') `
+            -or $newTransportRuleParams.ContainsKey('HasSenderOverride') `
+            -or $newTransportRuleParams.ContainsKey('ExceptIfHasSenderOverride') `
+            -or $newTransportRuleParams.ContainsKey('NotifySender'))
     {
-        $NewTransportRuleParams.Remove('MessageContainsDataClassifications') | Out-Null
-        $NewTransportRuleParams.Remove('ExceptIfMessageContainsDataClassifications') | Out-Null
-        $NewTransportRuleParams.Remove('HasSenderOverride') | Out-Null
-        $NewTransportRuleParams.Remove('ExceptIfHasSenderOverride') | Out-Null
-        $NewTransportRuleParams.Remove('NotifySender') | Out-Null
+        $newTransportRuleParams.Remove('MessageContainsDataClassifications') | Out-Null
+        $newTransportRuleParams.Remove('ExceptIfMessageContainsDataClassifications') | Out-Null
+        $newTransportRuleParams.Remove('HasSenderOverride') | Out-Null
+        $newTransportRuleParams.Remove('ExceptIfHasSenderOverride') | Out-Null
+        $newTransportRuleParams.Remove('NotifySender') | Out-Null
 
         Write-Verbose -Message 'DEPRECATED - The DLP parameters (MessageContainsDataClassifications, ExceptIfMessageContainsDataClassifications, ExceptIfHasSenderOverride, HasSenderOverride and NotifySender) are deprecated and will be ignored.'
     }
 
-    $SetTransportRuleParams = $NewTransportRuleParams.Clone()
+    $SetTransportRuleParams = $newTransportRuleParams.Clone()
     $SetTransportRuleParams.Add('Identity', $Name)
     $SetTransportRuleParams.Remove('Enabled') | Out-Null
 
@@ -1799,16 +1788,16 @@ function Set-TargetResource
         Write-Verbose -Message "Transport Rule '$($Name)' does not exist but it should. Create and configure it."
 
         $nullKeysToRemove = @()
-        foreach ($key in $NewTransportRuleParams.Keys)
+        foreach ($key in $newTransportRuleParams.Keys)
         {
-            if ($NewTransportRuleParams.$key.GetType().Name -eq 'String[]' -and $NewTransportRuleParams.$key.Length -eq 0)
+            if ($newTransportRuleParams.$key.GetType().Name -eq 'String[]' -and $newTransportRuleParams.$key.Length -eq 0)
             {
                 $nullKeysToRemove += $key
             }
         }
         foreach ($paramToRemove in $nullKeysToRemove)
         {
-            $NewTransportRuleParams.Remove($paramToRemove) | Out-Null
+            $newTransportRuleParams.Remove($paramToRemove) | Out-Null
         }
 
         # Create Transport Rule
@@ -2736,6 +2725,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true
@@ -2780,7 +2770,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }
@@ -2814,4 +2804,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

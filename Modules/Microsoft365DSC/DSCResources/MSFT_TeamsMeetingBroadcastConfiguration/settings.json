@@ -30,7 +30,9 @@
     }
   },
   "requiredModules": [
-    "MicrosoftTeams",
-    "ReverseDSC"
+    "MicrosoftTeams"
+  ],
+  "supportedEnvironments": [
+    "Global"
   ]
 }

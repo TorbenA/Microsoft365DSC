@@ -194,7 +194,7 @@ function Get-TargetResource
         [array]$Owners = Get-TeamUser -GroupId $team.GroupId | Where-Object { $_.Role -eq 'owner' }
         if ($null -eq $Owners)
         {
-            # Without Users, Get-TeamUser return null instead on empty array
+            # Without Users, Get-TeamUser returns null instead of an empty array
             $Owners = @()
         }
 
@@ -452,7 +452,7 @@ function Set-TargetResource
             $currentOwner = (($CurrentParameters.Owner)[0])
 
             Write-Verbose -Message "Retrieving Group Owner {$currentOwner}"
-            $ownerUser = Get-MgUser -Search $currentOwner -ConsistencyLevel eventual
+            $ownerUser = Get-MgUser -Search "userPrincipalName:$currentOwner" -ConsistencyLevel eventual
             $ownerOdataID = "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)v1.0/directoryObjects/$($ownerUser.Id)"
 
             Write-Verbose -Message "Adding Owner {$($ownerUser.Id)} to Group {$($group.Id)}"

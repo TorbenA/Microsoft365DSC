@@ -88,7 +88,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Id -ne $Id)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -169,7 +169,7 @@ function Get-TargetResource
         [Array]$query = Get-MgBetaEntitlementManagementAccessPackageIncompatibleWith -AccessPackageId $getValue.id
         if ($query.count -gt 0)
         {
-            $getIncompatibleAccessPackages += $query.id
+            $getAccessPackagesIncompatibleWith += $query.id
         }
 
         $getIncompatibleGroups = @()
@@ -196,11 +196,11 @@ function Get-TargetResource
             TenantId                        = $TenantId
             ApplicationSecret               = $ApplicationSecret
             CertificateThumbprint           = $CertificateThumbprint
-            Managedidentity                 = $ManagedIdentity.IsPresent
+            ManagedIdentity                 = $ManagedIdentity.IsPresent
             AccessTokens                    = $AccessTokens
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -297,16 +297,6 @@ function Set-TargetResource
 
     Write-Verbose -Message "Setting configuration of AzureAD Entitlement Management Access Package for DisplayName {$DisplayName}"
 
-    try
-    {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters
-    }
-    catch
-    {
-        Write-Verbose -Message $_
-    }
-
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -321,21 +311,12 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $PSBoundParameters.Remove('Ensure') | Out-Null
-    $PSBoundParameters.Remove('Credential') | Out-Null
-    $PSBoundParameters.Remove('ApplicationId') | Out-Null
-    $PSBoundParameters.Remove('ApplicationSecret') | Out-Null
-    $PSBoundParameters.Remove('TenantId') | Out-Null
-    $PSBoundParameters.Remove('CertificateThumbprint') | Out-Null
-    $PSBoundParameters.Remove('ManagedIdentity') | Out-Null
-    $PSBoundParameters.Remove('AccessTokens') | Out-Null
-
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating access package {$DisplayName}"
 
         #region basic information
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         $ObjectGuid = [System.Guid]::empty
         if (-not [System.Guid]::TryParse($CreateParameters.CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
@@ -348,7 +329,6 @@ function Set-TargetResource
         }
 
         $CreateParameters.Remove('Id') | Out-Null
-        $CreateParameters.Remove('Verbose') | Out-Null
         $CreateParameters.Remove('AccessPackageResourceRoleScopes') | Out-Null
         $CreateParameters.Remove('IncompatibleAccessPackages') | Out-Null
         $CreateParameters.Remove('AccessPackagesIncompatibleWith') | Out-Null
@@ -451,7 +431,7 @@ function Set-TargetResource
         Write-Verbose -Message "Updating access package with id {$id} and displayName {$DisplayName}"
 
         #region basic information
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         $ObjectGuid = [System.Guid]::empty
         if (-not [System.Guid]::TryParse($CreateParameters.CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
@@ -464,7 +444,6 @@ function Set-TargetResource
         }
 
         $UpdateParameters.Remove('Id') | Out-Null
-        $UpdateParameters.Remove('Verbose') | Out-Null
         $UpdateParameters.Remove('AccessPackageResourceRoleScopes') | Out-Null
         $UpdateParameters.Remove('IncompatibleAccessPackages') | Out-Null
         $UpdateParameters.Remove('AccessPackagesIncompatibleWith') | Out-Null
@@ -896,7 +875,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
@@ -954,4 +933,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

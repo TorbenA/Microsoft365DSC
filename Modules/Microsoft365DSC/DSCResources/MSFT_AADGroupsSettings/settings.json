@@ -12,42 +12,36 @@
       "delegated": {
         "read": [
           {
-            "name": "Directory.Read.All"
+            "name": "Group.Read.All"
           },
           {
-            "name": "Group.Read.All"
+            "name": "GroupSettings.Read.All"
           }
         ],
         "update": [
           {
-            "name": "Directory.Read.All"
-          },
-          {
-            "name": "Directory.ReadWrite.All"
-          },
-          {
             "name": "Group.Read.All"
+          },
+          {
+            "name": "GroupSettings.ReadWrite.All"
           }
         ]
       },
       "application": {
         "read": [
           {
-            "name": "Directory.Read.All"
+            "name": "Group.Read.All"
           },
           {
-            "name": "Group.Read.All"
+            "name": "GroupSettings.Read.All"
           }
         ],
         "update": [
           {
-            "name": "Directory.Read.All"
-          },
-          {
-            "name": "Directory.ReadWrite.All"
-          },
-          {
             "name": "Group.Read.All"
+          },
+          {
+            "name": "GroupSettings.ReadWrite.All"
           }
         ]
       }
@@ -57,5 +51,9 @@
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.DirectoryManagement",
     "Microsoft.Graph.Groups"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

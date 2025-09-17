@@ -39,7 +39,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'AzureDevOPS' `
+    $null = New-M365DSCConnection -Workload 'AzureDevOPS' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -75,7 +75,7 @@ function Get-TargetResource
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -127,7 +127,10 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    $ConnectionMode = New-M365DSCConnection -Workload 'AzureDevOPS' `
+
+    Write-Verbose -Message "Setting ADO Organization Owner for organization $OrganizationName"
+
+    $null = New-M365DSCConnection -Workload 'AzureDevOPS' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -213,7 +216,7 @@ function Test-TargetResource
     #endregion
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
@@ -276,8 +279,8 @@ function Export-TargetResource
         Add-M365DSCTelemetryEvent -Data $data
         #endregion
 
-        $profile = Invoke-M365DSCAzureDevOPSWebRequest -Uri 'https://app.vssps.visualstudio.com/_apis/profile/profiles/me?api-version=5.1'
-        $accounts = Invoke-M365DSCAzureDevOPSWebRequest -Uri "https://app.vssps.visualstudio.com/_apis/accounts?api-version=7.1-preview.1&memberId=$($profile.id)"
+        $devOpsProfile = Invoke-M365DSCAzureDevOPSWebRequest -Uri 'https://app.vssps.visualstudio.com/_apis/profile/profiles/me?api-version=5.1'
+        $accounts = Invoke-M365DSCAzureDevOPSWebRequest -Uri "https://app.vssps.visualstudio.com/_apis/accounts?api-version=7.1-preview.1&memberId=$($devOpsProfile.id)"
 
         $i = 1
         $dscContent = ''
@@ -340,4 +343,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -8,8 +8,16 @@
   "permissions": {
     "graph": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "Domain.Read.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "Domain.ReadWrite.All"
+          }
+        ]
       },
       "application": {
         "read": [
@@ -28,5 +36,9 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.DirectoryManagement"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

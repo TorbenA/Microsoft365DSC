@@ -86,8 +86,8 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-                -InboundParameters $PSBoundParameters | Out-Null
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
             Confirm-M365DSCDependencies
@@ -295,7 +295,7 @@ function Get-TargetResource
             TenantId              = $TenantId
             ApplicationSecret     = $ApplicationSecret
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
         return $results
@@ -612,7 +612,7 @@ function Test-TargetResource
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
                                          -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludedProperties @('Action', 'IsValidationOnly', 'Justification') -Verbose
+                                         -ExcludedProperties @('Action', 'IsValidationOnly', 'Justification')
     return $result
 }
 
@@ -837,4 +837,3 @@ function Test-M365DSCRecurrenceIsConfigured
 }
 
 Export-ModuleMember -Function *-TargetResource
-

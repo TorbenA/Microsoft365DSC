@@ -1,17 +1,33 @@
 {
   "resourceName": "SCFilePlanPropertyCategory",
-  "description": "",
+  "description": "This resource configures a File Plan Property Category in Purview.",
+  "roles": {
+    "read": [
+      "Compliance Administrator"
+    ],
+    "update": [
+      "Compliance Administrator"
+    ]
+  },
   "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
+    "Office 365 Exchange Online": {
       "application": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "Exchange.ManageAsApp"
+          }
+        ],
+        "update": [
+          {
+            "name": "Exchange.ManageAsApp"
+          }
+        ]
       }
     }
   },
-  "requiredModules": []
+  "requiredModules": [],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ]
 }

@@ -76,7 +76,7 @@ function Get-TargetResource
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
             Write-Verbose -Message 'Getting configuration of Azure AD role definition'
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -133,7 +133,7 @@ function Get-TargetResource
             ApplicationSecret     = $ApplicationSecret
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
         Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
@@ -237,16 +237,9 @@ function Set-TargetResource
     #endregion
 
     $currentAADRoleDef = Get-TargetResource @PSBoundParameters
-    $currentParameters = $PSBoundParameters
-    $currentParameters.Remove('ApplicationId') | Out-Null
+    $currentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $currentParameters.Remove('RolePermissions') | Out-Null
     $currentParameters.Remove('ResourceScopes') | Out-Null
-    $currentParameters.Remove('TenantId') | Out-Null
-    $currentParameters.Remove('CertificateThumbprint') | Out-Null
-    $currentParameters.Remove('ManagedIdentity') | Out-Null
-    $currentParameters.Remove('Credential') | Out-Null
-    $currentParameters.Remove('Ensure') | Out-Null
-    $currentParameters.Remove('AccessTokens') | Out-Null
 
     $rolePermissionsObj = @()
     $rolePermissionsObj += @{'allowedResourceActions' = $rolePermissions }
@@ -408,6 +401,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
@@ -429,7 +423,11 @@ function Export-TargetResource
     {
         $Script:ExportMode = $true
         [array] $Script:exportedInstances = Get-MgBetaRoleManagementDirectoryRoleDefinition -Filter $Filter -All:$true -ErrorAction Stop
-        if ($Script:exportedInstances.Length -gt 0)
+        if ($Script:exportedInstances.Length -eq 0)
+        {
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
+        }
+        else
         {
             Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
@@ -447,7 +445,7 @@ function Export-TargetResource
                 ApplicationSecret     = $ApplicationSecret
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 DisplayName           = $AADRoleDefinition.DisplayName
                 Id                    = $AADRoleDefinition.Id
                 IsEnabled             = $true
@@ -488,4 +486,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

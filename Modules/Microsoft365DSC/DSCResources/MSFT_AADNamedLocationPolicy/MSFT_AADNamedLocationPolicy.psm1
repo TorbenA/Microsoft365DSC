@@ -80,7 +80,7 @@ function Get-TargetResource
         {
             Write-Verbose -Message 'Getting configuration of AAD Named Location'
 
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -157,7 +157,7 @@ function Get-TargetResource
             TenantId                          = $TenantId
             CertificateThumbprint             = $CertificateThumbprint
             Credential                        = $Credential
-            Managedidentity                   = $ManagedIdentity.IsPresent
+            ManagedIdentity                   = $ManagedIdentity.IsPresent
             AccessTokens                      = $AccessTokens
         }
 
@@ -479,7 +479,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #$ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' -InboundParameters $PSBoundParameters
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
@@ -525,7 +525,7 @@ function Export-TargetResource
                 DisplayName           = $AADNamedLocation.DisplayName
                 ID                    = $AADNamedLocation.ID
                 Credential            = $Credential
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
             $Script:exportedInstance = $AADNamedLocation
@@ -562,4 +562,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

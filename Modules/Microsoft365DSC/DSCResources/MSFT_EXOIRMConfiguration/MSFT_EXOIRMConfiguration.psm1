@@ -109,17 +109,18 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     Write-Verbose -Message 'Getting IRM Configuration'
 
     if ($Global:CurrentModeIsExport)
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters `
             -SkipModuleReload $true
     }
     else
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters
     }
 
@@ -147,6 +148,13 @@ function Get-TargetResource
         {
             $RMSOnlineKeySharingLocationValue = $IRMConfiguration.RMSOnlineKeySharingLocation.ToString()
         }
+
+        $LicensingLocationValue = $null
+        if ($IRMConfiguration.LicensingLocation)
+        {
+            $LicensingLocationValue = $IRMConfiguration.LicensingLocation.ToString()
+        }
+
         $result = @{
             IsSingleInstance                           = 'Yes'
             AutomaticServiceUpdateEnabled              = $IRMConfiguration.AutomaticServiceUpdateEnabled
@@ -156,7 +164,7 @@ function Get-TargetResource
             EnablePdfEncryption                        = $IRMConfiguration.EnablePdfEncryption
             InternalLicensingEnabled                   = $IRMConfiguration.InternalLicensingEnabled
             JournalReportDecryptionEnabled             = $IRMConfiguration.JournalReportDecryptionEnabled
-            LicensingLocation                          = $IRMConfiguration.LicensingLocation
+            LicensingLocation                          = $LicensingLocationValue
             RejectIfRecipientHasNoRights               = $IRMConfiguration.RejectIfRecipientHasNoRights
             RMSOnlineKeySharingLocation                = $RMSOnlineKeySharingLocationValue
             SearchEnabled                              = $IRMConfiguration.SearchEnabled
@@ -170,7 +178,7 @@ function Get-TargetResource
             CertificateThumbprint                      = $CertificateThumbprint
             CertificatePath                            = $CertificatePath
             CertificatePassword                        = $CertificatePassword
-            Managedidentity                            = $ManagedIdentity.IsPresent
+            ManagedIdentity                            = $ManagedIdentity.IsPresent
             TenantId                                   = $TenantId
             AccessTokens                               = $AccessTokens
         }
@@ -313,20 +321,11 @@ function Set-TargetResource
 
     Write-Verbose -Message 'Setting configuration of Resource Configuration'
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
-    $IRMConfigurationParams = [System.Collections.Hashtable]($PSBoundParameters)
-    $IRMConfigurationParams.Remove('Ensure') | Out-Null
-    $IRMConfigurationParams.Remove('Credential') | Out-Null
-    $IRMConfigurationParams.Remove('ApplicationId') | Out-Null
-    $IRMConfigurationParams.Remove('TenantId') | Out-Null
-    $IRMConfigurationParams.Remove('CertificateThumbprint') | Out-Null
-    $IRMConfigurationParams.Remove('CertificatePath') | Out-Null
-    $IRMConfigurationParams.Remove('CertificatePassword') | Out-Null
-    $IRMConfigurationParams.Remove('ManagedIdentity') | Out-Null
+    $IRMConfigurationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $IRMConfigurationParams.Remove('IsSingleInstance') | Out-Null
-    $IRMConfigurationParams.Remove('AccessTokens') | Out-Null
 
     if (('Present' -eq $Ensure ) -and ($Null -ne $IRMConfigurationParams))
     {
@@ -516,6 +515,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' -InboundParameters $PSBoundParameters -SkipModuleReload $true
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -550,7 +550,7 @@ function Export-TargetResource
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint
             CertificatePassword   = $CertificatePassword
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             CertificatePath       = $CertificatePath
             AccessTokens          = $AccessTokens
         }
@@ -581,4 +581,3 @@ function Export-TargetResource
     }
 }
 Export-ModuleMember -Function *-TargetResource
-

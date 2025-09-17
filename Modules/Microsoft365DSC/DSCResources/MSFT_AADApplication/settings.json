@@ -17,9 +17,6 @@
         ],
         "update": [
           {
-            "name": "Application.Read.All"
-          },
-          {
             "name": "Application.ReadWrite.All"
           },
           {
@@ -34,9 +31,6 @@
           }
         ],
         "update": [
-          {
-            "name": "Application.Read.All"
-          },
           {
             "name": "Application.ReadWrite.All"
           },
@@ -54,5 +48,9 @@
     "Microsoft.Graph.Beta.Identity.DirectoryManagement",
     "Microsoft.Graph.Users",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }
