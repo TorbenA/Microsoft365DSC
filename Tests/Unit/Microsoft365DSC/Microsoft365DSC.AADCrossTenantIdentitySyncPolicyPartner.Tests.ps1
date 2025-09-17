@@ -35,6 +35,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return "Credentials"
             }
 
+            Mock -CommandName Set-MgBetaPolicyCrossTenantAccessPolicyPartnerIdentitySynchronization -MockWith {             
+            }
+
+            Mock -CommandName Remove-MgBetaPolicyCrossTenantAccessPolicyPartnerIdentitySynchronization -MockWith {             
+            }
+            
+
+            Mock -CommandName Invoke-MgGraphRequest -MockWith {             
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -133,7 +143,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     CrossTenantAccessPolicyConfigurationPartnerTenantId = "d8295cae-8bd0-4a7f-9288-933d2dc4573c";
                     DisplayName                                         = "IdentitySync";
-                    Ensure                                              = "Absent";
+                    Ensure                                              = "Present";
                     IsSyncAllowed                                       = $True;
                     Credential                                          = $Credential;
                 }
@@ -169,6 +179,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential  = $Credential;
+                }
+
+                Mock -CommandName Get-MgBetaPolicyCrossTenantAccessPolicyPartner -MockWith {
+                    return @{
+                        TenantId = 'd8295cae-8bd0-4a7f-9288-933d2dc4573c'
+                    }
                 }
 
                 Mock -CommandName Get-MgBetaPolicyCrossTenantAccessPolicyPartnerIdentitySynchronization -MockWith {
