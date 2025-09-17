@@ -138,7 +138,7 @@ function Get-TargetResource
             ManagedIdentity           = $ManagedIdentity.IsPresent
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -470,7 +470,7 @@ function Export-TargetResource
                     CertificateThumbprint = $CertificateThumbprint
                     ApplicationSecret     = $ApplicationSecret
                     Credential            = $Credential
-                    Managedidentity       = $ManagedIdentity.IsPresent
+                    ManagedIdentity       = $ManagedIdentity.IsPresent
                     AccessTokens          = $AccessTokens
                 }
 

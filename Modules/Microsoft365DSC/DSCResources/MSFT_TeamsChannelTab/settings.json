@@ -62,5 +62,9 @@
     "Microsoft.Graph.Beta.Teams",
     "Microsoft.Graph.Groups",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

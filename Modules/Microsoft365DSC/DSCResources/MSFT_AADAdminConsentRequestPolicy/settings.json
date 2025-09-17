@@ -40,5 +40,9 @@
     "Microsoft.Graph.Groups",
     "Microsoft.Graph.Users",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

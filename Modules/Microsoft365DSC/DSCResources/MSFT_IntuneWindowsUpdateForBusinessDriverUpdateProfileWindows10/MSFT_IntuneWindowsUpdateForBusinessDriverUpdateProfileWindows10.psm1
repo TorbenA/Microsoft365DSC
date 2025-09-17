@@ -77,7 +77,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -166,7 +166,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -419,7 +419,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of the Intune Windows Update For Business Driver Update Profile for Windows 10 with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $testResult = $true
 
     #Compare Cim instances
@@ -444,10 +444,6 @@ function Test-TargetResource
     }
 
     $ValuesToCheck.remove('Id') | Out-Null
-    $ValuesToCheck.Remove('Credential') | Out-Null
-    $ValuesToCheck.Remove('ApplicationId') | Out-Null
-    $ValuesToCheck.Remove('TenantId') | Out-Null
-    $ValuesToCheck.Remove('ApplicationSecret') | Out-Null
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
@@ -606,4 +602,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -35,7 +35,7 @@ function Get-TargetResource
         Write-Verbose -Message "Found an instance with <PrimaryKey> {$<PrimaryKey>}"
         $results = @{
 <HashTableMapping>        }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

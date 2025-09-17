@@ -133,7 +133,7 @@ function Get-TargetResource
             ApplicationSecret     = $ApplicationSecret
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
         Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
@@ -423,7 +423,11 @@ function Export-TargetResource
     {
         $Script:ExportMode = $true
         [array] $Script:exportedInstances = Get-MgBetaRoleManagementDirectoryRoleDefinition -Filter $Filter -All:$true -ErrorAction Stop
-        if ($Script:exportedInstances.Length -gt 0)
+        if ($Script:exportedInstances.Length -eq 0)
+        {
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
+        }
+        else
         {
             Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
@@ -441,7 +445,7 @@ function Export-TargetResource
                 ApplicationSecret     = $ApplicationSecret
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 DisplayName           = $AADRoleDefinition.DisplayName
                 Id                    = $AADRoleDefinition.Id
                 IsEnabled             = $true

@@ -108,7 +108,7 @@ function Get-TargetResource
             ManagedIdentity        = $ManagedIdentity
             AccessTokens           = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

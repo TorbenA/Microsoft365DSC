@@ -131,7 +131,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -230,7 +230,7 @@ function Get-TargetResource
             TenantId                                     = $TenantId
             ApplicationSecret                            = $ApplicationSecret
             CertificateThumbprint                        = $CertificateThumbprint
-            Managedidentity                              = $ManagedIdentity.IsPresent
+            ManagedIdentity                              = $ManagedIdentity.IsPresent
             AccessTokens                                 = $AccessTokens
             #endregion
         }
@@ -245,7 +245,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -609,8 +609,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of the Intune Device Configuration Identity Protection Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $ValuesToCheck.Remove('Id') | Out-Null
     $testResult = $true
 
@@ -748,7 +747,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
@@ -803,4 +802,3 @@ function Export-TargetResource
     }
 }
 Export-ModuleMember -Function *-TargetResource
-

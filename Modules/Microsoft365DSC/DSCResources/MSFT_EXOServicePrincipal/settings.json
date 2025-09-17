@@ -28,5 +28,9 @@
   "requiredModules": [
     "Microsoft.Graph.Applications",
     "Microsoft.Graph.Authentication"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }
