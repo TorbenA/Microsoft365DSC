@@ -21878,27 +21878,7 @@ function Get-MgBetaDeviceManagementWindowsQualityUpdateProfileAssignment
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
-        $ProxyCredential,
-
-        [Parameter()]
-        [System.String]
-        $Search,
-
-        [Parameter()]
-        [System.String]
-        $ManagedMobileAppId,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $Break,
-
-        [Parameter()]
-        [System.String[]]
-        $ExpandProperty,
-
-        [Parameter()]
-        [PSObject]
-        $HttpPipelineAppend
+        $ProxyCredential
     )
 }
 function Get-MgBetaDeviceAppManagementiOSManagedAppProtectionAssignment
@@ -21980,35 +21960,6 @@ function Get-MgBetaDeviceAppManagementiOSManagedAppProtectionAssignment
         [Parameter()]
         [PSObject]
         $HttpPipelineAppend
-    )
-}
-function Get-MgBetaDeviceAppManagementMdmWindowsInformationProtectionPolicy
-{
-    [CmdletBinding()]
-    param(
-        [Parameter()]
-        [System.String[]]
-        $Property,
-
-        [Parameter()]
-        [PSObject]
-        $InputObject,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $ProxyUseDefaultCredentials,
-
-        [Parameter()]
-        [System.Int32]
-        $PageSize,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $All,
-
-        [Parameter()]
-        [System.String]
-        $CountVariable
     )
 }
 function Get-MgBetaDeviceManagement
