@@ -13,6 +13,9 @@
     FIXES [#6489](https://github.com/microsoft/Microsoft365DSC/issues/6489)
 * EXOCalendarProcessing
   * Added caching for export.
+* EXOGroupSettings
+  * Fixed an issue with the retrieval by DisplayName and duplicate Id property
+    on update.
 * EXOMailboxAutoReplyConfiguration
   * Added conditional user lookup.
 * EXOMailboxCalendarFolder
