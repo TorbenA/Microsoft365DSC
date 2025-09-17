@@ -1141,7 +1141,7 @@ function Compare-M365DSCComplexObjectV2
             }
         }
     }
-    elseif ($Target.GetType().FullName -like "*Hashtable")
+    elseif ($Target.GetType().FullName -like "*Hashtable" -or $Target.GetType().FullName -like "*OrderedDictionary")
     {
         $targetKeys = $Target.Keys | Where-Object -FilterScript { $_ -ne 'PSComputerName' }
     }
