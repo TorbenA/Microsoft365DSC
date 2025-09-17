@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADAuthorizationPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -103,7 +105,8 @@ function Get-TargetResource
     )
 
     Write-Verbose -Message 'Getting configuration of AzureAD Authorization Policy'
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -176,7 +179,7 @@ function Get-TargetResource
             ApplicationId                                           = $ApplicationId
             TenantId                                                = $TenantId
             CertificateThumbprint                                   = $CertificateThumbprint
-            Managedidentity                                         = $ManagedIdentity.IsPresent
+            ManagedIdentity                                         = $ManagedIdentity.IsPresent
             AccessTokens                                            = $AccessTokens
         }
 
@@ -287,6 +290,7 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     Write-Verbose -Message 'Setting configuration of AzureAD Authorization Policy'
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -305,16 +309,8 @@ function Set-TargetResource
     $currentPolicy = Get-TargetResource @PSBoundParameters
 
     Write-Verbose -Message 'Set-Targetresource: Cleaning up parameters'
-    $desiredParameters = ([hashtable]$PSBoundParameters).Clone()
+    $desiredParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $desiredParameters.Remove('IsSingleInstance') | Out-Null
-    $desiredParameters.Remove('ApplicationId') | Out-Null
-    $desiredParameters.Remove('TenantId') | Out-Null
-    $desiredParameters.Remove('CertificateThumbprint') | Out-Null
-    $desiredParameters.Remove('ApplicationSecret') | Out-Null
-    $desiredParameters.Remove('Ensure') | Out-Null
-    $desiredParameters.Remove('Credential') | Out-Null
-    $desiredParameters.Remove('ManagedIdentity') | Out-Null
-    $desiredParameters.Remove('AccessTokens') | Out-Null
 
     Write-Verbose -Message 'Set-Targetresource: Authorization Policy Ensure Present'
     $UpdateParameters = @{
@@ -499,23 +495,18 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message 'Testing configuration of AzureAD Authorization Policy'
+    #region Telemetry
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+    $CommandName = $MyInvocation.MyCommand
+    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+        -CommandName $CommandName `
+        -Parameters $PSBoundParameters
+    Add-M365DSCTelemetryEvent -Data $data
+    #endregion
 
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    $ValuesToCheck = $PSBoundParameters
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource

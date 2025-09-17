@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCSupervisoryReviewPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -74,17 +76,9 @@ function Get-TargetResource
 
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
+        }
 
-            <#
-                Note: 'exportedInstance(s)' approach does not work for this resource;
-                command does not return Reviewers unless the policy name is specified
-            #>
-            $PolicyObject = Get-SupervisoryReviewPolicyV2 $Name -ErrorAction SilentlyContinue
-        }
-        else
-        {
-            $PolicyObject = $Script:exportedInstance
-        }
+        $PolicyObject = Get-SupervisoryReviewPolicyV2 $Name -ErrorAction SilentlyContinue
 
         if ($null -eq $PolicyObject)
         {
@@ -456,3 +450,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+
