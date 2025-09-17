@@ -4,6 +4,8 @@
 
 * AADAdministrativeUnit
   * Reduced export time by 20%.
+* AADConditionalAccessPolicy
+  * Fix case evaluation when creating instances or updating properties.
 * AADGroup
   * Fixed an issue where the `SkuId` could contain NBSP characters.
     FIXES [#6476](https://github.com/microsoft/Microsoft365DSC/issues/6476)
