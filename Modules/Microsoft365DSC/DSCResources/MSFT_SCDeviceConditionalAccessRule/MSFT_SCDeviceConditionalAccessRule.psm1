@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCDeviceConditionalAccessRule'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -277,30 +279,24 @@ function Get-TargetResource
         else
         {
             $instance = $Script:exportedInstance
+            $policyObj = Get-DeviceConditionalAccessPolicy | Where-Object -FilterScript { $_.Name -eq $Policy }
         }
 
         $groupNames = @()
         foreach ($group in $instance.TargetGroups)
         {
-            $groupValue = ''
-            $entry = Get-MgGroup -GroupId $group.Guid -ErrorAction SilentlyContinue
-            if ($null -eq $entry)
+            $groupValue = Get-Group $group.Guid -ErrorAction SilentlyContinue | Where-Object -FilterScript {$_.GUID -eq $group.Guid}
+            if ($null -ne $groupValue)
             {
-                $entry = Get-MgUser -UserId $group.Guid -ErrorAction SilentlyContinue
-                $groupValue = $entry.UserPrincipalName
+                $groupNames += $groupValue.Name
             }
             else
             {
-                $groupValue = $entry.DisplayName
-            }
-
-            if ($null -eq $entry)
-            {
-                Write-Error -Message "Could not find group or user identified with id {$group}"
-            }
-            else
-            {
-                $groupNames += $groupValue
+                $errorMessage = "Target Group {$group} defined in policy wasn't found"
+                New-M365DSCLogEntry -Message $errorMessage `
+                    -Source $($MyInvocation.MyCommand.Source) `
+                    -TenantId $TenantId `
+                    -Credential $Credential
             }
         }
 
@@ -364,7 +360,7 @@ function Get-TargetResource
             ManagedIdentity               = $ManagedIdentity.IsPresent
             AccessTokens                  = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -640,24 +636,10 @@ function Set-TargetResource
         foreach ($group in $TargetGroups)
         {
             $groupValue = ''
-            $entry = Get-MgGroup -Filter "DisplayName eq '$($group -replace "'", "''")'" -ErrorAction SilentlyContinue
-            if ($null -eq $entry)
+            $entry = Get-Group $group -ErrorAction SilentlyContinue
+            if ($null -ne $entry)
             {
-                $entry = Get-MgUser -UserId $group -ErrorAction SilentlyContinue
-                $groupValue = $entry.Id
-            }
-            else
-            {
-                $groupValue = $entry.Id
-            }
-
-            if ($null -eq $entry)
-            {
-                Write-Error -Message "Could not find group or user identified with id {$group}"
-            }
-            else
-            {
-                $targetGroupsValue += $groupValue
+                $targetGroupsValue += $entry.Id
             }
         }
         $setParameters.TargetGroups = $targetGroupsValue
@@ -1071,3 +1053,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

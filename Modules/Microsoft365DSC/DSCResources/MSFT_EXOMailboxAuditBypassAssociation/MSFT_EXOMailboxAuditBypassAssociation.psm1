@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOMailboxAuditBypassAssociation'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -37,8 +39,10 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting configuration of Mailbox Audit Bypass Association with Identity $Identity"
+
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -61,7 +65,10 @@ function Get-TargetResource
         }
         else
         {
-            $instance = Get-MailboxAuditBypassAssociation -Identity $Identity -ErrorAction Stop
+            # We need the Where-Object clause because calling the cmdlet by Identity only can retrieve similar
+            # patterns.
+            $instance = Get-MailboxAuditBypassAssociation -Identity $Identity.Replace("`r",'') -ErrorAction SilentlyContinue
+            $instance = $instance | Where-Object -FilterScript {$_.Identity -eq $Identity.Replace("`r",'')}
         }
         if ($null -eq $instance)
         {
@@ -78,7 +85,7 @@ function Get-TargetResource
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -129,6 +136,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting configuration of Mailbox Audit Bypass Association with Identity $Identity"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -201,7 +210,7 @@ function Test-TargetResource
     #endregion
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
@@ -285,7 +294,7 @@ function Export-TargetResource
             $displayedKey = $config.Identity
             Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Count)] $displayedKey" -DeferWrite
             $params = @{
-                Identity              = $config.Identity
+                Identity              = $config.Identity.Replace("`r","")
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId
                 TenantId              = $TenantId

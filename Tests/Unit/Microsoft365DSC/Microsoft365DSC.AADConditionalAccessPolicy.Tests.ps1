@@ -25,7 +25,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             $secpasswd = ConvertTo-SecureString ((New-Guid).ToString()) -AsPlainText -Force
             $Credential = New-Object System.Management.Automation.PSCredential ('tenantadmin@mydomain.com', $secpasswd)
 
-            Mock -CommandName Confirm-M365DSCDependencies -MockWith {
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
             }
 
             Mock -CommandName Get-MSCloudLoginConnectionProfile -MockWith {
@@ -44,7 +44,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
-            $Script:exportedInstances =$null
+            $Script:exportedInstance =$null
             $Script:ExportMode = $false
         }
 
@@ -180,6 +180,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     PersistentBrowserIsEnabled               = $True
                     PersistentBrowserMode                    = 'Always'
                     DisableResilienceDefaultsIsEnabled       = $True
+                    ServicePrincipalRiskLevels               = @('High')
                     SignInFrequencyIsEnabled                 = $True
                     SignInFrequencyType                      = 'Days'
                     SignInFrequencyValue                     = 5
@@ -231,6 +232,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             ClientAppTypes   = @('Browser', 'MobileAppsAndDesktopClients')
                             SignInRiskLevels = @('High')
                             UserRiskLevels   = @('High')
+                            ServicePrincipalRiskLevels = @('High')
                         }
                         GrantControls   = @{
                             _Operator       = 'AND'

@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceCompliancePolicyAndroidDeviceOwner'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -117,6 +119,10 @@ function Get-TargetResource
         $SecurityRequireIntuneAppIntegrity,
 
         [Parameter()]
+        [System.Boolean]
+        $SecurityBlockJailbrokenDevices,
+
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Assignments,
 
@@ -164,7 +170,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -259,6 +265,7 @@ function Get-TargetResource
             PasswordPreviousPasswordCountToBlock               = $devicePolicy.AdditionalProperties.passwordPreviousPasswordCountToBlock
             StorageRequireEncryption                           = $devicePolicy.AdditionalProperties.storageRequireEncryption
             SecurityRequireIntuneAppIntegrity                  = $devicePolicy.AdditionalProperties.securityRequireIntuneAppIntegrity
+            SecurityBlockJailbrokenDevices                     = $devicePolicy.AdditionalProperties.securityBlockJailbrokenDevices
             RoleScopeTagIds                                    = $devicePolicy.roleScopeTagIds
             Ensure                                             = 'Present'
             Credential                                         = $Credential
@@ -266,7 +273,7 @@ function Get-TargetResource
             TenantId                                           = $TenantId
             ApplicationSecret                                  = $ApplicationSecret
             CertificateThumbprint                              = $CertificateThumbprint
-            Managedidentity                                    = $ManagedIdentity.IsPresent
+            ManagedIdentity                                    = $ManagedIdentity.IsPresent
             AccessTokens                                       = $AccessTokens
         }
 
@@ -280,7 +287,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $returnAssignments)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -412,6 +419,10 @@ function Set-TargetResource
         $SecurityRequireIntuneAppIntegrity,
 
         [Parameter()]
+        [System.Boolean]
+        $SecurityBlockJailbrokenDevices,
+
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Assignments,
 
@@ -455,7 +466,7 @@ function Set-TargetResource
 
     Write-Verbose -Message "Intune Android Device Owner Device Compliance Policy {$DisplayName}"
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -680,6 +691,10 @@ function Test-TargetResource
         $SecurityRequireIntuneAppIntegrity,
 
         [Parameter()]
+        [System.Boolean]
+        $SecurityBlockJailbrokenDevices,
+
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Assignments,
 
@@ -736,7 +751,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of {$Id}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $testResult = $true
 
     #Compare Cim instances
@@ -757,7 +772,6 @@ function Test-TargetResource
     }
 
     $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
@@ -768,7 +782,7 @@ function Test-TargetResource
         if (($null -ne $CurrentValues[$key]) `
                 -and ($CurrentValues[$key].getType().Name -eq 'DateTime'))
         {
-            $CurrentValues[$key] = $CurrentValues[$key].toString()
+            $CurrentValues[$key] = $CurrentValues[$key].ToString()
         }
     }
 
@@ -880,7 +894,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

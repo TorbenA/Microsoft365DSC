@@ -25,6 +25,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             $Global:PartialExportFileName = 'c:\TestPath'
 
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
+            }
+
             Mock -CommandName Save-M365DSCPartialExport -MockWith {
             }
 
@@ -502,6 +505,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return $mockRole
             }
 
+            Mock -CommandName Get-MgBetaPolicyRoleManagementPolicy -MockWith {
+                return @{
+                    Id = 'DirectoryRole_1e1b61e9-1bad-4b5f-aca3-973feb8d36e0_2d3a49e9-4a0b-4456-b381-3311753988a8'
+                    Rules = $mockRole
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -561,7 +571,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 Mock -CommandName New-M365DSCConnection -MockWith {
                     return 'Credentials'
                 }
-
             }
 
             It 'Should return Values from the get method' {

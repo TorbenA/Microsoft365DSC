@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_PlannerTask'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -128,7 +130,12 @@ function Get-TargetResource
         {
             foreach ($assignmentKey in $taskResponse.Assignments.AdditionalProperties.Keys)
             {
-                $assignedUser = Get-MgUser -UserId $assignmentKey
+                $assignedUser = Get-MgUser -UserId $assignmentKey -ErrorAction SilentlyContinue
+                if ($null -eq $assignedUser)
+                {
+                    Write-Warning -Message "Skipping user with Id [$assignmentKey] because it could not be found."
+                    continue
+                }
                 $assignmentsValue += $assignedUser.UserPrincipalName
             }
         }
@@ -446,7 +453,7 @@ function Set-TargetResource
         category25 = $false
     }
 
-    $planDetails = Get-MgPlannerPlanDetail -PlannerPlanId $PlanId | Select-Object -ExpandProperty CategoryDescriptions
+    $planDetails = (Get-MgPlannerPlanDetail -PlannerPlanId $PlanId).CategoryDescriptions
     $appliedCategoriesInverse = $planDetails | ConvertTo-Json | ConvertFrom-Json # Convert to PSObject instead of Graph type
     foreach ($category in $setParams.Categories)
     {
@@ -753,7 +760,7 @@ function Export-TargetResource
                     Write-M365DSCHost -Message "        |---[$j/$($plans.Length)] $($plan.Title)"
 
                     [Array]$tasks = Get-MgGroupPlannerPlanTask -GroupId $group.Id -PlannerPlanId $plan.Id -ErrorAction 'SilentlyContinue'
-                    $Script:AppliedCategories = Get-MgPlannerPlanDetail -PlannerPlanId $plan.Id | Select-Object -ExpandProperty CategoryDescriptions
+                    $Script:AppliedCategories = (Get-MgPlannerPlanDetail -PlannerPlanId $plan.Id).CategoryDescriptions
 
                     $k = 1
                     foreach ($task in $tasks)
@@ -1137,3 +1144,4 @@ function Get-TaskColorNameByCategory
 }
 
 Export-ModuleMember -Function *-TargetResource
+
