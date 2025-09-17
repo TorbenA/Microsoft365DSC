@@ -23,5 +23,8 @@
   },
   "requiredModules": [
     "MicrosoftTeams"
+  ],
+  "supportedEnvironments": [
+    "Global"
   ]
 }

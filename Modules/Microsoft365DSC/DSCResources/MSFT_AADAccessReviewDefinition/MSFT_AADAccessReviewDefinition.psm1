@@ -436,7 +436,7 @@ function Get-TargetResource
             ManagedIdentity         = $ManagedIdentity.IsPresent
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

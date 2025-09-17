@@ -34,5 +34,9 @@
     "Microsoft.Graph.Beta.Identity.SignIns",
     "Microsoft.Graph.Groups",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

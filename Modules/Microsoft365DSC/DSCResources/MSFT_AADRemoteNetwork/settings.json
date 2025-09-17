@@ -33,5 +33,8 @@
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.NetworkAccess",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global"
   ]
 }
