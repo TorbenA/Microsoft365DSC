@@ -42,6 +42,26 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-MgBetaIdentityAPIConnector -MockWith {
             }
 
+            Mock -CommandName Get-MgBetaIdentityAPIConnector -MockWith {
+                return @{
+                    DisplayName = 'FakeStringValue'
+                    TargetUrl = 'FakeStringValue'
+                    Id = 'FakeStringValue'
+                    AuthenticationConfiguration = @{
+                        AdditionalProperties = @{
+                            certificateList = @(
+                                @{
+                                    Thumbprint = 'FakeStringValue'
+                                    IsActive = $true
+                                }
+                            )
+                            Username = 'FakeStringValue'
+                            Password = $Cred
+                        }
+                    }
+                }
+            }
+
             Mock -CommandName New-M365DSCConnection -MockWith {
                 return "Credentials"
             }
@@ -55,7 +75,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         # Test contexts
         Context -Name "The AADIdentityAPIConnector should exist but it DOES NOT" -Fixture {
             BeforeAll {
-
                 $testParams = @{
                     DisplayName = 'FakeStringValue'
                     TargetUrl = 'FakeStringValue'
@@ -120,27 +139,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Credential = $Credential
                     Ensure = 'Absent'
                 }
-
-                Mock -CommandName Get-MgBetaIdentityAPIConnector -MockWith {
-                    return @{
-                        DisplayName = 'FakeStringValue'
-                        TargetUrl = 'FakeStringValue'
-                        Id = 'FakeStringValue'
-                        AuthenticationConfiguration = @{
-                            AdditionalProperties = @{
-                                Username = 'FakeStringValue'
-                                Password = $Cred
-                            }
-                        }
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
             }
 
-            It 'Should return true from the Test method' {
+            It 'Should return false from the Test method' {
                 Test-TargetResource @testParams | Should -Be $false
             }
 
@@ -149,65 +154,30 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 Should -Invoke -CommandName Remove-MgBetaIdentityAPIConnector -Exactly 1
             }
         }
-        Context -Name "The AADIdentityAPIConnector Exists and Values are already in the desired state" -Fixture {
-            BeforeAll {
-
-                $testParams = @{
-                    DisplayName = 'FakeStringValue'
-                    TargetUrl = 'FakeStringValue'
-                    Id = 'FakeStringValue'
-                    Username = 'FakeStringValue'
-                    Password = $Credential
-                    Credential = $Credential
-                    Ensure = 'Present'
-                }
-
-                Mock -CommandName Get-MgBetaIdentityAPIConnector -MockWith {
-                    return @{
-                        DisplayName = 'FakeStringValue'
-                        TargetUrl = 'FakeStringValue'
-                        Id = 'FakeStringValue'
-                        AuthenticationConfiguration = @{
-                            AdditionalProperties = @{
-                                Username = 'FakeStringValue'
-                                Password = $Cred
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            It 'Should return true from the Test method' {
-                Test-TargetResource @testParams | Should -Be $true
-            }
-        }
 
         Context -Name "The AADIdentityAPIConnector exists and values are NOT in the desired state" -Fixture {
-
             BeforeAll {
                 $testParams = @{
-                    DisplayName = 'FakeStringValue2' #drift
-                    TargetUrl = 'FakeStringValue'
+                    DisplayName = 'FakeStringValue'
+                    TargetUrl = 'FakeStringValue2' # Drift
                     Id = 'FakeStringValue'
                     Username = 'FakeStringValue'
                     Password = $Credential
+                    Certificates = @(
+                         New-CimInstance -ClassName 'MSFT_AADIdentityAPIConnectionCertificate' -Property @{
+                             Thumbprint = 'FakeStringValue'
+                             Pkcs12Value = (New-CimInstance -ClassName 'MSFT_Credential' -Property @{
+                                 Username = 'FakeStringValue'
+                                 Password = 'FakeStringValue'
+                             } -ClientOnly)
+                             Password = (New-CimInstance -ClassName 'MSFT_Credential' -Property @{
+                                 Username = 'FakeStringValue'
+                                 Password = 'FakeStringValue'
+                             } -ClientOnly)
+                             IsActive = $true
+                         } -ClientOnly
+                    )
                     Credential = $Credential
-                    Ensure = 'Present'
-                }
-
-                Mock -CommandName Get-MgBetaIdentityAPIConnector -MockWith {
-                    return @{
-                        DisplayName = 'FakeStringValue'
-                        TargetUrl = 'FakeStringValue'
-                        Id = 'FakeStringValue'
-                        AuthenticationConfiguration = @{
-                            AdditionalProperties = @{
-                                Username = 'FakeStringValue'
-                                Password = 'FakeStringValue'
-                            }
-                        }
-                    }
                 }
             }
 
@@ -221,13 +191,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName Update-MgBetaIdentityAPIConnector -Exactly 1
+                Should -Invoke -CommandName Remove-MgBetaIdentityApiConnector -Exactly 1
+                Should -Invoke -CommandName New-MgBetaIdentityApiConnector -Exactly 1
             }
         }
 
-
-        Context -Name "The AADIdentityAPIConnector with certificates exists and values are in the desired state" -Fixture {
-
+        Context -Name "The AADIdentityAPIConnector exists and values are in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
                     DisplayName = 'FakeStringValue'
@@ -250,24 +219,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Credential = $Credential
                     Ensure = 'Present'
                 }
-
-                Mock -CommandName Get-MgBetaIdentityAPIConnector -MockWith {
-                    return @{
-                        DisplayName = 'FakeStringValue'
-                        TargetUrl = 'FakeStringValue'
-                        Id = 'FakeStringValue'
-                        AuthenticationConfiguration = @{
-                            AdditionalProperties = @{
-                                certificateList = @(
-                                    @{
-                                        Thumbprint = 'FakeStringValue'
-                                        IsActive = $true
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -285,20 +236,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaIdentityAPIConnector -MockWith {
-                    return @{
-                        DisplayName = 'FakeStringValue'
-                        TargetUrl = 'FakeStringValue'
-                        Id = 'FakeStringValue'
-                        AuthenticationConfiguration = @{
-                            AdditionalProperties = @{
-                                Username = 'FakeStringValue'
-                                Password = 'FakeStringValue'
-                            }
-                        }
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {

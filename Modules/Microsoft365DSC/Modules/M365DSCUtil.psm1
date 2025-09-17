@@ -738,7 +738,7 @@ function Test-M365DSCParameterState
                                     $returnValue = $false
                                 }
                             }
-                            'Int32'
+                            { $_ -eq 'Int32' -or $_ -eq 'UInt32' }
                             {
                                 if (($DesiredValues.$fieldName -eq 0) `
                                         -and ($null -eq $CurrentValues.$fieldName))

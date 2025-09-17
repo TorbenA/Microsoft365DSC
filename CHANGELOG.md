@@ -4,6 +4,8 @@
 
 * AADAdministrativeUnit
   * Reduced export time by 20%.
+* AADAppManagementPolicy
+  * Updated `RestrictForAppsCreatedAfterDateTime` to "o" format.
 * AADConditionalAccessPolicy
   * Fix case evaluation when creating instances or updating properties.
 * AADCrossTenantIdentitySyncPolicyPartner
@@ -13,6 +15,8 @@
     FIXES [#6476](https://github.com/microsoft/Microsoft365DSC/issues/6476)
   * Fixed an issue where GroupAsMembers not being added during initial group creation.
     FIXES [#6489](https://github.com/microsoft/Microsoft365DSC/issues/6489)
+* AADGroupEligiblitySchedule
+  * Aligned date time format for `Expiration.EndDateTime` with `Expiration.StartDateTime`.
 * EXOCalendarProcessing
   * Added caching for export.
 * EXOMailboxAutoReplyConfiguration
@@ -51,7 +55,11 @@
   * Reduced repeated logins during export of SPO and Teams resources.
   * Removed unnecessary type casting across all resources.
 * M365DSCDRGUtil
+  * Fixed an issue where a null drift would throw an exception.
   * Fixed an issue where group filtering would not find the specified groups.
+* MISC
+  * Code cleanup across all Intune resources.
+  * Streamline test cases.
 
 # 1.25.910.1
 

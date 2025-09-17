@@ -322,7 +322,6 @@ function Set-TargetResource
     }
     else
     {
-
         # Remove the existing instance if already present
         if ($currentInstance.Ensure -ne 'Absent')
         {

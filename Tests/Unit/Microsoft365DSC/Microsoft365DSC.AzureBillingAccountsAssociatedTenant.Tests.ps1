@@ -55,6 +55,21 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
             }
 
+            Mock -CommandName Get-M365DSCAzureBillingAccountsAssociatedTenant -MockWith {
+                return @{
+                    value = @(
+                        @{
+                            properties = @{
+                                billingManagementState      = 'Active'
+                                tenantId                    = '7a575036-2dac-4713-8e23-2963cc2c5f37'
+                                displayName                 = 'Test Tenant'
+                                provisioningManagementState = 'Pending'
+                            }
+                        }
+                    )
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -102,21 +117,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                      = 'Absent'
                     Credential                  = $Credential;
                 }
-
-                Mock -CommandName Get-M365DSCAzureBillingAccountsAssociatedTenant -MockWith {
-                    return @{
-                        value = @(
-                            @{
-                                properties = @{
-                                    billingManagementState      = 'Active'
-                                    tenantId                    = '7a575036-2dac-4713-8e23-2963cc2c5f37'
-                                    displayName                 = 'Test Tenant'
-                                    provisioningManagementState = 'Pending'
-                                }
-                            }
-                        )
-                    }
-                }
             }
             It 'Should return Values from the Get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
@@ -142,21 +142,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                      = 'Present'
                     Credential                  = $Credential;
                 }
-
-                Mock -CommandName Get-M365DSCAzureBillingAccountsAssociatedTenant -MockWith {
-                    return @{
-                        value = @(
-                            @{
-                                properties = @{
-                                    billingManagementState      = 'Active'
-                                    tenantId                    = '7a575036-2dac-4713-8e23-2963cc2c5f37'
-                                    displayName                 = 'Test Tenant'
-                                    provisioningManagementState = 'Pending'
-                                }
-                            }
-                        )
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -174,21 +159,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     ProvisioningManagementState = "Pending";
                     Ensure                      = 'Present'
                     Credential                  = $Credential;
-                }
-
-                Mock -CommandName Get-M365DSCAzureBillingAccountsAssociatedTenant -MockWith {
-                    return @{
-                        value = @(
-                            @{
-                                properties = @{
-                                    billingManagementState      = 'Active'
-                                    tenantId                    = '7a575036-2dac-4713-8e23-2963cc2c5f37'
-                                    displayName                 = 'Test Tenant'
-                                    provisioningManagementState = 'Pending'
-                                }
-                            }
-                        )
-                    }
                 }
             }
 
@@ -212,21 +182,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential  = $Credential;
-                }
-
-                Mock -CommandName Get-M365DSCAzureBillingAccountsAssociatedTenant -MockWith {
-                    return @{
-                        value = @(
-                            @{
-                                properties = @{
-                                    billingManagementState      = 'Active'
-                                    tenantId                    = '7a575036-2dac-4713-8e23-2963cc2c5f37'
-                                    displayName                 = 'Test Tenant'
-                                    provisioningManagementState = 'Pending'
-                                }
-                            }
-                        )
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {

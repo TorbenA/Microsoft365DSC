@@ -41,6 +41,31 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Set-AzContext -MockWith {
             }
 
+            Mock -CommandName Get-AzSubscription -MockWith {
+                return @{
+                    Id   = '2974ccf2-1e67-4b74-a102-2d921b595a89'
+                    Name = 'MySubscription'
+                }
+            }
+
+            Mock -CommandName Get-AzContext -MockWith {
+                return @{
+                    Subscription = @{
+                        Id   = '2974ccf2-1e67-4b74-a102-2d921b595a89'
+                        Name = 'MySubscription'
+                    }
+                }
+            }
+
+            Mock -CommandName Get-AzSecurityPricing -MockWith {
+                return @{
+                    Name        = 'VirtualMachines'
+                    SubPlan     = 'P2'
+                    PricingTier = 'Standard'
+                    Extensions  = $null
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -58,31 +83,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure           = 'Present'
                     Credential       = $Credential
                 }
-
-                Mock -CommandName Get-AzSubscription -MockWith {
-                    return @{
-                        Id   = '2974ccf2-1e67-4b74-a102-2d921b595a89'
-                        Name = 'MySubscription'
-                    }
-                }
-
-                Mock -CommandName Get-AzContext -MockWith {
-                    return @{
-                        Subscription = @{
-                            Id   = '2974ccf2-1e67-4b74-a102-2d921b595a89'
-                            Name = 'MySubscription'
-                        }
-                    }
-                }
-
-                Mock -CommandName Get-AzSecurityPricing -MockWith {
-                    return @{
-                        Name        = 'VirtualMachines'
-                        SubPlan     = 'P2'
-                        PricingTier = 'Standard'
-                        Extensions  = $null
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -96,34 +96,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     SubscriptionName = 'MySubscription'
                     PlanName         = 'VirtualMachines'
                     SubPlanName      = 'P2'
-                    PricingTier      = 'Standard'
+                    PricingTier      = 'Free' # Drift
                     Ensure           = 'Present'
                     Credential       = $Credential
-                }
-
-                Mock -CommandName Get-AzSubscription -MockWith {
-                    return @{
-                        Id   = '2974ccf2-1e67-4b74-a102-2d921b595a89'
-                        Name = 'MySubscription'
-                    }
-                }
-
-                Mock -CommandName Get-AzContext -MockWith {
-                    return @{
-                        Subscription = @{
-                            Id   = '2974ccf2-1e67-4b74-a102-2d921b595a89'
-                            Name = 'MySubscription'
-                        }
-                    }
-                }
-
-                Mock -CommandName Get-AzSecurityPricing -MockWith {
-                    return @{
-                        Name        = 'VirtualMachines'
-                        PricingTier = 'Free' # Drift
-                        SubPlan     = $null
-                        Extensions  = $null
-                    }
                 }
             }
 
