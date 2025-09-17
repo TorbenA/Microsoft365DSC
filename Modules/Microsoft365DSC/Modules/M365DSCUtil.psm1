@@ -5368,6 +5368,7 @@ function Invoke-M365DSCGraphBatchRequest
     [OutputType([System.Collections.Hashtable[]])]
     param (
         [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
         [System.Collections.Hashtable[]]
         $Requests,
 

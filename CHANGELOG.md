@@ -48,6 +48,8 @@
   * Removed unnecessary type casting across all resources.
 * M365DSCDRGUtil
   * Fixed an issue where group filtering would not find the specified groups.
+  * Fixed an issue where 0 requests passed to `Invoke-M365DSCGraphBatchRequests` would fail.
+    FIXES [#6521](https://github.com/microsoft/Microsoft365DSC/issues/6521)
 
 # 1.25.910.1
 
