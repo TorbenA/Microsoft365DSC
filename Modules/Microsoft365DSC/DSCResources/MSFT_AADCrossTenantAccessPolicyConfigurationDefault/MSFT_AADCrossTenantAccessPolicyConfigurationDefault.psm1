@@ -108,6 +108,42 @@ function Get-TargetResource
                     Targets    = [System.Array] $getValue.B2BCollaborationInbound.UsersAndGroups.Targets
                 }
             }
+
+            # Convert users back to UPN
+            $newValue = @()
+            foreach ($valueEntry in $B2BCollaborationInboundValue.UsersAndGroups.Targets)
+            {
+                $currentEntry = @{
+                    Target     = $valueEntry.Target
+                    TargetType = $valueEntry.TargetType
+                }
+                if ($valueEntry.TargetType -eq 'user')
+                {
+                    $user = Get-MgUser -UserId $valueEntry.Target -ErrorAction SilentlyContinue
+                    if ($null -ne $user)
+                    {
+                        $currentEntry.Target = $user.UserPrincipalName
+                    }
+                    else
+                    {
+                        $currentEntry.Target = $valueEntry.Target
+                    }
+                }
+                else
+                {
+                    $group = [System.Array] (Get-MgGroup -GroupId $valueEntry.Target -ErrorAction SilentlyContinue)
+                    if ($null -ne $group -and $group.Length -eq 1)
+                    {
+                        $currentEntry.Target = $group.DisplayName
+                    }
+                    else
+                    {
+                        $currentEntry.Target = $valueEntry.Target
+                    }
+                }
+                $newValue += $currentEntry
+            }
+            $B2BCollaborationInboundValue.UsersAndGroups.Targets = $newValue
         }
         if ($null -ne $getValue.B2BCollaborationOutbound)
         {
@@ -121,6 +157,42 @@ function Get-TargetResource
                     Targets    = [System.Array] $getValue.B2BCollaborationOutbound.UsersAndGroups.Targets
                 }
             }
+
+            # Convert users back to UPN
+            $newValue = @()
+            foreach ($valueEntry in $B2BCollaborationOutboundValue.UsersAndGroups.Targets)
+            {
+                $currentEntry = @{
+                    Target     = $valueEntry.Target
+                    TargetType = $valueEntry.TargetType
+                }
+                if ($valueEntry.TargetType -eq 'user')
+                {
+                    $user = Get-MgUser -UserId $valueEntry.Target -ErrorAction SilentlyContinue
+                    if ($null -ne $user)
+                    {
+                        $currentEntry.Target = $user.UserPrincipalName
+                    }
+                    else
+                    {
+                        $currentEntry.Target = $valueEntry.Target
+                    }
+                }
+                else
+                {
+                    $group = [System.Array] (Get-MgGroup -GroupId $valueEntry.Target -ErrorAction SilentlyContinue)
+                    if ($null -ne $group -and $group.Length -eq 1)
+                    {
+                        $currentEntry.Target = $group.DisplayName
+                    }
+                    else
+                    {
+                        $currentEntry.Target = $valueEntry.Target
+                    }
+                }
+                $newValue += $currentEntry
+            }
+            $B2BCollaborationOutboundValue.UsersAndGroups.Targets = $newValue
         }
         if ($null -ne $getValue.B2BDirectConnectInbound)
         {
@@ -147,6 +219,41 @@ function Get-TargetResource
                     Targets    = [System.Array] $getValue.B2BDirectConnectOutbound.UsersAndGroups.Targets
                 }
             }
+            # Convert users back to UPN
+            $newValue = @()
+            foreach ($valueEntry in $B2BDirectConnectOutboundValue.UsersAndGroups.Targets)
+            {
+                $currentEntry = @{
+                    Target     = $valueEntry.Target
+                    TargetType = $valueEntry.TargetType
+                }
+                if ($valueEntry.TargetType -eq 'user')
+                {
+                    $user = Get-MgUser -UserId $valueEntry.Target -ErrorAction SilentlyContinue
+                    if ($null -ne $user)
+                    {
+                        $currentEntry.Target = $user.UserPrincipalName
+                    }
+                    else
+                    {
+                        $currentEntry.Target = $valueEntry.Target
+                    }
+                }
+                else
+                {
+                    $group = [System.Array] (Get-MgGroup -GroupId $valueEntry.Target -ErrorAction SilentlyContinue)
+                    if ($null -ne $group -and $group.Length -eq 1)
+                    {
+                        $currentEntry.Target = $group.DisplayName
+                    }
+                    else
+                    {
+                        $currentEntry.Target = $valueEntry.Target
+                    }
+                }
+                $newValue += $currentEntry
+            }
+            $B2BDirectConnectOutboundValue.UsersAndGroups.Targets = $newValue
         }
         if ($null -ne $getValue.InboundTrust)
         {
@@ -174,7 +281,7 @@ function Get-TargetResource
             AccessTokens             = $AccessTokens
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -469,7 +576,7 @@ function Export-TargetResource
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint
             Credential            = $Credential
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
         $Results = Get-TargetResource @Params
@@ -775,6 +882,8 @@ function Get-M365DSCAADCrossTenantAccessPolicyB2BSetting
         $targets = @()
         foreach ($currentTarget in $Setting.usersAndGroups.targets)
         {
+            $user  = $null
+            $group = $null
             if ($currentTarget.targetType -eq 'User')
             {
                 $user = Get-MgUser -UserId $currentTarget.target -ErrorAction SilentlyContinue

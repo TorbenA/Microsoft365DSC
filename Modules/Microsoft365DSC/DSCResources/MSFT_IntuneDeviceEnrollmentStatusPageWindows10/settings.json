@@ -70,5 +70,9 @@
     "Microsoft.Graph.Beta.DeviceManagement.Enrollment",
     "Microsoft.Graph.Beta.Devices.CorporateManagement",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

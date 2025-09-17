@@ -142,7 +142,7 @@ function Get-TargetResource
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
 
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -174,18 +174,13 @@ function Get-TargetResource
 
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
+                    $baseFilter = "isof('microsoft.graph.iosiPadOSWebClip') or isof('microsoft.graph.macOSWebClip') or isof('microsoft.graph.windowsWebApp') or isof('microsoft.graph.webApp')"
+                    $filter = "DisplayName eq '$($DisplayName -replace "'", "''")' and ($baseFilter)"
                     $getValue = Get-MgBetaDeviceAppManagementMobileApp `
-                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
+                        -All `
+                        -Filter $filter `
                         -ExpandProperty 'categories' `
-                        -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -in @(
-                                "#microsoft.graph.iosiPadOSWebClip"
-                                "#microsoft.graph.macOSWebClip"
-                                "#microsoft.graph.windowsWebApp"
-                                "#microsoft.graph.webApp"
-                            )
-                        }
+                        -ErrorAction SilentlyContinue
                 }
             }
             #endregion
@@ -260,7 +255,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -661,7 +656,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of the Intune Mobile Apps Web Link with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $testResult = $true
 
     #Compare Cim instances
@@ -686,7 +681,6 @@ function Test-TargetResource
 
     $ValuesToCheck.Remove('Id') | Out-Null
     $ValuesToCheck.Remove('AppUrl') | Out-Null
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
@@ -761,19 +755,20 @@ function Export-TargetResource
     try
     {
         #region resource generator code
+        $baseFilter = "isof('microsoft.graph.iosiPadOSWebClip') or isof('microsoft.graph.macOSWebClip') or isof('microsoft.graph.windowsWebApp') or isof('microsoft.graph.webApp')"
+        if (-not [String]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($Filter) and ($baseFilter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
+        }
         [array]$getValue = Get-MgBetaDeviceAppManagementMobileApp `
             -Filter $Filter `
             -All `
             -ExpandProperty 'categories' `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -in @(
-                    "#microsoft.graph.iosiPadOSWebClip"
-                    "#microsoft.graph.macOSWebClip"
-                    "#microsoft.graph.windowsWebApp"
-                    "#microsoft.graph.webApp"
-                )
-            }
+            -ErrorAction Stop
         #endregion
 
         $i = 1

@@ -142,7 +142,7 @@ function Get-TargetResource
             AccessTokens                         = $AccessTokens
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -478,6 +478,10 @@ function Export-TargetResource
         if ($Script:exportedInstances.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckmark -CommitWrite
+        }
+        else
+        {
+            Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
 
         foreach ($config in $Script:exportedInstances)

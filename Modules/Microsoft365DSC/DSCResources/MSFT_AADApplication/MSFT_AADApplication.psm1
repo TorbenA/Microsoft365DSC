@@ -1598,7 +1598,7 @@ function Export-TargetResource
                 DisplayName           = $AADApp.DisplayName
                 ObjectID              = $AADApp.Id
                 Credential            = $Credential
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
             try
@@ -1950,7 +1950,7 @@ function Get-M365DSCAzureADAppPermissions
                 {
                     if ($oAuth2grant.Count -gt 0)
                     {
-                        $scopes = $oAuth2grant[0].Scope.Split(' ')
+                        $scopes = ($oAuth2grant.Scope -join " ").Split(' ')
                         if ($scopes.Contains($scopeInfoValue))
                         {
                             $currentPermission.AdminConsentGranted = $true

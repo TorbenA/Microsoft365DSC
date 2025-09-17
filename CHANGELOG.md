@@ -2,6 +2,27 @@
 
 # UNRELEASED
 
+* AADAdministrativeUnit
+  * Reduced export time by 20%.
+* AADGroup
+  * Fixed an issue where the `SkuId` could contain NBSP characters.
+    FIXES [#6476](https://github.com/microsoft/Microsoft365DSC/issues/6476)
+  * Fixed an issue where GroupAsMembers not being added during initial group creation.
+    FIXES [#6489](https://github.com/microsoft/Microsoft365DSC/issues/6489)
+* EXOCalendarProcessing
+  * Added caching for export.
+* EXOMailboxAutoReplyConfiguration
+  * Added conditional user lookup.
+* EXOMailboxCalendarFolder
+  * Added conditional user lookup.
+* EXOMailContact
+  * Added caching for export.
+* EXOMailboxPermission
+  * Added additional caching for export.
+* EXOMailboxSettings
+  * Added caching for export.
+* EXORecipientPermission
+  * Added additional caching for export.
 * IntuneAccountProtectionLocalUserGroupMembershipPolicy
   * [BREAKING CHANGE] Renamed properties to match their Settings Catalog counterpart.
     FIXES [#6342](https://github.com/microsoft/Microsoft365DSC/issues/6432)
@@ -9,12 +30,60 @@
   * Initial release.
 * IntuneEpmElevationSettingsPolicyWindows10
   * Initial release.
-* M365DSCDRGUtil
-  * Changed the way how Settings Catalog properties are exported.
+* IntuneMobileAppsMacOSLobApp
+  * Added filter capability.
+* IntuneMobileAppsMicrosoftStoreAppWindows10
+  * Initial release.
+* IntuneMobileAppsWebLink
+  * Fixed an issue where filtering was applied after fetching all apps.
+* IntuneMobileAppsWindowsOfficeSuiteApp
+  * Added filter capability.
+* IntuneRoleAssignment
+  * Fixed an issue where deleted groups would throw an error during export.
+* SPOPropertyBag
+  * Reduced export time by 85%.
+* SPOSite
+  * Added additional caching.
+* TeamsChannel
+  * Reduced export time by up to 75%.
+* TeamsChannelTab
+  * Reduced export time by up to 85%.
 * MISC
   * Added ordering to hashtables.
   * [BREAKING CHANGE] Changed multiple property values and types in Intune resources. Refer to the
     breaking change blog post for more information about the affected resources.
+  * Code cleanup across all Intune resources.
+  * Fixed typo in `ManagedIdentity` property across all resources.
+  * Reduced repeated logins during export of SPO and Teams resources.
+  * Removed unnecessary type casting across all resources.
+* M365DSCDRGUtil
+  * Changed the way how Settings Catalog properties are exported.
+  * Fixed an issue where group filtering would not find the specified groups.
+
+# 1.25.910.1
+
+* AADApplication
+  * Fixed an issue with `AdminConsentGranted` not being correct if the
+    permissions are from multiple source APIs.
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Evaluate users and groups by display name to be consistent with
+    other resources.
+* EXOTransportRule
+  * Fixed an issue where deprecated properties were exported.
+
+# 1.25.903.2
+
+* AADEnrichedAuditLogs
+  * DEPRECATED resource.
+* AADServicePrincipal
+  * Change in logic to evaluate instances in Test-TargetResource when
+    multiple instances exist with the same display name.
+* IntuneWindowsBackupForOrganizationConfiguration
+  * Initial release.
+* MISC
+  * Code cleanup across all EXO, Commerce, Defender and Fabric resources.
+* DEPENDENCIES
+  * Update ReverseDSC to version 2.0.0.30.
 
 # 1.25.903.1
 
@@ -79,7 +148,6 @@
   * Fixed an issue where an invalid search query was invoked.
     FIXES [#5937](https://github.com/microsoft/Microsoft365DSC/issues/5937)
 * MISC
-  * Code cleanup across all EXO, Commerce, Defender and Fabric resources.
   * Code cleanup across all AAD, ADO and Azure resources.
   * Fixing issues connection SPO to sovereign clouds.
   * Fixed an issue across Intune resources using the Settings Catalog which
