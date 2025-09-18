@@ -54,6 +54,8 @@
   * Reduced export time by up to 85%.
 * MISC
   * Code cleanup across all Intune resources.
+  * Code cleanup across all O365, OD and SPO resources.
+  * Code cleanup across all Planner, PP and SC resources.
   * Fixed typo in `ManagedIdentity` property across all resources.
   * Reduced repeated logins during export of SPO and Teams resources.
   * Removed unnecessary type casting across all resources.
