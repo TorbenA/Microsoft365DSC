@@ -206,11 +206,11 @@ function Set-TargetResource
         -InboundParameters $PSBoundParameters
     # Check that at least one optional parameter is specified
     $inputValues = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    foreach ($item in $inputValues)
+    foreach ($item in $inputValues.GetEnumerator())
     {
         if ([System.String]::IsNullOrEmpty($item.Value))
         {
-            $inputValues.Remove($item.key) | Out-Null
+            $inputValues.Remove($item.Key) | Out-Null
         }
     }
 

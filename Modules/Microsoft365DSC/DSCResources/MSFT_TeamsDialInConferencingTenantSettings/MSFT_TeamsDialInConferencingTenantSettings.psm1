@@ -219,6 +219,7 @@ function Set-TargetResource
         -InboundParameters $PSBoundParameters
 
     $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $SetParameters.Remove('IsSingleInstance') | Out-Null
 
     try
     {
