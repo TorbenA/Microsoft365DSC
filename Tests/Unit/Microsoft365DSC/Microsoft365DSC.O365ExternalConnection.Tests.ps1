@@ -35,14 +35,30 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return "Credentials"
             }
 
-            Mock -CommandName Update-MgBetaExternalConnection -MockWith{}
-            Mock -CommandName New-MgBetaExternalConnection -MockWith{}
-            Mock -CommandName Remove-MgBetaExternalConnection -MockWith{}
+            Mock -CommandName Update-MgBetaExternalConnection -MockWith{
+            }
+
+            Mock -CommandName New-MgBetaExternalConnection -MockWith{
+            }
+
+            Mock -CommandName Remove-MgBetaExternalConnection -MockWith{
+            }
 
             Mock -CommandName Get-MgApplication -MockWith {
                 return @{
                     DisplayName = 'MyApp'
                     AppId       = "12345-12345-12345-12345-12345"
+                }
+            }
+
+            Mock -CommandName Get-MgBetaExternalConnection -MockWith {
+                return @{
+                    Name = 'Contoso Hr'
+                    Id   = "contosohr"
+                    Description = 'Connection to index Contoso HR system'
+                    Configuration = @{
+                        AuthorizedAppIds = @('12345-12345-12345-12345-12345')
+                    }
                 }
             }
 
@@ -91,17 +107,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Name                = "Contoso HR";
                     Credential          = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaExternalConnection -MockWith {
-                    return @{
-                        Name = 'Contoso Hr'
-                        Id   = "contosohr"
-                        Description = 'Connection to index Contoso HR system'
-                        Configuration = @{
-                            AuthorizedAppIds = @('12345-12345-12345-12345-12345')
-                        }
-                    }
-                }
             }
             It 'Should return Values from the Get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
@@ -126,17 +131,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Name                = "Contoso HR";
                     Credential          = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaExternalConnection -MockWith {
-                    return @{
-                        Name = 'Contoso Hr'
-                        Id   = "contosohr"
-                        Description = 'Connection to index Contoso HR system'
-                        Configuration = @{
-                            AuthorizedAppIds = @('12345-12345-12345-12345-12345')
-                        }
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -147,23 +141,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The instance exists and values are NOT in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    AuthorizedAppIds    = @("MyApp");
+                    AuthorizedAppIds    = @(); # Drift
                     Description         = "Connection to index Contoso HR system";
                     Ensure              = "Present";
                     Id                  = "contosohr";
                     Name                = "Contoso Hr";
                     Credential          = $Credential;
-                }
-
-                Mock -CommandName Get-MgBetaExternalConnection -MockWith {
-                    return @{
-                        Name = 'Contoso Hr'
-                        Id   = "contosohr"
-                        Description = 'Connection to index Contoso HR system'
-                        Configuration = @{
-                            AuthorizedAppIds = @() # Drift
-                        }
-                    }
                 }
             }
 
@@ -187,17 +170,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential  = $Credential;
-                }
-
-                Mock -CommandName Get-MgBetaExternalConnection -MockWith {
-                    return @{
-                        Name = 'Contoso Hr'
-                        Id   = "contosohr"
-                        Description = 'Connection to index Contoso HR system'
-                        Configuration = @{
-                            AuthorizedAppIds = @('12345-12345-12345-12345-12345')
-                        }
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {

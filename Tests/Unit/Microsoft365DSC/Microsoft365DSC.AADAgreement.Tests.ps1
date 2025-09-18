@@ -46,6 +46,19 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
 
             Mock -CommandName Get-MgBetaAgreement -MockWith {
+                return @{
+                    DisplayName                          = 'Test Agreement'
+                    Id                                   = '12345'
+                    IsViewingBeforeAcceptanceRequired    = $true
+                    IsPerDeviceAcceptanceRequired        = $false
+                    UserReacceptRequiredFrequency        = 'P90D'
+                    AcceptanceStatement                  = 'I accept the terms'
+                    File                                 = @{
+                        Data     = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes('Terms content'))
+                        Name     = 'terms.txt'
+                        Language = 'en-US'
+                    }
+                }
             }
 
             Mock -CommandName New-MgBetaAgreement -MockWith {
@@ -106,22 +119,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure      = 'Absent'
                     Credential  = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaAgreement -MockWith {
-                    return @{
-                        DisplayName                          = 'Test Agreement'
-                        Id                                   = '12345'
-                        IsViewingBeforeAcceptanceRequired    = $true
-                        IsPerDeviceAcceptanceRequired        = $false
-                        UserReacceptRequiredFrequency        = 'P90D'
-                        AcceptanceStatement                  = 'I accept the terms'
-                        File                                 = @{
-                            Data     = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes('Terms content'))
-                            Name     = 'terms.txt'
-                            Language = 'en-US'
-                        }
-                    }
-                }
             }
 
             It 'Should return values from the Get method' {
@@ -152,22 +149,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                               = 'Present'
                     Credential                           = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaAgreement -MockWith {
-                    return @{
-                        DisplayName                          = 'Test Agreement'
-                        Id                                   = '12345'
-                        IsViewingBeforeAcceptanceRequired    = $true
-                        IsPerDeviceAcceptanceRequired        = $false
-                        UserReacceptRequiredFrequency        = 'P90D'
-                        AcceptanceStatement                  = 'I accept the terms'
-                        File                                 = @{
-                            Data     = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes('Terms content'))
-                            Name     = 'terms.txt'
-                            Language = 'en-US'
-                        }
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -182,28 +163,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     IsViewingBeforeAcceptanceRequired    = $false
                     IsPerDeviceAcceptanceRequired        = $true
                     UserReacceptRequiredFrequency        = 'P30D'
-                    AcceptanceStatement                  = 'I accept the updated terms'
+                    AcceptanceStatement                  = 'I accept the updated terms' # Drift
                     FileData                             = 'Updated terms content'
                     FileName                             = 'updated_terms.txt'
                     Language                             = 'en-US'
                     Ensure                               = 'Present'
                     Credential                           = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaAgreement -MockWith {
-                    return @{
-                        DisplayName                          = 'Test Agreement'
-                        Id                                   = '12345'
-                        IsViewingBeforeAcceptanceRequired    = $true
-                        IsPerDeviceAcceptanceRequired        = $false
-                        UserReacceptRequiredFrequency        = 'P90D'
-                        AcceptanceStatement                  = 'I accept the terms'
-                        File                                 = @{
-                            Data     = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes('Terms content'))
-                            Name     = 'terms.txt'
-                            Language = 'en-US'
-                        }
-                    }
                 }
             }
 
@@ -223,37 +188,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaAgreement -MockWith {
-                    return @(
-                        @{
-                            DisplayName                          = 'Test Agreement 1'
-                            Id                                   = '12345'
-                            IsViewingBeforeAcceptanceRequired    = $true
-                            IsPerDeviceAcceptanceRequired        = $false
-                            UserReacceptRequiredFrequency        = 'P90D'
-                            AcceptanceStatement                  = 'I accept the terms'
-                            File                                 = @{
-                                Data     = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes('Terms content'))
-                                Name     = 'terms.txt'
-                                Language = 'en-US'
-                            }
-                        },
-                        @{
-                            DisplayName                          = 'Test Agreement 2'
-                            Id                                   = '67890'
-                            IsViewingBeforeAcceptanceRequired    = $false
-                            IsPerDeviceAcceptanceRequired        = $true
-                            UserReacceptRequiredFrequency        = 'P30D'
-                            AcceptanceStatement                  = 'I accept the second terms'
-                            File                                 = @{
-                                Data     = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes('Second terms content'))
-                                Name     = 'terms2.txt'
-                                Language = 'en-US'
-                            }
-                        }
-                    )
                 }
             }
 
