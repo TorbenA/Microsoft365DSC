@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.25.1001.1
 
 * AADAdministrativeUnit
   * Reduced export time by 20%.
