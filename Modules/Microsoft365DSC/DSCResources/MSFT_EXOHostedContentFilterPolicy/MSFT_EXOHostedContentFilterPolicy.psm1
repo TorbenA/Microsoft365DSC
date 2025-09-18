@@ -407,7 +407,7 @@ function Get-TargetResource
                 CertificateThumbprint                = $CertificateThumbprint
                 CertificatePath                      = $CertificatePath
                 CertificatePassword                  = $CertificatePassword
-                Managedidentity                      = $ManagedIdentity.IsPresent
+                ManagedIdentity                      = $ManagedIdentity.IsPresent
                 TenantId                             = $TenantId
                 AccessTokens                         = $AccessTokens
             }
@@ -750,12 +750,12 @@ function Set-TargetResource
             Name = $HostedContentFilterPolicyParams.Identity
         }
         $HostedContentFilterPolicyParams.Remove('Identity') | Out-Null
+        $HostedContentFilterPolicyParams.Remove('MakeDefault') | Out-Null
         Write-Verbose -Message "Creating HostedContentFilterPolicy $($Identity) with values: $(Convert-M365DscHashtableToString -Hashtable $HostedContentFilterPolicyParams)"
         New-HostedContentFilterPolicy @HostedContentFilterPolicyParams
         if ($PSBoundParameters.MakeDefault)
         {
             Write-Verbose -Message 'Updating Policy as default'
-            $HostedContentFilterPolicyParams.Remove('MakeDefault') | Out-Null
             Set-HostedContentFilterPolicy @HostedContentFilterPolicyParams -MakeDefault -Confirm:$false
         }
     }
@@ -1186,7 +1186,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }

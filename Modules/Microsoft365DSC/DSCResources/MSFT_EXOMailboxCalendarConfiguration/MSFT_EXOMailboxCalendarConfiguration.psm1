@@ -229,7 +229,7 @@ function Get-TargetResource
     $nullResult.Ensure = 'Absent'
     try
     {
-        $config = Get-MailboxCalendarConfiguration -Identity $Identity -ErrorAction Stop
+        $config = Get-MailboxCalendarConfiguration -Identity $Identity -ErrorAction SilentlyContinue
 
         if ($null -eq $config)
         {
@@ -288,7 +288,7 @@ function Get-TargetResource
             ManagedIdentity                          = $ManagedIdentity.IsPresent
             AccessTokens                             = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

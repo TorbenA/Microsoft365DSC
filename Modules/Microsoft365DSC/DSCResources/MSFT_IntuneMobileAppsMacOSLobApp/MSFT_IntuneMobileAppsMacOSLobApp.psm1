@@ -149,9 +149,10 @@ function Get-TargetResource
         $nullResult = $PSBoundParameters
         $nullResult.Ensure = 'Absent'
 
-        $instance = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $Id `
-            -ExpandProperty 'categories' `
-            -ErrorAction SilentlyContinue
+        if (-not [System.String]::IsNullOrEmpty($Id))
+        {
+            $instance = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $Id -ExpandProperty 'categories' -ErrorAction SilentlyContinue
+        }
 
         if ($null -eq $instance)
         {
@@ -170,9 +171,9 @@ function Get-TargetResource
                 $instance = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $instance.Id `
                     -ExpandProperty 'categories' `
                     -ErrorAction SilentlyContinue
-                $Id = $instance.Id
             }
         }
+        $Id = $instance.Id
 
         if ($null -eq $instance)
         {
@@ -262,7 +263,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $resultAssignments)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -729,8 +730,18 @@ function Export-TargetResource
     try
     {
         $Script:ExportMode = $true
+        $baseFilter = "isof('microsoft.graph.macOSLobApp')"
+        if (-not [String]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($Filter) and ($baseFilter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
+        }
         [array] $getValue = Get-MgBetaDeviceAppManagementMobileApp `
-            -Filter "isof('microsoft.graph.macOSLobApp')" `
+            -All `
+            -Filter $Filter `
             -ErrorAction Stop
 
         $i = 1

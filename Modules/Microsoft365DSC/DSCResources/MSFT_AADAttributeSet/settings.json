@@ -12,8 +12,16 @@
   "permissions": {
     "graph": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "CustomSecAttributeDefinition.Read.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "CustomSecAttributeDefinition.ReadWrite.All"
+          }
+        ]
       },
       "application": {
         "read": [
@@ -32,5 +40,9 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.DirectoryManagement"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

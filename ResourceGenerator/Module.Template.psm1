@@ -103,7 +103,7 @@ function Get-TargetResource
 <HashTableMapping>            #endregionResourceGenerator#>
         }
 <#ComplexTypeContent#><#SettingsCatalogAddSettings#><#AssignmentsGet#>
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

@@ -278,7 +278,7 @@ function Get-TargetResource
             TenantId              = $TenantId
             ApplicationSecret     = $ApplicationSecret
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
         return $results
@@ -404,7 +404,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $ParametersOps = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($PrincipalType -eq 'User')

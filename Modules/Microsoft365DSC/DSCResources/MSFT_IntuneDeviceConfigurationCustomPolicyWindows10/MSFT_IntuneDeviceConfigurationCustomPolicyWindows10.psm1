@@ -169,7 +169,7 @@ function Get-TargetResource
             }
             if ($null -ne $currentomaSettings.'@odata.type')
             {
-                $myomaSettings.Add('odataType', $currentomaSettings.'@odata.type'.toString())
+                $myomaSettings.Add('odataType', $currentomaSettings.'@odata.type'.ToString())
             }
             if ($myomaSettings.values.Where({ $null -ne $_ }).count -gt 0)
             {
@@ -207,7 +207,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $returnAssignments)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -312,7 +312,7 @@ function Set-TargetResource
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
         $CreateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).clone()).Keys
+        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
@@ -356,7 +356,7 @@ function Set-TargetResource
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')

@@ -317,7 +317,7 @@ function Get-TargetResource
             TenantId                                           = $TenantId
             ApplicationSecret                                  = $ApplicationSecret
             CertificateThumbprint                              = $CertificateThumbprint
-            Managedidentity                                    = $ManagedIdentity.IsPresent
+            ManagedIdentity                                    = $ManagedIdentity.IsPresent
             AccessTokens                                       = $AccessTokens
         }
 
@@ -331,7 +331,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $returnAssignments)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -892,7 +892,7 @@ function Test-TargetResource
         if (($null -ne $CurrentValues[$key]) `
                 -and ($CurrentValues[$key].getType().Name -eq 'DateTime'))
         {
-            $CurrentValues[$key] = $CurrentValues[$key].toString()
+            $CurrentValues[$key] = $CurrentValues[$key].ToString()
         }
     }
 
@@ -1002,7 +1002,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

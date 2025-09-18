@@ -84,11 +84,11 @@ function Get-TargetResource
             CertificateThumbprint = $CertificateThumbprint
             CertificatePath       = $CertificatePath
             CertificatePassword   = $CertificatePassword
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             TenantId              = $TenantId
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -353,7 +353,7 @@ function Export-TargetResource
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePath       = $CertificatePath
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 TenantId              = $TenantId
                 AccessTokens          = $AccessTokens
             }

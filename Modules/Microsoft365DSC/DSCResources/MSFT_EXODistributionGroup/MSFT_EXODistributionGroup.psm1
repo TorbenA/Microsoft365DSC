@@ -281,7 +281,15 @@ function Get-TargetResource
         $distributionMembersValue = @()
         foreach ($member in $distributionGroupMembers)
         {
-            $distributionMembersValue += $member.PrimarySmtpAddress
+            if (-not [System.String]::IsNullOrEmpty($member.PrimarySmtpAddress))
+            {
+                $distributionMembersValue += $member.PrimarySmtpAddress
+            }
+            else
+            {
+                 # For RecipientType 'User', PrimarySmtpAddress is unavailable, but WindowsLiveID is, and works with Add-DistributionGroupMember
+                $distributionMembersValue += $member.WindowsLiveID
+            }
         }
 
         Write-Verbose -Message "Found existing Distribution Group {$Identity}."
@@ -301,11 +309,25 @@ function Get-TargetResource
         if ($null -ne $distributionGroup.ManagedBy)
         {
             Write-Verbose -Message "Getting Distribution Group managers for $Identity"
+            if ($null -eq $Script:RecipientsCache)
+            {
+                $Script:RecipientsCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
+                Get-Recipient -ResultSize Unlimited | Foreach-Object {
+                    $Script:RecipientsCache[$_.Name] = @{
+                        PrimarySmtpAddress = $_.PrimarySmtpAddress
+                        WindowsLiveID      = $_.WindowsLiveID
+                    }
+                }
+            }
             foreach ($manager in $distributionGroup.ManagedBy)
             {
                 try
                 {
-                    $recipient = Get-Recipient -Identity $manager -ErrorAction Stop
+                    $recipient = $Script:RecipientsCache[$manager]
+                    if ($null -eq $recipient)
+                    {
+                        throw "Recipient not found in cache"
+                    }
                     $ManagedByValue += $recipient.PrimarySmtpAddress
                 }
                 catch
@@ -319,11 +341,25 @@ function Get-TargetResource
         if ($null -ne $distributionGroup.ModeratedBy)
         {
             Write-Verbose -Message "Getting Distribution Group moderators for $Identity"
+            if ($null -eq $Script:RecipientsCache)
+            {
+                $Script:RecipientsCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
+                Get-Recipient -ResultSize Unlimited | Foreach-Object {
+                    $Script:RecipientsCache[$_.Name] = @{
+                        PrimarySmtpAddress = $_.PrimarySmtpAddress
+                        WindowsLiveID      = $_.WindowsLiveID
+                    }
+                }
+            }
             foreach ($moderator in $distributionGroup.ModeratedBy)
             {
                 try
                 {
-                    $recipient = Get-Recipient -Identity $moderator -ErrorAction Stop
+                    $recipient = $Script:RecipientsCache[$moderator]
+                    if ($null -eq $recipient)
+                    {
+                        throw "Recipient not found in cache"
+                    }
                     $ModeratedByValue += $recipient.PrimarySmtpAddress
                 }
                 catch
@@ -332,6 +368,7 @@ function Get-TargetResource
                 }
             }
         }
+
         $result = @{
             Identity                               = $distributionGroup.Identity
             Alias                                  = $distributionGroup.Alias
@@ -382,7 +419,7 @@ function Get-TargetResource
             CertificateThumbprint                  = $CertificateThumbprint
             CertificatePath                        = $CertificatePath
             CertificatePassword                    = $CertificatePassword
-            Managedidentity                        = $ManagedIdentity.IsPresent
+            ManagedIdentity                        = $ManagedIdentity.IsPresent
             TenantId                               = $TenantId
             AccessTokens                           = $AccessTokens
         }
@@ -642,7 +679,7 @@ function Set-TargetResource
     $newGroup = $null
     if ($Ensure -eq 'Present' -and $currentDistributionGroup.Ensure -eq 'Absent')
     {
-        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
+        $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         Write-Verbose -Message "The Distribution Group {$Identity} does not exist but it should. Creating it."
         $CreateParameters.Remove('Identity') | Out-Null
         $CreateParameters.Remove('AcceptMessagesOnlyFrom') | Out-Null
@@ -674,7 +711,9 @@ function Set-TargetResource
     {
         Write-Verbose -Message "The Distribution Group {$Identity} exists but shouldn't. Removing it."
         # Use the group identity value retrieved from Get-TargetResource, in case we got the group using PrimarySmtpAddress
-        Remove-DistributionGroup -Identity $currentDistributionGroup.Identity -Confirm:$false
+        Remove-DistributionGroup -Identity $currentDistributionGroup.Identity `
+                                -BypassSecurityGroupManagerCheck `
+                                -Confirm:$false
     }
     # Update even if we just created the group. There are properties that can only be set with the set- cmdlet.
     if ($Ensure -eq 'Present')
@@ -1089,7 +1128,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }

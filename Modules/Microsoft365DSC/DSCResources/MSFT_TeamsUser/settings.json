@@ -69,5 +69,9 @@
   },
   "requiredModules": [
     "MicrosoftTeams"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

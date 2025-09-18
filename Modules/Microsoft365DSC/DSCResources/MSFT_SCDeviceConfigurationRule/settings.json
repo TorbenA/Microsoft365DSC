@@ -2,8 +2,12 @@
   "resourceName": "SCDeviceConfigurationRule",
   "description": "This resource configures a Device Configuration Rule in Purview.",
   "roles": {
-    "read": [],
-    "update": []
+    "read": [
+      "Security Reader"
+    ],
+    "update": [
+      "Compliance Administrator"
+    ]
   },
   "permissions": {
     "graph": {
@@ -23,11 +27,29 @@
           }
         ]
       }
+    },
+    "Office 365 Exchange Online": {
+      "application": {
+        "read": [
+          {
+            "name": "Exchange.ManageAsApp"
+          }
+        ],
+        "update": [
+          {
+            "name": "Exchange.ManageAsApp"
+          }
+        ]
+      }
     }
   },
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Groups",
     "Microsoft.Graph.Users"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

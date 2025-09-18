@@ -8,8 +8,16 @@
   "permissions": {
     "graph": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "Directory.Read.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "Directory.ReadWrite.All"
+          }
+        ]
       },
       "application": {
         "read": [
@@ -28,5 +36,9 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

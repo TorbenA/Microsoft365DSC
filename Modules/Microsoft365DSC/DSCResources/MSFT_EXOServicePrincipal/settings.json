@@ -10,19 +10,27 @@
     ]
   },
   "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
+    "Office 365 Exchange Online": {
       "application": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "Exchange.ManageAsApp"
+          }
+        ],
+        "update": [
+          {
+            "name": "Exchange.ManageAsApp"
+          }
+        ]
       }
     }
   },
   "requiredModules": [
     "Microsoft.Graph.Applications",
     "Microsoft.Graph.Authentication"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

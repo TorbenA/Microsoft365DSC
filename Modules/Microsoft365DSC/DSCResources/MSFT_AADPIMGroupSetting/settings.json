@@ -12,13 +12,13 @@
       "delegated": {
         "read": [
           {
+            "name": "AuthenticationContext.Read.All"
+          },
+          {
             "name": "Group.Read.All"
           },
           {
-            "name": "RoleManagementPolicy.Read.AzureADGroup"
-          },
-          {
-            "name": "PrivilegedEligibilitySchedule.Read.AzureADGroup"
+            "name": "RoleManagementPolicy.Read.Directory"
           },
           {
             "name": "User.Read.All"
@@ -29,7 +29,7 @@
             "name": "Group.Read.All"
           },
           {
-            "name": "RoleManagementPolicy.ReadWrite.AzureADGroup"
+            "name": "RoleManagementPolicy.ReadWrite.Directory"
           },
           {
             "name": "User.Read.All"
@@ -42,10 +42,7 @@
             "name": "Group.Read.All"
           },
           {
-            "name": "RoleManagementPolicy.Read.AzureADGroup"
-          },
-          {
-            "name": "PrivilegedEligibilitySchedule.Read.AzureADGroup"
+            "name": "RoleManagementPolicy.Read.Directory"
           },
           {
             "name": "User.Read.All"
@@ -56,10 +53,7 @@
             "name": "Group.Read.All"
           },
           {
-            "name": "RoleManagementPolicy.ReadWrite.AzureADGroup"
-          },
-          {
-            "name": "RoleManagementPolicy.ReadWrite.AzureADGroup"
+            "name": "RoleManagementPolicy.ReadWrite.Directory"
           },
           {
             "name": "User.Read.All"
@@ -74,5 +68,9 @@
     "Microsoft.Graph.Groups",
     "Microsoft.Graph.Identity.SignIns",
     "Microsoft.Graph.Users"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

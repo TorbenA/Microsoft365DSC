@@ -110,7 +110,7 @@ function Get-TargetResource
             ManagedIdentity        = $ManagedIdentity
             AccessTokens           = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -327,7 +327,7 @@ function Test-TargetResource
         if (($null -ne $CurrentValues[$key]) `
                 -and ($CurrentValues[$key].GetType().Name -eq 'DateTime'))
         {
-            $CurrentValues[$key] = $CurrentValues[$key].toString()
+            $CurrentValues[$key] = $CurrentValues[$key].ToString()
         }
     }
 

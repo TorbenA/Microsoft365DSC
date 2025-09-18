@@ -156,32 +156,25 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            try
+            if (-not [System.String]::IsNullOrEmpty($ObjectID))
             {
-                if (-not [System.String]::IsNullOrEmpty($ObjectID))
-                {
-                    $AADServicePrincipal = Get-MgServicePrincipal -ServicePrincipalId $ObjectId `
-                        -Property $Script:PropertiesToExport
-                        -Expand 'AppRoleAssignedTo' `
-                        -ErrorAction Stop
-                }
-            }
-            catch
-            {
-                Write-Verbose -Message "Azure AD ServicePrincipal with ObjectID: $($ObjectID) could not be retrieved"
+                $AADServicePrincipal = Get-MgServicePrincipal -ServicePrincipalId $ObjectId `
+                    -Property $Script:PropertiesToExport `
+                    -ExpandProperty 'AppRoleAssignedTo' `
+                    -ErrorAction SilentlyContinue
             }
 
             if ($null -eq $AADServicePrincipal)
             {
                 $ObjectGuid = [System.Guid]::empty
-                if (-not [System.Guid]::TryParse($AppId, [System.Management.Automation.PSReference]$ObjectGuid))
+                if (-not [System.Guid]::TryParse($AppId, [ref]$ObjectGuid))
                 {
-                    $appInstance = Get-MgApplication -Filter "DisplayName eq '$($AppId -replace "'", "''")'"
-                    if ($appInstance)
-                    {
-                        $AADServicePrincipal = Get-MgServicePrincipal -Filter "AppID eq '$($appInstance.AppId)'" `
+                    $AADServicePrincipal = [Array](Get-MgServicePrincipal -Filter "DisplayName eq '$($AppId -replace "'", "''")'" `
                             -Property $Script:PropertiesToExport `
-                            -Expand 'AppRoleAssignedTo'
+                            -Expand 'AppRoleAssignedTo')
+                    if ($null -ne $AADServicePrincipal -and $AADServicePrincipal.Count -gt 1)
+                    {
+                        Throw "Multiple Service Principal with the DisplayName $($AppId) exist in the tenant."
                     }
                 }
                 else
@@ -193,6 +186,7 @@ function Get-TargetResource
             }
             if ($null -eq $AADServicePrincipal)
             {
+                Write-Verbose -Message "Service Principal with AppId '$AppId' not found."
                 return $nullReturn
             }
         }
@@ -335,10 +329,41 @@ function Get-TargetResource
             $complexCustomSecurityAttributes = @()
         }
 
-        $appIdToExport = $AADServicePrincipal.AppDisplayName
-        if ([System.String]::IsNullOrEmpty($appIdToExport))
+        # If the App Id was passed in as a Guid, return it as a GUID. Otherwise return it as text.
+        $ObjectGuid = [System.Guid]::empty
+        if (-not [System.String]::IsNullOrEmpty($AppId) -and [System.Guid]::TryParse($AppId, [ref]$ObjectGuid))
         {
+            Write-Verbose -Message "Returning AppId as GUID since the provided value was in GUID format."
             $appIdToExport = $AADServicePrincipal.AppId
+        }
+        else
+        {
+            Write-Verbose -Message "Returning AppId as Display Name since the provided value was NOT in GUID format."
+            $appIdToExport = $AADServicePrincipal.DisplayName
+        }
+
+        $tagsValue = @()
+        if ($null -ne $AADServicePrincipal.Tags)
+        {
+            $tagsValue = [Array]($AADServicePrincipal.Tags)
+        }
+
+        $alternativeNamesValue = @()
+        if ($null -ne $AADServicePrincipal.AlternativeNames)
+        {
+            $alternativeNamesValue = [Array]($AADServicePrincipal.AlternativeNames)
+        }
+
+        $replyUrlsValue = @()
+        if ($null -ne $AADServicePrincipal.ReplyURLs)
+        {
+            $replyUrlsValue = [Array]($AADServicePrincipal.ReplyURLs)
+        }
+
+        $servicePrincipalNamesValue = @()
+        if ($null -ne $AADServicePrincipal.ServicePrincipalNames)
+        {
+            $servicePrincipalNamesValue = [Array]($AADServicePrincipal.ServicePrincipalNames)
         }
 
         $result = @{
@@ -346,7 +371,7 @@ function Get-TargetResource
             AppRoleAssignedTo                  = $AppRoleAssignedToValues
             ObjectID                           = $AADServicePrincipal.Id
             DisplayName                        = $AADServicePrincipal.DisplayName
-            AlternativeNames                   = $AADServicePrincipal.AlternativeNames
+            AlternativeNames                   = $alternativeNamesValue
             AccountEnabled                     = [boolean]$AADServicePrincipal.AccountEnabled
             AppRoleAssignmentRequired          = $AADServicePrincipal.AppRoleAssignmentRequired
             CustomSecurityAttributes           = $complexCustomSecurityAttributes
@@ -358,11 +383,11 @@ function Get-TargetResource
             Owners                             = $ownersValues
             PreferredSingleSignOnMode          = $AADServicePrincipal.PreferredSingleSignOnMode
             PublisherName                      = $AADServicePrincipal.PublisherName
-            ReplyURLs                          = $AADServicePrincipal.ReplyURLs
+            ReplyURLs                          = $replyUrlsValue
             SamlMetadataURL                    = $AADServicePrincipal.SamlMetadataURL
-            ServicePrincipalNames              = $AADServicePrincipal.ServicePrincipalNames
+            ServicePrincipalNames              = $servicePrincipalNamesValue
             ServicePrincipalType               = $AADServicePrincipal.ServicePrincipalType
-            Tags                               = $AADServicePrincipal.Tags
+            Tags                               = $tagsValue
             KeyCredentials                     = $complexKeyCredentials
             PasswordCredentials                = $complexPasswordCredentials
             Ensure                             = 'Present'
@@ -371,7 +396,7 @@ function Get-TargetResource
             ApplicationSecret                  = $ApplicationSecret
             TenantId                           = $TenantId
             CertificateThumbprint              = $CertificateThumbprint
-            Managedidentity                    = $ManagedIdentity.IsPresent
+            ManagedIdentity                    = $ManagedIdentity.IsPresent
             AccessTokens                       = $AccessTokens
         }
         Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
@@ -602,11 +627,6 @@ function Set-TargetResource
             Write-Verbose -Message "Updating AppRoleAssignedTo value"
             foreach ($assignment in $AppRoleAssignedTo)
             {
-                $AppRoleAssignedToValues += @{
-                    PrincipalType = $assignment.PrincipalType
-                    Identity      = $assignment.Identity
-                }
-
                 if ($assignment.PrincipalType -eq 'User')
                 {
                     Write-Verbose -Message "Retrieving user {$($assignment.Identity)}"
@@ -619,6 +639,7 @@ function Set-TargetResource
                     $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.Identity -replace "'", "''")'"
                     $PrincipalIdValue = $group.Id
                 }
+
                 $bodyParam = @{
                     principalId = $PrincipalIdValue
                     resourceId  = $newSP.Id
@@ -963,34 +984,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    # Evaluate AppId in GUID or DisplayName form.
-    $ObjectGuid = [System.Guid]::Empty
-    if ([System.Guid]::TryParse($PSBoundParameters.AppId, [System.Management.Automation.PSReference]$ObjectGuid))
-    {
-        # AppId was provided as a GUID, but Get-TargetResource returns it as Display name.
-        # Evaluate the translation to display name
-        Write-Verbose -Message "AppId was provided as a GUID, translating into a DisplayName"
-        $appInstance = Get-MgApplication -Filter "AppId eq '$($PSBoundParameters.AppId)'" -ErrorAction SilentlyContinue
-        if ($null -ne $appInstance)
-        {
-            $PSBoundParameters.AppId = $appInstance.DisplayName
-        }
-        else
-        {
-            $spn = Get-MgServicePrincipal -Filter "AppId eq '$($PSBoundParameters.AppId)'"
-            if ($null -eq $spn)
-            {
-                Write-Verbose -Message "Application or Service Principal with AppId '$($PSBoundParameters.AppId)' not found. Leaving it as AppId."
-            }
-            else
-            {
-                $PSBoundParameters.AppId = $spn.DisplayName
-            }
-        }
-    }
-
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties @('ObjectId')
     return $result
 }
 
@@ -1073,7 +1069,7 @@ function Export-TargetResource
                 ApplicationSecret     = $ApplicationSecret
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AppID                 = $AADServicePrincipal.AppId
                 AccessTokens          = $AccessTokens
             }

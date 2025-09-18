@@ -186,7 +186,7 @@ function Get-TargetResource
             TenantId              = $TenantId
             ApplicationSecret     = $ApplicationSecret
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
             #endregion
         }
@@ -200,7 +200,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -619,7 +619,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
@@ -924,9 +924,13 @@ function Update-IntuneDeviceConfigurationPolicy
 
         [Parameter()]
         [Array]
-        $Settings
+        $Settings,
 
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds
     )
+
     try
     {
         $Uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceManagement/configurationPolicies/$DeviceManagementConfigurationPolicyId"
@@ -938,6 +942,7 @@ function Update-IntuneDeviceConfigurationPolicy
             'templateReference' = @{'templateId' = $TemplateReferenceId }
             'technologies'      = $Technologies
             'settings'          = $Settings
+            'roleScopeTagIds'   = $RoleScopeTagIds
         }
         $body = $policy | ConvertTo-Json -Depth 20
         #write-verbose -Message $body

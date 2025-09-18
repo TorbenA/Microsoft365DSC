@@ -122,7 +122,6 @@ function Get-TargetResource
         $CatalogIdValue = $catalogId
         if (-not [System.String]::IsNullOrEmpty($CatalogId))
         {
-            $resource = ([Hashtable]$PSBoundParameters).clone()
             $ObjectGuid = [System.Guid]::empty
             if (-not [System.Guid]::TryParse($CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
             {
@@ -201,7 +200,7 @@ function Get-TargetResource
             AccessTokens          = $AccessTokens
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -354,12 +353,11 @@ function Set-TargetResource
         $resource.Remove('CatalogId') | Out-Null
 
         #Preparing embedded Cim Instances
-        $keys = (([Hashtable]$resource).clone()).Keys
+        $keys = (([Hashtable]$resource).Clone()).Keys
         foreach ($key in $keys)
         {
-            $keyName = $key
             $keyValue = $resource.$key
-            if ($null -ne $resource.$key -and $resource.$key.getType().Name -like '*cimInstance*')
+            if ($null -ne $resource.$key -and $resource.$key.GetType().Name -like '*cimInstance*')
             {
                 $keyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $resource.$key
                 $resource.$key = $keyValue
@@ -389,7 +387,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating resource {$DisplayName} in catalog {$CatalogId}"
 
-        $resource = ([Hashtable]$PSBoundParameters).clone()
+        $resource = ([Hashtable]$PSBoundParameters).Clone()
         $ObjectGuid = [System.Guid]::empty
         if (-not [System.Guid]::TryParse($CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
         {
@@ -405,12 +403,11 @@ function Set-TargetResource
         $resource.Remove('Verbose') | Out-Null
 
         #Preparing embedded Cim Instances
-        $keys = (([Hashtable]$resource).clone()).Keys
+        $keys = (([Hashtable]$resource).Clone()).Keys
         foreach ($key in $keys)
         {
-            $keyName = $key
             $keyValue = $resource.$key
-            if ($null -ne $resource.$key -and $resource.$key.getType().Name -like '*cimInstance*')
+            if ($null -ne $resource.$key -and $resource.$key.GetType().Name -like '*cimInstance*')
             {
                 $keyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $resource.$key
                 $resource.$key = $keyValue
@@ -440,19 +437,18 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Removing resource {$DisplayName} from catalog {$CatalogId}"
 
-        $resource = ([Hashtable]$PSBoundParameters).clone()
+        $resource = ([Hashtable]$PSBoundParameters).Clone()
 
         $resource.Remove('Id') | Out-Null
         $resource.Remove('CatalogId') | Out-Null
         $resource.Remove('Verbose') | Out-Null
 
         #Preparing embedded Cim Instances
-        $keys = (([Hashtable]$resource).clone()).Keys
+        $keys = (([Hashtable]$resource).Clone()).Keys
         foreach ($key in $keys)
         {
-            $keyName = $key
             $keyValue = $resource.$key
-            if ($null -ne $resource.$key -and $resource.$key.getType().Name -like '*cimInstance*')
+            if ($null -ne $resource.$key -and $resource.$key.GetType().Name -like '*cimInstance*')
             {
                 $keyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $resource.$key
                 $resource.$key = $keyValue
@@ -758,8 +754,8 @@ function Export-TargetResource
             $i++
         }
 
-        #Removing coma between items in cim instance array
-        $dscContent = $dscContent.replace("            ,`r`n", '')
+        # Removing comma between items in cim instance array
+        $dscContent = $dscContent.Replace("            ,`r`n", '')
         return $dscContent
     }
     catch

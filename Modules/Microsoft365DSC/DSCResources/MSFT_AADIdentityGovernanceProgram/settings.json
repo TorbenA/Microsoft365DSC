@@ -32,5 +32,8 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.Governance"
+  ],
+  "supportedEnvironments": [
+    "Global"
   ]
 }

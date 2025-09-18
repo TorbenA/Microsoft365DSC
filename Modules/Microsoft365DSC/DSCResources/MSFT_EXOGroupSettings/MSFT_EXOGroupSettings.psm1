@@ -276,7 +276,7 @@ function Get-TargetResource
             }
 
             Write-Verbose -Message "Retrieving group by id {$Id}"
-            [Array]$group = Get-UnifiedGroup -Identity $Id -IncludeAllProperties -ErrorAction Stop
+            [Array]$group = Get-UnifiedGroup -Identity $Id -IncludeAllProperties -ErrorAction SilentlyContinue
 
             if ($group.Length -eq 0)
             {
@@ -699,6 +699,7 @@ function Set-TargetResource
 
     $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $UpdateParameters.Add('Identity', $CurrentValues.Id)
+    $UpdateParameters.Remove('Id') | Out-Null
     $UpdateParameters.Remove('DisplayName') | Out-Null
 
     # Cannot use PrimarySmtpAddress and EmailAddresses at the same time. If both are present, then give priority to PrimarySmtpAddress.
@@ -706,6 +707,7 @@ function Set-TargetResource
     {
         $UpdateParameters.Remove('EmailAddresses')
     }
+    Write-Verbose -Message "Updating settings for group '$($DisplayName)' with the following parameters:`r`n$($UpdateParameters | ConvertTo-Json -Depth 10)"
     Set-UnifiedGroup @UpdateParameters
 }
 
@@ -1076,7 +1078,7 @@ function Export-TargetResource
                     TenantId              = $TenantId
                     CertificateThumbprint = $CertificateThumbprint
                     CertificatePassword   = $CertificatePassword
-                    Managedidentity       = $ManagedIdentity.IsPresent
+                    ManagedIdentity       = $ManagedIdentity.IsPresent
                     CertificatePath       = $CertificatePath
                     AccessTokens          = $AccessTokens
                 }

@@ -430,7 +430,7 @@ function Get-TargetResource
             TenantId                                        = $TenantId
             ApplicationSecret                               = $ApplicationSecret
             CertificateThumbprint                           = $CertificateThumbprint
-            Managedidentity                                 = $ManagedIdentity.IsPresent
+            ManagedIdentity                                 = $ManagedIdentity.IsPresent
             AccessTokens                                    = $AccessTokens
         }
         if ($getValue.additionalProperties.compliantAppsList)
@@ -452,7 +452,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -796,12 +796,12 @@ function Set-TargetResource
         Write-Verbose -Message "Creating {$DisplayName}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $CreateParameters
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
         $CreateParameters.Remove('Id') | Out-Null
 
-        foreach ($key in ($CreateParameters.clone()).Keys)
+        foreach ($key in ($CreateParameters.Clone()).Keys)
         {
             if ($CreateParameters[$key].getType().Fullname -like '*CimInstance*')
             {
@@ -832,7 +832,7 @@ function Set-TargetResource
         Write-Verbose -Message "Updating {$DisplayName}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
         $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $UpdateParameters
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
@@ -848,7 +848,7 @@ function Set-TargetResource
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        foreach ($key in ($UpdateParameters.clone()).Keys)
+        foreach ($key in ($UpdateParameters.Clone()).Keys)
         {
             if ($UpdateParameters[$key].getType().Fullname -like '*CimInstance*')
             {
@@ -1236,7 +1236,7 @@ function Test-TargetResource
         if (($null -ne $CurrentValues[$key]) `
                 -and ($CurrentValues[$key].getType().Name -eq 'DateTime'))
         {
-            $CurrentValues[$key] = $CurrentValues[$key].toString()
+            $CurrentValues[$key] = $CurrentValues[$key].ToString()
         }
     }
 
@@ -1344,7 +1344,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

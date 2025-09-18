@@ -245,7 +245,7 @@ function Get-TargetResource
                 $myRanges.Add('UpperAddress', $currentRanges.AdditionalProperties.upperAddress)
                 if ($null -ne $currentRanges.AdditionalProperties.'@odata.type')
                 {
-                    $myRanges.Add('odataType', $currentRanges.AdditionalProperties.'@odata.type'.toString())
+                    $myRanges.Add('odataType', $currentRanges.AdditionalProperties.'@odata.type'.ToString())
                 }
                 if ($myRanges.values.Where({ $null -ne $_ }).count -gt 0)
                 {
@@ -332,7 +332,7 @@ function Get-TargetResource
             $myExemptApps.Add('BinaryVersionLow', $currentExemptApps.AdditionalProperties.binaryVersionLow)
             if ($null -ne $currentExemptApps.AdditionalProperties.'@odata.type')
             {
-                $myExemptApps.Add('odataType', $currentExemptApps.AdditionalProperties.'@odata.type'.toString())
+                $myExemptApps.Add('odataType', $currentExemptApps.AdditionalProperties.'@odata.type'.ToString())
             }
             if ($myExemptApps.values.Where({ $null -ne $_ }).count -gt 0)
             {
@@ -366,7 +366,7 @@ function Get-TargetResource
             $myProtectedApps.Add('BinaryVersionLow', $currentProtectedApps.AdditionalProperties.binaryVersionLow)
             if ($null -ne $currentProtectedApps.AdditionalProperties.'@odata.type')
             {
-                $myProtectedApps.Add('odataType', $currentProtectedApps.AdditionalProperties.'@odata.type'.toString())
+                $myProtectedApps.Add('odataType', $currentProtectedApps.AdditionalProperties.'@odata.type'.ToString())
             }
             if ($myProtectedApps.values.Where({ $null -ne $_ }).count -gt 0)
             {
@@ -428,7 +428,7 @@ function Get-TargetResource
             TenantId                               = $TenantId
             ApplicationSecret                      = $ApplicationSecret
             CertificateThumbprint                  = $CertificateThumbprint
-            Managedidentity                        = $ManagedIdentity.IsPresent
+            ManagedIdentity                        = $ManagedIdentity.IsPresent
             AccessTokens                           = $AccessTokens
             #endregion
         }
@@ -437,7 +437,7 @@ function Get-TargetResource
             $results.Add('Assignments', (ConvertFrom-IntunePolicyAssignment -Assignments $getValue.assignments -IncludeDeviceFilter $false))
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -620,7 +620,7 @@ function Set-TargetResource
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
         $CreateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).clone()).Keys
+        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
@@ -652,7 +652,7 @@ function Set-TargetResource
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
@@ -989,7 +989,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

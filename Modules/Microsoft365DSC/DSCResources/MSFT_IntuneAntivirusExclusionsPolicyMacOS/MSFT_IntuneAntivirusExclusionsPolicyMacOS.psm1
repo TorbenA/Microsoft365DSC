@@ -192,7 +192,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -306,6 +306,7 @@ function Set-TargetResource
             Platforms         = $platforms
             Technologies      = $technologies
             Settings          = $settings
+            RoleScopeTagIds   = $RoleScopeTagIds
         }
 
         #region resource generator code
@@ -337,7 +338,8 @@ function Set-TargetResource
             -TemplateReferenceId $templateReferenceId `
             -Platforms $platforms `
             -Technologies $technologies `
-            -Settings $settings
+            -Settings $settings `
+            -RoleScopeTagIds $RoleScopeTagIds
 
         #region resource generator code
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments

@@ -9,16 +9,10 @@
             "name": "DeviceManagementApps.Read.All"
           },
           {
-            "name": "DeviceManagementApps.Read.All"
-          },
-          {
             "name": "Group.Read.All"
           }
         ],
         "update": [
-          {
-            "name": "DeviceManagementApps.ReadWrite.All"
-          },
           {
             "name": "DeviceManagementApps.ReadWrite.All"
           },
@@ -33,16 +27,10 @@
             "name": "DeviceManagementApps.Read.All"
           },
           {
-            "name": "DeviceManagementApps.Read.All"
-          },
-          {
             "name": "Group.Read.All"
           }
         ],
         "update": [
-          {
-            "name": "DeviceManagementApps.ReadWrite.All"
-          },
           {
             "name": "DeviceManagementApps.ReadWrite.All"
           },
@@ -57,5 +45,9 @@
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Devices.CorporateManagement",
     "Microsoft.Graph.Groups"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

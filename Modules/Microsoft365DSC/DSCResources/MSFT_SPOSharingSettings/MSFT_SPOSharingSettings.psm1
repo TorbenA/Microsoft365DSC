@@ -154,28 +154,34 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting configuration for SPO Sharing settings'
 
-    $null = New-M365DSCConnection -Workload 'PnP' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = $PSBoundParameters
-    $nullReturn.Ensure = 'Absent'
-
     try
     {
-        $SPOSharingSettings = Get-PnPTenant -ErrorAction Stop
-        $MySite = Get-PnPTenantSite -Filter "Url -like '-my.sharepoint.'" | Where-Object -FilterScript { $_.Template -notmatch '^RedirectSite#' }
+        if (-not $Script:ExportMode)
+        {
+            $null = New-M365DSCConnection -Workload 'PnP' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullReturn = $PSBoundParameters
+            $nullReturn.Ensure = 'Absent'
+        }
+
+        if ($null -eq $Script:SPOSharingSettings)
+        {
+            $Script:SPOSharingSettings = Get-PnPTenant -ErrorAction Stop
+        }
+        $MySite = Get-PnPTenantSite -Filter "Url -like '-my.sharepoint.' -and Template -notlike 'RedirectSite#'"
 
         if ($null -ne $MySite)
         {
@@ -184,12 +190,12 @@ function Get-TargetResource
 
         if ($null -ne $SPOSharingSettings.SharingAllowedDomainList)
         {
-            $allowDomains = $SPOSharingSettings.SharingAllowedDomainList.split(' ')
+            $allowDomains = $SPOSharingSettings.SharingAllowedDomainList.Split(' ')
         }
 
         if ($null -ne $SPOSharingSettings.SharingBlockedDomainList)
         {
-            $blockDomains = $SPOSharingSettings.SharingBlockedDomainList.split(' ')
+            $blockDomains = $SPOSharingSettings.SharingBlockedDomainList.Split(' ')
         }
 
         if ($SPOSharingSettings.DefaultLinkPermission -eq 'None')
@@ -233,7 +239,7 @@ function Get-TargetResource
             CertificatePassword                      = $CertificatePassword
             CertificatePath                          = $CertificatePath
             CertificateThumbprint                    = $CertificateThumbprint
-            Managedidentity                          = $ManagedIdentity.IsPresent
+            ManagedIdentity                          = $ManagedIdentity.IsPresent
             Ensure                                   = 'Present'
             AccessTokens                             = $AccessTokens
         }
@@ -514,6 +520,7 @@ function Set-TargetResource
         Set-PnPTenantSite -Identity $mysite.Url -SharingCapability $MySiteSharingCapability
     }
 }
+
 function Test-TargetResource
 {
     [CmdletBinding()]
@@ -810,6 +817,7 @@ function Export-TargetResource
             $Global:M365DSCExportResourceInstancesCount++
         }
 
+        $Script:ExportMode = $true
         $Params = @{
             IsSingleInstance      = 'Yes'
             ApplicationId         = $ApplicationId
@@ -818,7 +826,7 @@ function Export-TargetResource
             CertificatePassword   = $CertificatePassword
             CertificatePath       = $CertificatePath
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             Credential            = $Credential
             AccessTokens          = $AccessTokens
         }

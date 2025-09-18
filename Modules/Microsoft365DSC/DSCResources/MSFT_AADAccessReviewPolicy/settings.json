@@ -8,16 +8,21 @@
   "permissions": {
     "graph": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "Policy.Read.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "Policy.ReadWrite.AccessReview"
+          }
+        ]
       },
       "application": {
         "read": [
           {
             "name": "Policy.Read.All"
-          },
-          {
-            "name": "AccessReview.Read.All"
           }
         ],
         "update": [
@@ -31,5 +36,9 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.SignIns"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

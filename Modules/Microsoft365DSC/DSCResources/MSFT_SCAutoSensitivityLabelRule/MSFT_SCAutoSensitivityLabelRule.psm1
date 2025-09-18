@@ -16,7 +16,7 @@ function Get-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String]
-        [ValidateSet('Exchange', 'SharePoint', 'OneDriveForBusiness')]
+        [ValidateSet('Exchange', 'SharePoint', 'OneDriveForBusiness', 'Applications', 'Azure', 'AWS', 'PowerBI')]
         $Workload,
 
         [Parameter()]
@@ -403,7 +403,7 @@ function Set-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String]
-        [ValidateSet('Exchange', 'SharePoint', 'OneDriveForBusiness')]
+        [ValidateSet('Exchange', 'SharePoint', 'OneDriveForBusiness', 'Applications', 'Azure', 'AWS', 'PowerBI')]
         $Workload,
 
         [Parameter()]
@@ -682,7 +682,7 @@ function Set-TargetResource
         }
         New-AutoSensitivityLabelRule @CreationParams
 
-        Write-Verbose -Message "Flipping the parent policy to Mode back to $currentMode while we create the rule"
+        Write-Verbose -Message "Flipping the parent policy back to Mode $currentMode while we create the rule"
         Set-AutoSensitivityLabelPolicy -Identity $Policy -Mode $currentMode
     }
     elseif (('Present' -eq $Ensure) -and ('Present' -eq $CurrentRule.Ensure))
@@ -766,7 +766,7 @@ function Test-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String]
-        [ValidateSet('Exchange', 'SharePoint', 'OneDriveForBusiness')]
+        [ValidateSet('Exchange', 'SharePoint', 'OneDriveForBusiness', 'Applications', 'Azure', 'AWS', 'PowerBI')]
         $Workload,
 
         [Parameter()]

@@ -154,7 +154,7 @@ function Get-TargetResource
             ManagedIdentity           = $ManagedIdentity.IsPresent
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -523,7 +523,7 @@ function Export-TargetResource
     {
         $Script:ExportMode = $true
         $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/privilegedAccess/aadGroups/resources"
-        [array]$groups = (Invoke-GraphRequest -Method GET -Uri $uri -ErrorAction SilentlyContinue).value
+        [array]$groups = (Invoke-MgGraphRequest -Method GET -Uri $uri -ErrorAction SilentlyContinue).value
 
         $dscContent = [System.Text.StringBuilder]::new()
         Write-M365DSCHost -Message "`r`n" -DeferWrite
@@ -540,12 +540,7 @@ function Export-TargetResource
             }
         }
 
-        $batchResponses = @()
-        for ($i = 0; $i -lt $batchRequests.Count; $i += 20)
-        {
-            $batchRequestSized = $batchRequests[$i..([Math]::Min($i + 19, $batchRequests.Count - 1))]
-            $batchResponses += Invoke-M365DSCGraphBatchRequest -Requests $batchRequestSized
-        }
+        $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
 
         foreach ($group in $groups)
         {
@@ -573,7 +568,7 @@ function Export-TargetResource
                         CertificateThumbprint = $CertificateThumbprint
                         ApplicationSecret     = $ApplicationSecret
                         Credential            = $Credential
-                        Managedidentity       = $ManagedIdentity.IsPresent
+                        ManagedIdentity       = $ManagedIdentity.IsPresent
                         AccessTokens          = $AccessTokens
                     }
 

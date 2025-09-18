@@ -59,6 +59,32 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
             }
 
+            Mock -CommandName Get-MgBetaPolicyAdminConsentRequestPolicy -MockWith {
+                return @{
+                    IsEnabled             = $true
+                    NotifyReviewers       = $False;
+                    RemindersEnabled      = $True;
+                    RequestDurationInDays = 30;
+                    Reviewers             =                 @(
+                        @{
+                            Query = "/v1.0/users/e362df2b-8f61-4e5a-9e5e-c6069f3ed2ee"
+                            QueryType = 'MicrosoftGraph'
+                            QueryRoot = ''
+                        },
+                        @{
+                            Query = "/v1.0/groups/1bb47df7-d3fa-4ba8-bdbd-e9fc7541fa18/transitiveMembers/microsoft.graph.user"
+                            QueryType = 'MicrosoftGraph'
+                            QueryRoot = ''
+                        }
+                        @{
+                            Query = "/beta/roleManagement/directory/roleAssignments?`$filter=roleDefinitionId eq '9c6df0f2-1e7c-4dc3-b195-66dfbd24aa8f'"
+                            QueryType = 'MicrosoftGraph'
+                            QueryRoot = ''
+                        }
+                    );
+                }
+            }
+
             Mock -CommandName Invoke-MgGraphRequest -MockWith {
             }
 
@@ -94,32 +120,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     );
                     Credential          = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaPolicyAdminConsentRequestPolicy -MockWith {
-                    return @{
-                        IsEnabled             = $true
-                        NotifyReviewers       = $False;
-                        RemindersEnabled      = $True;
-                        RequestDurationInDays = 30;
-                        Reviewers             =                 @(
-                            @{
-                                Query = "/v1.0/users/e362df2b-8f61-4e5a-9e5e-c6069f3ed2ee"
-                                QueryType = 'MicrosoftGraph'
-                                QueryRoot = ''
-                            },
-                            @{
-                                Query = "/v1.0/groups/1bb47df7-d3fa-4ba8-bdbd-e9fc7541fa18/transitiveMembers/microsoft.graph.user"
-                                QueryType = 'MicrosoftGraph'
-                                QueryRoot = ''
-                            }
-                            @{
-                                Query = "/beta/roleManagement/directory/roleAssignments?`$filter=roleDefinitionId eq '9c6df0f2-1e7c-4dc3-b195-66dfbd24aa8f'"
-                                QueryType = 'MicrosoftGraph'
-                                QueryRoot = ''
-                            }
-                        );
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -151,32 +151,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     );
                     Credential          = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaPolicyAdminConsentRequestPolicy -MockWith {
-                    return @{
-                        IsEnabled             = $true
-                        NotifyReviewers       = $False;
-                        RemindersEnabled      = $True;
-                        RequestDurationInDays = 29; #drift
-                        Reviewers             =                 @(
-                            @{
-                                Query = "/v1.0/users/e362df2b-8f61-4e5a-9e5e-c6069f3ed2ee"
-                                QueryType = 'MicrosoftGraph'
-                                QueryRoot = ''
-                            },
-                            @{
-                                Query = "/v1.0/groups/1bb47df7-d3fa-4ba8-bdbd-e9fc7541fa18/transitiveMembers/microsoft.graph.user"
-                                QueryType = 'MicrosoftGraph'
-                                QueryRoot = ''
-                            }
-                            @{
-                                Query = "/beta/roleManagement/directory/roleAssignments?`$filter=roleDefinitionId eq '9c6df0f2-1e7c-4dc3-b195-66dfbd24aa8f'"
-                                QueryType = 'MicrosoftGraph'
-                                QueryRoot = ''
-                            }
-                        );
-                    }
-                }
             }
 
             It 'Should return false from the Test method' {
@@ -195,32 +169,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential  = $Credential;
-                }
-
-                Mock -CommandName Get-MgBetaPolicyAdminConsentRequestPolicy -MockWith {
-                    return @{
-                        IsEnabled             = $true
-                        NotifyReviewers       = $False;
-                        RemindersEnabled      = $True;
-                        RequestDurationInDays = 30;
-                        Reviewers             =                 @(
-                            @{
-                                Query = "/v1.0/users/e362df2b-8f61-4e5a-9e5e-c6069f3ed2ee"
-                                QueryType = 'MicrosoftGraph'
-                                QueryRoot = ''
-                            },
-                            @{
-                                Query = "/v1.0/groups/1bb47df7-d3fa-4ba8-bdbd-e9fc7541fa18/transitiveMembers/microsoft.graph.user"
-                                QueryType = 'MicrosoftGraph'
-                                QueryRoot = ''
-                            }
-                            @{
-                                Query = "/beta/roleManagement/directory/roleAssignments?`$filter=roleDefinitionId eq '9c6df0f2-1e7c-4dc3-b195-66dfbd24aa8f'"
-                                QueryType = 'MicrosoftGraph'
-                                QueryRoot = ''
-                            }
-                        );
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {

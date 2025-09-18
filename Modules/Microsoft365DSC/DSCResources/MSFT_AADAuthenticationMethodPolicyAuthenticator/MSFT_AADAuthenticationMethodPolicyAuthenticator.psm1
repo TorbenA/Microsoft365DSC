@@ -146,7 +146,7 @@ function Get-TargetResource
 
         if ($null -ne $getValue.additionalProperties.featureSettings.companionAppAllowedState.excludeTarget.targetType)
         {
-            $complexExcludeTarget.Add('TargetType', $getValue.additionalProperties.featureSettings.companionAppAllowedState.excludeTarget.targetType.toString())
+            $complexExcludeTarget.Add('TargetType', $getValue.additionalProperties.featureSettings.companionAppAllowedState.excludeTarget.targetType.ToString())
         }
 
         if ($complexExcludeTarget.values.Where({ $null -ne $_ }).count -eq 0)
@@ -188,7 +188,7 @@ function Get-TargetResource
 
         if ($null -ne $getValue.additionalProperties.featureSettings.companionAppAllowedState.includeTarget.targetType)
         {
-            $complexIncludeTarget.Add('TargetType', $getValue.additionalProperties.featureSettings.companionAppAllowedState.includeTarget.targetType.toString())
+            $complexIncludeTarget.Add('TargetType', $getValue.additionalProperties.featureSettings.companionAppAllowedState.includeTarget.targetType.ToString())
         }
 
         if ($complexIncludeTarget.values.Where({ $null -ne $_ }).count -eq 0)
@@ -200,7 +200,7 @@ function Get-TargetResource
         Write-Verbose 'Processing FeatureSettings > companionAppAllowedState > state'
         if ($null -ne $getValue.additionalProperties.featureSettings.companionAppAllowedState.state)
         {
-            $complexCompanionAppAllowedState.Add('State', $getValue.additionalProperties.featureSettings.companionAppAllowedState.state.toString())
+            $complexCompanionAppAllowedState.Add('State', $getValue.additionalProperties.featureSettings.companionAppAllowedState.state.ToString())
         }
 
         if ($complexCompanionAppAllowedState.values.Where({ $null -ne $_ }).count -eq 0)
@@ -244,7 +244,7 @@ function Get-TargetResource
 
         if ($null -ne $getValue.additionalProperties.featureSettings.displayAppInformationRequiredState.excludeTarget.targetType)
         {
-            $complexExcludeTarget.Add('TargetType', $getValue.additionalProperties.featureSettings.displayAppInformationRequiredState.excludeTarget.targetType.toString())
+            $complexExcludeTarget.Add('TargetType', $getValue.additionalProperties.featureSettings.displayAppInformationRequiredState.excludeTarget.targetType.ToString())
         }
         if ($complexExcludeTarget.values.Where({ $null -ne $_ }).count -eq 0)
         {
@@ -285,7 +285,7 @@ function Get-TargetResource
 
         if ($null -ne $getValue.additionalProperties.featureSettings.displayAppInformationRequiredState.includeTarget.targetType)
         {
-            $complexIncludeTarget.Add('TargetType', $getValue.additionalProperties.featureSettings.displayAppInformationRequiredState.includeTarget.targetType.toString())
+            $complexIncludeTarget.Add('TargetType', $getValue.additionalProperties.featureSettings.displayAppInformationRequiredState.includeTarget.targetType.ToString())
         }
 
         if ($complexIncludeTarget.values.Where({ $null -ne $_ }).count -eq 0)
@@ -297,7 +297,7 @@ function Get-TargetResource
         Write-Verbose 'Processing FeatureSettings > displayAppInformationRequiredState > state'
         if ($null -ne $getValue.additionalProperties.featureSettings.displayAppInformationRequiredState.state)
         {
-            $complexDisplayAppInformationRequiredState.Add('State', $getValue.additionalProperties.featureSettings.displayAppInformationRequiredState.state.toString())
+            $complexDisplayAppInformationRequiredState.Add('State', $getValue.additionalProperties.featureSettings.displayAppInformationRequiredState.state.ToString())
         }
 
         if ($complexDisplayAppInformationRequiredState.values.Where({ $null -ne $_ }).count -eq 0)
@@ -341,7 +341,7 @@ function Get-TargetResource
 
         if ($null -ne $getValue.additionalProperties.featureSettings.displayLocationInformationRequiredState.excludeTarget.targetType)
         {
-            $complexExcludeTarget.Add('TargetType', $getValue.additionalProperties.featureSettings.displayLocationInformationRequiredState.excludeTarget.targetType.toString())
+            $complexExcludeTarget.Add('TargetType', $getValue.additionalProperties.featureSettings.displayLocationInformationRequiredState.excludeTarget.targetType.ToString())
         }
 
         if ($complexExcludeTarget.values.Where({ $null -ne $_ }).count -eq 0)
@@ -384,7 +384,7 @@ function Get-TargetResource
 
         if ($null -ne $getValue.additionalProperties.featureSettings.displayLocationInformationRequiredState.includeTarget.targetType)
         {
-            $complexIncludeTarget.Add('TargetType', $getValue.additionalProperties.featureSettings.displayLocationInformationRequiredState.includeTarget.targetType.toString())
+            $complexIncludeTarget.Add('TargetType', $getValue.additionalProperties.featureSettings.displayLocationInformationRequiredState.includeTarget.targetType.ToString())
         }
 
         if ($complexIncludeTarget.values.Where({ $null -ne $_ }).count -eq 0)
@@ -397,7 +397,7 @@ function Get-TargetResource
         Write-Verbose 'Processing FeatureSettings > displayLocationInformationRequiredState > state'
         if ($null -ne $getValue.additionalProperties.featureSettings.displayLocationInformationRequiredState.state)
         {
-            $complexDisplayLocationInformationRequiredState.Add('State', $getValue.additionalProperties.featureSettings.displayLocationInformationRequiredState.state.toString())
+            $complexDisplayLocationInformationRequiredState.Add('State', $getValue.additionalProperties.featureSettings.displayLocationInformationRequiredState.state.ToString())
         }
 
         if ($complexDisplayLocationInformationRequiredState.values.Where({ $null -ne $_ }).count -eq 0)
@@ -427,7 +427,7 @@ function Get-TargetResource
 
             if ($null -ne $currentExcludeTargets.targetType)
             {
-                $myExcludeTargets.Add('TargetType', $currentExcludeTargets.targetType.toString())
+                $myExcludeTargets.Add('TargetType', $currentExcludeTargets.targetType.ToString())
             }
 
             if ($myExcludeTargets.values.Where({ $null -ne $_ }).count -gt 0)
@@ -456,7 +456,7 @@ function Get-TargetResource
 
             if ($null -ne $currentIncludeTargets.targetType)
             {
-                $myIncludeTargets.Add('TargetType', $currentIncludeTargets.targetType.toString())
+                $myIncludeTargets.Add('TargetType', $currentIncludeTargets.targetType.ToString())
             }
 
             if ($myIncludeTargets.values.Where({ $null -ne $_ }).count -gt 0)
@@ -487,12 +487,12 @@ function Get-TargetResource
             TenantId              = $TenantId
             ApplicationSecret     = $ApplicationSecret
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
             #endregion
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -594,7 +594,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating the Azure AD Authentication Method Policy Authenticator with Id {$($currentInstance.Id)}"
 
-        $UpdateParameters = ([Hashtable]$BoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
         $UpdateParameters.Remove('Id') | Out-Null
@@ -607,7 +607,7 @@ function Set-TargetResource
             Write-Verbose -Message 'Retrieving companionAppAllowedState include target'
             $Filter = "DisplayName eq '$($UpdateParameters.featureSettings.companionAppAllowedState.includeTarget.id -replace "'", "''")'" | Out-String
             $groupid = (Get-MgGroup -Filter $Filter).id.ToString()
-            $UpdateParameters.featureSettings.companionAppAllowedState.includeTarget.foreach('id', $groupid)
+            $UpdateParameters.featureSettings.companionAppAllowedState.includeTarget.ForEach('id', $groupid)
         }
         if ($UpdateParameters.featureSettings.companionAppAllowedState.excludeTarget.id -and `
                 $UpdateParameters.featureSettings.companionAppAllowedState.excludeTarget.id -notmatch '00000000-0000-0000-0000-000000000000|all_users' -and
@@ -616,7 +616,7 @@ function Set-TargetResource
             Write-Verbose -Message 'Retrieving companionAppAllowedState include target'
             $Filter = "DisplayName eq '$($UpdateParameters.featureSettings.companionAppAllowedState.excludeTarget.id -replace "'", "''")'" | Out-String
             $groupid = (Get-MgGroup -Filter $Filter).id.ToString()
-            $UpdateParameters.featureSettings.companionAppAllowedState.excludeTarget.foreach('id', $groupid)
+            $UpdateParameters.featureSettings.companionAppAllowedState.excludeTarget.ForEach('id', $groupid)
         }
         if ($UpdateParameters.featureSettings.displayAppInformationRequiredState.includeTarget.id -and `
                 $UpdateParameters.featureSettings.displayAppInformationRequiredState.includeTarget.id -notmatch '00000000-0000-0000-0000-000000000000|all_users' -and
@@ -625,7 +625,7 @@ function Set-TargetResource
             Write-Verbose -Message 'Retrieving displayAppInformationRequiredState include target'
             $Filter = "DisplayName eq '$($UpdateParameters.featureSettings.displayAppInformationRequiredState.includeTarget.id -replace "'", "''")'" | Out-String
             $groupid = (Get-MgGroup -Filter $Filter).id.ToString()
-            $UpdateParameters.featureSettings.displayAppInformationRequiredState.includeTarget.foreach('id', $groupid)
+            $UpdateParameters.featureSettings.displayAppInformationRequiredState.includeTarget.ForEach('id', $groupid)
         }
         if ($UpdateParameters.featureSettings.displayAppInformationRequiredState.excludeTarget.id -and `
                 $UpdateParameters.featureSettings.displayAppInformationRequiredState.excludeTarget.id -notmatch '00000000-0000-0000-0000-000000000000|all_users' -and
@@ -634,7 +634,7 @@ function Set-TargetResource
             Write-Verbose -Message 'Retrieving displayAppInformationRequiredState exclude target'
             $Filter = "DisplayName eq '$($UpdateParameters.featureSettings.displayAppInformationRequiredState.excludeTarget.id -replace "'", "''")'" | Out-String
             $groupid = (Get-MgGroup -Filter $Filter).id.ToString()
-            $UpdateParameters.featureSettings.displayAppInformationRequiredState.excludeTarget.foreach('id', $groupid)
+            $UpdateParameters.featureSettings.displayAppInformationRequiredState.excludeTarget.ForEach('id', $groupid)
         }
         if ($UpdateParameters.featureSettings.displayLocationInformationRequiredState.includeTarget.id -and `
                 $UpdateParameters.featureSettings.displayLocationInformationRequiredState.includeTarget.id -notmatch '00000000-0000-0000-0000-000000000000|all_users' -and
@@ -643,7 +643,7 @@ function Set-TargetResource
             Write-Verbose -Message 'Retrieving displayLocationInformationRequiredState include target'
             $Filter = "DisplayName eq '$($UpdateParameters.featureSettings.displayLocationInformationRequiredState.includeTarget.id -replace "'", "''")'" | Out-String
             $groupid = (Get-MgGroup -Filter $Filter).id.ToString()
-            $UpdateParameters.featureSettings.displayLocationInformationRequiredState.includeTarget.foreach('id', $groupid)
+            $UpdateParameters.featureSettings.displayLocationInformationRequiredState.includeTarget.ForEach('id', $groupid)
         }
         if ($UpdateParameters.featureSettings.displayLocationInformationRequiredState.excludeTarget.id -and `
                 $UpdateParameters.featureSettings.displayLocationInformationRequiredState.excludeTarget.id -notmatch '00000000-0000-0000-0000-000000000000|all_users' -and
@@ -652,7 +652,7 @@ function Set-TargetResource
             Write-Verbose -Message 'Retrieving displayLocationInformationRequiredState exclude target'
             $Filter = "DisplayName eq '$($UpdateParameters.featureSettings.displayLocationInformationRequiredState.excludeTarget.id -replace "'", "''")'" | Out-String
             $groupid = (Get-MgGroup -Filter $Filter).id.ToString()
-            $UpdateParameters.featureSettings.displayLocationInformationRequiredState.excludeTarget.foreach('id', $groupid)
+            $UpdateParameters.featureSettings.displayLocationInformationRequiredState.excludeTarget.ForEach('id', $groupid)
         }
 
         # DEPRECATED
@@ -662,10 +662,10 @@ function Set-TargetResource
             $UpdateParameters.featureSettings.Remove('NumberMatchingRequiredState')
         }
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
+            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.GetType().Name -like '*cimInstance*')
             {
                 $UpdateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
             }
@@ -680,7 +680,7 @@ function Set-TargetResource
                         $group = Get-MgGroup -Filter $Filter
                         if ($null -ne $group)
                         {
-                            $UpdateParameters.$key[$i].foreach('id', $group.id.ToString())
+                            $UpdateParameters.$key[$i].ForEach('id', $group.id.ToString())
                         }
                         else
                         {
@@ -878,7 +878,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

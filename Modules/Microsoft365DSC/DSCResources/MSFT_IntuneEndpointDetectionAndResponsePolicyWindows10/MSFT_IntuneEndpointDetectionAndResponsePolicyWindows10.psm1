@@ -336,6 +336,7 @@ function Set-TargetResource
             Platforms         = $platforms
             Technologies      = $technologies
             Settings          = $settings
+            RoleScopeTagIds   = $RoleScopeTagIds
         }
 
         #region resource generator code
@@ -367,7 +368,8 @@ function Set-TargetResource
             -TemplateReferenceId $templateReferenceId `
             -Platforms $platforms `
             -Technologies $technologies `
-            -Settings $settings
+            -Settings $settings `
+            -RoleScopeTagIds $RoleScopeTagIds
 
         #region resource generator code
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
@@ -622,7 +624,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
