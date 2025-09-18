@@ -34,6 +34,9 @@
   * Added caching for export.
 * EXORecipientPermission
   * Added additional caching for export.
+* IntuneAppConfigurationPolicy
+  * Fixed an issue with MOF instance parsing.
+    FIXES [#6520](https://github.com/microsoft/Microsoft365DSC/issues/6520)
 * IntuneMobileAppsMacOSLobApp
   * Added filter capability.
 * IntuneMobileAppsMicrosoftStoreAppWindows10
@@ -42,6 +45,7 @@
   * Fixed an issue where filtering was applied after fetching all apps.
 * IntuneMobileAppsWindowsOfficeSuiteApp
   * Added filter capability.
+  * Fixed the version in the MOF definition.
 * IntuneRoleAssignment
   * Fixed an issue where deleted groups would throw an error during export.
 * SPOPropertyBag
