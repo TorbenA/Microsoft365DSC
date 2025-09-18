@@ -115,7 +115,7 @@ function Get-TargetResource
             ManagedIdentity             = $ManagedIdentity.IsPresent
             AccessTokens                = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -394,7 +394,7 @@ function Export-TargetResource
 
     try
     {
-        #Get all billing account
+        # Get all billing account
         $accounts = Get-M365DSCAzureBillingAccount
 
         $i = 1

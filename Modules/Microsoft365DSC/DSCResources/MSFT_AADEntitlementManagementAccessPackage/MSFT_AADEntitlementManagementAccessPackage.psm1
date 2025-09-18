@@ -169,7 +169,7 @@ function Get-TargetResource
         [Array]$query = Get-MgBetaEntitlementManagementAccessPackageIncompatibleWith -AccessPackageId $getValue.id
         if ($query.count -gt 0)
         {
-            $getIncompatibleAccessPackages += $query.id
+            $getAccessPackagesIncompatibleWith += $query.id
         }
 
         $getIncompatibleGroups = @()
@@ -196,11 +196,11 @@ function Get-TargetResource
             TenantId                        = $TenantId
             ApplicationSecret               = $ApplicationSecret
             CertificateThumbprint           = $CertificateThumbprint
-            Managedidentity                 = $ManagedIdentity.IsPresent
+            ManagedIdentity                 = $ManagedIdentity.IsPresent
             AccessTokens                    = $AccessTokens
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -875,7 +875,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

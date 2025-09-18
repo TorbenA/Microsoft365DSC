@@ -126,7 +126,7 @@ function Get-TargetResource
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -284,7 +284,7 @@ function Set-TargetResource
         $setParameters.Add('Tasks', $taskList)
     }
 
-    $UpdateParameters = ([Hashtable]$setParameters).clone()
+    $UpdateParameters = ([Hashtable]$setParameters).Clone()
 
     $newParams = @{}
     $newParams.Add('workflow', $UpdateParameters)

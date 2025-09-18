@@ -13,9 +13,18 @@
         "read": [
           {
             "name": "IdentityUserFlow.Read.All"
-          },
+          }
+        ],
+        "update": [
           {
             "name": "IdentityUserFlow.ReadWrite.All"
+          }
+        ]
+      },
+      "application": {
+        "read": [
+          {
+            "name": "IdentityUserFlow.Read.All"
           }
         ],
         "update": [
@@ -29,5 +38,8 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.SignIns"
+  ],
+  "supportedEnvironments": [
+    "Global"
   ]
 }

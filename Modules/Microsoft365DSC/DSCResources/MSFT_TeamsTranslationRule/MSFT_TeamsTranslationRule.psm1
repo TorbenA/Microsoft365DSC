@@ -75,15 +75,14 @@ function Get-TargetResource
             $nullResult.Ensure = 'Absent'
 
             $instance = Get-CsTeamsTranslationRule -Identity $Identity -ErrorAction SilentlyContinue
+            if ($null -eq $instance)
+            {
+                return $nullResult
+            }
         }
         else
         {
             $instance = $Script:exportedInstance
-        }
-
-        if ($null -eq $instance)
-        {
-            return $nullResult
         }
 
         Write-Verbose -Message "Found an instance with Identity {$Identity}"
@@ -100,7 +99,7 @@ function Get-TargetResource
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -318,7 +317,7 @@ function Test-TargetResource
         if (($null -ne $CurrentValues[$key]) `
                 -and ($CurrentValues[$key].GetType().Name -eq 'DateTime'))
         {
-            $CurrentValues[$key] = $CurrentValues[$key].toString()
+            $CurrentValues[$key] = $CurrentValues[$key].ToString()
         }
     }
 

@@ -107,7 +107,7 @@ function Get-TargetResource
             ManagedIdentity             = $ManagedIdentity.IsPresent
             AccessTokens                = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -389,7 +389,6 @@ function Export-TargetResource
             {
                 $uri = "https://management.azure.com/$($resourceGroup.ResourceId)/providers/Microsoft.VerifiedId/authorities/$($authority.id)?api-version=2024-01-26-preview"
                 $response = Invoke-AzRest -Uri $uri -Method Get
-                $entries = ConvertFrom-Json $response.Content
 
                 $Global:M365DSCExportResourceInstancesCount++
 

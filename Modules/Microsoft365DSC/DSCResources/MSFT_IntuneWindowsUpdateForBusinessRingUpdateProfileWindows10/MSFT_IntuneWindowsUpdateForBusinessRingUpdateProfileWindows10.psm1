@@ -276,7 +276,7 @@ function Get-TargetResource
         }
         if ($null -ne $getValue.AdditionalProperties.installationSchedule.scheduledInstallDay)
         {
-            $complexInstallationSchedule.Add('ScheduledInstallDay', $getValue.AdditionalProperties.installationSchedule.scheduledInstallDay.toString())
+            $complexInstallationSchedule.Add('ScheduledInstallDay', $getValue.AdditionalProperties.installationSchedule.scheduledInstallDay.ToString())
         }
         if ($null -ne $getValue.AdditionalProperties.installationSchedule.scheduledInstallTime)
         {
@@ -284,7 +284,7 @@ function Get-TargetResource
         }
         if ($null -ne $getValue.AdditionalProperties.installationSchedule.'@odata.type')
         {
-            $complexInstallationSchedule.Add('odataType', $getValue.AdditionalProperties.installationSchedule.'@odata.type'.toString())
+            $complexInstallationSchedule.Add('odataType', $getValue.AdditionalProperties.installationSchedule.'@odata.type'.ToString())
         }
         if ($complexInstallationSchedule.values.Where({ $null -ne $_ }).count -eq 0)
         {
@@ -432,7 +432,7 @@ function Get-TargetResource
             TenantId                                = $TenantId
             ApplicationSecret                       = $ApplicationSecret
             CertificateThumbprint                   = $CertificateThumbprint
-            Managedidentity                         = $ManagedIdentity.IsPresent
+            ManagedIdentity                         = $ManagedIdentity.IsPresent
             AccessTokens                            = $AccessTokens
             #endregion
         }
@@ -445,7 +445,7 @@ function Get-TargetResource
             $assignmentResult += ConvertFrom-IntunePolicyAssignment -Assignments $rawAssignments
         }
         $results.Add('Assignments', $assignmentResult)
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -688,7 +688,7 @@ function Set-TargetResource
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
         $CreateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).clone()).Keys
+        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
@@ -724,7 +724,7 @@ function Set-TargetResource
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
@@ -1137,7 +1137,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

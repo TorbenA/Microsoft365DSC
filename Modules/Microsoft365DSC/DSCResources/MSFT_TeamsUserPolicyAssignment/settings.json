@@ -32,5 +32,9 @@
   "requiredModules": [
     "Microsoft.Graph.Users",
     "MicrosoftTeams"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
   ]
 }

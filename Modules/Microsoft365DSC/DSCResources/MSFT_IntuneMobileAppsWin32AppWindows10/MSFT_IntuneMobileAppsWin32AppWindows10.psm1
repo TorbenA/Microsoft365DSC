@@ -362,7 +362,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -578,6 +578,11 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Creating an Intune Mobile Apps Win32 App for Windows10 with DisplayName {$DisplayName}"
         $boundParameters.Remove("Assignments") | Out-Null
+
+        if (-not $boundParameters.ContainsKey('FileName') -or [System.String]::IsNullOrEmpty($boundParameters.FileName))
+        {
+            throw "FileName is required to create an Intune Mobile Apps Win32 App for Windows10."
+        }
 
         $createParameters = ([Hashtable]$boundParameters).Clone()
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
@@ -909,7 +914,7 @@ function Test-TargetResource
         {
             $testResult = Compare-M365DSCComplexObject `
                 -Source ($source) `
-                -Target ($target) -Verbose
+                -Target ($target)
 
             if (-not $testResult)
             {

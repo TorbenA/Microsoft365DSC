@@ -119,7 +119,7 @@ function Get-TargetResource
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -379,15 +379,21 @@ function Export-TargetResource
         $response = Invoke-AzRest -Uri $uri -Method Get
         $billingAccounts = (ConvertFrom-Json $response.Content).value
 
+        if ($billingAccounts.Count -eq 0)
+        {
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
+            return ''
+        }
+
         foreach ($billingAccount in $billingAccounts)
         {
             $uri = "https://management.azure.com/providers/Microsoft.Billing/billingaccounts/$($billingAccount.Name)/billingprofiles/?api-version=2020-05-01"
             $response = Invoke-AzRest -Uri $uri -Method Get
             $billingProfiles = (ConvertFrom-Json $response.Content).value
 
-            foreach ($profile in $billingProfiles)
+            foreach ($billingProfile in $billingProfiles)
             {
-                $uri = "https://management.azure.com/providers/Microsoft.Billing/billingAccounts/$($billingAccount.name)/billingProfiles/$($profile.name)/billingSubscriptions?api-version=2024-04-01"
+                $uri = "https://management.azure.com/providers/Microsoft.Billing/billingAccounts/$($billingAccount.name)/billingProfiles/$($billingProfile.name)/billingSubscriptions?api-version=2024-04-01"
                 $response = Invoke-AzRest -Uri $uri -Method Get
                 $subscriptions = (ConvertFrom-Json $response.Content).value
                 [array] $Script:exportedInstances += $subscriptions

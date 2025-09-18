@@ -119,7 +119,7 @@ function Get-TargetResource
         $complexKeyRestrictions.Add('AaGuids', $getValue.AdditionalProperties.keyRestrictions.aaGuids)
         if ($null -ne $getValue.AdditionalProperties.keyRestrictions.enforcementType)
         {
-            $complexKeyRestrictions.Add('EnforcementType', $getValue.AdditionalProperties.keyRestrictions.enforcementType.toString())
+            $complexKeyRestrictions.Add('EnforcementType', $getValue.AdditionalProperties.keyRestrictions.enforcementType.ToString())
         }
         $complexKeyRestrictions.Add('IsEnforced', $getValue.AdditionalProperties.keyRestrictions.isEnforced)
         if ($complexKeyRestrictions.values.Where({ $null -ne $_ }).count -eq 0)
@@ -157,7 +157,7 @@ function Get-TargetResource
 
             if ($null -ne $currentExcludeTargets.targetType)
             {
-                $myExcludeTargets.Add('TargetType', $currentExcludeTargets.targetType.toString())
+                $myExcludeTargets.Add('TargetType', $currentExcludeTargets.targetType.ToString())
             }
 
             if ($myExcludeTargets.values.Where({ $null -ne $_ }).count -gt 0)
@@ -197,7 +197,7 @@ function Get-TargetResource
 
             if ($null -ne $currentIncludeTargets.targetType)
             {
-                $myIncludeTargets.Add('TargetType', $currentIncludeTargets.targetType.toString())
+                $myIncludeTargets.Add('TargetType', $currentIncludeTargets.targetType.ToString())
             }
 
             if ($myIncludeTargets.values.Where({ $null -ne $_ }).count -gt 0)
@@ -229,12 +229,12 @@ function Get-TargetResource
             TenantId                         = $TenantId
             ApplicationSecret                = $ApplicationSecret
             CertificateThumbprint            = $CertificateThumbprint
-            Managedidentity                  = $ManagedIdentity.IsPresent
+            ManagedIdentity                  = $ManagedIdentity.IsPresent
             AccessTokens                     = $AccessTokens
             #endregion
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -340,10 +340,10 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating the Azure AD Authentication Method Policy Fido2 with Id {$($currentInstance.Id)}"
 
-        $UpdateParameters = ([Hashtable]$BoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
             if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
@@ -379,6 +379,7 @@ function Set-TargetResource
         }
         #region resource generator code
         Write-Verbose -Message "Parameters:`r`n$(ConvertTo-Json $UpdateParameters -Depth 10)"
+        $UpdateParameters.Add('@odata.type', '#microsoft.graph.fido2AuthenticationMethodConfiguration')
         Update-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration  `
             -AuthenticationMethodConfigurationId $currentInstance.Id `
             -BodyParameter $UpdateParameters
@@ -563,7 +564,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

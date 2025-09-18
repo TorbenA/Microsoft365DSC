@@ -144,7 +144,7 @@ function Get-TargetResource
             $results.Add('notallowedResourceActions', $getValue.RolePermissions.ResourceActions.notAllowedResourceActions)
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -417,7 +417,7 @@ function Test-TargetResource
         if (($null -ne $CurrentValues[$key]) `
                 -and ($CurrentValues[$key].getType().Name -eq 'DateTime'))
         {
-            $CurrentValues[$key] = $CurrentValues[$key].toString()
+            $CurrentValues[$key] = $CurrentValues[$key].ToString()
         }
     }
 

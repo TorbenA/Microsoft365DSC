@@ -209,7 +209,7 @@ function Get-TargetResource
             CertificateThumbprint        = $CertificateThumbprint
             CertificatePath              = $CertificatePath
             CertificatePassword          = $CertificatePassword
-            Managedidentity              = $ManagedIdentity.IsPresent
+            ManagedIdentity              = $ManagedIdentity.IsPresent
             TenantId                     = $TenantId
             AccessTokens                 = $AccessTokens
         }
@@ -691,7 +691,7 @@ function Export-TargetResource
 
     if ($null -eq (Get-Command 'Get-GlobalAddressList' -ErrorAction SilentlyContinue))
     {
-        Write-M365DSCHost -Message "`r`n    $($Global:M365DSCEmojiYellowCircle) The current tenant is not registered to allow for Global Address List"
+        Write-M365DSCHost -Message "`r`n    $($Global:M365DSCEmojiYellowCircle) The current tenant is not registered to allow for Global Address List" -CommitWrite
         return ''
     }
 
@@ -725,7 +725,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }

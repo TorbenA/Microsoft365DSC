@@ -148,6 +148,13 @@ function Get-TargetResource
         {
             $RMSOnlineKeySharingLocationValue = $IRMConfiguration.RMSOnlineKeySharingLocation.ToString()
         }
+
+        $LicensingLocationValue = $null
+        if ($IRMConfiguration.LicensingLocation)
+        {
+            $LicensingLocationValue = $IRMConfiguration.LicensingLocation.ToString()
+        }
+
         $result = @{
             IsSingleInstance                           = 'Yes'
             AutomaticServiceUpdateEnabled              = $IRMConfiguration.AutomaticServiceUpdateEnabled
@@ -157,7 +164,7 @@ function Get-TargetResource
             EnablePdfEncryption                        = $IRMConfiguration.EnablePdfEncryption
             InternalLicensingEnabled                   = $IRMConfiguration.InternalLicensingEnabled
             JournalReportDecryptionEnabled             = $IRMConfiguration.JournalReportDecryptionEnabled
-            LicensingLocation                          = $IRMConfiguration.LicensingLocation
+            LicensingLocation                          = $LicensingLocationValue
             RejectIfRecipientHasNoRights               = $IRMConfiguration.RejectIfRecipientHasNoRights
             RMSOnlineKeySharingLocation                = $RMSOnlineKeySharingLocationValue
             SearchEnabled                              = $IRMConfiguration.SearchEnabled
@@ -171,7 +178,7 @@ function Get-TargetResource
             CertificateThumbprint                      = $CertificateThumbprint
             CertificatePath                            = $CertificatePath
             CertificatePassword                        = $CertificatePassword
-            Managedidentity                            = $ManagedIdentity.IsPresent
+            ManagedIdentity                            = $ManagedIdentity.IsPresent
             TenantId                                   = $TenantId
             AccessTokens                               = $AccessTokens
         }
@@ -543,7 +550,7 @@ function Export-TargetResource
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint
             CertificatePassword   = $CertificatePassword
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             CertificatePath       = $CertificatePath
             AccessTokens          = $AccessTokens
         }

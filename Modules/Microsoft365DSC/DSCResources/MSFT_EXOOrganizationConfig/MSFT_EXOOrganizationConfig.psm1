@@ -405,6 +405,10 @@ function Get-TargetResource
         $RecallReadMessagesEnabled,
 
         [Parameter()]
+        [System.Boolean]
+        $RejectDirectSend,
+
+        [Parameter()]
         [System.String[]]
         $RemotePublicFolderMailboxes,
 
@@ -613,6 +617,7 @@ function Get-TargetResource
             PublicFolderShowClientControl                             = $ConfigSettings.PublicFolderShowClientControl
             ReadTrackingEnabled                                       = $ConfigSettings.ReadTrackingEnabled
             RecallReadMessagesEnabled                                 = $ConfigSettings.RecallReadMessagesEnabled
+            RejectDirectSend                                          = $ConfigSettings.RejectDirectSend
             RemotePublicFolderMailboxes                               = $ConfigSettings.RemotePublicFolderMailboxes
             SendFromAliasEnabled                                      = $ConfigSettings.SendFromAliasEnabled
             SharedDomainEmailAddressFlowEnabled                       = $ConfigSettings.SharedDomainEmailAddressFlowEnabled
@@ -628,7 +633,7 @@ function Get-TargetResource
             CertificateThumbprint                                     = $CertificateThumbprint
             CertificatePath                                           = $CertificatePath
             CertificatePassword                                       = $CertificatePassword
-            Managedidentity                                           = $ManagedIdentity.IsPresent
+            ManagedIdentity                                           = $ManagedIdentity.IsPresent
             TenantId                                                  = $TenantId
             AccessTokens                                              = $AccessTokens
         }
@@ -1069,6 +1074,10 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $RecallReadMessagesEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $RejectDirectSend,
 
         [Parameter()]
         [System.String[]]
@@ -1584,6 +1593,10 @@ function Test-TargetResource
         $RecallReadMessagesEnabled,
 
         [Parameter()]
+        [System.Boolean]
+        $RejectDirectSend,
+
+        [Parameter()]
         [System.String[]]
         $RemotePublicFolderMailboxes,
 
@@ -1755,7 +1768,7 @@ function Export-TargetResource
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint
             CertificatePassword   = $CertificatePassword
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             CertificatePath       = $CertificatePath
             AccessTokens          = $AccessTokens
         }

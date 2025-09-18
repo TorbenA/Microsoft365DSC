@@ -94,7 +94,7 @@ function Get-TargetResource
         $UpdateVersion,
 
         [Parameter()]
-        [System.Byte[]]
+        [System.String]
         $OfficeConfigurationXml,
 
         [Parameter()]
@@ -284,7 +284,7 @@ function Get-TargetResource
             $resultAssignments += $convertedAssignments
         }
         $results.Add('Assignments', $resultAssignments)
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -392,7 +392,7 @@ function Set-TargetResource
         $UpdateVersion,
 
         [Parameter()]
-        [System.Byte[]]
+        [System.String]
         $OfficeConfigurationXml,
 
         [Parameter()]
@@ -686,7 +686,7 @@ function Test-TargetResource
         $UpdateVersion,
 
         [Parameter()]
-        [System.Byte[]]
+        [System.String]
         $OfficeConfigurationXml,
 
         [Parameter()]
@@ -856,8 +856,18 @@ function Export-TargetResource
     try
     {
         $Script:ExportMode = $true
+        $baseFilter = "isof('microsoft.graph.officeSuiteApp')"
+        if (-not [String]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($Filter) and ($baseFilter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
+        }
         [array] $getValue = Get-MgBetaDeviceAppManagementMobileApp `
-            -Filter "isof('microsoft.graph.officeSuiteApp')" `
+            -All `
+            -Filter $Filter `
             -ErrorAction Stop
 
         $i = 1

@@ -206,7 +206,7 @@ function Get-TargetResource
             TenantId                                       = $TenantId
             ApplicationSecret                              = $ApplicationSecret
             CertificateThumbprint                          = $CertificateThumbprint
-            Managedidentity                                = $ManagedIdentity.IsPresent
+            ManagedIdentity                                = $ManagedIdentity.IsPresent
             AccessTokens                                   = $AccessTokens
         }
 
@@ -220,7 +220,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -389,7 +389,7 @@ function Set-TargetResource
         $CreateParameters.Remove('Id') | Out-Null
         $CreateParameters.Remove('Verbose') | Out-Null
 
-        foreach ($key in ($CreateParameters.clone()).Keys)
+        foreach ($key in ($CreateParameters.Clone()).Keys)
         {
             if ($CreateParameters[$key].getType().Fullname -like '*CimInstance*')
             {
@@ -435,7 +435,7 @@ function Set-TargetResource
         $UpdateParameters.Remove('Id') | Out-Null
         $UpdateParameters.Remove('Verbose') | Out-Null
 
-        foreach ($key in ($UpdateParameters.clone()).Keys)
+        foreach ($key in ($UpdateParameters.Clone()).Keys)
         {
             if ($UpdateParameters[$key].getType().Fullname -like '*CimInstance*')
             {
@@ -636,7 +636,7 @@ function Test-TargetResource
         if (($null -ne $CurrentValues[$key]) `
                 -and ($CurrentValues[$key].getType().Name -eq 'DateTime'))
         {
-            $CurrentValues[$key] = $CurrentValues[$key].toString()
+            $CurrentValues[$key] = $CurrentValues[$key].ToString()
         }
     }
 
@@ -744,7 +744,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
@@ -832,7 +832,7 @@ function Get-M365DSCAdditionalProperties
 
     )
     $results = @{'@odata.type' = '#microsoft.graph.aospDeviceOwnerDeviceConfiguration' }
-    $cloneProperties = $Properties.clone()
+    $cloneProperties = $Properties.Clone()
     foreach ($property in $cloneProperties.Keys)
     {
         if ($property -in ($additionalProperties) )

@@ -57,6 +57,8 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose "Getting GroupPolicyAssignment for GroupDisplayName: $GroupDisplayName, GroupId: $GroupId, PolicyType: $PolicyType"
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.

@@ -744,7 +744,7 @@ function Get-TargetResource
             ApplicationSecret                                                     = $ApplicationSecret
             AccessTokens                                                          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -2017,6 +2017,7 @@ function Export-TargetResource
         $Results = Get-TargetResource @Params
 
         $newResults = ([Hashtable]$Results).Clone()
+        $noEscape = @()
         foreach ($key in @($Results.Keys))
         {
             if ($null -ne $Results.$key -and $key -notin $params.Keys)
@@ -2049,7 +2050,8 @@ function Export-TargetResource
                     -ComplexTypeMapping $complexTypeMapping
                 if (-not [String]::IsNullOrEmpty($complexTypeStringResult))
                 {
-                    $Results.$key = $complexTypeStringResult
+                    $newResults.$key = $complexTypeStringResult
+                    $noEscape += $key
                 }
             }
         }
@@ -2058,7 +2060,8 @@ function Export-TargetResource
             -ConnectionMode $ConnectionMode `
             -ModulePath $PSScriptRoot `
             -Results $newResults `
-            -Credential $Credential
+            -Credential $Credential `
+            -NoEscape $noEscape
 
         $dscContent += $currentDSCBlock
         Save-M365DSCPartialExport -Content $currentDSCBlock `

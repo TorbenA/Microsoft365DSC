@@ -204,7 +204,7 @@ function Get-TargetResource
             CertificatePath                           = $CertificatePath
             CertificateThumbprint                     = $CertificateThumbprint
             Credential                                = $Credential
-            Managedidentity                           = $ManagedIdentity.IsPresent
+            ManagedIdentity                           = $ManagedIdentity.IsPresent
             AccessTokens                              = $AccessTokens
         }
     }
@@ -628,7 +628,7 @@ function Export-TargetResource
             CertificatePassword   = $CertificatePassword
             CertificatePath       = $CertificatePath
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             Credential            = $Credential
             AccessTokens          = $AccessTokens
         }
