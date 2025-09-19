@@ -240,7 +240,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -589,19 +589,9 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
-        -InboundParameters $PSBoundParameters
-
     $currentValues = Get-TargetResource @PSBoundParameters
 
-    $opsParameters = $PSBoundParameters
-    $opsParameters.Remove('Credential') | Out-Null
-    $opsParameters.Remove('ApplicationId') | Out-Null
-    $opsParameters.Remove('TenantId') | Out-Null
-    $opsParameters.Remove('CertificateThumbprint') | Out-Null
-    $opsParameters.Remove('Ensure') | Out-Null
-    $opsParameters.Remove('ManagedIdentity') | Out-Null
-    $opsParameters.Remove('AccessTokens') | Out-Null
+    $opsParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($currentValues.Ensure -eq 'Absent' -and 'Present' -eq $Ensure )
     {
@@ -918,6 +908,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 
@@ -1001,4 +992,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

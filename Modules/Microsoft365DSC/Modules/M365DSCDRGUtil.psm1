@@ -159,7 +159,7 @@ function Get-M365DSCDRGComplexTypeToHashtable
     {
         $results = @{}
 
-        $ComplexObject = [hashtable]::new($ComplexObject)
+        $ComplexObject = [hashtable]$ComplexObject
         $keys = $ComplexObject.Keys
 
         foreach ($key in $keys)
@@ -2560,7 +2560,7 @@ function Get-OmaSettingPlainTextValue
 function Get-IntuneSettingCatalogPolicySetting
 {
     [CmdletBinding()]
-    [OutputType([System.Array])]
+    [OutputType([System.Object[]])]
     param (
         [Parameter(Mandatory = $true)]
         [System.Collections.Hashtable]

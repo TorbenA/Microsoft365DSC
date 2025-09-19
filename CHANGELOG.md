@@ -60,6 +60,8 @@
   * Code cleanup across all Intune resources.
   * Code cleanup across all O365, OD and SPO resources.
   * Code cleanup across all Planner, PP and SC resources.
+  * Code cleanup across all Sentinel, SH and Teams resources.
+  * Code cleanup across all M365DSC modules.
   * Fixed typo in `ManagedIdentity` property across all resources.
   * Reduced repeated logins during export of SPO and Teams resources.
   * Removed unnecessary type casting across all resources.
@@ -69,7 +71,6 @@
   * Fixed an issue where 0 requests passed to `Invoke-M365DSCGraphBatchRequests` would fail.
     FIXES [#6521](https://github.com/microsoft/Microsoft365DSC/issues/6521)
 * MISC
-  * Code cleanup across all Intune resources.
   * Streamline test cases.
 
 # 1.25.910.1
