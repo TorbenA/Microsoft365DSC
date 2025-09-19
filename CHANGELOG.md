@@ -2,23 +2,78 @@
 
 # UNRELEASED
 
+* AADAdministrativeUnit
+  * Reduced export time by 20%.
+* AADAppManagementPolicy
+  * Updated `RestrictForAppsCreatedAfterDateTime` to "o" format.
+* AADConditionalAccessPolicy
+  * Fix case evaluation when creating instances or updating properties.
+* AADCrossTenantIdentitySyncPolicyPartner
+  * Initial release.
 * AADGroup
   * Fixed multi-tenant Service Principal support for owners and members.
     FIXES [#6498](https://github.com/microsoft/Microsoft365DSC/issues/6498)
+  * Fixed an issue where the `SkuId` could contain NBSP characters.
+    FIXES [#6476](https://github.com/microsoft/Microsoft365DSC/issues/6476)
   * Fixed an issue where GroupAsMembers not being added during initial group creation.
     FIXES [#6489](https://github.com/microsoft/Microsoft365DSC/issues/6489)
+* AADGroupEligiblitySchedule
+  * Aligned date time format for `Expiration.EndDateTime` with `Expiration.StartDateTime`.
+* EXOCalendarProcessing
+  * Added caching for export.
+* EXOGroupSettings
+  * Fixed an issue with the retrieval by DisplayName and duplicate Id property
+    on update.
+* EXOMailboxAutoReplyConfiguration
+  * Added conditional user lookup.
+* EXOMailboxCalendarFolder
+  * Added conditional user lookup.
+* EXOMailContact
+  * Added caching for export.
+* EXOMailboxPermission
+  * Added additional caching for export.
+* EXOMailboxSettings
+  * Added caching for export.
+* EXORecipientPermission
+  * Added additional caching for export.
+* IntuneAppConfigurationPolicy
+  * Fixed an issue with MOF instance parsing.
+    FIXES [#6520](https://github.com/microsoft/Microsoft365DSC/issues/6520)
 * IntuneMobileAppsMacOSLobApp
   * Added filter capability.
+* IntuneMobileAppsMicrosoftStoreAppWindows10
+  * Initial release.
 * IntuneMobileAppsWebLink
   * Fixed an issue where filtering was applied after fetching all apps.
 * IntuneMobileAppsWindowsOfficeSuiteApp
   * Added filter capability.
+  * Fixed the version in the MOF definition.
 * IntuneRoleAssignment
   * Fixed an issue where deleted groups would throw an error during export.
+* SPOPropertyBag
+  * Reduced export time by 85%.
+* SPOSite
+  * Added additional caching.
+* TeamsChannel
+  * Reduced export time by up to 75%.
+* TeamsChannelTab
+  * Reduced export time by up to 85%.
 * MISC
   * Code cleanup across all Intune resources.
+  * Code cleanup across all O365, OD and SPO resources.
+  * Code cleanup across all Planner, PP and SC resources.
+  * Code cleanup across all Sentinel, SH and Teams resources.
+  * Code cleanup across all M365DSC modules.
+  * Fixed typo in `ManagedIdentity` property across all resources.
+  * Reduced repeated logins during export of SPO and Teams resources.
+  * Removed unnecessary type casting across all resources.
 * M365DSCDRGUtil
+  * Fixed an issue where a null drift would throw an exception.
   * Fixed an issue where group filtering would not find the specified groups.
+  * Fixed an issue where 0 requests passed to `Invoke-M365DSCGraphBatchRequests` would fail.
+    FIXES [#6521](https://github.com/microsoft/Microsoft365DSC/issues/6521)
+* MISC
+  * Streamline test cases.
 
 # 1.25.910.1
 
@@ -28,6 +83,8 @@
 * AADCrossTenantAccessPolicyConfigurationDefault
   * Evaluate users and groups by display name to be consistent with
     other resources.
+* EXOTransportRule
+  * Fixed an issue where deprecated properties were exported.
 
 # 1.25.903.2
 

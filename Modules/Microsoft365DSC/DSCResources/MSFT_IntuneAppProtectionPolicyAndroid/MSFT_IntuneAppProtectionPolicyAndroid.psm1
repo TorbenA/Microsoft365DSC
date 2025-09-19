@@ -1977,7 +1977,7 @@ function Get-InputParameters
         Apps                                            = @{Type = 'ComplexParameter' ; ExportFileType = 'NA'; }
         Assignments                                     = @{Type = 'ComplexParameter' ; ExportFileType = 'NA'; }
         CertificateThumbprint                           = @{Type = 'Credential'       ; ExportFileType = 'NA'; }
-        Managedidentity                                 = @{Type = 'ComplexParameter' ; ExportFileType = 'NA'; }
+        ManagedIdentity                                 = @{Type = 'ComplexParameter' ; ExportFileType = 'NA'; }
         ContactSyncBlocked                              = @{Type = 'Parameter'        ; ExportFileType = 'NA'; }
         Credential                                      = @{Type = 'Credential'       ; ExportFileType = 'NA'; }
         CustomBrowserDisplayName                        = @{Type = 'ComplexParameter' ; ExportFileType = 'NA'; }

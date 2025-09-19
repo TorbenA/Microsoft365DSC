@@ -200,7 +200,7 @@ function Get-TargetResource
             TenantId                 = $TenantId
             ApplicationSecret        = $ApplicationSecret
             CertificateThumbprint    = $CertificateThumbprint
-            Managedidentity          = $ManagedIdentity.IsPresent
+            ManagedIdentity          = $ManagedIdentity.IsPresent
             AccessTokens             = $AccessTokens
             AirPrintDestinations     = Convert-ComplexObjectToHashtableArray $getValue.AdditionalProperties.airPrintDestinations
             AssetTagTemplate         = $getValue.AdditionalProperties.assetTagTemplate
@@ -227,7 +227,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
         Write-Verbose -Message "Returning {$DisplayName}"
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -822,7 +822,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

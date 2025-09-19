@@ -145,10 +145,14 @@ function Get-TargetResource
         }
         else
         {
-            $ownerValue = Get-User -Identity $config.Identity
+            $userPrincipalName = $Identity
+            if ($userPrincipalName -notlike '*@*')
+            {
+                $userPrincipalName = (Get-User -Identity $Identity).UserPrincipalName
+            }
             $result = @{
-                Identity                         = $ownerValue.UserPrincipalName
-                Owner                            = $ownerValue.UserPrincipalName
+                Identity                         = $userPrincipalName
+                Owner                            = $userPrincipalName
                 AutoDeclineFutureRequestsWhenOOF = [Boolean]$config.AutoDeclineFutureRequestsWhenOOF
                 AutoReplyState                   = $config.AutoReplyState
                 CreateOOFEvent                   = [Boolean]$config.CreateOOFEvent
@@ -168,7 +172,7 @@ function Get-TargetResource
                 CertificateThumbprint            = $CertificateThumbprint
                 CertificatePath                  = $CertificatePath
                 CertificatePassword              = $CertificatePassword
-                Managedidentity                  = $ManagedIdentity.IsPresent
+                ManagedIdentity                  = $ManagedIdentity.IsPresent
                 TenantId                         = $TenantId
                 AccessTokens                     = $AccessTokens
             }
@@ -540,7 +544,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }

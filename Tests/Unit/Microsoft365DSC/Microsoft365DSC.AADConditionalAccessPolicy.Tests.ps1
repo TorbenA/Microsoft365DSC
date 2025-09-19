@@ -35,6 +35,125 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return 'Credentials'
             }
 
+            Mock -CommandName Get-MgUser -MockWith {
+                return @{
+                    Id                = '76d3c3f6-8269-462b-9385-37435cb33f1e'
+                    UserPrincipalName = 'alexw@contoso.com'
+                }
+            }
+            Mock -CommandName Get-MGGroup -MockWith {
+                return @{
+                    Id          = 'f1eb1a09-c0c2-4df4-9e69-fee01f00db31'
+                    DisplayName = 'Group 01'
+                }
+            }
+            Mock -CommandName Get-MgDirectoryRoleTemplate -MockWith {
+                return @{
+                    Id          = '17315797-102d-40b4-93e0-432062caca18'
+                    DisplayName = 'Compliance Administrator'
+                }
+            }
+            Mock -CommandName Get-MgBetaIdentityConditionalAccessNamedLocation -MockWith {
+                return @{
+                    Id          = '9e4ca5f3-0ba9-4257-b906-74d3038ac970'
+                    DisplayName = 'Contoso LAN'
+                }
+            }
+            Mock -CommandName Get-MgBetaPolicyAuthenticationStrengthPolicy -MockWith {
+                return @{
+                    Id          = "00000000-0000-0000-0000-000000000004"
+                    DisplayName = "Phishing-resistant MFA"
+                }
+            }
+
+            Mock -CommandName Get-MgBetaIdentityConditionalAccessPolicy -MockWith {
+                return @{
+                    Id              = 'bcc0cf19-ee89-46f0-8e12-4b89123ee6f9'
+                    DisplayName     = 'Allin'
+                    State           = 'disabled'
+                    Conditions      = @{
+                        Applications     = @{
+                            IncludeApplications = @('All')
+                            ExcludeApplications = @('00000012-0000-0000-c000-000000000000', 'Office365')
+                            IncludeUserActions  = @('urn:user:registersecurityinfo')
+                        }
+                        Users            = @{
+                            IncludeUsers  = 'All'
+                            ExcludeUsers  = '76d3c3f6-8269-462b-9385-37435cb33f1e'
+                            IncludeGroups = @('f1eb1a09-c0c2-4df4-9e69-fee01f00db31')
+                            ExcludeGroups = @('f1eb1a09-c0c2-4df4-9e69-fee01f00db31')
+                            IncludeRoles  = @('17315797-102d-40b4-93e0-432062caca18')
+                            ExcludeRoles  = @('17315797-102d-40b4-93e0-432062caca18')
+                            IncludeGuestsOrExternalUsers = @{
+                                guestOrExternalUserTypes = 'b2bCollaborationGuest'
+                                externalTenants          = @{
+                                    membershipKind       = 'enumerated'
+                                    AdditionalProperties = @{
+                                        members = @('11111111-1111-1111-1111-111111111111')
+                                    }
+                                }
+                            }
+                            ExcludeGuestsOrExternalUsers = @{
+                                guestOrExternalUserTypes = 'internalGuest,b2bCollaborationMember'
+                                externalTenants          = @{
+                                    membershipKind       = 'all'
+                                    AdditionalProperties = @{
+                                    }
+                                }
+                            }
+                        }
+                        Platforms        = @{
+                            IncludePlatforms = @('Android', 'IOS')
+                            ExcludePlatforms = @('Windows', 'WindowsPhone', 'MacOS')
+                        }
+                        Locations        = @{
+                            IncludeLocations = 'AllTrusted'
+                            ExcludeLocations = '9e4ca5f3-0ba9-4257-b906-74d3038ac970'
+                        }
+                        Devices          = @{
+                            IncludeDevices = @('All')
+                            ExcludeDevices = @('Compliant', 'DomainJoined')
+                            DeviceFilter   = @{
+                                Mode = @('exclude')
+                                Rule = @('device.isCompliant -eq True -or device.trustType -eq "ServerAD"')
+                            }
+                        }
+                        ClientAppTypes   = @('Browser', 'MobileAppsAndDesktopClients')
+                        SignInRiskLevels = @('High')
+                        UserRiskLevels   = @('High')
+                        ServicePrincipalRiskLevels = @('High')
+                    }
+                    GrantControls   = @{
+                        Operator       = 'AND'
+                        BuiltInControls = @('Mfa', 'CompliantDevice', 'DomainJoinedDevice', 'ApprovedApplication', 'CompliantApplication')
+                        AuthenticationStrength = @{
+                            Id = "00000000-0000-0000-0000-000000000004"
+                        }
+                    }
+                    SessionControls = @{
+                        ApplicationEnforcedRestrictions = @{
+                            IsEnabled = $True
+                        }
+                        CloudAppSecurity                = @{
+                            IsEnabled            = $True
+                            CloudAppSecurityType = 'MonitorOnly'
+                        }
+                        SignInFrequency                 = @{
+                            IsEnabled = $True
+                            Type      = 'Days'
+                            Value     = 5
+                        }
+                        PersistentBrowser               = @{
+                            IsEnabled = $True
+                            Mode      = 'Always'
+                        }
+                        disableResilienceDefaults       = @{
+                            IsEnabled = $True
+                        }
+                    }
+                }
+            }
+
             Mock -CommandName Invoke-MgGraphRequest -MockWith {
             }
 
@@ -97,37 +216,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 Mock -CommandName Get-MgBetaIdentityConditionalAccessPolicy -MockWith {
                     return $null
                 }
-                Mock -CommandName Get-MgUser -MockWith {
-                    return @{
-                        Id                = '76d3c3f6-8269-462b-9385-37435cb33f1e'
-                        UserPrincipalName = 'alexw@contoso.com'
-                    }
-                }
-                Mock -CommandName Get-MGGroup -MockWith {
-                    return @{
-                        Id          = 'f1eb1a09-c0c2-4df4-9e69-fee01f00db31'
-                        DisplayName = 'Group 01'
-                    }
-                }
-                Mock -CommandName Get-MgDirectoryRoleTemplate -MockWith {
-                    return @{
-                        Id          = '17315797-102d-40b4-93e0-432062caca18'
-                        DisplayName = 'Compliance Administrator'
-                    }
-                }
-                Mock -CommandName Get-MgBetaIdentityConditionalAccessNamedLocation -MockWith {
-                    return @{
-                        Id          = '9e4ca5f3-0ba9-4257-b906-74d3038ac970'
-                        DisplayName = 'Contoso LAN'
-                    }
-                }
-
-                Mock -CommandName Get-MgBetaPolicyAuthenticationStrengthPolicy -MockWith {
-                    return @{
-                        Id          = "00000000-0000-0000-0000-000000000004"
-                        DisplayName = "Phishing-resistant MFA"
-                    }
-                }
             }
 
             It 'Should return absent from the Get method' {
@@ -185,108 +273,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     SignInFrequencyType                      = 'Days'
                     SignInFrequencyValue                     = 5
                     SignInRiskLevels                         = @('High')
-                    State                                    = 'disabled'
+                    State                                    = 'enabled' # Drift
                     UserRiskLevels                           = @('High')
                     DeviceFilterMode                         = 'exclude'
                     DeviceFilterRule                         = 'device.isCompliant -eq True -or device.trustType -eq "ServerAD"'
-                }
-
-                Mock -CommandName Get-MgBetaPolicyAuthenticationStrengthPolicy -MockWith {
-                    return @{
-                        Id          = "00000000-0000-0000-0000-000000000004"
-                        DisplayName = "Phishing-resistant MFA"
-                    }
-                }
-
-                Mock -CommandName Get-MgBetaIdentityConditionalAccessPolicy -MockWith {
-                    return @{
-                        Id              = 'bcc0cf19-ee89-46f0-8e12-4b89123ee6f9'
-                        DisplayName     = 'Allin'
-                        State           = 'enabled'
-                        Conditions      = @{
-                            Applications     = @{
-                                IncludeApplications = @('All')
-                                ExcludeApplications = @('00000012-0000-0000-c000-000000000000', 'Office365')
-                                IncludeUserActions  = @('urn:user:registersecurityinfo')
-                            }
-                            Users            = @{
-                                IncludeUsers  = 'All'
-                                ExcludeUsers  = '76d3c3f6-8269-462b-9385-37435cb33f1e'
-                                IncludeGroups = @('f1eb1a09-c0c2-4df4-9e69-fee01f00db31')
-                                ExcludeGroups = @('f1eb1a09-c0c2-4df4-9e69-fee01f00db31')
-                                IncludeRoles  = @('17315797-102d-40b4-93e0-432062caca18')
-                                ExcludeRoles  = @('17315797-102d-40b4-93e0-432062caca18')
-                            }
-                            Platforms        = @{
-                                IncludePlatforms = @('Android', 'IOS')
-                                ExcludePlatforms = @('Windows', 'WindowsPhone', 'MacOS')
-                            }
-                            Locations        = @{
-                                IncludeLocations = 'AllTrusted'
-                                ExcludeLocations = '9e4ca5f3-0ba9-4257-b906-74d3038ac970'
-                            }
-                            Devices          = @{
-                                IncludeDevices = @('All')
-                                ExcludeDevices = @('Compliant', 'DomainJoined')
-                            }
-                            ClientAppTypes   = @('Browser', 'MobileAppsAndDesktopClients')
-                            SignInRiskLevels = @('High')
-                            UserRiskLevels   = @('High')
-                            ServicePrincipalRiskLevels = @('High')
-                        }
-                        GrantControls   = @{
-                            _Operator       = 'AND'
-                            BuiltInControls = @('Mfa', 'CompliantDevice', 'DomainJoinedDevice', 'ApprovedApplication', 'CompliantApplication')
-                            AuthenticationStrength = @{
-                                Id = "00000000-0000-0000-0000-000000000004"
-                            }
-                        }
-                        SessionControls = @{
-                            ApplicationEnforcedRestrictions = @{
-                                IsEnabled = $True
-                            }
-                            CloudAppSecurity                = @{
-                                IsEnabled            = $True
-                                CloudAppSecurityType = 'MonitorOnly'
-                            }
-                            SignInFrequency                 = @{
-                                IsEnabled = $True
-                                Type      = 'Days'
-                                Value     = 5
-                            }
-                            PersistentBrowser               = @{
-                                IsEnabled = $True
-                                Mode      = 'Always'
-                            }
-                            disableResilienceDefaults       = @{
-                                IsEnabled = $True
-                            }
-                        }
-                    }
-                }
-                Mock -CommandName Get-MgUser -MockWith {
-                    return @{
-                        Id                = '76d3c3f6-8269-462b-9385-37435cb33f1e'
-                        UserPrincipalName = 'alexw@contoso.com'
-                    }
-                }
-                Mock -CommandName Get-MgGroup -MockWith {
-                    return @{
-                        Id          = 'f1eb1a09-c0c2-4df4-9e69-fee01f00db31'
-                        DisplayName = 'Group 01'
-                    }
-                }
-                Mock -CommandName Get-MgDirectoryRoleTemplate -MockWith {
-                    return @{
-                        Id          = '17315797-102d-40b4-93e0-432062caca18'
-                        DisplayName = 'Compliance Administrator'
-                    }
-                }
-                Mock -CommandName Get-MgBetaIdentityConditionalAccessNamedLocation -MockWith {
-                    return @{
-                        Id          = '9e4ca5f3-0ba9-4257-b906-74d3038ac970'
-                        DisplayName = 'Contoso LAN'
-                    }
                 }
             }
 
@@ -310,104 +300,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName                              = 'Allin'
                     Ensure                                   = 'Present'
                     Credential                               = $Credscredential
-                    State                                    = 'disabled'
-                }
-
-                Mock -CommandName Get-MgBetaPolicyAuthenticationStrengthPolicy -MockWith {
-                    return @{
-                        Id          = "00000000-0000-0000-0000-000000000004"
-                        DisplayName = "Phishing-resistant MFA"
-                    }
-                }
-
-                Mock -CommandName Get-MgBetaIdentityConditionalAccessPolicy -MockWith {
-                    return @{
-                        Id              = 'bcc0cf19-ee89-46f0-8e12-4b89123ee6f9'
-                        DisplayName     = 'Allin'
-                        State           = 'enabled'
-                        Conditions      = @{
-                            Applications     = @{
-                                IncludeApplications = @('All')
-                                ExcludeApplications = @('00000012-0000-0000-c000-000000000000', 'Office365')
-                                IncludeUserActions  = @('urn:user:registersecurityinfo')
-                            }
-                            Users            = @{
-                                IncludeUsers  = 'All'
-                                ExcludeUsers  = '76d3c3f6-8269-462b-9385-37435cb33f1e'
-                                IncludeGroups = @('f1eb1a09-c0c2-4df4-9e69-fee01f00db31')
-                                ExcludeGroups = @('f1eb1a09-c0c2-4df4-9e69-fee01f00db31')
-                                IncludeRoles  = @('17315797-102d-40b4-93e0-432062caca18')
-                                ExcludeRoles  = @('17315797-102d-40b4-93e0-432062caca18')
-                            }
-                            Platforms        = @{
-                                IncludePlatforms = @('Android', 'IOS')
-                                ExcludePlatforms = @('Windows', 'WindowsPhone', 'MacOS')
-                            }
-                            Locations        = @{
-                                IncludeLocations = 'AllTrusted'
-                                ExcludeLocations = '9e4ca5f3-0ba9-4257-b906-74d3038ac970'
-                            }
-                            Devices          = @{
-                                IncludeDevices = @('All')
-                                ExcludeDevices = @('Compliant', 'DomainJoined')
-                            }
-                            ClientAppTypes   = @('Browser', 'MobileAppsAndDesktopClients')
-                            SignInRiskLevels = @('High')
-                            UserRiskLevels   = @('High')
-                        }
-                        GrantControls   = @{
-                            _Operator       = 'AND'
-                            BuiltInControls = @('Mfa', 'CompliantDevice', 'DomainJoinedDevice', 'ApprovedApplication', 'CompliantApplication')
-                            AuthenticationStrength = @{
-                                Id = "00000000-0000-0000-0000-000000000004"
-                            }
-                        }
-                        SessionControls = @{
-                            ApplicationEnforcedRestrictions = @{
-                                IsEnabled = $True
-                            }
-                            CloudAppSecurity                = @{
-                                IsEnabled            = $True
-                                CloudAppSecurityType = 'MonitorOnly'
-                            }
-                            SignInFrequency                 = @{
-                                IsEnabled = $True
-                                Type      = 'Days'
-                                Value     = 5
-                            }
-                            PersistentBrowser               = @{
-                                IsEnabled = $True
-                                Mode      = 'Always'
-                            }
-                            disableResilienceDefaults       = @{
-                                IsEnabled = $True
-                            }
-                        }
-                    }
-                }
-                Mock -CommandName Get-MgUser -MockWith {
-                    return @{
-                        Id                = '76d3c3f6-8269-462b-9385-37435cb33f1e'
-                        UserPrincipalName = 'alexw@contoso.com'
-                    }
-                }
-                Mock -CommandName Get-MgGroup -MockWith {
-                    return @{
-                        Id          = 'f1eb1a09-c0c2-4df4-9e69-fee01f00db31'
-                        DisplayName = 'Group 01'
-                    }
-                }
-                Mock -CommandName Get-MgDirectoryRoleTemplate -MockWith {
-                    return @{
-                        Id          = '17315797-102d-40b4-93e0-432062caca18'
-                        DisplayName = 'Compliance Administrator'
-                    }
-                }
-                Mock -CommandName Get-MgBetaIdentityConditionalAccessNamedLocation -MockWith {
-                    return @{
-                        Id          = '9e4ca5f3-0ba9-4257-b906-74d3038ac970'
-                        DisplayName = 'Contoso LAN'
-                    }
+                    State                                    = 'enabled' # Drift
                 }
             }
 
@@ -470,125 +363,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DeviceFilterMode                         = 'exclude'
                     DeviceFilterRule                         = 'device.isCompliant -eq True -or device.trustType -eq "ServerAD"'
                 }
-
-                Mock -CommandName Get-MgBetaPolicyAuthenticationStrengthPolicy -MockWith {
-                    return @{
-                        Id          = "00000000-0000-0000-0000-000000000004"
-                        DisplayName = "Phishing-resistant MFA"
-                    }
-                }
-
-                Mock -CommandName Get-MgBetaIdentityConditionalAccessPolicy -MockWith {
-                    return @{
-                        Id              = 'bcc0cf19-ee89-46f0-8e12-4b89123ee6f9'
-                        DisplayName     = 'Allin'
-                        State           = 'disabled'
-                        Conditions      = @{
-                            Applications     = @{
-                                IncludeApplications = @('All')
-                                ExcludeApplications = @('00000012-0000-0000-c000-000000000000', 'Office365')
-                                IncludeUserActions  = @('urn:user:registersecurityinfo')
-                            }
-                            Users            = @{
-                                IncludeUsers                 = 'All'
-                                ExcludeUsers                 = '76d3c3f6-8269-462b-9385-37435cb33f1e'
-                                IncludeGroups                = @('f1eb1a09-c0c2-4df4-9e69-fee01f00db31')
-                                ExcludeGroups                = @('f1eb1a09-c0c2-4df4-9e69-fee01f00db31')
-                                IncludeRoles                 = @('17315797-102d-40b4-93e0-432062caca18')
-                                ExcludeRoles                 = @('17315797-102d-40b4-93e0-432062caca18')
-                                includeGuestsOrExternalUsers = @{
-                                    guestOrExternalUserTypes = 'b2bCollaborationGuest'
-                                    externalTenants          = @{
-                                        membershipKind       = 'enumerated'
-                                        AdditionalProperties = @{
-                                            members = @('11111111-1111-1111-1111-111111111111')
-                                        }
-                                    }
-                                }
-                                excludeGuestsOrExternalUsers = @{
-                                    guestOrExternalUserTypes = 'internalGuest,b2bCollaborationMember'
-                                    externalTenants          = @{
-                                        membershipKind       = 'all'
-                                        AdditionalProperties = @{
-
-                                        }
-                                    }
-                                }
-                            }
-                            Platforms        = @{
-                                IncludePlatforms = @('Android', 'IOS')
-                                ExcludePlatforms = @('Windows', 'WindowsPhone', 'MacOS')
-                            }
-                            Locations        = @{
-                                IncludeLocations = 'AllTrusted'
-                                ExcludeLocations = '9e4ca5f3-0ba9-4257-b906-74d3038ac970'
-                            }
-                            Devices          = @{
-                                IncludeDevices = @('All')
-                                ExcludeDevices = @('Compliant', 'DomainJoined')
-                                DeviceFilter   = @{
-                                    Mode = @('exclude')
-                                    Rule = @('device.isCompliant -eq True -or device.trustType -eq "ServerAD"')
-                                }
-                            }
-                            ClientAppTypes   = @('Browser', 'MobileAppsAndDesktopClients')
-                            SignInRiskLevels = @('High')
-                            UserRiskLevels   = @('High')
-                        }
-                        GrantControls   = @{
-                            Operator               = 'AND'
-                            BuiltInControls        = @('Mfa', 'CompliantDevice', 'DomainJoinedDevice', 'ApprovedApplication', 'CompliantApplication')
-                            AuthenticationStrength = @{
-                                Id = "00000000-0000-0000-0000-000000000004"
-                            }
-                        }
-                        SessionControls = @{
-                            ApplicationEnforcedRestrictions = @{
-                                IsEnabled = $True
-                            }
-                            CloudAppSecurity                = @{
-                                IsEnabled            = $True
-                                CloudAppSecurityType = 'MonitorOnly'
-                            }
-                            SignInFrequency                 = @{
-                                IsEnabled = $True
-                                Type      = 'Days'
-                                Value     = 5
-                            }
-                            PersistentBrowser               = @{
-                                IsEnabled = $True
-                                Mode      = 'Always'
-                            }
-                            disableResilienceDefaults       = @{
-                                IsEnabled = $True
-                            }
-                        }
-                    }
-                }
-                Mock -CommandName Get-MgUser -MockWith {
-                    return @{
-                        Id                = '76d3c3f6-8269-462b-9385-37435cb33f1e'
-                        UserPrincipalName = 'alexw@contoso.com'
-                    }
-                }
-                Mock -CommandName Get-MgGroup -MockWith {
-                    return @{
-                        Id          = 'f1eb1a09-c0c2-4df4-9e69-fee01f00db31'
-                        DisplayName = 'Group 01'
-                    }
-                }
-                Mock -CommandName Get-MgDirectoryRoleTemplate -MockWith {
-                    return @{
-                        Id          = '17315797-102d-40b4-93e0-432062caca18'
-                        DisplayName = 'Compliance Administrator'
-                    }
-                }
-                Mock -CommandName Get-MgBetaIdentityConditionalAccessNamedLocation -MockWith {
-                    return @{
-                        Id          = '9e4ca5f3-0ba9-4257-b906-74d3038ac970'
-                        DisplayName = 'Contoso LAN'
-                    }
-                }
             }
 
             It 'Should return Present from the Get method' {
@@ -639,103 +413,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DeviceFilterMode                         = 'exclude'
                     DeviceFilterRule                         = 'device.isCompliant -eq True -or device.trustType -eq "ServerAD"'
                 }
-
-                Mock -CommandName Get-MgBetaPolicyAuthenticationStrengthPolicy -MockWith {
-                    return @{
-                        Id          = "00000000-0000-0000-0000-000000000004"
-                        DisplayName = "Phishing-resistant MFA"
-                    }
-                }
-
-                Mock -CommandName Get-MgBetaIdentityConditionalAccessPolicy -MockWith {
-                    return @{
-                        Id              = 'bcc0cf19-ee89-46f0-8e12-4b89123ee6f9'
-                        DisplayName     = 'Allin'
-                        State           = 'disabled'
-                        Conditions      = @{
-                            Applications     = @{
-                                IncludeApplications = @('All')
-                                ExcludeApplications = @('00000012-0000-0000-c000-000000000000', 'Office365')
-                                IncludeUserActions  = @('urn:user:registersecurityinfo')
-                            }
-                            Users            = @{
-                                IncludeUsers  = 'All'
-                                ExcludeUsers  = '76d3c3f6-8269-462b-9385-37435cb33f1e'
-                                IncludeGroups = @('f1eb1a09-c0c2-4df4-9e69-fee01f00db31')
-                                ExcludeGroups = @('f1eb1a09-c0c2-4df4-9e69-fee01f00db31')
-                                IncludeRoles  = @('17315797-102d-40b4-93e0-432062caca18')
-                                ExcludeRoles  = @('17315797-102d-40b4-93e0-432062caca18')
-                            }
-                            Platforms        = @{
-                                IncludePlatforms = @('Android', 'IOS')
-                                ExcludePlatforms = @('Windows', 'WindowsPhone', 'MacOS')
-                            }
-                            Locations        = @{
-                                IncludeLocations = 'AllTrusted'
-                                ExcludeLocations = '9e4ca5f3-0ba9-4257-b906-74d3038ac970'
-                            }
-                            Devices          = @{
-                                IncludeDevices = @('All')
-                                ExcludeDevices = @('Compliant', 'DomainJoined')
-                            }
-                            ClientAppTypes   = @('Browser', 'MobileAppsAndDesktopClients')
-                            SignInRiskLevels = @('High')
-                            UserRiskLevels   = @('High')
-                        }
-                        GrantControls   = @{
-                            Operator               = 'AND'
-                            BuiltInControls        = @('Mfa', 'CompliantDevice', 'DomainJoinedDevice', 'ApprovedApplication', 'CompliantApplication')
-                            AuthenticationStrength = @{
-                                Id = "00000000-0000-0000-0000-000000000004"
-                            }
-                        }
-                        SessionControls = @{
-                            ApplicationEnforcedRestrictions = @{
-                                IsEnabled = $True
-                            }
-                            CloudAppSecurity                = @{
-                                IsEnabled            = $True
-                                CloudAppSecurityType = 'MonitorOnly'
-                            }
-                            SignInFrequency                 = @{
-                                IsEnabled = $True
-                                Type      = 'Days'
-                                Value     = 5
-                            }
-                            PersistentBrowser               = @{
-                                IsEnabled = $True
-                                Mode      = 'Always'
-                            }
-                            disableResilienceDefaults       = @{
-                                IsEnabled = $True
-                            }
-                        }
-                    }
-                }
-                Mock -CommandName Get-MgUser -MockWith {
-                    return @{
-                        Id                = '76d3c3f6-8269-462b-9385-37435cb33f1e'
-                        UserPrincipalName = 'alexw@contoso.com'
-                    }
-                }
-                Mock -CommandName Get-MgGroup -MockWith {
-                    return @{
-                        Id          = 'f1eb1a09-c0c2-4df4-9e69-fee01f00db31'
-                        DisplayName = 'Group 01'
-                    }
-                }
-                Mock -CommandName Get-MgDirectoryRoleTemplate -MockWith {
-                    return @{
-                        Id          = '17315797-102d-40b4-93e0-432062caca18'
-                        DisplayName = 'Compliance Administrator'
-                    }
-                }
-                Mock -CommandName Get-MgBetaIdentityConditionalAccessNamedLocation -MockWith {
-                    return @{
-                        Id          = '9e4ca5f3-0ba9-4257-b906-74d3038ac970'
-                        DisplayName = 'Contoso LAN'
-                    }
-                }
             }
 
             It 'Should return Present from the Get method' {
@@ -758,103 +435,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaPolicyAuthenticationStrengthPolicy -MockWith {
-                    return @{
-                        Id          = "00000000-0000-0000-0000-000000000004"
-                        DisplayName = "Phishing-resistant MFA"
-                    }
-                }
-
-                Mock -CommandName Get-MgBetaIdentityConditionalAccessPolicy -MockWith {
-                    return @{
-                        Id              = 'bcc0cf19-ee89-46f0-8e12-4b89123ee6f9'
-                        DisplayName     = 'Allin'
-                        State           = 'disabled'
-                        Conditions      = @{
-                            Applications     = @{
-                                IncludeApplications = @('All')
-                                ExcludeApplications = @('00000012-0000-0000-c000-000000000000', 'Office365')
-                                IncludeUserActions  = @('urn:user:registersecurityinfo')
-                            }
-                            Users            = @{
-                                IncludeUsers  = 'All'
-                                ExcludeUsers  = '76d3c3f6-8269-462b-9385-37435cb33f1e'
-                                IncludeGroups = @('f1eb1a09-c0c2-4df4-9e69-fee01f00db31')
-                                ExcludeGroups = @('f1eb1a09-c0c2-4df4-9e69-fee01f00db31')
-                                IncludeRoles  = @('17315797-102d-40b4-93e0-432062caca18')
-                                ExcludeRoles  = @('17315797-102d-40b4-93e0-432062caca18')
-                            }
-                            Platforms        = @{
-                                IncludePlatforms = @('Android', 'IOS')
-                                ExcludePlatforms = @('Windows', 'WindowsPhone', 'MacOS')
-                            }
-                            Locations        = @{
-                                IncludeLocations = 'AllTrusted'
-                                ExcludeLocations = '9e4ca5f3-0ba9-4257-b906-74d3038ac970'
-                            }
-                            Devices          = @{
-                                IncludeDevices = @('All')
-                                ExcludeDevices = @('Compliant', 'DomainJoined')
-                            }
-                            ClientAppTypes   = @('Browser', 'MobileAppsAndDesktopClients')
-                            SignInRiskLevels = @('High')
-                            UserRiskLevels   = @('High')
-                        }
-                        GrantControls   = @{
-                            _Operator              = 'AND'
-                            BuiltInControls        = @('Mfa', 'CompliantDevice', 'DomainJoinedDevice', 'ApprovedApplication', 'CompliantApplication')
-                            AuthenticationStrength = @{
-                                Id = "00000000-0000-0000-0000-000000000004"
-                            }
-                        }
-                        SessionControls = @{
-                            ApplicationEnforcedRestrictions = @{
-                                IsEnabled = $True
-                            }
-                            CloudAppSecurity                = @{
-                                IsEnabled            = $True
-                                CloudAppSecurityType = 'MonitorOnly'
-                            }
-                            SignInFrequency                 = @{
-                                IsEnabled = $True
-                                Type      = 'Days'
-                                Value     = 5
-                            }
-                            PersistentBrowser               = @{
-                                IsEnabled = $True
-                                Mode      = 'Always'
-                            }
-                            disableResilienceDefaults       = @{
-                                IsEnabled = $True
-                            }
-                        }
-                    }
-                }
-                Mock -CommandName Get-MgUser -MockWith {
-                    return @{
-                        Id                = '76d3c3f6-8269-462b-9385-37435cb33f1e'
-                        UserPrincipalName = 'alexw@contoso.com'
-                    }
-                }
-                Mock -CommandName Get-MgGroup -MockWith {
-                    return @{
-                        Id          = 'f1eb1a09-c0c2-4df4-9e69-fee01f00db31'
-                        DisplayName = 'Group 01'
-                    }
-                }
-                Mock -CommandName Get-MgDirectoryRoleTemplate -MockWith {
-                    return @{
-                        Id          = '17315797-102d-40b4-93e0-432062caca18'
-                        DisplayName = 'Compliance Administrator'
-                    }
-                }
-                Mock -CommandName Get-MgBetaIdentityConditionalAccessNamedLocation -MockWith {
-                    return @{
-                        Id          = '9e4ca5f3-0ba9-4257-b906-74d3038ac970'
-                        DisplayName = 'Contoso LAN'
-                    }
                 }
             }
 

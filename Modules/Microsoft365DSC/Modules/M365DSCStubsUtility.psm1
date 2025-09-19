@@ -90,7 +90,7 @@ function New-M365DSCStubFiles
         if ($null -eq $CmdletsList -or $CmdletsList.Length -eq 0)
         {
             Write-Host "Connecting to {$($Module.Name)}"
-            $ConnectionMode = New-M365DSCConnection -Workload ($Module.Name) `
+            $null = New-M365DSCConnection -Workload ($Module.Name) `
                 -InboundParameters $PSBoundParameters
 
             Write-Host "Generating Stubs for {$($Module.ModuleName)}..."
@@ -106,7 +106,7 @@ function New-M365DSCStubFiles
             else
             {
                 Import-Module $CurrentModuleName -Force -Global -ErrorAction SilentlyContinue
-                $ConnectionMode = New-M365DSCConnection -Workload $Module.Name `
+                $null = New-M365DSCConnection -Workload $Module.Name `
                     -InboundParameters $PSBoundParameters
             }
 

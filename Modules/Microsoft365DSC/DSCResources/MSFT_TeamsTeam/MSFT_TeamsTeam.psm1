@@ -194,7 +194,7 @@ function Get-TargetResource
         [array]$Owners = Get-TeamUser -GroupId $team.GroupId | Where-Object { $_.Role -eq 'owner' }
         if ($null -eq $Owners)
         {
-            # Without Users, Get-TeamUser return null instead on empty array
+            # Without Users, Get-TeamUser returns null instead of an empty array
             $Owners = @()
         }
 
@@ -401,11 +401,7 @@ function Set-TargetResource
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' -InboundParameters $PSBoundParameters
 
     $team = Get-TargetResource @PSBoundParameters
-
-    $CurrentParameters = $PSBoundParameters
-    $CurrentParameters.Remove('Ensure') | Out-Null
-    $CurrentParameters.Remove('ManagedIdentity') | Out-Null
-    $CurrentParameters.Remove('AccessTokens') | Out-Null
+    $CurrentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present' -and ($team.Ensure -eq 'Present'))
     {
@@ -417,16 +413,6 @@ function Set-TargetResource
         if (-not $CurrentParameters.ContainsKey('GroupID'))
         {
             $CurrentParameters.Add('GroupID', $team.GroupID)
-        }
-        if ($ConnectionMode -eq 'Credentials')
-        {
-            $CurrentParameters.Remove('Credential') | Out-Null
-        }
-        else
-        {
-            $CurrentParameters.Remove('ApplicationId') | Out-Null
-            $CurrentParameters.Remove('TenantId') | Out-Null
-            $CurrentParameters.Remove('CertificateThumbprint') | Out-Null
         }
         Set-Team @CurrentParameters
         Write-Verbose -Message "Updating team $DisplayName"
@@ -490,7 +476,6 @@ function Set-TargetResource
                 $OwnerValue = $Owner[0].ToString()
             }
             $CurrentParameters.Owner = [System.String]$OwnerValue
-            $CurrentParameters.Remove('Credential') | Out-Null
             Write-Verbose -Message "Creating team with Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentParameters)"
             $newTeam = New-Team @CurrentParameters
             Write-Verbose -Message "Team {$DisplayName} was just created."
@@ -794,4 +779,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

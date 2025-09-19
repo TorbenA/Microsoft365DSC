@@ -34,6 +34,27 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Get-MSCloudLoginConnectionProfile -MockWith {
             }
 
+            Mock -CommandName Invoke-MgGraphRequest -MockWith {
+                return @{
+                    value = @(
+                        @{
+                            issuerUri                       = 'https://contoso.com/issuerUri'
+                            displayName                     = 'contoso display name'
+                            metadataExchangeUri             = 'https://contoso.com/metadataExchangeUri'
+                            passiveSignInUri                = 'https://contoso.com/signin'
+                            preferredAuthenticationProtocol = 'wsFed'
+                            domains                         = @(
+                                @{
+                                    "@odata.type" = "microsoft.graph.externalDomainName"
+                                    id            = "contoso.com"
+                                }
+                            )
+                            signingCertificate              = 'MIIDADCCAeigAwIBAgIQEX41y8r6'
+                        }
+                    )
+                }
+            }
+
             Mock -CommandName New-M365DSCConnection -MockWith {
                 return "Credentials"
             }
@@ -89,27 +110,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                          = 'Absent'
                     Credential                      = $Credential;
                 }
-
-                Mock -CommandName Invoke-MgGraphRequest -MockWith {
-                    return @{
-                        value = @(
-                            @{
-                                issuerUri                       = 'https://contoso.com/issuerUri'
-                                displayName                     = 'contoso display name'
-                                metadataExchangeUri             = 'https://contoso.com/metadataExchangeUri'
-                                passiveSignInUri                = 'https://contoso.com/signin'
-                                preferredAuthenticationProtocol = 'wsFed'
-                                domains                         = @(
-                                    @{
-                                        "@odata.type" = "microsoft.graph.externalDomainName"
-                                        id            = "contoso.com"
-                                    }
-                                )
-                                signingCertificate              = 'MIIDADCCAeigAwIBAgIQEX41y8r6'
-                            }
-                        )
-                    }
-                }
             }
             It 'Should return Values from the Get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
@@ -137,27 +137,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                          = 'Present'
                     Credential                      = $Credential;
                 }
-
-                Mock -CommandName Invoke-MgGraphRequest -MockWith {
-                    return @{
-                        value = @(
-                            @{
-                                issuerUri                       = 'https://contoso.com/issuerUri'
-                                displayName                     = 'contoso display name'
-                                metadataExchangeUri             = 'https://contoso.com/metadataExchangeUri'
-                                passiveSignInUri                = 'https://contoso.com/signin'
-                                preferredAuthenticationProtocol = 'wsFed'
-                                domains                         = @(
-                                    @{
-                                        "@odata.type" = "microsoft.graph.externalDomainName"
-                                        id            = "contoso.com"
-                                    }
-                                )
-                                signingCertificate              = 'MIIDADCCAeigAwIBAgIQEX41y8r6'
-                            }
-                        )
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -177,27 +156,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     SigningCertificate              = 'MIIDADCCAeigAwIBAgIQEX41y8r6'
                     Ensure                          = 'Present'
                     Credential                      = $Credential;
-                }
-
-                Mock -CommandName Invoke-MgGraphRequest -MockWith {
-                    return @{
-                        value = @(
-                            @{
-                                issuerUri                       = 'https://contoso.com/issuerUri'
-                                displayName                     = 'contoso display name'
-                                metadataExchangeUri             = 'https://contoso.com/metadataExchangeUri'
-                                passiveSignInUri                = 'https://contoso.com/signin'
-                                preferredAuthenticationProtocol = 'wsFed'
-                                domains                         = @(
-                                    @{
-                                        "@odata.type" = "microsoft.graph.externalDomainName"
-                                        id            = "contoso.com"
-                                    }
-                                )
-                                signingCertificate              = 'MIIDADCCAeigAwIBAgIQEX41y8r6'
-                            }
-                        )
-                    }
                 }
             }
 
@@ -221,27 +179,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential  = $Credential;
-                }
-
-                Mock -CommandName Invoke-MgGraphRequest -MockWith {
-                    return @{
-                        value = @(
-                            @{
-                                issuerUri                       = 'https://contoso.com/issuerUri'
-                                displayName                     = 'contoso display name'
-                                metadataExchangeUri             = 'https://contoso.com/metadataExchangeUri'
-                                passiveSignInUri                = 'https://contoso.com/signin'
-                                preferredAuthenticationProtocol = 'wsFed'
-                                domains                         = @(
-                                    @{
-                                        "@odata.type" = "microsoft.graph.externalDomainName"
-                                        id            = "contoso.com"
-                                    }
-                                )
-                                signingCertificate              = 'MIIDADCCAeigAwIBAgIQEX41y8r6'
-                            }
-                        )
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {
