@@ -11,6 +11,8 @@
 * AADCrossTenantIdentitySyncPolicyPartner
   * Initial release.
 * AADGroup
+  * Fixed multi-tenant Service Principal support for owners and members.
+    FIXES [#6498](https://github.com/microsoft/Microsoft365DSC/issues/6498)
   * Fixed an issue where the `SkuId` could contain NBSP characters.
     FIXES [#6476](https://github.com/microsoft/Microsoft365DSC/issues/6476)
   * Fixed an issue where GroupAsMembers not being added during initial group creation.
