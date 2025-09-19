@@ -66,7 +66,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
+            $null = New-M365DSCConnection -Workload 'PNP' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -199,9 +199,6 @@ function Set-TargetResource
         -Parameters $PSBoundParameters
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
-
-    $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
-        -InboundParameters $PSBoundParameters
 
     $CurrentPalette = Get-TargetResource @PSBoundParameters
     if ($Ensure -eq 'Present')
@@ -573,4 +570,3 @@ function Compare-SPOTheme
 }
 
 Export-ModuleMember -Function *-TargetResource
-

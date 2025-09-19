@@ -34,6 +34,9 @@
   * Added caching for export.
 * EXORecipientPermission
   * Added additional caching for export.
+* IntuneAppConfigurationPolicy
+  * Fixed an issue with MOF instance parsing.
+    FIXES [#6520](https://github.com/microsoft/Microsoft365DSC/issues/6520)
 * IntuneMobileAppsMacOSLobApp
   * Added filter capability.
 * IntuneMobileAppsMicrosoftStoreAppWindows10
@@ -42,6 +45,7 @@
   * Fixed an issue where filtering was applied after fetching all apps.
 * IntuneMobileAppsWindowsOfficeSuiteApp
   * Added filter capability.
+  * Fixed the version in the MOF definition.
 * IntuneRoleAssignment
   * Fixed an issue where deleted groups would throw an error during export.
 * SPOPropertyBag
@@ -54,6 +58,10 @@
   * Reduced export time by up to 85%.
 * MISC
   * Code cleanup across all Intune resources.
+  * Code cleanup across all O365, OD and SPO resources.
+  * Code cleanup across all Planner, PP and SC resources.
+  * Code cleanup across all Sentinel, SH and Teams resources.
+  * Code cleanup across all M365DSC modules.
   * Fixed typo in `ManagedIdentity` property across all resources.
   * Reduced repeated logins during export of SPO and Teams resources.
   * Removed unnecessary type casting across all resources.
@@ -61,7 +69,8 @@
 * M365DSCDRGUtil
   * Fixed an issue where a null drift would throw an exception.
   * Fixed an issue where group filtering would not find the specified groups.
-  * Streamline test cases.
+  * Fixed an issue where 0 requests passed to `Invoke-M365DSCGraphBatchRequests` would fail.
+    FIXES [#6521](https://github.com/microsoft/Microsoft365DSC/issues/6521)
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.51.
 
