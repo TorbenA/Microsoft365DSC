@@ -26,6 +26,10 @@
     on update.
   * [BREAKING] Renamed the UnifiedGroupWelcomeMessageEnabled parameter to
     WelcomeMessageEnabled.
+* EXOHostedContentFilterPolicy
+  * [BREAKING CHANGE] Remove deprecated properties `DownloadLink`, `EnableEndUserSpamNotifications`,
+    `EndUserSpamNotificationCustomSubject`, `EndUserSpamNotificationFrequency` and `EndUserSpamNotificationLanguage`.
+    FIXES [#4958](https://github.com/microsoft/Microsoft365DSC/issues/4958)
 * EXOMailboxAutoReplyConfiguration
   * Added conditional user lookup.
 * EXOMailboxCalendarFolder
