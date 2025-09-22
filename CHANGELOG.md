@@ -24,6 +24,8 @@
 * EXOGroupSettings
   * Fixed an issue with the retrieval by DisplayName and duplicate Id property
     on update.
+  * [BREAKING] Renamed the UnifiedGroupWelcomeMessageEnabled parameter to
+    WelcomeMessageEnabled.
 * EXOMailboxAutoReplyConfiguration
   * Added conditional user lookup.
 * EXOMailboxCalendarFolder
