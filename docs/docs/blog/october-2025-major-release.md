@@ -19,3 +19,18 @@ The following parameters were removed from the EXOHostedContentFIlterPolicy reso
 </ul>
 
 To fix existing configuration files, search for instance of these parameters in the configuration file and remove them.
+
+## Removed 6 Intune Resources
+
+We've removed the following 6 resources due to them being deprecated or because of equivlent resource having been created (in the case of IntuneWifiConfigurationPolicyAndroidForWork):
+
+<ul>
+<li>IntuneDeviceCompliancePolicyAndroid</li>
+<li>IntuneDeviceConfigurationPolicyAndroidDeviceAdministrator</li>
+<li>IntuneTrustedRootCertificateAndroidEnterprise</li>
+<li>IntuneVPNConfigurationPolicyAndroidEnterprise</li>
+<li>IntuneWifiConfigurationPolicyAndroidDeviceAdministrator</li>
+<li>IntuneWifiConfigurationPolicyAndroidForWork </li>
+</ul>
+
+To fix impacted configurations, simply remove any instances of the listed resources.
