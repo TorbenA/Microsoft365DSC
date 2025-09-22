@@ -44,7 +44,7 @@ class MSFT_DeviceManagementMobileAppExcludedApp
     [Write, Description("Specifies whether to exclude Microsoft Office Word from the installation.")] Boolean Word;
 };
 
-[ClassVersion("1.0.0"), FriendlyName("IntuneMobileAppsWindowsOfficeSuiteApp")]
+[ClassVersion("1.0.0.0"), FriendlyName("IntuneMobileAppsWindowsOfficeSuiteApp")]
 class MSFT_IntuneMobileAppsWindowsOfficeSuiteApp : OMI_BaseResource
 {
     [Key, Description("The admin provided or imported title of the app. Inherited from mobileApp.")] String DisplayName;

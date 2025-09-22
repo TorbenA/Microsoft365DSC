@@ -42,6 +42,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-MgBetaIdentityCustomAuthenticationExtension -MockWith {
             }
 
+            Mock -CommandName Get-MgBetaIdentityCustomAuthenticationExtension -MockWith {
+                return @{
+                    DisplayName = "testcustomextension"
+                    Description = "test description"
+                    Id = "1f0c894f-d068-4f9c-af71-81d602569ad1"
+                }
+            }
+
             Mock -CommandName New-M365DSCConnection -MockWith {
                 return "Credentials"
             }
@@ -94,15 +102,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Id = "1f0c894f-d068-4f9c-af71-81d602569ad1"
                     ClaimsForTokenConfiguration = @()
                 }
-
-                Mock -CommandName Get-MgBetaIdentityCustomAuthenticationExtension -MockWith {
-                    $customextension = New-Object PSCustomObject
-                    $customextension | Add-Member -MemberType NoteProperty -Name DisplayName -Value "testcustomextension"
-                    $customextension | Add-Member -MemberType NoteProperty -Name Description -Value "test description"
-                    $customextension | Add-Member -MemberType NoteProperty -Name Id -Value "1f0c894f-d068-4f9c-af71-81d602569ad1"
-
-                    return $customextension
-                }
             }
 
             It 'Should return values from the get method' {
@@ -128,15 +127,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = "Present"
                     Id = "1f0c894f-d068-4f9c-af71-81d602569ad1"
                 }
-
-                Mock -CommandName Get-MgBetaIdentityCustomAuthenticationExtension -MockWith {
-                    $customextension = New-Object PSCustomObject
-                    $customextension | Add-Member -MemberType NoteProperty -Name DisplayName -Value "testcustomextension"
-                    $customextension | Add-Member -MemberType NoteProperty -Name Description -Value "test description"
-                    $customextension | Add-Member -MemberType NoteProperty -Name Id -Value "1f0c894f-d068-4f9c-af71-81d602569ad1"
-
-                    return $customextension
-                }
             }
 
             It 'Should return values from the get method' {
@@ -153,18 +143,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     DisplayName = "testcustomextension"
-                    Description = "test description modified"
+                    Description = "test description modified" # Drift
                     Ensure = "Present"
                     Id = "1f0c894f-d068-4f9c-af71-81d602569ad1"
-                }
-
-                Mock -CommandName Get-MgBetaIdentityCustomAuthenticationExtension -MockWith {
-                    $customextension = New-Object PSCustomObject
-                    $customextension | Add-Member -MemberType NoteProperty -Name DisplayName -Value "testcustomextension"
-                    $customextension | Add-Member -MemberType NoteProperty -Name Description -Value "test description"
-                    $customextension | Add-Member -MemberType NoteProperty -Name Id -Value "1f0c894f-d068-4f9c-af71-81d602569ad1"
-
-                    return $customextension
                 }
             }
 

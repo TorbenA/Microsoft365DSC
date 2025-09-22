@@ -704,6 +704,18 @@ function Set-TargetResource
                     {
                         $directoryObject = Get-MgServicePrincipal -Filter "AppId eq '$($app.AppId)'"
                     }
+                    else
+                    {
+                        $spInstances = Get-MgServicePrincipal -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
+                        if ($null -ne $spInstances -and $spInstances.Count -gt 1)
+                        {
+                            Throw "Duplicate Service Principals named '$($diff.InputObject)' exist in tenant"
+                        }
+                        elseif ($null -ne $spInstances -and $spInstances.Count -eq 1)
+                        {
+                            $directoryObject = $spInstances
+                        }
+                    }
                 }
                 if ($diff.SideIndicator -eq '=>')
                 {
@@ -764,6 +776,18 @@ function Set-TargetResource
                     if ($null -ne $app)
                     {
                         $directoryObject = Get-MgServicePrincipal -Filter "AppId eq '$($app.AppId)'"
+                    }
+                    else
+                    {
+                        $spInstances = Get-MgServicePrincipal -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
+                        if ($null -ne $spInstances -and $spInstances.Count -gt 1)
+                        {
+                            Throw "Duplicate Service Principals named '$($diff.InputObject)' exist in tenant"
+                        }
+                        elseif ($null -ne $spInstances -and $spInstances.Count -eq 1)
+                        {
+                            $directoryObject = $spInstances
+                        }
                     }
                 }
 

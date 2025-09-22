@@ -72,6 +72,22 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 )
             }
 
+            Mock -CommandName Get-M365DSCAzureBillingAccountsRoleAssignment -MockWith {
+                return @{
+                    value = @(
+                        @{
+                            id = '/assignment/22222-22222-22222-22222-22222'
+                            properties = @{
+                                principalId = '12345-12345-12345-12345-12345'
+                                principalType = 'User'
+                                RoleDefinitionId = '/providers/Microsoft.Billing/billingAccounts/1e5b9e50-a1ea-581e-fb3a-778b93a06854:6487d5cf-0a7b-42e6-9549-23ca416fb8bf_2019-05-31/billingRoleDefinitions/22222-22222-22222-22222-22222'
+                                principalTenantId = '9c888910-6b3b-4c17-8cff-844fefb026d4'
+                            }
+                        }
+                    )
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -119,22 +135,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                = 'Absent'
                     Credential            = $Credential;
                 }
-
-                Mock -CommandName Get-M365DSCAzureBillingAccountsRoleAssignment -MockWith {
-                    return @{
-                        value = @(
-                            @{
-                                id = '/assignment/22222-22222-22222-22222-22222'
-                                properties = @{
-                                    principalId = '12345-12345-12345-12345-12345'
-                                    principalType = 'User'
-                                    RoleDefinitionId = '/providers/Microsoft.Billing/billingAccounts/1e5b9e50-a1ea-581e-fb3a-778b93a06854:6487d5cf-0a7b-42e6-9549-23ca416fb8bf_2019-05-31/billingRoleDefinitions/22222-22222-22222-22222-22222'
-                                    principalTenantId = '9c888910-6b3b-4c17-8cff-844fefb026d4'
-                                }
-                            }
-                        )
-                    }
-                }
             }
             It 'Should return Values from the Get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
@@ -160,22 +160,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                = 'Present'
                     Credential            = $Credential;
                 }
-
-                Mock -CommandName Get-M365DSCAzureBillingAccountsRoleAssignment -MockWith {
-                    return @{
-                        value = @(
-                            @{
-                                id = '/assignment/22222-22222-22222-22222-22222'
-                                properties = @{
-                                    principalId = '12345-12345-12345-12345-12345'
-                                    principalType = 'User'
-                                    RoleDefinitionId = '/providers/Microsoft.Billing/billingAccounts/1e5b9e50-a1ea-581e-fb3a-778b93a06854:6487d5cf-0a7b-42e6-9549-23ca416fb8bf_2019-05-31/billingRoleDefinitions/22222-22222-22222-22222-22222'
-                                    principalTenantId = '9c888910-6b3b-4c17-8cff-844fefb026d4'
-                                }
-                            }
-                        )
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -193,22 +177,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     RoleDefinition        = "Billing account contributor"; #drift
                     Ensure                = 'Present'
                     Credential            = $Credential;
-                }
-
-                Mock -CommandName Get-M365DSCAzureBillingAccountsRoleAssignment -MockWith {
-                    return @{
-                        value = @(
-                            @{
-                                id = '/assignment/22222-22222-22222-22222-22222'
-                                properties = @{
-                                    principalId = '12345-12345-12345-12345-12345'
-                                    principalType = 'User'
-                                    RoleDefinitionId = '/providers/Microsoft.Billing/billingAccounts/1e5b9e50-a1ea-581e-fb3a-778b93a06854:6487d5cf-0a7b-42e6-9549-23ca416fb8bf_2019-05-31/billingRoleDefinitions/22222-22222-22222-22222-22222'
-                                    principalTenantId = '9c888910-6b3b-4c17-8cff-844fefb026d4'
-                                }
-                            }
-                        )
-                    }
                 }
             }
 
@@ -232,22 +200,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential  = $Credential;
-                }
-
-                Mock -CommandName Get-M365DSCAzureBillingAccountsRoleAssignment -MockWith {
-                    return @{
-                        value = @(
-                            @{
-                                id = '/assignment/22222-22222-22222-22222-22222'
-                                properties = @{
-                                    principalId = '12345-12345-12345-12345-12345'
-                                    principalType = 'User'
-                                    RoleDefinitionId = '/providers/Microsoft.Billing/billingAccounts/1e5b9e50-a1ea-581e-fb3a-778b93a06854:6487d5cf-0a7b-42e6-9549-23ca416fb8bf_2019-05-31/billingRoleDefinitions/22222-22222-22222-22222-22222'
-                                    principalTenantId = '9c888910-6b3b-4c17-8cff-844fefb026d4'
-                                }
-                            }
-                        )
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {
