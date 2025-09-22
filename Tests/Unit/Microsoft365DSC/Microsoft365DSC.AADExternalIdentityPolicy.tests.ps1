@@ -32,11 +32,18 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
 
             Mock -CommandName Get-PSSession -MockWith {
-
             }
 
             Mock -CommandName Remove-PSSession -MockWith {
+            }
 
+            Mock -CommandName Get-MgBetaPolicyExternalIdentityPolicy -MockWith {
+                return @{
+                    Id                                = 'externalidentitypolicy'
+                    DisplayName                       = 'External Identity Policy'
+                    AllowDeletedIdentitiesDataRemoval = $False;
+                    AllowExternalIdentitiesToLeave    = $True;
+                }
             }
 
             Mock -CommandName New-M365DSCConnection -MockWith {
@@ -60,14 +67,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     AllowExternalIdentitiesToLeave    = $True;
                     Credential                        = $Credential
                 }
-                Mock -CommandName Get-MgBetaPolicyExternalIdentityPolicy -MockWith {
-                    return @{
-                        Id                                = 'externalidentitypolicy'
-                        DisplayName                       = 'External Identity Policy'
-                        AllowDeletedIdentitiesDataRemoval = $False;
-                        AllowExternalIdentitiesToLeave    = $True;
-                    }
-                }
             }
 
             It 'Should return Values from the get method' {
@@ -84,17 +83,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     IsSingleInstance                  = 'Yes'
-                    AllowDeletedIdentitiesDataRemoval = $False;
+                    AllowDeletedIdentitiesDataRemoval = $True; # Drift
                     AllowExternalIdentitiesToLeave    = $True;
                     Credential                        = $Credential
-                }
-                Mock -CommandName Get-MgBetaPolicyExternalIdentityPolicy -MockWith {
-                    return @{
-                        Id                                = 'externalidentitypolicy'
-                        DisplayName                       = 'External Identity Policy'
-                        AllowDeletedIdentitiesDataRemoval = $True; #drift
-                        AllowExternalIdentitiesToLeave    = $True;
-                    }
                 }
             }
 
@@ -119,15 +110,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaPolicyExternalIdentityPolicy -MockWith {
-                    return @{
-                        Id                                = 'externalidentitypolicy'
-                        DisplayName                       = 'External Identity Policy'
-                        AllowDeletedIdentitiesDataRemoval = $True; #drift
-                        AllowExternalIdentitiesToLeave    = $True;
-                    }
                 }
             }
 

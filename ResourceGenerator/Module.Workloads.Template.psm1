@@ -7,8 +7,8 @@ function Get-TargetResource
 <ParameterBlock>
     )
 
-    New-M365DSCConnection -Workload '<#Workload#>' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    $null = New-M365DSCConnection -Workload '<#Workload#>' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -57,8 +57,8 @@ function Set-TargetResource
 <ParameterBlock>
     )
 
-    New-M365DSCConnection -Workload '<#Workload#>' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    $null = New-M365DSCConnection -Workload '<#Workload#>' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -146,7 +146,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of {$<PrimaryKey>}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $ValuesToCheck.Remove('<PrimaryKey>') | Out-Null
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"

@@ -39,6 +39,21 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Set-OMEConfiguration -MockWith {
             }
 
+            Mock -CommandName Get-OMEConfiguration  -MockWith {
+                return @{
+                    BackgroundColor     = 'Navy'
+                    DisclaimerText      = 'Test Text'
+                    EmailText           = 'Email'
+                    Identity            = 'OME Configuration'
+                    IntroductionText    = 'Hello World'
+                    OTPEnabled          = $True
+                    PortalText          = 'Portal Text'
+                    PrivacyStatementUrl = 'Privacy'
+                    ReadButtonText      = 'Read'
+                    SocialIdSignIn      = $True
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -57,26 +72,11 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure              = 'Present'
                     Identity            = 'OME Configuration'
                     IntroductionText    = 'Hello World'
-                    OTPEnabled          = $True
+                    OTPEnabled          = $false # Drift
                     PortalText          = 'Portal Text'
                     PrivacyStatementUrl = 'Privacy'
                     ReadButtonText      = 'Read'
                     SocialIdSignIn      = $True
-                }
-
-                Mock -CommandName Get-OMEConfiguration -MockWith {
-                    return @{
-                        BackgroundColor     = 'Navy'
-                        DisclaimerText      = 'Test Text'
-                        EmailText           = 'Email'
-                        Identity            = 'OME Configuration'
-                        IntroductionText    = 'Hello World'
-                        OTPEnabled          = $False; #drift
-                        PortalText          = 'Portal Text'
-                        PrivacyStatementUrl = 'Privacy'
-                        ReadButtonText      = 'Read'
-                        SocialIdSignIn      = $True
-                    }
                 }
             }
 
@@ -106,21 +106,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     ReadButtonText      = 'Read'
                     SocialIdSignIn      = $True
                 }
-
-                Mock -CommandName Get-OMEConfiguration  -MockWith {
-                    return @{
-                        BackgroundColor     = 'Navy'
-                        DisclaimerText      = 'Test Text'
-                        EmailText           = 'Email'
-                        Identity            = 'OME Configuration'
-                        IntroductionText    = 'Hello World'
-                        OTPEnabled          = $True
-                        PortalText          = 'Portal Text'
-                        PrivacyStatementUrl = 'Privacy'
-                        ReadButtonText      = 'Read'
-                        SocialIdSignIn      = $True
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -134,21 +119,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-OMEConfiguration  -MockWith {
-                    return @{
-                        BackgroundColor     = 'Navy'
-                        DisclaimerText      = 'Test Text'
-                        EmailText           = 'Email'
-                        Identity            = 'OME Configuration'
-                        IntroductionText    = 'Hello World'
-                        OTPEnabled          = $True
-                        PortalText          = 'Portal Text'
-                        PrivacyStatementUrl = 'Privacy'
-                        ReadButtonText      = 'Read'
-                        SocialIdSignIn      = $True
-                    }
                 }
             }
 

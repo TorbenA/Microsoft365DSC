@@ -438,7 +438,6 @@ function Export-TargetResource
         $Results = Get-TargetResource @Params
         if ($Results.Ensure -eq 'Present')
         {
-
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
                 -ModulePath $PSScriptRoot `

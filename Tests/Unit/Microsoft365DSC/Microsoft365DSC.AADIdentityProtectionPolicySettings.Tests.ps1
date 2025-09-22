@@ -34,6 +34,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Get-MSCloudLoginConnectionProfile -MockWith {
             }
 
+            Mock -CommandName Invoke-MgGraphRequest -MockWith {
+                return @{
+                    IsUserRiskClearedOnPasswordReset = $True;
+                    Credential          = $Credential;
+                }
+            }
+
             Mock -CommandName New-M365DSCConnection -MockWith {
                 return "Credentials"
             }
@@ -52,13 +59,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     IsUserRiskClearedOnPasswordReset = $True;
                     Credential                       = $Credential;
                 }
-
-                Mock -CommandName Invoke-MgGraphRequest -MockWith {
-                    return @{
-                        IsUserRiskClearedOnPasswordReset = $True;
-                        Credential          = $Credential;
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -70,17 +70,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     IsSingleInstance                 = 'Yes'
-                    IsUserRiskClearedOnPasswordReset = $True;
+                    IsUserRiskClearedOnPasswordReset = $false; # Drift
                     Credential                       = $Credential;
                 }
-
-                Mock -CommandName Invoke-MgGraphRequest -MockWith {
-                    return @{
-                        IsUserRiskClearedOnPasswordReset = $False;
-                        Credential          = $Credential;
-                    }
-                }
-
             }
 
             It 'Should return false from the Test method' {
@@ -99,13 +91,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential  = $Credential;
-                }
-
-                Mock -CommandName Invoke-MgGraphRequest -MockWith {
-                    return @{
-                        IsUserRiskClearedOnPasswordReset = $False;
-                        Credential          = $Credential;
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {
