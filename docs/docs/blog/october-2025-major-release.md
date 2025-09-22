@@ -5,3 +5,17 @@ As defined by our [Breaking Changes Policy](https://microsoft365dsc.com/concepts
 ## EXOGroupSettings - Renaming the UnifiedGroupWelcomeMessageEnabled Parameter  ([#6531](https://github.com/microsoft/Microsoft365DSC/pull/6531))
 
 The UnifiedGroupWelcomeMessageEnabled parameter of the EXOGroupsSettings resource will be renamed to WelcomeMessageEnabled to match the cmdlet's properties. To fix this in your existing configuration, simply search for instance of EXOGroupSettings and do a find and replace for the UnifiedGroupWelcomeMessageEnable property and replace it by WelcomeMessageEnabled.
+
+## EXOHostedContentFilterPolicy - Removed Deprecated Parameters
+
+The following parameters were removed from the EXOHostedContentFIlterPolicy resource given they have been deprecated for some time already:
+
+<ul>
+<li>DownloadLink</li>
+<li>EnableEndUserSpamNotifications</li>
+<li>EndUserSpamNotificationCustomSubject</li>
+<li>EndUserSpamNotificationFrequency</li>
+<li>EndUserSpamNotificationLanguage</li>
+</ul>
+
+To fix existing configuration files, search for instance of these parameters in the configuration file and remove them.
