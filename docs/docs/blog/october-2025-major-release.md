@@ -67,3 +67,7 @@ The Microsoft Graph API endpoints associated with the AADEnrichedAuditLogs resou
 ## IntuneDeviceCleanupRule Deprecation ([#6483](https://github.com/microsoft/Microsoft365DSC/pull/6483))
 
 The IntuneDeviceCleanupRule resource has been deprecated in favor of the IntuneDeviceCleanupRuleV2 resource. To fix your configuration, replace instances of IntuneDeviceCleanupRule resources with IntuneDeviceCleanupRuleV2 ones.
+
+## IntuneASRRulesPolicyWindows10 Deprecation ([#6484](https://github.com/microsoft/Microsoft365DSC/pull/6484))
+
+The IntuneASRRulesPolicyWindows10 resource is being deprecated in favor of the IntuneSettingCatalogASRRulesPolicyWindows10 one. To fix your configuration files, simply replace all instances of IntuneASRRulesPolicyWindows10 it with the new IntuneSettingCatalogASRRulesPolicyWindows10 resource.
