@@ -21,6 +21,8 @@
   * Aligned date time format for `Expiration.EndDateTime` with `Expiration.StartDateTime`.
 * EXOCalendarProcessing
   * Added caching for export.
+* EXOClientAccessRule
+  * [BREAKING CHANGE] Removed resource.
 * EXOGroupSettings
   * Fixed an issue with the retrieval by DisplayName and duplicate Id property
     on update.
