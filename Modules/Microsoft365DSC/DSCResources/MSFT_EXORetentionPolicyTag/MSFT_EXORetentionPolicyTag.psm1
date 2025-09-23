@@ -15,7 +15,7 @@ function Get-TargetResource
         $Comment,
 
         [Parameter()]
-        [System.String]
+        [System.UInt32]
         $AgeLimitForRetention,
 
         [Parameter()]
@@ -121,9 +121,9 @@ function Get-TargetResource
         }
         if (-not [System.String]::IsNullOrEmpty($instance.AgeLimitForRetention))
         {
-            $results.Add('AgeLimitForRetention', $instance.AgeLimitForRetention.Split('.')[0])
+            $results.Add('AgeLimitForRetention', [UInt32]::Parse($instance.AgeLimitForRetention.Split('.')[0]))
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -152,7 +152,7 @@ function Set-TargetResource
         $Comment,
 
         [Parameter()]
-        [System.String]
+        [System.UInt32]
         $AgeLimitForRetention,
 
         [Parameter()]

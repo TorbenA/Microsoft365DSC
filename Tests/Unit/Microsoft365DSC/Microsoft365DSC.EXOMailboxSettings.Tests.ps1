@@ -31,7 +31,28 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return 'Credentials'
             }
 
-            Mock -CommandName Set-Mailbox -MockWith {}
+            Mock -CommandName Set-Mailbox -MockWith {
+            }
+
+            Mock -CommandName Get-Mailbox -MockWith {
+                return @(
+                    @{
+                        Name = 'John.Smith'
+                    }
+                )
+            }
+
+            Mock -CommandName Get-MailboxRegionalConfiguration -MockWith {
+                return @{
+                    TimeZone = 'Eastern Standard Time'
+                    Language = @{
+                        Name = 'en-US'
+                    }
+                }
+            }
+
+            Mock -CommandName Set-MailboxRegionalConfiguration -MockWith {
+            }
 
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
@@ -47,16 +68,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     TimeZone    = 'Non-Existing'
                     Ensure      = 'Present'
                     Credential  = $Credential
-                }
-
-                Mock -CommandName Get-MailboxRegionalConfiguration -MockWith {
-                    return @{
-                        TimeZone = 'Eastern Standard Time'
-                    }
-                }
-
-                Mock -CommandName Set-MailboxRegionalConfiguration -MockWith {
-                    return $null
                 }
             }
 
@@ -78,23 +89,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure      = 'Present'
                     Credential  = $Credential
                 }
-
-                Mock -CommandName Get-MailboxRegionalConfiguration -MockWith {
-                    return @{
-                        TimeZone = 'Eastern Standard Time'
-                        Language = @{
-                            Name = 'en-US'
-                        }
-                    }
-                }
-
-                Mock -CommandName Set-MailboxRegionalConfiguration -MockWith {
-                    return $null
-                }
-            }
-
-            It 'Should call the Set method' {
-                Set-TargetResource @testParams
             }
 
             It 'Should return True from the Test method' {
@@ -108,23 +102,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-Mailbox -MockWith {
-                    return @(
-                        @{
-                            Name = 'John.Smith'
-                        }
-                    )
-                }
-
-                Mock -CommandName Get-MailboxRegionalConfiguration -MockWith {
-                    return @{
-                        TimeZone = 'Eastern Standard Time'
-                        Language = @{
-                            Name = 'en-US'
-                        }
-                    }
                 }
             }
 

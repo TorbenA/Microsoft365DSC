@@ -76,16 +76,16 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration for hub site collection $Url"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Url -ne $Url)
         {
-            Write-Verbose -Message "Getting configuration for hub site collection $Url"
-
-            $ConnectionModeGraph = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
-            $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+            $null = New-M365DSCConnection -Workload 'PnP' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -172,7 +172,7 @@ function Get-TargetResource
             TenantId              = $TenantId
             ApplicationSecret     = $ApplicationSecret
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
         return $result
@@ -679,7 +679,7 @@ function Export-TargetResource
                 ApplicationId         = $ApplicationId
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 Credential            = $Credential
                 CertificatePassword   = $CertificatePassword
                 CertificatePath       = $CertificatePath
@@ -725,4 +725,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

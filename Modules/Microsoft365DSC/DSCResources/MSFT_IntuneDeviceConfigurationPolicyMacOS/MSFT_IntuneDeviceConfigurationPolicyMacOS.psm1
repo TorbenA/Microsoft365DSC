@@ -313,7 +313,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -430,7 +430,7 @@ function Get-TargetResource
             TenantId                                        = $TenantId
             ApplicationSecret                               = $ApplicationSecret
             CertificateThumbprint                           = $CertificateThumbprint
-            Managedidentity                                 = $ManagedIdentity.IsPresent
+            ManagedIdentity                                 = $ManagedIdentity.IsPresent
             AccessTokens                                    = $AccessTokens
         }
         if ($getValue.additionalProperties.compliantAppsList)
@@ -452,7 +452,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -766,15 +766,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    try
-    {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters
-    }
-    catch
-    {
-        Write-Verbose -Message $_
-    }
+    Write-Verbose -Message "Setting configuration of the Intune Device Configuration Policy for MacOS with Id {$Id} and DisplayName {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -811,7 +803,7 @@ function Set-TargetResource
 
         foreach ($key in ($CreateParameters.Clone()).Keys)
         {
-            if ($CreateParameters[$key].getType().Fullname -like '*CimInstance*')
+            if ($CreateParameters[$key].GetType().Fullname -like '*CimInstance*')
             {
                 $CreateParameters[$key] = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters[$key]
             }
@@ -858,7 +850,7 @@ function Set-TargetResource
 
         foreach ($key in ($UpdateParameters.Clone()).Keys)
         {
-            if ($UpdateParameters[$key].getType().Fullname -like '*CimInstance*')
+            if ($UpdateParameters[$key].GetType().Fullname -like '*CimInstance*')
             {
                 $UpdateParameters[$key] = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters[$key]
             }
@@ -868,7 +860,7 @@ function Set-TargetResource
         {
             $UpdateParameters.add('AdditionalProperties', $AdditionalProperties)
         }#>
-        $UpdateParameters.add('@odata.type', '#microsoft.graph.macOSGeneralDeviceConfiguration')
+        $UpdateParameters.Add('@odata.type', '#microsoft.graph.macOSGeneralDeviceConfiguration')
         #$UpdateParameters.remove('emailInDomainSuffixes')
         #$UpdateParameters.remove('updateDelayPolicy')
 
@@ -1210,8 +1202,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of {$id}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $ValuesToCheck.Remove('Id') | Out-Null
     $testResult = $true
 
@@ -1243,7 +1234,7 @@ function Test-TargetResource
     foreach ($key in $ValuesToCheck.Keys)
     {
         if (($null -ne $CurrentValues[$key]) `
-                -and ($CurrentValues[$key].getType().Name -eq 'DateTime'))
+                -and ($CurrentValues[$key].GetType().Name -eq 'DateTime'))
         {
             $CurrentValues[$key] = $CurrentValues[$key].ToString()
         }
@@ -1353,7 +1344,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
@@ -1436,4 +1427,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

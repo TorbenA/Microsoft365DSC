@@ -33,6 +33,71 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
             Mock -CommandName Remove-MgBetaPolicyCrossTenantAccessPolicyPartner -MockWith {
             }
+            Mock -CommandName Get-MgBetaPolicyCrossTenantAccessPolicyPartner -MockWith {
+                return @{
+                    TenantId = "12345-12345-12345-12345-12345"
+                    B2BCollaborationInbound = @{
+                        applications = @{
+                            accessType = 'allowed'
+                            targets    = @(
+                                @{
+                                    target     = 'Office365'
+                                    targetType = 'application'
+                                }
+                            )
+                        }
+                        usersAndGroups = @{
+                            accessType = 'allowed'
+                            targets    = @(
+                                @{
+                                    target     = 'AllUsers'
+                                    targetType = 'user'
+                                }
+                            )
+                        }
+                    }
+                    B2BCollaborationOutbound = @{
+                        Applications = @{
+                            accessType = 'allowed'
+                            targets    = @(
+                                @{
+                                    target     = 'AllApplications'
+                                    targetType = 'application'
+                                }
+                            )
+                        }
+                        usersAndGroups = @{
+                            accessType = 'allowed'
+                            targets    = @(
+                                @{
+                                    target     = 'My Test Group'
+                                    targetType = 'group'
+                                }
+                            )
+                        }
+                    }
+                    B2BDirectConnectInbound  = @{
+                        applications = @{
+                            accessType = 'blocked'
+                            targets    = @(
+                                @{
+                                    target     = 'AllApplications'
+                                    targetType = 'application'
+                                }
+                            )
+                        }
+                        usersAndGroups = @{
+                            accessType = 'blocked'
+                            targets    = @(
+                                @{
+                                    target     = 'John.Smith@contoso.com'
+                                    targetType = 'user'
+                                }
+                            )
+                        }
+                    }
+                }
+            }
 
             Mock -CommandName Get-MgUser -MockWith {
                 return @{
@@ -185,72 +250,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                   = "Present";
                     PartnerTenantId          = "12345-12345-12345-12345-12345";
                 }
-
-                Mock -CommandName Get-MgBetaPolicyCrossTenantAccessPolicyPartner -MockWith {
-                    return @{
-                        TenantId = "12345-12345-12345-12345-12345"
-                        B2BCollaborationInbound = @{
-                            applications = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'Office365'
-                                        targetType = 'application'
-                                    }
-                                )
-                            }
-                            usersAndGroups = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'AllUsers'
-                                        targetType = 'user'
-                                    }
-                                )
-                            }
-                        }
-                        B2BCollaborationOutbound = @{
-                            Applications = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'AllApplications'
-                                        targetType = 'application'
-                                    }
-                                )
-                            }
-                            usersAndGroups = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'My Test Group'
-                                        targetType = 'group'
-                                    }
-                                )
-                            }
-                        }
-                        B2BDirectConnectInbound  = @{
-                            applications = @{
-                                accessType = 'blocked'
-                                targets    = @(
-                                    @{
-                                        target     = 'AllApplications'
-                                        targetType = 'application'
-                                    }
-                                )
-                            }
-                            usersAndGroups = @{
-                                accessType = 'blocked'
-                                targets    = @(
-                                    @{
-                                        target     = 'John.Smith@contoso.com'
-                                        targetType = 'user'
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
             }
             It 'Should return Values from the Get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
@@ -274,7 +273,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         UsersAndGroups = (New-CimInstance -ClassName MSFT_AADCrossTenantAccessPolicyTargetConfiguration -Property @{
                             AccessType = 'allowed'
                             Targets    = [CimInstance[]]@((New-CimInstance -ClassName MSFT_AADCrossTenantAccessPolicyTarget -Property @{
-                                    Target     = 'My Test Group'
+                                    Target     = 'My Drift Group' # Drift
                                     TargetType = 'group'
                                 } -ClientOnly))
                         } -ClientOnly)
@@ -314,72 +313,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Credential               = $Credential;
                     Ensure                   = "Present";
                     PartnerTenantId          = "12345-12345-12345-12345-12345";
-                }
-
-                Mock -CommandName Get-MgBetaPolicyCrossTenantAccessPolicyPartner -MockWith {
-                    return @{
-                        TenantId = "12345-12345-12345-12345-12345"
-                        B2BCollaborationInbound = @{
-                            applications = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'Office365'
-                                        targetType = 'application'
-                                    }
-                                )
-                            }
-                            usersAndGroups = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'AllUsers'
-                                        targetType = 'user'
-                                    }
-                                )
-                            }
-                        }
-                        B2BCollaborationOutbound = @{
-                            Applications = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'AllApplications'
-                                        targetType = 'application'
-                                    }
-                                )
-                            }
-                            usersAndGroups = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'My Drift Group' # Drift
-                                        targetType = 'group'
-                                    }
-                                )
-                            }
-                        }
-                        B2BDirectConnectInbound  = @{
-                            applications = @{
-                                accessType = 'blocked'
-                                targets    = @(
-                                    @{
-                                        target     = 'AllApplications'
-                                        targetType = 'application'
-                                    }
-                                )
-                            }
-                            usersAndGroups = @{
-                                accessType = 'blocked'
-                                targets    = @(
-                                    @{
-                                        target     = 'John.Smith@contoso.com'
-                                        targetType = 'user'
-                                    }
-                                )
-                            }
-                        }
-                    }
                 }
             }
             It 'Should return Values from the Get method' {
@@ -449,72 +382,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                   = "Absent";
                     PartnerTenantId          = "12345-12345-12345-12345-12345";
                 }
-
-                Mock -CommandName Get-MgBetaPolicyCrossTenantAccessPolicyPartner -MockWith {
-                    return @{
-                        TenantId = "12345-12345-12345-12345-12345"
-                        B2BCollaborationInbound = @{
-                            applications = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'Office365'
-                                        targetType = 'application'
-                                    }
-                                )
-                            }
-                            usersAndGroups = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'AllUsers'
-                                        targetType = 'user'
-                                    }
-                                )
-                            }
-                        }
-                        B2BCollaborationOutbound = @{
-                            Applications = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'AllApplications'
-                                        targetType = 'application'
-                                    }
-                                )
-                            }
-                            usersAndGroups = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'My Drift Group' # Drift
-                                        targetType = 'group'
-                                    }
-                                )
-                            }
-                        }
-                        B2BDirectConnectInbound  = @{
-                            applications = @{
-                                accessType = 'blocked'
-                                targets    = @(
-                                    @{
-                                        target     = 'AllApplications'
-                                        targetType = 'application'
-                                    }
-                                )
-                            }
-                            usersAndGroups = @{
-                                accessType = 'blocked'
-                                targets    = @(
-                                    @{
-                                        target     = 'John.Smith@contoso.com'
-                                        targetType = 'user'
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
             }
             It 'Should return Values from the Get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
@@ -534,76 +401,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaPolicyCrossTenantAccessPolicyPartner -MockWith {
-                    return @{
-                        TenantId = "12345-12345-12345-12345-12345"
-                        B2BCollaborationInbound = @{
-                            applications = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'Office365'
-                                        targetType = 'application'
-                                    }
-                                )
-                            }
-                            usersAndGroups = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'AllUsers'
-                                        targetType = 'user'
-                                    }
-                                )
-                            }
-                        }
-                        B2BCollaborationOutbound = @{
-                            Applications = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'AllApplications'
-                                        targetType = 'application'
-                                    }
-                                )
-                            }
-                            usersAndGroups = @{
-                                accessType = 'allowed'
-                                targets    = @(
-                                    @{
-                                        target     = 'My Test Group'
-                                        targetType = 'group'
-                                    },
-                                    @{
-                                        target     = 'Bob.Houle@contoso.com'
-                                        targetType = 'user'
-                                    }
-                                )
-                            }
-                        }
-                        B2BDirectConnectInbound  = @{
-                            applications = @{
-                                accessType = 'blocked'
-                                targets    = @(
-                                    @{
-                                        target     = 'AllApplications'
-                                        targetType = 'application'
-                                    }
-                                )
-                            }
-                            usersAndGroups = @{
-                                accessType = 'blocked'
-                                targets    = @(
-                                    @{
-                                        target     = 'John.Smith@contoso.com'
-                                        targetType = 'user'
-                                    }
-                                )
-                            }
-                        }
-                    }
                 }
             }
 

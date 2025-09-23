@@ -250,7 +250,6 @@ Configuration Example
             StorageRequireMobileDeviceEncryption                 = $False;
             StorageRestrictAppDataToSystemVolume                 = $False;
             StorageRestrictAppInstallToSystemVolume              = $False;
-            SupportsScopeTags                                    = $True;
             TaskManagerBlockEndTask                              = $False;
             TenantLockdownRequireNetworkDuringOutOfBoxExperience = $False;
             UninstallBuiltInApps                                 = $False;
