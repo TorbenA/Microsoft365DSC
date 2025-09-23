@@ -1,4 +1,4 @@
-﻿# Get-M365DSCWorkloadsListFromResourceNames
+﻿# Get-M365DSCConnectedWorkloadList
 
 ## Description
 
@@ -20,14 +20,14 @@ Either a single string, an array of strings or an object with 'Name' and 'Authen
 
 -------------------------- EXAMPLE 1 --------------------------
 
-`Get-M365DSCWorkloadsListFromResourceNames -ResourceNames AADUser`
+`Get-M365DSCConnectedWorkloadList -ResourceNames AADUser`
 
 -------------------------- EXAMPLE 2 --------------------------
 
-`Get-M365DSCWorkloadsListFromResourceNames -ResourceNames @('AADUser', 'AADGroup')`
+`Get-M365DSCConnectedWorkloadList -ResourceNames @('AADUser', 'AADGroup')`
 
 -------------------------- EXAMPLE 3 --------------------------
 
-`Get-M365DSCWorkloadsListFromResourceNames -ResourceNames @{Name = 'AADUser'; AuthenticationMethod = 'Credentials'}`
+`Get-M365DSCConnectedWorkloadList -ResourceNames @{Name = 'AADUser'; AuthenticationMethod = 'Credentials'}`
 
 

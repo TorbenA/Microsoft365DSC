@@ -803,7 +803,7 @@ function Set-TargetResource
 
         foreach ($key in ($CreateParameters.Clone()).Keys)
         {
-            if ($CreateParameters[$key].getType().Fullname -like '*CimInstance*')
+            if ($CreateParameters[$key].GetType().Fullname -like '*CimInstance*')
             {
                 $CreateParameters[$key] = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters[$key]
             }
@@ -850,7 +850,7 @@ function Set-TargetResource
 
         foreach ($key in ($UpdateParameters.Clone()).Keys)
         {
-            if ($UpdateParameters[$key].getType().Fullname -like '*CimInstance*')
+            if ($UpdateParameters[$key].GetType().Fullname -like '*CimInstance*')
             {
                 $UpdateParameters[$key] = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters[$key]
             }
@@ -860,7 +860,7 @@ function Set-TargetResource
         {
             $UpdateParameters.add('AdditionalProperties', $AdditionalProperties)
         }#>
-        $UpdateParameters.add('@odata.type', '#microsoft.graph.macOSGeneralDeviceConfiguration')
+        $UpdateParameters.Add('@odata.type', '#microsoft.graph.macOSGeneralDeviceConfiguration')
         #$UpdateParameters.remove('emailInDomainSuffixes')
         #$UpdateParameters.remove('updateDelayPolicy')
 
@@ -1234,7 +1234,7 @@ function Test-TargetResource
     foreach ($key in $ValuesToCheck.Keys)
     {
         if (($null -ne $CurrentValues[$key]) `
-                -and ($CurrentValues[$key].getType().Name -eq 'DateTime'))
+                -and ($CurrentValues[$key].GetType().Name -eq 'DateTime'))
         {
             $CurrentValues[$key] = $CurrentValues[$key].ToString()
         }
