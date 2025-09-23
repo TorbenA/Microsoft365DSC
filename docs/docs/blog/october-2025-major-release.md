@@ -38,3 +38,7 @@ To fix impacted configurations, simply remove any instances of the listed resour
 ## EXORetentionPolicyTag - Changed AgeLimitForRetention from String to Integer ([#6103](https://github.com/microsoft/Microsoft365DSC/pull/6103))
 
 The AgeLimitForRetention property of the EXORetentionPolicyTag was changed from being a String to being an Integer. To fix your configurations, simply search for this parameter and ensure they are specified as an Integer (e.g., remove quotes around the number).
+
+## AADGroupEligibilitySchedule - Changed Mandatory Parameters ([#6124](https://github.com/microsoft/Microsoft365DSC/pull/6124))
+
+In the AADGroupEligibilitySchedule, we've made the AccessId parameter mandatory and we've renamed the PrincipalDisplayName parameter to just principal and also made it mandatory. In order to fix your existing configurations, you need to make sure that every instance of AADGroupEligibilitySchedule specify both the Principal and AccessId parameters.
