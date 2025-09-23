@@ -34,7 +34,6 @@ Configuration Example
             ConfigDeviceHealthMonitoringScope = @("bootPerformance","windowsUpdates");
             DisplayName                       = "Health Monitoring Configuration";
             Ensure                            = "Present";
-            SupportsScopeTags                 = $False; # Updated Property
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;

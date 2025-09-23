@@ -52,7 +52,6 @@ Configuration Example
                     DisplayName = 'custom 2'
                 }
             );
-            SupportsScopeTags    = $True;
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;
