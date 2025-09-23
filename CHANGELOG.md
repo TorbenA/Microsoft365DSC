@@ -55,6 +55,8 @@
 * IntuneAppConfigurationPolicy
   * Fixed an issue with MOF instance parsing.
     FIXES [#6520](https://github.com/microsoft/Microsoft365DSC/issues/6520)
+* IntuneDeviceCleanupRule
+  * [BREAKING CHANGE] Removed resource. It was replaced with `IntuneDeviceCleanupRuleV2`.
 * IntuneDeviceCompliancePolicyAndroid
   * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
 * IntuneDeviceConfigurationPolicyAndroidDeviceAdministrator
