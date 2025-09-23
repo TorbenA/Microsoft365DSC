@@ -87,10 +87,6 @@ function Get-TargetResource
         $DisplayName,
 
         [Parameter()]
-        [System.Boolean]
-        $SupportsScopeTags,
-
-        [Parameter()]
         [System.String]
         $Id,
 
@@ -308,7 +304,6 @@ function Get-TargetResource
             VpnPeerCaching                                            = $enumVpnPeerCaching
             Description                                               = $getValue.Description
             DisplayName                                               = $getValue.DisplayName
-            SupportsScopeTags                                         = $getValue.SupportsScopeTags
             Id                                                        = $getValue.Id
             RoleScopeTagIds                                           = $getValue.RoleScopeTagIds
             Ensure                                                    = 'Present'
@@ -428,10 +423,6 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
-
-        [Parameter()]
-        [System.Boolean]
-        $SupportsScopeTags,
 
         [Parameter()]
         [System.String]
@@ -649,10 +640,6 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
-
-        [Parameter()]
-        [System.Boolean]
-        $SupportsScopeTags,
 
         [Parameter()]
         [System.String]
