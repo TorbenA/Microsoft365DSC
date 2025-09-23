@@ -43,6 +43,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return "Credentials"
             }
 
+            Mock -CommandName Get-MgBetaPolicyRoleManagementPolicyRule -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        isExpirationRequired = $true
+                    }
+                }
+            }
+
             Mock  -CommandName Get-MgBetaPolicyRoleManagementPolicyAssignment -MockWith {
                 return @(
                     @{
@@ -51,12 +59,44 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 )
             }
 
-            Mock -CommandName Get-MgBetaPolicyRoleManagementPolicyRule -MockWith {
-                return @()
+            Mock -CommandName New-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilityScheduleRequest -MockWith {
+                return $null
             }
 
             Mock -CommandName Update-MgBetaPolicyRoleManagementPolicyRule -MockWith {
                 return @()
+            }
+
+            Mock -CommandName Get-MgGroup -MockWith {
+                return @{
+                    Id = 'FakeId'
+                    DisplayName = 'FakeStringValue'
+                }
+            }
+
+            Mock -CommandName Get-MgBetaDirectoryObjectById -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        '@odata.type' = '#microsoft.graph.group'
+                        displayName = 'FakePrincipal'
+                    }
+                }
+            }
+
+            Mock -CommandName Get-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilitySchedule -MockWith {
+                return @{
+                    AccessId             = 'member'
+                    GroupDisplayName     = 'FakeStringValue'
+                    MemberType           = 'direct'
+                    PrincipalDisplayName = 'FakePrincipal'
+                    ScheduleInfo         = @{
+                        StartDateTime = '2025-01-23T08:59:00.000Z'
+                        Expiration = @{
+                            EndDateTime = '2025-12-23T08:59:00.000Z'
+                            type = 'afterDateTime'
+                        }
+                    }
+                }
             }
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
@@ -74,16 +114,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     MemberType = "direct"
                     PrincipalDisplayName = "FakePrincipal"
                     ScheduleInfo         = (New-CimInstance -ClassName MSFT_MicrosoftGraphRequestSchedule -Property @{
-                            startDateTime = '2025-01-23T08:59:00.0000000+00:00'
-                            Expiration = (New-CimInstance -ClassName MSFT_MicrosoftGraphExpirationPattern -Property @{
-                                    EndDateTime = '23/12/2025 08:59:00 +00:00'
-                                    Type = 'afterDateTime'} -ClientOnly)
-                            } -ClientOnly)
+                        startDateTime = '2025-01-23T08:59:00.0000000+00:00'
+                        Expiration = (New-CimInstance -ClassName MSFT_MicrosoftGraphExpirationPattern -Property @{
+                                EndDateTime = '2025-12-23T08:59:00.00000000+00:00'
+                                Type = 'afterDateTime'} -ClientOnly)
+                        } -ClientOnly)
                     Ensure = "Present"
                     Credential = $Credential;
                 }
 
-                Mock -CommandName New-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilityScheduleRequest -MockWith {
+                Mock -CommandName Get-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilitySchedule -MockWith {
                     return $null
                 }
             }
@@ -107,49 +147,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     MemberType = "direct"
                     PrincipalDisplayName = "FakePrincipal"
                     ScheduleInfo         = (New-CimInstance -ClassName MSFT_MicrosoftGraphRequestSchedule -Property @{
-                            startDateTime = '2025-01-23T08:59:00.0000000+00:00'
-                            Expiration = (New-CimInstance -ClassName MSFT_MicrosoftGraphExpirationPattern -Property @{
-                                    EndDateTime = '23/12/2025 08:59:00 +00:00'
-                                    Type = 'afterDateTime'} -ClientOnly)
-                            } -ClientOnly)
+                        startDateTime = '2025-01-23T08:59:00.0000000+00:00'
+                        Expiration = (New-CimInstance -ClassName MSFT_MicrosoftGraphExpirationPattern -Property @{
+                                EndDateTime = '2025-12-23T08:59:00.00000000+00:00'
+                                Type = 'afterDateTime'} -ClientOnly)
+                        } -ClientOnly)
                     Ensure = "Absent"
                     Credential = $Credential;
-                }
-
-                Mock -CommandName Get-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilitySchedule -MockWith {
-                    return @{
-                        AccessId             = 'member'
-                        GroupDisplayName     = 'FakeStringValue'
-                        MemberType           = 'direct'
-                        PrincipalDisplayName = 'FakePrincipal'
-                        ScheduleInfo         = @{
-                            StartDateTime = '2025-01-23T08:59:00.000Z'
-                                Expiration = @{
-                                    EndDateTime = '2025-12-23T08:59:00.000Z'
-                                    type = 'afterDateTime'
-                                }
-                        }
-                    }
-                }
-
-                mock -CommandName Get-MgGroup -MockWith {
-                    return @{
-                        Id = 'FakeId'
-                        DisplayName = 'FakeStringValue'
-                    }
-                }
-
-                Mock -CommandName Get-MgBetaDirectoryObjectById -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.group'
-                            displayName = 'FakeStringValue'
-                        }
-                    }
-                }
-
-                Mock -CommandName New-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilityScheduleRequest -MockWith {
-                    return $null
                 }
             }
 
@@ -175,67 +179,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     MemberType = "direct"
                     PrincipalDisplayName = "FakePrincipal"
                     ScheduleInfo         = (New-CimInstance -ClassName MSFT_MicrosoftGraphRequestSchedule -Property @{
-                            Expiration = (New-CimInstance -ClassName MSFT_MicrosoftGraphExpirationPattern -Property @{
-                                    Type = 'noExpiration'} -ClientOnly)
-                            } -ClientOnly)
+                        startDateTime = '2025-01-23T08:59:00.0000000+00:00'
+                        Expiration = (New-CimInstance -ClassName MSFT_MicrosoftGraphExpirationPattern -Property @{
+                                EndDateTime = '2025-12-23T08:59:00.0000000+00:00'
+                                Type = 'afterDateTime'} -ClientOnly)
+                        } -ClientOnly)
                     Ensure = "Present"
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-MgGroup -MockWith {
-                    return @{
-                        Id = 'FakeId'
-                        DisplayName = 'FakeStringValue'
-                    }
-                }
-
-                Mock -CommandName Get-MgBetaDirectoryObjectById -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.group'
-                            displayName = 'FakePrincipal'
-                        }
-                    }
-                }
-
-                Mock -CommandName Get-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilitySchedule -MockWith {
-                    return @{
-                        AccessId             = 'member'
-                        GroupDisplayName     = 'FakeStringValue'
-                        MemberType           = 'direct'
-                        PrincipalDisplayName = 'FakePrincipal'
-                        ScheduleInfo         = @{
-                            Expiration = @{
-                                Type = 'noExpiration'
-                            }
-                        }
-                    }
-                }
-
-                Mock -CommandName New-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilityScheduleRequest -MockWith {
-                    return $null
-                }
-
-                Mock  -CommandName Get-MgBetaPolicyRoleManagementPolicyAssignment -MockWith {
-                    return @(
-                        @{
-                            PolicyId = 'FakeId'
-                        }
-                    )
-                }
-
-                Mock -CommandName Get-MgBetaPolicyRoleManagementPolicyRule -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            isExpirationRequired = $true
-                        }
-                    }
-                }
-
-                Mock -CommandName Update-MgBetaPolicyRoleManagementPolicyRule -MockWith {
-                    return @()
-                }
-
             }
 
             It 'Should return true from the Test method' {
@@ -251,69 +202,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     MemberType = "direct"
                     PrincipalDisplayName = "FakePrincipal"
                     ScheduleInfo         = (New-CimInstance -ClassName MSFT_MicrosoftGraphRequestSchedule -Property @{
-                            startDateTime = '2025-01-23T08:59:00.0000000+00:00'
-                            Expiration = (New-CimInstance -ClassName MSFT_MicrosoftGraphExpirationPattern -Property @{
-                                    EndDateTime = '23/12/2025 08:59:00 +00:00'
-                                    Type = 'afterDateTime'} -ClientOnly)
-                            } -ClientOnly)
+                        startDateTime = '2025-01-23T08:59:00.0000000+00:00'
+                        Expiration = (New-CimInstance -ClassName MSFT_MicrosoftGraphExpirationPattern -Property @{
+                                EndDateTime = '2025-12-24T08:59:00.00000000+00:00' # Drift
+                                Type = 'afterDateTime'} -ClientOnly)
+                        } -ClientOnly)
                     Ensure = "Present"
                     Credential = $Credential;
-                }
-
-                Mock -CommandName Get-MgGroup -MockWith {
-                    return @{
-                        Id = 'FakeId'
-                        DisplayName = 'FakeStringValue'
-                    }
-                }
-
-                Mock -CommandName Get-MgBetaDirectoryObjectById -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.group'
-                            displayName = 'FakeStringValue'
-                        }
-                    }
-                }
-
-                Mock -CommandName Get-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilitySchedule -MockWith {
-                    return @{
-                        AccessId             = 'member'
-                        GroupDisplayName     = 'FakeStringValue'
-                        MemberType           = 'direct'
-                        PrincipalDisplayName = 'FakePrincipal'
-                        ScheduleInfo         = @{
-                            StartDateTime = '2025-01-23T08:59:00.000Z'
-                            Expiration = @{
-                                EndDateTime = '2025-12-22T08:59:00.000Z'
-                                Type = 'afterDateTime'
-                            }
-                        }
-                    }
-                }
-
-                Mock -CommandName New-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilityScheduleRequest -MockWith {
-                    return $null
-                }
-
-                Mock  -CommandName Get-MgBetaPolicyRoleManagementPolicyAssignment -MockWith {
-                    return @(
-                        @{
-                            PolicyId = 'FakeId'
-                        }
-                    )
-                }
-
-                Mock -CommandName Get-MgBetaPolicyRoleManagementPolicyRule -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            isExpirationRequired = $true
-                        }
-                    }
-                }
-
-                Mock -CommandName Update-MgBetaPolicyRoleManagementPolicyRule -MockWith {
-                    return @()
                 }
             }
 
@@ -337,22 +232,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-MgGroup -MockWith {
-                    return @{
-                        Id = 'FakeId'
-                        DisplayName = 'FakeStringValue'
-                    }
-                }
-
-                Mock -CommandName Get-MgBetaDirectoryObjectById -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.group'
-                            displayName = 'FakePrincipal'
-                        }
-                    }
                 }
 
                 Mock -CommandName Invoke-M365DSCGraphBatchRequest -MockWith {

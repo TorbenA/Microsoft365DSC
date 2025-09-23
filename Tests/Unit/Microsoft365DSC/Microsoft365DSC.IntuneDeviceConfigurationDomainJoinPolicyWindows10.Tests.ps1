@@ -42,6 +42,21 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-MgBetaDeviceManagementDeviceConfiguration -MockWith {
             }
 
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        computerNameStaticPrefix = "FakeStringValue"
+                        computerNameSuffixRandomCharCount = 25
+                        activeDirectoryDomainName = "FakeStringValue"
+                        '@odata.type' = "#microsoft.graph.windowsDomainJoinConfiguration"
+                        organizationalUnit = "FakeStringValue"
+                    }
+                    Description = "FakeStringValue"
+                    DisplayName = "FakeStringValue"
+                    Id = "FakeStringValue"
+                }
+            }
+
             Mock -CommandName New-M365DSCConnection -MockWith {
                 return "Credentials"
             }
@@ -68,7 +83,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"
                     OrganizationalUnit = "FakeStringValue"
-                    SupportsScopeTags = $True
                     Ensure = "Present"
                     Credential = $Credential;
                 }
@@ -99,26 +113,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"
                     OrganizationalUnit = "FakeStringValue"
-                    SupportsScopeTags = $True
                     Ensure = 'Absent'
                     Credential = $Credential;
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            computerNameStaticPrefix = "FakeStringValue"
-                            computerNameSuffixRandomCharCount = 25
-                            activeDirectoryDomainName = "FakeStringValue"
-                            '@odata.type' = "#microsoft.graph.windowsDomainJoinConfiguration"
-                            organizationalUnit = "FakeStringValue"
-                        }
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        Id = "FakeStringValue"
-                        SupportsScopeTags = $True
-
-                    }
                 }
             }
 
@@ -145,29 +141,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"
                     OrganizationalUnit = "FakeStringValue"
-                    SupportsScopeTags = $True
                     Ensure = 'Present'
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            computerNameStaticPrefix = "FakeStringValue"
-                            computerNameSuffixRandomCharCount = 25
-                            activeDirectoryDomainName = "FakeStringValue"
-                            '@odata.type' = "#microsoft.graph.windowsDomainJoinConfiguration"
-                            organizationalUnit = "FakeStringValue"
-                        }
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        Id = "FakeStringValue"
-                        SupportsScopeTags = $True
-
-                    }
-                }
             }
-
 
             It 'Should return true from the Test method' {
                 Test-TargetResource @testParams | Should -Be $true
@@ -179,29 +156,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     ActiveDirectoryDomainName = "FakeStringValue"
                     ComputerNameStaticPrefix = "FakeStringValue"
-                    ComputerNameSuffixRandomCharCount = 25
+                    ComputerNameSuffixRandomCharCount = 7 # Updated property
                     Description = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"
                     OrganizationalUnit = "FakeStringValue"
-                    SupportsScopeTags = $True
                     Ensure = 'Present'
                     Credential = $Credential;
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            computerNameStaticPrefix = "FakeStringValue"
-                            computerNameSuffixRandomCharCount = 7
-                            activeDirectoryDomainName = "FakeStringValue"
-                            '@odata.type' = "#microsoft.graph.windowsDomainJoinConfiguration"
-                            organizationalUnit = "FakeStringValue"
-                        }
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        Id = "FakeStringValue"
-                    }
                 }
             }
 
@@ -226,24 +187,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            computerNameStaticPrefix = "FakeStringValue"
-                            computerNameSuffixRandomCharCount = 25
-                            activeDirectoryDomainName = "FakeStringValue"
-                            '@odata.type' = "#microsoft.graph.windowsDomainJoinConfiguration"
-                            organizationalUnit = "FakeStringValue"
-                        }
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        Id = "FakeStringValue"
-                        SupportsScopeTags = $True
-
-                    }
-                }
             }
+
             It 'Should Reverse Engineer resource from the Export method' {
                 $result = Export-TargetResource @testParams
                 $result | Should -Not -BeNullOrEmpty

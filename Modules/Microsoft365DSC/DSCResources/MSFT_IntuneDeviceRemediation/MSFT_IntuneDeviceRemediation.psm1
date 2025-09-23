@@ -61,7 +61,7 @@ function Get-TargetResource
         [System.String]
         $RunAsAccount,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -108,7 +108,7 @@ function Get-TargetResource
 
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
         #Ensure the proper dependencies are installed in the current environment.
@@ -128,24 +128,35 @@ function Get-TargetResource
 
         $getValue = $null
         #region resource generator code
-        $getValue = Get-MgBetaDeviceManagementDeviceHealthScript -DeviceHealthScriptId $Id -ErrorAction SilentlyContinue
+        if (-not [string]::IsNullOrEmpty($Id))
+        {
+            $getValue = Get-MgBetaDeviceManagementDeviceHealthScript -DeviceHealthScriptId $Id -ErrorAction SilentlyContinue
+        }
 
         if ($null -eq $getValue)
         {
-            Write-Verbose -Message "Could not find an Intune Device Remediation with Id {$Id}"
-
-            if (-Not [string]::IsNullOrEmpty($DisplayName))
+            if (-not [string]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceHealthScript `
+                Write-Verbose -Message "Could not find an Intune Device Remediation with Id {$Id}"
+            }
+
+            if (-not [string]::IsNullOrEmpty($DisplayName))
+            {
+                $matchingScripts = Get-MgBetaDeviceManagementDeviceHealthScript `
                     -All `
                     -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                     -ErrorAction SilentlyContinue | Where-Object `
                     -FilterScript { `
                         $_.DeviceHealthScriptType -eq 'deviceHealthScript' `
                 }
-                if ($null -ne $getValue)
+
+                if ($null -ne $matchingScripts)
                 {
-                    $getValue = Get-MgBetaDeviceManagementDeviceHealthScript -DeviceHealthScriptId $getValue.Id
+                    if ($matchingScripts -is [array] -and $matchingScripts.Count -gt 1)
+                    {
+                        throw "Multiple Intune Device Remediation scripts found with DisplayName '$DisplayName'. Please specify the Id parameter to identify which script to manage. Found scripts: $($matchingScripts.Id -join ', ')"
+                    }
+                    $getValue = Get-MgBetaDeviceManagementDeviceHealthScript -DeviceHealthScriptId $matchingScripts.Id
                 }
             }
         }
@@ -268,7 +279,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -342,7 +353,7 @@ function Set-TargetResource
         [System.String]
         $RunAsAccount,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -614,7 +625,7 @@ function Test-TargetResource
         [System.String]
         $RunAsAccount,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -672,7 +683,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of the Intune Device Remediation with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $testResult = $true
 
     #Compare Cim instances
@@ -697,7 +708,6 @@ function Test-TargetResource
 
     $ValuesToCheck.Remove('Id') | Out-Null
     $ValuesToCheck.Remove('IsGlobalScript') | Out-Null
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
 
     if ($CurrentValues.IsGlobalScript)
     {
@@ -916,4 +926,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

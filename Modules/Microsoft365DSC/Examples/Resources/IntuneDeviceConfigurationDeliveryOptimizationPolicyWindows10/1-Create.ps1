@@ -58,7 +58,6 @@ Configuration Example
             MinimumRamAllowedToPeerInGigabytes                        = 3;
             ModifyCacheLocation                                       = "%systemdrive%";
             RestrictPeerSelectionBy                                   = "subnetMask";
-            SupportsScopeTags                                         = $True;
             VpnPeerCaching                                            = "enabled";
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;

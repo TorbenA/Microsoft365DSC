@@ -55,7 +55,8 @@ function Get-TargetResource
     )
 
     Write-Verbose -Message 'Getting configuration for Office 365 Audit Log'
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -102,7 +103,7 @@ function Get-TargetResource
                 CertificateThumbprint           = $CertificateThumbprint
                 CertificatePath                 = $CertificatePath
                 CertificatePassword             = $CertificatePassword
-                Managedidentity                 = $ManagedIdentity.IsPresent
+                ManagedIdentity                 = $ManagedIdentity.IsPresent
                 UnifiedAuditLogIngestionEnabled = $UnifiedAuditLogIngestionEnabledReturnValue
                 AccessTokens                    = $AccessTokens
             }
@@ -188,7 +189,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     $OldErrorActionPreference = $ErrorActionPreference
@@ -332,6 +333,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
@@ -370,7 +372,7 @@ function Export-TargetResource
             TenantId                        = $TenantId
             CertificateThumbprint           = $CertificateThumbprint
             CertificatePassword             = $CertificatePassword
-            Managedidentity                 = $ManagedIdentity.IsPresent
+            ManagedIdentity                 = $ManagedIdentity.IsPresent
             CertificatePath                 = $CertificatePath
             AccessTokens                    = $AccessTokens
         }
@@ -411,4 +413,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

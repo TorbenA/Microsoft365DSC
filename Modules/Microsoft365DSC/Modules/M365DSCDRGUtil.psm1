@@ -159,7 +159,7 @@ function Get-M365DSCDRGComplexTypeToHashtable
     {
         $results = @{}
 
-        $ComplexObject = [hashtable]::new($ComplexObject)
+        $ComplexObject = [hashtable]$ComplexObject
         $keys = $ComplexObject.Keys
 
         foreach ($key in $keys)
@@ -1056,8 +1056,11 @@ function Compare-M365DSCComplexObjectV2
                 }
                 else
                 {
-                    $Global:AllDrifts.DriftInfo += $Global:PotentialDrifts[-1]
-                    $Global:PotentialDrifts = @()
+                    if ($null -ne $Global:PotentialDrifts[-1])
+                    {
+                        $Global:AllDrifts.DriftInfo += $Global:PotentialDrifts[-1]
+                        $Global:PotentialDrifts = @()
+                    }
                 }
 
                 return $false
@@ -1102,8 +1105,11 @@ function Compare-M365DSCComplexObjectV2
                     }
                     else
                     {
-                        $Global:AllDrifts.DriftInfo += $Global:PotentialDrifts[-1]
-                        $Global:PotentialDrifts = @()
+                        if ($null -ne $Global:PotentialDrifts[-1])
+                        {
+                            $Global:AllDrifts.DriftInfo += $Global:PotentialDrifts[-1]
+                            $Global:PotentialDrifts = @()
+                        }
                     }
                 }
 
@@ -1700,7 +1706,7 @@ function ConvertTo-IntunePolicyAssignment
             {
                 if ($assignment.groupDisplayName)
                 {
-                    $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.groupDisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue
+                    $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.groupDisplayName -replace "'", "''")'" -All -ErrorAction SilentlyContinue
                     if ($null -eq $group)
                     {
                         $message = "Skipping assignment for the group with DisplayName {$($assignment.groupDisplayName)} as it could not be found in the directory.`r`n"
@@ -1905,7 +1911,7 @@ function ConvertTo-IntuneMobileAppAssignment
             {
                 if ($assignment.groupDisplayName)
                 {
-                    $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.groupDisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue
+                    $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.groupDisplayName -replace "'", "''")'" -All -ErrorAction SilentlyContinue
                     if ($null -eq $group)
                     {
                         $message = "Skipping assignment for the group with DisplayName {$($assignment.groupDisplayName)} as it could not be found in the directory.`r`n"
@@ -2125,7 +2131,7 @@ function Update-DeviceConfigurationPolicyAssignment
                 {
                     if ($target.groupDisplayName)
                     {
-                        $group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue
+                        $group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName -replace "'", "''")'" -All -ErrorAction SilentlyContinue
                         if ($null -eq $group)
                         {
                             $message = "Skipping assignment for the group with DisplayName {$($target.groupDisplayName)} as it could not be found in the directory.`r`n"
@@ -2248,7 +2254,7 @@ function Update-DeviceAppManagementPolicyAssignment
                 {
                     if ($target.groupDisplayName)
                     {
-                        $group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue
+                        $group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName -replace "'", "''")'" -All -ErrorAction SilentlyContinue
                         if ($null -eq $group)
                         {
                             $message = "Skipping assignment for the group with DisplayName {$($target.groupDisplayName)} as it could not be found in the directory.`r`n"
@@ -2554,7 +2560,7 @@ function Get-OmaSettingPlainTextValue
 function Get-IntuneSettingCatalogPolicySetting
 {
     [CmdletBinding()]
-    [OutputType([System.Array])]
+    [OutputType([System.Object[]])]
     param (
         [Parameter(Mandatory = $true)]
         [System.Collections.Hashtable]

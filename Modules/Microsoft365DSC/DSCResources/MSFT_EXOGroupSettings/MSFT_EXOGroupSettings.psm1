@@ -214,7 +214,7 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UnifiedGroupWelcomeMessageEnabled,
+        $WelcomeMessageEnabled,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -249,13 +249,14 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of Office 365 Group Settings for $DisplayName"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            Write-Verbose -Message "Getting configuration of Office 365 Group Settings for $DisplayName"
 
-            $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+            $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -275,7 +276,7 @@ function Get-TargetResource
             }
 
             Write-Verbose -Message "Retrieving group by id {$Id}"
-            [Array]$group = Get-UnifiedGroup -Identity $Id -IncludeAllProperties -ErrorAction Stop
+            [Array]$group = Get-UnifiedGroup -Identity $Id -IncludeAllProperties -ErrorAction SilentlyContinue
 
             if ($group.Length -eq 0)
             {
@@ -417,7 +418,7 @@ function Get-TargetResource
         RequireSenderAuthenticationEnabled     = $group.RequireSenderAuthenticationEnabled
         SensitivityLabelId                     = $group.SensitivityLabelId
         SubscriptionEnabled                    = $group.SubscriptionEnabled
-        UnifiedGroupWelcomeMessageEnabled      = $group.UnifiedGroupWelcomeMessageEnabled
+        WelcomeMessageEnabled                  = $group.WelcomeMessageEnabled
         Credential                             = $Credential
         ApplicationId                          = $ApplicationId
         TenantId                               = $TenantId
@@ -645,7 +646,7 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UnifiedGroupWelcomeMessageEnabled,
+        $WelcomeMessageEnabled,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -693,28 +694,20 @@ function Set-TargetResource
         -Parameters $PSBoundParameters
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
 
-    $UpdateParameters = ([Hashtable]$PSBoundParameters).Clone()
+    $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $UpdateParameters.Add('Identity', $CurrentValues.Id)
+    $UpdateParameters.Remove('Id') | Out-Null
     $UpdateParameters.Remove('DisplayName') | Out-Null
-    $UpdateParameters.Remove('Credential') | Out-Null
-    $UpdateParameters.Remove('ApplicationId') | Out-Null
-    $UpdateParameters.Remove('TenantId') | Out-Null
-    $UpdateParameters.Remove('CertificateThumbprint') | Out-Null
-    $UpdateParameters.Remove('CertificatePath') | Out-Null
-    $UpdateParameters.Remove('CertificatePassword') | Out-Null
-    $UpdateParameters.Remove('ManagedIdentity') | Out-Null
-    $UpdateParameters.Remove('AccessTokens') | Out-Null
 
     # Cannot use PrimarySmtpAddress and EmailAddresses at the same time. If both are present, then give priority to PrimarySmtpAddress.
     if ($UpdateParameters.ContainsKey('PrimarySmtpAddress') -and $null -ne $UpdateParameters.PrimarySmtpAddress)
     {
         $UpdateParameters.Remove('EmailAddresses')
     }
+    Write-Verbose -Message "Updating settings for group '$($DisplayName)' with the following parameters:`r`n$($UpdateParameters | ConvertTo-Json -Depth 10)"
     Set-UnifiedGroup @UpdateParameters
 }
 
@@ -932,7 +925,7 @@ function Test-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UnifiedGroupWelcomeMessageEnabled,
+        $WelcomeMessageEnabled,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -1034,6 +1027,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true
@@ -1084,7 +1078,7 @@ function Export-TargetResource
                     TenantId              = $TenantId
                     CertificateThumbprint = $CertificateThumbprint
                     CertificatePassword   = $CertificatePassword
-                    Managedidentity       = $ManagedIdentity.IsPresent
+                    ManagedIdentity       = $ManagedIdentity.IsPresent
                     CertificatePath       = $CertificatePath
                     AccessTokens          = $AccessTokens
                 }
@@ -1127,4 +1121,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

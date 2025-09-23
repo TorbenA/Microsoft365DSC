@@ -47,6 +47,7 @@ function Get-TargetResource
         [Switch]
         $ManagedIdentity
     )
+
     Write-Verbose -Message "Getting configuration of Planner Bucket {$Name}"
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -61,7 +62,7 @@ function Get-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
     $nullReturn = $PSBoundParameters
@@ -161,6 +162,7 @@ function Set-TargetResource
         [Switch]
         $ManagedIdentity
     )
+
     Write-Verbose -Message "Setting configuration of Planner Bucket {$Name}"
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -175,18 +177,8 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
-
-    $SetParams = $PSBoundParameters
     $currentValues = Get-TargetResource @PSBoundParameters
-    $SetParams.Remove('Credential') | Out-Null
-    $SetParams.Remove('ApplicationId') | Out-Null
-    $SetParams.Remove('TenantId') | Out-Null
-    $SetParams.Remove('CertificateThumbprint') | Out-Null
-    $SetParams.Remove('ApplicationSecret') | Out-Null
-    $SetParams.Remove('ManagedIdentity') | Out-Null
-    $SetParams.Remove('Ensure') | Out-Null
+    $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present' -and $currentValues.Ensure -eq 'Absent')
     {
@@ -414,4 +406,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

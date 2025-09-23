@@ -28,8 +28,7 @@ Configuration Example
             AddXHeaderValue                      = ""
             AdminDisplayName                     = ""
             BulkSpamAction                       = "MoveToJmf"
-            BulkThreshold                        = 7
-            DownloadLink                         = $True # Updated Property
+            BulkThreshold                        = 8 # Updated Property
             EnableLanguageBlockList              = $False
             EnableRegionBlockList                = $False
             HighConfidencePhishAction            = "Quarantine"

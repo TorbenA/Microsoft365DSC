@@ -60,12 +60,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Setting configuration of Office 365 Group $DisplayName"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            Write-Verbose -Message "Setting configuration of Office 365 Group $DisplayName"
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -155,7 +156,7 @@ function Get-TargetResource
                 ApplicationSecret     = $ApplicationSecret
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 Ensure                = 'Present'
                 AccessTokens          = $AccessTokens
             }
@@ -254,22 +255,12 @@ function Set-TargetResource
         -Parameters $PSBoundParameters
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
 
     $currentGroup = Get-TargetResource @PSBoundParameters
 
     if ($Ensure -eq 'Present')
     {
-        $CurrentParameters = $PSBoundParameters
-        $CurrentParameters.Remove('Ensure') | Out-Null
-        $CurrentParameters.Remove('Credential') | Out-Null
-        $CurrentParameters.Remove('ApplicationId') | Out-Null
-        $CurrentParameters.Remove('TenantId') | Out-Null
-        $CurrentParameters.Remove('CertificateThumbprint') | Out-Null
-        $CurrentParameters.Remove('ApplicationSecret') | Out-Null
-        $CurrentParameters.Remove('ManagedIdentity') | Out-Null
-        $CurrentParameters.Remove('AccessTokens') | Out-Null
+        $CurrentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         if ($currentGroup.Ensure -eq 'Absent')
         {
@@ -602,7 +593,7 @@ function Export-TargetResource
                 ApplicationId         = $ApplicationId
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 ApplicationSecret     = $ApplicationSecret
                 DisplayName           = $group.DisplayName
                 ManagedBy             = 'DummyUser'
@@ -640,4 +631,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -32,13 +32,12 @@ Configuration Example
             );
             DisplayName                   = "network boundary";
             Ensure                        = "Present";
-            SupportsScopeTags             = $False; # Updated Property
             WindowsNetworkIsolationPolicy = MSFT_MicrosoftGraphwindowsNetworkIsolationPolicy{
                 EnterpriseProxyServers = @()
                 EnterpriseInternalProxyServers = @()
                 EnterpriseIPRangesAreAuthoritative = $True
                 EnterpriseProxyServersAreAuthoritative = $True
-                EnterpriseNetworkDomainNames = @('domain.com')
+                EnterpriseNetworkDomainNames = @('domain.com', 'domain2.com') # Updated Property
                 EnterpriseIPRanges = @(
                     MSFT_MicrosoftGraphIpRange1{
                         UpperAddress = '1.1.1.255'
