@@ -59,3 +59,11 @@ The SupportsScopeTags property, which is a read-only property, was removed acros
 ## Export-M365DSCConfiguration Behavior Change ([#6458](https://github.com/microsoft/Microsoft365DSC/pull/6458))
 
 When calling the Export-M365DSCConfiguration cmldlet, the output directory will now be required at the beginning of the execution when not explicitely provided and the execution path will be changed to it. Temporary files will also be stored in the specified folder.
+
+## AADEnrichedAuditLogs Deprecation ([#6473](https://github.com/microsoft/Microsoft365DSC/pull/6473))
+
+The Microsoft Graph API endpoints associated with the AADEnrichedAuditLogs resources have been deprecated. As a result the resource was removed from the project. To fix your configuration files, simply remove all instances of the AADEnrichedAuditLogs resource from it.
+
+## IntuneDeviceCleanupRule Deprecation ([#6483](https://github.com/microsoft/Microsoft365DSC/pull/6483))
+
+The IntuneDeviceCleanupRule resource has been deprecated in favor of the IntuneDeviceCleanupRuleV2 resource. To fix your configuration, replace instances of IntuneDeviceCleanupRule resources with IntuneDeviceCleanupRuleV2 ones.
