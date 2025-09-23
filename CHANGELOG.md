@@ -45,6 +45,10 @@
 * IntuneAppConfigurationPolicy
   * Fixed an issue with MOF instance parsing.
     FIXES [#6520](https://github.com/microsoft/Microsoft365DSC/issues/6520)
+* IntuneDeviceCompliancePolicyAndroid
+  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+* IntuneDeviceConfigurationPolicyAndroidDeviceAdministrator
+  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
 * IntuneMobileAppsMacOSLobApp
   * Added filter capability.
 * IntuneMobileAppsMicrosoftStoreAppWindows10
@@ -56,6 +60,15 @@
   * Fixed the version in the MOF definition.
 * IntuneRoleAssignment
   * Fixed an issue where deleted groups would throw an error during export.
+* IntuneTrustedRootCertificateAndroidEnterprise
+  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+* IntuneVPNConfigurationPolicyAndroidEnterprise
+  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+* IntuneWifiConfigurationPolicyAndroidDeviceAdministrator
+  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+* IntuneWifiConfigurationPolicyAndroidForWork
+  * [BREAKING CHANGE] Removed resource because it's not supported anymore.
+    Instead, use the `IntuneWifiConfigurationPolicyAndroidEnterpriseWorkProfile` resource.
 * SPOPropertyBag
   * Reduced export time by 85%.
 * SPOSite
