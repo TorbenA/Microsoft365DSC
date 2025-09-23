@@ -76,7 +76,7 @@
   * Fixed an issue with MOF instance parsing.
     FIXES [#6520](https://github.com/microsoft/Microsoft365DSC/issues/6520)
 * IntuneDeviceCleanupRule
-  * [BREAKING CHANGE] Removed non-functional resource.
+  * [BREAKING CHANGE] Removed resource. It was replaced with `IntuneDeviceCleanupRuleV2`.
 * IntuneDeviceCompliancePolicyAndroid
   * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
 * IntuneDeviceConfigurationPolicyAndroidDeviceAdministrator
@@ -259,6 +259,7 @@
   * Updated ExchangeOnlineManagement to version 3.9.0.
     FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
   * Include `Az.Security` module for `Defender` workload.
+  * Updated MSCloudLoginAssistant to version 1.1.52.
 * M365DSCReverse
   * Switch to output directory during export.
     FIXES [#6427](https://github.com/microsoft/Microsoft365DSC/issues/6427)
