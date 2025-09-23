@@ -49,6 +49,23 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Update-DeviceConfigurationPolicyAssignment -MockWith {
             }
 
+            Mock -CommandName Get-MgBetaDeviceManagementScript -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        '@odata.type' = "#microsoft.graph.DeviceManagementScript"
+                    }
+                    Description = "FakeStringValue"
+                    DisplayName = "FakeStringValue"
+                    EnforceSignatureCheck = $True
+                    FileName = "FakeStringValue"
+                    Id = "FakeStringValue"
+                    RoleScopeTagIds = @("FakeStringValue")
+                    RunAs32Bit = $True
+                    RunAsAccount = "system"
+                    ScriptContent = [byte[]]::new(5)
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -107,23 +124,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = 'Absent'
                     Credential = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementScript -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = "#microsoft.graph.DeviceManagementScript"
-                        }
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        EnforceSignatureCheck = $True
-                        FileName = "FakeStringValue"
-                        Id = "FakeStringValue"
-                        RoleScopeTagIds = @("FakeStringValue")
-                        RunAs32Bit = $True
-                        RunAsAccount = "system"
-                        ScriptContent = [byte[]]::new(5)
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -154,23 +154,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = 'Present'
                     Credential = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementScript -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = "#microsoft.graph.DeviceManagementScript"
-                        }
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        EnforceSignatureCheck = $True
-                        FileName = "FakeStringValue"
-                        Id = "FakeStringValue"
-                        RoleScopeTagIds = @("FakeStringValue")
-                        RunAs32Bit = $True
-                        RunAsAccount = "system"
-                        ScriptContent = [byte[]]::new(5)
-                    }
-                }
             }
 
 
@@ -189,22 +172,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Id = "FakeStringValue"
                     RoleScopeTagIds = @("FakeStringValue")
                     RunAs32Bit = $True
-                    RunAsAccount = "system"
+                    RunAsAccount = "user" # Updated property
                     ScriptContent = "AAAAAAA="
                     Ensure = 'Present'
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementScript -MockWith {
-                    return @{
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        FileName = "FakeStringValue"
-                        Id = "FakeStringValue"
-                        RoleScopeTagIds = @("FakeStringValue")
-                        RunAsAccount = "system"
-                        ScriptContent = [byte[]]::new(5)
-                    }
                 }
             }
 
@@ -229,26 +200,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementScript -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = "#microsoft.graph.DeviceManagementScript"
-                        }
-                        CreatedDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        EnforceSignatureCheck = $True
-                        FileName = "FakeStringValue"
-                        Id = "FakeStringValue"
-                        LastModifiedDateTime = "2023-01-01T00:00:00.0000000+01:00"
-                        RoleScopeTagIds = @("FakeStringValue")
-                        RunAs32Bit = $True
-                        RunAsAccount = "system"
-                        ScriptContent = [byte[]]::new(5)
-                    }
-                }
             }
+
             It 'Should Reverse Engineer resource from the Export method' {
                 $result = Export-TargetResource @testParams
                 $result | Should -Not -BeNullOrEmpty

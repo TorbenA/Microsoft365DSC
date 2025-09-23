@@ -96,6 +96,7 @@
   * Fixed typo in `ManagedIdentity` property across all resources.
   * Reduced repeated logins during export of SPO and Teams resources.
   * Removed unnecessary type casting across all resources.
+  * [BREAKING CHANGE] Removed `SupportsScopeTags` property from all resources because it's read-only.
 * M365DSCDRGUtil
   * Fixed an issue where a null drift would throw an exception.
   * Fixed an issue where group filtering would not find the specified groups.

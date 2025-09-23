@@ -334,7 +334,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     storageRequireMobileDeviceEncryption                  = $True
                     storageRestrictAppDataToSystemVolume                  = $True
                     storageRestrictAppInstallToSystemVolume               = $True
-                    supportsScopeTags                                     = $True
                     systemTelemetryProxyServer                            = 'FakeStringValue'
                     taskManagerBlockEndTask                               = $True
                     tenantLockdownRequireNetworkDuringOutOfBoxExperience  = $True
@@ -663,7 +662,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     storageRequireMobileDeviceEncryption                  = $True
                     storageRestrictAppDataToSystemVolume                  = $True
                     storageRestrictAppInstallToSystemVolume               = $True
-                    supportsScopeTags                                     = $True
                     systemTelemetryProxyServer                            = 'FakeStringValue'
                     taskManagerBlockEndTask                               = $True
                     tenantLockdownRequireNetworkDuringOutOfBoxExperience  = $True
@@ -1008,8 +1006,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         description          = 'FakeStringValue'
                         displayName          = 'FakeStringValue'
                         id                   = 'FakeStringValue'
-                        supportsScopeTags    = $True
-
                     }
                 }
             }
@@ -1305,7 +1301,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     storageRequireMobileDeviceEncryption                  = $True
                     storageRestrictAppDataToSystemVolume                  = $True
                     storageRestrictAppInstallToSystemVolume               = $True
-                    supportsScopeTags                                     = $True
                     systemTelemetryProxyServer                            = 'FakeStringValue'
                     taskManagerBlockEndTask                               = $True
                     tenantLockdownRequireNetworkDuringOutOfBoxExperience  = $True
@@ -1650,8 +1645,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         description          = 'FakeStringValue'
                         displayName          = 'FakeStringValue'
                         id                   = 'FakeStringValue'
-                        supportsScopeTags    = $True
-
                     }
                 }
             }
@@ -1940,7 +1933,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     storageRequireMobileDeviceEncryption                  = $True
                     storageRestrictAppDataToSystemVolume                  = $True
                     storageRestrictAppInstallToSystemVolume               = $True
-                    supportsScopeTags                                     = $True
                     systemTelemetryProxyServer                            = 'FakeStringValue'
                     taskManagerBlockEndTask                               = $True
                     tenantLockdownRequireNetworkDuringOutOfBoxExperience  = $True
@@ -2439,8 +2431,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         description          = 'FakeStringValue'
                         displayName          = 'FakeStringValue'
                         id                   = 'FakeStringValue'
-                        supportsScopeTags    = $True
-
                     }
                 }
             }

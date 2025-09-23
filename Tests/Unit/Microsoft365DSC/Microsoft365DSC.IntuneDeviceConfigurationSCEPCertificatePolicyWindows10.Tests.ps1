@@ -66,6 +66,43 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
             }
 
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        subjectAlternativeNameType = "none"
+                        keyUsage = "keyEncipherment"
+                        subjectAlternativeNameFormatString = "FakeStringValue"
+                        certificateValidityPeriodScale = "days"
+                        keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
+                        '@odata.type' = "#microsoft.graph.windows81SCEPCertificateProfile"
+                        scepServerUrls = @("FakeStringValue")
+                        renewalThresholdPercentage = 25
+                        certificateValidityPeriodValue = 25
+                        hashAlgorithm = "sha1"
+                        keySize = "size1024"
+                        subjectNameFormatString = "FakeStringValue"
+                        subjectNameFormat = "commonName"
+                        certificateStore = "user"
+                        extendedKeyUsages = @(
+                            @{
+                                objectIdentifier = "FakeStringValue"
+                                name = "FakeStringValue"
+                            }
+                        )
+                        customSubjectAlternativeNames = @(
+                            @{
+                                sanType = "none"
+                                name = "FakeStringValue"
+                            }
+                        )
+                    }
+                    description = "FakeStringValue"
+                    displayName = "FakeStringValue"
+                    id = "FakeStringValue"
+
+                }
+            }
+
             Mock -CommandName Update-DeviceConfigurationPolicyRootCertificateId -MockWith {
             }
         }
@@ -173,43 +210,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = 'Absent'
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            subjectAlternativeNameType = "none"
-                            keyUsage = "keyEncipherment"
-                            subjectAlternativeNameFormatString = "FakeStringValue"
-                            certificateValidityPeriodScale = "days"
-                            keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
-                            '@odata.type' = "#microsoft.graph.windows81SCEPCertificateProfile"
-                            scepServerUrls = @("FakeStringValue")
-                            renewalThresholdPercentage = 25
-                            certificateValidityPeriodValue = 25
-                            hashAlgorithm = "sha1"
-                            keySize = "size1024"
-                            subjectNameFormatString = "FakeStringValue"
-                            subjectNameFormat = "commonName"
-                            certificateStore = "user"
-                            extendedKeyUsages = @(
-                                @{
-                                    objectIdentifier = "FakeStringValue"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                            customSubjectAlternativeNames = @(
-                                @{
-                                    sanType = "none"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                        }
-                        description = "FakeStringValue"
-                        displayName = "FakeStringValue"
-                        id = "FakeStringValue"
-
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -261,43 +261,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = 'Present'
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            subjectAlternativeNameType = "none"
-                            keyUsage = "keyEncipherment"
-                            subjectAlternativeNameFormatString = "FakeStringValue"
-                            certificateValidityPeriodScale = "days"
-                            keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
-                            '@odata.type' = "#microsoft.graph.windows81SCEPCertificateProfile"
-                            scepServerUrls = @("FakeStringValue")
-                            renewalThresholdPercentage = 25
-                            certificateValidityPeriodValue = 25
-                            hashAlgorithm = "sha1"
-                            keySize = "size1024"
-                            subjectNameFormatString = "FakeStringValue"
-                            subjectNameFormat = "commonName"
-                            certificateStore = "user"
-                            extendedKeyUsages = @(
-                                @{
-                                    objectIdentifier = "FakeStringValue"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                            customSubjectAlternativeNames = @(
-                                @{
-                                    sanType = "none"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                        }
-                        description = "FakeStringValue"
-                        displayName = "FakeStringValue"
-                        id = "FakeStringValue"
-
-                    }
-                }
             }
 
 
@@ -333,7 +296,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     KeySize = "size1024"
                     keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
                     KeyUsage = @("keyEncipherment")
-                    renewalThresholdPercentage = 25
+                    renewalThresholdPercentage = 7 # Updated property
                     ScepServerUrls = @("FakeStringValue")
                     SubjectAlternativeNameFormatString = "FakeStringValue"
                     subjectAlternativeNameType = "none"
@@ -343,42 +306,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     RootCertificateDisplayName = "RootCertificate"
                     Ensure = 'Present'
                     Credential = $Credential;
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            subjectAlternativeNameType = "none"
-                            keyUsage = "keyEncipherment"
-                            subjectAlternativeNameFormatString = "FakeStringValue"
-                            certificateValidityPeriodScale = "days"
-                            keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
-                            '@odata.type' = "#microsoft.graph.windows81SCEPCertificateProfile"
-                            scepServerUrls = @("FakeStringValue")
-                            renewalThresholdPercentage = 7
-                            certificateValidityPeriodValue = 7
-                            hashAlgorithm = "sha1"
-                            keySize = "size1024"
-                            subjectNameFormatString = "FakeStringValue"
-                            subjectNameFormat = "commonName"
-                            certificateStore = "user"
-                            extendedKeyUsages = @(
-                                @{
-                                    objectIdentifier = "FakeStringValue"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                            customSubjectAlternativeNames = @(
-                                @{
-                                    sanType = "none"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                        }
-                        description = "FakeStringValue"
-                        displayName = "FakeStringValue"
-                        id = "FakeStringValue"
-                    }
                 }
 
                 Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -ParameterFilter { $DeviceConfigurationId -eq $RootCertificateId } -MockWith {
@@ -414,44 +341,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            subjectAlternativeNameType = "none"
-                            keyUsage = "keyEncipherment"
-                            subjectAlternativeNameFormatString = "FakeStringValue"
-                            certificateValidityPeriodScale = "days"
-                            keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
-                            '@odata.type' = "#microsoft.graph.windows81SCEPCertificateProfile"
-                            scepServerUrls = @("FakeStringValue")
-                            renewalThresholdPercentage = 25
-                            certificateValidityPeriodValue = 25
-                            hashAlgorithm = "sha1"
-                            keySize = "size1024"
-                            subjectNameFormatString = "FakeStringValue"
-                            subjectNameFormat = "commonName"
-                            certificateStore = "user"
-                            extendedKeyUsages = @(
-                                @{
-                                    objectIdentifier = "FakeStringValue"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                            customSubjectAlternativeNames = @(
-                                @{
-                                    sanType = "none"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                        }
-                        description = "FakeStringValue"
-                        displayName = "FakeStringValue"
-                        id = "FakeStringValue"
-
-                    }
-                }
             }
+
             It 'Should Reverse Engineer resource from the Export method' {
                 $result = Export-TargetResource @testParams
                 $result | Should -Not -BeNullOrEmpty
