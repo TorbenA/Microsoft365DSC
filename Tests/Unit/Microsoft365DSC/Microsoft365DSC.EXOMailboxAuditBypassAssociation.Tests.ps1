@@ -39,6 +39,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return $null
             }
 
+            Mock -CommandName Get-MailboxAuditBypassAssociation -MockWith {
+                return @{
+                    AuditBypassEnabled   = $False;
+                    Credential           = $Credscredential;
+                    Identity             = "TestMailbox109";
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -50,17 +58,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name 'Settings are not in the desired state' -Fixture {
             BeforeAll {
                 $testParams = @{
-                    AuditBypassEnabled   = $False;
+                    AuditBypassEnabled   = $true; # Drift
                     Credential           = $Credscredential;
                     Identity             = "TestMailbox109";
-                }
-
-                Mock -CommandName Get-MailboxAuditBypassAssociation -MockWith {
-                    return @{
-                        AuditBypassEnabled   = $True;  #Drift
-                        Credential           = $Credscredential;
-                        Identity             = "TestMailbox109";
-                    }
                 }
             }
 
@@ -81,14 +81,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Credential           = $Credscredential;
                     Identity             = "TestMailbox109";
                 }
-
-                Mock -CommandName Get-MailboxAuditBypassAssociation -MockWith {
-                    return @{
-                        AuditBypassEnabled   = $False;
-                        Credential           = $Credscredential;
-                        Identity             = "TestMailbox109";
-                    }
-                }
             }
 
             It 'Should return false from the Test method' {
@@ -102,14 +94,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential  = $Credential;
-                }
-
-                Mock -CommandName Get-MailboxAuditBypassAssociation -MockWith {
-                    return @{
-                        AuditBypassEnabled   = $False;
-                        Credential           = $Credscredential;
-                        Identity             = "TestMailbox109";
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {

@@ -41,6 +41,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
             }
 
+            Mock -CommandName Get-MgGroup -MockWith {
+                return @{
+                    Id = '81c3d8db-c61c-4dd7-bf63-a9a184f04e50'
+                    DisplayName = 'FakeGroup'
+                }
+            }
+
             Mock -CommandName New-M365DSCConnection -MockWith {
                 return 'Credentials'
             }
@@ -518,6 +525,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return $mockPolicy
             }
 
+            Mock -CommandName Update-MgBetaPolicyRoleManagementPolicyRule -MockWith {
+            }
+
             Mock -CommandName Invoke-M365DSCGraphBatchRequest -MockWith {
                 return @(
                     @{
@@ -537,7 +547,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         }
 
         # Test contexts
-
         Context -Name 'The role definition exists and values are already in the desired state' -Fixture {
             BeforeAll {
                 $testParams = @{
@@ -585,30 +594,18 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     PermanentEligibleAssignmentisExpirationRequired           = $False
                     RoleDefinitionId                                          = "owner"
                 }
-
-                Mock -CommandName New-M365DSCConnection -MockWith {
-                    return 'Credentials'
-                }
-
-                mock -CommandName Get-MgGroup -MockWith {
-                    return @{
-                        Id = '81c3d8db-c61c-4dd7-bf63-a9a184f04e50'
-                        DisplayName = 'FakeGroup'
-                    }
-                } -ParameterFilter {$Filter -eq "DisplayName eq 'FakeGroup'"}
-
             }
 
             It 'Should return Values from the get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be "Present"
-                Assert-MockCalled Get-MgGroup -Exactly 1 -Scope It
-                Assert-MockCalled Get-MgPolicyRoleManagementPolicyAssignment -Exactly 1 -Scope It
+                Should -Invoke -CommandName Get-MgGroup -Exactly 1
+                Should -Invoke -CommandName Get-MgPolicyRoleManagementPolicyAssignment -Exactly 1
             }
 
             It 'Should return true from the test method' {
                 Test-TargetResource @testParams | Should -Be $true
-                Assert-MockCalled Get-MgGroup -Exactly 1 -Scope It
-                Assert-MockCalled Get-MgPolicyRoleManagementPolicyAssignment -Exactly 1 -Scope It
+                Should -Invoke -CommandName Get-MgGroup -Exactly 1
+                Should -Invoke -CommandName Get-MgPolicyRoleManagementPolicyAssignment -Exactly 1
             }
         }
 
@@ -659,33 +656,19 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     PermanentEligibleAssignmentisExpirationRequired           = $False
                     RoleDefinitionId                                          = "owner"
                 }
-
-                Mock -CommandName New-M365DSCConnection -MockWith {
-                    return 'Credentials'
-                }
-
-                Mock -CommandName Update-MgBetaPolicyRoleManagementPolicyRule -MockWith {
-                }
-
-                mock -CommandName Get-MgGroup -MockWith {
-                    return @{
-                        Id = '81c3d8db-c61c-4dd7-bf63-a9a184f04e50'
-                        DisplayName = 'FakeGroup'
-                    }
-                } -ParameterFilter {$Filter -eq "DisplayName eq 'FakeGroup'"}
             }
 
             It 'Should return values from the get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be "Present"
-                Assert-MockCalled Get-MgGroup -Exactly 1 -Scope It
-                Assert-MockCalled Get-MgPolicyRoleManagementPolicyAssignment -Exactly 1 -Scope It
+                Should -Invoke -CommandName Get-MgGroup -Exactly 1
+                Should -Invoke -CommandName Get-MgPolicyRoleManagementPolicyAssignment -Exactly 1
             }
 
             It 'Should call the set method' {
                 Set-TargetResource @testParams
                 Should -Invoke -CommandName 'Update-MgBetaPolicyRoleManagementPolicyRule' -Exactly 15
-                Assert-MockCalled Get-MgGroup -Exactly 1 -Scope It
-                Assert-MockCalled Get-MgPolicyRoleManagementPolicyAssignment -Exactly 1 -Scope It
+                Should -Invoke -CommandName Get-MgGroup -Exactly 1
+                Should -Invoke -CommandName Get-MgPolicyRoleManagementPolicyAssignment -Exactly 1
             }
         }
 
@@ -696,32 +679,20 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential = $Credential
                 }
-
-                Mock -CommandName New-M365DSCConnection -MockWith {
-                    return 'Credentials'
-                }
-
-                mock -CommandName Get-MgGroup -MockWith {
-                    return @{
-                        Id = '81c3d8db-c61c-4dd7-bf63-a9a184f04e50'
-                        DisplayName = 'FakeGroup'
-                    }
-                }
             }
 
             It 'Should reverse engineer resource from the export method' {
                 $result = Export-TargetResource @testParams
-                Assert-MockCalled Get-MgGroup -Exactly 1 -Scope It
-                Assert-MockCalled Invoke-M365DSCGraphBatchRequest -Exactly 1 -Scope It
+                Should -Invoke -CommandName Get-MgGroup -Exactly 1
+                Should -Invoke -CommandName Invoke-M365DSCGraphBatchRequest -Exactly 1
                 $result | Should -Not -BeNullOrEmpty
             }
 
             It 'Should reverse engineer resource from the export method with a filter' {
                 $testParams.Filter = "displayName eq 'FakeGroup'"
-
                 $result = Export-TargetResource @testParams
-                Assert-MockCalled Get-MgGroup -Exactly 1 -Scope It
-                Assert-MockCalled Invoke-M365DSCGraphBatchRequest -Exactly 1 -Scope It
+                Should -Invoke -CommandName Get-MgGroup -Exactly 1
+                Should -Invoke -CommandName Invoke-M365DSCGraphBatchRequest -Exactly 1
                 $result | Should -Not -BeNullOrEmpty
             }
         }

@@ -63,13 +63,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting SPOSiteGroups for {$Url}"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Url -ne $Url)
         {
-            Write-Verbose -Message "Getting SPOSiteGroups for {$Url}"
-
-            $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
+            $null = New-M365DSCConnection -Workload 'PNP' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -103,7 +103,7 @@ function Get-TargetResource
             }
             try
             {
-                $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
+                $null = New-M365DSCConnection -Workload 'PNP' `
                     -InboundParameters $PSBoundParameters `
                     -Url $Url
                 $siteGroup = Get-PnPGroup -Identity $Identity `
@@ -249,10 +249,6 @@ function Set-TargetResource
         -Parameters $PSBoundParameters
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
-
-    $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
-        -InboundParameters $PSBoundParameters `
-        -ErrorAction SilentlyContinue
 
     $currentValues = Get-TargetResource @PSBoundParameters
     $IsNew = $false
@@ -629,4 +625,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

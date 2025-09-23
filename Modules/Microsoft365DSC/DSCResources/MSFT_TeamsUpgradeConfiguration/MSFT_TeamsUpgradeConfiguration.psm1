@@ -44,9 +44,10 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     Write-Verbose -Message 'Checking the Teams Upgrade Configuration'
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -152,18 +153,12 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 
-    $SetParameters = $PSBoundParameters
+    $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $SetParameters.Remove('IsSingleInstance') | Out-Null
-    $SetParameters.Remove('Credential') | Out-Null
-    $SetParameters.Remove('ApplicationId') | Out-Null
-    $SetParameters.Remove('TenantId') | Out-Null
-    $SetParameters.Remove('CertificateThumbprint') | Out-Null
-    $SetParameters.Remove('ManagedIdentity') | Out-Null
     $SetParameters.Add('Identity', 'Global')
-    $SetParameters.Remove('AccessTokens') | Out-Null
 
     Write-Verbose -Message "Updating with Values: $(Convert-M365DscHashtableToString -Hashtable $SetParameters)"
     Set-CsTeamsUpgradeConfiguration @SetParameters
@@ -343,4 +338,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -92,20 +92,21 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of SCComplianceSearch for $Name"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            Write-Verbose -Message "Getting configuration of SCComplianceSearch for $Name"
             if ($Global:CurrentModeIsExport)
             {
-                $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+                $null = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
                     -InboundParameters $PSBoundParameters `
                     -SkipModuleReload $true
             }
             else
             {
-                $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+                $null = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
                     -InboundParameters $PSBoundParameters
             }
             #Ensure the proper dependencies are installed in the current environment.
@@ -302,49 +303,22 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-        -InboundParameters $PSBoundParameters
-
     $CurrentSearch = Get-TargetResource @PSBoundParameters
 
     if (('Present' -eq $Ensure) -and ('Absent' -eq $CurrentSearch.Ensure))
     {
-        $CreationParams = $PSBoundParameters
-        $CreationParams.Remove('Ensure')
-
-        # Remove authentication parameters
-        $CreationParams.Remove('Credential') | Out-Null
-        $CreationParams.Remove('ApplicationId') | Out-Null
-        $CreationParams.Remove('TenantId') | Out-Null
-        $CreationParams.Remove('CertificatePath') | Out-Null
-        $CreationParams.Remove('CertificatePassword') | Out-Null
-        $CreationParams.Remove('CertificateThumbprint') | Out-Null
-        $CreationParams.Remove('ManagedIdentity') | Out-Null
-        $CreationParams.Remove('ApplicationSecret') | Out-Null
-        $CreationParams.Remove('AccessTokens') | Out-Null
+        $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         Write-Verbose "Creating new Compliance Search $Name calling the New-ComplianceSearch cmdlet."
         New-ComplianceSearch @CreationParams
     }
     elseif (('Present' -eq $Ensure) -and ('Present' -eq $CurrentSearch.Ensure))
     {
-        $SetParams = $PSBoundParameters
+        $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-        #Remove unused parameters for Set-ComplianceSearch cmdlet
-        $SetParams.Remove('Ensure')
+        # Remove unused parameters for Set-ComplianceSearch cmdlet
         $SetParams.Remove('Name')
         $SetParams.Remove('Case')
-
-        # Remove authentication parameters
-        $SetParams.Remove('Credential') | Out-Null
-        $SetParams.Remove('ApplicationId') | Out-Null
-        $SetParams.Remove('TenantId') | Out-Null
-        $SetParams.Remove('CertificatePath') | Out-Null
-        $SetParams.Remove('CertificatePassword') | Out-Null
-        $SetParams.Remove('CertificateThumbprint') | Out-Null
-        $SetParams.Remove('ManagedIdentity') | Out-Null
-        $SetParams.Remove('ApplicationSecret') | Out-Null
-        $SetParams.Remove('AccessTokens') | Out-Null
 
         Set-ComplianceSearch @SetParams -Identity $Name
     }
@@ -617,4 +591,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

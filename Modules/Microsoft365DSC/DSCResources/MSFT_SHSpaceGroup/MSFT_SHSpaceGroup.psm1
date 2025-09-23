@@ -48,8 +48,10 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'EngageHub' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting SHSpaceGroup configuration for Space: $SpaceName, Group: $GroupName"
+
+    $null = New-M365DSCConnection -Workload 'EngageHub' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -168,6 +170,8 @@ function Set-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Setting SHSpaceGroup configuration for Space: $SpaceName, Group: $GroupName"
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -197,8 +201,8 @@ function Set-TargetResource
 
     # Retrieve Group ID from Microsoft Graph
     Write-Verbose -Message "Authenticating to Microsoft Graph"
-    New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters
 
     Write-Verbose -Message "Retrieving group id for {$GroupName}"
     $groupInfo = Get-MgGroup -Filter "DisplayName eq '$($GroupName -replace "'", "''")'"
@@ -455,4 +459,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
