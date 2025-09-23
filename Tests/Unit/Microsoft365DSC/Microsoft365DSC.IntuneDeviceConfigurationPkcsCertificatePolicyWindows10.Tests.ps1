@@ -40,6 +40,42 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return "Credentials"
             }
 
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        subjectAlternativeNameType = "none"
+                        certificationAuthorityName = "FakeStringValue"
+                        renewalThresholdPercentage = 25
+                        subjectAlternativeNameFormatString = "FakeStringValue"
+                        certificateValidityPeriodScale = "days"
+                        keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
+                        certificationAuthority = "FakeStringValue"
+                        certificateValidityPeriodValue = 25
+                        certificateTemplateName = "FakeStringValue"
+                        '@odata.type' = "#microsoft.graph.windows10PkcsCertificateProfile"
+                        subjectNameFormatString = "FakeStringValue"
+                        subjectNameFormat = "commonName"
+                        certificateStore = "user"
+                        extendedKeyUsages = @(
+                            @{
+                                objectIdentifier = "FakeStringValue"
+                                name = "FakeStringValue"
+                            }
+                        )
+                        customSubjectAlternativeNames = @(
+                            @{
+                                sanType = "none"
+                                name = "FakeStringValue"
+                            }
+                        )
+                    }
+                    description = "FakeStringValue"
+                    displayName = "FakeStringValue"
+                    id = "FakeStringValue"
+
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -135,42 +171,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = 'Absent'
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            subjectAlternativeNameType = "none"
-                            certificationAuthorityName = "FakeStringValue"
-                            renewalThresholdPercentage = 25
-                            subjectAlternativeNameFormatString = "FakeStringValue"
-                            certificateValidityPeriodScale = "days"
-                            keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
-                            certificationAuthority = "FakeStringValue"
-                            certificateValidityPeriodValue = 25
-                            certificateTemplateName = "FakeStringValue"
-                            '@odata.type' = "#microsoft.graph.windows10PkcsCertificateProfile"
-                            subjectNameFormatString = "FakeStringValue"
-                            subjectNameFormat = "commonName"
-                            certificateStore = "user"
-                            extendedKeyUsages = @(
-                                @{
-                                    objectIdentifier = "FakeStringValue"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                            customSubjectAlternativeNames = @(
-                                @{
-                                    sanType = "none"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                        }
-                        description = "FakeStringValue"
-                        displayName = "FakeStringValue"
-                        id = "FakeStringValue"
-
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -219,42 +219,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = 'Present'
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            subjectAlternativeNameType = "none"
-                            certificationAuthorityName = "FakeStringValue"
-                            renewalThresholdPercentage = 25
-                            subjectAlternativeNameFormatString = "FakeStringValue"
-                            certificateValidityPeriodScale = "days"
-                            keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
-                            certificationAuthority = "FakeStringValue"
-                            certificateValidityPeriodValue = 25
-                            certificateTemplateName = "FakeStringValue"
-                            '@odata.type' = "#microsoft.graph.windows10PkcsCertificateProfile"
-                            subjectNameFormatString = "FakeStringValue"
-                            subjectNameFormat = "commonName"
-                            certificateStore = "user"
-                            extendedKeyUsages = @(
-                                @{
-                                    objectIdentifier = "FakeStringValue"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                            customSubjectAlternativeNames = @(
-                                @{
-                                    sanType = "none"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                        }
-                        description = "FakeStringValue"
-                        displayName = "FakeStringValue"
-                        id = "FakeStringValue"
-
-                    }
-                }
             }
 
 
@@ -269,7 +233,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     CertificateStore = "user"
                     CertificateTemplateName = "FakeStringValue"
                     certificateValidityPeriodScale = "days"
-                    certificateValidityPeriodValue = 25
+                    certificateValidityPeriodValue = 7 # Updated property
                     CertificationAuthority = "FakeStringValue"
                     CertificationAuthorityName = "FakeStringValue"
                     customSubjectAlternativeNames = [CimInstance[]]@(
@@ -296,41 +260,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = 'Present'
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            subjectAlternativeNameType = "none"
-                            certificationAuthorityName = "FakeStringValue"
-                            renewalThresholdPercentage = 7
-                            subjectAlternativeNameFormatString = "FakeStringValue"
-                            certificateValidityPeriodScale = "days"
-                            keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
-                            certificationAuthority = "FakeStringValue"
-                            certificateValidityPeriodValue = 7
-                            certificateTemplateName = "FakeStringValue"
-                            '@odata.type' = "#microsoft.graph.windows10PkcsCertificateProfile"
-                            subjectNameFormatString = "FakeStringValue"
-                            subjectNameFormat = "commonName"
-                            certificateStore = "user"
-                            extendedKeyUsages = @(
-                                @{
-                                    objectIdentifier = "FakeStringValue"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                            customSubjectAlternativeNames = @(
-                                @{
-                                    sanType = "none"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                        }
-                        description = "FakeStringValue"
-                        displayName = "FakeStringValue"
-                        id = "FakeStringValue"
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -354,43 +283,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            subjectAlternativeNameType = "none"
-                            certificationAuthorityName = "FakeStringValue"
-                            renewalThresholdPercentage = 25
-                            subjectAlternativeNameFormatString = "FakeStringValue"
-                            certificateValidityPeriodScale = "days"
-                            keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
-                            certificationAuthority = "FakeStringValue"
-                            certificateValidityPeriodValue = 25
-                            certificateTemplateName = "FakeStringValue"
-                            '@odata.type' = "#microsoft.graph.windows10PkcsCertificateProfile"
-                            subjectNameFormatString = "FakeStringValue"
-                            subjectNameFormat = "commonName"
-                            certificateStore = "user"
-                            extendedKeyUsages = @(
-                                @{
-                                    objectIdentifier = "FakeStringValue"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                            customSubjectAlternativeNames = @(
-                                @{
-                                    sanType = "none"
-                                    name = "FakeStringValue"
-                                }
-                            )
-                        }
-                        description = "FakeStringValue"
-                        displayName = "FakeStringValue"
-                        id = "FakeStringValue"
-
-                    }
-                }
             }
+
             It 'Should Reverse Engineer resource from the Export method' {
                 $result = Export-TargetResource @testParams
                 $result | Should -Not -BeNullOrEmpty

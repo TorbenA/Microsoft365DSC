@@ -36,7 +36,6 @@ Configuration Example
             DisplayName                       = "Domain Join";
             Ensure                            = "Present";
             OrganizationalUnit                = "OU=workstation,CN=domain,CN=com";
-            SupportsScopeTags                 = $True;
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;

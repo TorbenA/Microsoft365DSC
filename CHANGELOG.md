@@ -89,16 +89,24 @@
   * Reduced export time by up to 75%.
 * TeamsChannelTab
   * Reduced export time by up to 85%.
+* M365DSCUtil
+  * Added parameter `-Parallel` to `Export-M365DSCConfiguration`.
+  * Renamed function `Get-M365DSCWorkloadsListFromResourceNames` to `Get-M365DSCConnectedWorkloadList`.
+  * Added function `Get-M365DSCWorkloadForResource` to look up the workload of a resource.
 * MISC
+  * Added performance improvements to speed up resource processing.
   * Code cleanup across all Intune resources.
   * Code cleanup across all O365, OD and SPO resources.
   * Code cleanup across all Planner, PP and SC resources.
   * Code cleanup across all Sentinel, SH and Teams resources.
   * Code cleanup across all M365DSC modules.
   * Fixed typo in `ManagedIdentity` property across all resources.
+  * Improved module import speed by up to 60%.
   * Reduced repeated logins during export of SPO and Teams resources.
   * Removed unnecessary type casting across all resources.
   * Updated most resource testing to use the new comparison function.
+  * Updated required modules for Intune resources doing assignments to groups.
+  * [BREAKING CHANGE] Removed `SupportsScopeTags` property from all resources because it's read-only.
 * M365DSCDRGUtil
   * Fixed an issue where a null drift would throw an exception.
   * Fixed an issue where group filtering would not find the specified groups.
@@ -209,6 +217,9 @@
   * Updated ExchangeOnlineManagement to version 3.9.0.
     FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
   * Include `Az.Security` module for `Defender` workload.
+* M365DSCReverse
+  * Switch to output directory during export.
+    FIXES [#6427](https://github.com/microsoft/Microsoft365DSC/issues/6427)
 * M365DSCTelemetryEngine
   * Changed logic to retrieve the global telemetry authentication parameters.
 * M365DSCUtil

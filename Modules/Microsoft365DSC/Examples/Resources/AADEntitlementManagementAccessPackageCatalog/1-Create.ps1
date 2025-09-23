@@ -29,7 +29,7 @@ Configuration Example
             CatalogType         = 'UserManaged'
             Description         = 'Built-in catalog.'
             IsExternallyVisible = $True
-            Managedidentity     = $False
+            ManagedIdentity     = $False
             Ensure              = 'Present'
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId

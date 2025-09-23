@@ -209,3 +209,8 @@ This parameter accepts an array containing the names of various workloads you wi
 </figure>
 
 By default, specifying a workload will only export components that are part of the default component list (see **Mode**). If you want to capture every component available for a given workload, you will need to combine this parameter with **-Mode Full**.
+
+### Parallel
+
+This parameter leads to a parallel export using runspaces. It is not guaranteed that there is a performance improvement over sequential execution (which is the default).
+Parallel execution is more memory and compute intensive than sequential execution. Please make sure that there is enough memory available (recommended: 8GB or more).
