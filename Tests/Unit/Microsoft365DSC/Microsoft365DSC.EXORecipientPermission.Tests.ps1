@@ -37,6 +37,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-RecipientPermission -MockWith {
             }
 
+            Mock -CommandName Get-RecipientPermission -MockWith {
+                return @{
+                    Identity            = 'john.smith'
+                    Trustee             = 'john.doe'
+                    'AccessControlType' = 'Allow'
+                    AccessRights        = @('SendAs')
+                    IsInherited         = $false
+                    InheritanceType     = 'None'
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -104,17 +115,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Identity   = 'john.smith'
                     Trustee    = 'john.doe'
                 }
-
-                Mock -CommandName Get-RecipientPermission -MockWith {
-                    return @{
-                        Identity            = 'john.smith'
-                        Trustee             = 'john.doe'
-                        'AccessControlType' = 'Allow'
-                        AccessRights        = @('SendAs')
-                        IsInherited         = $false
-                        InheritanceType     = 'None'
-                    }
-                }
             }
 
             It 'Should return false from the Test method' {
@@ -137,17 +137,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-RecipientPermission -MockWith {
-                    return @{
-                        Identity            = 'john.smith'
-                        Trustee             = 'john.doe'
-                        'AccessControlType' = 'Allow'
-                        AccessRights        = @('SendAs')
-                        IsInherited         = $false
-                        InheritanceType     = 'None'
-                    }
                 }
             }
 

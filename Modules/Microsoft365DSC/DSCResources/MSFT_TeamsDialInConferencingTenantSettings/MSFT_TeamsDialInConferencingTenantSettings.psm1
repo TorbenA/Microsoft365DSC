@@ -9,7 +9,7 @@ function Get-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         [ValidateSet('Yes')]
-        $IsSingleInstance = 'Yes',
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Boolean]
@@ -75,7 +75,7 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting the Teams Dial In Conferencing Tenant Settings'
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -137,7 +137,7 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         [ValidateSet('Yes')]
-        $IsSingleInstance = 'Yes',
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Boolean]
@@ -215,19 +215,11 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    $SetParameters = $PSBoundParameters
-    $SetParameters.Remove('Credential') | Out-Null
-    $SetParameters.Remove('ApplicationId') | Out-Null
-    $SetParameters.Remove('TenantId') | Out-Null
-    $SetParameters.Remove('CertificateThumbprint') | Out-Null
+    $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $SetParameters.Remove('IsSingleInstance') | Out-Null
-    $SetParameters.Remove('ManagedIdentity') | Out-Null
-    $SetParameters.Remove('AccessTokens') | Out-Null
 
     try
     {
@@ -252,7 +244,7 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         [ValidateSet('Yes')]
-        $IsSingleInstance = 'Yes',
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Boolean]
@@ -360,6 +352,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 

@@ -1112,7 +1112,7 @@ function Set-TargetResource
 
             $conditions.Applications.Add('includeApplications', $IncludeApplicationsValue)
         }
-        if ($currentParameters.ContainsKey('excludeApplications'))
+        if ($currentParameters.ContainsKey('ExcludeApplications'))
         {
             $ExcludeApplicationsValue = @()
             foreach ($app in $ExcludeApplications)
@@ -1810,15 +1810,15 @@ function Set-TargetResource
                 operator = $GrantControlOperator
             }
 
-            if ($currentParameters.ContainsKey('builtInControls'))
+            if ($currentParameters.ContainsKey('BuiltInControls'))
             {
                 $GrantControls.Add('builtInControls', $BuiltInControls)
             }
-            if ($currentParameters.ContainsKey('customAuthenticationFactors'))
+            if ($currentParameters.ContainsKey('CustomAuthenticationFactors'))
             {
                 $GrantControls.Add('customAuthenticationFactors', $CustomAuthenticationFactors)
             }
-            if ($currentParameters.ContainsKey('authenticationStrength'))
+            if ($currentParameters.ContainsKey('AuthenticationStrength'))
             {
                 $strengthPolicy = Get-MgBetaPolicyAuthenticationStrengthPolicy | Where-Object -FilterScript { $_.DisplayName -eq $AuthenticationStrength } -ErrorAction SilentlyContinue
                 if ($null -ne $strengthPolicy)
@@ -1831,7 +1831,7 @@ function Set-TargetResource
                 }
             }
 
-           if ($currentParameters.ContainsKey('termsOfUse'))
+           if ($currentParameters.ContainsKey('TermsOfUse'))
            {
                Write-Verbose -Message "Getting Terms of Use {$TermsOfUse}"
                $TermsOfUseObj = Get-MgBetaAgreement | Where-Object -FilterScript { $_.DisplayName -eq $TermsOfUse }

@@ -384,7 +384,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+    $null = New-M365DSCConnection -Workload 'PnP' `
         -InboundParameters $PSBoundParameters  -Url (Get-MSCloudLoginConnectionProfile -Workload PnP).AdminUrl
 
     if ($Ensure -eq 'Absent')

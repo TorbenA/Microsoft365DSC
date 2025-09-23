@@ -45,6 +45,55 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-MgBetaEntitlementManagementAccessPackage -MockWith {
             }
 
+            Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageCatalog -MockWith {
+                return @{
+                    DisplayName                     = 'FakeStringValue'
+                    Id                              = 'FakeStringValue'
+                }
+            }
+            Mock -CommandName Get-MgBetaEntitlementManagementAccessPackage -MockWith {
+                return @{
+                    CatalogId                       = 'FakeStringValue'
+                    Description                     = 'FakeStringValue'
+                    DisplayName                     = 'FakeStringValue'
+                    Id                              = 'FakeStringValue'
+                    IsHidden                        = $True
+                    IsRoleScopesVisible             = $True
+                    AccessPackageResourceRoleScopes = @{
+                        Id = 'FakeStringValue'
+                        AccessPackageResourceScope = @{
+                            OriginId = '123456789'
+                        }
+                        AccessPackageResourceRole  = @{
+                            DisplayName = 'TestRole'
+                        }
+                    }
+                }
+            }
+            Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageIncompatibleAccessPackage -MockWith {
+                return @(
+                    @{
+                        id = 'packageId1'
+                    }
+                    @{
+                        id = 'packageId2'
+                    }
+                )
+            }
+            Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageIncompatibleWith -MockWith {
+                return @()
+            }
+            Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageIncompatibleGroup -MockWith {
+                return @(
+                    @{
+                        id = 'groupId1'
+                    }
+                    @{
+                        id = 'groupId2'
+                    }
+                )
+            }
+
             Mock -CommandName New-M365DSCConnection -MockWith {
                 return 'Credentials'
             }
@@ -94,12 +143,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name 'The AADEntitlementManagementAccessPackage exists but it SHOULD NOT' -Fixture {
             BeforeAll {
                 $testParams = @{
-                    CatalogId           = 'FakeStringValue'
-                    Description         = 'FakeStringValue'
-                    DisplayName         = 'FakeStringValue'
-                    Id                  = 'FakeStringValue'
-                    IsHidden            = $True
-                    IsRoleScopesVisible = $True
+                    CatalogId                       = 'FakeStringValue'
+                    Description                     = 'FakeStringValue'
+                    DisplayName                     = 'FakeStringValue'
+                    Id                              = 'FakeStringValue'
+                    IsHidden                        = $True
+                    IsRoleScopesVisible             = $True
+                    IncompatibleAccessPackages      = @('packageId1', 'packageId2')
+                    IncompatibleGroups              = @('groupId1', 'groupId2')
                     AccessPackageResourceRoleScopes = (New-CimInstance -ClassName MSFT_AccessPackageResourceRoleScope -Property @{
                             Id                                   = 'FakeStringValue'
                             AccessPackageResourceOriginId        = '123456789'
@@ -107,35 +158,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         } -ClientOnly)
                     Ensure                          = 'Absent'
                     Credential                      = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackage -MockWith {
-                    return @{
-                        CatalogId                       = 'FakeStringValue'
-                        Description                     = 'FakeStringValue'
-                        DisplayName                     = 'FakeStringValue'
-                        Id                              = 'FakeStringValue'
-                        IsHidden                        = $True
-                        IsRoleScopesVisible             = $True
-                        AccessPackageResourceRoleScopes = @{
-                            AccessPackageResourceScope = @{
-                                OriginId = '123456789'
-                            }
-                            AccessPackageResourceRole  = @{
-                                DisplayName = 'TestRole'
-                            }
-                        }
-
-                    }
-                }
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageIncompatibleAccessPackage -MockWith {
-                    return @()
-                }
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageIncompatibleWith -MockWith {
-                    return @()
-                }
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageIncompatibleGroup -MockWith {
-                    return @()
                 }
             }
 
@@ -171,54 +193,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                          = 'Present'
                     Credential                      = $Credential
                 }
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageCatalog -MockWith {
-                    return @{
-                        DisplayName                     = 'FakeStringValue'
-                        Id                              = 'FakeStringValue'
-                    }
-                }
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackage -MockWith {
-                    return @{
-                        CatalogId                       = 'FakeStringValue'
-                        Description                     = 'FakeStringValue'
-                        DisplayName                     = 'FakeStringValue'
-                        Id                              = 'FakeStringValue'
-                        IsHidden                        = $True
-                        IsRoleScopesVisible             = $True
-                        AccessPackageResourceRoleScopes = @{
-                            Id = 'FakeStringValue'
-                            AccessPackageResourceScope = @{
-                                OriginId = '123456789'
-                            }
-                            AccessPackageResourceRole  = @{
-                                DisplayName = 'TestRole'
-                            }
-                        }
-                    }
-                }
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageIncompatibleAccessPackage -MockWith {
-                    return @(
-                        @{
-                            id = 'packageId1'
-                        }
-                        @{
-                            id = 'packageId2'
-                        }
-                    )
-                }
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageIncompatibleWith -MockWith {
-                    return @()
-                }
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageIncompatibleGroup -MockWith {
-                    return @(
-                        @{
-                            id = 'groupId1'
-                        }
-                        @{
-                            id = 'groupId2'
-                        }
-                    )
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -233,8 +207,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description                     = 'FakeStringValue'
                     DisplayName                     = 'FakeStringValue'
                     Id                              = 'FakeStringValue'
-                    IsHidden                        = $True
-                    IsRoleScopesVisible             = $True
+                    IsHidden                        = $false # Drift
+                    IsRoleScopesVisible             = $true
+                    IncompatibleAccessPackages      = @('packageId1', 'packageId2')
+                    IncompatibleGroups              = @('groupId1', 'groupId2')
                     AccessPackageResourceRoleScopes = (New-CimInstance -ClassName MSFT_AccessPackageResourceRoleScope -Property @{
                             Id                                   = 'FakeStringValue'
                             AccessPackageResourceOriginId        = '123456789'
@@ -242,36 +218,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         } -ClientOnly)
                     Ensure                          = 'Present'
                     Credential                      = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackage -MockWith {
-                    return @{
-                        CatalogId                       = 'FakeStringValue'
-                        Description                     = 'FakeStringValue'
-                        DisplayName                     = 'FakeStringValue'
-                        Id                              = 'FakeStringValue'
-                        IsHidden                        = $False #Drift
-                        IsRoleScopesVisible             = $True
-                        AccessPackageResourceRoleScopes = @{
-                            Id = 'FakeStringValue'
-                            AccessPackageResourceScope = @{
-                                OriginId = '123456789'
-                            }
-                            AccessPackageResourceRole  = @{
-                                DisplayName = 'TestRole'
-                            }
-                        }
-
-                    }
-                }
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageIncompatibleAccessPackage -MockWith {
-                    return @()
-                }
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageIncompatibleWith -MockWith {
-                    return @()
-                }
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageIncompatibleGroup -MockWith {
-                    return @()
                 }
             }
 
@@ -295,35 +241,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackage -MockWith {
-                    return @{
-                        CatalogId                       = 'FakeStringValue'
-                        Description                     = 'FakeStringValue'
-                        DisplayName                     = 'FakeStringValue'
-                        Id                              = 'FakeStringValue'
-                        IsHidden                        = $True
-                        IsRoleScopesVisible             = $True
-                        AccessPackageResourceRoleScopes = @{
-                            AccessPackageResourceScope = @{
-                                OriginId = '123456789'
-                            }
-                            AccessPackageResourceRole  = @{
-                                DisplayName = 'TestRole'
-                            }
-                        }
-
-                    }
-                }
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageIncompatibleAccessPackage -MockWith {
-                    return @()
-                }
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageIncompatibleWith -MockWith {
-                    return @()
-                }
-                Mock -CommandName Get-MgBetaEntitlementManagementAccessPackageIncompatibleGroup -MockWith {
-                    return @()
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {

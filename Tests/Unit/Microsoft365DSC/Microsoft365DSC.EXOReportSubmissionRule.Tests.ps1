@@ -46,6 +46,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-ReportSubmissionRule -MockWith {
             }
 
+            Mock -CommandName Get-ReportSubmissionRule -MockWith {
+                return @{
+                    Ensure              = 'Present'
+                    Credential          = $Credential
+                    IsSingleInstance    = 'Yes'
+                    Identity            = "DefaultReportSubmissionRule"
+                    Comments            = "This is my default rule"
+                    SentTo              = @("submission@contoso.com")
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -99,17 +110,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Comments            = "This is my default rule"
                     SentTo              = @("submission@contoso.com")
                 }
-
-                Mock -CommandName Get-ReportSubmissionRule -MockWith {
-                    return @{
-                        Ensure              = 'Present'
-                        Credential          = $Credential
-                        IsSingleInstance    = 'Yes'
-                        Identity            = "DefaultReportSubmissionRule"
-                        Comments            = "This is my default rule"
-                        SentTo              = @("submission@contoso.com")
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -125,24 +125,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     IsSingleInstance    = 'Yes'
                     Identity            = "DefaultReportSubmissionRule"
                     Comments            = "This is my default rule"
-                    SentTo              = @("submission@contoso.com")
-                }
-
-                Mock -CommandName Get-ReportSubmissionRule -MockWith {
-                    return @{
-                        Ensure              = 'Present'
-                        Credential          = $Credential
-                        IsSingleInstance    = 'Yes'
-                        Identity            = "DefaultReportSubmissionRule"
-                        Comments            = "This is my default rule"
-                        SentTo              = @("different@contoso.com")
-                    }
-                }
-
-                Mock -CommandName Set-ReportSubmissionRule -MockWith {
-                    return @{
-
-                    }
+                    SentTo              = @("submission1@contoso.com") # Drift
                 }
             }
 
@@ -166,18 +149,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Comments            = "This is my default rule"
                     SentTo              = @("submission@contoso.com")
                 }
-
-                Mock -CommandName Get-ReportSubmissionRule -MockWith {
-                    return @{
-                        Identity = "DefaultReportSubmissionRule"
-                    }
-                }
-
-                Mock -CommandName Remove-ReportSubmissionRule -MockWith {
-                    return @{
-
-                    }
-                }
             }
 
             It 'Should return false from the Test method' {
@@ -196,14 +167,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-ReportSubmissionRule -MockWith {
-                    return @{
-                        Identity            = "DefaultReportSubmissionRule"
-                        Comments            = "This is my default rule"
-                        SentTo              = @("submission@contoso.com")
-                    }
                 }
             }
 

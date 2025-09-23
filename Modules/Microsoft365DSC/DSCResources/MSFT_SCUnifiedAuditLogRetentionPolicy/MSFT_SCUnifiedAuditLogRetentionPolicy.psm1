@@ -61,12 +61,14 @@ function Get-TargetResource
         $ApplicationSecret
     )
 
+    Write-Verbose -Message "Getting configuration of SC Unified Audit Log Retention Policy for $Name"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-                -InboundParameters $PSBoundParameters | Out-Null
+            $null = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+                -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
             Confirm-M365DSCDependencies
@@ -192,8 +194,7 @@ function Set-TargetResource
         $ApplicationSecret
     )
 
-    New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Setting configuration of SC Unified Audit Log Retention Policy for $Name"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -208,14 +209,12 @@ function Set-TargetResource
     #endregion
 
     $GetParameters = ([Hashtable]$PSBoundParameters).Clone()
-
     $GetParameters.Remove('Description') | Out-Null
     $GetParameters.Remove('Operations') | Out-Null
     $GetParameters.Remove('RecordTypes') | Out-Null
     $GetParameters.Remove('UserIds') | Out-Null
 
     $currentInstance = Get-TargetResource @GetParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
@@ -242,7 +241,6 @@ function Set-TargetResource
         Write-Verbose -Message "Updating {$Name}"
 
         $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
-        $UpdateParameters.Remove('Verbose') | Out-Null
         $UpdateParameters.Remove('Name') | Out-Null
         $UpdateParameters.Add('Identity', $currentInstance.Identity) | Out-Null
 

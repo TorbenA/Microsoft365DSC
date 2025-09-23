@@ -69,7 +69,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.properties.displayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'PowerPlatformREST' `
+            $null = New-M365DSCConnection -Workload 'PowerPlatformREST' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -226,17 +226,8 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PowerPlatformREST' `
-        -InboundParameters $PSBoundParameters
-
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $CurrentParameters = $PSBoundParameters
-    $CurrentParameters.Remove('Credential') | Out-Null
-    $CurrentParameters.Remove('ApplicationId') | Out-Null
-    $CurrentParameters.Remove('TenantId') | Out-Null
-    $CurrentParameters.Remove('ApplicationSecret') | Out-Null
-    $CurrentParameters.Remove('CertificateThumbprint') | Out-Null
-    $CurrentParameters.Remove('Ensure') | Out-Null
+    $CurrentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
     {
@@ -264,8 +255,8 @@ function Set-TargetResource
 
             if ($ProvisionDatabase)
             {
-                if ($CurrencyName -ne $null -and
-                    $LanguageName -ne $null)
+                if ($null -ne $CurrencyName -and
+                    $null -ne $LanguageName)
                 {
                     $newParameters.properties['linkedEnvironmentMetadata'] = @{
                         baseLanguage = $LanguageName

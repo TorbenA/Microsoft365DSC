@@ -31,8 +31,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return 'Credentials'
             }
 
+            Mock -CommandName Set-CASMailbox -MockWith {
+            }
+
             Mock -CommandName Get-CASMailbox -MockWith {
                 return @{
+                    Ensure                 = 'Present'
                     Identity               = 'MeganB'
                     Credential             = $Credential
                     ActiveSyncDebugLogging = $False
@@ -83,6 +87,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
+                Should -Invoke -CommandName 'Set-CASMailbox' -Exactly 1
             }
         }
 
@@ -97,8 +102,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 Mock -CommandName Get-Mailbox -MockWith {
                     return @(
                         @{
-                            Name              = 'John Smith'
-                            UserPrincipalName = 'john.smith@contoso.onmicrosoft.com'
+                            Name              = 'Megan B'
+                            UserPrincipalName = 'megan.b@contoso.onmicrosoft.com'
                         }
                     )
                 }

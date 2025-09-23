@@ -75,7 +75,7 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting configuration of Teams Guest Messaging settings'
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -202,22 +202,15 @@ function Set-TargetResource
     )
 
     Write-Verbose -Message 'Setting configuration of Teams Guest Messaging settings'
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
     # Check that at least one optional parameter is specified
-    $inputValues = $PSBoundParameters
-    $inputValues.Remove('Credential') | Out-Null
-    $inputValues.Remove('ApplicationId') | Out-Null
-    $inputValues.Remove('TenantId') | Out-Null
-    $inputValues.Remove('CertificateThumbprint') | Out-Null
-    $inputValues.Remove('Identity') | Out-Null
-    $inputValues.Remove('ManagedIdentity') | Out-Null
-    $inputValues.Remove('AccessTokens') | Out-Null
-    foreach ($item in $inputValues)
+    $inputValues = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    foreach ($item in $inputValues.GetEnumerator())
     {
         if ([System.String]::IsNullOrEmpty($item.Value))
         {
-            $inputValues.Remove($item.key) | Out-Null
+            $inputValues.Remove($item.Key) | Out-Null
         }
     }
 
@@ -239,9 +232,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $SetParams = $PSBoundParameters
-    $SetParams.Remove('Credential') | Out-Null
-
+    $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     Set-CsTeamsGuestMessagingConfiguration @SetParams
 }
 

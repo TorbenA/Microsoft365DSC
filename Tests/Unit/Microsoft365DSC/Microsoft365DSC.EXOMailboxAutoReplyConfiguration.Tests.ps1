@@ -94,8 +94,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
+                Should -Invoke -CommandName 'Set-MailboxAutoReplyConfiguration' -Exactly 1
             }
-
         }
 
         Context -Name 'MailboxAutoReplyConfiguration update not required.' -Fixture {
@@ -141,6 +141,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should Successfully call the Set method' {
                 Set-TargetResource @testParams
+                Should -Invoke -CommandName Set-MailboxAutoReplyConfiguration -Exactly 1
             }
         }
 
@@ -157,8 +158,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 Test-TargetResource @testParams | Should -Be $false
             }
 
-            It 'Should Remove the Policy in the Set method' {
+            It 'Should call the Set method' {
                 Set-TargetResource @testParams
+                Should -Invoke -CommandName Set-MailboxAutoReplyConfiguration -Exactly 1
             }
         }
 

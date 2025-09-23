@@ -27,9 +27,10 @@ function Get-TargetResource
         [Switch]
         $ManagedIdentity
     )
+
     Write-Verbose -Message 'Checking the Teams Org Wide App Settings'
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -121,14 +122,10 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 
-    $SetParameters = $PSBoundParameters
-    $SetParameters.Remove('IsSingleInstance') | Out-Null
-    $SetParameters.Remove('Credential') | Out-Null
-    $SetParameters.Remove('AccessTokens') | Out-Null
-
+    $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     Set-CsTeamsSettingsCustomApp @SetParameters
 }
 

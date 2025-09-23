@@ -100,7 +100,7 @@ function Get-TargetResource
                 }
                 elseif ($_.Exception -like '*The underlying connection was closed*')
                 {
-                    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+                    $null = New-M365DSCConnection -Workload 'PnP' `
                         -InboundParameters $PSBoundParameters `
                         -Url $Url
 
@@ -237,10 +237,6 @@ function Set-TargetResource
         -Parameters $PSBoundParameters
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
-
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
-        -InboundParameters $PSBoundParameters `
-        -Url $Url
 
     $currentProperty = Get-TargetResource @PSBoundParameters
 
@@ -411,7 +407,7 @@ function Export-TargetResource
             Write-M365DSCHost -Message "    [$i/$($sites.Length)] $($siteUrl)"
             try
             {
-                $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+                $null = New-M365DSCConnection -Workload 'PnP' `
                     -InboundParameters $PSBoundParameters `
                     -Url $siteUrl
             }

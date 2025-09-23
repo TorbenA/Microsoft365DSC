@@ -44,6 +44,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
 
             Mock -CommandName Get-AcceptedDomain -MockWith {
+                return @{
+                    DomainName     = "fakedomain.com"
+                    SmtpDaneStatus = "Enabled"
+                }
             }
 
             Mock -CommandName Enable-SmtpDaneInbound -MockWith {
@@ -73,10 +77,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
 
                 Mock -CommandName Get-AcceptedDomain -MockWith {
-                    return @{
-                        DomainName     = "fakedomain.com"
-                        SmtpDaneStatus = "Disabled"
-                    }
+                    return $null
                 }
             }
             It 'Should return Values from the Get method' {
@@ -97,13 +98,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DomainName = "fakedomain.com"
                     Ensure     = "Absent"
                     Credential = $Credential;
-                }
-
-                Mock -CommandName Get-AcceptedDomain -MockWith {
-                    return @{
-                        DomainName     = "fakedomain.com"
-                        SmtpDaneStatus = "Enabled"
-                    }
                 }
             }
 
@@ -128,13 +122,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure     = "Present"
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-AcceptedDomain -MockWith {
-                    return @{
-                        DomainName     = "fakedomain.com"
-                        SmtpDaneStatus = "Enabled"
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -148,19 +135,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-AcceptedDomain -MockWith {
-                    return @(
-                        @{
-                            DomainName            = "fakedomain.com"
-                            SmtpDaneStatus        = 'Disabled'
-                        },
-                        @{
-                            DomainName            = "otherfakedomain.com"
-                            SmtpDaneStatus        = 'Enabled'
-                        }
-                    )
                 }
             }
 

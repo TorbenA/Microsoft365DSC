@@ -152,8 +152,10 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'Azure' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting Sentinel Alert Rule configuration for $DisplayName"
+
+    $null = New-M365DSCConnection -Workload 'Azure' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -484,6 +486,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting Sentinel Alert Rule configuration for $DisplayName"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies

@@ -57,8 +57,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Getting configuration for hub site collection $Url"
-    Write-Verbose -Message 'Getting current home site collection settings'
+    Write-Verbose -Message "Getting current home site collection settings for $Url"
 
     try
     {
@@ -190,9 +189,6 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
     Write-Verbose -Message "Setting configuration for home site '$Url'"
-
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
-        -InboundParameters $PSBoundParameters
 
     $currentValues = Get-TargetResource @PSBoundParameters
 

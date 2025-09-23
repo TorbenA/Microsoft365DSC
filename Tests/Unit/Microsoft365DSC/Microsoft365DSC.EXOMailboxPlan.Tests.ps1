@@ -47,6 +47,19 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Set-MailboxPlan -MockWith {
             }
 
+            Mock -CommandName Get-MailboxPlan -MockWith {
+                return @{
+                    Identity                 = 'ExchangeOnlineEnterprise'
+                    IssueWarningQuota        = '98 GB (105,226,698,752 bytes)'
+                    MaxReceiveSize           = '25 MB (26,214,400 bytes)'
+                    MaxSendSize              = '25 MB (26,214,400 bytes)'
+                    ProhibitSendQuota        = '99 GB (106,300,440,576 bytes)'
+                    ProhibitSendReceiveQuota = '100 GB (107,374,182,400 bytes)'
+                    RetainDeletedItemsFor    = '14.00:00:00'
+                    RoleAssignmentPolicy     = 'Default Role Assignment Policy'
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -74,10 +87,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             It 'Should return true from the Test method' {
                 Test-TargetResource @testParams | Should -Be $true
             }
-
-            It 'Should not update anything in the Set Method' {
-                Set-TargetResource @testParams
-            }
         }
 
         Context -Name 'MailboxPlan update needed.' -Fixture {
@@ -102,6 +111,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
+                Should -Invoke -CommandName Set-MailboxPlan -Exactly 1
             }
         }
 

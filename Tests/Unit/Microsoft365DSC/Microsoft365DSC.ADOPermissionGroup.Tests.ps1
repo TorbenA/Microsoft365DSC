@@ -35,6 +35,35 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return "Credentials"
             }
 
+            Mock -CommandName Invoke-M365DSCAzureDevOPSWebRequest -MockWith {
+                if ($Script:count -eq 0)
+                {
+                    $Script:count++
+                    return @{
+                        Value = @{
+                            PrincipalName = '[TestOrg]\TestGroup'
+                            Domain        = 'vstfs:///Framework/IdentityDomain/'
+                            OriginId      = '12345-12345-12345-12345-12345'
+                            Description   = 'Test Description'
+                            DisplayName   = 'TestGroup'
+                        }
+                    }
+                }
+                elseif ($Script:count -eq 1)
+                {
+                    $Script:count++
+                    return @{
+                        Members = @(
+                            @{
+                                User = @{
+                                    principalName = "john.smith@contoso.com"
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -79,33 +108,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure              = 'Absent'
                     Credential          = $Credential;
                 }
-
-                Mock -CommandName Invoke-M365DSCAzureDevOPSWebRequest -MockWith {
-                    if ($Script:count -eq 0)
-                    {
-                        $Script:count++
-                        return @{
-                            Value = @{
-                                PrincipalName = '[TestOrg]\TestGroup'
-                                Domain        = 'vstfs:///Framework/IdentityDomain/'
-                                OriginId      = '12345-12345-12345-12345-12345'
-                            }
-                        }
-                    }
-                    elseif ($Script:count -eq 1)
-                    {
-                        $Script:count++
-                        return @{
-                            Members = @(
-                                @{
-                                    User = @{
-                                        principalName = "john.smith@contoso.com"
-                                    }
-                                }
-                            )
-                        }
-                    }
-                }
+                $Script:count = 0
             }
             It 'Should return Values from the Get method' {
                 $Script:count = 0
@@ -135,34 +138,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
 
                 $Script:count = 0
-                Mock -CommandName Invoke-M365DSCAzureDevOPSWebRequest -MockWith {
-                    if ($Script:count -eq 0)
-                    {
-                        $Script:count++
-                        return @{
-                            Value = @{
-                                PrincipalName = '[TestOrg]\TestGroup'
-                                Domain        = 'vstfs:///Framework/IdentityDomain/'
-                                OriginId      = '12345-12345-12345-12345-12345'
-                                Description   = 'Test Description'
-                                DisplayName   = 'TestGroup'
-                            }
-                        }
-                    }
-                    elseif ($Script:count -eq 1)
-                    {
-                        $Script:count++
-                        return @{
-                            Members = @(
-                                @{
-                                    User = @{
-                                        principalName = "john.smith@contoso.com"
-                                    }
-                                }
-                            )
-                        }
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -176,7 +151,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description         = "Test Description";
                     DisplayName         = "TestGroup";
                     Level               = "Organization";
-                    Members             = @("john.smith@contoso.com");
+                    Members             = @("bob.houle@contoso.com"); # Drift
                     OrganizationName    = "TestOrg";
                     PrincipalName       = "[TestOrg]\TestGroup";
                     Ensure              = 'Present'
@@ -184,34 +159,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
 
                 $Script:count = 0
-                Mock -CommandName Invoke-M365DSCAzureDevOPSWebRequest -MockWith {
-                    if ($Script:count -eq 0)
-                    {
-                        $Script:count++
-                        return @{
-                            Value = @{
-                                PrincipalName = '[TestOrg]\TestGroup'
-                                Domain        = 'vstfs:///Framework/IdentityDomain/'
-                                OriginId      = '12345-12345-12345-12345-12345'
-                                Description   = 'Test Description'
-                                DisplayName   = 'TestGroup'
-                            }
-                        }
-                    }
-                    elseif ($Script:count -eq 1)
-                    {
-                        $Script:count++
-                        return @{
-                            Members = @(
-                                @{
-                                    User = @{
-                                        principalName = "bob.houle@contoso.com" # drift
-                                    }
-                                }
-                            )
-                        }
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -228,7 +175,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:CurrentModeIsExport = $true
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
-                    Credential          = $Credential;
+                    Credential = $Credential;
                 }
 
                 $Script:count = 0

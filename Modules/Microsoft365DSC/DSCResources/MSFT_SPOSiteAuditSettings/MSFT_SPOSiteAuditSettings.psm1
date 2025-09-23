@@ -55,7 +55,7 @@ function Get-TargetResource
 
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
+        $null = New-M365DSCConnection -Workload 'PNP' `
             -InboundParameters $PSBoundParameters `
             -Url $Url -ErrorAction SilentlyContinue
 
@@ -177,7 +177,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
+    $null = New-M365DSCConnection -Workload 'PNP' `
         -InboundParameters $PSBoundParameters `
         -Url $Url
 

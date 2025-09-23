@@ -175,9 +175,6 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
-        -InboundParameters $PSBoundParameters
-
     $currentProperties = Get-TargetResource @PSBoundParameters
 
     foreach ($property in $Properties)

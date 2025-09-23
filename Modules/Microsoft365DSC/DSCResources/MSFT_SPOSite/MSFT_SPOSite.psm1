@@ -466,12 +466,8 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
-        -InboundParameters $PSBoundParameters
-
     $CurrentValues = Get-TargetResource @PSBoundParameters
 
-    $context = Get-PnPContext
     if ($Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Site {$Url} doesn't exist. Creating it."
@@ -620,7 +616,7 @@ function Set-TargetResource
 
         if ($UpdateParams)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+            $null = New-M365DSCConnection -Workload 'PnP' `
                 -InboundParameters $PSBoundParameters `
                 -Url $Url
             Write-Verbose -Message "Updating props via Set-PNPSite on $($Url) with parameters:`r`n$(Convert-M365DscHashtableToString -Hashtable $UpdateParams)"
@@ -633,7 +629,7 @@ function Set-TargetResource
                 $PSBoundParameters.LocaleId -ne $site.Lcid)
         {
             Write-Verbose -Message "Updating LocaleId of RootWeb to $($PSBoundParameters.LocaleId)"
-            $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+            $null = New-M365DSCConnection -Workload 'PnP' `
                 -InboundParameters $PSBoundParameters `
                 -Url $Url
 

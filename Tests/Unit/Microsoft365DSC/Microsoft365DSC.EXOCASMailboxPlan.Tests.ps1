@@ -69,10 +69,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             It 'Should return true from the Test method' {
                 Test-TargetResource @testParams | Should -Be $true
             }
-
-            It 'Should not update anything in the Set Method' {
-                Set-TargetResource @testParams
-            }
         }
 
         Context -Name 'CASMailboxPlan update needed.' -Fixture {
@@ -81,7 +77,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure            = 'Present'
                     Identity          = 'ExchangeOnlineEnterprise-6f6c267b-f8db-4020-b441-f7bd966a0ca0'
                     Credential        = $Credential
-                    ActiveSyncEnabled = $true
+                    ActiveSyncEnabled = $false # Drift
                     ImapEnabled       = $true
                     OwaMailboxPolicy  = 'OwaMailboxPolicy-Default'
                     PopEnabled        = $false # Drift
@@ -94,6 +90,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
+                Should -Invoke -CommandName 'Set-CASMailboxPlan' -Exactly 1
             }
         }
 

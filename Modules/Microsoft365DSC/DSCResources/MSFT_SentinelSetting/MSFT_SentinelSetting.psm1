@@ -64,10 +64,12 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration for Sentinel Settings for Resource Group: $ResourceGroupName, Workspace: $WorkspaceName"
+
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'Azure' `
-            -InboundParameters $PSBoundParameters | Out-Null
+        $null = New-M365DSCConnection -Workload 'Azure' `
+            -InboundParameters $PSBoundParameters
 
         #Ensure the proper dependencies are installed in the current environment.
         Confirm-M365DSCDependencies
@@ -228,6 +230,11 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting configuration for Sentinel Settings for Resource Group: $ResourceGroupName, Workspace: $WorkspaceName"
+
+    $null = New-M365DSCConnection -Workload 'Azure' `
+            -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
