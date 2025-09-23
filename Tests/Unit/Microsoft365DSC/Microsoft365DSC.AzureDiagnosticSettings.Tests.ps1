@@ -35,6 +35,37 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return "Credentials"
             }
 
+            Mock -CommandName Invoke-AzRest -MockWith {
+                return @{
+                    Content = (ConvertTo-Json @{
+                        value = @(
+                            @{
+                                name = 'TestDiag'
+                                id   = 'providers/microsoft.aadiam/diagnosticSettings/TestDiag'
+                                type = 'Microsoft.Insights/diagnosticSettings'
+                                location = 'global'
+                                properties = @{
+                                    storageAccountId= "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.Storage/storageAccounts/demostore";
+                                    workspaceId                 = "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.OperationalInsights/workspaces/MySentinelWorkspace";
+                                    eventHubAuthorizationRuleId = "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.EventHub/namespaces/myhub/authorizationrules/RootManageSharedAccessKey";
+                                    eventhubName = $null
+                                    logs = @(
+                                        @{
+                                            category = 'AuditLogs'
+                                            enabled = $true
+                                        },
+                                        @{
+                                            category = 'SignInLogs'
+                                            enabled = $true
+                                        }
+                                    )
+                                }
+                            }
+                        )
+                    } -Depth 10 -Compress)
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -100,37 +131,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     WorkspaceId                 = "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.OperationalInsights/workspaces/MySentinelWorkspace";
                     Credential                  = $Credential;
                 }
-
-                Mock -CommandName Invoke-AzRest -MockWith {
-                    return @{
-                        Content = (ConvertTo-Json @{
-                            value = @(
-                                @{
-                                    name = 'TestDiag'
-                                    id   = 'providers/microsoft.aadiam/diagnosticSettings/TestDiag'
-                                    type = 'Microsoft.Insights/diagnosticSettings'
-                                    location = 'global'
-                                    properties = @{
-                                        storageAccountId= "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.Storage/storageAccounts/demostore";
-                                        workspaceId                 = "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.OperationalInsights/workspaces/MySentinelWorkspace";
-                                        eventHubAuthorizationRuleId = "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.EventHub/namespaces/myhub/authorizationrules/RootManageSharedAccessKey";
-                                        eventhubName = $null
-                                        logs = @(
-                                            @{
-                                                category = 'AuditLogs'
-                                                enabled = $true
-                                            },
-                                            @{
-                                                category = 'SignInLogs'
-                                                enabled = $true
-                                            }
-                                        )
-                                    }
-                                }
-                            )
-                        } -Depth 10 -Compress)
-                    }
-                }
             }
             It 'Should return Values from the Get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
@@ -165,37 +165,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     WorkspaceId                 = "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.OperationalInsights/workspaces/MySentinelWorkspace";
                     Credential                  = $Credential;
                 }
-
-                Mock -CommandName Invoke-AzRest -MockWith {
-                    return @{
-                        Content = (ConvertTo-Json @{
-                            value = @(
-                                @{
-                                    name = 'TestDiag'
-                                    id   = 'providers/microsoft.aadiam/diagnosticSettings/TestDiag'
-                                    type = 'Microsoft.Insights/diagnosticSettings'
-                                    location = 'global'
-                                    properties = @{
-                                        storageAccountId= "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.Storage/storageAccounts/demostore";
-                                        workspaceId                 = "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.OperationalInsights/workspaces/MySentinelWorkspace";
-                                        eventHubAuthorizationRuleId = "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.EventHub/namespaces/myhub/authorizationrules/RootManageSharedAccessKey";
-                                        eventhubName = $null
-                                        logs = @(
-                                            @{
-                                                category = 'AuditLogs'
-                                                enabled = $true
-                                            },
-                                            @{
-                                                category = 'SignInLogs'
-                                                enabled = $true
-                                            }
-                                        )
-                                    }
-                                }
-                            )
-                        } -Depth 10 -Compress)
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -213,7 +182,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         } -ClientOnly)
                         (New-CimInstance -ClassName MSFT_AzureDiagnosticSettingsCategory -Property @{
                             category = 'SignInLogs'
-                            enabled = $True
+                            enabled = $false # Drift
                         } -ClientOnly)
                     );
                     Ensure                      = "Present";
@@ -222,37 +191,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     StorageAccountId            = "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.Storage/storageAccounts/demostore";
                     WorkspaceId                 = "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.OperationalInsights/workspaces/MySentinelWorkspace";
                     Credential                  = $Credential;
-                }
-
-                Mock -CommandName Invoke-AzRest -MockWith {
-                    return @{
-                        Content = (ConvertTo-Json @{
-                            value = @(
-                                @{
-                                    name = 'TestDiag'
-                                    id   = 'providers/microsoft.aadiam/diagnosticSettings/TestDiag'
-                                    type = 'Microsoft.Insights/diagnosticSettings'
-                                    location = 'global'
-                                    properties = @{
-                                        storageAccountId= "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.Storage/storageAccounts/demostore";
-                                        workspaceId                 = "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.OperationalInsights/workspaces/MySentinelWorkspace";
-                                        eventHubAuthorizationRuleId = "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.EventHub/namespaces/myhub/authorizationrules/RootManageSharedAccessKey";
-                                        eventhubName = $null
-                                        logs = @(
-                                            @{
-                                                category = 'AuditLogs'
-                                                enabled = $true
-                                            },
-                                            @{
-                                                category = 'SignInLogs'
-                                                enabled = $false #drift
-                                            }
-                                        )
-                                    }
-                                }
-                            )
-                        } -Depth 10 -Compress)
-                    }
                 }
             }
 
@@ -276,37 +214,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential  = $Credential;
-                }
-
-                Mock -CommandName Invoke-AzRest -MockWith {
-                    return @{
-                        Content = (ConvertTo-Json @{
-                            value = @(
-                                @{
-                                    name = 'TestDiag'
-                                    id   = 'providers/microsoft.aadiam/diagnosticSettings/TestDiag'
-                                    type = 'Microsoft.Insights/diagnosticSettings'
-                                    location = 'global'
-                                    properties = @{
-                                        storageAccountId= "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.Storage/storageAccounts/demostore";
-                                        workspaceId                 = "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.OperationalInsights/workspaces/MySentinelWorkspace";
-                                        eventHubAuthorizationRuleId = "/subscriptions/f854132c-570e-4c98-a4c9-3cd902de77dd/resourceGroups/TBD/providers/Microsoft.EventHub/namespaces/myhub/authorizationrules/RootManageSharedAccessKey";
-                                        eventhubName = $null
-                                        logs = @(
-                                            @{
-                                                category = 'AuditLogs'
-                                                enabled = $true
-                                            },
-                                            @{
-                                                category = 'SignInLogs'
-                                                enabled = $true
-                                            }
-                                        )
-                                    }
-                                }
-                            )
-                        } -Depth 10 -Compress)
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {

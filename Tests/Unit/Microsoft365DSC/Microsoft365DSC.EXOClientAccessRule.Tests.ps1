@@ -45,6 +45,24 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-ClientAccessRule -MockWith {
             }
 
+            Mock -CommandName Get-ClientAccessRule -MockWith {
+                return @{
+                    Ensure                               = 'Present'
+                    Identity                             = 'ExampleCASRule'
+                    Credential                           = $Credential
+                    Action                               = 'AllowAccess'
+                    AnyOfAuthenticationTypes             = @('AdfsAuthentication', 'BasicAuthentication')
+                    AnyOfClientIPAddressesOrRanges       = @('192.168.1.100', '10.1.1.0/24', '172.16.5.1-172.16.5.150')
+                    AnyOfProtocols                       = @('ExchangeAdminCenter', 'OutlookWebApp')
+                    Enabled                              = $false
+                    ExceptAnyOfClientIPAddressesOrRanges = @('10.1.1.13', '172.16.5.2')
+                    ExceptUsernameMatchesAnyOfPatterns   = @('*ThatGuy*', 'contoso\JohnDoe')
+                    Priority                             = 1
+                    RuleScope                            = 'Users'
+                    UserRecipientFilter                  = '{City -eq "Redmond"}'
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -72,9 +90,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
 
                 Mock -CommandName Get-ClientAccessRule -MockWith {
-                    return @{
-                        Identity = 'SomeOtherPolicy'
-                    }
+                    return $null
                 }
             }
 
@@ -84,6 +100,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
+                Should -Invoke -CommandName 'New-ClientAccessRule' -Exactly 1
             }
         }
 
@@ -103,24 +120,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Priority                             = 1
                     RuleScope                            = 'Users'
                     UserRecipientFilter                  = '{City -eq "Redmond"}'
-                }
-
-                Mock -CommandName Get-ClientAccessRule -MockWith {
-                    return @{
-                        Ensure                               = 'Present'
-                        Identity                             = 'ExampleCASRule'
-                        Credential                           = $Credential
-                        Action                               = 'AllowAccess'
-                        AnyOfAuthenticationTypes             = @('AdfsAuthentication', 'BasicAuthentication')
-                        AnyOfClientIPAddressesOrRanges       = @('192.168.1.100', '10.1.1.0/24', '172.16.5.1-172.16.5.150')
-                        AnyOfProtocols                       = @('ExchangeAdminCenter', 'OutlookWebApp')
-                        Enabled                              = $false
-                        ExceptAnyOfClientIPAddressesOrRanges = @('10.1.1.13', '172.16.5.2')
-                        ExceptUsernameMatchesAnyOfPatterns   = @('*ThatGuy*', 'contoso\JohnDoe')
-                        Priority                             = 1
-                        RuleScope                            = 'Users'
-                        UserRecipientFilter                  = '{City -eq "Redmond"}'
-                    }
                 }
             }
 
@@ -144,25 +143,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     ExceptUsernameMatchesAnyOfPatterns   = @('*ThatGuy*', 'contoso\JohnDoe')
                     Priority                             = 1
                     RuleScope                            = 'Users'
-                    UserRecipientFilter                  = '{City -eq "Redmond"}'
-                }
-
-                Mock -CommandName Get-ClientAccessRule -MockWith {
-                    return @{
-                        Ensure                               = 'Present'
-                        Identity                             = 'ExampleCASRule'
-                        Credential                           = $Credential
-                        Action                               = 'DenyAccess'
-                        AnyOfAuthenticationTypes             = @('AdfsAuthentication')
-                        AnyOfClientIPAddressesOrRanges       = @('192.168.1.100')
-                        AnyOfProtocols                       = @('ExchangeAdminCenter', 'OutlookWebApp')
-                        Enabled                              = $false
-                        ExceptAnyOfClientIPAddressesOrRanges = @('10.1.1.13', '172.16.5.2')
-                        ExceptUsernameMatchesAnyOfPatterns   = @('*ThatGuy*', 'contoso\JohnDoe')
-                        Priority                             = 1
-                        RuleScope                            = 'All'
-                        UserRecipientFilter                  = '{}'
-                    }
+                    UserRecipientFilter                  = '{}' # Drift
                 }
             }
 
@@ -172,6 +153,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
+                Should -Invoke -CommandName 'Set-ClientAccessRule' -Exactly 1
             }
         }
 
@@ -197,6 +179,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
+                Should -Invoke -CommandName 'Remove-ClientAccessRule' -Exactly 1
             }
         }
 
@@ -210,13 +193,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
                 Mock -CommandName Confirm-ImportedCmdletIsAvailable -MockWith {
                     return $true
-                }
-
-                Mock -CommandName Get-ClientAccessRule -MockWith {
-                    return @{
-                        Identity = 'ExampleCASRule'
-                        Action   = 'AllowAccess'
-                    }
                 }
             }
 
