@@ -8,7 +8,7 @@
 | **DetectionScriptContent** | Write | String | The entire content of the detection powershell script | |
 | **DetectionScriptParameters** | Write | MSFT_MicrosoftGraphdeviceHealthScriptParameter[] | List of ComplexType DetectionScriptParameters objects. | |
 | **DeviceHealthScriptType** | Write | String | DeviceHealthScriptType for the script policy. Possible values are: deviceHealthScript, managedInstallerScript. | `deviceHealthScript`, `managedInstallerScript` |
-| **DisplayName** | Required | String | Name of the device health script | |
+| **DisplayName** | Key | String | Name of the device health script | |
 | **EnforceSignatureCheck** | Write | Boolean | Indicates whether the script signature needs be checked | |
 | **IsGlobalScript** | Write | Boolean | Indicates whether the script is a global script provided by Microsoft | |
 | **Publisher** | Write | String | Name of the device health script publisher | |
@@ -17,7 +17,7 @@
 | **RoleScopeTagIds** | Write | StringArray[] | List of Scope Tag IDs for the device health script | |
 | **RunAs32Bit** | Write | Boolean | Indicate whether PowerShell script(s) should run as 32-bit | |
 | **RunAsAccount** | Write | String | Indicates the type of execution context. Possible values are: system, user. | `system`, `user` |
-| **Id** | Key | String | The unique identifier for an entity. Read-only. | |
+| **Id** | Write | String | The unique identifier for an entity. Optional for creation (Azure assigns automatically). Required when multiple scripts exist with the same DisplayName to avoid ambiguity. | |
 | **Assignments** | Write | MSFT_IntuneDeviceRemediationPolicyAssignments[] | Represents the assignment to the Intune policy. | |
 | **Ensure** | Write | String | Present ensures the policy exists, absent ensures it is removed. | `Present`, `Absent` |
 | **Credential** | Write | PSCredential | Credentials of the Admin | |
@@ -82,6 +82,10 @@
 
 Intune Device Remediation
 
+**Key Parameter:** This resource uses **DisplayName** as the key parameter. The **Id** parameter is optional and is automatically assigned by Azure when creating new remediation scripts. When updating or removing existing scripts, you can provide the Id for better performance, but it's not required.
+
+**Important:** If multiple remediation scripts exist with the same DisplayName, you **must** provide the Id parameter to specify which script to manage. The resource will throw an error if multiple scripts are found with the same DisplayName and no Id is provided, preventing accidental changes to the wrong script.
+
 **Important:** Global scripts only allow the update of the following properties:
 
 * Assignments
@@ -120,7 +124,7 @@ To authenticate with the Microsoft Graph API, this resource required the followi
 
 ### Example 1
 
-This example creates a new Device Remediation.
+This example creates a new Device Remediation. Note that the Id parameter is not required for creation - it will be automatically assigned by Azure.
 
 ```powershell
 Configuration Example
@@ -167,7 +171,6 @@ Configuration Example
             DisplayName              = "Device remediation";
             EnforceSignatureCheck    = $False;
             Ensure                   = "Present";
-            Id                       = '00000000-0000-0000-0000-000000000000'
             Publisher                = "Some Publisher";
             RemediationScriptContent = "Base64 encoded script content";
             RoleScopeTagIds          = @("0");
@@ -183,7 +186,7 @@ Configuration Example
 
 ### Example 2
 
-This example updates a new Device Remediation.
+This example updates an existing Device Remediation. The Id parameter can be optionally provided for better performance when updating existing scripts.
 
 ```powershell
 Configuration Example
@@ -280,4 +283,3 @@ Configuration Example
     }
 }
 ```
-

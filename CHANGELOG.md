@@ -10,6 +10,8 @@
   * Fix case evaluation when creating instances or updating properties.
 * AADCrossTenantIdentitySyncPolicyPartner
   * Initial release.
+* AADEnrichedAuditLogs
+  * BREAKING - Removed resource due to deprecation
 * AADGroup
   * Fixed multi-tenant Service Principal support for owners and members.
     FIXES [#6498](https://github.com/microsoft/Microsoft365DSC/issues/6498)
@@ -55,10 +57,15 @@
     FIXES [#6520](https://github.com/microsoft/Microsoft365DSC/issues/6520)
 * IntuneASRRulesPolicyWindows10
   * [BREAKING CHANGE] Removed resource. It was replaced with `IntuneSettingCatalogASRRulesPolicyWindows10`.
+* IntuneDeviceCleanupRule
+  * [BREAKING CHANGE] Removed resource. It was replaced with `IntuneDeviceCleanupRuleV2`.
 * IntuneDeviceCompliancePolicyAndroid
   * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
 * IntuneDeviceConfigurationPolicyAndroidDeviceAdministrator
   * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+* IntuneDeviceRemediation
+  * [BREAKING CHANGE] Made Id optional and enabled creation of remediation scripts using DisplayName only.
+    FIXES [#6445](https://github.com/microsoft/Microsoft365DSC/issues/6445)
 * IntuneMobileAppsMacOSLobApp
   * Added filter capability.
 * IntuneMobileAppsMicrosoftStoreAppWindows10
@@ -152,6 +159,7 @@
     FIXES [#6257](https://github.com/microsoft/Microsoft365DSC/issues/6257)
 * AADAuthenticationStrengthPolicy
   * Filter out built-in policies because they cannot be modified.
+
 * AADEntitlementManagementRoleAssignment
   * Added functionality to export groups and service principals.
     Fixed an issue where the export of `Connected organization administrator` assignments would fail.
@@ -175,6 +183,9 @@
   * Updated `DeviceComplianceCheckinThresholdDays` to use the default value of 30 days
     if the backend reports 0 as the value.
     FIXES [#6450](https://github.com/microsoft/Microsoft365DSC/issues/6450)
+* IntuneDeviceRemediation
+  * [BREAKING CHANGE] Made Id optional and enabled creation of remediation scripts using DisplayName only.
+    FIXES [#6445](https://github.com/microsoft/Microsoft365DSC/issues/6445)
   * Restricted possible values for `DeviceComplianceCheckinThresholdDays` from 1 to 120.
 * IntuneMobileAppsWin32AppWindows10
   * Bump CIM instance version to fix invalid property name.
@@ -216,6 +227,7 @@
   * Updated ExchangeOnlineManagement to version 3.9.0.
     FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
   * Include `Az.Security` module for `Defender` workload.
+  * Updated MSCloudLoginAssistant to version 1.1.52.
 * M365DSCReverse
   * Switch to output directory during export.
     FIXES [#6427](https://github.com/microsoft/Microsoft365DSC/issues/6427)
