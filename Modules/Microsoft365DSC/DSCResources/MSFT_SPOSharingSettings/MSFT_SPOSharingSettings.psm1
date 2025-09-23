@@ -107,10 +107,6 @@ function Get-TargetResource
         $DefaultLinkPermission,
 
         [Parameter()]
-        [System.boolean]
-        $RequireAcceptingAccountMatchInvitedAccount,
-
-        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
@@ -229,9 +225,6 @@ function Get-TargetResource
             FolderAnonymousLinkType                  = $SPOSharingSettings.FolderAnonymousLinkType.ToString()
             NotifyOwnersWhenItemsReshared            = $SPOSharingSettings.NotifyOwnersWhenItemsReshared
             DefaultLinkPermission                    = $DefaultLinkPermission
-
-            #DEPRECATED
-            #RequireAcceptingAccountMatchInvitedAccount = $SPOSharingSettings.RequireAcceptingAccountMatchInvitedAccount
             Credential                               = $Credential
             ApplicationId                            = $ApplicationId
             TenantId                                 = $TenantId
@@ -373,10 +366,6 @@ function Set-TargetResource
         $DefaultLinkPermission,
 
         [Parameter()]
-        [System.boolean]
-        $RequireAcceptingAccountMatchInvitedAccount,
-
-        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
@@ -437,9 +426,6 @@ function Set-TargetResource
 
     $CurrentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $CurrentParameters.Remove('IsSingleInstance') | Out-Null
-
-    # DEPRECATED
-    $CurrentParameters.Remove('RequireAcceptingAccountMatchInvitedAccount') | Out-Null
 
     [bool]$SetMySharingCapability = $false
     if ($null -ne $CurrentParameters['MySiteSharingCapability'])
@@ -628,10 +614,6 @@ function Test-TargetResource
         $DefaultLinkPermission,
 
         [Parameter()]
-        [System.boolean]
-        $RequireAcceptingAccountMatchInvitedAccount,
-
-        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
@@ -693,9 +675,6 @@ function Test-TargetResource
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
 
     $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
-    # DEPRECATED
-    $ValuesToCheck.Remove('RequireAcceptingAccountMatchInvitedAccount') | Out-Null
 
     if ($DefaultLinkPermission -eq 'None')
     {

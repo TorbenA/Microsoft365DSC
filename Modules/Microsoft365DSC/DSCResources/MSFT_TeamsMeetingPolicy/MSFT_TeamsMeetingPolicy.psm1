@@ -236,10 +236,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
-        $ForceStreamingAttendeeMode,
-
-        [Parameter()]
-        [System.String]
         $InfoShownInReportMode,
 
         [Parameter()]
@@ -744,10 +740,6 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
-        $ForceStreamingAttendeeMode,
-
-        [Parameter()]
-        [System.String]
         $InfoShownInReportMode,
 
         [Parameter()]
@@ -898,9 +890,6 @@ function Set-TargetResource
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
     $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
-    # Parameter is Deprecated
-    $SetParameters.Remove('ForceStreamingAttendeeMode') | Out-Null
 
     if ($AllowCloudRecording -eq $false -and $SetParameters.Keys -contains 'AllowRecordingStorageOutsideRegion')
     {
@@ -1184,10 +1173,6 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
-        $ForceStreamingAttendeeMode,
-
-        [Parameter()]
-        [System.String]
         $InfoShownInReportMode,
 
         [Parameter()]
@@ -1351,9 +1336,6 @@ function Test-TargetResource
 
     # The AllowUserToJoinExternalMeeting doesn't do anything based on official documentation
     $ValuesToCheck.Remove('AllowUserToJoinExternalMeeting') | Out-Null
-
-    # Parameter is Deprecated
-    $ValuesToCheck.Remove('ForceStreamingAttendeeMode') | Out-Null
 
     if ($AllowCloudRecording -eq $false -and $ValuesToCheck.Keys -contains 'AllowRecordingStorageOutsideRegion')
     {
