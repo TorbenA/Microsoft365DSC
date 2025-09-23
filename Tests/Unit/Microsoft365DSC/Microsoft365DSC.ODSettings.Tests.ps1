@@ -77,7 +77,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     IsSingleInstance                          = 'Yes'
                     OrphanedPersonalSitesRetentionPeriod      = 60
                     OneDriveForGuestsEnabled                  = $true
-                    NotifyOwnersWhenInvitationsAccepted       = $true
                     NotificationsInOneDriveForBusinessEnabled = $true
                     ODBMembersCanShare                        = 'On'
                     ODBAccessRequests                         = 'On'

@@ -4,14 +4,22 @@
 
 * AADAdministrativeUnit
   * Reduced export time by 20%.
+* AADApplication
+  * [BREAKING CHANGE] Removed deprecated parameters `AvailableToOtherTenants` and `RequireClientServicePrincipal`.
 * AADAppManagementPolicy
   * Updated `RestrictForAppsCreatedAfterDateTime` to "o" format.
+* AADAuthenticationMethodPolicy
+  * [BREAKING CHANGE] Removed deprecated parameter `PolicyMigrationState`.
+* AADAuthenticationMethodPolicyAuthenticator
+  * [BREAKING CHANGE] Removed deprecated parameter `NumberMatchingRequiredState`.
 * AADConditionalAccessPolicy
   * Fix case evaluation when creating instances or updating properties.
 * AADCrossTenantIdentitySyncPolicyPartner
   * Initial release.
+* AADCustomSecurityAttributeDefinition
+  * [BREAKING CHANGE] Restricted accepted values for `Status` to `Available` and `Deprecated`.
 * AADEnrichedAuditLogs
-  * BREAKING - Removed resource due to deprecation
+  * [BREAKING CHANGE] Removed deprecated resource.
 * AADGroup
   * Fixed multi-tenant Service Principal support for owners and members.
     FIXES [#6498](https://github.com/microsoft/Microsoft365DSC/issues/6498)
@@ -25,6 +33,8 @@
   * Added caching for export.
 * EXOClientAccessRule
   * [BREAKING CHANGE] Removed resource.
+* EXOFocusedInbox
+  * [BREAKING CHANGE] Removed deprecated parameter `FocusedInboxOnLastUpdateTime`.
 * EXOGroupSettings
   * Fixed an issue with the retrieval by DisplayName and duplicate Id property
     on update.
@@ -46,6 +56,16 @@
   * Added caching for export.
 * EXORecipientPermission
   * Added additional caching for export.
+* EXOSafeAttachmentPolicy
+  * [BREAKING CHANGE] Removed deprecated parameter `ActionOnError`.
+* EXOTransportRule
+  * [BREAKING CHANGE] Removed deprecated parameters `ExceptIfHasSenderOverride`, `MessageContainsDataClassifications`,
+    `ExceptIfMessageContainsDataClassifications`, `HasSenderOverride`, `NotifySender`, `ApplyOME` and `RemoveOME`.
+* IntuneAccountProtectionPolicy
+  * [BREAKING CHANGE] Removed deprecated resource.
+* IntuneAppConfigurationPolicy
+  * Fixed an issue with MOF instance parsing.
+    FIXES [#6520](https://github.com/microsoft/Microsoft365DSC/issues/6520)
 * IntuneAppProtectionPolicyAndroid
   * [BREAKING CHANGE] Combined `ExcludedGroups` with `Assignments`, updated
     time parameters to ISO8601 format, removed `IsAssigned` property.
@@ -86,20 +106,31 @@
 * IntuneWifiConfigurationPolicyAndroidForWork
   * [BREAKING CHANGE] Removed resource because it's not supported anymore.
     Instead, use the `IntuneWifiConfigurationPolicyAndroidEnterpriseWorkProfile` resource.
+* O365OrgSettings
+  * [BREAKING CHANGE] Removed deprecated parameter `MicrosoftVivaBriefingEmail`.
+* ODSettings
+  * [BREAKING CHANGE] Removed deprecated parameter `NotifyOwnersWhenInvitationsAccepted`.
 * SPOPropertyBag
   * Reduced export time by 85%.
+* SPOSharingSettings
+  * [BREAKING CHANGE] Removed deprecated parameter `RequireAcceptingAccountMatchInvitedAccount`.
 * SPOSite
   * Added additional caching.
 * SPOTenantSettings
-  * Fixing the retrieval and update of the OneDriveSharingCapability parameter.
+  * [BREAKING CHANGE] Removed deprecated parameter `UserVoiceForFeedbackEnabled`.
+  * Fixed the retrieval and update of the OneDriveSharingCapability parameter.
 * TeamsChannel
   * Reduced export time by up to 75%.
 * TeamsChannelTab
   * Reduced export time by up to 85%.
-* M365DSCUtil
-  * Added parameter `-Parallel` to `Export-M365DSCConfiguration`.
-  * Renamed function `Get-M365DSCWorkloadsListFromResourceNames` to `Get-M365DSCConnectedWorkloadList`.
-  * Added function `Get-M365DSCWorkloadForResource` to look up the workload of a resource.
+* TeamsFederationConfiguration
+  * [BREAKING CHANGE] Removed deprecated parameter `AllowPublicUsers`.
+* TeamsMeetingPolicy
+  * [BREAKING CHANGE] Removed deprecated parameter `ForceStreamingAttendeeMode`.
+* TeamsShiftsPolicy
+  * [BREAKING CHANGE] Removed deprecated parameter `EnableShiftPresence`.
+* TeamsTenantDialPlan
+  * [BREAKING CHANGE] Removed deprecated parameter `OptimizeDeviceDialing` and `ExternalAccessPrefix`.
 * MISC
   * Added performance improvements to speed up resource processing.
   * Code cleanup across all Intune resources.
@@ -111,6 +142,7 @@
   * Improved module import speed by up to 60%.
   * Reduced repeated logins during export of SPO and Teams resources.
   * Removed unnecessary type casting across all resources.
+  * Streamlined test cases.
   * Updated required modules for Intune resources doing assignments to groups.
   * [BREAKING CHANGE] Removed `SupportsScopeTags` property from all resources because it's read-only.
 * M365DSCDRGUtil
@@ -118,8 +150,10 @@
   * Fixed an issue where group filtering would not find the specified groups.
   * Fixed an issue where 0 requests passed to `Invoke-M365DSCGraphBatchRequests` would fail.
     FIXES [#6521](https://github.com/microsoft/Microsoft365DSC/issues/6521)
-* MISC
-  * Streamline test cases.
+* M365DSCUtil
+  * Added parameter `-Parallel` to `Export-M365DSCConfiguration`.
+  * Renamed function `Get-M365DSCWorkloadsListFromResourceNames` to `Get-M365DSCConnectedWorkloadList`.
+  * Added function `Get-M365DSCWorkloadForResource` to look up the workload of a resource.
 
 # 1.25.910.1
 

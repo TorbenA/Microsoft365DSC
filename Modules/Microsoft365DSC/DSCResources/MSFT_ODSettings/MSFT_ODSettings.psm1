@@ -25,10 +25,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $NotifyOwnersWhenInvitationsAccepted,
-
-        [Parameter()]
-        [System.Boolean]
         $NotificationsInOneDriveForBusinessEnabled,
 
         [Parameter()]
@@ -194,8 +190,6 @@ function Get-TargetResource
             OneDriveForGuestsEnabled                  = $tenant.OneDriveForGuestsEnabled
             ODBAccessRequests                         = $tenant.ODBAccessRequests
             ODBMembersCanShare                        = $ODBMembersCanShareValue
-            #DEPRECATED
-            #NotifyOwnersWhenInvitationsAccepted       = $tenant.NotifyOwnersWhenInvitationsAccepted
             NotificationsInOneDriveForBusinessEnabled = $tenant.NotificationsInOneDriveForBusinessEnabled
             Ensure                                    = 'Present'
             ApplicationId                             = $ApplicationId
@@ -241,11 +235,6 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $OneDriveForGuestsEnabled,
-
-        # DEPRECATED
-        [Parameter()]
-        [System.Boolean]
-        $NotifyOwnersWhenInvitationsAccepted,
 
         [Parameter()]
         [System.Boolean]
@@ -464,10 +453,6 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $OneDriveForGuestsEnabled,
-
-        [Parameter()]
-        [System.Boolean]
-        $NotifyOwnersWhenInvitationsAccepted,
 
         [Parameter()]
         [System.Boolean]

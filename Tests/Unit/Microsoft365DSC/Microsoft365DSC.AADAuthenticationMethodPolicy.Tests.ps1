@@ -107,7 +107,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"
-                    PolicyMigrationState = "preMigration"
                     PolicyVersion = "FakeStringValue"
                     ReconfirmationInDays = 25
                     RegistrationEnforcement = (New-CimInstance -ClassName MSFT_MicrosoftGraphregistrationEnforcement -Property @{
@@ -174,7 +173,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"
-                    PolicyMigrationState = "preMigration"
                     PolicyVersion = "FakeStringValue"
                     ReconfirmationInDays = 25
                     RegistrationEnforcement = (New-CimInstance -ClassName MSFT_MicrosoftGraphregistrationEnforcement -Property @{
@@ -235,7 +233,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"
-                    PolicyMigrationState = "preMigration"
                     PolicyVersion = "FakeStringValue"
                     ReconfirmationInDays = 25
                     RegistrationEnforcement = (New-CimInstance -ClassName MSFT_MicrosoftGraphregistrationEnforcement -Property @{

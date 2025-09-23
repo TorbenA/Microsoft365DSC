@@ -23,11 +23,6 @@ function Get-TargetResource
         [System.Boolean]
         $AllowFederatedUsers,
 
-        # DEPRECATED
-        [Parameter()]
-        [System.Boolean]
-        $AllowPublicUsers,
-
         [Parameter()]
         [System.Boolean]
         $AllowTeamsConsumer,
@@ -132,8 +127,6 @@ function Get-TargetResource
             AllowedDomains                              = $AllowedDomainsValues
             BlockedDomains                              = $BlockedDomainsValues
             AllowFederatedUsers                         = $config.AllowFederatedUsers
-            #DEPRECATED
-            #AllowPublicUsers                            = $config.AllowPublicUsers
             AllowTeamsConsumer                          = $config.AllowTeamsConsumer
             AllowTeamsConsumerInbound                   = $config.AllowTeamsConsumerInbound
             ExternalAccessWithTrialTenants              = $config.ExternalAccessWithTrialTenants
@@ -181,10 +174,6 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $AllowFederatedUsers,
-
-        [Parameter()]
-        [System.Boolean]
-        $AllowPublicUsers,
 
         [Parameter()]
         [System.Boolean]
@@ -264,12 +253,6 @@ function Set-TargetResource
         $SetParams.Add('AllowedDomains', $AllowAllKnownDomains)
     }
 
-    if ($SetParams.ContainsKey('AllowPublicUsers'))
-    {
-        Write-Verbose -Message "[DEPRECATED] The AllowPublicUsers property is deprecated and will be removed."
-        $SetParams.Remove('AllowPublicUsers') | Out-Null
-    }
-
     Write-Verbose -Message "SetParams: $(Convert-M365DscHashtableToString -Hashtable $SetParams)"
     Set-CsTenantFederationConfiguration @SetParams
 }
@@ -296,10 +279,6 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $AllowFederatedUsers,
-
-        [Parameter()]
-        [System.Boolean]
-        $AllowPublicUsers,
 
         [Parameter()]
         [System.Boolean]
@@ -370,11 +349,6 @@ function Test-TargetResource
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
 
     $ValuesToCheck = $PSBoundParameters
-    if ($ValuesToCheck.ContainsKey('AllowPublicUsers'))
-    {
-        $ValuesToCheck.Remove('AllowPublicUsers') | Out-Null
-    }
-
     $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
         -Source $($MyInvocation.MyCommand.Source) `
         -DesiredValues $PSBoundParameters `

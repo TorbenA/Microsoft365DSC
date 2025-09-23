@@ -21,14 +21,6 @@ function Get-TargetResource
         $NormalizationRules,
 
         [Parameter()]
-        [System.String]
-        $ExternalAccessPrefix,
-
-        [Parameter()]
-        [System.Boolean]
-        $OptimizeDeviceDialing = $false,
-
-        [Parameter()]
         [ValidateLength(1, 49)]
         [System.String]
         $SimpleName,
@@ -155,14 +147,6 @@ function Set-TargetResource
         $NormalizationRules,
 
         [Parameter()]
-        [System.String]
-        $ExternalAccessPrefix,
-
-        [Parameter()]
-        [System.Boolean]
-        $OptimizeDeviceDialing = $false,
-
-        [Parameter()]
         [ValidateLength(1, 49)]
         [System.String]
         $SimpleName,
@@ -213,18 +197,6 @@ function Set-TargetResource
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
     $PSBoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    if ($PSBoundParameters.ContainsKey('OptimizeDeviceDialing'))
-    {
-        $PSBoundParameters.Remove('OptimizeDeviceDialing') | Out-Null
-
-        Write-Verbose -Message 'Parameter OptimizeDeviceDialing has been deprecated and must not be used, removing it from PSBoundParameters.'
-    }
-    if ($PSBoundParameters.ContainsKey('ExternalAccessPrefix'))
-    {
-        $PSBoundParameters.Remove('ExternalAccessPrefix') | Out-Null
-
-        Write-Verbose -Message 'Parameter ExternalAccessPrefix has been deprecated and must not be used, removing it from PSBoundParameters.'
-    }
 
     if ($Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
     {
@@ -350,14 +322,6 @@ function Test-TargetResource
         $NormalizationRules,
 
         [Parameter()]
-        [System.String]
-        $ExternalAccessPrefix,
-
-        [Parameter()]
-        [System.Boolean]
-        $OptimizeDeviceDialing = $false,
-
-        [Parameter()]
         [ValidateLength(1, 49)]
         [System.String]
         $SimpleName,
@@ -405,18 +369,6 @@ function Test-TargetResource
     Write-Verbose -Message 'Testing configuration of Teams Guest Calling'
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    if ($PSBoundParameters.ContainsKey('OptimizeDeviceDialing'))
-    {
-        $PSBoundParameters.Remove('OptimizeDeviceDialing') | Out-Null
-
-        Write-Verbose -Message 'Parameter OptimizeDeviceDialing has been deprecated and must not be used, removing it from PSBoundParameters.'
-    }
-    if ($PSBoundParameters.ContainsKey('ExternalAccessPrefix'))
-    {
-        $PSBoundParameters.Remove('ExternalAccessPrefix') | Out-Null
-
-        Write-Verbose -Message 'Parameter ExternalAccessPrefix has been deprecated and must not be used, removing it from PSBoundParameters.'
-    }
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"

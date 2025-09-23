@@ -655,13 +655,6 @@ function Set-TargetResource
             $UpdateParameters.featureSettings.displayLocationInformationRequiredState.excludeTarget.ForEach('id', $groupid)
         }
 
-        # DEPRECATED
-        if ($UpdateParameters.featureSettings.ContainsKey('NumberMatchingRequiredState'))
-        {
-            Write-Verbose -Message 'The NumberMatchingRequiredState feature is deprecated and will be ignored. Please remove it from your configuration.'
-            $UpdateParameters.featureSettings.Remove('NumberMatchingRequiredState')
-        }
-
         $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
@@ -914,11 +907,6 @@ function Export-TargetResource
                     }
                     @{
                         Name            = 'DisplayLocationInformationRequiredState'
-                        CimInstanceName = 'MicrosoftGraphAuthenticationMethodFeatureConfiguration'
-                        IsRequired      = $False
-                    }
-                    @{
-                        Name            = 'NumberMatchingRequiredState'
                         CimInstanceName = 'MicrosoftGraphAuthenticationMethodFeatureConfiguration'
                         IsRequired      = $False
                     }

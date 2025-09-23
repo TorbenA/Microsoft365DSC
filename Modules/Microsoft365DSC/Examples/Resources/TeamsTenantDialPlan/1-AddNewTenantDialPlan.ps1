@@ -30,7 +30,6 @@ Configuration Example
                     IsInternalExtension = $False
                 }
             )
-            OptimizeDeviceDialing = $true
             SimpleName            = 'DemoPlan'
             Ensure                = 'Present'
             Credential            = $Credscredential

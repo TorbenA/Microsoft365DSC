@@ -63,7 +63,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     LegacyAuthProtocolsEnabled                    = $true
                     SignInAccelerationDomain                      = ''
                     UsePersistentCookiesForExplorerView           = $false
-                    UserVoiceForFeedbackEnabled                   = $true
                     PublicCdnEnabled                              = $false
                     PublicCdnAllowedFileTypes                     = 'CSS,EOT,GIF,ICO,JPEG,JPG,JS,MAP,PNG,SVG,TTF,WOFF'
                     UseFindPeopleInPeoplePicker                   = $false
@@ -143,7 +142,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     LegacyAuthProtocolsEnabled                    = $true
                     SignInAccelerationDomain                      = ''
                     UsePersistentCookiesForExplorerView           = $false
-                    UserVoiceForFeedbackEnabled                   = $true
                     PublicCdnEnabled                              = $false
                     PublicCdnAllowedFileTypes                     = 'CSS,EOT,GIF,ICO,JPEG,JPG,JS,MAP,PNG,SVG,TTF,WOFF'
                     UseFindPeopleInPeoplePicker                   = $false
