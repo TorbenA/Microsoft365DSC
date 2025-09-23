@@ -18,7 +18,6 @@ class MSFT_IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
     [Write, Description("Specifies set of events collected from the device where health monitoring is enabled. Possible values are: undefined, healthMonitoring, bootPerformance, windowsUpdates, privilegeManagement."), ValueMap{"undefined","healthMonitoring","bootPerformance","windowsUpdates","privilegeManagement"}, Values{"undefined","healthMonitoring","bootPerformance","windowsUpdates","privilegeManagement"}] String ConfigDeviceHealthMonitoringScope[];
     [Write, Description("Admin provided description of the Device Configuration.")] String Description;
     [Key, Description("Admin provided name of the device configuration.")] String DisplayName;
-    [Write, Description("Indicates whether or not the underlying Device Configuration supports the assignment of scope tags. Assigning to the ScopeTags property is not allowed when this value is false and entities will not be visible to scoped users. This occurs for Legacy policies created in Silverlight and can be resolved by deleting and recreating the policy in the Azure Portal. This property is read-only.")] Boolean SupportsScopeTags;
     [Write, Description("The unique identifier for an entity. Read-only.")] String Id;
     [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];
     [Write, Description("Represents the assignment to the Intune policy."), EmbeddedInstance("MSFT_DeviceManagementConfigurationPolicyAssignments")] String Assignments[];

@@ -44,6 +44,7 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Devices.CorporateManagement",
+    "Microsoft.Graph.Groups",
     "MSCloudLoginAssistant"
   ],
   "supportedEnvironments": [

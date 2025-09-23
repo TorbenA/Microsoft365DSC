@@ -10,6 +10,8 @@
   * Fix case evaluation when creating instances or updating properties.
 * AADCrossTenantIdentitySyncPolicyPartner
   * Initial release.
+* AADEnrichedAuditLogs
+  * BREAKING - Removed resource due to deprecation
 * AADGroup
   * Fixed multi-tenant Service Principal support for owners and members.
     FIXES [#6498](https://github.com/microsoft/Microsoft365DSC/issues/6498)
@@ -21,6 +23,8 @@
   * Aligned date time format for `Expiration.EndDateTime` with `Expiration.StartDateTime`.
 * EXOCalendarProcessing
   * Added caching for export.
+* EXOClientAccessRule
+  * [BREAKING CHANGE] Removed resource.
 * EXOGroupSettings
   * Fixed an issue with the retrieval by DisplayName and duplicate Id property
     on update.
@@ -55,6 +59,9 @@
   * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
 * IntuneDeviceConfigurationPolicyAndroidDeviceAdministrator
   * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+* IntuneDeviceRemediation
+  * [BREAKING CHANGE] Made Id optional and enabled creation of remediation scripts using DisplayName only.
+    FIXES [#6445](https://github.com/microsoft/Microsoft365DSC/issues/6445)
 * IntuneMobileAppsMacOSLobApp
   * Added filter capability.
 * IntuneMobileAppsMicrosoftStoreAppWindows10
@@ -85,17 +92,24 @@
   * Reduced export time by up to 75%.
 * TeamsChannelTab
   * Reduced export time by up to 85%.
+* M365DSCUtil
+  * Added parameter `-Parallel` to `Export-M365DSCConfiguration`.
+  * Renamed function `Get-M365DSCWorkloadsListFromResourceNames` to `Get-M365DSCConnectedWorkloadList`.
+  * Added function `Get-M365DSCWorkloadForResource` to look up the workload of a resource.
 * MISC
+  * Added performance improvements to speed up resource processing.
   * Code cleanup across all Intune resources.
   * Code cleanup across all O365, OD and SPO resources.
   * Code cleanup across all Planner, PP and SC resources.
   * Code cleanup across all Sentinel, SH and Teams resources.
   * Code cleanup across all M365DSC modules.
   * Fixed typo in `ManagedIdentity` property across all resources.
+  * Improved module import speed by up to 60%.
   * Reduced repeated logins during export of SPO and Teams resources.
   * Removed unnecessary type casting across all resources.
   * Streamline test cases.
-* M365DSCDRGUtil
+  * Updated required modules for Intune resources doing assignments to groups.
+  * [BREAKING CHANGE] Removed `SupportsScopeTags` property from all resources because it's read-only.
   * Fixed an issue where a null drift would throw an exception.
   * Fixed an issue where group filtering would not find the specified groups.
   * Fixed an issue where 0 requests passed to `Invoke-M365DSCGraphBatchRequests` would fail.
@@ -164,6 +178,9 @@
   * Updated `DeviceComplianceCheckinThresholdDays` to use the default value of 30 days
     if the backend reports 0 as the value.
     FIXES [#6450](https://github.com/microsoft/Microsoft365DSC/issues/6450)
+* IntuneDeviceRemediation
+  * [BREAKING CHANGE] Made Id optional and enabled creation of remediation scripts using DisplayName only.
+    FIXES [#6445](https://github.com/microsoft/Microsoft365DSC/issues/6445)
   * Restricted possible values for `DeviceComplianceCheckinThresholdDays` from 1 to 120.
 * IntuneMobileAppsWin32AppWindows10
   * Bump CIM instance version to fix invalid property name.
@@ -205,6 +222,10 @@
   * Updated ExchangeOnlineManagement to version 3.9.0.
     FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
   * Include `Az.Security` module for `Defender` workload.
+  * Updated MSCloudLoginAssistant to version 1.1.52.
+* M365DSCReverse
+  * Switch to output directory during export.
+    FIXES [#6427](https://github.com/microsoft/Microsoft365DSC/issues/6427)
 * M365DSCTelemetryEngine
   * Changed logic to retrieve the global telemetry authentication parameters.
 * M365DSCUtil

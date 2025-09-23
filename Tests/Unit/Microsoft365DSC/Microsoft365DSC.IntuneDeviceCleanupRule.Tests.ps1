@@ -36,6 +36,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
 
             Mock -CommandName Invoke-MgGraphRequest -MockWith {
+                return @{
+                    DeviceInactivityBeforeRetirementInDays = 30
+                }
             }
 
             # Mock Write-M365DSCHost to hide output during the tests
@@ -86,12 +89,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     IsSingleInstance                       = 'Yes'
                     Credential                             = $Credential
                 }
-
-                Mock -CommandName Invoke-MgGraphRequest -MockWith {
-                    return @{
-                        DeviceInactivityBeforeRetirementInDays = 30
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -105,12 +102,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Invoke-MgGraphRequest -MockWith {
-                    return @{
-                        DeviceInactivityBeforeRetirementInDays = 30
-                    }
                 }
             }
 
