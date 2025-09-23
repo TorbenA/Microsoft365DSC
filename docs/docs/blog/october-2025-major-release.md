@@ -42,3 +42,7 @@ The AgeLimitForRetention property of the EXORetentionPolicyTag was changed from 
 ## AADGroupEligibilitySchedule - Changed Mandatory Parameters ([#6124](https://github.com/microsoft/Microsoft365DSC/pull/6124))
 
 In the AADGroupEligibilitySchedule, we've made the AccessId parameter mandatory and we've renamed the PrincipalDisplayName parameter to just principal and also made it mandatory. In order to fix your existing configurations, you need to make sure that every instance of AADGroupEligibilitySchedule specify both the Principal and AccessId parameters.
+
+## IntuneAppProtectionPolicyAndroid Major Refactoring ([#6169](https://github.com/microsoft/Microsoft365DSC/pull/6169))
+
+The IntuneAppProtectionPolicyAndroid underwent major refactoring as part of this major release. These changes were made to account for generic Intune assignments and to streamline its logic to better align it with other resources. Given the number of changes in the resource, it is recommended that existing instance of the resource in old configurations be reviewed manually to ensure alignment with the new changes. One alternative would be to use the Export/Snapshot feature to extract existing instances of this resource in the new proposed shape and include it as part of your configuration files.
