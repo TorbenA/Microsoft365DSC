@@ -42,6 +42,12 @@
   * Added caching for export.
 * EXORecipientPermission
   * Added additional caching for export.
+* IntuneAppProtectionPolicyAndroid
+  * [BREAKING CHANGE] Combined `ExcludedGroups` with `Assignments`, updated
+    time parameters to ISO8601 format, removed `IsAssigned` property.
+    FIXES [#5968](https://github.com/microsoft/Microsoft365DSC/issues/5968)
+    FIXES [#5808](https://github.com/microsoft/Microsoft365DSC/issues/5808)
+    FIXES [#5675](https://github.com/microsoft/Microsoft365DSC/issues/5675)
 * IntuneAppConfigurationPolicy
   * Fixed an issue with MOF instance parsing.
     FIXES [#6520](https://github.com/microsoft/Microsoft365DSC/issues/6520)
