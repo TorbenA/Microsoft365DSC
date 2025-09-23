@@ -31,6 +31,7 @@ This function does not generate any output.
 | ManagedIdentity | False | SwitchParameter |  |  | Specifies use of managed identity for authentication. |
 | AccessTokens | False | String[] |  |  |  |
 | Validate | False | SwitchParameter |  |  | Specifies that the configuration needs to be validated for conflicts or issues after its extraction is completed. |
+| Parallel | False | SwitchParameter |  |  | Specifies that the export is done in parallel mode. |
 
 ## Examples
 
@@ -50,4 +51,6 @@ This function does not generate any output.
 
 `Export-M365DSCConfiguration -Credential $Credential -Filters @{AADApplication = "DisplayName eq 'MyApp'"}`
 
+-------------------------- EXAMPLE 4 --------------------------
 
+`Export-M365DSCConfiguration -Workloads INTUNE -Credential $Credential -Parallel`
