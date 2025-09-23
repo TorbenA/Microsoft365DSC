@@ -171,7 +171,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters `
                 -ErrorAction Stop
 
@@ -450,8 +450,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
+    Write-Verbose -Message "Setting configuration of the Intune ASR Rules Policy for Windows10 with Id {$Identity} and DisplayName {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -466,14 +465,7 @@ function Set-TargetResource
     #endregion
 
     $currentPolicy = Get-TargetResource @PSBoundParameters
-    $PSBoundParameters.Remove('Ensure') | Out-Null
-    $PSBoundParameters.Remove('Credential') | Out-Null
-    $PSBoundParameters.Remove('ApplicationId') | Out-Null
-    $PSBoundParameters.Remove('TenantId') | Out-Null
-    $PSBoundParameters.Remove('ApplicationSecret') | Out-Null
-    $PSBoundParameters.Remove('CertificateThumbprint') | Out-Null
-    $PSBoundParameters.Remove('ManagedIdentity') | Out-Null
-    $PSBoundParameters.Remove('AccessTokens') | Out-Null
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     $IncorrectParameters = @{
         BlockPersistenceThroughWmiType                  = @('userDefined', 'warn')
@@ -497,7 +489,7 @@ function Set-TargetResource
         $InvalidValue = $IncorrectParameters[$Key]
         if (![string]::IsNullOrEmpty($InvalidValue))
         {
-            $Value = $PSBoundParameters.$Key
+            $Value = $boundParameters.$Key
             if ($Value -in $InvalidValue)
             {
                 $ExceptionMessage += "Property {0} set to invalid value {1}`n" -f $Key, $Value
@@ -523,13 +515,13 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating new Endpoint Protection Attack Surface Protection rules Policy {$DisplayName}"
-        $PSBoundParameters.Remove('Identity') | Out-Null
-        $PSBoundParameters.Remove('Assignments') | Out-Null
-        $PSBoundParameters.Remove('DisplayName') | Out-Null
-        $PSBoundParameters.Remove('Description') | Out-Null
+        $boundParameters.Remove('Identity') | Out-Null
+        $boundParameters.Remove('Assignments') | Out-Null
+        $boundParameters.Remove('DisplayName') | Out-Null
+        $boundParameters.Remove('Description') | Out-Null
 
         $settings = Get-M365DSCIntuneDeviceConfigurationSettings `
-            -Properties ([System.Collections.Hashtable]$PSBoundParameters) `
+            -Properties ([System.Collections.Hashtable]$boundParameters) `
             -TemplateId $policyTemplateID
 
         $createParameters = @{}
@@ -554,13 +546,13 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating existing Endpoint Protection Attack Surface Protection rules Policy {$DisplayName}"
 
-        $PSBoundParameters.Remove('Identity') | Out-Null
-        $PSBoundParameters.Remove('DisplayName') | Out-Null
-        $PSBoundParameters.Remove('Description') | Out-Null
-        $PSBoundParameters.Remove('Assignments') | Out-Null
+        $boundParameters.Remove('Identity') | Out-Null
+        $boundParameters.Remove('DisplayName') | Out-Null
+        $boundParameters.Remove('Description') | Out-Null
+        $boundParameters.Remove('Assignments') | Out-Null
 
         $settings = Get-M365DSCIntuneDeviceConfigurationSettings `
-            -Properties ([System.Collections.Hashtable]$PSBoundParameters) `
+            -Properties ([System.Collections.Hashtable]$boundParameters) `
             -TemplateId $policyTemplateID
 
         $updateParameters = @{}
@@ -764,12 +756,12 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of Endpoint Protection Attack Surface Protection rules Policy {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $ValuesToCheck.Remove('Identity') | Out-Null
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
 
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-    $ValuesToCheck.Remove('Identity') | Out-Null
     $testResult = $true
     #region Assignments
     if ($testResult)
@@ -882,7 +874,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
@@ -944,4 +936,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

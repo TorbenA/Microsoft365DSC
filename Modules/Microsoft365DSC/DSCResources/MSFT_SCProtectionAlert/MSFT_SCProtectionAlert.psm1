@@ -141,13 +141,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of SCProtectionAlert for $Name"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            Write-Verbose -Message "Getting configuration of SCProtectionAlert for $Name"
-
-            $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+            $null = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -384,24 +384,9 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-        -InboundParameters $PSBoundParameters
-
     $CurrentAlert = Get-TargetResource @PSBoundParameters
 
-    $CreationParams = $PSBoundParameters
-    $CreationParams.Remove('Ensure') | Out-Null
-
-    # Remove authentication parameters
-    $CreationParams.Remove('Credential') | Out-Null
-    $CreationParams.Remove('ApplicationId') | Out-Null
-    $CreationParams.Remove('TenantId') | Out-Null
-    $CreationParams.Remove('CertificatePath') | Out-Null
-    $CreationParams.Remove('CertificatePassword') | Out-Null
-    $CreationParams.Remove('CertificateThumbprint') | Out-Null
-    $CreationParams.Remove('ManagedIdentity') | Out-Null
-    $CreationParams.Remove('ApplicationSecret') | Out-Null
-    $CreationParams.Remove('AccessTokens') | Out-Null
+    $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if (('Present' -eq $Ensure) -and ('Absent' -eq $CurrentAlert.Ensure))
     {
@@ -630,6 +615,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
         -InboundParameters $PSBoundParameters
     #Ensure the proper dependencies are installed in the current environment.
@@ -702,4 +688,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

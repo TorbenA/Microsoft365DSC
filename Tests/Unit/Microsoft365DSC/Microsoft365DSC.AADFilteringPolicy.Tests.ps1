@@ -38,6 +38,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName New-MgBetaNetworkAccessFilteringPolicy -MockWith {}
             Mock -CommandName Update-MgBetaNetworkAccessFilteringPolicy -MockWith {}
             Mock -CommandName Remove-MgBetaNetworkAccessFilteringPolicy -MockWith {}
+            Mock -CommandName Get-MgBetaNetworkAccessFilteringPolicy -MockWith {
+                return @{
+                    name        = 'MyPolicy'
+                    description = 'This is a demo policy'
+                    action      = 'block'
+                    id          = '12345-12345-12345-12345-12345'
+                }
+            }
 
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
@@ -82,15 +90,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Name                  = "MyPolicy";
                     Credential            = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaNetworkAccessFilteringPolicy -MockWith {
-                    return @{
-                        name        = 'MyPolicy'
-                        description = 'This is a demo policy'
-                        action      = 'block'
-                        id          = '12345-12345-12345-12345-12345'
-                    }
-                }
             }
             It 'Should return Values from the Get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
@@ -114,15 +113,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Name                  = "MyPolicy";
                     Credential            = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaNetworkAccessFilteringPolicy -MockWith {
-                    return @{
-                        name        = 'MyPolicy'
-                        description = 'This is a demo policy'
-                        action      = 'block'
-                        id          = '12345-12345-12345-12345-12345'
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -138,15 +128,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                = "Present";
                     Name                  = "MyPolicy";
                     Credential            = $Credential;
-                }
-
-                Mock -CommandName Get-MgBetaNetworkAccessFilteringPolicy -MockWith {
-                    return @{
-                        name        = 'MyPolicy'
-                        description = 'This is a demo policy'
-                        action      = 'block'
-                        id          = '12345-12345-12345-12345-12345'
-                    }
                 }
             }
 
@@ -170,15 +151,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential  = $Credential;
-                }
-
-                Mock -CommandName Get-MgBetaNetworkAccessFilteringPolicy -MockWith {
-                    return @{
-                        name        = 'MyPolicy'
-                        description = 'This is a demo policy'
-                        action      = 'block'
-                        id          = '12345-12345-12345-12345-12345'
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {

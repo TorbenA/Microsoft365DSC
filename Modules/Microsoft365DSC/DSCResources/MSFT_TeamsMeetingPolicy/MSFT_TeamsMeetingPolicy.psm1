@@ -376,7 +376,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Identity -ne $Identity)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -888,20 +888,8 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
-        -InboundParameters $PSBoundParameters
-
     $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    $SetParameters = $PSBoundParameters
-    $SetParameters.Remove('Ensure') | Out-Null
-    $SetParameters.Remove('Credential') | Out-Null
-    $SetParameters.Remove('ApplicationId') | Out-Null
-    $SetParameters.Remove('TenantId') | Out-Null
-    $SetParameters.Remove('CertificateThumbprint') | Out-Null
-    $SetParameters.Remove('ManagedIdentity') | Out-Null
-    $SetParameters.Remove('Verbose') | Out-Null # Needs to be implicitly removed for the cmdlet to work
-    $SetParameters.Remove('AccessTokens') | Out-Null
+    $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($AllowCloudRecording -eq $false -and $SetParameters.Keys -contains 'AllowRecordingStorageOutsideRegion')
     {
@@ -1394,6 +1382,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 
@@ -1463,4 +1452,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

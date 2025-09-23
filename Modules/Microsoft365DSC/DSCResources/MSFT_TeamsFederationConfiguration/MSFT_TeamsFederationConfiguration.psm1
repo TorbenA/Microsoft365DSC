@@ -75,27 +75,29 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting configuration of Teams Federation'
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = @{
-        Identity = 'Global'
-    }
-
     try
     {
+        if (-not $Script:exportMode)
+        {
+            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullReturn = @{
+                Identity = 'Global'
+            }
+        }
         $config = Get-CsTenantFederationConfiguration -ErrorAction Stop
 
         $AllowedDomainsArray = $config.AllowedDomains.AllowedDomain.Domain
@@ -237,17 +239,10 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 
-    $SetParams = $PSBoundParameters
-    $SetParams.Remove('Credential') | Out-Null
-    $SetParams.Remove('ApplicationId') | Out-Null
-    $SetParams.Remove('TenantId') | Out-Null
-    $SetParams.Remove('CertificateThumbprint') | Out-Null
-    $SetParams.Remove('AllowedDomains') | Out-Null
-    $SetParams.Remove('ManagedIdentity') | Out-Null
-    $SetParams.Remove('AccessTokens') | Out-Null
+    $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     if ($allowedDomains.Length -gt 0)
     {
         $SetParams.Add('AllowedDomainsAsAList', $AllowedDomains)
@@ -422,6 +417,7 @@ function Export-TargetResource
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
+        $Script:exportMode = $true
         $Results = Get-TargetResource @Params
         if ($Results -is [System.Collections.Hashtable] -and $Results.Count -gt 1)
         {
@@ -463,4 +459,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

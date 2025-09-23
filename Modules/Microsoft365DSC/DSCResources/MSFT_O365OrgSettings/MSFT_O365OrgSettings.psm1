@@ -156,7 +156,9 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    Write-Verbose -Message "Setting configuration of Office 365 Group $DisplayName"
+
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
     $ConnectionModeTasks = New-M365DSCConnection -Workload 'Tasks' `
@@ -169,7 +171,7 @@ function Get-TargetResource
     {
         Reset-MSCloudLoginConnectionProfileContext -Workload ExchangeOnline
     }
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -196,7 +198,7 @@ function Get-TargetResource
         TenantId              = $TenantId
         ApplicationSecret     = $ApplicationSecret
         CertificateThumbprint = $CertificateThumbprint
-        Managedidentity       = $ManagedIdentity.IsPresent
+        ManagedIdentity       = $ManagedIdentity.IsPresent
         AccessTokens          = $AccessTokens
     }
     try
@@ -517,6 +519,8 @@ function Set-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Setting configuration of Office 365 Org Settings"
+
     if ($PSBoundParameters.ContainsKey('Ensure') -and $Ensure -eq 'Absent')
     {
         throw 'This resource is not able to remove the Org settings and therefore only accepts Ensure=Present.'
@@ -534,7 +538,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
     $currentValues = Get-TargetResource @PSBoundParameters
 
@@ -986,6 +990,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
@@ -1015,7 +1020,7 @@ function Export-TargetResource
             TenantId              = $TenantId
             ApplicationSecret     = $ApplicationSecret
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
 
@@ -1392,4 +1397,3 @@ function Update-M365DSCOrgSettingsAdminCenterReport
 }
 
 Export-ModuleMember -Function *-TargetResource
-

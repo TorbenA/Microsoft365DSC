@@ -299,7 +299,7 @@ function Start-M365DSCConfigurationExtract
             # If tenantId comes in as a GUID then query to replace with string representation, else use what was provided
             if ($TenantId -match ('^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$'))
             {
-                $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' -InboundParameters @{'ManagedIdentity' = $true; 'TenantId' = $TenantId }
+                $null = New-M365DSCConnection -Workload 'MicrosoftGraph' -InboundParameters @{'ManagedIdentity' = $true; 'TenantId' = $TenantId }
                 $organization = Get-M365DSCTenantDomain -TenantId $TenantId -ManagedIdentity
             }
             else

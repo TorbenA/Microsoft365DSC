@@ -177,29 +177,32 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting configuration for SPO Tenant'
 
-    $ConnectionModeGraph = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
-
-    $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = $PSBoundParameters
-    $nullReturn.Ensure = 'Absent'
-
     try
     {
+        if (-not $Script:ExportMode)
+        {
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                -InboundParameters $PSBoundParameters
+
+            $null = New-M365DSCConnection -Workload 'PNP' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+        }
+
+        $nullReturn = $PSBoundParameters
+        $nullReturn.Ensure = 'Absent'
+
         $SPOTenantSettings = Get-PnPTenant -ErrorAction Stop
         $SPOTenantGraphSettings = Get-MgAdminSharepointSetting -Property TenantDefaultTimeZone # get tenantDefaultTimezone
         $CompatibilityRange = $SPOTenantSettings.CompatibilityRange.Split(',')
@@ -262,7 +265,7 @@ function Get-TargetResource
             CertificatePassword                                    = $CertificatePassword
             CertificatePath                                        = $CertificatePath
             CertificateThumbprint                                  = $CertificateThumbprint
-            Managedidentity                                        = $ManagedIdentity.IsPresent
+            ManagedIdentity                                        = $ManagedIdentity.IsPresent
             Ensure                                                 = 'Present'
             AccessTokens                                           = $AccessTokens
         }
@@ -470,23 +473,13 @@ function Set-TargetResource
 
     if (-not [string]::IsNullOrEmpty($TenantDefaultTimezone))
     {
-        $ConnectionModeGraph = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
     }
-    $ConnectionMode = New-M365DSCConnection -Workload 'PNP' -InboundParameters $PSBoundParameters
+    $null = New-M365DSCConnection -Workload 'PNP' -InboundParameters $PSBoundParameters
 
-    $CurrentParameters = $PSBoundParameters
-    $CurrentParameters.Remove('Credential') | Out-Null
+    $CurrentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $CurrentParameters.Remove('IsSingleInstance') | Out-Null
-    $CurrentParameters.Remove('Ensure') | Out-Null
-    $CurrentParameters.Remove('ApplicationId') | Out-Null
-    $CurrentParameters.Remove('TenantId') | Out-Null
-    $CurrentParameters.Remove('CertificatePath') | Out-Null
-    $CurrentParameters.Remove('CertificatePassword') | Out-Null
-    $CurrentParameters.Remove('CertificateThumbprint') | Out-Null
-    $CurrentParameters.Remove('ManagedIdentity') | Out-Null
-    $CurrentParameters.Remove('ApplicationSecret') | Out-Null
-    $CurrentParameters.Remove('AccessTokens') | Out-Null
     $CurrentParameters.Remove('ExemptNativeUsersFromTenantLevelRestricedAccessControl') | Out-Null
     $CurrentParameters.Remove('AllowSelectSGsInODBListInTenant') | Out-Null
     $CurrentParameters.Remove('DenySelectSGsInODBListInTenant') | Out-Null
@@ -864,6 +857,8 @@ function Export-TargetResource
             $Global:M365DSCExportResourceInstancesCount++
         }
 
+        $Script:ExportMode = $true
+
         $Params = @{
             IsSingleInstance      = 'Yes'
             ApplicationId         = $ApplicationId
@@ -872,7 +867,7 @@ function Export-TargetResource
             CertificatePassword   = $CertificatePassword
             CertificatePath       = $CertificatePath
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             Credential            = $Credential
             AccessTokens          = $AccessTokens
         }
@@ -912,4 +907,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -48,8 +48,10 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'EngageHub' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting SHSpaceUser configuration for Space: $SpaceName, Email: $Email"
+
+    $null = New-M365DSCConnection -Workload 'EngageHub' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -106,7 +108,7 @@ function Get-TargetResource
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -167,6 +169,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting SHSpaceUser configuration for Space: $SpaceName, Email: $Email"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -435,4 +439,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

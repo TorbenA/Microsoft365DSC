@@ -162,7 +162,7 @@ function Get-TargetResource
             #endregion
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -322,7 +322,6 @@ function Set-TargetResource
     }
     else
     {
-
         # Remove the existing instance if already present
         if ($currentInstance.Ensure -ne 'Absent')
         {

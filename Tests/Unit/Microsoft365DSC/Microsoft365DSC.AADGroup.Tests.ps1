@@ -42,9 +42,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Restore-MgBetaDirectoryDeletedItem -MockWith {
             }
+
             Mock -CommandName Get-MgBetaDirectoryDeletedItemAsGroup -MockWith {
             }
-
 
             Mock -CommandName Invoke-MgGraphRequest -MockWith {
             }
@@ -100,6 +100,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Id          = "12345-12345-12345-12345-12345"
                     DisplayName = "AADRole"
                 }
+            }
+
+            Mock -CommandName Invoke-M365DSCGraphBatchRequest -MockWith {
+                return @()
             }
 
             # Mock Write-M365DSCHost to hide output during the tests

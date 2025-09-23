@@ -738,7 +738,7 @@ function Test-M365DSCParameterState
                                     $returnValue = $false
                                 }
                             }
-                            'Int32'
+                            { $_ -eq 'Int32' -or $_ -eq 'UInt32' }
                             {
                                 if (($DesiredValues.$fieldName -eq 0) `
                                         -and ($null -eq $CurrentValues.$fieldName))
@@ -1921,7 +1921,7 @@ function Get-M365DSCTenantDomain
 
     if ([System.String]::IsNullOrEmpty($CertificatePath))
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
         try
@@ -2660,7 +2660,7 @@ function Get-SPOAdministrationUrl
     }
 
     Write-Verbose -Message 'Connection to Azure AD is required to automatically determine SharePoint Online admin URL...'
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
     Write-Verbose -Message 'Getting SharePoint Online admin URL...'
     [Array]$defaultDomain = Get-MgBetaDomain | Where-Object { ($_.Id -like '*.onmicrosoft.com' -or $_.Id -like '*.onmicrosoft.de' -or $_.Id -like '*.onmicrosoft.us') -and $_.IsInitial -eq $true } # We don't use IsDefault here because the default could be a custom domain
@@ -2706,7 +2706,7 @@ function Get-M365TenantName
     }
 
     Write-Verbose -Message 'Connection to Azure AD is required to automatically determine SharePoint Online admin URL...'
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
     Write-Verbose -Message 'Getting SharePoint Online admin URL...'
     [Array]$defaultDomain = Get-MgBetaDomain | Where-Object { ($_.Id -like '*.onmicrosoft.com' -or $_.Id -like '*.onmicrosoft.de') -and $_.IsInitial -eq $true } # We don't use IsDefault here because the default could be a custom domain
@@ -2948,12 +2948,12 @@ function Get-AllSPOPackages
 
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+        $null = New-M365DSCConnection -Workload 'PnP' `
             -InboundParameters $PSBoundParameters
 
         $tenantAppCatalogUrl = Get-PnPTenantAppCatalogUrl -ErrorAction Stop
 
-        $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+        $null = New-M365DSCConnection -Workload 'PnP' `
             -InboundParameters $PSBoundParameters `
             -Url $tenantAppCatalogUrl
 
@@ -4583,7 +4583,7 @@ Specifies the resource name for which the example should be generated.
 .Functionality
 Internal, Hidden
 #>
-function Create-M365DSCResourceExample
+function New-M365DSCResourceExample
 {
     param
     (
@@ -4712,7 +4712,7 @@ function New-M365DSCMissingResourcesExample
                 Write-Host '  - Example missing, generating!'
                 $null = New-Item -Path $path -ItemType Directory
                 $exampleFile = Join-Path -Path $path -ChildPath '1-Configure.ps1'
-                Set-Content -Path $exampleFile -Value (Create-M365DSCResourceExample -ResourceName $difference.InputObject)
+                Set-Content -Path $exampleFile -Value (New-M365DSCResourceExample -ResourceName $difference.InputObject)
             }
             '=>'
             {
@@ -5368,11 +5368,16 @@ function Invoke-M365DSCGraphBatchRequest
     [OutputType([System.Collections.Hashtable[]])]
     param (
         [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
         [System.Collections.Hashtable[]]
-        $Requests
+        $Requests,
+
+        [Parameter()]
+        [switch]
+        $AsList
     )
 
-    $batchResponses = @()
+    $batchResponses = [System.Collections.Generic.List[System.Collections.Hashtable]]::new()
     for ($i = 0; $i -lt $Requests.Count; $i += 20)
     {
         $batchRequestSized = $Requests[$i..([Math]::Min($i + 19, $Requests.Count - 1))]
@@ -5381,12 +5386,16 @@ function Invoke-M365DSCGraphBatchRequest
             requests = $batchRequestSized
         }
 
-        $batchResponses += (Invoke-MgGraphRequest -Method POST `
+        $batchResponses.AddRange([System.Collections.Hashtable[]](Invoke-MgGraphRequest -Method POST `
             -Uri 'beta/$batch' `
-            -Body ($request | ConvertTo-Json -Depth 10)).responses
+            -Body ($request | ConvertTo-Json -Depth 10)).responses)
     }
 
-    return ,$batchResponses
+    if ($AsList)
+    {
+        return $batchResponses
+    }
+    return $batchResponses.ToArray()
 }
 
 Export-ModuleMember -Function @(
