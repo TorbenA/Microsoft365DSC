@@ -34,3 +34,7 @@ We've removed the following 6 resources due to them being deprecated or because 
 </ul>
 
 To fix impacted configurations, simply remove any instances of the listed resources.
+
+## EXORetentionPolicyTag - Changed AgeLimitForRetention from String to Integer ([#6103](https://github.com/microsoft/Microsoft365DSC/pull/6103))
+
+The AgeLimitForRetention property of the EXORetentionPolicyTag was changed from being a String to being an Integer. To fix your configurations, simply search for this parameter and ensure they are specified as an Integer (e.g., remove quotes around the number).
