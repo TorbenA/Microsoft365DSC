@@ -35,6 +35,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return "Credentials"
             }
 
+            Mock -CommandName Invoke-M365DSCLicensingWebRequest -MockWith {
+                return @{
+                    policyValue = "Enabled"
+                    productId   = "CFQ7TTC0LH2H";
+                    productName = "Power Apps per user";
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -73,14 +81,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                = 'Present'
                     Credential            = $Credential;
                 }
-
-                Mock -CommandName Invoke-M365DSCLicensingWebRequest -MockWith {
-                    return @{
-                        policyValue = "Enabled"
-                        productId   = "CFQ7TTC0LH2H";
-                        productName = "Power Apps per user";
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -91,19 +91,11 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The instance exists and values are NOT in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    PolicyValue           = "Enabled";
+                    PolicyValue           = "Disabled";
                     ProductId             = "CFQ7TTC0LH2H";
                     ProductName           = "Power Apps per user";
                     Ensure                = 'Present'
                     Credential            = $Credential;
-                }
-
-                Mock -CommandName Invoke-M365DSCLicensingWebRequest -MockWith {
-                    return @{
-                        policyValue = "Disabled" # Drift
-                        productId   = "CFQ7TTC0LH2H";
-                        productName = "Power Apps per user";
-                    }
                 }
             }
 
