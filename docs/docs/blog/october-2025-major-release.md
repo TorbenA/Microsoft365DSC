@@ -97,7 +97,10 @@ Parameters that have been marked deprecated since last release have been removed
 <li><strong></strong></li>
 </ul>
 
-
 ## IntuneAccountProtection Resource is Removed ([#6510](https://github.com/microsoft/Microsoft365DSC/pull/6510))
 
 The IntuneAccountProtection resource has been removed from this release. To fix your configuration files, simply remove any instances of that resource.
+
+## EXOMobileDeviceMailboxPolicy Converted 2 Properties to Type Integer ([#6513](https://github.com/microsoft/Microsoft365DSC/pull/6513))
+
+The MinPasswordComplexCharacters and PasswordHistory parameters of the EXOMobileDeviceMailboxPolicy resource have been converted from being of String type to Inteher type. To fix your existing configuration files, simply make sure that instances of EXOMobiledeviceMailboxPolicy that define these parameters are defining them as numbers instead of string (e.g. don't specify quotes).
