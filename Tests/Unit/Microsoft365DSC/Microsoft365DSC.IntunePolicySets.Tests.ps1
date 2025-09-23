@@ -55,6 +55,49 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Write-Warning -MockWith {
             }
 
+            Mock -CommandName Get-MgbetaDeviceAppManagementPolicySet -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        '@odata.type' = "#microsoft.graph.PolicySet"
+                    }
+                    CreatedDateTime = "2023-01-01T00:00:00.0000000+00:00"
+                    Description = "FakeStringValue"
+                    DisplayName = "FakeStringValue"
+                    ErrorCode = "noError"
+                    GuidedDeploymentTags = @("FakeStringValue")
+                    Id = "FakeStringValue"
+                    LastModifiedDateTime = "2023-01-01T00:00:00.0000000+00:00"
+                    RoleScopeTags = @("FakeStringValue")
+                    Status = "unknown"
+                    Assignments = @(
+                        [pscustomobject]@{
+                                        Target = [pscustomobject]@{
+                                                    AdditionalProperties = [pscustomobject]@{
+                                                                            '@odata.type' = '#microsoft.graph.GroupAssignmentTarget'
+                                                                            groupId = '12345678-1234-1234-1234-1234567890ab'
+                                                                            }
+                                                    DeviceAndAppManagementAssignmentFilterType = 'none'
+                                                    DeviceAndAppManagementAssignmentFilterId = $null
+
+                                                }
+                                        }
+                                    )
+                    Items = @(
+                        [pscustomobject]@{
+
+                                        AdditionalProperties = [pscustomobject]@{
+                                                                '@odata.type' = '#microsoft.graph.managedAppProtectionPolicySetItem'
+                                                                }
+                                        payloadId = 'T_12345678-1234-1234-1234-1234567890ab'
+                                        itemType = '#microsoft.graph.androidManagedAppProtection'
+                                        displayName = 'FakeStringValue'
+                                        guidedDeploymentTags = @('FakeStringValue')
+
+                                        }
+                                    )
+                }
+            }
+
             $Script:exportedInstances =$null
             $Script:ExportMode = $false
 
@@ -134,49 +177,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = 'Absent'
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-MgbetaDeviceAppManagementPolicySet -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = "#microsoft.graph.PolicySet"
-                        }
-                        CreatedDateTime = "2023-01-01T00:00:00.0000000+00:00"
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        ErrorCode = "noError"
-                        GuidedDeploymentTags = @("FakeStringValue")
-                        Id = "FakeStringValue"
-                        LastModifiedDateTime = "2023-01-01T00:00:00.0000000+00:00"
-                        RoleScopeTags = @("FakeStringValue")
-                        Status = "unknown"
-                        Assignments = @(
-                            [pscustomobject]@{
-                                            Target = [pscustomobject]@{
-                                                        AdditionalProperties = [pscustomobject]@{
-                                                                                '@odata.type' = '#microsoft.graph.GroupAssignmentTarget'
-                                                                                groupId = '12345678-1234-1234-1234-1234567890ab'
-                                                                                }
-                                                        DeviceAndAppManagementAssignmentFilterType = 'none'
-                                                        DeviceAndAppManagementAssignmentFilterId = $null
-
-                                                    }
-                                            }
-                                        )
-                        Items = @(
-                            [pscustomobject]@{
-
-                                            AdditionalProperties = [pscustomobject]@{
-                                                                    '@odata.type' = '#microsoft.graph.managedAppProtectionPolicySetItem'
-                                                                    }
-                                            payloadId = 'T_12345678-1234-1234-1234-1234567890ab'
-                                            itemType = '#microsoft.graph.androidManagedAppProtection'
-                                            displayName = 'FakeStringValue'
-                                            guidedDeploymentTags = @('FakeStringValue')
-
-                                            }
-                                        )
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -220,50 +220,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = 'Present'
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-MgbetaDeviceAppManagementPolicySet -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = "#microsoft.graph.PolicySet"
-                        }
-                        CreatedDateTime = "2023-01-01T00:00:00.0000000+00:00"
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        ErrorCode = "noError"
-                        GuidedDeploymentTags = @("FakeStringValue")
-                        Id = "FakeStringValue"
-                        LastModifiedDateTime = "2023-01-01T00:00:00.0000000+00:00"
-                        RoleScopeTags = @("FakeStringValue")
-                        Status = "unknown"
-                        Assignments = @(
-                            [pscustomobject]@{
-                                            Target = [pscustomobject]@{
-                                                        AdditionalProperties = [pscustomobject]@{
-                                                                                '@odata.type' = '#microsoft.graph.GroupAssignmentTarget'
-                                                                                groupId = '12345678-1234-1234-1234-1234567890ab'
-                                                                                }
-                                                        DeviceAndAppManagementAssignmentFilterType = 'none'
-                                                        DeviceAndAppManagementAssignmentFilterId = $null
-
-                                                    }
-                                            }
-                                        )
-                        Items = @(
-                            [pscustomobject]@{
-
-                                            AdditionalProperties = [pscustomobject]@{
-                                                                    '@odata.type' = '#microsoft.graph.managedAppProtectionPolicySetItem'
-                                                                    }
-                                            payloadId = 'T_12345678-1234-1234-1234-1234567890ab'
-                                            itemType = '#microsoft.graph.androidManagedAppProtection'
-                                            displayName = 'FakeStringValue'
-                                            guidedDeploymentTags = @('FakeStringValue')
-
-                                            }
-                                        )
-
-                    }
-                }
             }
 
 
@@ -275,7 +231,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The IntunePolicySets exists and values are NOT in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    Description = "UPDATED-FakeStringValue"
+                    Description = "UPDATED-FakeStringValue" # Updated property
                     DisplayName = "FakeStringValue"
                     GuidedDeploymentTags = @("FakeStringValue")
                     Id = "FakeStringValue"
@@ -298,46 +254,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     )
                     Ensure = 'Present'
                     Credential = $Credential;
-                }
-
-                Mock -CommandName Get-MgbetaDeviceAppManagementPolicySet -MockWith {
-                    return @{
-                        CreatedDateTime = "2023-01-01T00:00:00.0000000+00:00"
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        ErrorCode = "noError"
-                        GuidedDeploymentTags = @("FakeStringValue")
-                        Id = "FakeStringValue"
-                        LastModifiedDateTime = "2023-01-01T00:00:00.0000000+00:00"
-                        RoleScopeTags = @("FakeStringValue")
-                        Status = "unknown"
-                        Assignments = @(
-                            [pscustomobject]@{
-                                            Target = [pscustomobject]@{
-                                                        AdditionalProperties = [pscustomobject]@{
-                                                                                '@odata.type' = '#microsoft.graph.GroupAssignmentTarget'
-                                                                                groupId = '12345678-1234-1234-1234-1234567890ab'
-                                                                                }
-                                                        DeviceAndAppManagementAssignmentFilterType = 'none'
-                                                        DeviceAndAppManagementAssignmentFilterId = $null
-
-                                                    }
-                                            }
-                                        )
-                        Items = @(
-                            [pscustomobject]@{
-
-                                            AdditionalProperties = [pscustomobject]@{
-                                                                    '@odata.type' = '#microsoft.graph.managedAppProtectionPolicySetItem'
-                                                                    }
-                                            payloadId = 'T_12345678-1234-1234-1234-1234567890ab'
-                                            itemType = '#microsoft.graph.androidManagedAppProtection'
-                                            displayName = 'FakeStringValue'
-                                            guidedDeploymentTags = @('FakeStringValue')
-
-                                            }
-                                        )
-                    }
                 }
             }
 
@@ -362,50 +278,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential = $Credential
                 }
-
-                Mock -CommandName Get-MgbetaDeviceAppManagementPolicySet -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = "#microsoft.graph.PolicySet"
-                        }
-                        CreatedDateTime = "2023-01-01T00:00:00.0000000+00:00"
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        ErrorCode = "noError"
-                        GuidedDeploymentTags = @("FakeStringValue")
-                        Id = "FakeStringValue"
-                        LastModifiedDateTime = "2023-01-01T00:00:00.0000000+00:00"
-                        RoleScopeTags = @("FakeStringValue")
-                        Status = "unknown"
-                        Assignments = @(
-                            [pscustomobject]@{
-                                            Target = [pscustomobject]@{
-                                                        AdditionalProperties = [pscustomobject]@{
-                                                                                '@odata.type' = '#microsoft.graph.GroupAssignmentTarget'
-                                                                                groupId = '12345678-1234-1234-1234-1234567890ab'
-                                                                                }
-                                                        DeviceAndAppManagementAssignmentFilterType = 'none'
-                                                        DeviceAndAppManagementAssignmentFilterId = $null
-
-                                                    }
-                                            }
-                                        )
-                        Items = @(
-                            [pscustomobject]@{
-
-                                            AdditionalProperties = [pscustomobject]@{
-                                                                    '@odata.type' = '#microsoft.graph.managedAppProtectionPolicySetItem'
-                                                                    }
-                                            payloadId = 'T_12345678-1234-1234-1234-1234567890ab'
-                                            itemType = '#microsoft.graph.androidManagedAppProtection'
-                                            displayName = 'FakeStringValue'
-                                            guidedDeploymentTags = @('FakeStringValue')
-
-                                            }
-                                        )
-                    }
-                }
             }
+
             It 'Should Reverse Engineer resource from the Export method' {
                 $result = Export-TargetResource @testParams
                 $result | Should -Not -BeNullOrEmpty

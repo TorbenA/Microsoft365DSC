@@ -32,7 +32,6 @@ Configuration Example
             );
             DisplayName                   = "network boundary";
             Ensure                        = "Present";
-            SupportsScopeTags             = $True;
             WindowsNetworkIsolationPolicy = MSFT_MicrosoftGraphwindowsNetworkIsolationPolicy{
                 EnterpriseProxyServers = @()
                 EnterpriseInternalProxyServers = @()
