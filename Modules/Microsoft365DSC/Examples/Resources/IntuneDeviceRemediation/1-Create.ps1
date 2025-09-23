@@ -46,7 +46,6 @@ Configuration Example
             DisplayName              = "Device remediation";
             EnforceSignatureCheck    = $False;
             Ensure                   = "Present";
-            Id                       = '00000000-0000-0000-0000-000000000000'
             Publisher                = "Some Publisher";
             RemediationScriptContent = "Base64 encoded script content";
             RoleScopeTagIds          = @("0");
