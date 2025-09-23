@@ -116,6 +116,49 @@ function Start-M365DSCConfigurationExtract
 
     try
     {
+        $shouldOpenOutputDirectory = $false
+        #region Prompt the user for a location to save the extract and generate the files
+        if ([System.String]::IsNullOrEmpty($Path))
+        {
+            $shouldOpenOutputDirectory = $true
+            $OutputDSCPath = Read-Host "`r`nDestination Path"
+        }
+        else
+        {
+            $OutputDSCPath = $Path
+        }
+
+        if ([System.String]::IsNullOrEmpty($OutputDSCPath))
+        {
+            $OutputDSCPath = '.'
+        }
+
+        while ((Test-Path -Path $OutputDSCPath -PathType Container -ErrorAction SilentlyContinue) -eq $false)
+        {
+            try
+            {
+                Write-M365DSCHost -Message "Directory `"$OutputDSCPath`" doesn't exist; creating..."
+                New-Item -Path $OutputDSCPath -ItemType Directory | Out-Null
+                if ($?)
+                {
+                    break
+                }
+            }
+            catch
+            {
+                Write-Warning "$($_.Exception.Message)"
+                Write-Warning "Could not create folder $OutputDSCPath!"
+            }
+            $OutputDSCPath = Read-Host 'Please Provide Output Folder for DSC Configuration (Will be Created as Necessary)'
+        }
+        <## Ensures the path we specify ends with a Slash, in order to make sure the resulting file path is properly structured. #>
+        if (!$OutputDSCPath.EndsWith('\') -and !$OutputDSCPath.EndsWith('/'))
+        {
+            $OutputDSCPath += '\'
+        }
+        Push-Location -Path $OutputDSCPath
+        #endregion
+
         $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
 
         # Telemetry parameters initialization
@@ -304,7 +347,7 @@ function Start-M365DSCConfigurationExtract
             # If tenantId comes in as a GUID then query to replace with string representation, else use what was provided
             if ($TenantId -match ('^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$'))
             {
-                $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' -InboundParameters @{'ManagedIdentity' = $true; 'TenantId' = $TenantId }
+                $null = New-M365DSCConnection -Workload 'MicrosoftGraph' -InboundParameters @{'ManagedIdentity' = $true; 'TenantId' = $TenantId }
                 $organization = Get-M365DSCTenantDomain -TenantId $TenantId -ManagedIdentity
             }
             else
@@ -841,48 +884,6 @@ function Start-M365DSCConfigurationExtract
             }
         }
 
-        $shouldOpenOutputDirectory = $false
-        #region Prompt the user for a location to save the extract and generate the files
-        if ([System.String]::IsNullOrEmpty($Path))
-        {
-            $shouldOpenOutputDirectory = $true
-            $OutputDSCPath = Read-Host "`r`nDestination Path"
-        }
-        else
-        {
-            $OutputDSCPath = $Path
-        }
-
-        if ([System.String]::IsNullOrEmpty($OutputDSCPath))
-        {
-            $OutputDSCPath = '.'
-        }
-
-        while ((Test-Path -Path $OutputDSCPath -PathType Container -ErrorAction SilentlyContinue) -eq $false)
-        {
-            try
-            {
-                Write-M365DSCHost -Message "Directory `"$OutputDSCPath`" doesn't exist; creating..."
-                New-Item -Path $OutputDSCPath -ItemType Directory | Out-Null
-                if ($?)
-                {
-                    break
-                }
-            }
-            catch
-            {
-                Write-Warning "$($_.Exception.Message)"
-                Write-Warning "Could not create folder $OutputDSCPath!"
-            }
-            $OutputDSCPath = Read-Host 'Please Provide Output Folder for DSC Configuration (Will be Created as Necessary)'
-        }
-        <## Ensures the path we specify ends with a Slash, in order to make sure the resulting file path is properly structured. #>
-        if (!$OutputDSCPath.EndsWith('\') -and !$OutputDSCPath.EndsWith('/'))
-        {
-            $OutputDSCPath += '\'
-        }
-        #endregion
-
         #region Copy Downloaded files back into output folder
         if (($null -ne $Components -and
                 $Components.Contains('SPOApp')) -or
@@ -994,6 +995,7 @@ function Start-M365DSCConfigurationExtract
                 Write-Verbose -Message $_
             }
         }
+        Pop-Location
     }
     catch
     {

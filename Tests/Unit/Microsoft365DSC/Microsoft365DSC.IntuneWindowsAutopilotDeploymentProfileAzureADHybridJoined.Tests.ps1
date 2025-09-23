@@ -46,6 +46,42 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return 'Credentials'
             }
 
+            Mock -CommandName Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile -MockWith {
+                return @{
+                    AdditionalProperties           = @{
+                        hybridAzureADJoinSkipConnectivityCheck = $True
+                        '@odata.type'                          = '#microsoft.graph.activeDirectoryWindowsAutopilotDeploymentProfile'
+                    }
+                    Description                    = 'FakeStringValue'
+                    DeviceNameTemplate             = 'FakeStringValue'
+                    DeviceType                     = 'windowsPc'
+                    DisplayName                    = 'FakeStringValue'
+                    EnableWhiteGlove               = $True
+                    EnrollmentStatusScreenSettings = @{
+                        HideInstallationProgress                         = $True
+                        BlockDeviceSetupRetryByUser                      = $True
+                        AllowLogCollectionOnInstallFailure               = $True
+                        AllowDeviceUseBeforeProfileAndAppInstallComplete = $True
+                        InstallProgressTimeoutInMinutes                  = 25
+                        CustomErrorMessage                               = 'FakeStringValue'
+                        AllowDeviceUseOnInstallFailure                   = $True
+                    }
+                    ExtractHardwareHash            = $True
+                    Id                             = 'FakeStringValue'
+                    Language                       = 'FakeStringValue'
+                    ManagementServiceAppId         = 'FakeStringValue'
+                    OutOfBoxExperienceSettings     = @{
+                        HideEULA                  = $True
+                        HideEscapeLink            = $True
+                        HidePrivacySettings       = $True
+                        DeviceUsageType           = 'singleUser'
+                        SkipKeyboardSelectionPage = $True
+                        UserType                  = 'administrator'
+                    }
+
+                }
+            }
+
             Mock -CommandName Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfileAssignment -MockWith {
             }
 
@@ -144,42 +180,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                                 = 'Absent'
                     Credential                             = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile -MockWith {
-                    return @{
-                        AdditionalProperties           = @{
-                            hybridAzureADJoinSkipConnectivityCheck = $True
-                            '@odata.type'                          = '#microsoft.graph.activeDirectoryWindowsAutopilotDeploymentProfile'
-                        }
-                        Description                    = 'FakeStringValue'
-                        DeviceNameTemplate             = 'FakeStringValue'
-                        DeviceType                     = 'windowsPc'
-                        DisplayName                    = 'FakeStringValue'
-                        EnableWhiteGlove               = $True
-                        EnrollmentStatusScreenSettings = @{
-                            HideInstallationProgress                         = $True
-                            BlockDeviceSetupRetryByUser                      = $True
-                            AllowLogCollectionOnInstallFailure               = $True
-                            AllowDeviceUseBeforeProfileAndAppInstallComplete = $True
-                            InstallProgressTimeoutInMinutes                  = 25
-                            CustomErrorMessage                               = 'FakeStringValue'
-                            AllowDeviceUseOnInstallFailure                   = $True
-                        }
-                        ExtractHardwareHash            = $True
-                        Id                             = 'FakeStringValue'
-                        Language                       = 'FakeStringValue'
-                        ManagementServiceAppId         = 'FakeStringValue'
-                        OutOfBoxExperienceSettings     = @{
-                            HideEULA                  = $True
-                            HideEscapeLink            = $True
-                            HidePrivacySettings       = $True
-                            DeviceUsageType           = 'singleUser'
-                            SkipKeyboardSelectionPage = $True
-                            UserType                  = 'administrator'
-                        }
-
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -228,44 +228,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                                 = 'Present'
                     Credential                             = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile -MockWith {
-                    return @{
-                        AdditionalProperties           = @{
-                            hybridAzureADJoinSkipConnectivityCheck = $True
-                            '@odata.type'                          = '#microsoft.graph.activeDirectoryWindowsAutopilotDeploymentProfile'
-                        }
-                        Description                    = 'FakeStringValue'
-                        DeviceNameTemplate             = 'FakeStringValue'
-                        DeviceType                     = 'windowsPc'
-                        DisplayName                    = 'FakeStringValue'
-                        EnableWhiteGlove               = $True
-                        EnrollmentStatusScreenSettings = @{
-                            HideInstallationProgress                         = $True
-                            BlockDeviceSetupRetryByUser                      = $True
-                            AllowLogCollectionOnInstallFailure               = $True
-                            AllowDeviceUseBeforeProfileAndAppInstallComplete = $True
-                            InstallProgressTimeoutInMinutes                  = 25
-                            CustomErrorMessage                               = 'FakeStringValue'
-                            AllowDeviceUseOnInstallFailure                   = $True
-                        }
-                        ExtractHardwareHash            = $True
-                        Id                             = 'FakeStringValue'
-                        Language                       = 'FakeStringValue'
-                        ManagementServiceAppId         = 'FakeStringValue'
-                        OutOfBoxExperienceSettings     = @{
-                            HideEULA                  = $True
-                            HideEscapeLink            = $True
-                            HidePrivacySettings       = $True
-                            DeviceUsageType           = 'singleUser'
-                            SkipKeyboardSelectionPage = $True
-                            UserType                  = 'administrator'
-                        }
-
-                    }
-                }
             }
-
 
             It 'Should return true from the Test method' {
                 Test-TargetResource @testParams | Should -Be $true
@@ -285,7 +248,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             BlockDeviceSetupRetryByUser                      = $True
                             AllowLogCollectionOnInstallFailure               = $True
                             AllowDeviceUseBeforeProfileAndAppInstallComplete = $True
-                            InstallProgressTimeoutInMinutes                  = 25
+                            InstallProgressTimeoutInMinutes                  = 30 # Updated property
                             CustomErrorMessage                               = 'FakeStringValue'
                             AllowDeviceUseOnInstallFailure                   = $True
                         } -ClientOnly)
@@ -304,26 +267,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         } -ClientOnly)
                     Ensure                                 = 'Present'
                     Credential                             = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile -MockWith {
-                    return @{
-                        Description                    = 'FakeStringValue'
-                        DeviceNameTemplate             = 'FakeStringValue'
-                        DeviceType                     = 'windowsPc'
-                        DisplayName                    = 'FakeStringValue'
-                        EnrollmentStatusScreenSettings = @{
-                            InstallProgressTimeoutInMinutes = 7
-                            CustomErrorMessage              = 'FakeStringValue'
-                        }
-                        Id                             = 'FakeStringValue'
-                        Language                       = 'FakeStringValue'
-                        ManagementServiceAppId         = 'FakeStringValue'
-                        OutOfBoxExperienceSettings     = @{
-                            DeviceUsageType = 'singleUser'
-                            UserType        = 'administrator'
-                        }
-                    }
                 }
             }
 
@@ -348,43 +291,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile -MockWith {
-                    return @{
-                        AdditionalProperties           = @{
-                            hybridAzureADJoinSkipConnectivityCheck = $True
-                            '@odata.type'                          = '#microsoft.graph.activeDirectoryWindowsAutopilotDeploymentProfile'
-                        }
-                        Description                    = 'FakeStringValue'
-                        DeviceNameTemplate             = 'FakeStringValue'
-                        DeviceType                     = 'windowsPc'
-                        DisplayName                    = 'FakeStringValue'
-                        EnableWhiteGlove               = $True
-                        EnrollmentStatusScreenSettings = @{
-                            HideInstallationProgress                         = $True
-                            BlockDeviceSetupRetryByUser                      = $True
-                            AllowLogCollectionOnInstallFailure               = $True
-                            AllowDeviceUseBeforeProfileAndAppInstallComplete = $True
-                            InstallProgressTimeoutInMinutes                  = 25
-                            CustomErrorMessage                               = 'FakeStringValue'
-                            AllowDeviceUseOnInstallFailure                   = $True
-                        }
-                        ExtractHardwareHash            = $True
-                        Id                             = 'FakeStringValue'
-                        Language                       = 'FakeStringValue'
-                        ManagementServiceAppId         = 'FakeStringValue'
-                        OutOfBoxExperienceSettings     = @{
-                            HideEULA                  = $True
-                            HideEscapeLink            = $True
-                            HidePrivacySettings       = $True
-                            DeviceUsageType           = 'singleUser'
-                            SkipKeyboardSelectionPage = $True
-                            UserType                  = 'administrator'
-                        }
-
-                    }
-                }
             }
+
             It 'Should Reverse Engineer resource from the Export method' {
                 $result = Export-TargetResource @testParams
                 $result | Should -Not -BeNullOrEmpty

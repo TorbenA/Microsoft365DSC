@@ -46,6 +46,15 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Set-ManagementRoleEntry -MockWith {
             }
 
+            Mock -CommandName Get-ManagementRoleEntry -MockWith {
+                return @{
+                    Identity        = 'Information Rights Management'
+                    Name            = "Get-BookingMailbox"
+                    Type            = "Cmdlet"
+                    Parameters      = @("ANR", "RecipientTypeDetails", "ResultSize")
+                }
+            }
+
             $Script:exportedInstances =$null
             $Script:ExportMode = $false
         }
@@ -56,15 +65,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Identity   = "Information Rights Management\Get-BookingMailbox"
                     Parameters = @("ANR","RecipientTypeDetails", "ResultSize")
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-ManagementRoleEntry -MockWith {
-                    return @{
-                        Identity        = 'Information Rights Management'
-                        Name            = "Get-BookingMailbox"
-                        Type            = "Cmdlet"
-                        Parameters      = @("ANR", "RecipientTypeDetails", "ResultSize")
-                    }
                 }
             }
 
@@ -77,17 +77,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     Identity   = "Information Rights Management\Get-BookingMailbox"
-                    Parameters = @("ANR","RecipientTypeDetails", "ResultSize")
+                    Parameters = @("RecipientTypeDetails", "ResultSize") # Drift
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-ManagementRoleEntry -MockWith {
-                    return @{
-                        Identity        = 'Information Rights Management'
-                        Name            = "Get-BookingMailbox"
-                        Type            = "Cmdlet"
-                        Parameters      = @("RecipientTypeDetails", "ResultSize") # Drift
-                    }
                 }
             }
 
@@ -96,7 +87,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
 
             It 'Should call the Set method' {
-                Set-TargetResource @testParams | Should -Invoke 'Set-ManagementRoleEntry' -Exactly 1
+                Set-TargetResource @testParams
+                Should -Invoke -CommandName 'Set-ManagementRoleEntry' -Exactly 1
             }
         }
 
@@ -106,15 +98,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-ManagementRoleEntry -MockWith {
-                    return @{
-                        Identity        = 'Information Rights Management'
-                        Name            = "Get-BookingMailbox"
-                        Type            = "Cmdlet"
-                        Parameters      = @("ANR", "RecipientTypeDetails", "ResultSize")
-                    }
                 }
             }
 

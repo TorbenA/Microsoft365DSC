@@ -41,6 +41,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Set-User {
             }
 
+            Mock -CommandName Get-User -MockWith {
+                return @{
+                    Name                 = 'John.Smith'
+                    AuthenticationPolicy = 'Test Policy'
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -59,11 +66,11 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
 
                 Mock -CommandName Get-User -MockWith {
-                    return @{
-                        Name                 = 'John.Smith'
-                        AuthenticationPolicy = $null
-                    }
+                return @{
+                    Name                 = 'John.Smith'
+                    AuthenticationPolicy = $null
                 }
+            }
             }
 
             It 'Should return false from the Test method' {
@@ -88,13 +95,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                   = 'Present'
                     Credential               = $Credential
                 }
-
-                Mock -CommandName Get-User -MockWith {
-                    return @{
-                        Name                 = 'John.Smith'
-                        AuthenticationPolicy = 'Test Policy'
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -113,13 +113,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     AuthenticationPolicyName = 'Test Policy'
                     Ensure                   = 'Absent'
                     Credential               = $Credential
-                }
-
-                Mock -CommandName Get-User -MockWith {
-                    return @{
-                        Name                 = 'John.Smith'
-                        AuthenticationPolicy = 'Test Policy'
-                    }
                 }
             }
 

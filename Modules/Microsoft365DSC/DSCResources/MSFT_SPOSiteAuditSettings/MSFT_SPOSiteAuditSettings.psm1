@@ -55,7 +55,7 @@ function Get-TargetResource
 
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
+        $null = New-M365DSCConnection -Workload 'PNP' `
             -InboundParameters $PSBoundParameters `
             -Url $Url -ErrorAction SilentlyContinue
 
@@ -91,7 +91,7 @@ function Get-TargetResource
             CertificatePassword   = $CertificatePassword
             CertificatePath       = $CertificatePath
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
     }
@@ -177,7 +177,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
+    $null = New-M365DSCConnection -Workload 'PNP' `
         -InboundParameters $PSBoundParameters `
         -Url $Url
 
@@ -371,7 +371,7 @@ function Export-TargetResource
                     CertificatePassword   = $CertificatePassword
                     CertificatePath       = $CertificatePath
                     CertificateThumbprint = $CertificateThumbprint
-                    Managedidentity       = $ManagedIdentity.IsPresent
+                    ManagedIdentity       = $ManagedIdentity.IsPresent
                     Credential            = $Credential
                     AccessTokens          = $AccessTokens
                 }
@@ -443,4 +443,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

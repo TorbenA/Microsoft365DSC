@@ -50,34 +50,11 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $DownloadLink = $false,
-
-        #DEPRECATED
-        [Parameter()]
-        [System.Boolean]
-        $EnableEndUserSpamNotifications = $false,
-
-        [Parameter()]
-        [System.Boolean]
         $EnableLanguageBlockList = $false,
 
         [Parameter()]
         [System.Boolean]
         $EnableRegionBlockList = $false,
-
-        [Parameter()]
-        [System.String]
-        $EndUserSpamNotificationCustomSubject,
-
-        [Parameter()]
-        [ValidateRange(1, 15)]
-        [uint32]
-        $EndUserSpamNotificationFrequency = 3,
-
-        [Parameter()]
-        [ValidateSet('Default', 'English', 'French', 'German', 'Italian', 'Japanese', 'Spanish', 'Korean', 'Portuguese', 'Russian', 'ChineseSimplified', 'ChineseTraditional', 'Amharic', 'Arabic', 'Bulgarian', 'BengaliIndia', 'Catalan', 'Czech', 'Cyrillic', 'Danish', 'Greek', 'Estonian', 'Basque', 'Farsi', 'Finnish', 'Filipino', 'Galician', 'Gujarati', 'Hebrew', 'Hindi', 'Croatian', 'Hungarian', 'Indonesian', 'Icelandic', 'Kazakh', 'Kannada', 'Lithuanian', 'Latvian', 'Malayalam', 'Marathi', 'Malay', 'Dutch', 'NorwegianNynorsk', 'Norwegian', 'Oriya', 'Polish', 'PortuguesePortugal', 'Romanian', 'Slovak', 'Slovenian', 'SerbianCyrillic', 'Serbian', 'Swedish', 'Swahili', 'Tamil', 'Telugu', 'Thai', 'Turkish', 'Ukrainian', 'Urdu', 'Vietnamese')]
-        [System.String]
-        $EndUserSpamNotificationLanguage = 'Default',
 
         [Parameter()]
         [ValidateSet('MoveToJmf', 'Redirect', 'Quarantine')]
@@ -357,15 +334,8 @@ function Get-TargetResource
                 BulkQuarantineTag                    = $HostedContentFilterPolicy.BulkQuarantineTag
                 BulkSpamAction                       = $HostedContentFilterPolicy.BulkSpamAction
                 BulkThreshold                        = $HostedContentFilterPolicy.BulkThreshold
-                DownloadLink                         = $HostedContentFilterPolicy.DownloadLink
-                #Deprecated
-                #EnableEndUserSpamNotifications       = $HostedContentFilterPolicy.EnableEndUserSpamNotifications
                 EnableLanguageBlockList              = $HostedContentFilterPolicy.EnableLanguageBlockList
                 EnableRegionBlockList                = $HostedContentFilterPolicy.EnableRegionBlockList
-                #Deprecated
-                #EndUserSpamNotificationCustomSubject = $HostedContentFilterPolicy.EndUserSpamNotificationCustomSubject
-                #EndUserSpamNotificationFrequency     = $HostedContentFilterPolicy.EndUserSpamNotificationFrequency
-                #EndUserSpamNotificationLanguage      = $HostedContentFilterPolicy.EndUserSpamNotificationLanguage
                 HighConfidencePhishAction            = $HostedContentFilterPolicy.HighConfidencePhishAction
                 HighConfidencePhishQuarantineTag     = $HostedContentFilterPolicy.HighConfidencePhishQuarantineTag
                 HighConfidenceSpamAction             = $HostedContentFilterPolicy.HighConfidenceSpamAction
@@ -407,7 +377,7 @@ function Get-TargetResource
                 CertificateThumbprint                = $CertificateThumbprint
                 CertificatePath                      = $CertificatePath
                 CertificatePassword                  = $CertificatePassword
-                Managedidentity                      = $ManagedIdentity.IsPresent
+                ManagedIdentity                      = $ManagedIdentity.IsPresent
                 TenantId                             = $TenantId
                 AccessTokens                         = $AccessTokens
             }
@@ -484,33 +454,11 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $DownloadLink = $false,
-
-        [Parameter()]
-        [System.Boolean]
-        $EnableEndUserSpamNotifications = $false,
-
-        [Parameter()]
-        [System.Boolean]
         $EnableLanguageBlockList = $false,
 
         [Parameter()]
         [System.Boolean]
         $EnableRegionBlockList = $false,
-
-        [Parameter()]
-        [System.String]
-        $EndUserSpamNotificationCustomSubject,
-
-        [Parameter()]
-        [ValidateRange(1, 15)]
-        [uint32]
-        $EndUserSpamNotificationFrequency = 3,
-
-        [Parameter()]
-        [ValidateSet('Default', 'English', 'French', 'German', 'Italian', 'Japanese', 'Spanish', 'Korean', 'Portuguese', 'Russian', 'ChineseSimplified', 'ChineseTraditional', 'Amharic', 'Arabic', 'Bulgarian', 'BengaliIndia', 'Catalan', 'Czech', 'Cyrillic', 'Danish', 'Greek', 'Estonian', 'Basque', 'Farsi', 'Finnish', 'Filipino', 'Galician', 'Gujarati', 'Hebrew', 'Hindi', 'Croatian', 'Hungarian', 'Indonesian', 'Icelandic', 'Kazakh', 'Kannada', 'Lithuanian', 'Latvian', 'Malayalam', 'Marathi', 'Malay', 'Dutch', 'NorwegianNynorsk', 'Norwegian', 'Oriya', 'Polish', 'PortuguesePortugal', 'Romanian', 'Slovak', 'Slovenian', 'SerbianCyrillic', 'Serbian', 'Swedish', 'Swahili', 'Tamil', 'Telugu', 'Thai', 'Turkish', 'Ukrainian', 'Urdu', 'Vietnamese')]
-        [System.String]
-        $EndUserSpamNotificationLanguage = 'Default',
 
         [Parameter()]
         [ValidateSet('MoveToJmf', 'Redirect', 'Quarantine')]
@@ -750,12 +698,12 @@ function Set-TargetResource
             Name = $HostedContentFilterPolicyParams.Identity
         }
         $HostedContentFilterPolicyParams.Remove('Identity') | Out-Null
+        $HostedContentFilterPolicyParams.Remove('MakeDefault') | Out-Null
         Write-Verbose -Message "Creating HostedContentFilterPolicy $($Identity) with values: $(Convert-M365DscHashtableToString -Hashtable $HostedContentFilterPolicyParams)"
         New-HostedContentFilterPolicy @HostedContentFilterPolicyParams
         if ($PSBoundParameters.MakeDefault)
         {
             Write-Verbose -Message 'Updating Policy as default'
-            $HostedContentFilterPolicyParams.Remove('MakeDefault') | Out-Null
             Set-HostedContentFilterPolicy @HostedContentFilterPolicyParams -MakeDefault -Confirm:$false
         }
     }
@@ -830,33 +778,11 @@ function Test-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $DownloadLink = $false,
-
-        [Parameter()]
-        [System.Boolean]
-        $EnableEndUserSpamNotifications = $false,
-
-        [Parameter()]
-        [System.Boolean]
         $EnableLanguageBlockList = $false,
 
         [Parameter()]
         [System.Boolean]
         $EnableRegionBlockList = $false,
-
-        [Parameter()]
-        [System.String]
-        $EndUserSpamNotificationCustomSubject,
-
-        [Parameter()]
-        [ValidateRange(1, 15)]
-        [uint32]
-        $EndUserSpamNotificationFrequency = 3,
-
-        [Parameter()]
-        [ValidateSet('Default', 'English', 'French', 'German', 'Italian', 'Japanese', 'Spanish', 'Korean', 'Portuguese', 'Russian', 'ChineseSimplified', 'ChineseTraditional', 'Amharic', 'Arabic', 'Bulgarian', 'BengaliIndia', 'Catalan', 'Czech', 'Cyrillic', 'Danish', 'Greek', 'Estonian', 'Basque', 'Farsi', 'Finnish', 'Filipino', 'Galician', 'Gujarati', 'Hebrew', 'Hindi', 'Croatian', 'Hungarian', 'Indonesian', 'Icelandic', 'Kazakh', 'Kannada', 'Lithuanian', 'Latvian', 'Malayalam', 'Marathi', 'Malay', 'Dutch', 'NorwegianNynorsk', 'Norwegian', 'Oriya', 'Polish', 'PortuguesePortugal', 'Romanian', 'Slovak', 'Slovenian', 'SerbianCyrillic', 'Serbian', 'Swedish', 'Swahili', 'Tamil', 'Telugu', 'Thai', 'Turkish', 'Ukrainian', 'Urdu', 'Vietnamese')]
-        [System.String]
-        $EndUserSpamNotificationLanguage = 'Default',
 
         [Parameter()]
         [ValidateSet('MoveToJmf', 'Redirect', 'Quarantine')]
@@ -1083,10 +1009,6 @@ function Test-TargetResource
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
 
     $ValuesToCheck = $PSBoundParameters
-    $ValuesToCheck.Remove('EnableEndUserSpamNotifications') | Out-Null
-    $ValuesToCheck.Remove('EndUserSpamNotificationLanguage') | Out-Null
-    $ValuesToCheck.Remove('EndUserSpamNotificationFrequency') | Out-Null
-    $ValuesToCheck.Remove('EndUserSpamNotificationCustomSubject') | Out-Null
 
     if ($CurrentValues.IntraOrgFilterState -ne $IntraOrgFilterState -and $IntraOrgFilterState -eq 'Default')
     {
@@ -1186,7 +1108,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }

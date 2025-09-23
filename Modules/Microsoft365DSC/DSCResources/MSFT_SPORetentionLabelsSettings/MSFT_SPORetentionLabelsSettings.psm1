@@ -52,28 +52,32 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'PnP' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message 'Getting current SharePoint Online Retention Labels Settings configuration'
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $AllowFilesWithKeepLabelToBeDeletedODBValue = Invoke-M365DSCSPORetentionLabelsSetting -CommandName 'GetAllowFilesWithKeepLabelToBeDeletedODB'
-    $AllowFilesWithKeepLabelToBeDeletedSPOValue = Invoke-M365DSCSPORetentionLabelsSetting -CommandName 'GetAllowFilesWithKeepLabelToBeDeletedSPO'
-    $AdvancedRecordVersioningDisabledValue      = Invoke-M365DSCSPORetentionLabelsSetting -CommandName 'GetAdvancedRecordVersioningDisabled'
-    $MetadataEditBlockingEnabledValue           = Invoke-M365DSCSPORetentionLabelsSetting -CommandName 'GetMetadataEditBlockingEnabled'
     try
     {
+        if (-not $Script:ExportMode)
+        {
+            $null = New-M365DSCConnection -Workload 'PnP' `
+                -InboundParameters $PSBoundParameters | Out-Null
 
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+        }
+
+        $AllowFilesWithKeepLabelToBeDeletedODBValue = Invoke-M365DSCSPORetentionLabelsSetting -CommandName 'GetAllowFilesWithKeepLabelToBeDeletedODB'
+        $AllowFilesWithKeepLabelToBeDeletedSPOValue = Invoke-M365DSCSPORetentionLabelsSetting -CommandName 'GetAllowFilesWithKeepLabelToBeDeletedSPO'
+        $AdvancedRecordVersioningDisabledValue      = Invoke-M365DSCSPORetentionLabelsSetting -CommandName 'GetAdvancedRecordVersioningDisabled'
+        $MetadataEditBlockingEnabledValue           = Invoke-M365DSCSPORetentionLabelsSetting -CommandName 'GetMetadataEditBlockingEnabled'
         $results = @{
             IsSingleInstance      = 'Yes'
             AllowFilesWithKeepLabelToBeDeletedODB = $AllowFilesWithKeepLabelToBeDeletedODBValue
@@ -87,7 +91,7 @@ function Get-TargetResource
             ManagedIdentity                       = $ManagedIdentity.IsPresent
             AccessTokens                          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -152,6 +156,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting SPORetentionLabelsSettings configuration"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -262,7 +268,7 @@ function Test-TargetResource
     #endregion
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
@@ -418,4 +424,3 @@ function Invoke-M365DSCSPORetentionLabelsSetting
 }
 
 Export-ModuleMember -Function *-TargetResource
-
