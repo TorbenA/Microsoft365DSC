@@ -23,6 +23,8 @@
   * [BREAKING CHANGE] Removed `Ensure` property.
 * EXOCalendarProcessing
   * Added caching for export.
+* EXOClientAccessRule
+  * [BREAKING CHANGE] Removed resource.
 * EXOGroupSettings
   * Fixed an issue with the retrieval by DisplayName and duplicate Id property
     on update.
