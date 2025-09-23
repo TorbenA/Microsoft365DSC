@@ -4,13 +4,32 @@
 
 * AADAdministrativeUnit
   * Reduced export time by 20%.
+* AADAppManagementPolicy
+  * Updated `RestrictForAppsCreatedAfterDateTime` to "o" format.
+* AADConditionalAccessPolicy
+  * Fix case evaluation when creating instances or updating properties.
+* AADCrossTenantIdentitySyncPolicyPartner
+  * Initial release.
 * AADGroup
+  * Fixed multi-tenant Service Principal support for owners and members.
+    FIXES [#6498](https://github.com/microsoft/Microsoft365DSC/issues/6498)
   * Fixed an issue where the `SkuId` could contain NBSP characters.
     FIXES [#6476](https://github.com/microsoft/Microsoft365DSC/issues/6476)
   * Fixed an issue where GroupAsMembers not being added during initial group creation.
     FIXES [#6489](https://github.com/microsoft/Microsoft365DSC/issues/6489)
+* AADGroupEligiblitySchedule
+  * Aligned date time format for `Expiration.EndDateTime` with `Expiration.StartDateTime`.
 * EXOCalendarProcessing
   * Added caching for export.
+* EXOGroupSettings
+  * Fixed an issue with the retrieval by DisplayName and duplicate Id property
+    on update.
+  * [BREAKING] Renamed the UnifiedGroupWelcomeMessageEnabled parameter to
+    WelcomeMessageEnabled.
+* EXOHostedContentFilterPolicy
+  * [BREAKING CHANGE] Remove deprecated properties `DownloadLink`, `EnableEndUserSpamNotifications`,
+    `EndUserSpamNotificationCustomSubject`, `EndUserSpamNotificationFrequency` and `EndUserSpamNotificationLanguage`.
+    FIXES [#4958](https://github.com/microsoft/Microsoft365DSC/issues/4958)
 * EXOMailboxAutoReplyConfiguration
   * Added conditional user lookup.
 * EXOMailboxCalendarFolder
@@ -23,6 +42,19 @@
   * Added caching for export.
 * EXORecipientPermission
   * Added additional caching for export.
+* IntuneAppProtectionPolicyAndroid
+  * [BREAKING CHANGE] Combined `ExcludedGroups` with `Assignments`, updated
+    time parameters to ISO8601 format, removed `IsAssigned` property.
+    FIXES [#5968](https://github.com/microsoft/Microsoft365DSC/issues/5968)
+    FIXES [#5808](https://github.com/microsoft/Microsoft365DSC/issues/5808)
+    FIXES [#5675](https://github.com/microsoft/Microsoft365DSC/issues/5675)
+* IntuneAppConfigurationPolicy
+  * Fixed an issue with MOF instance parsing.
+    FIXES [#6520](https://github.com/microsoft/Microsoft365DSC/issues/6520)
+* IntuneDeviceCompliancePolicyAndroid
+  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+* IntuneDeviceConfigurationPolicyAndroidDeviceAdministrator
+  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
 * IntuneMobileAppsMacOSLobApp
   * Added filter capability.
 * IntuneMobileAppsMicrosoftStoreAppWindows10
@@ -31,24 +63,45 @@
   * Fixed an issue where filtering was applied after fetching all apps.
 * IntuneMobileAppsWindowsOfficeSuiteApp
   * Added filter capability.
+  * Fixed the version in the MOF definition.
 * IntuneRoleAssignment
   * Fixed an issue where deleted groups would throw an error during export.
+* IntuneTrustedRootCertificateAndroidEnterprise
+  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+* IntuneVPNConfigurationPolicyAndroidEnterprise
+  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+* IntuneWifiConfigurationPolicyAndroidDeviceAdministrator
+  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+* IntuneWifiConfigurationPolicyAndroidForWork
+  * [BREAKING CHANGE] Removed resource because it's not supported anymore.
+    Instead, use the `IntuneWifiConfigurationPolicyAndroidEnterpriseWorkProfile` resource.
 * SPOPropertyBag
   * Reduced export time by 85%.
 * SPOSite
   * Added additional caching.
+* SPOTenantSettings
+  * Fixing the retrieval and update of the OneDriveSharingCapability parameter.
 * TeamsChannel
   * Reduced export time by up to 75%.
 * TeamsChannelTab
   * Reduced export time by up to 85%.
 * MISC
   * Code cleanup across all Intune resources.
+  * Code cleanup across all O365, OD and SPO resources.
+  * Code cleanup across all Planner, PP and SC resources.
+  * Code cleanup across all Sentinel, SH and Teams resources.
+  * Code cleanup across all M365DSC modules.
   * Fixed typo in `ManagedIdentity` property across all resources.
   * Reduced repeated logins during export of SPO and Teams resources.
   * Removed unnecessary type casting across all resources.
   * [BREAKING CHANGE] Removed `SupportsScopeTags` property from all resources because it's read-only.
 * M365DSCDRGUtil
+  * Fixed an issue where a null drift would throw an exception.
   * Fixed an issue where group filtering would not find the specified groups.
+  * Fixed an issue where 0 requests passed to `Invoke-M365DSCGraphBatchRequests` would fail.
+    FIXES [#6521](https://github.com/microsoft/Microsoft365DSC/issues/6521)
+* MISC
+  * Streamline test cases.
 
 # 1.25.910.1
 
@@ -475,6 +528,14 @@
 * EXORoleGroup
   * Add offline filter capability to `Export-TargetResource`.
     FIXES [#4286](https://github.com/microsoft/Microsoft365DSC/issues/4286)
+* IntuneAppProtectionPolicyiOS
+  * [BREAKING CHANGE] Combined `ExcludedGroups` with `Assignments`, updated
+    time parameters to ISO8601 format, removed `IsAssigned` property.
+    FIXES [#5970](https://github.com/microsoft/Microsoft365DSC/issues/5970)
+    FIXES [#5809](https://github.com/microsoft/Microsoft365DSC/issues/5809)
+    FIXES [#5689](https://github.com/microsoft/Microsoft365DSC/issues/5689)
+    FIXES [#4568](https://github.com/microsoft/Microsoft365DSC/issues/4568)
+    FIXES [#3936](https://github.com/microsoft/Microsoft365DSC/issues/3936)
 * IntuneDeviceCompliancePolicyWindows10
   * Added support for `Id` and `ScheduledActionsForRule` property.
     FIXES [#6123](https://github.com/microsoft/Microsoft365DSC/issues/6123)
@@ -584,6 +645,8 @@
 * AADApplication
   * Fixed an issue where the `AdminConsentGranted` property had an incorrect value.
     FIXES [#5027](https://github.com/microsoft/Microsoft365DSC/issues/5027)
+* EXORetentionPolicyTag
+  * BREAKING - Changed the AgeLimitForRetention property type to UInt32.
 * EXOTransportRule
   * Fixed an issue where not specified properties would lead to an exception.
 * IntuneASRRulesPolicyWindows10
