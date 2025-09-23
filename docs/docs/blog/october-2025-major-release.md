@@ -71,3 +71,33 @@ The IntuneDeviceCleanupRule resource has been deprecated in favor of the IntuneD
 ## IntuneASRRulesPolicyWindows10 Deprecation ([#6484](https://github.com/microsoft/Microsoft365DSC/pull/6484))
 
 The IntuneASRRulesPolicyWindows10 resource is being deprecated in favor of the IntuneSettingCatalogASRRulesPolicyWindows10 one. To fix your configuration files, simply replace all instances of IntuneASRRulesPolicyWindows10 it with the new IntuneSettingCatalogASRRulesPolicyWindows10 resource.
+
+## Multiple Deprecated Parameters Removed ([#6510](https://github.com/microsoft/Microsoft365DSC/pull/6510))
+
+Parameters that have been marked deprecated since last release have been removed from the resources. In order to fix your configuration files, simply remove these properties when encountered. Here is the full list of resources and their associated deprecated parameters that are now being removed from the solution:
+
+<ul>
+<li><strong>AADApplication:</strong> AvailableToOtherTenants</li>
+<li><strong>AADAuthenticationMethodPolicy:</strong> PolicyMigrationState</li>
+<li><strong>AADAuthenticationMethodPolicyAuthenticator:</strong> NumberMatchingRequiredState</li>
+<li><strong>EXOFocusedInbox:</strong> FocusedInboxOnLastUpdateTime</li>
+<li><strong>EXOHostedCOntentFilterPolicy:</strong> ActionOnError</li>
+<li><strong>EXOSafeAttachmentPolicy:</strong> ActionOnError</li>
+<li><strong>EXOTransportRule:</strong> ApplyOME, ExceptIfHasSenderOverride, ExceptIfMessageContainsDataClassifications, HasSenderOverride, MessageContainsDataClassifications, NotifySender, RemoveOME</li>
+<li><strong>O365OrgSettings:</strong> MicrosoftVivaBriefingEmail</li>
+<li><strong>ODSettings:</strong> NotifyOwnersWhenInvitationsAccepted</li>
+<li><strong>SPOSharingSettings:</strong> RequireAcceptingAccountMatchInvitedAccount </li>
+<li><strong>SPOTenantSettings:</strong> UserVoiceForFeedbackEnabled</li>
+<li><strong>TeamsFederationConfiguration:</strong> AllowPublicUsers</li>
+<li><strong>TeamsMeetingPolicy:</strong> ForceStreamingAttendeeMode</li>
+<li><strong>TeamsShiftPolicy:</strong> EnableShiftPresence</li>
+<li><strong>TeamsTenantDialPlan:</strong> ExternalAccessPrefix, OptimizeDeviceDialing</li>
+<li><strong></strong></li>
+<li><strong></strong></li>
+<li><strong></strong></li>
+</ul>
+
+
+## IntuneAccountProtection Resource is Removed ([#6510](https://github.com/microsoft/Microsoft365DSC/pull/6510))
+
+The IntuneAccountProtection resource has been removed from this release. To fix your configuration files, simply remove any instances of that resource.
