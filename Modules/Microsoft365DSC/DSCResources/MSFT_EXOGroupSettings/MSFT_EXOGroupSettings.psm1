@@ -214,7 +214,7 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UnifiedGroupWelcomeMessageEnabled,
+        $WelcomeMessageEnabled,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -418,7 +418,7 @@ function Get-TargetResource
         RequireSenderAuthenticationEnabled     = $group.RequireSenderAuthenticationEnabled
         SensitivityLabelId                     = $group.SensitivityLabelId
         SubscriptionEnabled                    = $group.SubscriptionEnabled
-        UnifiedGroupWelcomeMessageEnabled      = $group.UnifiedGroupWelcomeMessageEnabled
+        WelcomeMessageEnabled                  = $group.WelcomeMessageEnabled
         Credential                             = $Credential
         ApplicationId                          = $ApplicationId
         TenantId                               = $TenantId
@@ -646,7 +646,7 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UnifiedGroupWelcomeMessageEnabled,
+        $WelcomeMessageEnabled,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -925,7 +925,7 @@ function Test-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UnifiedGroupWelcomeMessageEnabled,
+        $WelcomeMessageEnabled,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]

@@ -29,7 +29,6 @@ Configuration Example
             AdminDisplayName                     = ""
             BulkSpamAction                       = "MoveToJmf"
             BulkThreshold                        = 7
-            DownloadLink                         = $False
             EnableLanguageBlockList              = $False
             EnableRegionBlockList                = $False
             HighConfidencePhishAction            = "Quarantine"
