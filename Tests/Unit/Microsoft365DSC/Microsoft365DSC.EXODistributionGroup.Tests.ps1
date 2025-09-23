@@ -45,17 +45,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Remove-DistributionGroup -MockWith {
             }
-
-            Mock -CommandName Get-Recipient -MockWith {
-                return @(
-                    @{
-                        Name = 'john.smith@contoso.com'
-                        WindowsLiveID = 'john.smith@contoso.com'
-                        PrimarySmtpAddress = 'john.smith@contoso.com'
-                    }
-                )
-            }
-
             Mock -CommandName Get-DistributionGroup -MockWith {
                 return @{
                     Alias                              = 'demodg'
@@ -77,7 +66,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     GroupType                          = @('Universal')
                 }
             }
-
+            Mock -CommandName Get-Recipient -MockWith {
+                return @{
+                    Name               = 'john.smith@contoso.com'
+                    PrimarySmtpAddress = 'john.smith@contoso.com'
+                    WindowsLiveID      = 'john.smith@contoso.com'
+                }
+            }
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }

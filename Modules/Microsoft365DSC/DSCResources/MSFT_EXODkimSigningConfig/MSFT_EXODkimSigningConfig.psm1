@@ -233,7 +233,7 @@ function Set-TargetResource
     $DkimSigningConfig = Get-TargetResource @PSBoundParameters
     $PSBoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-    if (('Present' -eq $Ensure ) -and ($null -eq $DkimSigningConfig))
+    if ($Ensure -eq 'Present' -and $DkimSigningConfig.Ensure -eq 'Absent')
     {
         $PSBoundParameters += @{
             DomainName = $PSBoundParameters.Identity
@@ -242,14 +242,14 @@ function Set-TargetResource
         Write-Verbose -Message "Creating DkimSigningConfig $($Identity)."
         New-DkimSigningConfig @PSBoundParameters
     }
-    elseif (('Present' -eq $Ensure ) -and ($null -ne $DkimSigningConfig))
+    elseif ($Ensure -eq 'Present' -and $DkimSigningConfig.Ensure -eq 'Present')
     {
         $PSBoundParameters.Remove('KeySize') | Out-Null
         Write-Verbose -Message "Setting DkimSigningConfig $($Identity) with values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
         Set-DkimSigningConfig @PSBoundParameters -Confirm:$false
     }
 
-    if (('Absent' -eq $Ensure ) -and ($DkimSigningConfig))
+    if ($Ensure -eq 'Absent' -and $DkimSigningConfig.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Disabling DkimSigningConfig $($Identity) "
         Set-DkimSigningConfig -Identity $Identity -Enabled $false -Confirm:$false
