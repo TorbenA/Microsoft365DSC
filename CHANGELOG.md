@@ -54,6 +54,9 @@
   * Added additional caching for export.
 * EXOMailboxSettings
   * Added caching for export.
+* EXOMobileDeviceMailboxPolicy
+  * [BREAKING CHANGE] Updated properties `MinPasswordComplexCharacters` and `PasswordHistory` to integer types.
+    FIXES [#6022](https://github.com/microsoft/Microsoft365DSC/issues/6022)
 * EXORecipientPermission
   * Added additional caching for export.
 * EXOSafeAttachmentPolicy
