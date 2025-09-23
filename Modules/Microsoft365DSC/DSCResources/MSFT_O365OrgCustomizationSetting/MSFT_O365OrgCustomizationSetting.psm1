@@ -45,12 +45,14 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of the O365 Org Customization Setting"
+
     if ($PSBoundParameters.ContainsKey('Ensure') -and $Ensure -eq 'Absent')
     {
         throw 'This resource is not able to remove the Customization settings and therefore only accepts Ensure=Present.'
     }
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -151,10 +153,15 @@ function Set-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Setting configuration of the O365 Org Customization Setting"
+
     if ($PSBoundParameters.ContainsKey('Ensure') -and $Ensure -eq 'Absent')
     {
         throw 'This resource is not able to remove the Customization settings and therefore only accepts Ensure=Present.'
     }
+
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -168,7 +175,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     Write-Verbose -Message 'Configuration changes can take up to 24 hours to be applied.'
@@ -268,6 +275,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
@@ -332,4 +340,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
