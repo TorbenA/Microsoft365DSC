@@ -46,3 +46,8 @@ In the AADGroupEligibilitySchedule, we've made the AccessId parameter mandatory 
 ## IntuneAppProtectionPolicyAndroid and IntuneAppProtectionPolicyiOS Major Refactoring ([#6169](https://github.com/microsoft/Microsoft365DSC/pull/6169)), ([#6170](https://github.com/microsoft/Microsoft365DSC/pull/6170))
 
 The IntuneAppProtectionPolicyAndroid and IntuneAppProtectionPolicyiOS resources underwent major refactoring as part of this major release. These changes were made to account for generic Intune assignments and to streamline its logic to better align it with other resources. Given the number of changes in the resources, it is recommended that existing instance of the resources in old configurations be reviewed manually to ensure alignment with the new changes. One alternative would be to use the Export/Snapshot feature to extract existing instances of these resources in the new proposed shape and include them as part of your configuration files.
+
+
+## EXOClientAccessRule Deprecation ([#6379](https://github.com/microsoft/Microsoft365DSC/pull/6379))
+
+The cmdlets associated with the EXOClientAccessRule resource have been deprecated as of September 1st, 2025 [Article] (https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/set-clientaccessrule?view=exchange-ps). To fix your configuration files, simply remove any instances of this resource.
