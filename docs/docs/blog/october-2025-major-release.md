@@ -51,3 +51,7 @@ The IntuneAppProtectionPolicyAndroid and IntuneAppProtectionPolicyiOS resources 
 ## EXOClientAccessRule Deprecation ([#6379](https://github.com/microsoft/Microsoft365DSC/pull/6379))
 
 The cmdlets associated with the EXOClientAccessRule resource have been deprecated as of September 1st, 2025 [Article] (https://learn.microsoft.com/en-us/powershell/module/exchangepowershell/set-clientaccessrule?view=exchange-ps). To fix your configuration files, simply remove any instances of this resource.
+
+## Removal of the SupportsScopeTags Parameter Across Intune Resources ([#6180](https://github.com/microsoft/Microsoft365DSC/pull/6180))
+
+The SupportsScopeTags property, which is a read-only property, was removed across all Intune resources. To fix your configuration files, simply search instances of the property and remove them.
