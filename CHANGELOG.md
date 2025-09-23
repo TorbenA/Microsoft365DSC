@@ -214,6 +214,9 @@
   * Updated ExchangeOnlineManagement to version 3.9.0.
     FIXES [#6106](https://github.com/microsoft/Microsoft365DSC/issues/6106)
   * Include `Az.Security` module for `Defender` workload.
+* M365DSCReverse
+  * Switch to output directory during export.
+    FIXES [#6427](https://github.com/microsoft/Microsoft365DSC/issues/6427)
 * M365DSCTelemetryEngine
   * Changed logic to retrieve the global telemetry authentication parameters.
 * M365DSCUtil
