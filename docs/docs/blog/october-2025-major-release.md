@@ -55,3 +55,7 @@ The cmdlets associated with the EXOClientAccessRule resource have been deprecate
 ## Removal of the SupportsScopeTags Parameter Across Intune Resources ([#6180](https://github.com/microsoft/Microsoft365DSC/pull/6180))
 
 The SupportsScopeTags property, which is a read-only property, was removed across all Intune resources. To fix your configuration files, simply search instances of the property and remove them.
+
+## Export-M365DSCConfiguration Behavior Change ([#6458](https://github.com/microsoft/Microsoft365DSC/pull/6458))
+
+When calling the Export-M365DSCConfiguration cmldlet, the output directory will now be required at the beginning of the execution when not explicitely provided and the execution path will be changed to it. Temporary files will also be stored in the specified folder.
