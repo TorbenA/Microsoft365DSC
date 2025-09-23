@@ -73,6 +73,8 @@
   * Reduced export time by 85%.
 * SPOSite
   * Added additional caching.
+* SPOTenantSettings
+  * Fixing the retrieval and update of the OneDriveSharingCapability parameter.
 * TeamsChannel
   * Reduced export time by up to 75%.
 * TeamsChannelTab

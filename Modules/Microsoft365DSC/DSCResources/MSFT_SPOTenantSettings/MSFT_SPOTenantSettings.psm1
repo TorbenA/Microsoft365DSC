@@ -239,7 +239,7 @@ function Get-TargetResource
             DenySelectSecurityGroupsInSPSitesList                  = $response.DenySelectSecurityGroupsInSPSitesList
             AllowSelectSecurityGroupsInSPSitesList                 = $response.AllowSelectSecurityGroupsInSPSitesList
             EnableAzureADB2BIntegration                            = $response.EnableAzureADB2BIntegration
-            OneDriveSharingCapability                              = $response.OneDriveSharingCapability
+            OneDriveSharingCapability                              = $response.ODBSharingCapability
             MinCompatibilityLevel                                  = $MinCompat
             MaxCompatibilityLevel                                  = $MaxCompat
             SearchResolveExactEmailOrUPN                           = $SPOTenantSettings.SearchResolveExactEmailOrUPN
@@ -560,7 +560,7 @@ function Set-TargetResource
         if ($null -ne $OneDriveSharingCapability)
         {
             $needToUpdate = $true
-            $paramsToUpdate.Add('OneDriveSharingCapability', $OneDriveSharingCapability)
+            $paramsToUpdate.Add('ODBSharingCapability', $OneDriveSharingCapability)
         }
 
         if ($needToUpdate)
