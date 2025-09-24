@@ -18,33 +18,10 @@
 
 ## Description
 
-This resource configures a Supervision Policy in Security and Compliance.
+This resource configures a Supervision Policy in Purview.
+NOTE: This resource can only be used to monitor policies until further notice.
 
 ## Permissions
-
-### Microsoft Graph
-
-To authenticate with the Microsoft Graph API, this resource required the following permissions:
-
-#### Delegated permissions
-
-- **Read**
-
-    - None
-
-- **Update**
-
-    - None
-
-#### Application permissions
-
-- **Read**
-
-    - None
-
-- **Update**
-
-    - None
 
 ## Examples
 

@@ -46,7 +46,6 @@ Configuration Example
             RearCamera                     = "enabled";
             SdCard                         = "notConfigured";
             SimultaneousMultiThreading     = "enabled";
-            SupportsScopeTags              = $True;
             UsbTypeAPort                   = "notConfigured";
             VirtualizationOfCpuAndIO       = "enabled";
             WakeOnLAN                      = "notConfigured";

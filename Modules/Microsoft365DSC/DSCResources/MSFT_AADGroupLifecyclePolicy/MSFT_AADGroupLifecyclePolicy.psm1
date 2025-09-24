@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADGroupLifecyclePolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -56,7 +58,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' -InboundParameters $PSBoundParameters
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' -InboundParameters $PSBoundParameters
 
     Write-Verbose -Message 'Getting configuration of AzureAD Groups Lifecycle Policy'
 
@@ -108,7 +110,7 @@ function Get-TargetResource
                 ApplicationSecret           = $ApplicationSecret
                 TenantId                    = $TenantId
                 CertificateThumbprint       = $CertificateThumbprint
-                Managedidentity             = $ManagedIdentity.IsPresent
+                ManagedIdentity             = $ManagedIdentity.IsPresent
                 AccessTokens                = $AccessTokens
             }
 
@@ -199,7 +201,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' -InboundParameters $PSBoundParameters
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' -InboundParameters $PSBoundParameters
 
     try
     {
@@ -216,15 +218,8 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "The Group Lifecycle Policy should exist but it doesn't. Creating it."
-        $creationParams = $PSBoundParameters
+        $creationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $creationParams.Remove('IsSingleInstance') | Out-Null
-        $creationParams.Remove('Credential') | Out-Null
-        $creationParams.Remove('ApplicationId') | Out-Null
-        $creationParams.Remove('TenantId') | Out-Null
-        $creationParams.Remove('CertificateThumbprint') | Out-Null
-        $creationParams.Remove('ManagedIdentity') | Out-Null
-        $creationParams.Remove('Ensure') | Out-Null
-        $creationParams.Remove('AccessTokens') | Out-Null
 
         $emails = ''
         foreach ($email in $creationParams.AlternateNotificationEmails)
@@ -237,15 +232,8 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Present')
     {
-        $updateParams = $PSBoundParameters
+        $updateParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $updateParams.Remove('IsSingleInstance') | Out-Null
-        $updateParams.Remove('Credential') | Out-Null
-        $updateParams.Remove('ApplicationId') | Out-Null
-        $updateParams.Remove('TenantId') | Out-Null
-        $updateParams.Remove('CertificateThumbprint') | Out-Null
-        $updateParams.Remove('ManagedIdentity') | Out-Null
-        $updateParams.Remove('Ensure') | Out-Null
-        $updateParams.Remove('AccessTokens') | Out-Null
 
         $emails = ''
         foreach ($email in $updateParams.AlternateNotificationEmails)
@@ -324,11 +312,8 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -336,23 +321,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Testing configuration of AzureAD Groups Lifecycle Policy'
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    $ValuesToCheck = $PSBoundParameters
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -389,6 +360,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -460,13 +432,12 @@ function Export-TargetResource
             ApplicationSecret           = $ApplicationSecret
             TenantId                    = $TenantId
             CertificateThumbprint       = $CertificateThumbprint
-            Managedidentity             = $ManagedIdentity.IsPresent
+            ManagedIdentity             = $ManagedIdentity.IsPresent
             AccessTokens                = $AccessTokens
         }
         $Results = Get-TargetResource @Params
         if ($Results.Ensure -eq 'Present')
         {
-
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
                 -ModulePath $PSScriptRoot `

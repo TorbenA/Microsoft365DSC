@@ -24,7 +24,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             $secpasswd = ConvertTo-SecureString (New-Guid | Out-String) -AsPlainText -Force
             $Credential = New-Object System.Management.Automation.PSCredential ('tenantadmin@mydomain.com', $secpasswd)
 
-            Mock -CommandName Confirm-M365DSCDependencies -MockWith {
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
             }
 
             Mock -CommandName New-M365DSCConnection -MockWith {
@@ -58,7 +58,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
-            $Script:exportedInstances =$null
+            $Script:exportedInstance =$null
             $Script:ExportMode = $false
         }
 
@@ -112,7 +112,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return @{
                         ApplySensitivityLabel = 'TopSecret'
                         Comment               = 'Test'
-                        ExchangeLocation      = @('All')
+                        ExchangeLocation      = @(@{DisplayName='All'})
                         Mode                  = 'TestWithoutNotifications'; #Drift
                         Name                  = 'TestPolicy'
                         Priority              = 0
@@ -151,7 +151,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return @{
                         ApplySensitivityLabel = 'TopSecret'
                         Comment               = 'Test'
-                        ExchangeLocation      = @('All')
+                        ExchangeLocation      = @(@{Name='All'})
                         Mode                  = 'Enable'
                         Name                  = 'TestPolicy'
                         Priority              = 0
@@ -176,7 +176,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Comment               = 'Test'
                     Credential            = $Credential
                     Ensure                = 'Absent'
-                    ExchangeLocation      = @('All')
+                    ExchangeLocation      = @(@{DisplayName='All'})
                     Mode                  = 'Enable'
                     Name                  = 'TestPolicy'
                     Priority              = 0
@@ -219,7 +219,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return @{
                         ApplySensitivityLabel = 'TopSecret'
                         Comment               = 'Test'
-                        ExchangeLocation      = @('All')
+                        ExchangeLocation      = @(@{DisplayName='All'})
                         Mode                  = 'Enable'
                         Name                  = 'TestPolicy'
                         Priority              = 0

@@ -21,36 +21,10 @@
 
 This resource controls the properties of an Azure subscription.
 
-Users will need to grant permissions to the associated scope by running the following command in Azure Cloud Shell:
-```Powershell
-New-AzRoleAssignment -ObjectId "<Service Principal Object ID>" -Scope "Microsoft.Subscription/aliases/<subscription>" -RoleDefinitionName 'Contributor' -ObjectType 'ServicePrincipal'
-```
+To grant permissions, go to the Cost Management + Billing blade in Azure Portal --> Billing Scopes --> Select your desired billing account --> then Access Control (IAM) to grant 'Billing Account Contributor' permissions to manage billing accounts.
+If the resource is only used for backup, the `Billing Account Reader` role is sufficient.
 
 ## Permissions
-
-### Microsoft Graph
-
-To authenticate with the Microsoft Graph API, this resource required the following permissions:
-
-#### Delegated permissions
-
-- **Read**
-
-    - None
-
-- **Update**
-
-    - None
-
-#### Application permissions
-
-- **Read**
-
-    - None
-
-- **Update**
-
-    - None
 
 ## Examples
 

@@ -28,16 +28,32 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             $secpasswd = ConvertTo-SecureString (New-Guid | Out-String) -AsPlainText -Force
             $Credential = New-Object System.Management.Automation.PSCredential ('tenantadmin@mydomain.com', $secpasswd)
 
-            Mock -CommandName Confirm-M365DSCDependencies -MockWith {
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
             }
 
             Mock -CommandName New-M365DSCConnection -MockWith {
                 return "Credentials"
             }
 
-            Mock -CommandName New-MgBetaDirectoryCustomSecurityAttributeDefinition -MockWith{}
+            Mock -CommandName New-MgBetaDirectoryCustomSecurityAttributeDefinition -MockWith{
+            }
 
-            Mock -CommandName Update-MgBetaDirectoryCustomSecurityAttributeDefinition -MockWith{}
+            Mock -CommandName Update-MgBetaDirectoryCustomSecurityAttributeDefinition -MockWith{
+            }
+
+            Mock -CommandName Get-MgBetaDirectoryCustomSecurityAttributeDefinition -MockWith {
+                return @{
+                    AttributeSet            = 'ContosoSet'
+                    IsCollection            = $false
+                    IsSearchable            = $true
+                    Name                    = "ShoeSize";
+                    Status                  = "Available";
+                    Type                    = "String";
+                    UsePreDefinedValuesOnly = $False;
+                    Description             = "What size of shoe is the person wearing?"
+                    Id                      = "ContosoSet_ShoeSize"
+                }
+            }
 
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
@@ -99,20 +115,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description             = "What size of shoe is the person wearing?"
                     Credential              = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaDirectoryCustomSecurityAttributeDefinition -MockWith {
-                    return @{
-                        AttributeSet            = 'ContosoSet'
-                        IsCollection            = $false
-                        IsSearchable            = $true
-                        Name                    = "ShoeSize";
-                        Status                  = "Available";
-                        Type                    = "String";
-                        UsePreDefinedValuesOnly = $False;
-                        Description             = "What size of shoe is the person wearing?"
-                        Id                      = "ContosoSet_ShoeSize"
-                    }
-                }
             }
             It 'Should return Values from the Get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
@@ -144,20 +146,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description             = "What size of shoe is the person wearing?"
                     Credential              = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaDirectoryCustomSecurityAttributeDefinition -MockWith {
-                    return @{
-                        AttributeSet            = 'ContosoSet'
-                        IsCollection            = $false
-                        IsSearchable            = $true
-                        Name                    = "ShoeSize";
-                        Status                  = "Available";
-                        Type                    = "String";
-                        UsePreDefinedValuesOnly = $False;
-                        Description             = "What size of shoe is the person wearing?"
-                        Id                      = "ContosoSet_ShoeSize"
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -182,20 +170,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description             = "What size of shoe is the person wearing? Drift" # drift
                     Credential              = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaDirectoryCustomSecurityAttributeDefinition -MockWith {
-                    return @{
-                        AttributeSet            = 'ContosoSet'
-                        IsCollection            = $false
-                        IsSearchable            = $true
-                        Name                    = "ShoeSize";
-                        Status                  = "Available";
-                        Type                    = "String";
-                        UsePreDefinedValuesOnly = $False;
-                        Description             = "What size of shoe is the person wearing?"
-                        Id                      = "ContosoSet_ShoeSize"
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -218,20 +192,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential  = $Credential;
-                }
-
-                Mock -CommandName Get-MgBetaDirectoryCustomSecurityAttributeDefinition -MockWith {
-                    return @{
-                        AttributeSet            = 'ContosoSet'
-                        IsCollection            = $false
-                        IsSearchable            = $true
-                        Name                    = "ShoeSize";
-                        Status                  = "Available";
-                        Type                    = "String";
-                        UsePreDefinedValuesOnly = $False;
-                        Description             = "What size of shoe is the person wearing?"
-                        Id                      = "ContosoSet_ShoeSize"
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {

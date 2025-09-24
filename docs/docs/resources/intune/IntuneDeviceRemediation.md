@@ -8,7 +8,7 @@
 | **DetectionScriptContent** | Write | String | The entire content of the detection powershell script | |
 | **DetectionScriptParameters** | Write | MSFT_MicrosoftGraphdeviceHealthScriptParameter[] | List of ComplexType DetectionScriptParameters objects. | |
 | **DeviceHealthScriptType** | Write | String | DeviceHealthScriptType for the script policy. Possible values are: deviceHealthScript, managedInstallerScript. | `deviceHealthScript`, `managedInstallerScript` |
-| **DisplayName** | Required | String | Name of the device health script | |
+| **DisplayName** | Key | String | Name of the device health script | |
 | **EnforceSignatureCheck** | Write | Boolean | Indicates whether the script signature needs be checked | |
 | **IsGlobalScript** | Write | Boolean | Indicates whether the script is a global script provided by Microsoft | |
 | **Publisher** | Write | String | Name of the device health script publisher | |
@@ -17,7 +17,7 @@
 | **RoleScopeTagIds** | Write | StringArray[] | List of Scope Tag IDs for the device health script | |
 | **RunAs32Bit** | Write | Boolean | Indicate whether PowerShell script(s) should run as 32-bit | |
 | **RunAsAccount** | Write | String | Indicates the type of execution context. Possible values are: system, user. | `system`, `user` |
-| **Id** | Key | String | The unique identifier for an entity. Read-only. | |
+| **Id** | Write | String | The unique identifier for an entity. Read-only. | |
 | **Assignments** | Write | MSFT_IntuneDeviceRemediationPolicyAssignments[] | Represents the assignment to the Intune policy. | |
 | **Ensure** | Write | String | Present ensures the policy exists, absent ensures it is removed. | `Present`, `Absent` |
 | **Credential** | Write | PSCredential | Credentials of the Admin | |
@@ -37,6 +37,7 @@
 | **dataType** | Write | String | The type of the target assignment. | `#microsoft.graph.groupAssignmentTarget`, `#microsoft.graph.allLicensedUsersAssignmentTarget`, `#microsoft.graph.allDevicesAssignmentTarget`, `#microsoft.graph.exclusionGroupAssignmentTarget`, `#microsoft.graph.configurationManagerCollectionAssignmentTarget` |
 | **deviceAndAppManagementAssignmentFilterType** | Write | String | The type of filter of the target assignment i.e. Exclude or Include. Possible values are:none, include, exclude. | `none`, `include`, `exclude` |
 | **deviceAndAppManagementAssignmentFilterId** | Write | String | The Id of the filter for the target assignment. | |
+| **deviceAndAppManagementAssignmentFilterDisplayName** | Write | String | The display name of the filter for the target assignment. | |
 | **groupId** | Write | String | The group Id that is the target of the assignment. | |
 | **groupDisplayName** | Write | String | The group Display Name that is the target of the assignment. | |
 | **collectionId** | Write | String | The collection Id that is the target of the assignment.(ConfigMgr) | |
@@ -99,21 +100,21 @@ To authenticate with the Microsoft Graph API, this resource required the followi
 
 - **Read**
 
-    - Group.Read.All, DeviceManagementConfiguration.Read.All
+    - Group.Read.All, DeviceManagementScripts.Read.All
 
 - **Update**
 
-    - Group.Read.All, DeviceManagementConfiguration.Read.All, DeviceManagementConfiguration.ReadWrite.All
+    - Group.Read.All, DeviceManagementScripts.ReadWrite.All
 
 #### Application permissions
 
 - **Read**
 
-    - Group.Read.All, DeviceManagementConfiguration.Read.All
+    - Group.Read.All, DeviceManagementScripts.Read.All
 
 - **Update**
 
-    - Group.Read.All, DeviceManagementConfiguration.Read.All, DeviceManagementConfiguration.ReadWrite.All
+    - Group.Read.All, DeviceManagementScripts.ReadWrite.All
 
 ## Examples
 
@@ -166,7 +167,6 @@ Configuration Example
             DisplayName              = "Device remediation";
             EnforceSignatureCheck    = $False;
             Ensure                   = "Present";
-            Id                       = '00000000-0000-0000-0000-000000000000'
             Publisher                = "Some Publisher";
             RemediationScriptContent = "Base64 encoded script content";
             RoleScopeTagIds          = @("0");
@@ -182,7 +182,7 @@ Configuration Example
 
 ### Example 2
 
-This example updates a new Device Remediation.
+This example updates an existing Device Remediation.
 
 ```powershell
 Configuration Example
@@ -229,7 +229,7 @@ Configuration Example
             DisplayName              = "Device remediation";
             EnforceSignatureCheck    = $False;
             Ensure                   = "Present";
-            Id                       = '00000000-0000-0000-0000-000000000000'
+            Id                       = '00000000-0000-0000-0000-000000000000' # Optional
             Publisher                = "Some Publisher";
             RemediationScriptContent = "Base64 encoded script content 2"; # Updated property
             RoleScopeTagIds          = @("0");

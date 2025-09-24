@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCAutoSensitivityLabelRule'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -14,7 +16,7 @@ function Get-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String]
-        [ValidateSet('Exchange', 'SharePoint', 'OneDriveForBusiness')]
+        [ValidateSet('Exchange', 'SharePoint', 'OneDriveForBusiness', 'Applications', 'Azure', 'AWS', 'PowerBI')]
         $Workload,
 
         [Parameter()]
@@ -225,12 +227,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of DLPCompliancePolicy for $Name"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            Write-Verbose -Message "Getting configuration of DLPCompliancePolicy for $Name"
-            $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+            $null = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
                 -InboundParameters $PSBoundParameters
 
             #region Telemetry
@@ -400,7 +403,7 @@ function Set-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String]
-        [ValidateSet('Exchange', 'SharePoint', 'OneDriveForBusiness')]
+        [ValidateSet('Exchange', 'SharePoint', 'OneDriveForBusiness', 'Applications', 'Azure', 'AWS', 'PowerBI')]
         $Workload,
 
         [Parameter()]
@@ -622,9 +625,6 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-        -InboundParameters $PSBoundParameters
-
     $CurrentRule = Get-TargetResource @PSBoundParameters
 
     if ($null -ne $HeaderMatchesPatterns -and $null -ne $HeaderMatchesPatterns.Name)
@@ -635,7 +635,7 @@ function Set-TargetResource
     if (('Present' -eq $Ensure) -and ('Absent' -eq $CurrentRule.Ensure))
     {
         Write-Verbose "Rule {$($CurrentRule.Name)} doesn't exists but need to. Creating Rule."
-        $CreationParams = $PSBoundParameters
+        $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         if ($null -ne $CreationParams.ContentContainsSensitiveInformation)
         {
             $value = @()
@@ -670,19 +670,6 @@ function Set-TargetResource
             $CreationParams.ExceptIfContentContainsSensitiveInformation = $value
         }
 
-        $CreationParams.Remove('Ensure')
-
-        # Remove authentication parameters
-        $CreationParams.Remove('Credential') | Out-Null
-        $CreationParams.Remove('ApplicationId') | Out-Null
-        $CreationParams.Remove('TenantId') | Out-Null
-        $CreationParams.Remove('CertificatePath') | Out-Null
-        $CreationParams.Remove('CertificatePassword') | Out-Null
-        $CreationParams.Remove('CertificateThumbprint') | Out-Null
-        $CreationParams.Remove('ManagedIdentity') | Out-Null
-        $CreationParams.Remove('ApplicationSecret') | Out-Null
-        $CreationParams.Remove('AccessTokens') | Out-Null
-
         Write-Verbose -Message 'Flipping the parent policy to Mode = TestWithoutNotification while we create the rule'
         $parentPolicy = Get-AutoSensitivityLabelPolicy -Identity $Policy
         $currentMode = $parentPolicy.Mode
@@ -695,13 +682,13 @@ function Set-TargetResource
         }
         New-AutoSensitivityLabelRule @CreationParams
 
-        Write-Verbose -Message "Flipping the parent policy to Mode back to $currentMode while we create the rule"
+        Write-Verbose -Message "Flipping the parent policy back to Mode $currentMode while we create the rule"
         Set-AutoSensitivityLabelPolicy -Identity $Policy -Mode $currentMode
     }
     elseif (('Present' -eq $Ensure) -and ('Present' -eq $CurrentRule.Ensure))
     {
         Write-Verbose "Rule {$($CurrentRule.Name)} already exists and needs to. Updating Rule."
-        $UpdateParams = $PSBoundParameters
+        $UpdateParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         if ($null -ne $UpdateParams.ContentContainsSensitiveInformation)
         {
@@ -737,21 +724,9 @@ function Set-TargetResource
             $UpdateParams.ExceptIfContentContainsSensitiveInformation = $value
         }
 
-        $UpdateParams.Remove('Ensure') | Out-Null
         $UpdateParams.Remove('Name') | Out-Null
         $UpdateParams.Remove('Policy') | Out-Null
         $UpdateParams.Add('Identity', $Name)
-
-        # Remove authentication parameters
-        $UpdateParams.Remove('Credential') | Out-Null
-        $UpdateParams.Remove('ApplicationId') | Out-Null
-        $UpdateParams.Remove('TenantId') | Out-Null
-        $UpdateParams.Remove('CertificatePath') | Out-Null
-        $UpdateParams.Remove('CertificatePassword') | Out-Null
-        $UpdateParams.Remove('CertificateThumbprint') | Out-Null
-        $UpdateParams.Remove('ManagedIdentity') | Out-Null
-        $UpdateParams.Remove('ApplicationSecret') | Out-Null
-        $UpdateParams.Remove('AccessTokens') | Out-Null
 
         Write-Verbose -Message 'Flipping the parent policy to Mode = TestWithoutNotification while we editing the rule'
         $parentPolicy = Get-AutoSensitivityLabelPolicy -Identity $Policy
@@ -791,7 +766,7 @@ function Test-TargetResource
 
         [Parameter(Mandatory = $true)]
         [System.String]
-        [ValidateSet('Exchange', 'SharePoint', 'OneDriveForBusiness')]
+        [ValidateSet('Exchange', 'SharePoint', 'OneDriveForBusiness', 'Applications', 'Azure', 'AWS', 'PowerBI')]
         $Workload,
 
         [Parameter()]
@@ -1150,47 +1125,145 @@ function Export-TargetResource
                 -Policy $rule.ParentPolicyName `
                 -Workload $rule.LogicalWorkload
 
-            $IsCIMArray = $false
-            $IsSitCIMArray = $false
-
-            if ($Results.ContentContainsSensitiveInformation.Length -gt 1)
-            {
-                $IsSitCIMArray = $true
-            }
-
-            if ($Results.ExceptIfContentContainsSensitiveInformation.Length -gt 1)
-            {
-                $IsCIMArray = $true
-            }
-
             if ($null -ne $Results.ContentContainsSensitiveInformation)
             {
-                if ($null -ne $results.ContentContainsSensitiveInformation.Groups)
+                $complexTypeMapping = @(
+                    @{
+                        Name            = 'ContentContainsSensitiveInformation'
+                        CimInstanceName = 'SCDLPContainsSensitiveInformation'
+                    },
+                    @{
+                        Name            = 'Groups'
+                        CimInstanceName = 'SCDLPContainsSensitiveInformationGroup'
+                        IsArray         = $true
+                    },
+                    @{
+                        Name            = 'SensitiveInformation'
+                        CimInstanceName = 'SCDLPSensitiveInformation'
+                        IsArray         = $true
+                    },
+                    @{
+                        Name            = 'Labels'
+                        CimInstanceName = 'SCDLPLabel'
+                        IsArray         = $true
+                    }
+                )
+
+                if ($null -ne $Results.ContentContainsSensitiveInformation.groups)
                 {
-                    $Results.ContentContainsSensitiveInformation = ConvertTo-SCDLPSensitiveInformationStringGroup -InformationArray $Results.ContentContainsSensitiveInformation
+                    foreach ($group in $Results.ContentContainsSensitiveInformation.groups)
+                    {
+                        foreach ($sensitiveType in $group.sensitivetypes)
+                        {
+                            $sensitiveType.Remove('confidencelevel') | Out-Null
+                            $sensitiveType.Remove('rulePackId') | Out-Null
+                        }
+                        $group.SensitiveInformation = [array]$group.sensitivetypes
+                        $group.Remove('sensitivetypes') | Out-Null
+                    }
                 }
                 else
                 {
-                    $Results.ContentContainsSensitiveInformation = ConvertTo-SCDLPSensitiveInformationString -InformationArray $Results.ContentContainsSensitiveInformation
+                    foreach ($sensitiveInformation in $Results.ContentContainsSensitiveInformation)
+                    {
+                        $sensitiveInformation.Remove('confidencelevel') | Out-Null
+                        $sensitiveInformation.Remove('rulePackId') | Out-Null
+                    }
+                    $Results.ContentContainsSensitiveInformation = @{
+                        SensitiveInformation = [array]$Results.ContentContainsSensitiveInformation
+                    }
+                }
+
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.ContentContainsSensitiveInformation `
+                    -CIMInstanceName 'SCDLPContainsSensitiveInformation' `
+                    -ComplexTypeMapping $complexTypeMapping
+                if (-not [String]::IsNullOrEmpty($complexTypeStringResult))
+                {
+                    $Results.ContentContainsSensitiveInformation = $complexTypeStringResult
+                }
+                else
+                {
+                    $Results.Remove('ContentContainsSensitiveInformation') | Out-Null
                 }
             }
 
             if ($null -ne $Results.ExceptIfContentContainsSensitiveInformation)
             {
-                if ($null -ne $results.ExceptIfContentContainsSensitiveInformation.Groups)
+                $complexTypeMapping = @(
+                    @{
+                        Name            = 'ExceptIfContentContainsSensitiveInformation'
+                        CimInstanceName = 'SCDLPContainsSensitiveInformation'
+                    },
+                    @{
+                        Name            = 'Groups'
+                        CimInstanceName = 'SCDLPContainsSensitiveInformationGroup'
+                        IsArray         = $true
+                    },
+                    @{
+                        Name            = 'SensitiveInformation'
+                        CimInstanceName = 'SCDLPSensitiveInformation'
+                        IsArray         = $true
+                    },
+                    @{
+                        Name            = 'Labels'
+                        CimInstanceName = 'SCDLPLabel'
+                        IsArray         = $true
+                    }
+                )
+
+                if ($null -ne $Results.ExceptIfContentContainsSensitiveInformation.groups)
                 {
-                    $Results.ExceptIfContentContainsSensitiveInformation = ConvertTo-SCDLPSensitiveInformationStringGroup -InformationArray $Results.ExceptIfContentContainsSensitiveInformation
+                    foreach ($group in $Results.ExceptIfContentContainsSensitiveInformation.groups)
+                    {
+                        foreach ($sensitiveType in $group.sensitivetypes)
+                        {
+                            $sensitiveType.Remove('confidencelevel') | Out-Null
+                            $sensitiveType.Remove('rulePackId') | Out-Null
+                        }
+                        $group.SensitiveInformation = [array]$group.sensitivetypes
+                        $group.Remove('sensitivetypes') | Out-Null
+                    }
                 }
                 else
                 {
-                    $Results.ExceptIfContentContainsSensitiveInformation = ConvertTo-SCDLPSensitiveInformationString -InformationArray $Results.ExceptIfContentContainsSensitiveInformation
+                    foreach ($sensitiveInformation in $Results.ExceptIfContentContainsSensitiveInformation)
+                    {
+                        $sensitiveInformation.Remove('confidencelevel') | Out-Null
+                        $sensitiveInformation.Remove('rulePackId') | Out-Null
+                    }
+                    $Results.ExceptIfContentContainsSensitiveInformation = @{
+                        SensitiveInformation = [array]$Results.ExceptIfContentContainsSensitiveInformation
+                    }
+                }
+
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.ExceptIfContentContainsSensitiveInformation `
+                    -CIMInstanceName 'SCDLPContainsSensitiveInformation' `
+                    -ComplexTypeMapping $complexTypeMapping
+                if (-not [String]::IsNullOrEmpty($complexTypeStringResult))
+                {
+                    $Results.ExceptIfContentContainsSensitiveInformation = $complexTypeStringResult
+                }
+                else
+                {
+                    $Results.Remove('ExceptIfContentContainsSensitiveInformation') | Out-Null
                 }
             }
 
-            $IsHeaderPatternsCIMArray = $false
             if ($null -ne $Results.HeaderMatchesPatterns -and $null -ne $Results.HeaderMatchesPatterns.Name)
             {
-                $Results.HeaderMatchesPatterns = ConvertTo-HeadersMatchesPatternString -Patterns $Results.HeaderMatchesPatterns
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.HeaderMatchesPatterns `
+                    -ComplexTypeName 'SCHeaderPattern'
+                if (-not [String]::IsNullOrEmpty($complexTypeStringResult))
+                {
+                    $Results.HeaderMatchesPatterns = $complexTypeStringResult
+                }
+                else
+                {
+                    $Results.Remove('HeaderMatchesPatterns') | Out-Null
+                }
             }
 
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
@@ -1231,185 +1304,6 @@ function Export-TargetResource
         return ''
     }
 }
-
-function ConvertTo-HeadersMatchesPatternString
-{
-    [CmdletBinding()]
-    [OutputType([System.String])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [System.Object[]]
-        $Patterns
-    )
-    $result = ''
-
-    $result = "`r`n                MSFT_SCHeaderPattern`r`n                {`r`n"
-    $result += "                        Name   = '$($Patterns.Name)'`r`n"
-    $result += '                        Values = @('
-    foreach ($value in $Patterns.Value)
-    {
-        $result += "'$($value.Replace("'", "''"))',"
-    }
-    $result = $result.Substring(0, $result.Length - 1) + ")`r`n"
-    $result += "                }`r`n"
-    return $result
-}
-function ConvertTo-SCDLPSensitiveInformationStringGroup
-{
-    [CmdletBinding()]
-    [OutputType([System.String[]])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [System.Object[]]
-        $InformationArray
-    )
-    $result = ''
-
-    foreach ($SensitiveInformationHash in $InformationArray)
-    {
-        $StringContent = "MSFT_SCDLPContainsSensitiveInformation {`r`n"
-        if ($null -ne $InformationArray.Groups)
-        {
-            $StringContent += "                operator = '$($SensitiveInformationHash.operator.Replace("'", "''"))'`r`n"
-            $StringContent += "                Groups = @(`r`n"
-        }
-        foreach ($group in $SensitiveInformationHash.Groups)
-        {
-            $StringContent += "                    MSFT_SCDLPContainsSensitiveInformationGroup {`r`n"
-            $StringContent += "                        operator = '$($group.operator.Replace("'", "''"))'`r`n"
-            $StringContent += "                        name = '$($group.name.Replace("'", "''"))'`r`n"
-            if ($null -ne $group.sensitivetypes)
-            {
-                $StringContent += "                        SensitiveInformation = @(`r`n"
-                foreach ($sit in $group.sensitivetypes)
-                {
-                    $StringContent += "                            MSFT_SCDLPSensitiveInformation {`r`n"
-                    $StringContent += "                                name = '$($sit.name.Replace("'", "''"))'`r`n"
-                    if ($null -ne $sit.id)
-                    {
-                        $StringContent += "                                id = '$($sit.id)'`r`n"
-                    }
-
-                    if ($null -ne $sit.maxconfidence)
-                    {
-                        $StringContent += "                                maxconfidence = '$($sit.maxconfidence)'`r`n"
-                    }
-
-                    if ($null -ne $sit.minconfidence)
-                    {
-                        $StringContent += "                                minconfidence = '$($sit.minconfidence)'`r`n"
-                    }
-
-                    if ($null -ne $sit.classifiertype)
-                    {
-                        $StringContent += "                                classifiertype = '$($sit.classifiertype)'`r`n"
-                    }
-
-                    if ($null -ne $sit.mincount)
-                    {
-                        $StringContent += "                                mincount = '$($sit.mincount)'`r`n"
-                    }
-
-                    if ($null -ne $sit.maxcount)
-                    {
-                        $StringContent += "                                maxcount = '$($sit.maxcount)'`r`n"
-                    }
-
-                    $StringContent += "                            }`r`n"
-                }
-                $StringContent += "                        )`r`n"
-                $StringContent += "                    }`r`n"
-            }
-            if ($null -ne $group.labels)
-            {
-                $StringContent += "                        labels = @(`r`n"
-                foreach ($label in $group.labels)
-                {
-                    $StringContent += "                            MSFT_SCDLPLabel {`r`n"
-                    $StringContent += "                                name = '$($label.name.Replace("'", "''"))'`r`n"
-                    if ($null -ne $label.id)
-                    {
-                        $StringContent += "                                id = '$($label.id)'`r`n"
-                    }
-
-                    if ($null -ne $label.type)
-                    {
-                        $StringContent += "                                type = '$($label.type)'`r`n"
-                    }
-
-                    $StringContent += "                            }`r`n"
-                }
-                $StringContent += "                        )`r`n"
-                $StringContent += "                    }`r`n"
-            }
-        }
-        $StringContent += "                )`r`n"
-        $StringContent += "            }`r`n"
-        $result += $StringContent
-    }
-    return $result
-}
-function ConvertTo-SCDLPSensitiveInformationString
-{
-    [CmdletBinding()]
-    [OutputType([System.String[]])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [System.Object[]]
-        $InformationArray
-    )
-    $result = ''
-    $StringContent = "MSFT_SCDLPContainsSensitiveInformation {`r`n"
-    $StringContent += '                SensitiveInformation = '
-    $StringContent += "@(`r`n"
-    $result += $StringContent
-    foreach ($SensitiveInformationHash in $InformationArray)
-    {
-
-        $StringContent = "                    MSFT_SCDLPSensitiveInformation`r`n                    {`r`n"
-        $StringContent += "                        name = '$($SensitiveInformationHash.name.Replace("'", "''"))'`r`n"
-
-        if ($null -ne $SensitiveInformationHash.id)
-        {
-            $StringContent += "                        id = '$($SensitiveInformationHash.id)'`r`n"
-        }
-
-        if ($null -ne $SensitiveInformationHash.maxconfidence)
-        {
-            $StringContent += "                        maxconfidence = '$($SensitiveInformationHash.maxconfidence)'`r`n"
-        }
-
-        if ($null -ne $SensitiveInformationHash.minconfidence)
-        {
-            $StringContent += "                        minconfidence = '$($SensitiveInformationHash.minconfidence)'`r`n"
-        }
-
-        if ($null -ne $SensitiveInformationHash.classifiertype)
-        {
-            $StringContent += "                        classifiertype = '$($SensitiveInformationHash.classifiertype)'`r`n"
-        }
-
-        if ($null -ne $SensitiveInformationHash.mincount)
-        {
-            $StringContent += "                        mincount = '$($SensitiveInformationHash.mincount)'`r`n"
-        }
-
-        if ($null -ne $SensitiveInformationHash.maxcount)
-        {
-            $StringContent += "                        maxcount = '$($SensitiveInformationHash.maxcount)'`r`n"
-        }
-
-        $StringContent += "                    }`r`n"
-        $result += $StringContent
-    }
-    $result += "                )`r`n"
-    $result += "            }`r`n"
-    return $result
-}
-
 
 function Get-SCDLPSensitiveInformation
 {
@@ -1460,22 +1354,6 @@ function Get-SCDLPSensitiveInformation
             $result.Add('maxcount', $item.maxcount)
         }
         $returnValue += $result
-    }
-    return $returnValue
-}
-
-function Get-SCHeaderPatternsAsObject
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [System.Object[]]
-        $Patterns
-    )
-    $returnValue = @{
-        $Patterns.Name = $Patterns.Value
     }
     return $returnValue
 }
@@ -1597,7 +1475,7 @@ function Test-ContainsSensitiveInformation
     foreach ($sit in $targetValues)
     {
         Write-Verbose -Message "Trying to find existing Sensitive Information Action matching name {$($sit.name)}"
-        $matchingExistingRule = $sourceValues | Where-Object -FilterScript { $_.name -eq $sit.name }
+        $matchingExistingRule = $sourceValues | Where-Object -FilterScript { $_.name -eq $sit.name.Replace("''", "'") }
 
         if ($null -ne $matchingExistingRule)
         {

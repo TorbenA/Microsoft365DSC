@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOHostedContentFilterPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -48,34 +50,11 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $DownloadLink = $false,
-
-        #DEPRECATED
-        [Parameter()]
-        [System.Boolean]
-        $EnableEndUserSpamNotifications = $false,
-
-        [Parameter()]
-        [System.Boolean]
         $EnableLanguageBlockList = $false,
 
         [Parameter()]
         [System.Boolean]
         $EnableRegionBlockList = $false,
-
-        [Parameter()]
-        [System.String]
-        $EndUserSpamNotificationCustomSubject,
-
-        [Parameter()]
-        [ValidateRange(1, 15)]
-        [uint32]
-        $EndUserSpamNotificationFrequency = 3,
-
-        [Parameter()]
-        [ValidateSet('Default', 'English', 'French', 'German', 'Italian', 'Japanese', 'Spanish', 'Korean', 'Portuguese', 'Russian', 'ChineseSimplified', 'ChineseTraditional', 'Amharic', 'Arabic', 'Bulgarian', 'BengaliIndia', 'Catalan', 'Czech', 'Cyrillic', 'Danish', 'Greek', 'Estonian', 'Basque', 'Farsi', 'Finnish', 'Filipino', 'Galician', 'Gujarati', 'Hebrew', 'Hindi', 'Croatian', 'Hungarian', 'Indonesian', 'Icelandic', 'Kazakh', 'Kannada', 'Lithuanian', 'Latvian', 'Malayalam', 'Marathi', 'Malay', 'Dutch', 'NorwegianNynorsk', 'Norwegian', 'Oriya', 'Polish', 'PortuguesePortugal', 'Romanian', 'Slovak', 'Slovenian', 'SerbianCyrillic', 'Serbian', 'Swedish', 'Swahili', 'Tamil', 'Telugu', 'Thai', 'Turkish', 'Ukrainian', 'Urdu', 'Vietnamese')]
-        [System.String]
-        $EndUserSpamNotificationLanguage = 'Default',
 
         [Parameter()]
         [ValidateSet('MoveToJmf', 'Redirect', 'Quarantine')]
@@ -286,13 +265,13 @@ function Get-TargetResource
 
     if ($Global:CurrentModeIsExport)
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters `
             -SkipModuleReload $true
     }
     else
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters
     }
 
@@ -355,15 +334,8 @@ function Get-TargetResource
                 BulkQuarantineTag                    = $HostedContentFilterPolicy.BulkQuarantineTag
                 BulkSpamAction                       = $HostedContentFilterPolicy.BulkSpamAction
                 BulkThreshold                        = $HostedContentFilterPolicy.BulkThreshold
-                DownloadLink                         = $HostedContentFilterPolicy.DownloadLink
-                #Deprecated
-                #EnableEndUserSpamNotifications       = $HostedContentFilterPolicy.EnableEndUserSpamNotifications
                 EnableLanguageBlockList              = $HostedContentFilterPolicy.EnableLanguageBlockList
                 EnableRegionBlockList                = $HostedContentFilterPolicy.EnableRegionBlockList
-                #Deprecated
-                #EndUserSpamNotificationCustomSubject = $HostedContentFilterPolicy.EndUserSpamNotificationCustomSubject
-                #EndUserSpamNotificationFrequency     = $HostedContentFilterPolicy.EndUserSpamNotificationFrequency
-                #EndUserSpamNotificationLanguage      = $HostedContentFilterPolicy.EndUserSpamNotificationLanguage
                 HighConfidencePhishAction            = $HostedContentFilterPolicy.HighConfidencePhishAction
                 HighConfidencePhishQuarantineTag     = $HostedContentFilterPolicy.HighConfidencePhishQuarantineTag
                 HighConfidenceSpamAction             = $HostedContentFilterPolicy.HighConfidenceSpamAction
@@ -405,7 +377,7 @@ function Get-TargetResource
                 CertificateThumbprint                = $CertificateThumbprint
                 CertificatePath                      = $CertificatePath
                 CertificatePassword                  = $CertificatePassword
-                Managedidentity                      = $ManagedIdentity.IsPresent
+                ManagedIdentity                      = $ManagedIdentity.IsPresent
                 TenantId                             = $TenantId
                 AccessTokens                         = $AccessTokens
             }
@@ -482,33 +454,11 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $DownloadLink = $false,
-
-        [Parameter()]
-        [System.Boolean]
-        $EnableEndUserSpamNotifications = $false,
-
-        [Parameter()]
-        [System.Boolean]
         $EnableLanguageBlockList = $false,
 
         [Parameter()]
         [System.Boolean]
         $EnableRegionBlockList = $false,
-
-        [Parameter()]
-        [System.String]
-        $EndUserSpamNotificationCustomSubject,
-
-        [Parameter()]
-        [ValidateRange(1, 15)]
-        [uint32]
-        $EndUserSpamNotificationFrequency = 3,
-
-        [Parameter()]
-        [ValidateSet('Default', 'English', 'French', 'German', 'Italian', 'Japanese', 'Spanish', 'Korean', 'Portuguese', 'Russian', 'ChineseSimplified', 'ChineseTraditional', 'Amharic', 'Arabic', 'Bulgarian', 'BengaliIndia', 'Catalan', 'Czech', 'Cyrillic', 'Danish', 'Greek', 'Estonian', 'Basque', 'Farsi', 'Finnish', 'Filipino', 'Galician', 'Gujarati', 'Hebrew', 'Hindi', 'Croatian', 'Hungarian', 'Indonesian', 'Icelandic', 'Kazakh', 'Kannada', 'Lithuanian', 'Latvian', 'Malayalam', 'Marathi', 'Malay', 'Dutch', 'NorwegianNynorsk', 'Norwegian', 'Oriya', 'Polish', 'PortuguesePortugal', 'Romanian', 'Slovak', 'Slovenian', 'SerbianCyrillic', 'Serbian', 'Swedish', 'Swahili', 'Tamil', 'Telugu', 'Thai', 'Turkish', 'Ukrainian', 'Urdu', 'Vietnamese')]
-        [System.String]
-        $EndUserSpamNotificationLanguage = 'Default',
 
         [Parameter()]
         [ValidateSet('MoveToJmf', 'Redirect', 'Quarantine')]
@@ -729,24 +679,18 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     Write-Verbose (Get-HostedContentFilterPolicy | Out-String)
-    $HostedContentFilterPolicies = Get-HostedContentFilterPolicy
+    $HostedContentFilterPolicy = Get-HostedContentFilterPolicy -Identity $Identity
 
-    $HostedContentFilterPolicy = $HostedContentFilterPolicies | Where-Object -FilterScript { $_.Identity -eq $Identity }
-    $HostedContentFilterPolicyParams = [System.Collections.Hashtable]($PSBoundParameters)
-    $HostedContentFilterPolicyParams.Remove('Ensure') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('Credential') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('MakeDefault') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('ApplicationId') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('TenantId') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('CertificateThumbprint') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('CertificatePath') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('CertificatePassword') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('ManagedIdentity') | Out-Null
-    $HostedContentFilterPolicyParams.Remove('AccessTokens') | Out-Null
+    $HostedContentFilterPolicyParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+
+    if ($IntraOrgFilterState -eq 'Default')
+    {
+        $HostedContentFilterPolicyParams.IntraOrgFilterState = 'HighConfidencePhish'
+    }
 
     if (('Present' -eq $Ensure ) -and ($null -eq $HostedContentFilterPolicy))
     {
@@ -754,6 +698,7 @@ function Set-TargetResource
             Name = $HostedContentFilterPolicyParams.Identity
         }
         $HostedContentFilterPolicyParams.Remove('Identity') | Out-Null
+        $HostedContentFilterPolicyParams.Remove('MakeDefault') | Out-Null
         Write-Verbose -Message "Creating HostedContentFilterPolicy $($Identity) with values: $(Convert-M365DscHashtableToString -Hashtable $HostedContentFilterPolicyParams)"
         New-HostedContentFilterPolicy @HostedContentFilterPolicyParams
         if ($PSBoundParameters.MakeDefault)
@@ -768,6 +713,7 @@ function Set-TargetResource
         if ($PSBoundParameters.MakeDefault)
         {
             Write-Verbose -Message 'Updating Policy as default'
+            $HostedContentFilterPolicyParams.Remove('MakeDefault') | Out-Null
             Set-HostedContentFilterPolicy @HostedContentFilterPolicyParams -MakeDefault -Confirm:$false
         }
         else
@@ -832,33 +778,11 @@ function Test-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $DownloadLink = $false,
-
-        [Parameter()]
-        [System.Boolean]
-        $EnableEndUserSpamNotifications = $false,
-
-        [Parameter()]
-        [System.Boolean]
         $EnableLanguageBlockList = $false,
 
         [Parameter()]
         [System.Boolean]
         $EnableRegionBlockList = $false,
-
-        [Parameter()]
-        [System.String]
-        $EndUserSpamNotificationCustomSubject,
-
-        [Parameter()]
-        [ValidateRange(1, 15)]
-        [uint32]
-        $EndUserSpamNotificationFrequency = 3,
-
-        [Parameter()]
-        [ValidateSet('Default', 'English', 'French', 'German', 'Italian', 'Japanese', 'Spanish', 'Korean', 'Portuguese', 'Russian', 'ChineseSimplified', 'ChineseTraditional', 'Amharic', 'Arabic', 'Bulgarian', 'BengaliIndia', 'Catalan', 'Czech', 'Cyrillic', 'Danish', 'Greek', 'Estonian', 'Basque', 'Farsi', 'Finnish', 'Filipino', 'Galician', 'Gujarati', 'Hebrew', 'Hindi', 'Croatian', 'Hungarian', 'Indonesian', 'Icelandic', 'Kazakh', 'Kannada', 'Lithuanian', 'Latvian', 'Malayalam', 'Marathi', 'Malay', 'Dutch', 'NorwegianNynorsk', 'Norwegian', 'Oriya', 'Polish', 'PortuguesePortugal', 'Romanian', 'Slovak', 'Slovenian', 'SerbianCyrillic', 'Serbian', 'Swedish', 'Swahili', 'Tamil', 'Telugu', 'Thai', 'Turkish', 'Ukrainian', 'Urdu', 'Vietnamese')]
-        [System.String]
-        $EndUserSpamNotificationLanguage = 'Default',
 
         [Parameter()]
         [ValidateSet('MoveToJmf', 'Redirect', 'Quarantine')]
@@ -1064,11 +988,12 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -1084,10 +1009,11 @@ function Test-TargetResource
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
 
     $ValuesToCheck = $PSBoundParameters
-    $ValuesToCheck.Remove('EnableEndUserSpamNotifications') | Out-Null
-    $ValuesToCheck.Remove('EndUserSpamNotificationLanguage') | Out-Null
-    $ValuesToCheck.Remove('EndUserSpamNotificationFrequency') | Out-Null
-    $ValuesToCheck.Remove('EndUserSpamNotificationCustomSubject') | Out-Null
+
+    if ($CurrentValues.IntraOrgFilterState -ne $IntraOrgFilterState -and $IntraOrgFilterState -eq 'Default')
+    {
+        $ValuesToCheck.IntraOrgFilterState = 'HighConfidencePhish'
+    }
 
     $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
         -Source $($MyInvocation.MyCommand.Source) `
@@ -1182,7 +1108,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }

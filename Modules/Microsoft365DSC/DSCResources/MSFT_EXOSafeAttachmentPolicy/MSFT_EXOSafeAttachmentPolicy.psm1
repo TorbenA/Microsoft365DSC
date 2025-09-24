@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOSafeAttachmentPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -12,10 +14,6 @@ function Get-TargetResource
         [ValidateSet('Block', 'Replace', 'Allow', 'DynamicDelivery')]
         [System.String]
         $Action = 'Block',
-
-        [Parameter()]
-        [Boolean]
-        $ActionOnError = $false,
 
         [Parameter()]
         [System.String]
@@ -76,15 +74,16 @@ function Get-TargetResource
     )
 
     Write-Verbose -Message "Getting configuration of SafeAttachmentPolicy for $Identity"
+
     if ($Global:CurrentModeIsExport)
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters `
             -SkipModuleReload $true
     }
     else
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters
     }
 
@@ -119,7 +118,6 @@ function Get-TargetResource
                 Ensure                = 'Present'
                 Identity              = $Identity
                 Action                = $SafeAttachmentPolicy.Action
-                ActionOnError         = $SafeAttachmentPolicy.ActionOnError
                 AdminDisplayName      = $SafeAttachmentPolicy.AdminDisplayName
                 Enable                = $SafeAttachmentPolicy.Enable
                 QuarantineTag         = $SafeAttachmentPolicy.QuarantineTag
@@ -130,7 +128,7 @@ function Get-TargetResource
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePath       = $CertificatePath
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 TenantId              = $TenantId
                 AccessTokens          = $AccessTokens
             }
@@ -165,10 +163,6 @@ function Set-TargetResource
         [ValidateSet('Block', 'Replace', 'Allow', 'DynamicDelivery')]
         [System.String]
         $Action = 'Block',
-
-        [Parameter()]
-        [Boolean]
-        $ActionOnError = $false,
 
         [Parameter()]
         [System.String]
@@ -241,20 +235,12 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
-    $SafeAttachmentPolicyParams = [System.Collections.Hashtable]($PSBoundParameters)
-    $SafeAttachmentPolicyParams.Remove('Ensure') | Out-Null
-    $SafeAttachmentPolicyParams.Remove('Credential') | Out-Null
-    $SafeAttachmentPolicyParams.Remove('ApplicationId') | Out-Null
+    $SafeAttachmentPolicyParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $tenantIdValue = $TenantId
     $SafeAttachmentPolicyParams.Remove('TenantId') | Out-Null
-    $SafeAttachmentPolicyParams.Remove('CertificateThumbprint') | Out-Null
-    $SafeAttachmentPolicyParams.Remove('CertificatePath') | Out-Null
-    $SafeAttachmentPolicyParams.Remove('CertificatePassword') | Out-Null
-    $SafeAttachmentPolicyParams.Remove('ManagedIdentity') | Out-Null
-    $SafeAttachmentPolicyParams.Remove('AccessTokens') | Out-Null
 
     $SafeAttachmentPolicies = Get-SafeAttachmentPolicy
 
@@ -264,11 +250,6 @@ function Set-TargetResource
         $StopProcessingPolicy = $false
         if ($Redirect -eq $true)
         {
-            if ($ActionOnError -eq $true)
-            {
-                Write-Verbose -Message 'The ActionOnError parameter is deprecated'
-                $SafeAttachmentPolicyParams.Remove('ActionOnError') | Out-Null
-            }
             $Message = 'Cannot proceed with processing of SafeAttachmentPolicy because Redirect is set to true '
             if ([String]::IsNullOrEmpty($RedirectAddress))
             {
@@ -372,10 +353,6 @@ function Test-TargetResource
         [ValidateSet('Block', 'Replace', 'Allow', 'DynamicDelivery')]
         [System.String]
         $Action = 'Block',
-
-        [Parameter()]
-        [Boolean]
-        $ActionOnError = $false,
 
         [Parameter()]
         [System.String]
@@ -503,6 +480,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true
@@ -549,7 +527,7 @@ function Export-TargetResource
                     TenantId              = $TenantId
                     CertificateThumbprint = $CertificateThumbprint
                     CertificatePassword   = $CertificatePassword
-                    Managedidentity       = $ManagedIdentity.IsPresent
+                    ManagedIdentity       = $ManagedIdentity.IsPresent
                     CertificatePath       = $CertificatePath
                     AccessTokens          = $AccessTokens
                 }

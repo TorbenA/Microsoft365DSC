@@ -46,6 +46,21 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return 'Credentials'
             }
 
+            Mock -CommandName Get-MgBetaDeviceManagementRoleDefinition -MockWith {
+                return @{
+                    Description     = 'FakeStringValue'
+                    DisplayName     = 'FakeStringValue'
+                    Id              = 'FakeStringValue'
+                    IsBuiltIn       = $True
+                    RolePermissions = @{
+                        ResourceActions = @{
+                            AllowedResourceActions    = @('Microsoft.Intune_Organization_Read', 'Microsoft.Intune_Roles_Create', 'Microsoft.Intune_Roles_Read', 'Microsoft.Intune_Roles_Update')
+                            NotAllowedResourceActions = @()
+                        }
+                    }
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -95,21 +110,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                    = 'Absent'
                     Credential                = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementRoleDefinition -MockWith {
-                    return @{
-                        Description     = 'FakeStringValue'
-                        DisplayName     = 'FakeStringValue'
-                        Id              = 'FakeStringValue'
-                        IsBuiltIn       = $True
-                        RolePermissions = @{
-                            ResourceActions = @{
-                                AllowedResourceActions    = @('Microsoft.Intune_Organization_Read', 'Microsoft.Intune_Roles_Create', 'Microsoft.Intune_Roles_Read', 'Microsoft.Intune_Roles_Update')
-                                NotAllowedResourceActions = @()
-                            }
-                        }
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -137,21 +137,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                    = 'Present'
                     Credential                = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementRoleDefinition -MockWith {
-                    return @{
-                        Description     = 'FakeStringValue'
-                        DisplayName     = 'FakeStringValue'
-                        Id              = 'FakeStringValue'
-                        IsBuiltIn       = $True
-                        RolePermissions = @{
-                            ResourceActions = @{
-                                AllowedResourceActions    = @('Microsoft.Intune_Organization_Read', 'Microsoft.Intune_Roles_Create', 'Microsoft.Intune_Roles_Read', 'Microsoft.Intune_Roles_Update')
-                                NotAllowedResourceActions = @()
-                            }
-                        }
-                    }
-                }
             }
 
 
@@ -167,25 +152,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName               = 'FakeStringValue'
                     Id                        = 'FakeStringValue'
                     IsBuiltIn                 = $True
-                    allowedResourceActions    = @('Microsoft.Intune_Roles_Create', 'Microsoft.Intune_Roles_Read', 'Microsoft.Intune_Roles_Update')
+                    allowedResourceActions    = @('Microsoft.Intune_Roles_Create', 'Microsoft.Intune_Roles_Read') # Updated property
                     notallowedResourceActions = @()
                     Ensure                    = 'Present'
                     Credential                = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementRoleDefinition -MockWith {
-                    return @{
-                        Description     = 'FakeStringValue'
-                        DisplayName     = 'FakeStringValue'
-                        Id              = 'FakeStringValue'
-                        IsBuiltIn       = $True
-                        RolePermissions = @{
-                            ResourceActions = @{
-                                AllowedResourceActions    = @('Microsoft.Intune_Organization_Read', 'Microsoft.Intune_Roles_Create', 'Microsoft.Intune_Roles_Read', 'Microsoft.Intune_Roles_Update')
-                                NotAllowedResourceActions = @()
-                            }
-                        }
-                    }
                 }
             }
 
@@ -210,25 +180,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementRoleDefinition -MockWith {
-                    return @{
-                        Description          = 'FakeStringValue'
-                        DisplayName          = 'FakeStringValue'
-                        Id                   = 'FakeStringValue'
-                        IsBuiltIn            = $True
-                        RolePermissions      = @{
-                            ResourceActions = @{
-                                AllowedResourceActions    = @('Microsoft.Intune_Organization_Read', 'Microsoft.Intune_Roles_Create', 'Microsoft.Intune_Roles_Read', 'Microsoft.Intune_Roles_Update')
-                                NotAllowedResourceActions = @()
-                            }
-                        }
-                        AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.deviceAndAppManagementRoleDefinition'
-                        }
-                    }
-                }
             }
+
             It 'Should Reverse Engineer resource from the Export method' {
                 $result = Export-TargetResource @testParams
                 $result | Should -Not -BeNullOrEmpty

@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_PPTenantSettings'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -230,8 +232,9 @@ function Get-TargetResource
         $ApplicationSecret
     )
 
-    Write-Verbose -Message 'Checking the Power Platform Tenant Settings Configuration'
-    $ConnectionMode = New-M365DSCConnection -Workload 'PowerPlatformREST' `
+    Write-Verbose -Message 'Getting the Power Platform Tenant Settings Configuration'
+
+    $null = New-M365DSCConnection -Workload 'PowerPlatformREST' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -602,7 +605,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PowerPlatformREST' `
+    $null = New-M365DSCConnection -Workload 'PowerPlatformREST' `
         -InboundParameters $PSBoundParameters
 
     $SetParameters = $PSBoundParameters
@@ -846,11 +849,9 @@ function Test-TargetResource
         [System.Management.Automation.PSCredential]
         $ApplicationSecret
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -858,22 +859,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Testing configuration for Power Platform Tenant Settings'
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    $ValuesToCheck = $PSBoundParameters
-    $ValuesToCheck.Remove('Credential') | Out-Null
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -902,6 +890,7 @@ function Export-TargetResource
         [System.Management.Automation.PSCredential]
         $ApplicationSecret
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'PowerPlatformREST' `
         -InboundParameters $PSBoundParameters
 
@@ -1090,35 +1079,6 @@ function Get-M365DSCPowerPlatformTenantSettings
     $result.powerplatform.Add('governance', $governance)
 
     return $result
-}
-
-function Set-M365DSCPPTenantSettings
-{
-    [CmdletBinding()]
-    param(
-        [Parameter()]
-        [System.Collections.Hashtable]
-        $Body
-    )
-
-    $url = "$((Get-MSCloudLoginConnectionProfile -Workload 'PowerPlatformREST').ResourceUrl)/providers/Microsoft.BusinessAppPlatform/scopes/admin/updateTenantSettings?api-version=2016-11-01"
-
-}
-
-function Get-M365DSCPPTenantSettings
-{
-    [CmdletBinding()]
-    param(
-        [Parameter()]
-        [System.Collections.Hashtable]
-        $Body
-    )
-
-    $url = "$((Get-MSCloudLoginConnectionProfile -Workload 'PowerPlatformREST').ResourceUrl)/providers/Microsoft.BusinessAppPlatform/scopes/admin/getTenantSettings?api-version=2016-11-01"
-    $headers = @{
-        Authorization = (Get-MSCloudLoginConnectionProfile -Workload 'PowerPlatformREST').AccessToken
-    }
-    Invoke-WebRequest -Uri $url -Headers $headers -ContentType "application/json"
 }
 
 Export-ModuleMember -Function *-TargetResource

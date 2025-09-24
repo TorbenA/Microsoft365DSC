@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADRoleAssignmentScheduleRequest'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -83,7 +85,8 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -122,19 +125,19 @@ function Get-TargetResource
         if ($PrincipalType -eq 'User')
         {
             Write-Verbose -Message "Retrieving Principal by UserPrincipalName {$Principal}"
-            $PrincipalInstance = Get-MgUser -Filter "UserPrincipalName eq '$Principal'" -ErrorAction SilentlyContinue
+            $PrincipalInstance = Get-MgUser -Filter "UserPrincipalName eq '$($Principal -replace "'", "''")'" -ErrorAction SilentlyContinue
             $PrincipalValue = $PrincipalInstance.UserPrincipalName
         }
-        elseif ($null -eq $PrincipalIdValue -and $PrincipalType -eq 'Group')
+        elseif ($PrincipalType -eq 'Group')
         {
             Write-Verbose -Message "Retrieving Principal by DisplayName {$Principal}"
-            $PrincipalInstance = Get-MgGroup -Filter "DisplayName eq '$Principal'" -ErrorAction SilentlyContinue
+            $PrincipalInstance = Get-MgGroup -Filter "DisplayName eq '$($Principal -replace "'", "''")'" -ErrorAction SilentlyContinue
             $PrincipalValue = $PrincipalInstance.DisplayName
         }
         else
         {
             Write-Verbose -Message "Retrieving Principal by DisplayName {$Principal}"
-            $PrincipalInstance = Get-MgServicePrincipal -Filter "DisplayName eq '$Principal'" -ErrorAction SilentlyContinue
+            $PrincipalInstance = Get-MgServicePrincipal -Filter "DisplayName eq '$($Principal -replace "'", "''")'" -ErrorAction SilentlyContinue
             $PrincipalValue = $PrincipalInstance.DisplayName
         }
 
@@ -143,7 +146,7 @@ function Get-TargetResource
         }
 
         Write-Verbose -Message 'Found Principal'
-        $RoleDefinitionId = (Get-MgBetaRoleManagementDirectoryRoleDefinition -Filter "DisplayName eq '$RoleDefinition'").Id
+        $RoleDefinitionId = (Get-MgBetaRoleManagementDirectoryRoleDefinition -Filter "DisplayName eq '$($RoleDefinition -replace "'", "''")'").Id
         Write-Verbose -Message "Retrieved role definition {$RoleDefinition} with ID {$RoleDefinitionId}"
 
         if ($null -eq $request)
@@ -157,6 +160,10 @@ function Get-TargetResource
                 $reverseRoleId = $null
                 foreach ($partialRequest in $partialRequests)
                 {
+                    #skip if RoleDefinitionId is missing or not a valid GUID
+                    if ([string]::IsNullOrWhiteSpace($partialRequest.RoleDefinitionId) -or -not [guid]::TryParse($partialRequest.RoleDefinitionId, [ref]([guid]::Empty))) {
+                        continue
+                    }
                     $roleEntry = Get-MgBetaRoleManagementDirectoryRoleDefinition -UnifiedRoleDefinitionId $partialRequest.RoleDefinitionId | Where-Object -FilterScript {$_.DisplayName -eq $RoleDefinition}
                     if ($null -ne $roleEntry)
                     {
@@ -216,25 +223,28 @@ function Get-TargetResource
         }
         if ($null -ne $schedule.ScheduleInfo.Recurrence)
         {
-            $recurrenceValue = @{
-                pattern = @{
-                    dayOfMonth     = $schedule.ScheduleInfo.Recurrence.Pattern.dayOfMonth
-                    daysOfWeek     = $schedule.ScheduleInfo.Recurrence.Pattern.daysOfWeek
-                    firstDayOfWeek = $schedule.ScheduleInfo.Recurrence.Pattern.firstDayOfWeek
-                    index          = $schedule.ScheduleInfo.Recurrence.Pattern.index
-                    interval       = $schedule.ScheduleInfo.Recurrence.Pattern.interval
-                    month          = $schedule.ScheduleInfo.Recurrence.Pattern.month
-                    type           = $schedule.ScheduleInfo.Recurrence.Pattern.type
+            if (Test-M365DSCRecurrenceIsConfigured -RecurrenceSettings $schedule.ScheduleInfo.Recurrence)
+            {
+                $recurrenceValue = @{
+                    pattern = @{
+                        dayOfMonth     = $schedule.ScheduleInfo.Recurrence.Pattern.dayOfMonth
+                        daysOfWeek     = $schedule.ScheduleInfo.Recurrence.Pattern.daysOfWeek
+                        firstDayOfWeek = $schedule.ScheduleInfo.Recurrence.Pattern.firstDayOfWeek
+                        index          = $schedule.ScheduleInfo.Recurrence.Pattern.index
+                        interval       = $schedule.ScheduleInfo.Recurrence.Pattern.interval
+                        month          = $schedule.ScheduleInfo.Recurrence.Pattern.month
+                        type           = $schedule.ScheduleInfo.Recurrence.Pattern.type
+                    }
+                    range   = @{
+                        endDate             = $schedule.ScheduleInfo.Recurrence.Range.endDate
+                        numberOfOccurrences = $schedule.ScheduleInfo.Recurrence.Range.numberOfOccurrences
+                        recurrenceTimeZone  = $schedule.ScheduleInfo.Recurrence.Range.recurrenceTimeZone
+                        startDate           = $schedule.ScheduleInfo.Recurrence.Range.startDate
+                        type                = $schedule.ScheduleInfo.Recurrence.Range.type
+                    }
                 }
-                range   = @{
-                    endDate             = $schedule.ScheduleInfo.Recurrence.Range.endDate
-                    numberOfOccurrences = $schedule.ScheduleInfo.Recurrence.Range.numberOfOccurrences
-                    recurrenceTimeZone  = $schedule.ScheduleInfo.Recurrence.Range.recurrenceTimeZone
-                    startDate           = $schedule.ScheduleInfo.Recurrence.Range.startDate
-                    type                = $schedule.ScheduleInfo.Recurrence.Range.type
-                }
+                $ScheduleInfoValue.Add('Recurrence', $recurrenceValue)
             }
-            $ScheduleInfoValue.Add('Recurrence', $recurrenceValue)
         }
         if ($null -ne $schedule.ScheduleInfo.StartDateTime)
         {
@@ -268,7 +278,7 @@ function Get-TargetResource
             TenantId              = $TenantId
             ApplicationSecret     = $ApplicationSecret
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
         return $results
@@ -372,7 +382,7 @@ function Set-TargetResource
     )
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters `
 
     }
@@ -394,30 +404,19 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
-    $PSBoundParameters.Remove('Ensure') | Out-Null
-    $PSBoundParameters.Remove('Credential') | Out-Null
-    $PSBoundParameters.Remove('ApplicationId') | Out-Null
-    $PSBoundParameters.Remove('ApplicationSecret') | Out-Null
-    $PSBoundParameters.Remove('TenantId') | Out-Null
-    $PSBoundParameters.Remove('CertificateThumbprint') | Out-Null
-    $PSBoundParameters.Remove('ManagedIdentity') | Out-Null
-    $PSBoundParameters.Remove('Verbose') | Out-Null
-    $PSBoundParameters.Remove('AccessTokens') | Out-Null
-
-    $ParametersOps = ([Hashtable]$PSBoundParameters).clone()
+    $ParametersOps = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($PrincipalType -eq 'User')
     {
-        [Array]$PrincipalIdValue = (Get-MgUser -Filter "UserPrincipalName eq '$Principal'").Id
+        [Array]$PrincipalIdValue = (Get-MgUser -Filter "UserPrincipalName eq '$($Principal -replace "'", "''")'").Id
     }
     elseif ($PrincipalType -eq 'Group')
     {
-        [Array]$PrincipalIdValue = (Get-MgGroup -Filter "DisplayName eq '$Principal'").Id
+        [Array]$PrincipalIdValue = (Get-MgGroup -Filter "DisplayName eq '$($Principal -replace "'", "''")'").Id
     }
     elseif ($PrincipalType -eq 'ServicePrincipal')
     {
-        [Array]$PrincipalIdValue = (Get-MgServicePrincipal -Filter "DisplayName eq '$Principal'").Id
+        [Array]$PrincipalIdValue = (Get-MgServicePrincipal -Filter "DisplayName eq '$($Principal -replace "'", "''")'").Id
     }
 
     if ($null -eq $PrincipalIdValue)
@@ -431,7 +430,7 @@ function Set-TargetResource
     $ParametersOps.Add('PrincipalId', $PrincipalIdValue[0])
     $ParametersOps.Remove('Principal') | Out-Null
 
-    $RoleDefinitionIdValue = (Get-MgBetaRoleManagementDirectoryRoleDefinition -Filter "DisplayName eq '$RoleDefinition'").Id
+    $RoleDefinitionIdValue = (Get-MgBetaRoleManagementDirectoryRoleDefinition -Filter "DisplayName eq '$($RoleDefinition -replace "'", "''")'").Id
     $ParametersOps.Add('RoleDefinitionId', $RoleDefinitionIdValue)
     $ParametersOps.Remove('RoleDefinition') | Out-Null
 
@@ -606,9 +605,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -618,65 +614,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Azure AD Role Eligibility Schedule Request for user {$Principal} and role {$RoleDefinition}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
-    $ValuesToCheck.Remove('Action') | Out-Null
-    if ($null -ne $CurrentValues.ScheduleInfo -and $null -ne $ValuesToCheck.ScheduleInfo)
-    {
-        # Compare ScheduleInfo.Expiration
-        if ($CurrentValues.ScheduleInfo.Expiration.duration -ne $ValuesToCheck.ScheduleInfo.Expiration.duration -or `
-                $CurrentValues.ScheduleInfo.Expiration.endDateTime -ne $ValuesToCheck.ScheduleInfo.Expiration.endDateTime -or `
-                $CurrentValues.ScheduleInfo.Expiration.type -ne $ValuesToCheck.ScheduleInfo.Expiration.type)
-        {
-            Write-Verbose -Message 'Discrepancy found in ScheduleInfo.Expiration'
-            Write-Verbose -Message "Current: $($CurrentValues.ScheduleInfo.Expiration | Out-String)"
-            Write-Verbose -Message "Desired: $($ValuesToCheck.ScheduleInfo.Expiration | Out-String)"
-            return $false
-        }
-
-        # Compare ScheduleInfo.Recurrence.Pattern
-        if ($CurrentValues.ScheduleInfo.Recurrence.Pattern.dayOfMonth -ne $ValuesToCheck.ScheduleInfo.Recurrence.Pattern.dayOfMonth -or `
-                $CurrentValues.ScheduleInfo.Recurrence.Pattern.daysOfWeek -ne $ValuesToCheck.ScheduleInfo.Recurrence.Pattern.daysOfWeek -or `
-                $CurrentValues.ScheduleInfo.Recurrence.Pattern.firstDayOfWeek -ne $ValuesToCheck.ScheduleInfo.Recurrence.Pattern.firstDayOfWeek -or `
-                $CurrentValues.ScheduleInfo.Recurrence.Pattern.index -ne $ValuesToCheck.ScheduleInfo.Recurrence.Pattern.index -or `
-                $CurrentValues.ScheduleInfo.Recurrence.Pattern.interval -ne $ValuesToCheck.ScheduleInfo.Recurrence.Pattern.interval -or `
-                $CurrentValues.ScheduleInfo.Recurrence.Pattern.month -ne $ValuesToCheck.ScheduleInfo.Recurrence.Pattern.month -or `
-                $CurrentValues.ScheduleInfo.Recurrence.Pattern.type -ne $ValuesToCheck.ScheduleInfo.Recurrence.Pattern.type)
-        {
-            Write-Verbose -Message 'Discrepancy found in ScheduleInfo.Recurrence.Pattern'
-            Write-Verbose -Message "Current: $($CurrentValues.ScheduleInfo.Recurrence.Pattern | Out-String)"
-            Write-Verbose -Message "Desired: $($ValuesToCheck.ScheduleInfo.Recurrence.Pattern | Out-String)"
-            return $false
-        }
-
-        # Compare ScheduleInfo.Recurrence.Range
-        if ($CurrentValues.ScheduleInfo.Recurrence.Range.endDate -ne $ValuesToCheck.ScheduleInfo.Recurrence.Range.endDate -or `
-                $CurrentValues.ScheduleInfo.Recurrence.Range.numberOfOccurrences -ne $ValuesToCheck.ScheduleInfo.Recurrence.Range.numberOfOccurrences -or `
-                $CurrentValues.ScheduleInfo.Recurrence.Range.recurrenceTimeZone -ne $ValuesToCheck.ScheduleInfo.Recurrence.Range.recurrenceTimeZone -or `
-                $CurrentValues.ScheduleInfo.Recurrence.Range.startDate -ne $ValuesToCheck.ScheduleInfo.Recurrence.Range.startDate -or `
-                $CurrentValues.ScheduleInfo.Recurrence.Range.type -ne $ValuesToCheck.ScheduleInfo.Recurrence.Range.type)
-        {
-            Write-Verbose -Message 'Discrepancy found in ScheduleInfo.Recurrence.Range'
-            Write-Verbose -Message "Current: $($CurrentValues.ScheduleInfo.Recurrence.Range | Out-String)"
-            Write-Verbose -Message "Desired: $($ValuesToCheck.ScheduleInfo.Recurrence.Range | Out-String)"
-            return $false
-        }
-    }
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    $ValuesToCheck.Remove('ScheduleInfo') | Out-Null
-    $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties @('Action')
+    return $result
 }
 
 function Export-TargetResource
@@ -907,6 +848,36 @@ function Export-TargetResource
 
         return ''
     }
+}
+
+function Test-M365DSCRecurrenceIsConfigured
+{
+    [CmdletBinding()]
+    [OutputType([System.Boolean])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.Object]
+        $RecurrenceSettings
+    )
+
+    if ($null -eq $RecurrenceSettings.Pattern.DayOfMonth -and `
+        $null -eq $RecurrenceSettings.Pattern.DayOfWeek -and `
+        $null -eq $RecurrenceSettings.Pattern.FirstDayOfWeek -and `
+        $null -eq $RecurrenceSettings.Pattern.Index -and `
+        $null -eq $RecurrenceSettings.Pattern.Interval -and `
+        $null -eq $RecurrenceSettings.Pattern.Month -and `
+        $null -eq $RecurrenceSettings.Pattern.Type -and `
+        $null -eq $RecurrenceSettings.Range.EndDate -and `
+        $null -eq $RecurrenceSettings.Range.NumberOfOccurrences -and `
+        $null -eq $RecurrenceSettings.Range.RecurrenceTimeZone -and `
+        $null -eq $RecurrenceSettings.Range.StartDate -and `
+        $null -eq $RecurrenceSettings.Range.Type)
+    {
+        return $false
+    }
+
+    return $true
 }
 
 Export-ModuleMember -Function *-TargetResource

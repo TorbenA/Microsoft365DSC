@@ -38,6 +38,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Update-MgBetaDeviceManagement -MockWith {
             }
 
+            Mock -CommandName Invoke-MgGraphRequest -MockWith {
+                return @{
+                    deviceComplianceCheckinThresholdDays = 22
+                    secureByDefault = $true
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -57,13 +64,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     SecureByDefault                      = $True;
                     Credential                           = $Credential
                 }
-
-                Mock -CommandName Invoke-MgGraphRequest -MockWith {
-                    return @{
-                        deviceComplianceCheckinThresholdDays = 22
-                        secureByDefault = $true
-                    }
-                }
             }
 
             It 'Should return Yes from the Get method' {
@@ -78,17 +78,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The settings are NOT in the desired state." -Fixture {
             BeforeAll {
                 $testParams = @{
-                    DeviceComplianceCheckinThresholdDays = 40; #Drift
+                    DeviceComplianceCheckinThresholdDays = 40; # Updated property
                     IsSingleInstance                     = "Yes";
                     SecureByDefault                      = $True;
                     Credential                           = $Credential
-                }
-
-                Mock -CommandName Invoke-MgGraphRequest -MockWith {
-                    return @{
-                        deviceComplianceCheckinThresholdDays = 22
-                        secureByDefault = $true
-                    }
                 }
             }
 
@@ -114,17 +107,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential                           = $Credential
                 }
-
-                Mock -CommandName Invoke-MgGraphRequest -MockWith {
-                    return @{
-                        deviceComplianceCheckinThresholdDays = 22
-                        secureByDefault = $true
-                    }
-                }
             }
 
             It 'Should Reverse Engineer resource from the Export method' {
-                $result = Export-TargetResource @testParams -Verbose
+                $result = Export-TargetResource @testParams
                 $result | Should -Not -BeNullOrEmpty
             }
         }

@@ -48,7 +48,7 @@ function Get-TargetResource
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
 
-            $ConnectionMode = New-M365DSCConnection -Workload '<#Workload#>' `
+            $null = New-M365DSCConnection -Workload '<#Workload#>' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -103,7 +103,7 @@ function Get-TargetResource
 <HashTableMapping>            #endregionResourceGenerator#>
         }
 <#ComplexTypeContent#><#SettingsCatalogAddSettings#><#AssignmentsGet#>
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -174,7 +174,7 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
 <#SettingsCatalogProperties#>
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
@@ -192,7 +192,8 @@ function Set-TargetResource
 <#AssignmentsRemove#>
 <#DefaultUpdateParameters#><#ResourceGenerator
         #region resource generator code
-<UpdateDataType><UpdateCmdLetName><#UpdateKeyIdentifier#><#AssignmentsUpdate#>
+<UpdateDataType><UpdateCmdLetName><#UpdateKeyIdentifier#>
+<#AssignmentsUpdate#>
         #endregionResourceGenerator#>
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
@@ -386,15 +387,15 @@ function Export-TargetResource
             }
             Write-M365DSCHost -Message "    |---[$i/$($getValue.Count)] $displayedKey" -DeferWrite
             $params = @{
-                <PrimaryKey> = $config.<PrimaryKey><RequiredKey>
-                Ensure = 'Present'
-                Credential = $Credential
-                ApplicationId = $ApplicationId
-                TenantId = $TenantId
-                ApplicationSecret = $ApplicationSecret
+                <PrimaryKey>                    = $config.<PrimaryKey><RequiredKey>
+                Ensure                = 'Present'
+                Credential            = $Credential
+                ApplicationId         = $ApplicationId
+                TenantId              = $TenantId
+                ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                ManagedIdentity = $ManagedIdentity.IsPresent
-                AccessTokens = $AccessTokens
+                ManagedIdentity       = $ManagedIdentity.IsPresent
+                AccessTokens          = $AccessTokens
             }
 
             $Script:exportedInstance = $config
@@ -404,8 +405,7 @@ function Export-TargetResource
                 -ConnectionMode $ConnectionMode `
                 -ModulePath $PSScriptRoot `
                 -Results $Results `
-                -Credential $Credential
-<#ConvertComplexToVariable#><#AssignmentsConvertComplexToVariable#><#TrailingCharRemoval#>
+                -Credential $Credential <#AddToEscape#><#TrailingCharRemoval#>
             $dscContent += $currentDSCBlock
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName

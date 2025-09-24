@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_PlannerTask'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -37,7 +39,6 @@ function Get-TargetResource
         $DueDateTime,
 
         [Parameter()]
-        [ValidateSet('Pink', 'Red', 'Yellow', 'Green', 'Blue', 'Purple')]
         [System.String[]]
         $Categories,
 
@@ -92,6 +93,7 @@ function Get-TargetResource
         [Switch]
         $ManagedIdentity
     )
+
     Write-Verbose -Message "Getting configuration of Planner Task {$Title}"
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -111,7 +113,7 @@ function Get-TargetResource
 
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
         # If no TaskId were passed, automatically assume that this is a new task;
@@ -129,7 +131,12 @@ function Get-TargetResource
         {
             foreach ($assignmentKey in $taskResponse.Assignments.AdditionalProperties.Keys)
             {
-                $assignedUser = Get-MgUser -UserId $assignmentKey
+                $assignedUser = Get-MgUser -UserId $assignmentKey -ErrorAction SilentlyContinue
+                if ($null -eq $assignedUser)
+                {
+                    Write-Warning -Message "Skipping user with Id [$assignmentKey] because it could not be found."
+                    continue
+                }
                 $assignmentsValue += $assignedUser.UserPrincipalName
             }
         }
@@ -158,7 +165,12 @@ function Get-TargetResource
         {
             foreach ($category in $taskResponse.appliedCategories.AdditionalProperties.Keys)
             {
-                $categoriesValue += GetTaskColorNameByCategory($category)
+                $categoryValue = $Script:AppliedCategories.$category
+                if ([String]::IsNullOrEmpty($categoryValue))
+                {
+                    $categoryValue = Get-TaskColorNameByCategory -CategoryName $category
+                }
+                $categoriesValue += $categoryValue
             }
         }
         #endregion
@@ -277,7 +289,6 @@ function Set-TargetResource
         $DueDateTime,
 
         [Parameter()]
-        [ValidateSet('Pink', 'Red', 'Yellow', 'Green', 'Blue', 'Purple')]
         [System.String[]]
         $Categories,
 
@@ -332,6 +343,7 @@ function Set-TargetResource
         [Switch]
         $ManagedIdentity
     )
+
     Write-Verbose -Message "Setting configuration of Planner Task {$Title}"
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -346,18 +358,9 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
-
     $currentValues = Get-TargetResource @PSBoundParameters
 
-    $setParams = ([HashTable]$PSBoundParameters).Clone()
-    $setParams.Remove('Ensure') | Out-Null
-    $setParams.Remove('Credential') | Out-Null
-    $setParams.Remove('ApplicationId') | Out-Null
-    $setParams.Remove('TenantId') | Out-Null
-    $setParams.Remove('CertificateThumbprint') | Out-Null
-    $setParams.Remove('ApplicationSecret') | Out-Null
+    $setParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     #region Assignments
     Write-Verbose -Message 'Converting Assignments into the proper format'
@@ -428,10 +431,37 @@ function Set-TargetResource
         category4 = $false
         category5 = $false
         category6 = $false
+        category7 = $false
+        category8 = $false
+        category9 = $false
+        category10 = $false
+        category11 = $false
+        category12 = $false
+        category13 = $false
+        category14 = $false
+        category15 = $false
+        category16 = $false
+        category17 = $false
+        category18 = $false
+        category19 = $false
+        category20 = $false
+        category21 = $false
+        category22 = $false
+        category23 = $false
+        category24 = $false
+        category25 = $false
     }
+
+    $planDetails = (Get-MgPlannerPlanDetail -PlannerPlanId $PlanId).CategoryDescriptions
+    $appliedCategoriesInverse = $planDetails | ConvertTo-Json | ConvertFrom-Json # Convert to PSObject instead of Graph type
     foreach ($category in $setParams.Categories)
     {
-        $categoriesValue.(GetTaskCategoryNameByColor($category)) = $true
+        $categoryName = $appliedCategoriesInverse.PSObject.Properties | Where-Object { $_.Value -eq $category } | Select-Object -ExpandProperty Name
+        if ([String]::IsNullOrEmpty($categoryName))
+        {
+            $categoryName = Get-TaskCategoryNameByColor -ColorName $category
+        }
+        $categoriesValue.$categoryName = $true
     }
     $setParams.Add('AppliedCategories', $categoriesValue)
     $setParams.Remove('Categories') | Out-Null
@@ -478,7 +508,10 @@ function Set-TargetResource
         $setParams.Add('priority', $setParams.Priority)
         $setParams.Remove('Priority') | Out-Null
 
-        $setParams.Add('startDateTime', [DateTime]::Parse($setParams.StartDateTime).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ss.fffK'))
+        if ($null -ne $setParams.StartDateTime)
+        {
+            $setParams.Add('startDateTime', [DateTime]::Parse($setParams.StartDateTime).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ss.fffK'))
+        }
         $setParams.Remove('StartDateTime') | Out-Null
 
         Write-Verbose -Message "Planner Task {$Title} already exists, but is not in the `
@@ -557,7 +590,6 @@ function Test-TargetResource
         $DueDateTime,
 
         [Parameter()]
-        [ValidateSet('Pink', 'Red', 'Yellow', 'Green', 'Blue', 'Purple')]
         [System.String[]]
         $Categories,
 
@@ -727,6 +759,7 @@ function Export-TargetResource
                     Write-M365DSCHost -Message "        |---[$j/$($plans.Length)] $($plan.Title)"
 
                     [Array]$tasks = Get-MgGroupPlannerPlanTask -GroupId $group.Id -PlannerPlanId $plan.Id -ErrorAction 'SilentlyContinue'
+                    $Script:AppliedCategories = (Get-MgPlannerPlanDetail -PlannerPlanId $plan.Id).CategoryDescriptions
 
                     $k = 1
                     foreach ($task in $tasks)
@@ -758,22 +791,34 @@ function Export-TargetResource
                             $result.Remove('AssignedUsers') | Out-Null
                         }
 
-                        if ($result.Attachments.Length -gt 0)
+                        if ($result.Attachments)
                         {
-                            $result.Attachments = Convert-M365DSCPlannerTaskAssignmentToCIMArray -Attachments $result.Attachments
-                        }
-                        else
-                        {
-                            $result.Remove('Attachments') | Out-Null
+                            $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                                -ComplexObject $result.Attachments `
+                                -CIMInstanceName 'PlannerTaskAttachment'
+                            if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                            {
+                                $result.Attachments = $complexTypeStringResult
+                            }
+                            else
+                            {
+                                $result.Remove('Attachments') | Out-Null
+                            }
                         }
 
-                        if ($result.Checklist.Length -gt 0)
+                        if ($result.Checklist)
                         {
-                            $result.Checklist = Convert-M365DSCPlannerTaskChecklistToCIMArray -Checklist $result.Checklist
-                        }
-                        else
-                        {
-                            $result.Remove('Checklist') | Out-Null
+                            $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                                -ComplexObject $result.Checklist `
+                                -CIMInstanceName 'PlannerTaskChecklistItem'
+                            if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                            {
+                                $result.Checklist = $complexTypeStringResult
+                            }
+                            else
+                            {
+                                $result.Remove('Checklist') | Out-Null
+                            }
                         }
 
                         # Fix Notes which can have multiple lines
@@ -867,83 +912,7 @@ function Test-M365DSCPlannerTaskCheckListValues
     return $true
 }
 
-function Convert-M365DSCPlannerTaskAssignmentToCIMArray
-{
-    [CmdletBinding()]
-    [OutputType([System.String[]])]
-    Param(
-        [Parameter(Mandatory = $true)]
-        [System.Collections.HashTable[]]
-        $Attachments
-    )
-
-    $stringContent = "@(`r`n"
-    foreach ($attachment in $Attachments)
-    {
-        $stringContent += "                MSFT_PlannerTaskAttachment`r`n"
-        $stringContent += "                {`r`n"
-        $stringContent += "                    Uri = '$($attachment.Uri.Replace("'", "''"))'`r`n"
-        $stringContent += "                    Alias = '$($attachment.Alias.Replace("'", "''"))'`r`n"
-        $stringContent += "                    Type = '$($attachment.Type)'`r`n"
-        $StringContent += "                }`r`n"
-    }
-    $StringContent += '            )'
-    return $StringContent
-}
-
-function Convert-M365DSCPlannerTaskChecklistToCIMArray
-{
-    [CmdletBinding()]
-    [OutputType([System.String[]])]
-    Param(
-        [Parameter(Mandatory = $true)]
-        [System.Collections.HashTable[]]
-        $Checklist
-    )
-
-    $stringContent = "@(`r`n"
-    foreach ($checklistItem in $Checklist)
-    {
-        $stringContent += "                MSFT_PlannerTaskChecklistItem`r`n"
-        $stringCOntent += "                {`r`n"
-        $stringContent += "                   Title = '$($checklistItem.Title.Replace("'", "''"))'`r`n"
-        $stringContent += "                   Completed = `$$($checklistItem.Completed.ToString())`r`n"
-        $StringContent += "                }`r`n"
-    }
-    $StringContent += '            )'
-    return $StringContent
-}
-
-
-function Get-M365DSCPlannerTasksFromPlan
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable[]])]
-    Param(
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        $PlanId,
-
-        [Parameter(Mandatory = $true)]
-        [System.Management.Automation.PSCredential]
-        $Credential
-    )
-    $results = @()
-    $uri = "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)v1.0/planner/plans/$PlanId/tasks"
-    $taskResponse = Invoke-MSCloudLoginMicrosoftGraphAPI -Credential $Credential `
-        -Uri $uri `
-        -Method Get
-    foreach ($task in $taskResponse.value)
-    {
-        $results += @{
-            Title = $task.title
-            Id    = $task.id
-        }
-    }
-    return $results
-}
-
-function GetTaskCategoryNameByColor
+function Get-TaskCategoryNameByColor
 {
     [CmdletBinding()]
     [OutputType([System.string])]
@@ -978,11 +947,87 @@ function GetTaskCategoryNameByColor
         {
             return 'category6'
         }
+        'Bronze'
+        {
+            return "category7"
+        }
+        'Lime'
+        {
+            return "category8"
+        }
+        'Aqua'
+        {
+            return "category9"
+        }
+        'Gray'
+        {
+            return "category10"
+        }
+        'Silver'
+        {
+            return "category11"
+        }
+        'Brown'
+        {
+            return "category12"
+        }
+        'Cranberry'
+        {
+            return "category13"
+        }
+        'Orange'
+        {
+            return "category14"
+        }
+        'Peach'
+        {
+            return "category15"
+        }
+        'Marigold'
+        {
+            return "category16"
+        }
+        'Light green'
+        {
+            return "category17"
+        }
+        'Dark green'
+        {
+            return "category18"
+        }
+        'Teal'
+        {
+            return "category19"
+        }
+        'Light blue'
+        {
+            return "category20"
+        }
+        'Dark blue'
+        {
+            return "category21"
+        }
+        'Lavender'
+        {
+            return "category22"
+        }
+        'Plum'
+        {
+            return "category23"
+        }
+        'Light gray'
+        {
+            return "category24"
+        }
+        'Dark gray'
+        {
+            return "category25"
+        }
     }
     return $null
 }
 
-function GetTaskColorNameByCategory
+function Get-TaskColorNameByCategory
 {
     [CmdletBinding()]
     [OutputType([System.string])]
@@ -1016,6 +1061,82 @@ function GetTaskColorNameByCategory
         'category6'
         {
             return 'Purple'
+        }
+        'category7'
+        {
+            return 'Bronze'
+        }
+        'category8'
+        {
+            return 'Lime'
+        }
+        'category9'
+        {
+            return 'Aqua'
+        }
+        'category10'
+        {
+            return 'Gray'
+        }
+        'category11'
+        {
+            return 'Silver'
+        }
+        'category12'
+        {
+            return 'Brown'
+        }
+        'category13'
+        {
+            return 'Cranberry'
+        }
+        'category14'
+        {
+            return 'Orange'
+        }
+        'category15'
+        {
+            return 'Peach'
+        }
+        'category16'
+        {
+            return 'Marigold'
+        }
+        'category17'
+        {
+            return 'Light green'
+        }
+        'category18'
+        {
+            return 'Dark green'
+        }
+        'category19'
+        {
+            return 'Teal'
+        }
+        'category20'
+        {
+            return 'Light blue'
+        }
+        'category21'
+        {
+            return 'Dark blue'
+        }
+        'category22'
+        {
+            return 'Lavender'
+        }
+        'category23'
+        {
+            return 'Plum'
+        }
+        'category24'
+        {
+            return 'Light gray'
+        }
+        'category25'
+        {
+            return 'Dark gray'
         }
     }
     return $null

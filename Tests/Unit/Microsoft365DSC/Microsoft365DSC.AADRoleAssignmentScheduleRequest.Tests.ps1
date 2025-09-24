@@ -29,7 +29,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Add-M365DSCTelemetryEvent -MockWith {
             }
 
-            Mock -CommandName Confirm-M365DSCDependencies -MockWith {
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
             }
 
             Mock -CommandName New-M365DSCConnection -MockWith {
@@ -52,10 +52,41 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Id          = '12345'
                 }
             }
+
             Mock -CommandName Get-MgBetaRoleManagementDirectoryRoleAssignmentSchedule -MockWith {
                 return @{
-                    Id          = '12345-12345-12345-12345-12345'
-                    RoleDefinitionId = "12345"
+                    Action               = "AdminAssign";
+                    Id                   = '12345-12345-12345-12345-12345'
+                    DirectoryScopeId     = "/";
+                    IsValidationOnly     = $False;
+                    PrincipalId          = "123456";
+                    RoleDefinitionId     = "12345";
+                    ScheduleInfo         = @{
+                        startDateTime   = [System.DateTime]::Parse('2023-09-01T02:40:44Z')
+                        expiration      = @{
+                            endDateTime = [System.DateTime]::Parse('2025-10-31T02:40:09Z')
+                            type        = 'afterDateTime'
+                        }
+                    };
+                }
+            }
+
+            Mock -CommandName Get-MgBetaRoleManagementDirectoryRoleAssignmentScheduleRequest -MockWith {
+                return @{
+                    Action               = "AdminAssign";
+                    Id                   = '12345-12345-12345-12345-12345'
+                    DirectoryScopeId     = "/";
+                    IsValidationOnly     = $False;
+                    PrincipalId          = "123456";
+                    RoleDefinitionId     = "12345";
+                    ScheduleInfo         = @{
+                        startDateTime             = [System.DateTime]::Parse('2023-09-01T02:40:44Z')
+                        expiration                = @{
+                            endDateTime = [System.DateTime]::Parse('2025-10-31T02:40:09Z')
+                            type        = 'afterDateTime'
+                        }
+                    };
+                    TargetScheduleId = "12345-12345-12345-12345-12345";
                 }
             }
 
@@ -77,12 +108,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     PrincipalType        = "User"
                     RoleDefinition       = "Teams Communications Administrator";
                     ScheduleInfo         = New-CimInstance -ClassName MSFT_AADRoleAssignmentScheduleRequestSchedule -Property @{
-                            startDateTime             = '2023-09-01T02:40:44Z'
-                            expiration = New-CimInstance -ClassName MSFT_AADRoleAssignmentScheduleRequestScheduleExpiration -Property @{
-                                endDateTime = '2025-10-31T02:40:09Z'
-                                type        = 'afterDateTime'
-                            } -ClientOnly
+                        startDateTime   = '2023-09-01T02:40:44Z'
+                        expiration = New-CimInstance -ClassName MSFT_AADRoleAssignmentScheduleRequestScheduleExpiration -Property @{
+                            endDateTime = '2025-10-31T02:40:09Z'
+                            type        = 'afterDateTime'
                         } -ClientOnly
+                    } -ClientOnly
                     Credential  = $Credential
                 }
 
@@ -113,31 +144,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Principal            = "John.Smith@contoso.com";
                     RoleDefinition       = "Teams Communications Administrator";
                     ScheduleInfo         = New-CimInstance -ClassName MSFT_AADRoleAssignmentScheduleRequestSchedule -Property @{
-
-                            expiration = New-CimInstance -ClassName MSFT_AADRoleAssignmentScheduleRequestScheduleExpiration -Property @{
-
-                                type        = 'afterDateTime'
-                            } -ClientOnly
+                        startDateTime   = '2023-09-01T02:40:44Z'
+                        expiration = New-CimInstance -ClassName MSFT_AADRoleAssignmentScheduleRequestScheduleExpiration -Property @{
+                            endDateTime = '2025-10-31T02:40:09Z'
+                            type        = 'afterDateTime'
                         } -ClientOnly
+                    } -ClientOnly
                     Credential  = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaRoleManagementDirectoryRoleAssignmentScheduleRequest -MockWith {
-                    return @{
-                        Action               = "AdminAssign";
-                        Id                   = '12345-12345-12345-12345-12345'
-                        DirectoryScopeId     = "/";
-                        IsValidationOnly     = $False;
-                        PrincipalId          = "123456";
-                        RoleDefinitionId     = "12345";
-                        ScheduleInfo         = @{
-                            startDateTime             = [System.DateTime]::Parse('2023-09-01T02:40:44Z')
-                            expiration                = @{
-                                    endDateTime = [System.DateTime]::Parse('2025-10-31T02:40:09Z')
-                                    type        = 'afterDateTime'
-                                }
-                        };
-                    }
                 }
             }
 
@@ -165,43 +178,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Principal            = "John.Smith@contoso.com";
                     RoleDefinition       = "Teams Communications Administrator";
                     ScheduleInfo         = New-CimInstance -ClassName MSFT_AADRoleAssignmentScheduleRequestSchedule -Property @{
-
-                            expiration = New-CimInstance -ClassName MSFT_AADRoleAssignmentScheduleRequestScheduleExpiration -Property @{
-                                type        = 'afterDateTime'
-                            } -ClientOnly
+                        startDateTime   = '2023-09-01T02:40:44Z'
+                        expiration = New-CimInstance -ClassName MSFT_AADRoleAssignmentScheduleRequestScheduleExpiration -Property @{
+                            endDateTime = '2025-10-31T02:40:09Z'
+                            type        = 'afterDateTime'
                         } -ClientOnly
+                    } -ClientOnly
                     Credential  = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaRoleManagementDirectoryRoleAssignmentScheduleRequest -MockWith {
-                    return @{
-                        Action               = "AdminAssign";
-                        Id                   = '12345-12345-12345-12345-12345'
-                        DirectoryScopeId     = "/";
-                        IsValidationOnly     = $False;
-                        PrincipalId          = "123456";
-                        RoleDefinitionId     = "12345";
-                        ScheduleInfo         = @{
-                            expiration                = @{
-                                    type        = 'afterDateTime'
-                                }
-                        };
-                    }
-                }
-                Mock -CommandName Get-MgBetaRoleManagementDirectoryRoleAssignmentSchedule -MockWith {
-                    return @{
-                        Action               = "AdminAssign";
-                        Id                   = '12345-12345-12345-12345-12345'
-                        DirectoryScopeId     = "/";
-                        IsValidationOnly     = $False;
-                        PrincipalId          = "123456";
-                        RoleDefinitionId     = "12345";
-                        ScheduleInfo         = @{
-                            expiration                = @{
-                                    type        = 'afterDateTime'
-                                }
-                        };
-                    }
                 }
             }
 
@@ -224,33 +207,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Principal            = "John.Smith@contoso.com";
                     RoleDefinition       = "Teams Communications Administrator";
                     ScheduleInfo         = New-CimInstance -ClassName MSFT_AADRoleAssignmentScheduleRequestSchedule -Property @{
-
-                            expiration = New-CimInstance -ClassName MSFT_AADRoleAssignmentScheduleRequestScheduleExpiration -Property @{
-
-                                type        = 'afterDateTime'
-                            } -ClientOnly
+                        startDateTime   = '2025-09-01T04:40:44Z' # Drift
+                        expiration = New-CimInstance -ClassName MSFT_AADRoleAssignmentScheduleRequestScheduleExpiration -Property @{
+                            endDateTime = '2025-10-31T02:40:09Z'
+                            type        = 'afterDateTime'
                         } -ClientOnly
+                    } -ClientOnly
                     Credential  = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaRoleManagementDirectoryRoleAssignmentScheduleRequest -MockWith {
-                    return @{
-                        Action               = "AdminAssign";
-                        Id                   = '12345-12345-12345-12345-12345'
-                        DirectoryScopeId     = "/";
-                        IsValidationOnly     = $False;
-                        PrincipalId          = "123456";
-                        RoleDefinitionId     = "12345";
-                        ScheduleInfo         = @{
-                            startDateTime             = [System.DateTime]::Parse('2023-09-01T02:40:44Z')
-                            expiration                = @{
-                                    endDateTime = [System.DateTime]::Parse('2025-10-31T02:40:09Z')
-                                    type        = 'afterDateTime'
-                                }
-                        };
-                    }
-                }
-
             }
 
             It 'Should return Values from the Get method' {
@@ -272,25 +236,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaRoleManagementDirectoryRoleAssignmentScheduleRequest -MockWith {
-                    return @{
-                        Action               = "AdminAssign";
-                        Id                   = '12345-12345-12345-12345-12345'
-                        DirectoryScopeId     = "/";
-                        IsValidationOnly     = $False;
-                        PrincipalId          = "123456";
-                        RoleDefinitionId     = "12345";
-                        ScheduleInfo         = @{
-                            startDateTime             = [System.DateTime]::Parse('2023-09-01T02:40:44Z')
-                            expiration                = @{
-                                    endDateTime = [System.DateTime]::Parse('2025-10-31T02:40:09Z')
-                                    type        = 'afterDateTime'
-                                }
-                        };
-                        TargetScheduleId = "12345-12345-12345-12345-12345"
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {

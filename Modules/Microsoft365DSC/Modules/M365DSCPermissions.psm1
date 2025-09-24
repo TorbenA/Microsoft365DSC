@@ -63,7 +63,10 @@ function Get-M365DSCCompiledPermissionList
     }
 
     $results = @{
-        AdministrativeRoles = @()
+        AdministrativeRoles = @{
+            Read = @()
+            Update = @()
+        }
         Read                = @(
             @{
                 API         = 'Graph'
@@ -113,13 +116,33 @@ function Get-M365DSCCompiledPermissionList
             $resourceSettings = ConvertFrom-Json -InputObject $fileContent
 
             # Entra / Administrative roles
-            if ($resourceSettings.roles.Count -gt 0)
+            if ($null -ne $resourceSettings.roles.read -or $null -ne $resourceSettings.roles.update)
             {
                 $readRoles = $resourceSettings.roles.read
                 $updateRoles = $resourceSettings.roles.update
-                $results.AdministrativeRoles = @{
-                    Read = ,$readRoles
-                    Update = ,$updateRoles
+                foreach ($role in $readRoles)
+                {
+                    if (-not $results.AdministrativeRoles.Read.Contains($role))
+                    {
+                        Write-Verbose -Message "    Found new Administrative Read role {$($role)}"
+                        $results.AdministrativeRoles.Read += $role
+                    }
+                    else
+                    {
+                        Write-Verbose -Message "    Administrative Read role {$($role)} was already added"
+                    }
+                }
+                foreach ($role in $updateRoles)
+                {
+                    if (-not $results.AdministrativeRoles.Update.Contains($role))
+                    {
+                        Write-Verbose -Message "    Found new Administrative Update role {$($role)}"
+                        $results.AdministrativeRoles.Update += $role
+                    }
+                    else
+                    {
+                        Write-Verbose -Message "    Administrative Update role {$($role)} was already added"
+                    }
                 }
             }
 
@@ -271,10 +294,15 @@ function Get-M365DSCCompiledPermissionList
 
     if ($PSBoundParameters.ContainsKey('PermissionType'))
     {
-        $results = $results.$AccessType | Where-Object -FilterScript { $_. Permission.Type -eq $PermissionType }
-        $results | ForEach-Object -Process {
+        $resultsByType = $results.$AccessType | Where-Object -FilterScript { $_.Permission.Type -eq $PermissionType }
+        $resultsByType | ForEach-Object -Process {
             $_.PermissionName = $_.Permission.Name
             $_.Remove('Permission')
+        }
+        $results = @{
+            AdministrativeRoles = $results.AdministrativeRoles.$AccessType
+            Permissions = $resultsByType
+            RequiredRoles = $results.RequiredRoles
         }
     }
 
@@ -320,14 +348,14 @@ function Update-M365DSCPermissionsMatrix
     {
         if ($permission.Name -ne 'NotSupported')
         {
-            $matrixPermission = $results.$AccessType | Where-Object -FilterScript {
+            $matrixPermission = $Matrix.$AccessType | Where-Object -FilterScript {
                 $_.API -eq $Source -and $_.Permission.Name -eq $permission.name -and $_.Permission.Type -eq $PermissionType
             }
 
             if ($null -eq $matrixPermission)
             {
                 Write-Verbose -Message "    Found new $AccessType permission {$($permission.name)} for API {$Source}"
-                $results.$AccessType += @{
+                $Matrix.$AccessType += @{
                     API        = $Source
                     Permission = @{
                         Type = $PermissionType
@@ -408,7 +436,7 @@ function Update-M365DSCAllowedGraphScopes
     }
 
     Write-Verbose -Message "Specified type: $Type"
-    $results = Get-M365DSCCompiledPermissionList -ResourceNameList $resourceNames -PermissionType 'Delegated' -AccessType $Type
+    $results = (Get-M365DSCCompiledPermissionList -ResourceNameList $resourceNames -PermissionType 'Delegated' -AccessType $Type).Permissions
     $permissions = ($results | Where-Object -FilterScript { $_.API -eq 'Graph' }).PermissionName
 
     Write-Verbose -Message "Found permissions: $($permissions -join ', ')"
@@ -572,19 +600,6 @@ function Update-M365DSCResourcesSettingsJSON
                 Write-Verbose '  Updating existing settings.json file'
                 $settingsJson = Get-Content -Path $settingsFile -Raw
                 $settings = ConvertFrom-Json $settingsJson
-
-                $newPermissions = @{
-                    graph = @{
-                        delegated   = @{
-                            read   = @()
-                            update = @()
-                        }
-                        application = @{
-                            read   = @()
-                            update = @()
-                        }
-                    }
-                }
 
                 if ($delegatedReadPermissions.Count -eq 0 -and $settings.permissions.graph.delegated.read.Count -ne 0)
                 {
@@ -1150,7 +1165,7 @@ Update-M365DSCAzureAdApplication -ApplicationName 'Microsoft365DSC' -Permissions
 Update-M365DSCAzureAdApplication -ApplicationName 'Microsoft365DSC' -Permissions @(@{Api='SharePoint';PermissionName='Sites.FullControl.All'},@{Api='Graph';PermissionName='Group.ReadWrite.All'},@{Api='Exchange';PermissionName='Exchange.ManageAsApp'}) -AdminConsent -Credential $creds -Type Certificate -CertificatePath c:\Temp\M365DSC.cer
 
 .EXAMPLE
-Update-M365DSCAzureAdApplication -ApplicationName $Microsoft365DSC -Permissions $(Get-M365DSCCompiledPermissionList -ResourceNameList (Get-M365DSCAllResources) -PermissionType Application -AccessType Read) -Type Certificate -CreateSelfSignedCertificate -AdminConsent -MonthsValid 12 -Credential $creds -CertificatePath c:\Temp\M365DSC.cer
+Update-M365DSCAzureAdApplication -ApplicationName $Microsoft365DSC -Permissions $((Get-M365DSCCompiledPermissionList -ResourceNameList (Get-M365DSCAllResources) -PermissionType Application -AccessType Read).Permissions) -Type Certificate -CreateSelfSignedCertificate -AdminConsent -MonthsValid 12 -Credential $creds -CertificatePath c:\Temp\M365DSC.cer
 
 
 .Functionality
@@ -1339,8 +1354,8 @@ function Update-M365DSCAzureAdApplication
     $exSvcprincipal = Get-MgServicePrincipal -Filter "AppId eq '$resourceAppIdExchange'"
 
     Write-LogEntry ' '
-    Write-LogEntry 'Checking existance of AD Application'
-    if (-not ($azureADApp = Get-MgApplication -Filter "DisplayName eq '$($ApplicationName)'" -ErrorAction SilentlyContinue))
+    Write-LogEntry 'Checking existence of AD Application'
+    if (-not ($azureADApp = Get-MgApplication -Filter "DisplayName eq '$($ApplicationName -replace "'", "''")'" -ErrorAction SilentlyContinue))
     {
         $azureADApp = New-MgApplication -DisplayName $ApplicationName
         Write-LogEntry "  New Azure AD application '$ApplicationName' created!"
@@ -1356,7 +1371,7 @@ function Update-M365DSCAzureAdApplication
         Write-LogEntry ' '
         Write-LogEntry 'Checking app permissions'
         $allRequiredAccess = @{}
-        foreach ($permission in $Permissions)
+        foreach ($permission in $Permissions.Permissions)
         {
             if ($null -eq $permission.Api -or $permission.Api -notin @('Graph', 'SharePoint', 'Exchange'))
             {
@@ -1454,7 +1469,7 @@ function Update-M365DSCAzureAdApplication
             }
             else
             {
-                $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                     -InboundParameters $PSBoundParameters
                 if ($requireWait)
                 {

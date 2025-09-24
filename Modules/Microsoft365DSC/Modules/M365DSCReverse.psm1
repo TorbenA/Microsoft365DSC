@@ -21,6 +21,10 @@ function Start-M365DSCConfigurationExtract
         $Components,
 
         [Parameter()]
+        [System.String[]]
+        $ExcludeComponents,
+
+        [Parameter()]
         [Switch]
         $AllComponents,
 
@@ -37,11 +41,7 @@ function Start-M365DSCConfigurationExtract
         $ConfigurationName = 'M365TenantConfig',
 
         [Parameter()]
-        [ValidateRange(1, 100)]
-        $MaxProcesses = 16,
-
-        [Parameter()]
-        [ValidateSet('AAD', 'ADO', 'AZURE', 'COMMERCE', 'DEFENDER', 'EXO', 'FABRIC', 'INTUNE', 'O365', 'OD', 'PLANNER', 'PP', 'SC', 'SENTINEL', 'SH', 'SPO', 'TEAMS')]
+        [ValidateSet('AAD', 'ADO', 'AZURE', 'COMMERCE', 'DEFENDER', 'EXO', 'FABRIC', 'INTUNE', 'O365', 'OD', 'PLANNER', 'PP', 'SC', 'SENTINEL', 'SH', 'SPO', 'TEAMS', 'VIVA')]
         [System.String[]]
         $Workloads,
 
@@ -92,11 +92,18 @@ function Start-M365DSCConfigurationExtract
 
         [Parameter()]
         [Switch]
-        $Validate
+        $Validate,
+
+        [Parameter()]
+        [Switch]
+        $Parallel,
+
+        [Parameter()]
+        [System.Collections.Generic.Dictionary[System.String, System.Object]]
+        $ResourceSettings
     )
 
-    # Start by checking to see if a new Version of the tool is available in the
-    # PowerShell Gallery
+    # Start by checking to see if a new version of the tool is available in the PowerShell Gallery
     try
     {
         Write-Verbose -Message 'Testing Module Validity'
@@ -106,8 +113,52 @@ function Start-M365DSCConfigurationExtract
     {
         Add-M365DSCEvent -Message $_ -Source 'M365DSCReverse::Test-M365DSCModuleValidity'
     }
+
     try
     {
+        $shouldOpenOutputDirectory = $false
+        #region Prompt the user for a location to save the extract and generate the files
+        if ([System.String]::IsNullOrEmpty($Path))
+        {
+            $shouldOpenOutputDirectory = $true
+            $OutputDSCPath = Read-Host "`r`nDestination Path"
+        }
+        else
+        {
+            $OutputDSCPath = $Path
+        }
+
+        if ([System.String]::IsNullOrEmpty($OutputDSCPath))
+        {
+            $OutputDSCPath = '.'
+        }
+
+        while ((Test-Path -Path $OutputDSCPath -PathType Container -ErrorAction SilentlyContinue) -eq $false)
+        {
+            try
+            {
+                Write-M365DSCHost -Message "Directory `"$OutputDSCPath`" doesn't exist; creating..."
+                New-Item -Path $OutputDSCPath -ItemType Directory | Out-Null
+                if ($?)
+                {
+                    break
+                }
+            }
+            catch
+            {
+                Write-Warning "$($_.Exception.Message)"
+                Write-Warning "Could not create folder $OutputDSCPath!"
+            }
+            $OutputDSCPath = Read-Host 'Please Provide Output Folder for DSC Configuration (Will be Created as Necessary)'
+        }
+        <## Ensures the path we specify ends with a Slash, in order to make sure the resulting file path is properly structured. #>
+        if (!$OutputDSCPath.EndsWith('\') -and !$OutputDSCPath.EndsWith('/'))
+        {
+            $OutputDSCPath += '\'
+        }
+        Push-Location -Path $OutputDSCPath
+        #endregion
+
         $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
 
         # Telemetry parameters initialization
@@ -141,6 +192,10 @@ function Start-M365DSCConfigurationExtract
         elseif ($Mode -eq 'Lite' -and $null -eq $Components)
         {
             $ComponentsToSkip = $Global:DefaultComponents + $Global:FullComponents
+        }
+
+        if( $null -ne $ExcludeComponents ) {
+            $ComponentsToSkip += $ExcludeComponents
         }
 
         # Check to validate that based on the received authentication parameters
@@ -295,7 +350,7 @@ function Start-M365DSCConfigurationExtract
             # If tenantId comes in as a GUID then query to replace with string representation, else use what was provided
             if ($TenantId -match ('^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$'))
             {
-                $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' -InboundParameters @{'ManagedIdentity' = $true; 'TenantId' = $TenantId }
+                $null = New-M365DSCConnection -Workload 'MicrosoftGraph' -InboundParameters @{'ManagedIdentity' = $true; 'TenantId' = $TenantId }
                 $organization = Get-M365DSCTenantDomain -TenantId $TenantId -ManagedIdentity
             }
             else
@@ -351,7 +406,7 @@ function Start-M365DSCConfigurationExtract
 
             if ([System.String]::IsNullOrEmpty($ConfigurationName))
             {
-                $ConfigurationName = $FileName.Replace('.' + $FileParts[$FileParts.Length - 1], '')
+                $ConfigurationName = $FileName.Replace('.' + $FileParts[$FileParts.Length - 1], '').Replace(' ', '_')
             }
         }
         if ([System.String]::IsNullOrEmpty($ConfigurationName))
@@ -505,16 +560,15 @@ function Start-M365DSCConfigurationExtract
             -Description 'Default Value Used to Ensure a Configuration Data File is Generated'
 
         Write-Verbose -Message 'Retrieving resources path'
-        $ResourcesPath = Join-Path -Path $PSScriptRoot `
+        $resourcesPath = Join-Path -Path $PSScriptRoot `
             -ChildPath '../DSCResources/' `
             -Resolve
         Write-Verbose -Message 'Loop through all resources files.'
-        $AllResources = Get-ChildItem $ResourcesPath -Recurse | Where-Object { $_.Name -like 'MSFT_*.psm1' }
+        $allResoures = Get-ChildItem $resourcesPath -Recurse | Where-Object { $_.Name -like 'MSFT_*.psm1' }
 
-        $i = 1
         $ResourcesToExport = @()
-        $ResourcesPath = @()
-        foreach ($ResourceModule in $AllResources)
+        $resourcesPath = @()
+        foreach ($ResourceModule in $allResoures)
         {
             try
             {
@@ -532,7 +586,7 @@ function Start-M365DSCConfigurationExtract
                         AuthenticationMethod = $authMethod.AuthMethod
                     }
                     $ResourcesToExport += $resourceInfo
-                    $ResourcesPath += $ResourceModule
+                    $resourcesPath += $ResourceModule
                 }
             }
             catch
@@ -546,7 +600,7 @@ function Start-M365DSCConfigurationExtract
         # Retrieve the list of Workloads represented by the resources to export and pre-authenticate to each one;
         if ($ResourcesToExport.Length -gt 0)
         {
-            $WorkloadsToConnectTo = Get-M365DSCWorkloadsListFromResourceNames -ResourceNames $ResourcesToExport
+            $WorkloadsToConnectTo = Get-M365DSCConnectedWorkloadList -ResourceNames $ResourcesToExport
         }
         foreach ($Workload in $WorkloadsToConnectTo)
         {
@@ -587,77 +641,90 @@ function Start-M365DSCConfigurationExtract
             }
         }
 
-        $ResourcesPath = $ResourcesPath | Sort-Object $_.Name
-        foreach ($resource in $ResourcesPath)
-        {
+        Confirm-M365DSCDependencies
+        $partialExportName = $Global:PartialExportFileName
+        $resourcesPath = $resourcesPath | Sort-Object $_.Name
+        $synchronizedHashtable = [System.Collections.Hashtable]::Synchronized(@{
+            ResourceCounter = 1
+            ResourcesResult = @{}
+        })
+        $resourceDictionary = Get-M365DSCAllResourcesDictionary
+        $exportScriptBlock = {
+            $Global:PartialExportFileName = $using:partialExportName
+            $Global:M365DSCSkipDependenciesValidation = $true
+            $resource = $_
+            Set-M365DSCAllResourcesDictionary -DscResourceDictionary $using:resourceDictionary
             $resourceName = $resource.Name.Split('.')[0] -replace 'MSFT_', ''
-            $mostSecureAuthMethod = ($allSupportedResourcesWithMostSecureAuthMethod | Where-Object { $_.Resource -eq $resourceName }).AuthMethod
+            $mostSecureAuthMethod = ($using:allSupportedResourcesWithMostSecureAuthMethod | Where-Object { $_.Resource -eq $resourceName }).AuthMethod
 
             Import-Module $resource.FullName | Out-Null
-            $MaxProcessesExists = (Get-Command 'Export-TargetResource').Parameters.Keys.Contains('MaxProcesses')
-            $FilterExists = (Get-Command 'Export-TargetResource').Parameters.Keys.Contains('Filter')
+            $filterExists = (Get-Command 'Export-TargetResource').Parameters.Keys.Contains('Filter')
 
             $parameters = @{}
             switch ($mostSecureAuthMethod)
             {
                 { $_ -in 'CertificateThumbprint', 'CertificatePath', 'ApplicationSecret' }
                 {
-                    $parameters.Add('ApplicationId', $ApplicationId)
-                    $parameters.Add('TenantId', $TenantId)
+                    $parameters.Add('ApplicationId', $using:ApplicationId)
+                    $parameters.Add('TenantId', $using:TenantId)
                 }
                 'CertificateThumbprint'
                 {
-                    $parameters.Add('CertificateThumbprint', $CertificateThumbprint)
+                    $parameters.Add('CertificateThumbprint', $using:CertificateThumbprint)
                 }
                 'CertificatePath'
                 {
-                    $parameters.Add('CertificatePath', $CertificatePath)
-                    $parameters.Add('CertificatePassword', $CertificatePassword)
+                    $parameters.Add('CertificatePath', $using:CertificatePath)
+                    $parameters.Add('CertificatePassword', $using:CertificatePassword)
                 }
                 'ApplicationSecret'
                 {
-                    $applicationSecretValue = New-Object System.Management.Automation.PSCredential ('ApplicationSecret', (ConvertTo-SecureString $ApplicationSecret -AsPlainText -Force))
+                    $applicationSecretValue = New-Object System.Management.Automation.PSCredential ('ApplicationSecret', (ConvertTo-SecureString $using:ApplicationSecret -AsPlainText -Force))
                     $parameters.Add('ApplicationSecret', $applicationSecretValue)
                 }
                 { $_ -in 'Credentials', 'CredentialsWithApplicationId' }
                 {
-                    if ($AuthMethods -contains 'CredentialsWithApplicationId')
+                    if ($using:AuthMethods -contains 'CredentialsWithApplicationId')
                     {
-                        $parameters.Add('ApplicationId', $ApplicationId)
+                        $parameters.Add('ApplicationId', $using:ApplicationId)
                     }
-                    $parameters.Add('Credential', $Credential)
+                    $parameters.Add('Credential', $using:Credential)
                 }
                 'CredentialsWithTenantId'
                 {
-                    $parameters.Add('Credential', $Credential)
-                    $parameters.Add('TenantId', $TenantId)
+                    $parameters.Add('Credential', $using:Credential)
+                    $parameters.Add('TenantId', $using:TenantId)
                 }
                 'ManagedIdentity'
                 {
-                    $parameters.Add('ManagedIdentity', $ManagedIdentity)
-                    $parameters.Add('TenantId', $TenantId)
+                    $parameters.Add('ManagedIdentity', $using:ManagedIdentity)
+                    $parameters.Add('TenantId', $using:TenantId)
                 }
                 'AccessTokens'
                 {
-                    $parameters.Add('AccessTokens', $AccessTokens)
-                    $parameters.Add('TenantId', $TenantId)
+                    $parameters.Add('AccessTokens', $using:AccessTokens)
+                    $parameters.Add('TenantId', $using:TenantId)
                 }
             }
 
-            if ($MaxProcessesExists -and -not [System.String]::IsNullOrEmpty($MaxProcesses))
+            if ($using:ComponentsToSkip -notcontains $resourceName)
             {
-                $parameters.Add('MaxProcesses', $MaxProcesses)
-            }
-
-            if ($ComponentsToSkip -notcontains $resourceName)
-            {
-                Write-M365DSCHost -Message "[$i/$($ResourcesToExport.Length)] Extracting [" -DeferWrite
+                if ($PSVersionTable.PSEdition -eq 'Core')
+                {
+                    $module = Get-Module PSDesiredStateConfiguration
+                    if ($null -eq $module)
+                    {
+                        Import-Module -Name "PSDesiredStateConfiguration" -Global -Prefix 'Pwsh' -RequiredVersion 2.0.7
+                    }
+                }
+                $counter = ($using:synchronizedHashtable).ResourceCounter++
+                Write-M365DSCHost -Message "[$counter/$($using:ResourcesToExport.Length)] Extracting [" -DeferWrite
                 Write-M365DSCHost -Message $resourceName -ForegroundColor Green -DeferWrite
                 Write-M365DSCHost -Message '] using {' -DeferWrite
                 Write-M365DSCHost -Message $mostSecureAuthMethod -ForegroundColor Cyan -DeferWrite
                 Write-M365DSCHost -Message '}...' -DeferWrite
-                $exportString = [System.Text.StringBuilder]::New()
-                if ($GenerateInfo)
+                $exportString = [System.Text.StringBuilder]::new()
+                if ($using:GenerateInfo)
                 {
                     $exportString.Append("`r`n        # For information on how to use this resource, please refer to:`r`n") | Out-Null
                     $exportString.Append("        # https://github.com/microsoft/Microsoft365DSC/wiki/$($resource.Name.Split('.')[0] -replace 'MSFT_', '')`r`n") | Out-Null
@@ -666,10 +733,10 @@ function Start-M365DSCConfigurationExtract
                 # Check if filters for the current resource were specified.
                 $resourceFilter = $null
                 $resourceName = $resource.Name.Split('.')[0] -replace 'MSFT_', ''
-                if ($FilterExists -and $null -ne $Filters -and $Filters.Keys.Contains($resourceName))
+                if ($filterExists -and $null -ne $using:Filters -and ($using:Filters).Keys.Contains($resourceName))
                 {
-                    $resourceFilter = $Filters.$resourceName
-                    if ($FilterExists)
+                    $resourceFilter = ($using:Filters).$resourceName
+                    if ($filterExists)
                     {
                         $parameters.Add('Filter', $resourceFilter)
                     }
@@ -680,9 +747,43 @@ function Start-M365DSCConfigurationExtract
                 }
                 $Global:M365DSCExportResourceTypes += $resourceName
                 $exportString.Append((Export-TargetResource @parameters)) | Out-Null
-                $i++
             }
-            $DSCContent.Append($exportString.ToString()) | Out-Null
+            ($using:synchronizedHashtable).ResourcesResult.Add($resourceName, $exportString.ToString())
+        }
+
+        if ($Parallel)
+        {
+            if ($Workloads.Count -eq 0)
+            {
+                $Workloads = Get-M365DSCWorkloadForResource -ResourceName $ResourcesToExport.Name
+            }
+            foreach ($workload in $Workloads)
+            {
+                Write-M365DSCHost -Message "Starting export in parallel mode for workload {$workload}. Initialization may take a while..."
+                $requiredModules = [System.Collections.Generic.List[System.String]]::new(25)
+                foreach ($resource in $($ResourcesToExport | Where-Object { $_.Name -like "$workload*" }))
+                {
+                    foreach ($module in $resourceSettings[$resource.Name])
+                    {
+                        if (-not $requiredModules.Contains($module))
+                        {
+                            $requiredModules.Add($module)
+                        }
+                    }
+                }
+                $resourcesPath | Where-Object { $_ -like "*MSFT_$workload*" } | Invoke-Parallel -ScriptBlock $exportScriptBlock -ModuleName $requiredModules -Verbose
+            }
+        }
+        else
+        {
+            Write-M365DSCHost -Message "Starting export in sequential mode..."
+            $exportScriptBlock = [ScriptBlock]::Create($exportScriptBlock.ToString().Replace('$using:', '$'))
+            $resourcesPath | ForEach-Object -Process $exportScriptBlock
+        }
+
+        foreach ($resource in $($synchronizedHashtable.ResourcesResult.Keys | Sort-Object))
+        {
+            $DSCContent.Append($synchronizedHashtable.ResourcesResult.$resource) | Out-Null
         }
 
         # Close the Node and Configuration declarations
@@ -786,48 +887,6 @@ function Start-M365DSCConfigurationExtract
             }
         }
 
-        $shouldOpenOutputDirectory = $false
-        #region Prompt the user for a location to save the extract and generate the files
-        if ([System.String]::IsNullOrEmpty($Path))
-        {
-            $shouldOpenOutputDirectory = $true
-            $OutputDSCPath = Read-Host "`r`nDestination Path"
-        }
-        else
-        {
-            $OutputDSCPath = $Path
-        }
-
-        if ([System.String]::IsNullOrEmpty($OutputDSCPath))
-        {
-            $OutputDSCPath = '.'
-        }
-
-        while ((Test-Path -Path $OutputDSCPath -PathType Container -ErrorAction SilentlyContinue) -eq $false)
-        {
-            try
-            {
-                Write-M365DSCHost -Message "Directory `"$OutputDSCPath`" doesn't exist; creating..."
-                New-Item -Path $OutputDSCPath -ItemType Directory | Out-Null
-                if ($?)
-                {
-                    break
-                }
-            }
-            catch
-            {
-                Write-Warning "$($_.Exception.Message)"
-                Write-Warning "Could not create folder $OutputDSCPath!"
-            }
-            $OutputDSCPath = Read-Host 'Please Provide Output Folder for DSC Configuration (Will be Created as Necessary)'
-        }
-        <## Ensures the path we specify ends with a Slash, in order to make sure the resulting file path is properly structured. #>
-        if (!$OutputDSCPath.EndsWith('\') -and !$OutputDSCPath.EndsWith('/'))
-        {
-            $OutputDSCPath += '\'
-        }
-        #endregion
-
         #region Copy Downloaded files back into output folder
         if (($null -ne $Components -and
                 $Components.Contains('SPOApp')) -or
@@ -918,7 +977,7 @@ function Start-M365DSCConfigurationExtract
                 }
                 else
                 {
-                    Write-Warning -Message "Cannot export Local Configuration Manager settings. This process isn't executed with Administrative Privileges!"
+                    Write-Verbose -Message "Cannot export Local Configuration Manager settings. This process isn't executed with Administrative Privileges."
                 }
             }
             catch
@@ -939,6 +998,7 @@ function Start-M365DSCConfigurationExtract
                 Write-Verbose -Message $_
             }
         }
+        Pop-Location
     }
     catch
     {

@@ -27,6 +27,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             $Global:PartialExportFileName = 'c:\TestPath'
 
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
+            }
 
             Mock -CommandName Save-M365DSCPartialExport -MockWith {
             }
@@ -211,6 +213,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     MediaBitRateKb                             = 50000
                     ScreenSharingMode                          = 'EntireScreen'
                     WhoCanRegister                             = 'EveryoneInCompany'
+                    RoomAttributeUserOverride                  = 'OFF'
                     Ensure                                     = 'Present'
                     Credential                                 = $Credential
                 }
@@ -249,6 +252,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         ScreenSharingMode                          = 'EntireScreen'
                         VoiceIsolation                             = 'Disabled'
                         WhoCanRegister                             = 'EveryoneInCompany'
+                        RoomAttributeUserOverride                  = 'OFF'
                     }
                 }
             }

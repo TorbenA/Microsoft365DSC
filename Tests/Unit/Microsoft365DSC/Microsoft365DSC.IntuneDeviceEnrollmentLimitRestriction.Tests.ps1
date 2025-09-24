@@ -40,8 +40,25 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Remove-MgBetaDeviceManagementDeviceEnrollmentConfiguration -MockWith {
             }
+
             Mock -CommandName Update-DeviceConfigurationPolicyAssignment -MockWith {
             }
+
+             Mock -CommandName Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        '@odata.type' = '#microsoft.graph.deviceEnrollmentLimitConfiguration'
+                        Limit         = 15
+                    }
+                    Id                   = '12345-12345-12345-12345-12345_Limit'
+                    Priority             = 1
+                    DisplayName          = 'My DSC Restriction'
+                }
+            }
+
+            Mock -CommandName Invoke-MgGraphRequest -MockWith {
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -53,14 +70,28 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "When the restriction doesn't already exist" -Fixture {
             BeforeAll {
                 $testParams = @{
+                    Id          = '12345-12345-12345-12345-12345_Limit'
                     DisplayName = 'My DSC Restriction'
                     Ensure      = 'Present'
                     Credential  = $Credential
+                    Priority    = 1
                     Limit       = 15
                 }
 
                 Mock -CommandName Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -MockWith {
                     return $null
+                }
+
+                Mock -CommandName New-MgBetaDeviceManagementDeviceEnrollmentConfiguration -MockWith {
+                    return @{
+                        AdditionalProperties = @{
+                            '@odata.type' = '#microsoft.graph.deviceEnrollmentLimitConfiguration'
+                            Limit         = 15
+                        }
+                        Id                   = '12345-12345-12345-12345-12345_Limit'
+                        Priority             = 1
+                        DisplayName          = 'My DSC Restriction';
+                    }
                 }
             }
 
@@ -81,21 +112,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name 'When the restriction already exists and is NOT in the Desired State' -Fixture {
             BeforeAll {
                 $testParams = @{
+                    Id          = '12345-12345-12345-12345-12345_Limit'
                     DisplayName = 'My DSC Restriction'
                     Ensure      = 'Present'
                     Credential  = $Credential
-                    Limit       = 15
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.deviceEnrollmentLimitConfiguration'
-                            Limit         = 12
-                        }
-                        id                   = '12345-12345-12345-12345-12345'
-                        DisplayName          = 'My DSC Restriction'; #Drift
-                    }
+                    Limit       = 12 # Updated property
+                    Priority    = 1
                 }
             }
 
@@ -116,21 +138,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name 'When the restriction already exists and IS in the Desired State' -Fixture {
             BeforeAll {
                 $testParams = @{
+                    Id          = '12345-12345-12345-12345-12345_Limit'
                     DisplayName = 'My DSC Restriction'
                     Ensure      = 'Present'
                     Credential  = $Credential
                     Limit       = 15
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.deviceEnrollmentLimitConfiguration'
-                            Limit         = 15
-                        }
-                        id                   = '12345-12345-12345-12345-12345'
-                        DisplayName          = 'My DSC Restriction'
-                    }
+                    Priority    = 1
                 }
             }
 
@@ -145,18 +158,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName = 'My DSC Restriction'
                     Ensure      = 'Absent'
                     Credential  = $Credential
+                    Id          = '12345-12345-12345-12345-12345_Limit'
+                    Priority    = 1
                     Limit       = 15
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.deviceEnrollmentLimitConfiguration'
-                            Limit         = 12
-                        }
-                        id                   = '12345-12345-12345-12345-12345'
-                        DisplayName          = 'My DSC Restriction'
-                    }
                 }
             }
 
@@ -180,16 +184,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -MockWith {
-                    return @{AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.deviceEnrollmentLimitConfiguration'
-                            Limit         = 12
-                        }
-                        id                        = '12345-12345-12345-12345-12345'
-                        DisplayName               = 'My DSC Restriction'
-                    }
                 }
             }
 

@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOAvailabilityAddressSpace'
+
 function Get-TargetResource
 {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '')]
@@ -71,15 +73,18 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Getting configuration of AvailabilityAddressSpace with Identity $Identity"
+
     if ($Global:CurrentModeIsExport)
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters `
             -SkipModuleReload $true
     }
     else
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
             -InboundParameters $PSBoundParameters
     }
 
@@ -95,7 +100,6 @@ function Get-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Getting configuration of AvailabilityAddressSpace for $($Identity)"
     $nullReturn = $PSBoundParameters
     $nullReturn.Ensure = 'Absent'
 
@@ -144,7 +148,7 @@ function Get-TargetResource
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePath       = $CertificatePath
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 TenantId              = $TenantId
                 AccessTokens          = $AccessTokens
             }
@@ -238,6 +242,9 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting configuration of AvailabilityAddressSpace with Identity $($Identity)"
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -252,21 +259,12 @@ function Set-TargetResource
 
     Write-Verbose -Message "Setting configuration of AvailabilityAddressSpace for $($Identity)"
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $AvailabilityAddressSpaceParams = [System.Collections.Hashtable]($PSBoundParameters)
-    $AvailabilityAddressSpaceParams.Remove('Ensure') | Out-Null
-    $AvailabilityAddressSpaceParams.Remove('Credential') | Out-Null
-    $AvailabilityAddressSpaceParams.Remove('ApplicationId') | Out-Null
-    $AvailabilityAddressSpaceParams.Remove('TenantId') | Out-Null
-    $AvailabilityAddressSpaceParams.Remove('CertificateThumbprint') | Out-Null
-    $AvailabilityAddressSpaceParams.Remove('CertificatePath') | Out-Null
-    $AvailabilityAddressSpaceParams.Remove('CertificatePassword') | Out-Null
-    $AvailabilityAddressSpaceParams.Remove('ManagedIdentity') | Out-Null
-    $AvailabilityAddressSpaceParams.Remove('AccessTokens') | Out-Null
+    $AvailabilityAddressSpaceParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ('Present' -eq $Ensure -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -275,8 +273,7 @@ function Set-TargetResource
         try
         {
             $AvailabilityAddressSpaceParams.Remove('Identity') | Out-Null
-            $AvailabilityAddressSpaceParams.Remove('Credentials') | Out-Null
-            Add-AvailabilityAddressSpace @AvailabilityAddressSpaceParams -ea stop
+            Add-AvailabilityAddressSpace @AvailabilityAddressSpaceParams -ErrorAction stop
         }
         catch
         {
@@ -291,7 +288,7 @@ function Set-TargetResource
         # AvailabilityAddressSpace is a special case in that it does not have a "set-AvailabilityAddressSpace" cmdlet. To change values of an existing AvailabilityAddressSpace it must be removed and then added again with add-AvailabilityAddressSpace
         try
         {
-            Remove-AvailabilityAddressSpace -identity $Identity -Confirm:$false -ea stop
+            Remove-AvailabilityAddressSpace -identity $Identity -Confirm:$false -ErrorAction Stop
         }
         catch
         {
@@ -303,8 +300,7 @@ function Set-TargetResource
         try
         {
             $AvailabilityAddressSpaceParams.Remove('Identity') | Out-Null
-            $AvailabilityAddressSpaceParams.Remove('Credentials') | Out-Null
-            Add-AvailabilityAddressSpace @AvailabilityAddressSpaceParams -ea stop
+            Add-AvailabilityAddressSpace @AvailabilityAddressSpaceParams -ErrorAction Stop
         }
         catch
         {
@@ -318,7 +314,7 @@ function Set-TargetResource
         Write-Verbose -Message "Removing AvailabilityAddressSpace $($Identity)"
         try
         {
-            Remove-AvailabilityAddressSpace -identity $Identity -Confirm:$false -ea stop
+            Remove-AvailabilityAddressSpace -Identity $Identity -Confirm:$false -ErrorAction Stop
         }
         catch
         {
@@ -401,11 +397,9 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -413,23 +407,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of AvailabilityAddressSpace for $($Identity)"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    $ValuesToCheck = $PSBoundParameters
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $($TestResult)"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -470,6 +450,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true
@@ -530,7 +511,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }

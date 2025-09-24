@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCInsiderRiskEntityList'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -110,25 +112,31 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting configuration of SCInsiderRiskEntityList for $Name"
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullResult = $PSBoundParameters
-    $nullResult.Ensure = 'Absent'
     try
     {
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
+        {
+            $null = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullResult = $PSBoundParameters
+            $nullResult.Ensure = 'Absent'
+        }
+
         $instance = Get-InsiderRiskEntityList -Identity $Name -ErrorAction Stop
 
         if ($null -eq $instance)
@@ -360,7 +368,7 @@ function Get-TargetResource
             ManagedIdentity                        = $ManagedIdentity.IsPresent
             AccessTokens                           = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -484,6 +492,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting configuration of SCInsiderRiskEntityList for $Name"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -989,9 +999,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -1001,20 +1008,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -1069,7 +1065,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         [array] $Script:exportedInstances = @()
         $availableTypes = @('HveLists', 'DomainLists', 'CriticalAssetLists', 'WindowsFilePathRegexLists', 'SensitiveTypeLists', 'SiteLists', 'KeywordLists', `
                 'CustomDomainLists', 'CustomSiteLists', 'CustomKeywordLists', 'CustomFileTypeLists', 'CustomFilePathRegexLists', `
@@ -1111,19 +1106,39 @@ function Export-TargetResource
                 AccessTokens          = $AccessTokens
             }
 
+            $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
             if ($null -ne $Results.Domains -and $Results.Domains.Length -gt 0 -and `
                 ($Results.ListType -eq 'CustomDomainLists' -or $Results.ListType -eq 'DomainLists'))
             {
-                $Results.Domains = ConvertTo-M365DSCSCInsiderRiskDomainToString -Domains $Results.Domains
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.Domains `
+                    -CIMInstanceName 'SCInsiderRiskEntityListDomain'
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                {
+                    $Results.Domains = $complexTypeStringResult
+                }
+                else
+                {
+                    $Results.Remove('Domains') | Out-Null
+                }
             }
 
             if ($null -ne $Results.Sites -and $Results.Sites.Length -gt 0 -and `
                 ($Results.ListType -eq 'CustomSiteLists' -or $Results.ListType -eq 'SiteLists'))
             {
-                $Results.Sites = ConvertTo-M365DSCSCInsiderRiskSiteToString -Sites $Results.Sites
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.Sites `
+                    -CIMInstanceName 'SCInsiderRiskEntityListSite'
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                {
+                    $Results.Sites = $complexTypeStringResult
+                }
+                else
+                {
+                    $Results.Remove('Sites') | Out-Null
+                }
             }
-
 
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
@@ -1152,53 +1167,6 @@ function Export-TargetResource
 
         return ''
     }
-}
-
-function ConvertTo-M365DSCSCInsiderRiskDomainToString
-{
-    [CmdletBinding()]
-    [OutputType([System.String])]
-    param(
-        [Parameter(Mandatory = $true)]
-        [System.Object[]]
-        $Domains
-    )
-
-    $content = '@('
-    foreach ($domain in $Domains)
-    {
-        $content += "MSFT_SCInsiderRiskEntityListDomain`r`n"
-        $content += "{`r`n"
-        $content += "    Dmn        = '$($domain.Dmn)'`r`n"
-        $content += "    isMLSubDmn = `$$($domain.isMLSubDmn)`r`n"
-        $content += "}`r`n"
-    }
-    $content += ')'
-    return $content
-}
-
-function ConvertTo-M365DSCSCInsiderRiskSiteToString
-{
-    [CmdletBinding()]
-    [OutputType([System.String])]
-    param(
-        [Parameter(Mandatory = $true)]
-        [System.Object[]]
-        $Sites
-    )
-
-    $content = '@('
-    foreach ($site in $Sites)
-    {
-        $content += "MSFT_SCInsiderRiskEntityListSite`r`n"
-        $content += "{`r`n"
-        $content += "    Url  = '$($site.Url)'`r`n"
-        $content += "    Name = '$($site.Name)'`r`n"
-        $content += "    Guid = '$($site.Guid)'`r`n"
-        $content += "}`r`n"
-    }
-    $content += ')'
-    return $content
 }
 
 function Set-M365DSCSCInsiderRiskExclusionGroup

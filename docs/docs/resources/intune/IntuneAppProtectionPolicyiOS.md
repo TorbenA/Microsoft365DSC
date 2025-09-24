@@ -7,6 +7,7 @@
 | **DisplayName** | Key | String | Display name of the iOS App Protection Policy. | |
 | **Identity** | Write | String | Identity of the iOS App Protection Policy. | |
 | **Description** | Write | String | Description of the iOS App Protection Policy. | |
+| **RoleScopeTagIds** | Write | StringArray[] | List of Scope Tags for this Entity instance. | |
 | **AllowedDataIngestionLocations** | Write | StringArray[] | Data storage locations where a user may store managed data. Inherited from managedAppProtection. | |
 | **AllowWidgetContentSync** | Write | Boolean | Indicates if content sync for widgets is allowed for iOS on App Protection Policies. | |
 | **AppActionIfAccountIsClockedOut** | Write | String | Defines a managed app behavior, either block or warn, if the user is clocked out (non-working time). | `block`, `wipe`, `warn`, `blockWhenSettingIsSupported` |
@@ -17,8 +18,7 @@
 | **DeployedAppCount** | Write | UInt32 | Count of apps to which the current policy is deployed. | |
 | **DialerRestrictionLevel** | Write | String | The classes of dialer apps that are allowed to click-to-open a phone number. | `allApps`, `managedApps`, `customApp`, `blocked` |
 | **ExemptedUniversalLinks** | Write | StringArray[] | A list of custom urls that are allowed to invocate an unmanaged app. | |
-| **GracePeriodToBlockAppsDuringOffClockHours** | Write | String | A grace period before blocking app access during off clock hours. | |
-| **IsAssigned** | Write | Boolean | Indicates if the policy is deployed to any inclusion groups or not. | |
+| **GracePeriodToBlockAppsDuringOffClockHours** | Write | String | A grace period before blocking app access during off clock hours. Must be an ISO8601 timespan format. | |
 | **managedUniversalLinks** | Write | StringArray[] | A list of custom urls that are allowed to invocate a managed app. | |
 | **MaximumAllowedDeviceThreatLevel** | Write | String | Maximum allowed device threat level, as reported by the MTD app Inherited from managedAppProtection. | `notConfigured`, `secured`, `low`, `medium`, `high` |
 | **MaximumRequiredOsVersion** | Write | String | Versions bigger than the specified version will block the managed app from accessing company data. Inherited from managedAppProtection. | |
@@ -31,8 +31,8 @@
 | **PreviousPinBlockCount** | Write | UInt32 | Requires a pin to be unique from the number specified in this property. Inherited from managedAppProtection. | |
 | **ProtectedMessagingRedirectAppType** | Write | String | Defines how app messaging redirection is protected by an App Protection Policy. Default is anyApp. Inherited from managedAppProtection. | `anyApp`, `anyManagedApp`, `specificApps`, `blocked` |
 | **ThirdPartyKeyboardsBlocked** | Write | Boolean | Defines if third party keyboards are allowed while accessing a managed app. | |
-| **PeriodOfflineBeforeAccessCheck** | Write | String | The period after which access is checked when the device is not connected to the internet. | |
-| **PeriodOnlineBeforeAccessCheck** | Write | String | The period after which access is checked when the device is connected to the internet. | |
+| **PeriodOfflineBeforeAccessCheck** | Write | String | The period after which access is checked when the device is not connected to the internet. Must be an ISO8601 timespan format. | |
+| **PeriodOnlineBeforeAccessCheck** | Write | String | The period after which access is checked when the device is connected to the internet. Must be an ISO8601 timespan format. | |
 | **AllowedInboundDataTransferSources** | Write | String | Sources from which data is allowed to be transferred. Possible values are: allApps, managedApps, none. | `allApps`, `managedApps`, `none` |
 | **AllowedOutboundDataTransferDestinations** | Write | String | Destinations to which data is allowed to be transferred. Possible values are: allApps, managedApps, none. | `allApps`, `managedApps`, `none` |
 | **OrganizationalCredentialsRequired** | Write | Boolean | Indicates whether organizational credentials are required for app use. | |
@@ -41,7 +41,7 @@
 | **DeviceComplianceRequired** | Write | Boolean | Indicates whether device compliance is required. | |
 | **ManagedBrowserToOpenLinksRequired** | Write | Boolean | Indicates whether internet links should be opened in the managed browser app, or any custom browser specified by CustomBrowserProtocol (for iOS) or CustomBrowserPackageId/CustomBrowserDisplayName (for Android). | |
 | **SaveAsBlocked** | Write | Boolean | Indicates whether users may use the Save As menu item to save a copy of protected files. | |
-| **PeriodOfflineBeforeWipeIsEnforced** | Write | String | The amount of time an app is allowed to remain disconnected from the internet before all managed data it is wiped. | |
+| **PeriodOfflineBeforeWipeIsEnforced** | Write | String | The amount of time an app is allowed to remain disconnected from the internet before all managed data it is wiped. Must be an ISO8601 timespan format. | |
 | **PinRequired** | Write | Boolean | Indicates whether an app-level pin is required. | |
 | **DisableAppPinIfDevicePinIsSet** | Write | Boolean | Indicates whether use of the app pin is required if the device pin is set. | |
 | **MaximumPinRetries** | Write | UInt32 | Maximum number of incorrect pin retry attempts before the managed app is either blocked or wiped. | |
@@ -50,7 +50,7 @@
 | **PinCharacterSet** | Write | String | Character set which may be used for an app-level pin if PinRequired is set to True. Possible values are: numeric, alphanumericAndSymbol. | `numeric`, `alphanumericAndSymbol` |
 | **AllowedDataStorageLocations** | Write | StringArray[] | Data storage locations where a user may store managed data. | |
 | **ContactSyncBlocked** | Write | Boolean | Indicates whether contacts can be synced to the user's device. | |
-| **PeriodBeforePinReset** | Write | String | TimePeriod before the all-level pin must be reset if PinRequired is set to True. | |
+| **PeriodBeforePinReset** | Write | String | TimePeriod before the all-level pin must be reset if PinRequired is set to True. Must be an ISO8601 timespan format. | |
 | **PrintBlocked** | Write | Boolean | Indicates whether printing is allowed from managed apps. | |
 | **FingerprintBlocked** | Write | Boolean | Indicates whether use of the fingerprint reader is allowed in place of a pin if PinRequired is set to True. | |
 | **FaceIdBlocked** | Write | Boolean | Indicates whether use of the FaceID is allowed in place of a pin if PinRequired is set to True. | |
@@ -64,22 +64,21 @@
 | **MinimumWipeAppVersion** | Write | String | Versions less than or equal to the specified version will wipe the managed app and the associated company data. | |
 | **AppActionIfDeviceComplianceRequired** | Write | String | Defines a managed app behavior, either block or wipe, when the device is either rooted or jailbroken, if DeviceComplianceRequired is set to true. | `block`, `wipe`, `warn` |
 | **AppActionIfMaximumPinRetriesExceeded** | Write | String | Defines a managed app behavior, either block or wipe, based on maximum number of incorrect pin retry attempts. | `block`, `wipe`, `warn` |
-| **PinRequiredInsteadOfBiometricTimeout** | Write | String | Timeout in minutes for an app pin instead of non biometrics passcode . | |
+| **PinRequiredInsteadOfBiometricTimeout** | Write | String | Timeout in minutes for an app pin instead of non biometrics passcode. Must be an ISO8601 timespan format. | |
 | **AllowedOutboundClipboardSharingExceptionLength** | Write | UInt32 | Specify the number of characters that may be cut or copied from Org data and accounts to any application. This setting overrides the AllowedOutboundClipboardSharingLevel restriction. Default value of '0' means no exception is allowed. | |
 | **NotificationRestriction** | Write | String | Specify app notification restriction. | `allow`, `blockOrganizationalData`, `block` |
 | **TargetedAppManagementLevels** | Write | StringArray[] | The intended app management levels for this policy. | `unspecified`, `unmanaged`, `mdm`, `androidEnterprise` |
 | **AppDataEncryptionType** | Write | String | Require app data to be encrypted. | `useDeviceSettings`, `afterDeviceRestart`, `whenDeviceLockedExceptOpenFiles`, `whenDeviceLocked` |
 | **ExemptedAppProtocols** | Write | StringArray[] | Apps in this list will be exempt from the policy and will be able to receive data from managed apps. | |
 | **MinimumWipeSdkVersion** | Write | String | Versions less than the specified version will block the managed app from accessing company data. | |
-| **AllowedIosDeviceModels** | Write | StringArray[] | Semicolon seperated list of device models allowed, as a string, for the managed app to work. | |
+| **AllowedIosDeviceModels** | Write | StringArray[] | Semicolon separated list of device models allowed, as a string, for the managed app to work. | |
 | **AppActionIfIosDeviceModelNotAllowed** | Write | String | Defines a managed app behavior, either block or wipe, if the specified device model is not allowed. | `block`, `wipe`, `warn` |
 | **FilterOpenInToOnlyManagedApps** | Write | Boolean | Defines if open-in operation is supported from the managed app to the filesharing locations selected. This setting only applies when AllowedOutboundDataTransferDestinations is set to ManagedApps and DisableProtectionOfManagedOutboundOpenInData is set to False. | |
-| **DisableProtectionOfManagedOutboundOpenInData** | Write | Boolean | Disable protection of data transferred to other apps through IOS OpenIn option. This setting is only allowed to be True when AllowedOutboundDataTransferDestinations is set to ManagedApps. | |
+| **DisableProtectionOfManagedOutboundOpenInData** | Write | Boolean | Disable protection of data transferred to other apps through IOS 'OpenIn' option. This setting is only allowed to be True when AllowedOutboundDataTransferDestinations is set to ManagedApps. | |
 | **ProtectInboundDataFromUnknownSources** | Write | Boolean | Protect incoming data from unknown source. This setting is only allowed to be True when AllowedInboundDataTransferSources is set to AllApps. | |
 | **CustomBrowserProtocol** | Write | String | A custom browser protocol to open weblink on iOS. | |
 | **Apps** | Write | StringArray[] | List of IDs representing the iOS apps controlled by this protection policy. | |
-| **Assignments** | Write | StringArray[] | List of IDs of the groups assigned to this iOS Protection Policy. | |
-| **ExcludedGroups** | Write | StringArray[] | List of IDs of the groups that are excluded from this iOS Protection Policy. | |
+| **Assignments** | Write | MSFT_DeviceManagementConfigurationPolicyAssignments[] | List of IDs of the groups assigned to this iOS Protection Policy. | |
 | **Ensure** | Write | String | Present ensures the policy exists, absent ensures it is removed. | `Present`, `Absent` |
 | **Credential** | Write | PSCredential | Credentials of the Intune Admin. | |
 | **ApplicationId** | Write | String | ID of the Azure Active Directory application to authenticate with. | |
@@ -88,6 +87,20 @@
 | **CertificateThumbprint** | Write | String | Thumbprint of the Azure Active Directory application's authentication certificate to use for authentication. | |
 | **ManagedIdentity** | Write | Boolean | Managed ID being used for authentication. | |
 | **AccessTokens** | Write | StringArray[] | Access token used for authentication. | |
+
+### MSFT_DeviceManagementConfigurationPolicyAssignments
+
+#### Parameters
+
+| Parameter | Attribute | DataType | Description | Allowed Values |
+| --- | --- | --- | --- | --- |
+| **dataType** | Write | String | The type of the target assignment. | `#microsoft.graph.groupAssignmentTarget`, `#microsoft.graph.allLicensedUsersAssignmentTarget`, `#microsoft.graph.allDevicesAssignmentTarget`, `#microsoft.graph.exclusionGroupAssignmentTarget`, `#microsoft.graph.configurationManagerCollectionAssignmentTarget` |
+| **deviceAndAppManagementAssignmentFilterType** | Write | String | The type of filter of the target assignment i.e. Exclude or Include. Possible values are:none, include, exclude. | `none`, `include`, `exclude` |
+| **deviceAndAppManagementAssignmentFilterId** | Write | String | The Id of the filter for the target assignment. | |
+| **deviceAndAppManagementAssignmentFilterDisplayName** | Write | String | The display name of the filter for the target assignment. | |
+| **groupId** | Write | String | The group Id that is the target of the assignment. | |
+| **groupDisplayName** | Write | String | The group Display Name that is the target of the assignment. | |
+| **collectionId** | Write | String | The collection Id that is the target of the assignment.(ConfigMgr) | |
 
 
 ## Description

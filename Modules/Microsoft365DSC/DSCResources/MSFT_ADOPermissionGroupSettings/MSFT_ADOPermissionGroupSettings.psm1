@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_ADOPermissionGroupSettings'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -49,8 +51,10 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'AzureDevOPS' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting configuration for ADO Permission Group Settings for Organization {$OrganizationName} and Group {$GroupName}"
+
+    $null = New-M365DSCConnection -Workload 'AzureDevOPS' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -76,20 +80,28 @@ function Get-TargetResource
 
             if ($null -eq $instance)
             {
-                $instance = $Script:exportedInstances | Where-Object -FilterScript { $_.principalName -eq $PrincipalName }
+                $instance = $Script:exportedInstances | Where-Object -FilterScript { $_.principalName -eq $GroupName }
             }
+
+            $Script:AllGroups = $Script:exportedInstances
+            $Script:CurrentOrganization = $OrganizationName
         }
         else
         {
-            $uri = "https://vssps.dev.azure.com/$OrganizationName/_apis/graph/groups?api-version=7.1-preview.1"
-            $allInstances = (Invoke-M365DSCAzureDevOPSWebRequest -Uri $uri).value
+            if ($null -eq $Script:AllGroups -or $Script:CurrentOrganization -ne $OrganizationName)
+            {
+                $uri = "https://vssps.dev.azure.com/$OrganizationName/_apis/graph/groups?api-version=7.1-preview.1"
+                $Script:AllGroups = (Invoke-M365DSCAzureDevOPSWebRequest -Uri $uri).value
+                $Script:CurrentOrganization = $OrganizationName
+            }
+
             if (-not [System.String]::IsNullOrEmpty($Descriptor))
             {
-                $instance = $allInstances | Where-Object -FilterScript { $_.descriptor -eq $Descriptor }
+                $instance = $Script:AllGroups | Where-Object -FilterScript { $_.descriptor -eq $Descriptor }
             }
             if ($null -eq $instance)
             {
-                $instance = $allInstances | Where-Object -FilterScript { $_.principalName -eq $PrincipalName }
+                $instance = $Script:AllGroups | Where-Object -FilterScript { $_.principalName -eq $GroupName }
             }
         }
         if ($null -eq $instance)
@@ -112,7 +124,7 @@ function Get-TargetResource
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -301,6 +313,8 @@ function Test-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration for ADO Permission Group Settings for Organization {$OrganizationName} and Group {$GroupName}"
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -314,16 +328,18 @@ function Test-TargetResource
     #endregion
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     # Evaluate Permissions
     $testResult = $true
     foreach ($permission in $AllowPermissions)
     {
-        $instance = $CurrentValues.AllowPermissions | Where-Object -FilterScript { $_.Token -eq $permission.Token -and `
-                $_.DisplayName -eq $permission.DisplayName -and `
-                $_.Bit -eq $permission.Bit -and `
-                $_.NamespaceId -eq $permission.NamespaceId }
+        $instance = $CurrentValues.AllowPermissions | Where-Object -FilterScript {
+            $_.Token -eq $permission.Token -and `
+            $_.DisplayName -eq $permission.DisplayName -and `
+            $_.Bit -eq $permission.Bit -and `
+            $_.NamespaceId -eq $permission.NamespaceId
+        }
         if ($null -eq $instance)
         {
             $testResult = $false
@@ -333,10 +349,12 @@ function Test-TargetResource
 
     foreach ($permission in $DenyPermissions)
     {
-        $instance = $CurrentValues.DenyPermissions | Where-Object -FilterScript { $_.Token -eq $permission.Token -and `
-                $_.DisplayName -eq $permission.DisplayName -and `
-                $_.Bit -eq $permission.Bit -and `
-                $_.NamespaceId -eq $permission.NamespaceId }
+        $instance = $CurrentValues.DenyPermissions | Where-Object -FilterScript {
+            $_.Token -eq $permission.Token -and `
+            $_.DisplayName -eq $permission.DisplayName -and `
+            $_.Bit -eq $permission.Bit -and `
+            $_.NamespaceId -eq $permission.NamespaceId
+        }
         if ($null -eq $instance)
         {
             $testResult = $false
@@ -396,6 +414,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'AzureDevOPS' `
         -InboundParameters $PSBoundParameters
 
@@ -414,13 +433,12 @@ function Export-TargetResource
     try
     {
         $Script:ExportMode = $true
-
         $profileValue = Invoke-M365DSCAzureDevOPSWebRequest -Uri 'https://app.vssps.visualstudio.com/_apis/profile/profiles/me?api-version=5.1'
         $accounts = Invoke-M365DSCAzureDevOPSWebRequest -Uri "https://app.vssps.visualstudio.com/_apis/accounts?api-version=7.1-preview.1&memberId=$($profileValue.id)"
 
         $i = 1
         $dscContent = ''
-        if ($accounts.count -eq 0)
+        if ($accounts.Count -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
             return ''
@@ -438,14 +456,6 @@ function Export-TargetResource
 
             $i = 1
             $dscContent = ''
-            if ($Script:exportedInstances.Length -eq 0)
-            {
-                Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
-            }
-            else
-            {
-                Write-M365DSCHost -Message "`r`n" -DeferWrite
-            }
             foreach ($config in $Script:exportedInstances)
             {
                 $displayedKey = $config.principalName
@@ -471,12 +481,34 @@ function Export-TargetResource
                     $Results = Get-TargetResource @Params
                     if ($results.AllowPermissions.Length -gt 0)
                     {
-                        $Results.AllowPermissions = Get-M365DSCADOPermissionsAsString $Results.AllowPermissions
+                        $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                            -ComplexObject $Results.AllowPermissions `
+                            -CIMInstanceName 'ADOPermission' `
+                            -IsArray
+                        if (-not [String]::IsNullOrEmpty($complexTypeStringResult))
+                        {
+                            $Results.AllowPermissions = $complexTypeStringResult
+                        }
+                        else
+                        {
+                            $Results.Remove('AllowPermissions') | Out-Null
+                        }
                     }
 
                     if ($results.DenyPermissions.Length -gt 0)
                     {
-                        $Results.DenyPermissions = Get-M365DSCADOPermissionsAsString $Results.DenyPermissions
+                        $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                            -ComplexObject $Results.DenyPermissions `
+                            -CIMInstanceName 'ADOPermission' `
+                            -IsArray
+                        if (-not [String]::IsNullOrEmpty($complexTypeStringResult))
+                        {
+                            $Results.DenyPermissions = $complexTypeStringResult
+                        }
+                        else
+                        {
+                            $Results.Remove('DenyPermissions') | Out-Null
+                        }
                     }
 
                     $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
@@ -531,24 +563,37 @@ function Get-M365DSCADOGroupPermission
 
     try
     {
-        $uri = "https://vssps.dev.azure.com/$($OrganizationName)/_apis/graph/groups?api-version=7.1-preview.1"
-        $groupInfo = Invoke-M365DSCAzureDevOPSWebRequest -Uri $uri
-        $mygroup = $groupInfo.value | Where-Object -FilterScript { $_.principalName -eq $GroupName }
+        $mygroup = $Script:AllGroups | Where-Object -FilterScript { $_.principalName -eq $GroupName }
 
         $uri = "https://vssps.dev.azure.com/$($OrganizationName)/_apis/identities?subjectDescriptors=$($mygroup.descriptor)&api-version=7.2-preview.1"
         $info = Invoke-M365DSCAzureDevOPSWebRequest -Uri $uri
         $descriptor = $info.value.descriptor
 
-        $uri = "https://dev.azure.com/$($OrganizationName)/_apis/securitynamespaces?api-version=7.1-preview.1"
-        $responseSecurity = Invoke-M365DSCAzureDevOPSWebRequest -Uri $uri
-        $securityNamespaces = $responseSecurity.Value
-
-        foreach ($namespace in $securityNamespaces)
+        if ($null -eq $Script:AllSecurityNamespaces -or $Script:CurrentOrganization -ne $OrganizationName)
         {
-            $uri = "https://dev.azure.com/$($OrganizationName)/_apis/accesscontrollists/$($namespace.namespaceId)?api-version=7.2-preview.1"
+            $uri = "https://dev.azure.com/$($OrganizationName)/_apis/securitynamespaces?api-version=7.1-preview.1"
             $response = Invoke-M365DSCAzureDevOPSWebRequest -Uri $uri
+            $Script:AllSecurityNamespaces = $response.Value
+            $Script:CurrentOrganization = $OrganizationName
+        }
 
-            foreach ($entry in $response.value)
+        if ($null -eq $Script:AllAccessControlLists -or $Script:CurrentOrganization -ne $OrganizationName)
+        {
+            $Script:AllAccessControlLists = [System.Collections.Generic.Dictionary[System.String,System.Object[]]]::new(100)
+            foreach ($namespace in $Script:AllSecurityNamespaces)
+            {
+                $uri = "https://dev.azure.com/$($OrganizationName)/_apis/accesscontrollists/$($namespace.namespaceId)?api-version=7.2-preview.1"
+                $response = Invoke-M365DSCAzureDevOPSWebRequest -Uri $uri
+                if ($response.value.Count -gt 0)
+                {
+                    $Script:AllAccessControlLists.Add($namespace.namespaceId, @($response.value))
+                }
+            }
+        }
+
+        foreach ($namespace in $Script:AllSecurityNamespaces)
+        {
+            foreach ($entry in $Script:AllAccessControlLists[$namespace.namespaceId])
             {
                 $token = $entry.token
                 foreach ($ace in $entry.acesDictionary)
@@ -638,31 +683,6 @@ function Get-M365DSCADOGroupPermission
         throw $_
     }
     return $results
-}
-
-function Get-M365DSCADOPermissionsAsString
-{
-    [CmdletBinding()]
-    [OutputType([System.String])]
-    param(
-        [Parameter(Mandatory = $true)]
-        [System.Collections.ArrayList]
-        $Permissions
-    )
-
-    $StringContent = [System.Text.StringBuilder]::new()
-    $StringContent.Append('@(') | Out-Null
-    foreach ($permission in $Permissions)
-    {
-        $StringContent.Append("            MSFT_ADOPermission { `r`n") | Out-Null
-        $StringContent.Append("                NamespaceId = '$($permission.NamespaceId)'`r`n") | Out-Null
-        $StringContent.Append("                DisplayName = '$($permission.DisplayName.Replace("'", "''"))'`r`n") | Out-Null
-        $StringContent.Append("                Bit         = '$($permission.Bit)'`r`n") | Out-Null
-        $StringContent.Append("                Token       = '$($permission.Token)'`r`n") | Out-Null
-        $StringContent.Append("            }`r`n") | Out-Null
-    }
-    $StringContent.Append('        )') | Out-Null
-    return $StringContent.ToString()
 }
 
 Export-ModuleMember -Function *-TargetResource

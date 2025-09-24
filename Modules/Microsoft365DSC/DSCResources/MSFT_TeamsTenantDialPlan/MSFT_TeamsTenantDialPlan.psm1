@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_TeamsTenantDialPlan'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -17,14 +19,6 @@ function Get-TargetResource
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $NormalizationRules,
-
-        [Parameter()]
-        [System.String]
-        $ExternalAccessPrefix,
-
-        [Parameter()]
-        [System.Boolean]
-        $OptimizeDeviceDialing = $false,
 
         [Parameter()]
         [ValidateLength(1, 49)]
@@ -63,54 +57,62 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting configuration of Teams Tenant Dial Plan'
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = $PSBoundParameters
-    $nullReturn.Ensure = 'Absent'
     try
     {
-        $config = Get-CsTenantDialPlan -Identity $Identity -ErrorAction 'SilentlyContinue'
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Identity -ne $Identity)
+        {
+            $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullReturn = $PSBoundParameters
+            $nullReturn.Ensure = 'Absent'
+
+            $config = Get-CsTenantDialPlan -Identity $Identity -ErrorAction 'SilentlyContinue'
+        }
+        else
+        {
+            $config = $Script:exportedInstance
+        }
 
         if ($null -eq $config)
         {
             Write-Verbose -Message "Could not find existing Dial Plan {$Identity}"
             return $nullReturn
         }
-        else
+
+        Write-Verbose -Message "Found existing Dial Plan {$Identity}"
+        $rules = @()
+        if ($config.NormalizationRules.Count -gt 0)
         {
-            Write-Verbose -Message "Found existing Dial Plan {$Identity}"
-            $rules = @()
-            if ($config.NormalizationRules.Count -gt 0)
-            {
-                $rules = Get-M365DSCNormalizationRules -Rules $config.NormalizationRules
-            }
-            $result = @{
-                Identity              = $Identity.Replace('Tag:', '')
-                Description           = $config.Description
-                NormalizationRules    = $rules
-                SimpleName            = $config.SimpleName
-                Credential            = $Credential
-                Ensure                = 'Present'
-                ApplicationId         = $ApplicationId
-                TenantId              = $TenantId
-                CertificateThumbprint = $CertificateThumbprint
-                ManagedIdentity       = $ManagedIdentity.IsPresent
-                AccessTokens          = $AccessTokens
-            }
+            $rules = Get-M365DSCNormalizationRules -Rules $config.NormalizationRules
         }
+
+        $result = @{
+            Identity              = $Identity.Replace('Tag:', '')
+            Description           = $config.Description
+            NormalizationRules    = $rules
+            SimpleName            = $config.SimpleName
+            Credential            = $Credential
+            Ensure                = 'Present'
+            ApplicationId         = $ApplicationId
+            TenantId              = $TenantId
+            CertificateThumbprint = $CertificateThumbprint
+            ManagedIdentity       = $ManagedIdentity.IsPresent
+            AccessTokens          = $AccessTokens
+        }
+
         return $result
     }
     catch
@@ -143,14 +145,6 @@ function Set-TargetResource
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $NormalizationRules,
-
-        [Parameter()]
-        [System.String]
-        $ExternalAccessPrefix,
-
-        [Parameter()]
-        [System.Boolean]
-        $OptimizeDeviceDialing = $false,
 
         [Parameter()]
         [ValidateLength(1, 49)]
@@ -203,18 +197,6 @@ function Set-TargetResource
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
     $PSBoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    if ($PSBoundParameters.ContainsKey('OptimizeDeviceDialing'))
-    {
-        $PSBoundParameters.Remove('OptimizeDeviceDialing') | Out-Null
-
-        Write-Verbose -Message 'Parameter OptimizeDeviceDialing has been deprecated and must not be used, removing it from PSBoundParameters.'
-    }
-    if ($PSBoundParameters.ContainsKey('ExternalAccessPrefix'))
-    {
-        $PSBoundParameters.Remove('ExternalAccessPrefix') | Out-Null
-
-        Write-Verbose -Message 'Parameter ExternalAccessPrefix has been deprecated and must not be used, removing it from PSBoundParameters.'
-    }
 
     if ($Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
     {
@@ -340,14 +322,6 @@ function Test-TargetResource
         $NormalizationRules,
 
         [Parameter()]
-        [System.String]
-        $ExternalAccessPrefix,
-
-        [Parameter()]
-        [System.Boolean]
-        $OptimizeDeviceDialing = $false,
-
-        [Parameter()]
         [ValidateLength(1, 49)]
         [System.String]
         $SimpleName,
@@ -395,18 +369,6 @@ function Test-TargetResource
     Write-Verbose -Message 'Testing configuration of Teams Guest Calling'
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    if ($PSBoundParameters.ContainsKey('OptimizeDeviceDialing'))
-    {
-        $PSBoundParameters.Remove('OptimizeDeviceDialing') | Out-Null
-
-        Write-Verbose -Message 'Parameter OptimizeDeviceDialing has been deprecated and must not be used, removing it from PSBoundParameters.'
-    }
-    if ($PSBoundParameters.ContainsKey('ExternalAccessPrefix'))
-    {
-        $PSBoundParameters.Remove('ExternalAccessPrefix') | Out-Null
-
-        Write-Verbose -Message 'Parameter ExternalAccessPrefix has been deprecated and must not be used, removing it from PSBoundParameters.'
-    }
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
@@ -484,6 +446,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 
@@ -523,6 +486,8 @@ function Export-TargetResource
                 ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
+
+            $Script:exportedInstance = $plan
             $Results = Get-TargetResource @Params
 
             if ($null -ne $Results.NormalizationRules)

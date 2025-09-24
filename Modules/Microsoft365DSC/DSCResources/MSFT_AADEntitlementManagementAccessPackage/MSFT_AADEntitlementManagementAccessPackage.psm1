@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADEntitlementManagementAccessPackage'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -80,53 +82,64 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of AzureAD Entitlement Management Access Package for DisplayName {$DisplayName}"
+
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters
-
-        #Ensure the proper dependencies are installed in the current environment.
-        Confirm-M365DSCDependencies
-
-        #region Telemetry
-        $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-        $CommandName = $MyInvocation.MyCommand
-        $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-            -CommandName $CommandName `
-            -Parameters $PSBoundParameters
-        Add-M365DSCTelemetryEvent -Data $data
-        #endregion
-
-        $nullResult = $PSBoundParameters
-        $nullResult.Ensure = 'Absent'
-        $getValue = $null
-
-        if (-not [System.String]::IsNullOrEmpty($id))
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Id -ne $Id)
         {
-            $getValue = Get-MgBetaEntitlementManagementAccessPackage -AccessPackageId $id `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullResult = $PSBoundParameters
+            $nullResult.Ensure = 'Absent'
+            $getValue = $null
+
+            if (-not [System.String]::IsNullOrEmpty($id))
+            {
+                $getValue = Get-MgBetaEntitlementManagementAccessPackage -AccessPackageId $id `
+                    -ExpandProperty "accessPackageResourceRoleScopes(`$expand=accessPackageResourceRole,accessPackageResourceScope)" `
+                    -ErrorAction SilentlyContinue
+            }
+
+            if ($null -eq $getValue)
+            {
+                if (-not [System.String]::IsNullOrEmpty($id))
+                {
+                    Write-Verbose -Message "Could not find an Azure AD Entitlement Management Access Package with Id {$id}"
+                }
+
+                if (-Not [string]::IsNullOrEmpty($DisplayName))
+                {
+                    $getValue = Get-MgBetaEntitlementManagementAccessPackage `
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
+                        -ExpandProperty "accessPackageResourceRoleScopes(`$expand=accessPackageResourceRole,accessPackageResourceScope)" `
+                        -ErrorAction SilentlyContinue
+                }
+            }
+        }
+        else
+        {
+            $getValue = Get-MgBetaEntitlementManagementAccessPackage -AccessPackageId $Id `
                 -ExpandProperty "accessPackageResourceRoleScopes(`$expand=accessPackageResourceRole,accessPackageResourceScope)" `
                 -ErrorAction SilentlyContinue
         }
 
         if ($null -eq $getValue)
         {
-            if (-not [System.String]::IsNullOrEmpty($id))
-            {
-                Write-Verbose -Message "Nothing with id {$id} was found"
-            }
-
-            if (-Not [string]::IsNullOrEmpty($DisplayName))
-            {
-                $getValue = Get-MgBetaEntitlementManagementAccessPackage `
-                    -Filter "displayName eq '$DisplayName'" `
-                    -ExpandProperty "accessPackageResourceRoleScopes(`$expand=accessPackageResourceRole,accessPackageResourceScope)" `
-                    -ErrorAction SilentlyContinue
-            }
-        }
-
-        if ($null -eq $getValue)
-        {
-            Write-Verbose -Message "Nothing with DisplayName {$DisplayName} was found"
+            Write-Verbose -Message "No Azure AD Entitlement Management Access Package with DisplayName {$DisplayName} was found"
             return $nullResult
         }
 
@@ -156,7 +169,7 @@ function Get-TargetResource
         [Array]$query = Get-MgBetaEntitlementManagementAccessPackageIncompatibleWith -AccessPackageId $getValue.id
         if ($query.count -gt 0)
         {
-            $getIncompatibleAccessPackages += $query.id
+            $getAccessPackagesIncompatibleWith += $query.id
         }
 
         $getIncompatibleGroups = @()
@@ -183,11 +196,11 @@ function Get-TargetResource
             TenantId                        = $TenantId
             ApplicationSecret               = $ApplicationSecret
             CertificateThumbprint           = $CertificateThumbprint
-            Managedidentity                 = $ManagedIdentity.IsPresent
+            ManagedIdentity                 = $ManagedIdentity.IsPresent
             AccessTokens                    = $AccessTokens
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -282,15 +295,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    try
-    {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters
-    }
-    catch
-    {
-        Write-Verbose -Message $_
-    }
+    Write-Verbose -Message "Setting configuration of AzureAD Entitlement Management Access Package for DisplayName {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -306,26 +311,17 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $PSBoundParameters.Remove('Ensure') | Out-Null
-    $PSBoundParameters.Remove('Credential') | Out-Null
-    $PSBoundParameters.Remove('ApplicationId') | Out-Null
-    $PSBoundParameters.Remove('ApplicationSecret') | Out-Null
-    $PSBoundParameters.Remove('TenantId') | Out-Null
-    $PSBoundParameters.Remove('CertificateThumbprint') | Out-Null
-    $PSBoundParameters.Remove('ManagedIdentity') | Out-Null
-    $PSBoundParameters.Remove('AccessTokens') | Out-Null
-
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating access package {$DisplayName}"
 
         #region basic information
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         $ObjectGuid = [System.Guid]::empty
         if (-not [System.Guid]::TryParse($CreateParameters.CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
         {
-            $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($CreateParameters.CatalogId)'"
+            $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($CreateParameters.CatalogId -replace "'", "''")'"
             if ($catalogInstance)
             {
                 $CreateParameters.CatalogId = $catalogInstance.Id
@@ -333,7 +329,6 @@ function Set-TargetResource
         }
 
         $CreateParameters.Remove('Id') | Out-Null
-        $CreateParameters.Remove('Verbose') | Out-Null
         $CreateParameters.Remove('AccessPackageResourceRoleScopes') | Out-Null
         $CreateParameters.Remove('IncompatibleAccessPackages') | Out-Null
         $CreateParameters.Remove('AccessPackagesIncompatibleWith') | Out-Null
@@ -380,13 +375,13 @@ function Set-TargetResource
             Write-Verbose -Message "Adding roleScope {$originId`:$roleName} to access package with Id {$($accessPackage.Id)}"
 
             $resourceScope = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResource `
-                -AccessPackageCatalogId $CatalogId `
+                -AccessPackageCatalogId $CreateParameters.CatalogId `
                 -Filter "originId eq '$originId'" `
                 -ExpandProperty 'accessPackageResourceScopes'
 
             $resourceRole = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourceRole `
                 -AccessPackageCatalogId $CatalogId `
-                -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and displayname eq '$roleName' and originSystem eq '$($resourceScope.originSystem)')" `
+                -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and DisplayName eq '$($roleName -replace "'", "''")' and originSystem eq '$($resourceScope.originSystem)')" `
                 -ExpandProperty 'accessPackageResource'
 
             $isValidRoleScope = $true
@@ -436,12 +431,12 @@ function Set-TargetResource
         Write-Verbose -Message "Updating access package with id {$id} and displayName {$DisplayName}"
 
         #region basic information
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         $ObjectGuid = [System.Guid]::empty
         if (-not [System.Guid]::TryParse($CreateParameters.CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
         {
-            $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($UpdateParameters.CatalogId)'"
+            $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($UpdateParameters.CatalogId -replace "'", "''")'"
             if ($catalogInstance)
             {
                 $UpdateParameters.CatalogId = $catalogInstance.Id
@@ -449,7 +444,6 @@ function Set-TargetResource
         }
 
         $UpdateParameters.Remove('Id') | Out-Null
-        $UpdateParameters.Remove('Verbose') | Out-Null
         $UpdateParameters.Remove('AccessPackageResourceRoleScopes') | Out-Null
         $UpdateParameters.Remove('IncompatibleAccessPackages') | Out-Null
         $UpdateParameters.Remove('AccessPackagesIncompatibleWith') | Out-Null
@@ -546,13 +540,13 @@ function Set-TargetResource
                 Write-Verbose -Message "Adding roleScope {$originId`:$roleName} to access package with Id {$($currentInstance.Id)}"
 
                 $resourceScope = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResource `
-                    -AccessPackageCatalogId $CatalogId `
+                    -AccessPackageCatalogId $UpdateParameters.CatalogId `
                     -Filter "originId eq '$originId'" `
                     -ExpandProperty 'accessPackageResourceScopes'
 
                 $resourceRole = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourceRole `
                     -AccessPackageCatalogId $CatalogId `
-                    -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and displayname eq '$roleName' and originSystem eq '$($resourceScope.originSystem)')" `
+                    -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and DisplayName eq '$($roleName -replace "'", "''")' and originSystem eq '$($resourceScope.originSystem)')" `
                     -ExpandProperty 'accessPackageResource'
 
                 $isValidRoleScope = $true
@@ -607,13 +601,13 @@ function Set-TargetResource
                     Write-Verbose -Message "Updating role {$roleName} from access package rolescope with Id {$($accessPackageResourceRoleScope.id)}"
 
                     $resourceScope = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResource `
-                        -AccessPackageCatalogId $CatalogId `
+                        -AccessPackageCatalogId $UpdateParameters.CatalogId `
                         -Filter "originId eq '$originId'" `
                         -ExpandProperty 'accessPackageResourceScopes'
 
                     $resourceRole = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourceRole `
                         -AccessPackageCatalogId $CatalogId `
-                        -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and displayname eq '$roleName' and originSystem eq '$($resourceScope.originSystem)')" `
+                        -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and DisplayName eq '$($roleName -replace "'", "''")' and originSystem eq '$($resourceScope.originSystem)')" `
                         -ExpandProperty 'accessPackageResource'
 
                     $isValidRoleScope = $true
@@ -776,9 +770,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -788,72 +779,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of {$DisplayName}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
-
-    if ($CurrentValues.Ensure -eq 'Absent' -and $Ensure -eq 'Absent')
-    {
-        Write-Verbose -Message "Test-TargetResource returned $true"
-        return $true
-    }
-    $testResult = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($source.getType().Name -like '*CimInstance*')
-        {
-            $source = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject $source
-            foreach ($s in [Array]$source)
-            {
-                $s.remove('Id')
-            }
-
-            if ($target.getType().Name -like '*CimInstance*')
-            {
-                $target = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject $target
-            }
-            foreach ($t in [Array]$target)
-            {
-                $t.remove('Id')
-            }
-
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-Not $testResult)
-            {
-                $testResult = $false
-                break
-            }
-
-            $ValuesToCheck.Remove($key) | Out-Null
-
-        }
-    }
-
-    $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck.Remove('AccessPackagesIncompatibleWith') | Out-Null #read-only
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    if ($testResult)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -947,10 +875,11 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
+            $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
             if ($null -ne $Results.AccessPackageResourceRoleScopes)
             {

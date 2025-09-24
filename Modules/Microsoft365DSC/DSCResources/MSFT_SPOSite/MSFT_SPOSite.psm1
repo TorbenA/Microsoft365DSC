@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SPOSite'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -157,13 +159,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration for site collection $Url"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Url -ne $Url)
         {
-            Write-Verbose -Message "Getting configuration for site collection $Url"
-
-            $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+            $null = New-M365DSCConnection -Workload 'PnP' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -195,14 +197,21 @@ function Get-TargetResource
             $site = $Script:exportedInstance
         }
 
-        $web = Get-PnPWeb -Includes RegionalSettings.TimeZone
+        if ($null -eq $Script:PnPWeb)
+        {
+            $Script:PnPWeb = Get-PnPWeb -Includes RegionalSettings.TimeZone
+        }
 
         $CurrentHubUrl = $null
         if ($null -ne $site.HubSiteId -and $site.HubSiteId -ne '00000000-0000-0000-0000-000000000000')
         {
             $hubId = $site.HubSiteId
             Write-Verbose -Message "Site {$Url} is associated with HubSite {$hubId}"
-            $hubSite = Get-PnPHubSite | Where-Object -FilterScript { $_.ID -eq $hubId }
+            if ($null -eq $Script:PnPHubSites)
+            {
+                $Script:PnPHubSites = Get-PnPHubSite
+            }
+            $hubSite = $Script:PnPHubSites | Where-Object -FilterScript { $_.ID -eq $hubId }
 
             if ($null -ne $hubSite)
             {
@@ -237,7 +246,7 @@ function Get-TargetResource
             Url                                         = $Url
             Title                                       = $site.Title
             Template                                    = $site.Template
-            TimeZoneId                                  = $web.RegionalSettings.TimeZone.Id
+            TimeZoneId                                  = $Script:PnPWeb.RegionalSettings.TimeZone.Id
             HubUrl                                      = $CurrentHubUrl
             Classification                              = $site.Classification
             DisableFlows                                = $DisableFlowValue
@@ -269,7 +278,7 @@ function Get-TargetResource
             CertificatePassword                         = $CertificatePassword
             CertificatePath                             = $CertificatePath
             CertificateThumbprint                       = $CertificateThumbprint
-            Managedidentity                             = $ManagedIdentity.IsPresent
+            ManagedIdentity                             = $ManagedIdentity.IsPresent
             AccessTokens                                = $AccessTokens
         }
     }
@@ -457,12 +466,8 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
-        -InboundParameters $PSBoundParameters
-
     $CurrentValues = Get-TargetResource @PSBoundParameters
 
-    $context = Get-PnPContext
     if ($Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Site {$Url} doesn't exist. Creating it."
@@ -611,7 +616,7 @@ function Set-TargetResource
 
         if ($UpdateParams)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+            $null = New-M365DSCConnection -Workload 'PnP' `
                 -InboundParameters $PSBoundParameters `
                 -Url $Url
             Write-Verbose -Message "Updating props via Set-PNPSite on $($Url) with parameters:`r`n$(Convert-M365DscHashtableToString -Hashtable $UpdateParams)"
@@ -624,7 +629,7 @@ function Set-TargetResource
                 $PSBoundParameters.LocaleId -ne $site.Lcid)
         {
             Write-Verbose -Message "Updating LocaleId of RootWeb to $($PSBoundParameters.LocaleId)"
-            $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+            $null = New-M365DSCConnection -Workload 'PnP' `
                 -InboundParameters $PSBoundParameters `
                 -Url $Url
 
@@ -834,11 +839,9 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -846,22 +849,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration for site collection $Url"
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    $ValuesToCheck = $PSBoundParameters
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource

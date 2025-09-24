@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCLabelPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -110,12 +112,12 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of Sensitivity Label Policy for $Name"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            Write-Verbose -Message "Getting configuration of Sensitivity Label Policy for $Name"
-
             if ($PSBoundParameters.ContainsKey('Labels') -and `
                 ($PSBoundParameters.ContainsKey('AddLabels') -or $PSBoundParameters.ContainsKey('RemoveLabels')))
             {
@@ -132,7 +134,7 @@ function Get-TargetResource
                 }
             }
 
-            $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+            $null = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -381,16 +383,13 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-        -InboundParameters $PSBoundParameters
-
     $CurrentPolicy = Get-TargetResource @PSBoundParameters
 
     if (('Present' -eq $Ensure) -and ('Absent' -eq $CurrentPolicy.Ensure))
     {
         Write-Verbose "Creating new Sensitivity label policy '$Name'."
 
-        $CreationParams = ([Hashtable]$PSBoundParameters).Clone()
+        $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         if ($PSBoundParameters.ContainsKey('AdvancedSettings'))
         {
@@ -405,8 +404,7 @@ function Set-TargetResource
         $CreationParams.Remove('AddLabels') | Out-Null
         $CreationParams.Remove('RemoveLabels') | Out-Null
 
-        #Remove parameters not used in New-LabelPolicy
-        $CreationParams.Remove('Ensure') | Out-Null
+        # Remove parameters not used in New-LabelPolicy
         $CreationParams.Remove('AddExchangeLocation') | Out-Null
         $CreationParams.Remove('AddExchangeLocationException') | Out-Null
         $CreationParams.Remove('AddModernGroupLocation') | Out-Null
@@ -415,17 +413,6 @@ function Set-TargetResource
         $CreationParams.Remove('RemoveExchangeLocationException') | Out-Null
         $CreationParams.Remove('RemoveModernGroupLocation') | Out-Null
         $CreationParams.Remove('RemoveModernGroupLocationException') | Out-Null
-
-        # Remove authentication parameters
-        $CreationParams.Remove('Credential') | Out-Null
-        $CreationParams.Remove('ApplicationId') | Out-Null
-        $CreationParams.Remove('TenantId') | Out-Null
-        $CreationParams.Remove('CertificatePath') | Out-Null
-        $CreationParams.Remove('CertificatePassword') | Out-Null
-        $CreationParams.Remove('CertificateThumbprint') | Out-Null
-        $CreationParams.Remove('ManagedIdentity') | Out-Null
-        $CreationParams.Remove('ApplicationSecret') | Out-Null
-        $CreationParams.Remove('AccessTokens') | Out-Null
 
         try
         {
@@ -439,7 +426,7 @@ function Set-TargetResource
         {
             Start-Sleep 5
             Write-Verbose "Updating Sensitivity label policy '$Name' settings."
-            $SetParams = ([Hashtable]$PSBoundParameters).Clone()
+            $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
             if ($PSBoundParameters.ContainsKey('AdvancedSettings'))
             {
@@ -448,7 +435,6 @@ function Set-TargetResource
             }
 
             #Remove unused parameters for Set-Label cmdlet
-            $SetParams.Remove('Ensure') | Out-Null
             $SetParams.Remove('Name') | Out-Null
             $SetParams.Remove('ExchangeLocationException') | Out-Null
             $SetParams.Remove('ExchangeLocation') | Out-Null
@@ -459,17 +445,6 @@ function Set-TargetResource
             $SetParams.Remove('Labels') | Out-Null
             $SetParams.Remove('AddLabels') | Out-Null
             $SetParams.Remove('RemoveLabels') | Out-Null
-
-            # Remove authentication parameters
-            $SetParams.Remove('Credential') | Out-Null
-            $SetParams.Remove('ApplicationId') | Out-Null
-            $SetParams.Remove('TenantId') | Out-Null
-            $SetParams.Remove('CertificatePath') | Out-Null
-            $SetParams.Remove('CertificatePassword') | Out-Null
-            $SetParams.Remove('CertificateThumbprint') | Out-Null
-            $SetParams.Remove('ManagedIdentity') | Out-Null
-            $SetParams.Remove('ApplicationSecret') | Out-Null
-            $SetParams.Remove('AccessTokens') | Out-Null
 
             Set-LabelPolicy @SetParams -Identity $Name
         }
@@ -482,7 +457,7 @@ function Set-TargetResource
     {
         Write-Verbose "Updating existing Sensitivity label policy '$Name'."
 
-        $SetParams = ([Hashtable]$PSBoundParameters).Clone()
+        $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         if ($PSBoundParameters.ContainsKey('AdvancedSettings'))
         {
@@ -525,23 +500,11 @@ function Set-TargetResource
         }
 
         #Remove unused parameters for Set-Label cmdlet
-        $SetParams.Remove('Ensure') | Out-Null
         $SetParams.Remove('Name') | Out-Null
         $SetParams.Remove('ExchangeLocationException') | Out-Null
         $SetParams.Remove('ExchangeLocation') | Out-Null
         $SetParams.Remove('ModernGroupLocation') | Out-Null
         $SetParams.Remove('ModernGroupLocationException') | Out-Null
-
-        # Remove authentication parameters
-        $SetParams.Remove('Credential') | Out-Null
-        $SetParams.Remove('ApplicationId') | Out-Null
-        $SetParams.Remove('TenantId') | Out-Null
-        $SetParams.Remove('CertificatePath') | Out-Null
-        $SetParams.Remove('CertificatePassword') | Out-Null
-        $SetParams.Remove('CertificateThumbprint') | Out-Null
-        $SetParams.Remove('ManagedIdentity') | Out-Null
-        $SetParams.Remove('ApplicationSecret') | Out-Null
-        $SetParams.Remove('AccessTokens') | Out-Null
 
         try
         {
@@ -679,11 +642,12 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -858,6 +822,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
         -InboundParameters $PSBoundParameters
 
@@ -1063,6 +1028,7 @@ function Test-AdvancedSettings
         [Parameter (Mandatory = $true)]
         $CurrentProperty
     )
+
     $foundSettings = $true
     foreach ($desiredSetting in $DesiredProperty)
     {
@@ -1086,47 +1052,23 @@ function Test-AdvancedSettings
     return $foundSettings
 }
 
-function ConvertTo-AdvancedSettingsString
-{
-    [CmdletBinding()]
-    [OutputType([System.String])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        $AdvancedSettings
-    )
-
-    $StringContent = "@(`r`n"
-    foreach ($advancedSetting in $AdvancedSettings)
-    {
-        $StringContent += "                MSFT_SCLabelSetting`r`n"
-        $StringContent += "                {`r`n"
-        $StringContent += "                    Key   = '$($advancedSetting.Key.Replace("'", "''"))'`r`n"
-        $StringContent += "                    Value = '$($advancedSetting.Value.Replace("'", "''"))'`r`n"
-        $StringContent += "                }`r`n"
-    }
-    $StringContent += '            )'
-    return $StringContent
-}
-
 function Convert-ArrayList
 {
     [CmdletBinding()]
     [OutputType([System.Collections.ArrayList])]
     param
     (
-        [Parameter ()]
+        [Parameter()]
         $CurrentProperty
     )
 
-    [System.Collections.ArrayList]$currentItems = @()
+    $currentItems = [System.Collections.ArrayList]::new()
     foreach ($currentProp in $CurrentProperty)
     {
         $currentItems.Add($currentProp.Name) | Out-Null
     }
 
     return $currentItems
-
 }
 
 function New-PolicyData
@@ -1135,20 +1077,20 @@ function New-PolicyData
     [OutputType([System.Collections.ArrayList])]
     param
     (
-        [Parameter ()]
+        [Parameter()]
         $configData,
 
-        [Parameter ()]
+        [Parameter()]
         $currentData,
 
-        [Parameter ()]
+        [Parameter()]
         $removedData,
 
-        [Parameter ()]
+        [Parameter()]
         $additionalData
     )
 
-    [System.Collections.ArrayList]$desiredData = @()
+    $desiredData = [System.Collections.ArrayList]::new()
     foreach ($currItem in $currentData)
     {
         if (!$desiredData.Contains($currItem))

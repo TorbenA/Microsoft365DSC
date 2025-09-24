@@ -39,8 +39,55 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-MgBetaDeviceManagementDeviceConfiguration -MockWith {
             }
 
-            Mock -CommandName Get-MgBetaDeviceManagementDeviceCompliancePolicyAssignment -MockWith {
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
+                return  @{
+                    Id                                          = 'FakeStringValue'
+                    DisplayName                                 = 'FakeStringValue'
+                    Description                                 = 'FakeStringValue'
+                    AdditionalProperties                        = @{
+                        '@odata.type'                           = '#microsoft.graph.androidWorkProfileVpnConfiguration'
+                        authenticationMethod                    = 'usernameAndPassword'
+                        connectionName                          = 'FakeStringValue'
+                        connectionType                          = 'ciscoAnyConnect'
+                        proxyServer                             = @(
+                            @{
+                                port                            = 80
+                                automaticConfigurationScriptUrl = 'https://www.test.com'
+                                address                         = 'proxy.test.com'
+                            }
+                        )
+                        servers                                  = @(
+                            @{
+                                isDefaultServer                 = $True
+                                description                     = 'server'
+                                address                         = 'vpn.test.com'
+                            }
+                        )
+                        customData                              = @(
+                            @{
+                                key                             = 'FakeStringValue'
+                                value                           = 'FakeStringValue'
+                            }
+                        )
+                        customKeyValueData                      = @(
+                            @{
+                                name                            = 'FakeStringValue'
+                                value                           = 'FakeStringValue'
+                            }
+                        )
+                        targetedMobileApps                    = @(
+                            @{
+                                name                            = 'FakeStringValue'
+                                publisher                       = 'FakeStringValue'
+                                appStoreUrl                     = 'FakeStringValue'
+                                appId                           = 'FakeStringValue'
+                            }
+                        )
+                    }
+                }
+            }
 
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceCompliancePolicyAssignment -MockWith {
                 return @()
             }
             Mock -CommandName Update-DeviceConfigurationPolicyAssignment -MockWith {
@@ -78,7 +125,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             description                        = 'server'
                             address                            = 'vpn.test.com'
                         } -ClientOnly)
-                    )                                                                                         
+                    )
                     customData                                 = [CimInstance[]]@(
                         (New-CimInstance `
                         -ClassName MSFT_CustomData `
@@ -86,7 +133,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             key                                = 'FakeStringValue'
                             value                              = 'FakeStringValue'
                         } -ClientOnly)
-                    )     
+                    )
                     customKeyValueData                         = [CimInstance[]]@(
                         (New-CimInstance `
                         -ClassName MSFT_CustomData `
@@ -94,7 +141,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             name                               = 'FakeStringValue'
                             value                              = 'FakeStringValue'
                         } -ClientOnly)
-                    )                                                                                                                                                                                    
+                    )
                      targetedMobileApps                      = [CimInstance[]]@(
                         (New-CimInstance `
                         -ClassName MSFT_targetedMobileApps `
@@ -154,7 +201,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             description                       = 'server'
                             address                           = 'vpn.test.com'
                         } -ClientOnly)
-                    )                                                                                        
+                    )
                     customData                                = [CimInstance[]]@(
                         (New-CimInstance `
                         -ClassName MSFT_CustomData `
@@ -162,15 +209,15 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                            key                                = 'FakeStringValue'
                             value                             = 'FakeStringValue'
                         } -ClientOnly)
-                    )     
+                    )
                     customKeyValueData                        = [CimInstance[]]@(
                         (New-CimInstance `
                         -ClassName MSFT_CustomData `
                         -Property @{
-                            name                              = 'FakeStringValue'
+                            name                              = 'UpdatedName' # Updated property
                             value                             = 'FakeStringValue'
                         } -ClientOnly)
-                    )                                                                                                                                                                                       
+                    )
                     targetedMobileApps                      = [CimInstance[]]@(
                         (New-CimInstance `
                         -ClassName MSFT_targetedMobileApps `
@@ -184,58 +231,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                                   = 'Present'
                     Credential                               = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                   return  @{
-                        DisplayName                                 = 'FakeStringValue'
-                        Description                                 = 'FakeStringValue'
-                        Id                              = 'FakeStringValue'
-                        AdditionalProperties                        = @{
-                            '@odata.type'                           = '#microsoft.graph.androidWorkProfileVpnConfiguration'
-                            authenticationMethod                    = 'usernameAndPassword'
-                            connectionName                          = 'FakeStringValue'
-                            connectionType                          = 'ciscoAnyConnect'
-                            customData             = @(
-                                @{
-                                    key                  = 'FakeStringValue'
-                                    value                = 'FakeStringValue'
-                                }
-                            )     
-                            customKeyValueData      = @(
-                                @{
-                                    name                  = 'FakeStringValue'
-                                    value                = 'FakeStringValue'
-                                }
-                            )                                                                                                                                                                             
-                            servers                                  = @(
-                                @{
-                                    isDefaultServer                  = $True
-                                    description                      = 'server'
-                                    address                          = 'vpn.CHANGED.com' #changed value
-                                }
-                            )    
-                            proxyServer                              = @(
-                                 @{
-                                    port                             = 80
-                                    automaticConfigurationScriptUrl  = 'https://www.test.com'
-                                    address                          = 'proxy.test.com'
-                                 }
-                            )
-                            targetedMobileApps                      = @(
-                                @{
-                                    name                            = 'FakeStringValue'
-                                    publisher                       = 'FakeStringValue'
-                                    appStoreUrl                     = 'FakeStringValue'
-                                    appId                           = 'FakeStringValue'
-                                }
-                            )                                                                                      
-                        }
-                    }
-                }
             }
 
             It 'Should return Present from the Get method' {
-                    (Get-TargetResource @testParams).Ensure | Should -Be 'Present' #-Displayname 'FakeStringValue').Ensure | Should -Be 'Present' #
+                (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
             }
 
             It 'Should return false from the Test method' {
@@ -245,7 +244,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             It 'Should update the IntuneVPNConfigurationPolicyAndroidWork from the Set method' {
                 Set-TargetResource @testParams
                 Should -Invoke -CommandName Update-MgBetaDeviceManagementDeviceConfiguration -Exactly 1
-               
+
             }
         }
 
@@ -282,7 +281,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             key                              = 'FakeStringValue'
                             value                            = 'FakeStringValue'
                         } -ClientOnly)
-                    )  
+                    )
                     customKeyValueData      = [CimInstance[]]@(
                         (New-CimInstance `
                         -ClassName MSFT_CustomData `
@@ -290,7 +289,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             name                            = 'FakeStringValue'
                             value                           = 'FakeStringValue'
                         } -ClientOnly)
-                    )                                                                                                                                                                       
+                    )
                     targetedMobileApps                    = [CimInstance[]]@(
                         (New-CimInstance `
                         -ClassName MSFT_targetedMobileApps `
@@ -300,56 +299,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             appStoreUrl                     = 'FakeStringValue'
                             appId                           = 'FakeStringValue'
                         } -ClientOnly)
-                    )  
+                    )
                     Ensure                                  = 'Present'
                     Credential                              = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                   return  @{
-                        DisplayName                                 = 'FakeStringValue'
-                        Description                                 = 'FakeStringValue'
-                        AdditionalProperties                        = @{
-                            '@odata.type'                           = '#microsoft.graph.androidWorkProfileVpnConfiguration'
-                            authenticationMethod                    = 'usernameAndPassword'
-                            connectionName                          = 'FakeStringValue'
-                            connectionType                          = 'ciscoAnyConnect'
-                            proxyServer                             = @(
-                                @{
-                                    port                            = 80
-                                    automaticConfigurationScriptUrl = 'https://www.test.com'
-                                    address                         = 'proxy.test.com'
-                                }
-                            )
-                            servers                                  = @(
-                                @{
-                                    isDefaultServer                 = $True
-                                    description                     = 'server'
-                                    address                         = 'vpn.test.com'
-                                }
-                            )
-                            customData                              = @(
-                                @{
-                                    key                             = 'FakeStringValue'
-                                    value                           = 'FakeStringValue'
-                                }
-                            )
-                            customKeyValueData                      = @(
-                                @{
-                                    name                            = 'FakeStringValue'
-                                    value                           = 'FakeStringValue'
-                                }
-                            )
-                            targetedMobileApps                    = @(
-                                @{
-                                    name                            = 'FakeStringValue'
-                                    publisher                       = 'FakeStringValue'
-                                    appStoreUrl                     = 'FakeStringValue'
-                                    appId                           = 'FakeStringValue'
-                                }
-                            )
-                        }
-                    }
                 }
             }
 
@@ -387,33 +339,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure                                  = 'Absent'
                     Credential                              = $Credential
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                   return @{
-                        DisplayName                                  = 'FakeStringValue'
-                        Description                                  = 'FakeStringValue'
-                        AdditionalProperties                         = @{
-                            '@odata.type'                           = '#microsoft.graph.androidWorkProfileVpnConfiguration'
-                            authenticationMethod                     = 'usernameAndPassword'
-                            connectionName                           = 'FakeStringValue'
-                            connectionType                           = 'ciscoAnyConnect'
-                            proxyServer                              = @(
-                                @{
-                                    port                             = 80
-                                    automaticConfigurationScriptUrl  = 'https://www.test.com'
-                                    address                          = 'proxy.test.com'
-                                }
-                            )
-                            servers                                  = @(
-                                @{
-                                    isDefaultServer                  = $True
-                                    description                      = 'server'
-                                    address                          = 'vpn.test.com'
-                                }
-                            )
-                        }
-                    }
-                }
             }
 
             It 'Should return Present from the Get method' {
@@ -436,33 +361,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                   return @{
-                        DisplayName                                 = 'FakeStringValue'
-                        Description                                 = 'FakeStringValue'
-                        AdditionalProperties                        = @{
-                            '@odata.type'                           = '#microsoft.graph.androidWorkProfileVpnConfiguration'
-                            authenticationMethod                    = 'usernameAndPassword'
-                            connectionName                          = 'FakeStringValue'
-                            connectionType                          = 'ciscoAnyConnect'
-                            proxyServer                             = @(
-                                @{
-                                    port                            = 80
-                                    automaticConfigurationScriptUrl = 'https://www.test.com'
-                                    address                         = 'proxy.test.com'
-                                }
-                            )
-                            servers                                 = @(
-                                @{
-                                    isDefaultServer                 = $True
-                                    description                     = 'server'
-                                    address                         = 'vpn.test.com'
-                                }
-                            )
-                        }
-                    }
                 }
             }
 

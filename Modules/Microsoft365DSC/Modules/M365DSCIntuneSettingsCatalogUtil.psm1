@@ -11,8 +11,9 @@
 
     # Remove invalid characters
     $settingName = [regex]::Replace($SettingDefinition.Name, "[\{\}\$]", "")
+    $settingName = $settingName.Replace(" ", "_")
 
-    $settingsWithSameName = $AllSettingDefinitions | Where-Object -FilterScript { $_.Name -eq $settingName }
+    $settingsWithSameName = $AllSettingDefinitions.Where({ $_.Name -eq $settingName })
 
     # Edge case where the same setting is defined twice in the template, with the same name and id
     # Example is RDVAllowBDE_Name from the IntuneDiskEncryptionWindows10 resource
@@ -25,7 +26,7 @@
         }
     }
 
-    if ($settingsWithSameName -is [array] -and $settingsWithSameName.Count -gt 1)
+    if ($settingsWithSameName.Count -gt 1)
     {
         # Get the parent setting of the current setting
         $parentSetting = Get-ParentSettingDefinition -SettingDefinition $SettingDefinition -AllSettingDefinitions $AllSettingDefinitions
@@ -100,6 +101,7 @@
             'microsoft_edge~Policy~microsoft_edge~*' { $settingName = $settingName.Replace('microsoft_edge~Policy~microsoft_edge', 'MicrosoftEdge_') }
             'edge~httpauthentication*' { $settingName = $settingName.Replace('edge~httpauthentication', 'MicrosoftEdge_HTTPAuthentication') }
             'edge~contentsettings*' { $settingName = $settingName.Replace('edge~contentsettings', 'MicrosoftEdge_ContentSettings') }
+            'edge~passwordmanager*' { $settingName = $settingName.Replace('edge~passwordmanager', 'MicrosoftEdge_PasswordManager') }
             '*~SmartScreen_*' { $settingName = $settingName.Replace('~SmartScreen', 'SmartScreen') }
             '*~L_Security~*' { $settingName = $settingName.Replace('~L_Security', 'Security') }
             '*~L_TrustCenter*' { $settingName = $settingName.Replace('~L_TrustCenter', '_TrustCenter') }
@@ -125,15 +127,15 @@ function Get-ParentSettingDefinition {
     $parentSetting = $null
     if ($SettingDefinition.AdditionalProperties.dependentOn.parentSettingId.Count -gt 0)
     {
-        $parentSetting = $AllSettingDefinitions | Where-Object -FilterScript {
+        $parentSetting = $AllSettingDefinitions.Where({
             $_.Id -eq ($SettingDefinition.AdditionalProperties.dependentOn.parentSettingId | Select-Object -Unique -First 1)
-        }
+        })
     }
     elseif ($SettingDefinition.AdditionalProperties.options.dependentOn.parentSettingId.Count -gt 0)
     {
-        $parentSetting = $AllSettingDefinitions | Where-Object -FilterScript {
+        $parentSetting = $AllSettingDefinitions.Where({
             $_.Id -eq ($SettingDefinition.AdditionalProperties.options.dependentOn.parentSettingId | Select-Object -Unique -First 1)
-        }
+        })
     }
 
     $parentSetting

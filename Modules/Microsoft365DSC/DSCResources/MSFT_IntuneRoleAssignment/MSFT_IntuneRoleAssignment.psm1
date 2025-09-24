@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneRoleAssignment'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -84,7 +86,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -114,7 +116,7 @@ function Get-TargetResource
 
                 $getValue = Get-MgBetaDeviceManagementRoleAssignment `
                     -All `
-                    -Filter "displayName eq '$DisplayName'" `
+                    -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                     -ErrorAction SilentlyContinue
             }
 
@@ -132,7 +134,7 @@ function Get-TargetResource
         $Id = $getValue.Id
         Write-Verbose -Message "An Intune Role Assignment with Id {$Id} and DisplayName {$DisplayName} was found"
 
-        #Get Roledefinition first, loop through all roledefinitions and find the assignment that matches the Id
+        # Get Roledefinition first, loop through all roledefinitions and find the assignment that matches the Id
         $tempRoleDefinitions = Get-MgDeviceManagementRoleDefinition
         foreach ($tempRoleDefinition in $tempRoleDefinitions)
         {
@@ -148,13 +150,25 @@ function Get-TargetResource
         $ResourceScopesDisplayNames = @()
         foreach ($ResourceScope in $getValue.ResourceScopes)
         {
-            $ResourceScopesDisplayNames += (Get-MgGroup -GroupId $ResourceScope).DisplayName
+            $group = Get-MgGroup -GroupId $ResourceScope -ErrorAction SilentlyContinue
+            if ($null -eq $group)
+            {
+                Write-Warning -Message "Could not find group with Id {$ResourceScope} when retrieving resource scope display names"
+                continue
+            }
+            $ResourceScopesDisplayNames += $group.DisplayName
         }
 
         $MembersDisplayNames = @()
         foreach ($tempMember in $getValue.Members)
         {
-            $MembersDisplayNames += (Get-MgGroup -GroupId $tempMember).DisplayName
+            $group = Get-MgGroup -GroupId $tempMember -ErrorAction SilentlyContinue
+            if ($null -eq $group)
+            {
+                Write-Warning -Message "Could not find group with Id {$tempMember} when retrieving member display names"
+                continue
+            }
+            $MembersDisplayNames += $group.DisplayName
         }
 
         $scopeTypeValue = $null
@@ -183,7 +197,7 @@ function Get-TargetResource
             AccessTokens               = $AccessTokens
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -276,15 +290,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    try
-    {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters
-    }
-    catch
-    {
-        Write-Verbose -Message $_
-    }
+    Write-Verbose -Message "Setting configuration of the Intune Role Assignment with Id {$Id} and DisplayName {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -299,16 +305,15 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-    if (!($RoleDefinition -match '^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$'))
+    if ($RoleDefinition -notmatch '^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$' -or $RoleDefinition -eq '00000000-0000-0000-0000-000000000000')
     {
         [string]$roleDefinition = $null
-        $Filter = "displayName eq '$RoleDefinitionDisplayName'"
-        $RoleDefinitionId = Get-MgDeviceManagementRoleDefinition -All -Filter $Filter -ErrorAction SilentlyContinue
-        if ($null -ne $RoleDefinitionId)
+        $filter = "DisplayName eq '$($RoleDefinitionDisplayName -replace "'", "''")'"
+        $roleDefinitionId = Get-MgDeviceManagementRoleDefinition -All -Filter $filter -ErrorAction SilentlyContinue
+        if ($null -ne $roleDefinitionId)
         {
-            $roleDefinition = $RoleDefinitionId.Id
+            $roleDefinition = $roleDefinitionId.Id
         }
         else
         {
@@ -317,33 +322,33 @@ function Set-TargetResource
     }
 
     [array]$members = @()
-    foreach ($MembersDisplayName in $membersDisplayNames)
+    foreach ($membersDisplayName in $MembersDisplayNames)
     {
-        $Filter = "displayName eq '$MembersDisplayName'"
-        $MemberId = Get-MgGroup -Filter $Filter -ErrorAction SilentlyContinue
-        if ($null -ne $MemberId)
+        $filter = "displayName eq '$($membersDisplayName -replace "'", "''")'"
+        $memberId = Get-MgGroup -Filter $filter -ErrorAction SilentlyContinue
+        if ($null -ne $memberId)
         {
-            if ($Members -notcontains $MemberId.Id)
+            if ($members -notcontains $memberId.Id)
             {
-                $Members += $MemberId.Id
+                $members += $memberId.Id
             }
         }
         else
         {
-            Write-Verbose -Message "No member of type group with DisplayName {$MembersDisplayName} was found"
+            Write-Verbose -Message "No member of type group with DisplayName {$membersDisplayName} was found"
         }
     }
 
     [array]$resourceScopes = @()
-    foreach ($ResourceScopesDisplayName in $ResourceScopesDisplayNames)
+    foreach ($resourceScopesDisplayName in $ResourceScopesDisplayNames)
     {
-        $Filter = "displayName eq '$ResourceScopesDisplayName'"
-        $ResourceScopeId = Get-MgGroup -Filter $Filter -ErrorAction SilentlyContinue
-        if ($null -ne $ResourceScopeId)
+        $filter = "DisplayName eq '$($resourceScopesDisplayName -replace "'", "''")'"
+        $resourceScopeId = Get-MgGroup -Filter $filter -ErrorAction SilentlyContinue
+        if ($null -ne $resourceScopeId)
         {
-            if ($ResourceScopes -notcontains $ResourceScopeId.Id)
+            if ($ResourceScopes -notcontains $resourceScopeId.Id)
             {
-                $ResourceScopes += $ResourceScopeId.Id
+                $ResourceScopes += $resourceScopeId.Id
             }
         }
         else
@@ -358,7 +363,7 @@ function Set-TargetResource
     else
     {
         $ScopeType = 'resourceScope'
-        $ResourceScopes = $ResourceScopes
+        $ResourceScopes = $resourceScopes
     }
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -494,16 +499,16 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of {$Id - $displayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if (-not ($RoleDefinition -match '^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$'))
     {
         [string]$roleDefinition = $null
-        $Filter = "displayName eq '$RoleDefinitionDisplayName'"
-        $RoleDefinitionId = Get-MgDeviceManagementRoleDefinition -All -Filter $Filter -ErrorAction SilentlyContinue
-        if ($null -ne $RoleDefinitionId)
+        $filter = "displayName eq '$($RoleDefinitionDisplayName -replace "'", "''")'"
+        $roleDefinitionId = Get-MgDeviceManagementRoleDefinition -All -Filter $filter -ErrorAction SilentlyContinue
+        if ($null -ne $roleDefinitionId)
         {
-            $roleDefinition = $RoleDefinitionId.Id
+            $roleDefinition = $roleDefinitionId.Id
             $PSBoundParameters.Set_Item('RoleDefinition', $roleDefinition)
         }
         else
@@ -512,28 +517,28 @@ function Test-TargetResource
         }
     }
 
-    foreach ($MembersDisplayName in $membersDisplayNames)
+    foreach ($membersDisplayName in $MembersDisplayNames)
     {
-        $Filter = "displayName eq '$MembersDisplayName'"
-        $newMemeber = Get-MgGroup -Filter $Filter -ErrorAction SilentlyContinue
-        if ($null -ne $newMemeber)
+        $filter = "DisplayName eq '$($MembersDisplayName -replace "'", "''")'"
+        $newMember = Get-MgGroup -Filter $filter -ErrorAction SilentlyContinue
+        if ($null -ne $newMember)
         {
-            if ($Members -notcontains $newMemeber.Id)
+            if ($Members -notcontains $newMember.Id)
             {
-                $Members += $newMemeber.Id
+                $Members += $newMember.Id
             }
         }
         else
         {
-            Write-Verbose -Message "No member of type group with DisplayName {$MembersDisplayName} was found"
+            Write-Verbose -Message "No member of type group with DisplayName {$membersDisplayName} was found"
         }
     }
     $PSBoundParameters.Set_Item('Members', $Members)
 
-    foreach ($ResourceScopesDisplayName in $resourceScopesDisplayNames)
+    foreach ($resourceScopesDisplayName in $ResourceScopesDisplayNames)
     {
-        $Filter = "displayName eq '$ResourceScopesDisplayName'"
-        $newResourceScope = Get-MgGroup -Filter $Filter -ErrorAction SilentlyContinue
+        $filter = "displayName eq '$($resourceScopesDisplayName -replace "'", "''")'"
+        $newResourceScope = Get-MgGroup -Filter $filter -ErrorAction SilentlyContinue
         if ($null -ne $newResourceScope)
         {
             if ($ResourceScopes -notcontains $newResourceScope.Id)
@@ -558,7 +563,7 @@ function Test-TargetResource
         if (($null -ne $CurrentValues[$key]) `
                 -and ($CurrentValues[$key].getType().Name -eq 'DateTime'))
         {
-            $CurrentValues[$key] = $CurrentValues[$key].toString()
+            $CurrentValues[$key] = $CurrentValues[$key].ToString()
         }
     }
 
@@ -644,7 +649,7 @@ function Export-TargetResource
         }
 
         $i = 1
-        $dscContent = ''
+        $dscContent = [System.Text.StringBuilder]::new()
         if ($getValue.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
@@ -688,13 +693,13 @@ function Export-TargetResource
                 -Results $Results `
                 -Credential $Credential
 
-            $dscContent += $currentDSCBlock
+            $dscContent.Append($currentDSCBlock) | Out-Null
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
             $i++
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {

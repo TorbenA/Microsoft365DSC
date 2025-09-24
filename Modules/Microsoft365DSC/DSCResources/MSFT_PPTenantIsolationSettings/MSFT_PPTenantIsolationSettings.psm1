@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_PPTenantIsolationSettings'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -58,12 +60,12 @@ function Get-TargetResource
         throw $message
     }
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
     $tenantid = (Get-MgContext).TenantId
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PowerPlatformREST' `
+    $null = New-M365DSCConnection -Workload 'PowerPlatformREST' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -214,10 +216,10 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PowerPlatformREST' `
+    $null = New-M365DSCConnection -Workload 'PowerPlatformREST' `
         -InboundParameters $PSBoundParameters
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
     $tenantinfo = (Get-MgContext).TenantId
@@ -751,31 +753,9 @@ function Get-M365TenantId
         return '*'
     }
 
-    $result = Invoke-WebRequest "https://login.windows.net/$TenantName/.well-known/openid-configuration" -UseBasicParsing -Verbose:$false
+    $result = Invoke-WebRequest "https://login.windows.net/$TenantName/.well-known/openid-configuration" -UseBasicParsing
     $jsonResult = $result | ConvertFrom-Json
     return $jsonResult.token_endpoint.Split('/')[3]
-}
-
-function Get-M365DSCTenantIsolationRule
-{
-    [CmdletBinding()]
-    [OutputType([System.String])]
-    param(
-        [Parameter(Mandatory = $true)]
-        [System.Collections.ArrayList]
-        $Rules
-    )
-
-    $StringContent = '@('
-    foreach ($rule in $Rules)
-    {
-        $StringContent += "MSFT_PPTenantRule {`r`n"
-        $StringContent += "                TenantName          = '" + $rule.TenantName + "'`r`n"
-        $StringContent += "                Direction           = '" + $rule.Direction + "'`r`n"
-        $StringContent += "            }`r`n"
-    }
-    $StringContent += '            )'
-    return $StringContent
 }
 
 Export-ModuleMember -Function *-TargetResource

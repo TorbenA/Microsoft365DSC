@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneAppConfigurationPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -83,7 +85,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -98,13 +100,13 @@ function Get-TargetResource
             Add-M365DSCTelemetryEvent -Data $data
             #endregion
 
-            $nullResult = ([Hashtable]$PSBoundParameters).clone()
+            $nullResult = ([Hashtable]$PSBoundParameters).Clone()
             $nullResult.Ensure = 'Absent'
 
             $configPolicy = $null
             if (-not [string]::IsNullOrEmpty($Id))
             {
-                $configPolicy = Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -TargetedManagedAppConfigurationId $Id -ExpandProperty 'Apps' `
+                $configPolicy = Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -Filter "Id eq '$Id'" -ExpandProperty 'Apps' `
                     -ErrorAction SilentlyContinue
             }
 
@@ -114,7 +116,7 @@ function Get-TargetResource
 
                 try
                 {
-                    $configPolicy = Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -All -Filter "displayName eq '$DisplayName'" -ExpandProperty 'Apps' `
+                    $configPolicy = Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -All -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ExpandProperty 'Apps' `
                         -ErrorAction Stop
                 }
                 catch
@@ -186,7 +188,7 @@ function Get-TargetResource
             TenantId                    = $TenantId
             ApplicationSecret           = $ApplicationSecret
             CertificateThumbprint       = $CertificateThumbprint
-            Managedidentity             = $ManagedIdentity.IsPresent
+            ManagedIdentity             = $ManagedIdentity.IsPresent
             AccessTokens                = $AccessTokens
             RoleScopeTagIds             = $configPolicy.RoleScopeTagIds
             TargetedAppManagementLevels = [String]$configPolicy.TargetedAppManagementLevels
@@ -297,9 +299,6 @@ function Set-TargetResource
     )
 
     Write-Verbose -Message "Setting configuration of Intune App Configuration Policy {$DisplayName}"
-
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -436,7 +435,7 @@ function Set-TargetResource
             #apps handled separately as not supported by Update-MgBetaDeviceAppManagementTargetedManagedAppConfiguration
             Write-Verbose -Message "Updating Apps for Intune App Configuration Policy {$DisplayName}"
             $Uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceAppManagement/targetedManagedAppConfigurations('$($currentconfigPolicy.Id)')/targetApps"
-            Invoke-MgGraphRequest -Method POST -Uri $Uri -Body $($appsBody | ConvertTo-Json -Depth 10) -Verbose
+            Invoke-MgGraphRequest -Method POST -Uri $Uri -Body $($appsBody | ConvertTo-Json -Depth 10)
         }
 
         Update-MgBetaDeviceAppManagementTargetedManagedAppConfiguration @updateParams
@@ -547,9 +546,7 @@ function Test-TargetResource
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
 
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
-    $ValuesToCheck.Remove('Id') | Out-Null
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
@@ -627,6 +624,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
@@ -679,7 +677,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
@@ -787,40 +785,6 @@ function Export-TargetResource
 
         return ''
     }
-}
-
-function Get-M365DSCIntuneAppConfigurationPolicyCustomSettingsAsString
-{
-    [CmdletBinding()]
-    [OutputType([System.String])]
-    param(
-        [Parameter(Mandatory = $true)]
-        [System.Object[]]
-        $Settings
-    )
-
-    $StringContent = '@('
-    $space = '                '
-    $indent = '    '
-
-    $i = 1
-    foreach ($setting in $Settings)
-    {
-        if ($Settings.Count -gt 1)
-        {
-            $StringContent += "`r`n"
-            $StringContent += "$space"
-        }
-        $StringContent += "MSFT_IntuneAppConfigurationPolicyCustomSetting { `r`n"
-        $StringContent += "$($space)$($indent)name  = '" + $setting.name + "'`r`n"
-        $StringContent += "$($space)$($indent)value = '" + $setting.value + "'`r`n"
-        $StringContent += "$space}"
-
-        $i++
-    }
-
-    $StringContent += ')'
-    return $StringContent
 }
 
 function ConvertTo-M365DSCIntuneAppConfigurationPolicyCustomSettings

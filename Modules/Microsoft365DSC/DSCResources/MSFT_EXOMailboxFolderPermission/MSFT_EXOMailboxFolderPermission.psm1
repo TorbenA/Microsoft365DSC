@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOMailboxFolderPermission'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -50,8 +52,10 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting configuration of Mailbox Folder Permission with Identity {$Identity}"
+
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -107,7 +111,7 @@ function Get-TargetResource
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -171,6 +175,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting configuration of Mailbox Folder Permission with Identity {$Identity}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -289,9 +295,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -301,49 +304,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $testTargetResource = $true
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-not $testResult)
-            {
-                $testTargetResource = $false
-            }
-            else
-            {
-                $ValuesToCheck.Remove($key) | Out-Null
-            }
-        }
-    }
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys `
-        -IncludedDrifts $driftedParams
-
-    if (-not $TestResult)
-    {
-        $testTargetResource = $false
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $testTargetResource"
-
-    return $testTargetResource
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -407,7 +370,7 @@ function Export-TargetResource
 
         if ($null -eq $cmdletInfo)
         {
-            Write-M365DSCHost -Message "    `r`n$($Global:M365DSCEmojiYellowCircle) The Get-MailboxFolder cmdlet is not avalaible. Service Principals do not have mailboxes." -CommitWrite
+            Write-M365DSCHost -Message "    `r`n$($Global:M365DSCEmojiYellowCircle) The Get-MailboxFolder cmdlet is not available. Service Principals do not have mailboxes." -CommitWrite
             return ''
         }
 
@@ -435,16 +398,27 @@ function Export-TargetResource
                 ApplicationId         = $ApplicationId
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
             $MailboxFolderPermissions = Get-TargetResource @Params
 
             $Result = $MailboxFolderPermissions
-            if ($Result.UserPermissions.Count -gt 0)
+            if ($Result.UserPermissions)
             {
-                $Result.UserPermissions = Get-M365DSCEXOUserPermissionsList $Result.UserPermissions
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Result.UserPermissions `
+                    -CIMInstanceName 'EXOMailboxFolderUserPermission' `
+                    -IsArray
+                if (-not [String]::IsNullOrEmpty($complexTypeStringResult))
+                {
+                    $Result.UserPermissions = $complexTypeStringResult
+                }
+                else
+                {
+                    $Result.Remove('UserPermissions') | Out-Null
+                }
             }
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
@@ -474,34 +448,6 @@ function Export-TargetResource
 
         return ''
     }
-}
-
-function Get-M365DSCEXOUserPermissionsList
-{
-    [CmdletBinding()]
-    [OutputType([System.String])]
-    param(
-        [Parameter(Mandatory = $true)]
-        [System.Collections.ArrayList]
-        $Permissions
-    )
-
-    $StringContent = '@('
-    foreach ($permission in $Permissions)
-    {
-        $StringContent += "MSFT_EXOMailboxFolderUserPermission {`r`n"
-        $StringContent += "                User                   = '" + $permission.User + "'`r`n"
-        $StringContent += "                AccessRights           = '" + $permission.AccessRights + "'`r`n"
-        if ($null -ne $permission.SharingPermissionFlags)
-        {
-            #     $StringContent += "                SharingPermissionFlags = `$null" + "`r`n"
-            # } else {
-            $StringContent += "                SharingPermissionFlags = '" + $permission.SharingPermissionFlags + "'`r`n"
-        }
-        $StringContent += "            }`r`n"
-    }
-    $StringContent += '            )'
-    return $StringContent
 }
 
 Export-ModuleMember -Function *-TargetResource

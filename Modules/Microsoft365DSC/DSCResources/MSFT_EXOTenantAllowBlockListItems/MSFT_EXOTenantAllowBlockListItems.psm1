@@ -1,26 +1,4 @@
-function Add-ActionParameters
-{
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        $Action,
-
-        [Parameter(Mandatory = $true)]
-        [System.Collections.Hashtable]
-        $Parameters
-    )
-
-    if ($Action -eq 'Allow')
-    {
-        $Parameters.Add('Allow', $true) | Out-Null
-    }
-    elseif ($Action -eq 'Block')
-    {
-        $Parameters.Add('Block', $true) | Out-Null
-    }
-    $Parameters.Remove('Action') | Out-Null
-}
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOTenantAllowBlockListItems'
 
 function Get-TargetResource
 {
@@ -88,8 +66,10 @@ function Get-TargetResource
         $ApplicationSecret
     )
 
-    New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting configuration for Tenant Allow/Block List Items with Action {$Action} and Value {$Value}"
+
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -140,7 +120,7 @@ function Get-TargetResource
             CertificateThumbprint = $CertificateThumbprint
             ApplicationSecret     = $ApplicationSecret
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -219,8 +199,7 @@ function Set-TargetResource
         $ApplicationSecret
     )
 
-    New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Setting configuration for Tenant Allow/Block List Items with Action {$Action} and Value {$Value}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -235,7 +214,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
@@ -245,7 +223,15 @@ function Set-TargetResource
         $CreateParameters.Remove('Verbose') | Out-Null
         $CreateParameters.Remove('Value') | Out-Null
         $CreateParameters.Add('Entries', @($Value)) | Out-Null
-        Add-ActionParameters -Action $Action -Parameters $CreateParameters
+        if ($Action -eq 'Allow')
+        {
+            $CreateParameters.Add('Allow', $true) | Out-Null
+        }
+        elseif ($Action -eq 'Block')
+        {
+            $CreateParameters.Add('Block', $true) | Out-Null
+        }
+        $CreateParameters.Remove('Action') | Out-Null
 
         $keys = $CreateParameters.Keys
         foreach ($key in $keys)
@@ -377,14 +363,13 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of {$Value}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($null -ne $ValuesToCheck.ExpirationDate -and $ValuesToCheck.ExpirationDate.Kind -eq 'Local')
     {
         $ValuesToCheck.ExpirationDate = $ValuesToCheck.ExpirationDate.ToUniversalTime().ToString()
     }
 
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
     $ValuesToCheck.Remove('Entries') | Out-Null
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
