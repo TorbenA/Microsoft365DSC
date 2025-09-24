@@ -823,8 +823,8 @@ function Compare-M365DSCComplexObject
             # Both keys aren't null or empty
             if (($null -ne $Source.$key) -and ($null -ne $Target.$key))
             {
-                if ($Source.$key.GetType().FullName -like '*CimInstance*' -or $Source.$key.GetType().FullName -like '*hashtable*' -or `
-                    $Source.$key.GetType().Name -eq 'Object[]')
+                if ($Source.$key.GetType().FullName -like '*CimInstance*' -or $Source.$key.GetType().FullName -like '*Hashtable*' -or `
+                    $Source.$key.GetType().FullName -like "*OrderedDictionary*" -or $Source.$key.GetType().Name -eq 'Object[]')
                 {
                     if ($Source.$key.GetType().FullName -like '*CimInstance' -and (
                             $Source.$key.CimClass.CimClassName -eq 'MSFT_DeviceManagementConfigurationPolicyAssignments' -or
@@ -1212,8 +1212,8 @@ function Compare-M365DSCComplexObjectV2
             # Both keys aren't null or empty
             if (($null -ne $Source.$key) -and ($null -ne $Target.$key))
             {
-                if ($Source.$key.GetType().FullName -like '*CimInstance*' -or $Source.$key.GetType().FullName -like '*hashtable*' -or `
-                    $Source.$key.GetType().Name -eq 'Object[]')
+                if ($Source.$key.GetType().FullName -like '*CimInstance*' -or $Source.$key.GetType().FullName -like '*Hashtable*' -or `
+                    $Source.$key.GetType().FullName -like "*OrderedDictionary*" -or $Source.$key.GetType().Name -eq 'Object[]')
                 {
                     if ($Source.$key.GetType().FullName -like '*CimInstance' -and (
                             $Source.$key.CimClass.CimClassName -eq 'MSFT_DeviceManagementConfigurationPolicyAssignments' -or

@@ -92,6 +92,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 OffsetUri = '/Defender/DisableRestorePoint'
                                 AdditionalProperties = @{
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                    options = @(
+                                        @{
+                                            itemId = 'defender_disablerestorepoint_1'
+                                            name = 'Yes'
+                                            optionValue = @{
+                                                '@odata.type' = "#microsoft.graph.deviceManagementConfigurationIntegerSettingValue"
+                                                value = 1
+                                            }
+                                        }
+                                    )
                                 }
                             }
                         )
@@ -142,6 +152,24 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 OffsetUri = '/Config/Defender/SubmitSamplesConsent'
                                 AdditionalProperties = @{
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                    options = @(
+                                        @{
+                                            itemId = 'device_vendor_msft_policy_config_defender_submitsamplesconsent_2'
+                                            name = 'Never send'
+                                            optionValue = @{
+                                                '@odata.type' = "#microsoft.graph.deviceManagementConfigurationIntegerSettingValue"
+                                                value = 2
+                                            }
+                                        }
+                                        @{
+                                            itemId = 'device_vendor_msft_policy_config_defender_submitsamplesconsent_3'
+                                            name = 'Send all samples automatically'
+                                            optionValue = @{
+                                                '@odata.type' = "#microsoft.graph.deviceManagementConfigurationIntegerSettingValue"
+                                                value = 3
+                                            }
+                                        }
+                                    )
                                 }
                             }
                         )
@@ -215,6 +243,24 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 OffsetUri = '/Config/Defender/SubmitSamplesConsent'
                                 AdditionalProperties = @{
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                    options = @(
+                                        @{
+                                            itemId = 'device_vendor_msft_policy_config_defender_submitsamplesconsent_2'
+                                            name = 'Never send'
+                                            optionValue = @{
+                                                '@odata.type' = "#microsoft.graph.deviceManagementConfigurationIntegerSettingValue"
+                                                value = 2
+                                            }
+                                        }
+                                        @{
+                                            itemId = 'device_vendor_msft_policy_config_defender_submitsamplesconsent_3'
+                                            name = 'Send all samples automatically'
+                                            optionValue = @{
+                                                '@odata.type' = "#microsoft.graph.deviceManagementConfigurationIntegerSettingValue"
+                                                value = 3
+                                            }
+                                        }
+                                    )
                                 }
                             }
                         )

@@ -332,6 +332,12 @@ function Get-TargetResource
         $policySettings = @{}
         $policySettings = Export-IntuneSettingCatalogPolicySettings -Settings $settings -ReturnHashtable $policySettings
 
+        $disableRestorePointInstance = $settings | Where-Object { $_.SettingInstance.SettingDefinitionId -like "*_disablerestorepoint" }
+        if ($null -ne $disableRestorePointInstance)
+        {
+            $policySettings.DisableRestorePoint = [int]$disableRestorePointInstance.SettingInstance.AdditionalProperties.choiceSettingValue.value.Split("_")[-1]
+        }
+
         $results = @{
             #region resource generator code
             Description           = $getValue.Description

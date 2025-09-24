@@ -578,16 +578,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description = "My Test"
                     Id = "12345-12345-12345-12345-12345"
                     DisplayName = "Test"
-                    AllowUSBConnection = "1"
+                    AllowUSBConnection = 1
                     PolicyRule = [CimInstance[]]@(
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogPolicyRule -Property @{
                             Entry = [CimInstance[]]@(
                                 (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogPolicyRuleEntry -Property @{
-                                    AccessMask = @("1", "2")
+                                    AccessMask = @(1, 2)
                                     Sid = "1234"
                                     ComputerSid = "1234"
                                     Type = "allow"
-                                    Options = "4"
+                                    Options = 4
                                 } -ClientOnly)
                             )
                             Name = "asdf"
@@ -628,16 +628,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description = "My Test"
                     Id = "12345-12345-12345-12345-12345"
                     DisplayName = "Test"
-                    AllowUSBConnection = "1"
+                    AllowUSBConnection = 1
                     PolicyRule = [CimInstance[]]@(
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogPolicyRule -Property @{
                             Entry = [CimInstance[]]@(
                                 (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogPolicyRuleEntry -Property @{
-                                    AccessMask = @("1", "2")
+                                    AccessMask = @(1, 2)
                                     Sid = "1234"
                                     ComputerSid = "1234"
                                     Type = "allow"
-                                    Options = "4"
+                                    Options = 4
                                 } -ClientOnly)
                             )
                             Name = "asdf"
@@ -676,16 +676,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description = "My Test"
                     Id = "12345-12345-12345-12345-12345"
                     DisplayName = "Test"
-                    AllowUSBConnection = "1"
+                    AllowUSBConnection = 1
                     PolicyRule = [CimInstance[]]@(
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogPolicyRule -Property @{
                             Entry = [CimInstance[]]@(
                                 (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogPolicyRuleEntry -Property @{
-                                    AccessMask = @("1", "2")
+                                    AccessMask = @(1, 2)
                                     Sid = "1234"
                                     ComputerSid = "1234"
                                     Type = "allow"
-                                    Options = "4"
+                                    Options = 4
                                 } -ClientOnly)
                             )
                             Name = "asdf"
@@ -716,16 +716,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description = "My Test"
                     Id = "12345-12345-12345-12345-12345"
                     DisplayName = "Test"
-                    AllowUSBConnection = "1"
+                    AllowUSBConnection = 1
                     PolicyRule = [CimInstance[]]@(
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogPolicyRule -Property @{
                             Entry = [CimInstance[]]@(
                                 (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogPolicyRuleEntry -Property @{
-                                    AccessMask = @("1", "2")
+                                    AccessMask = @(1, 2)
                                     Sid = "1234"
                                     ComputerSid = "1234"
                                     Type = "deny" # Updated property
-                                    Options = "4"
+                                    Options = 4
                                 } -ClientOnly)
                             )
                             Name = "asdf"

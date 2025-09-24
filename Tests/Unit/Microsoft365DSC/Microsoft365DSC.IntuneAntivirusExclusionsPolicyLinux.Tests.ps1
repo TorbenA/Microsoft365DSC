@@ -90,7 +90,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
                                     options = @(
                                         @{
-                                            itemId = 'linux_mdatp_managed_antivirusengine_exclusions_item_$type_1'
+                                            itemId = 'linux_mdatp_managed_antivirusengine_exclusions_item_$type_0'
                                             name = 'Path'
                                             dependentOn = @(
                                                 @{
@@ -101,6 +101,34 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                             optionValue = @{
                                                 '@odata.type' = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
                                                 value = 'excludedPath'
+                                            }
+                                        }
+                                        @{
+                                            itemId = 'linux_mdatp_managed_antivirusengine_exclusions_item_$type_1'
+                                            name = 'File extension'
+                                            dependentOn = @(
+                                                @{
+                                                    dependentOn = 'linux_mdatp_managed_antivirusengine_exclusions'
+                                                    parentSettingId = 'linux_mdatp_managed_antivirusengine_exclusions'
+                                                }
+                                            )
+                                            optionValue = @{
+                                                '@odata.type' = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
+                                                value = 'excludedFileExtension'
+                                            }
+                                        }
+                                        @{
+                                            itemId = 'linux_mdatp_managed_antivirusengine_exclusions_item_$type_2'
+                                            name = 'Process name'
+                                            dependentOn = @(
+                                                @{
+                                                    dependentOn = 'linux_mdatp_managed_antivirusengine_exclusions'
+                                                    parentSettingId = 'linux_mdatp_managed_antivirusengine_exclusions'
+                                                }
+                                            )
+                                            optionValue = @{
+                                                '@odata.type' = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
+                                                value = 'excludedFileName'
                                             }
                                         }
                                     )

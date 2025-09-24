@@ -427,8 +427,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             FilePath = 'C:\Temp\bla2'
                             Protocol = 80
                             ServiceName = 'mysvc'
-                            Enabled = '1'
-                            Type = '1'
+                            Enabled = 1
+                            Type = 1
                         } -ClientOnly)
                     )
                     Id = "619bd4a4-3b3b-4441-bd6f-3f4c0c444870"
@@ -474,8 +474,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             FilePath = 'C:\Temp\bla2'
                             Protocol = 80
                             ServiceName = 'mysvc'
-                            Enabled = '1'
-                            Type = '1'
+                            Enabled = 1
+                            Type = 1
                         } -ClientOnly)
                     )
                     Id = "619bd4a4-3b3b-4441-bd6f-3f4c0c444870"
@@ -520,8 +520,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             FilePath = 'C:\Temp\bla2'
                             Protocol = 80
                             ServiceName = 'mysvc'
-                            Enabled = '1'
-                            Type = '1'
+                            Enabled = 1
+                            Type = 1
                         } -ClientOnly)
                     )
                     Id = "619bd4a4-3b3b-4441-bd6f-3f4c0c444870"
@@ -557,8 +557,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             FilePath = 'C:\Temp\bla2'
                             Protocol = 80
                             ServiceName = 'mysvc'
-                            Enabled = '1'
-                            Type = '1'
+                            Enabled = 1
+                            Type = 1
                         } -ClientOnly)
                     )
                     Id = "619bd4a4-3b3b-4441-bd6f-3f4c0c444870"

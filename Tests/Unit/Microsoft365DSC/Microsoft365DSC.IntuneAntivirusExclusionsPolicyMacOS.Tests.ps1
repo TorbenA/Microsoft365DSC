@@ -91,7 +91,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
                                     options = @(
                                         @{
-                                            itemId = 'com.apple.managedclient.preferences_exclusions_item_$type_1'
+                                            itemId = 'com.apple.managedclient.preferences_exclusions_item_$type_0'
                                             name = 'Path'
                                             dependentOn = @(
                                                 @{
@@ -102,6 +102,34 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                             optionValue = @{
                                                 '@odata.type' = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
                                                 value = 'excludedPath'
+                                            }
+                                        }
+                                        @{
+                                            itemId = 'com.apple.managedclient.preferences_exclusions_item_$type_1'
+                                            name = 'File extension'
+                                            dependentOn = @(
+                                                @{
+                                                    dependentOn = 'com.apple.managedclient.preferences_exclusions'
+                                                    parentSettingId = 'com.apple.managedclient.preferences_exclusions'
+                                                }
+                                            )
+                                            optionValue = @{
+                                                '@odata.type' = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
+                                                value = 'excludedFileExtension'
+                                            }
+                                        }
+                                        @{
+                                            itemId = 'com.apple.managedclient.preferences_exclusions_item_$type_2'
+                                            name = 'File name'
+                                            dependentOn = @(
+                                                @{
+                                                    dependentOn = 'com.apple.managedclient.preferences_exclusions'
+                                                    parentSettingId = 'com.apple.managedclient.preferences_exclusions'
+                                                }
+                                            )
+                                            optionValue = @{
+                                                '@odata.type' = "#microsoft.graph.deviceManagementConfigurationStringSettingValue"
+                                                value = 'excludedFileName'
                                             }
                                         }
                                     )

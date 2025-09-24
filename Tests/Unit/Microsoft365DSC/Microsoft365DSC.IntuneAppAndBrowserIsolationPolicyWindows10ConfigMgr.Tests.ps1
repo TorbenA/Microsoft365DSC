@@ -74,6 +74,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                         @{
                                             itemId = 'device_vendor_msft_windowsdefenderapplicationguard_installwindowsdefenderapplicationguard_install'
                                             name = 'Install'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                                value = 'Install'
+                                            }
                                         }
                                     )
                                 }

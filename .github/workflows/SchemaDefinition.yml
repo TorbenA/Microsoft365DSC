@@ -2,7 +2,7 @@ name: Update M365DSC Schema Definition
 
 on:
   pull_request:
-    branches: [ develop ]
+    branches: [ Dev ]
     types: [ closed ]  # Only when PR is closed
   workflow_dispatch:   # Still allow manual trigger
 

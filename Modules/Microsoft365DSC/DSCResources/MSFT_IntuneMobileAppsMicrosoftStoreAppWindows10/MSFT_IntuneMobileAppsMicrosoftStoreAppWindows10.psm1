@@ -166,6 +166,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Mobile Apps Microsoft Store App for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
+        $complexCategories = @()
         foreach ($category in $getValue.Categories)
         {
             $myCategory = @{}

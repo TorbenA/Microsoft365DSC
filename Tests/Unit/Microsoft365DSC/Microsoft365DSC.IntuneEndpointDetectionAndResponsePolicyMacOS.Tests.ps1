@@ -193,7 +193,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description = 'My Test Description'
                     Id = '619bd4a4-3b3b-4441-bd6f-3f4c0c444870'
                     DisplayName = 'My Test'
-                    tags_item_key = '0'
+                    tags_item_key = 'GROUP'
                     tags_item_value = 'tag'
                     RoleScopeTagIds = @("FakeStringValue")
                     Ensure = "Present"
@@ -228,7 +228,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description = 'My Test Description'
                     Id = '619bd4a4-3b3b-4441-bd6f-3f4c0c444870'
                     DisplayName = 'My Test'
-                    tags_item_key = '0'
+                    tags_item_key = 'GROUP'
                     tags_item_value = 'tag'
                     RoleScopeTagIds = @("FakeStringValue")
                     Ensure = 'Absent'
@@ -261,7 +261,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description = 'My Test Description'
                     Id = '619bd4a4-3b3b-4441-bd6f-3f4c0c444870'
                     DisplayName = 'My Test'
-                    tags_item_key = '0'
+                    tags_item_key = 'GROUP'
                     tags_item_value = 'tag'
                     RoleScopeTagIds = @("FakeStringValue")
                     Ensure = 'Present'
@@ -286,7 +286,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description = 'My Test Description'
                     Id = '619bd4a4-3b3b-4441-bd6f-3f4c0c444870'
                     DisplayName = 'My Test'
-                    tags_item_key = '0'
+                    tags_item_key = 'GROUP'
                     tags_item_value = 'tag'
                     RoleScopeTagIds = @("FakeStringValue")
                     Ensure = 'Present'

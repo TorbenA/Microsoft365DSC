@@ -341,8 +341,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             RemotePortRanges = @('0-100')
                             Name = '__Test'
                             Protocol = 80
-                            Enabled = '1'
-                            Action = '1'
+                            Enabled = 1
+                            Action = 1
                         } -ClientOnly)
                     )
                     Id = "619bd4a4-3b3b-4441-bd6f-3f4c0c444870"
@@ -385,8 +385,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             RemotePortRanges = @('0-100')
                             Name = '__Test'
                             Protocol = 80
-                            Enabled = '1'
-                            Action = '1'
+                            Enabled = 1
+                            Action = 1
                         } -ClientOnly)
                     )
                     Id = "619bd4a4-3b3b-4441-bd6f-3f4c0c444870"
@@ -428,8 +428,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             RemotePortRanges = @('0-100')
                             Name = '__Test'
                             Protocol = 80
-                            Enabled = '1'
-                            Action = '1'
+                            Enabled = 1
+                            Action = 1
                         } -ClientOnly)
                     )
                     Id = "619bd4a4-3b3b-4441-bd6f-3f4c0c444870"
@@ -462,8 +462,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             RemotePortRanges = @('0-100')
                             Name = '__Test'
                             Protocol = 80
-                            Enabled = '1'
-                            Action = '1'
+                            Enabled = 1
+                            Action = 1
                         } -ClientOnly)
                     )
                     Id = "619bd4a4-3b3b-4441-bd6f-3f4c0c444870"
