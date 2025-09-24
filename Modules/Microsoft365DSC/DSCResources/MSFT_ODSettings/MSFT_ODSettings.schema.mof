@@ -1,11 +1,10 @@
-[ClassVersion("1.0.0.0"), FriendlyName("ODSettings")]
+[ClassVersion("1.0.0.1"), FriendlyName("ODSettings")]
 class MSFT_ODSettings : OMI_BaseResource
 {
     [Key, Description("Should be set to yes"),ValueMap{"Yes"},Values{"Yes"}] string IsSingleInstance;
     [Write, Description("The resource quota to apply to the OneDrive sites")] uint32 OneDriveStorageQuota;
     [Write, Description("Number of days after a user's account is deleted that their OneDrive for Business content will be deleted.")] uint32 OrphanedPersonalSitesRetentionPeriod;
     [Write, Description("Enable guest acess for OneDrive")] Boolean OneDriveForGuestsEnabled;
-    [Write, Description("DEPRECATED")] Boolean NotifyOwnersWhenInvitationsAccepted;
     [Write, Description("Turn notifications on/off OneDrive")] Boolean NotificationsInOneDriveForBusinessEnabled;
     [Write, Description("Lets administrators set policy on re-sharing behavior in OneDrive for Business"),ValueMap{"On","Off","Unspecified"},Values{"On","Off","Unspecified"}] String ODBMembersCanShare;
     [Write, Description("Lets administrators set policy on access requests and requests to share in OneDrive for Business"),ValueMap{"On","Off","Unspecified"},Values{"On","Off","Unspecified"}] String ODBAccessRequests;

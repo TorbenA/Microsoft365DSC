@@ -24,6 +24,7 @@ This function does not generate any output.
 | Type | False | String | HTML | HTML, JSON |  |
 | ExcludedProperties | False | String[] |  |  | Specifies the name of parameters that should not be assessed as part of the report. The names speficied will apply to all resources where they are encountered. |
 | ExcludedResources | False | String[] |  |  | Specifies the name of resources that should not be assessed as part of the report. |
+| DriftOnly | False | Boolean |  |  | Specifies if the report should only show properties drifts and not missing instances. |
 
 ## Examples
 

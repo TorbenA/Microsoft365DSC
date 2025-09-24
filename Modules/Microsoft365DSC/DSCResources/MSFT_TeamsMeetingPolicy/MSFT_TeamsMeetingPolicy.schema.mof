@@ -1,4 +1,4 @@
-﻿[ClassVersion("1.0.0.0"), FriendlyName("TeamsMeetingPolicy")]
+﻿[ClassVersion("1.0.0.1"), FriendlyName("TeamsMeetingPolicy")]
 class MSFT_TeamsMeetingPolicy : OMI_BaseResource
 {
     [Key, Description("Identity of the Teams Meeting Policy.")] String Identity;
@@ -76,7 +76,6 @@ class MSFT_TeamsMeetingPolicy : OMI_BaseResource
     [Write, Description("Determines the background effects that a user can configure in the Teams client. "), ValueMap{"NoFilters", "BlurOnly", "BlurAndDefaultBackgrounds", "AllFilters"}, Values{"NoFilters", "BlurOnly", "BlurAndDefaultBackgrounds", "AllFilters"}] String VideoFiltersMode;
     [Write, Description("Determines whether you provide support for your users to enable voice isolation in Teams meeting calls."), ValueMap{"Disabled", "Enabled"}, Values{"Disabled", "Enabled"}] String VoiceIsolation;
     [Write, Description("Specifies who can attend and register for webinars."), ValueMap{"Everyone", "EveryoneInCompany"}, Values{"Everyone", "EveryoneInCompany"}] String WhoCanRegister;
-    [Write, Description("DEPRECATED")] String ForceStreamingAttendeeMode;
     [Write, Description("Present ensures the policy exists, absent ensures it is removed."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
     [Write, Description("Credentials of the Teams Global Admin."), EmbeddedInstance("MSFT_Credential")] string Credential;
     [Write, Description("Id of the Azure Active Directory application to authenticate with.")] String ApplicationId;

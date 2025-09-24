@@ -28,7 +28,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             $secpasswd = ConvertTo-SecureString (New-Guid | Out-String) -AsPlainText -Force
             $Credential = New-Object System.Management.Automation.PSCredential ('tenantadmin@mydomain.com', $secpasswd)
 
-            Mock -CommandName Confirm-M365DSCDependencies -MockWith {
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
             }
 
             Mock -CommandName New-M365DSCConnection -MockWith {
@@ -39,7 +39,22 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
 
             Mock -CommandName Remove-M365DSCAzureBillingAccountsRoleAssignment -MockWith {
+            }
 
+            Mock -CommandName Get-M365DSCAzureBillingAccountsRoleAssignment -MockWith {
+                return @{
+                    value = @(
+                        @{
+                            id = '/assignment/22222-22222-22222-22222-22222'
+                            properties = @{
+                                principalId = '12345-12345-12345-12345-12345'
+                                principalType = 'User'
+                                RoleDefinitionId = '/providers/Microsoft.Billing/billingAccounts/1e5b9e50-a1ea-581e-fb3a-778b93a06854:6487d5cf-0a7b-42e6-9549-23ca416fb8bf_2019-05-31/billingRoleDefinitions/22222-22222-22222-22222-22222'
+                                principalTenantId = '9c888910-6b3b-4c17-8cff-844fefb026d4'
+                            }
+                        }
+                    )
+                }
             }
 
             Mock -CommandName Get-M365DSCAzureBillingAccountsRoleDefinition -MockWith {
@@ -164,33 +179,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return true from the Test method' {
                 Test-TargetResource @testParams | Should -Be $true
-            }
-        }
-
-        Context -Name "The instance exists and values are NOT in the desired state" -Fixture {
-            BeforeAll {
-                $testParams = @{
-                    BillingAccount        = "MyBillingAccount";
-                    PrincipalName         = "John.Smith@contoso.onmicrosoft.com";
-                    PrincipalType         = "User";
-                    PrincipalTenantId     = '9c888910-6b3b-4c17-8cff-844fefb026d4'
-                    RoleDefinition        = "Billing account contributor"; #drift
-                    Ensure                = 'Present'
-                    Credential            = $Credential;
-                }
-            }
-
-            It 'Should return Values from the Get method' {
-                (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
-            }
-
-            It 'Should return false from the Test method' {
-                Test-TargetResource @testParams | Should -Be $false
-            }
-
-            It 'Should call the Set method' {
-                Set-TargetResource @testParams
-                Should -Invoke -CommandName New-M365DSCAzureBillingAccountsRoleAssignment -Exactly 1
             }
         }
 

@@ -50,10 +50,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UserVoiceForFeedbackEnabled,
-
-        [Parameter()]
-        [System.Boolean]
         $PublicCdnEnabled,
 
         [Parameter()]
@@ -340,10 +336,6 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UserVoiceForFeedbackEnabled,
-
-        [Parameter()]
-        [System.Boolean]
         $PublicCdnEnabled,
 
         [Parameter()]
@@ -495,13 +487,7 @@ function Set-TargetResource
     $CurrentParameters.Remove('AllowSelectSecurityGroupsInSPSitesList') | Out-Null
     $CurrentParameters.Remove('EnableAzureADB2BIntegration') | Out-Null
     $CurrentParameters.Remove('OneDriveSharingCapability') | Out-Null
-
     $CurrentParameters.Remove('TenantDefaultTimezone') | Out-Null # this one is updated separately using Graph
-    if ($CurrentParameters.Keys.Contains('UserVoiceForFeedbackEnabled'))
-    {
-        Write-Verbose -Message 'Property UserVoiceForFeedbackEnabled is deprecated, removing it'
-        $CurrentParameters.Remove('UserVoiceForFeedbackEnabled') | Out-Null
-    }
 
     if ($PublicCdnEnabled -eq $false)
     {
@@ -634,10 +620,6 @@ function Test-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UserVoiceForFeedbackEnabled,
-
-        [Parameter()]
-        [System.Boolean]
         $PublicCdnEnabled,
 
         [Parameter()]
@@ -758,11 +740,9 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -770,42 +750,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Testing configuration for SPO Tenant'
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck @('IsSingleInstance', `
-            'MaxCompatibilityLevel', `
-            'SearchResolveExactEmailOrUPN', `
-            'OfficeClientADALDisabled', `
-            'LegacyAuthProtocolsEnabled', `
-            'SignInAccelerationDomain', `
-            'UsePersistentCookiesForExplorerView', `
-            'UserVoiceForFeedbackEnabled', `
-            'PublicCdnEnabled', `
-            'PublicCdnAllowedFileTypes', `
-            'UseFindPeopleInPeoplePicker', `
-            'NotificationsInSharePointEnabled', `
-            'OwnerAnonymousNotification', `
-            'ApplyAppEnforcedRestrictionsToAdHocRecipients', `
-            'FilePickerExternalImageSearchEnabled', `
-            'HideDefaultThemes', `
-            'HideSyncButtonOnTeamSite', `
-            'MarkNewFilesSensitiveByDefault', `
-            'DisabledWebPartIds', `
-            'SocialBarOnSitePagesDisabled', `
-            'CommentsOnSitePagesDisabled', `
-            'EnableAIPIntegration', `
-            'TenantDefaultTimezone'
-    )
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource

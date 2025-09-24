@@ -11,10 +11,6 @@ function Get-TargetResource
         $Identity,
 
         [Parameter()]
-        [System.DateTime]
-        $FocusedInboxOnLastUpdateTime,
-
-        [Parameter()]
         [System.Boolean]
         $FocusedInboxOn,
 
@@ -83,8 +79,6 @@ function Get-TargetResource
         $results = @{
             Identity                     = $Identity
             FocusedInboxOn               = [Boolean]$instance.FocusedInboxOn
-            # DEPRECATED
-            # FocusedInboxOnLastUpdateTime = [DateTime]$instance.FocusedInboxOnLastUpdateTime
             Ensure                       = 'Present'
             Credential                   = $Credential
             ApplicationId                = $ApplicationId
@@ -115,10 +109,6 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $Identity,
-
-        [Parameter()]
-        [System.DateTime]
-        $FocusedInboxOnLastUpdateTime,
 
         [Parameter()]
         [System.Boolean]
@@ -171,7 +161,6 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
 
     $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $SetParameters.Remove('FocusedInboxOnLastUpdateTime') | Out-Null
     Set-FocusedInbox @SetParameters
 }
 
@@ -184,10 +173,6 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $Identity,
-
-        [Parameter()]
-        [System.DateTime]
-        $FocusedInboxOnLastUpdateTime,
 
         [Parameter()]
         [System.Boolean]
@@ -223,9 +208,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -235,21 +217,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $ValuesToCheck.Remove('FocusedInboxOnLastUpdateTime') | Out-Null
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties @('FocusedInboxOnLastUpdateTime')
+    return $result
 }
 
 function Export-TargetResource

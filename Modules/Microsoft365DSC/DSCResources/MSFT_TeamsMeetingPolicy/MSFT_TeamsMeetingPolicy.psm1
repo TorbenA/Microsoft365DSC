@@ -236,10 +236,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
-        $ForceStreamingAttendeeMode,
-
-        [Parameter()]
-        [System.String]
         $InfoShownInReportMode,
 
         [Parameter()]
@@ -744,10 +740,6 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
-        $ForceStreamingAttendeeMode,
-
-        [Parameter()]
-        [System.String]
         $InfoShownInReportMode,
 
         [Parameter()]
@@ -898,9 +890,6 @@ function Set-TargetResource
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
     $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
-    # Parameter is Deprecated
-    $SetParameters.Remove('ForceStreamingAttendeeMode') | Out-Null
 
     if ($AllowCloudRecording -eq $false -and $SetParameters.Keys -contains 'AllowRecordingStorageOutsideRegion')
     {
@@ -1184,10 +1173,6 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
-        $ForceStreamingAttendeeMode,
-
-        [Parameter()]
-        [System.String]
         $InfoShownInReportMode,
 
         [Parameter()]
@@ -1321,11 +1306,9 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -1333,41 +1316,18 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of Team Meeting Policy {$Identity}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    $ValuesToCheck = $PSBoundParameters
-
-    # The AllowAnonymousUsersToDialOut is temporarly disabled. Therefore
-    # we can't create or update a policy with it and it needs to be removed;
-    $ValuesToCheck.Remove('AllowAnonymousUsersToDialOut') | Out-Null
-
-    # The AllowIPVideo is temporarly not working, therefore we won't check the value.
-    $ValuesToCheck.Remove('AllowIPVideo') | Out-Null
-
+    # The AllowAnonymousUsersToDialOut is temporarly disabled. Therefore we can't create or update a policy with it and it needs to be removed
+    # The AllowIPVideo is temporarly not working, therefore we won't check the value
     # The AllowUserToJoinExternalMeeting doesn't do anything based on official documentation
-    $ValuesToCheck.Remove('AllowUserToJoinExternalMeeting') | Out-Null
-
-    # Parameter is Deprecated
-    $ValuesToCheck.Remove('ForceStreamingAttendeeMode') | Out-Null
-
-    if ($AllowCloudRecording -eq $false -and $ValuesToCheck.Keys -contains 'AllowRecordingStorageOutsideRegion')
+    $excludedProperties = @('AllowAnonymousUsersToDialOut', 'AllowIPVideo', 'AllowUserToJoinExternalMeeting')
+    if ($AllowCloudRecording -eq $false -and $PSBoundParameters.ContainsKey('AllowRecordingStorageOutsideRegion'))
     {
-        $ValuesToCheck.Remove('AllowRecordingStorageOutsideRegion') | Out-Null
+        $excludedProperties += 'AllowCloudRecording'
     }
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties $excludedProperties
+    return $result
 }
 
 function Export-TargetResource

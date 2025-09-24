@@ -29,7 +29,6 @@ Configuration Example
             AccessGracePeriodMinutes       = 15
             AccessType                     = 'UnrestrictedAccess_TeamsApp'
             EnableScheduleOwnerPermissions = $False
-            EnableShiftPresence            = $False
             Ensure                         = 'Present'
             ShiftNoticeFrequency           = 'Never'
             ShiftNoticeMessageCustom       = ''

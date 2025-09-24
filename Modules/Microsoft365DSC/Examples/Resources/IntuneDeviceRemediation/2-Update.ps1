@@ -1,5 +1,5 @@
 <#
-This example updates a new Device Remediation.
+This example updates an existing Device Remediation.
 #>
 
 Configuration Example
@@ -46,7 +46,7 @@ Configuration Example
             DisplayName              = "Device remediation";
             EnforceSignatureCheck    = $False;
             Ensure                   = "Present";
-            Id                       = '00000000-0000-0000-0000-000000000000'
+            Id                       = '00000000-0000-0000-0000-000000000000' # Optional
             Publisher                = "Some Publisher";
             RemediationScriptContent = "Base64 encoded script content 2"; # Updated property
             RoleScopeTagIds          = @("0");

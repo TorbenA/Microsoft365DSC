@@ -24,7 +24,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             $secpasswd = ConvertTo-SecureString (New-Guid | Out-String) -AsPlainText -Force
             $Credential = New-Object System.Management.Automation.PSCredential ('tenantadmin@mydomain.com', $secpasswd)
 
-            Mock -CommandName Confirm-M365DSCDependencies -MockWith {
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
             }
 
             Mock -CommandName New-M365DSCConnection -MockWith {
@@ -36,7 +36,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-CASMailboxPlan -MockWith {
                 return @{
-                    Ensure            = 'Present'
                     Identity          = 'ExchangeOnlineEnterprise-6f6c267b-f8db-4020-b441-f7bd966a0ca0'
                     Credential        = $Credential
                     ActiveSyncEnabled = $true
@@ -81,7 +80,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     ActiveSyncEnabled = $false # Drift
                     ImapEnabled       = $true
                     OwaMailboxPolicy  = 'OwaMailboxPolicy-Default'
-                    PopEnabled        = $true
+                    PopEnabled        = $false # Drift
                 }
             }
 
@@ -97,6 +96,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
         Context -Name 'ReverseDSC Tests' -Fixture {
             BeforeAll {
+                $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
                 }

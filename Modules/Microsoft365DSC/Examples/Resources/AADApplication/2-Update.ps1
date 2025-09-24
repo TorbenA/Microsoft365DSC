@@ -25,12 +25,10 @@ Configuration Example
         AADApplication 'AADApp1'
         {
             DisplayName               = "AppDisplayName"
-            AuthenticationBehaviors = MSFT_MicrosoftGraphauthenticationBehaviors # To make sure these parameters are not configured
-                {
-                    BlockAzureADGraphAccess       = 'Null'
-                    RemoveUnverifiedEmailClaim    = 'Null'
-                }
-            AvailableToOtherTenants   = $true # Updated Property
+            AuthenticationBehaviors = MSFT_MicrosoftGraphauthenticationBehaviors{ # To make sure these parameters are not configured
+                BlockAzureADGraphAccess       = 'Null'
+                RemoveUnverifiedEmailClaim    = 'Null'
+            }
             Description               = "Application Description"
             GroupMembershipClaims     = "None"
             Homepage                  = "https://$TenantId"

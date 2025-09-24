@@ -16,11 +16,6 @@ function Get-TargetResource
         $DisplayName,
 
         [Parameter()]
-        [ValidateSet('preMigration', 'migrationInProgress', 'migrationComplete', 'unknownFutureValue')]
-        [System.String]
-        $PolicyMigrationState,
-
-        [Parameter()]
         [System.String]
         $PolicyVersion,
 
@@ -254,7 +249,6 @@ function Get-TargetResource
             #region resource generator code
             Description                      = $getValue.Description
             DisplayName                      = $getValue.DisplayName
-            #PolicyMigrationState             = $enumPolicyMigrationState #DEPRECATED - Cannot be set
             PolicyVersion                    = $getValue.PolicyVersion
             ReconfirmationInDays             = $getValue.ReconfirmationInDays
             RegistrationEnforcement          = $complexRegistrationEnforcement
@@ -299,11 +293,6 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
-
-        [Parameter()]
-        [ValidateSet('preMigration', 'migrationInProgress', 'migrationComplete', 'unknownFutureValue')]
-        [System.String]
-        $PolicyMigrationState,
 
         [Parameter()]
         [System.String]
@@ -404,12 +393,6 @@ function Set-TargetResource
             }
         }
 
-        if (-not [System.String]::IsNullOrEmpty($PolicyMigrationState))
-        {
-            Write-Verbose -Message "DEPRECATED - Property PolicyMigrationState cannot be set."
-            $UpdateParameters.Remove('PolicyMigrationState') | Out-Null
-        }
-
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.AuthenticationMethodsPolicy')
         Write-Verbose -Message "Updating AuthenticationMethodPolicy with: `r`n$(Convert-M365DscHashtableToString -Hashtable $UpdateParameters)"
@@ -432,11 +415,6 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
-
-        [Parameter()]
-        [ValidateSet('preMigration', 'migrationInProgress', 'migrationComplete', 'unknownFutureValue')]
-        [System.String]
-        $PolicyMigrationState,
 
         [Parameter()]
         [System.String]
@@ -506,8 +484,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludedProperties @('PolicyMigrationState')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

@@ -8,7 +8,6 @@
 | **OmaSettings** | Write | MSFT_MicrosoftGraphomaSetting[] | OMA settings. This collection can contain a maximum of 1000 elements. | |
 | **Description** | Write | String | Admin provided description of the Device Configuration. | |
 | **RoleScopeTagIds** | Write | StringArray[] | List of Scope Tags for this Entity instance. | |
-| **SupportsScopeTags** | Write | Boolean | Indicates whether or not the underlying Device Configuration supports the assignment of scope tags. Assigning to the ScopeTags property is not allowed when this value is false and entities will not be visible to scoped users. This occurs for Legacy policies created in Silverlight and can be resolved by deleting and recreating the policy in the Azure Portal. This property is read-only. | |
 | **Id** | Write | String | The unique identifier for an entity. Read-only. | |
 | **Assignments** | Write | MSFT_DeviceManagementConfigurationPolicyAssignments[] | Represents the assignment to the Intune policy. | |
 | **Ensure** | Write | String | Present ensures the policy exists, absent ensures it is removed. | `Present`, `Absent` |
@@ -138,7 +137,6 @@ Configuration Example
                     DisplayName = 'custom 2'
                 }
             );
-            SupportsScopeTags    = $True;
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;
@@ -202,7 +200,6 @@ Configuration Example
                     DisplayName = 'custom 3'
                 }
             );
-            SupportsScopeTags    = $True;
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;

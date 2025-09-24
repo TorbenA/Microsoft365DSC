@@ -27,7 +27,6 @@ Configuration Example
             OneDriveForGuestsEnabled                  = $false
             ODBAccessRequests                         = "On"
             ODBMembersCanShare                        = "On"
-            NotifyOwnersWhenInvitationsAccepted       = $false
             NotificationsInOneDriveForBusinessEnabled = $false
             Ensure                                    = "Present"
             Credential                                = $Credscredential
