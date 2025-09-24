@@ -2,18 +2,18 @@
 
 ## Description
 
-This function returns the used workloads for the specified DSC resources
+This function returns the connection workloads for the specified DSC resources
 
 ## Output
 
 This function outputs information as the following type:
-**System.Collections.Hashtable**
+**System.Collections.Hashtable[]**
 
 ## Parameters
 
 | Parameter | Required | DataType | Default Value | Allowed Values | Description |
 | --- | --- | --- | --- | --- | --- |
-| ResourceNames | True | Array |  |  | Specifies the resources for which the workloads should be determined.
+| ResourceNames | True | Array |  |  | Specifies the resources for which the connection workloads should be determined.
 Either a single string, an array of strings or an object with 'Name' and 'AuthenticationMethod' can be provided. |
 
 ## Examples

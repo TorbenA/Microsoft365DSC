@@ -14,13 +14,8 @@
 | **BulkQuarantineTag** | Write | String | The BulkQuarantineTag parameter specifies the quarantine policy that's used on messages that are quarantined as bulk email. | |
 | **BulkSpamAction** | Write | String | The BulkSpamAction parameter specifies the action to take on messages that are classified as bulk email. | `MoveToJmf`, `AddXHeader`, `ModifySubject`, `Redirect`, `Delete`, `Quarantine`, `NoAction` |
 | **BulkThreshold** | Write | UInt32 | The BulkThreshold parameter specifies the Bulk Complaint Level (BCL) threshold setting. Valid values are from 1 - 9, where 1 marks most bulk email as spam, and 9 allows the most bulk email to be delivered. The default value is 7. | |
-| **DownloadLink** | Write | Boolean | The DownloadLink parameter shows or hides a link in end-user spam notification messages to download the Junk Email Reporting Tool plugin for Outlook. Valid input for this parameter is $true or $false. The default value is $false. | |
-| **EnableEndUserSpamNotifications** | Write | Boolean | The EnableEndUserSpamNotification parameter enables for disables sending end-user spam quarantine notification messages. Valid input for this parameter is $true or $false. The default value is $false. | |
 | **EnableLanguageBlockList** | Write | Boolean | The EnableLanguageBlockList parameter enables or disables blocking email messages that are written in specific languages, regardless of the message contents. Valid input for this parameter is $true or $false. The default value is $false. | |
 | **EnableRegionBlockList** | Write | Boolean | The EnableRegionBlockList parameter enables or disables blocking email messages that are sent from specific countries or regions, regardless of the message contents. Valid input for this parameter is $true or $false. The default value is $false. | |
-| **EndUserSpamNotificationCustomSubject** | Write | String | The EndUserSpamNotificationCustomSubject parameter specifies a custom subject for end-user spam notification messages. | |
-| **EndUserSpamNotificationFrequency** | Write | UInt32 | The EndUserSpamNotificationFrequency parameter specifies the repeat interval in days that end-user spam notification messages are sent. Valid input for this parameter is an integer between 1 and 15. The default value is 3. | |
-| **EndUserSpamNotificationLanguage** | Write | String | The EndUserSpamNotificationLanguage parameter specifies the language of end-user spam notification messages. The default value is Default. This means the default language of end-user spam notification messages is the default language of the cloud-based organization. | `Default`, `English`, `French`, `German`, `Italian`, `Japanese`, `Spanish`, `Korean`, `Portuguese`, `Russian`, `ChineseSimplified`, `ChineseTraditional`, `Amharic`, `Arabic`, `Bulgarian`, `BengaliIndia`, `Catalan`, `Czech`, `Cyrillic`, `Danish`, `Greek`, `Estonian`, `Basque`, `Farsi`, `Finnish`, `Filipino`, `Galician`, `Gujarati`, `Hebrew`, `Hindi`, `Croatian`, `Hungarian`, `Indonesian`, `Icelandic`, `Kazakh`, `Kannada`, `Lithuanian`, `Latvian`, `Malayalam`, `Marathi`, `Malay`, `Dutch`, `NorwegianNynorsk`, `Norwegian`, `Oriya`, `Polish`, `PortuguesePortugal`, `Romanian`, `Slovak`, `Slovenian`, `SerbianCyrillic`, `Serbian`, `Swedish`, `Swahili`, `Tamil`, `Telugu`, `Thai`, `Turkish`, `Ukrainian`, `Urdu`, `Vietnamese` |
 | **HighConfidencePhishAction** | Write | String | The HighConfidencePhishAction parameter specifies the action to take on messages that are marked as high confidence phishing | `MoveToJmf`, `Redirect`, `Quarantine` |
 | **HighConfidencePhishQuarantineTag** | Write | String | The HighConfidencePhishQuarantineTag parameter specifies the quarantine policy that's used on messages that are quarantined as high confidence phishing. | |
 | **HighConfidenceSpamAction** | Write | String | The HighConfidenceSpamAction parameter specifies the action to take on messages that are classified as high confidence spam. | `MoveToJmf`, `AddXHeader`, `ModifySubject`, `Redirect`, `Delete`, `Quarantine`, `NoAction` |
@@ -120,7 +115,6 @@ Configuration Example
             AdminDisplayName                     = ""
             BulkSpamAction                       = "MoveToJmf"
             BulkThreshold                        = 7
-            DownloadLink                         = $False
             EnableLanguageBlockList              = $False
             EnableRegionBlockList                = $False
             HighConfidencePhishAction            = "Quarantine"
@@ -194,8 +188,7 @@ Configuration Example
             AddXHeaderValue                      = ""
             AdminDisplayName                     = ""
             BulkSpamAction                       = "MoveToJmf"
-            BulkThreshold                        = 7
-            DownloadLink                         = $True # Updated Property
+            BulkThreshold                        = 8 # Updated Property
             EnableLanguageBlockList              = $False
             EnableRegionBlockList                = $False
             HighConfidencePhishAction            = "Quarantine"

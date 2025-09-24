@@ -9,7 +9,6 @@
 | **ConfigDeviceHealthMonitoringScope** | Write | StringArray[] | Specifies set of events collected from the device where health monitoring is enabled. Possible values are: undefined, healthMonitoring, bootPerformance, windowsUpdates, privilegeManagement. | `undefined`, `healthMonitoring`, `bootPerformance`, `windowsUpdates`, `privilegeManagement` |
 | **Description** | Write | String | Admin provided description of the Device Configuration. | |
 | **DisplayName** | Key | String | Admin provided name of the device configuration. | |
-| **SupportsScopeTags** | Write | Boolean | Indicates whether or not the underlying Device Configuration supports the assignment of scope tags. Assigning to the ScopeTags property is not allowed when this value is false and entities will not be visible to scoped users. This occurs for Legacy policies created in Silverlight and can be resolved by deleting and recreating the policy in the Azure Portal. This property is read-only. | |
 | **Id** | Write | String | The unique identifier for an entity. Read-only. | |
 | **RoleScopeTagIds** | Write | StringArray[] | List of Scope Tags for this Entity instance. | |
 | **Assignments** | Write | MSFT_DeviceManagementConfigurationPolicyAssignments[] | Represents the assignment to the Intune policy. | |
@@ -106,7 +105,6 @@ Configuration Example
             ConfigDeviceHealthMonitoringScope = @("bootPerformance","windowsUpdates");
             DisplayName                       = "Health Monitoring Configuration";
             Ensure                            = "Present";
-            SupportsScopeTags                 = $True;
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;
@@ -152,7 +150,6 @@ Configuration Example
             ConfigDeviceHealthMonitoringScope = @("bootPerformance","windowsUpdates");
             DisplayName                       = "Health Monitoring Configuration";
             Ensure                            = "Present";
-            SupportsScopeTags                 = $False; # Updated Property
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;

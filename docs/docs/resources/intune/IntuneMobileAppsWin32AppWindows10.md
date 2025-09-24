@@ -33,7 +33,7 @@
 | **MinimumSupportedWindowsRelease** | Write | String | Indicates the value for the minimum supported windows release. Format for Windows 10: &lt;VersionNumber&gt;, e.g. '1709' or '20H2'. For Windows 11: 'Windows11_&lt;VersionNumber&gt;', e.g. 'Windows11_21H2' | |
 | **DisplayVersion** | Write | String | Indicates the version displayed in the UX for this app. Used to set the version of the app. Example: 1.0.3.215. | |
 | **AllowAvailableUninstall** | Write | Boolean | Indicates whether the uninstall is supported from the company portal for the Win32 app with an available assignment. When TRUE, indicates that uninstall is supported from the company portal for the Windows app (Win32) with an available assignment. When FALSE, indicates that uninstall is not supported for the Windows app (Win32) with an Available assignment. | |
-| **Assignments** | Write | MSFT_DeviceManagementMobileAppAssignment[] | Represents the assignment to the Intune policy. | |
+| **Assignments** | Write | MSFT_DeviceManagementWin32MobileAppAssignment[] | Represents the assignment to the Intune policy. | |
 | **Ensure** | Write | String | Present ensures the policy exists, absent ensures it is removed. | `Present`, `Absent` |
 | **Credential** | Write | PSCredential | Credentials of the Admin | |
 | **ApplicationId** | Write | String | Id of the Azure Active Directory application to authenticate with. | |
@@ -91,7 +91,7 @@
 
 | Parameter | Attribute | DataType | Description | Allowed Values |
 | --- | --- | --- | --- | --- |
-| **odataType** | Write | String | The odata type of the assignment type. | `#microsoft.graph.win32LobAppAssignmentSettings` |
+| **odataType** | Write | String | The odata type of the assignment type. | `#microsoft.graph.win32LobAppAssignmentSettings`, `#microsoft.graph.winGetAppAssignmentSettings`, `#microsoft.graph.windowsUniversalAppXAppAssignmentSettings` |
 
 ### MSFT_DeviceManagementWin32MobileAppAssignmentSettings
 
@@ -99,7 +99,7 @@
 
 | Parameter | Attribute | DataType | Description | Allowed Values |
 | --- | --- | --- | --- | --- |
-| **odataType** | Write | String | The odata type of the assignment type. | `#microsoft.graph.win32LobAppAssignmentSettings` |
+| **odataType** | Write | String | The odata type of the assignment type. | `#microsoft.graph.win32LobAppAssignmentSettings`, `#microsoft.graph.winGetAppAssignmentSettings`, `#microsoft.graph.windowsUniversalAppXAppAssignmentSettings` |
 | **autoUpdateSettings** | Write | MSFT_DeviceManagementWin32MobileAppAssignmentSettingsAutoUpdateSettings | The auto-update settings to apply for this app assignment. | |
 | **deliveryOptimizationPriority** | Write | String | The delivery optimization priority for this app assignment. This setting is not supported in National Cloud environments. Possible values are: notConfigured, foreground. | `foreground`, `notConfigured` |
 | **installTimeSettings** | Write | MSFT_DeviceManagementWin32MobileAppAssignmentSettingsInstallTimeSettings | The install time settings to apply for this app assignment. | |
