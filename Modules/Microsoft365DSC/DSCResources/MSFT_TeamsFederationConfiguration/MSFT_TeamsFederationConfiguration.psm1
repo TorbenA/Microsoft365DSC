@@ -23,11 +23,6 @@ function Get-TargetResource
         [System.Boolean]
         $AllowFederatedUsers,
 
-        # DEPRECATED
-        [Parameter()]
-        [System.Boolean]
-        $AllowPublicUsers,
-
         [Parameter()]
         [System.Boolean]
         $AllowTeamsConsumer,
@@ -132,8 +127,6 @@ function Get-TargetResource
             AllowedDomains                              = $AllowedDomainsValues
             BlockedDomains                              = $BlockedDomainsValues
             AllowFederatedUsers                         = $config.AllowFederatedUsers
-            #DEPRECATED
-            #AllowPublicUsers                            = $config.AllowPublicUsers
             AllowTeamsConsumer                          = $config.AllowTeamsConsumer
             AllowTeamsConsumerInbound                   = $config.AllowTeamsConsumerInbound
             ExternalAccessWithTrialTenants              = $config.ExternalAccessWithTrialTenants
@@ -181,10 +174,6 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $AllowFederatedUsers,
-
-        [Parameter()]
-        [System.Boolean]
-        $AllowPublicUsers,
 
         [Parameter()]
         [System.Boolean]
@@ -250,17 +239,10 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 
-    $SetParams = $PSBoundParameters
-    $SetParams.Remove('Credential') | Out-Null
-    $SetParams.Remove('ApplicationId') | Out-Null
-    $SetParams.Remove('TenantId') | Out-Null
-    $SetParams.Remove('CertificateThumbprint') | Out-Null
-    $SetParams.Remove('AllowedDomains') | Out-Null
-    $SetParams.Remove('ManagedIdentity') | Out-Null
-    $SetParams.Remove('AccessTokens') | Out-Null
+    $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     if ($allowedDomains.Length -gt 0)
     {
         $SetParams.Add('AllowedDomainsAsAList', $AllowedDomains)
@@ -269,12 +251,6 @@ function Set-TargetResource
     {
         $AllowAllKnownDomains = New-CsEdgeAllowAllKnownDomains
         $SetParams.Add('AllowedDomains', $AllowAllKnownDomains)
-    }
-
-    if ($SetParams.ContainsKey('AllowPublicUsers'))
-    {
-        Write-Verbose -Message "[DEPRECATED] The AllowPublicUsers property is deprecated and will be removed."
-        $SetParams.Remove('AllowPublicUsers') | Out-Null
     }
 
     Write-Verbose -Message "SetParams: $(Convert-M365DscHashtableToString -Hashtable $SetParams)"
@@ -303,10 +279,6 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $AllowFederatedUsers,
-
-        [Parameter()]
-        [System.Boolean]
-        $AllowPublicUsers,
 
         [Parameter()]
         [System.Boolean]
@@ -377,11 +349,6 @@ function Test-TargetResource
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
 
     $ValuesToCheck = $PSBoundParameters
-    if ($ValuesToCheck.ContainsKey('AllowPublicUsers'))
-    {
-        $ValuesToCheck.Remove('AllowPublicUsers') | Out-Null
-    }
-
     $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
         -Source $($MyInvocation.MyCommand.Source) `
         -DesiredValues $PSBoundParameters `
@@ -492,4 +459,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

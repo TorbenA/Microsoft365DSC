@@ -25,10 +25,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $NotifyOwnersWhenInvitationsAccepted,
-
-        [Parameter()]
-        [System.Boolean]
         $NotificationsInOneDriveForBusinessEnabled,
 
         [Parameter()]
@@ -106,7 +102,7 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting configuration of OneDrive Settings'
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+    $null = New-M365DSCConnection -Workload 'PnP' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -194,8 +190,6 @@ function Get-TargetResource
             OneDriveForGuestsEnabled                  = $tenant.OneDriveForGuestsEnabled
             ODBAccessRequests                         = $tenant.ODBAccessRequests
             ODBMembersCanShare                        = $ODBMembersCanShareValue
-            #DEPRECATED
-            #NotifyOwnersWhenInvitationsAccepted       = $tenant.NotifyOwnersWhenInvitationsAccepted
             NotificationsInOneDriveForBusinessEnabled = $tenant.NotificationsInOneDriveForBusinessEnabled
             Ensure                                    = 'Present'
             ApplicationId                             = $ApplicationId
@@ -241,11 +235,6 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $OneDriveForGuestsEnabled,
-
-        # DEPRECATED
-        [Parameter()]
-        [System.Boolean]
-        $NotifyOwnersWhenInvitationsAccepted,
 
         [Parameter()]
         [System.Boolean]
@@ -326,6 +315,9 @@ function Set-TargetResource
 
     Write-Verbose -Message 'Setting configuration of OneDrive Settings'
 
+    $null = New-M365DSCConnection -Workload 'PnP' `
+        -InboundParameters $PSBoundParameters
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -338,20 +330,15 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+    $null = New-M365DSCConnection -Workload 'PnP' `
         -InboundParameters $PSBoundParameters
 
     ## Configure OneDrive settings
     ## Parameters below are remove for the Set-SPOTenant cmdlet
     ## they are used in the Set-SPOTenantSyncClientRestriction cmdlet
-    $CurrentParameters = $PSBoundParameters
-    $CurrentParameters.Remove('Credential') | Out-Null
+    $CurrentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $Options = @{}
 
-    if ($CurrentParameters.ContainsKey('Ensure'))
-    {
-        $CurrentParameters.Remove('Ensure') | Out-Null
-    }
     if ($CurrentParameters.ContainsKey('BlockMacSync'))
     {
         $Options.Add('BlockMacSync', $CurrentParameters.BlockMacSync)
@@ -432,14 +419,6 @@ function Set-TargetResource
         $CurrentParameters.Remove('IsSingleInstance') | Out-Null
     }
 
-    $CurrentParameters.Remove('ApplicationId') | Out-Null
-    $CurrentParameters.Remove('TenantId') | Out-Null
-    $CurrentParameters.Remove('CertificatePath') | Out-Null
-    $CurrentParameters.Remove('CertificatePassword') | Out-Null
-    $CurrentParameters.Remove('CertificateThumbprint') | Out-Null
-    $CurrentParameters.Remove('ManagedIdentity') | Out-Null
-    $CurrentParameters.Remove('AccessTokens') | Out-Null
-
     Write-Verbose -Message 'Configuring OneDrive settings.'
     Set-PnPTenant @CurrentParameters
 
@@ -474,10 +453,6 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $OneDriveForGuestsEnabled,
-
-        [Parameter()]
-        [System.Boolean]
-        $NotifyOwnersWhenInvitationsAccepted,
 
         [Parameter()]
         [System.Boolean]
@@ -677,4 +652,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

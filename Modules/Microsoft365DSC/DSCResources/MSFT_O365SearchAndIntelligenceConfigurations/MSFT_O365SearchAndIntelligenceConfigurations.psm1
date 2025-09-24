@@ -204,6 +204,8 @@ function Set-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message 'Setting the O365 Search and Intelligence Configurations'
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -216,7 +218,9 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Setting configuration of Search and Intelligence'
+    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+        -InboundParameters $PSBoundParameters
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
@@ -394,6 +398,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
@@ -458,4 +463,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

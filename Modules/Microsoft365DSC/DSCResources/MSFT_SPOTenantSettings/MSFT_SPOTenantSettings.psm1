@@ -50,10 +50,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UserVoiceForFeedbackEnabled,
-
-        [Parameter()]
-        [System.Boolean]
         $PublicCdnEnabled,
 
         [Parameter()]
@@ -186,7 +182,7 @@ function Get-TargetResource
         if (-not $Script:ExportMode)
         {
             $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters
+                -InboundParameters $PSBoundParameters
 
             $null = New-M365DSCConnection -Workload 'PNP' `
                 -InboundParameters $PSBoundParameters
@@ -239,7 +235,7 @@ function Get-TargetResource
             DenySelectSecurityGroupsInSPSitesList                  = $response.DenySelectSecurityGroupsInSPSitesList
             AllowSelectSecurityGroupsInSPSitesList                 = $response.AllowSelectSecurityGroupsInSPSitesList
             EnableAzureADB2BIntegration                            = $response.EnableAzureADB2BIntegration
-            OneDriveSharingCapability                              = $response.OneDriveSharingCapability
+            OneDriveSharingCapability                              = $response.ODBSharingCapability
             MinCompatibilityLevel                                  = $MinCompat
             MaxCompatibilityLevel                                  = $MaxCompat
             SearchResolveExactEmailOrUPN                           = $SPOTenantSettings.SearchResolveExactEmailOrUPN
@@ -337,10 +333,6 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $UsePersistentCookiesForExplorerView,
-
-        [Parameter()]
-        [System.Boolean]
-        $UserVoiceForFeedbackEnabled,
 
         [Parameter()]
         [System.Boolean]
@@ -481,23 +473,13 @@ function Set-TargetResource
 
     if (-not [string]::IsNullOrEmpty($TenantDefaultTimezone))
     {
-        $ConnectionModeGraph = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
     }
-    $ConnectionMode = New-M365DSCConnection -Workload 'PNP' -InboundParameters $PSBoundParameters
+    $null = New-M365DSCConnection -Workload 'PNP' -InboundParameters $PSBoundParameters
 
-    $CurrentParameters = $PSBoundParameters
-    $CurrentParameters.Remove('Credential') | Out-Null
+    $CurrentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $CurrentParameters.Remove('IsSingleInstance') | Out-Null
-    $CurrentParameters.Remove('Ensure') | Out-Null
-    $CurrentParameters.Remove('ApplicationId') | Out-Null
-    $CurrentParameters.Remove('TenantId') | Out-Null
-    $CurrentParameters.Remove('CertificatePath') | Out-Null
-    $CurrentParameters.Remove('CertificatePassword') | Out-Null
-    $CurrentParameters.Remove('CertificateThumbprint') | Out-Null
-    $CurrentParameters.Remove('ManagedIdentity') | Out-Null
-    $CurrentParameters.Remove('ApplicationSecret') | Out-Null
-    $CurrentParameters.Remove('AccessTokens') | Out-Null
     $CurrentParameters.Remove('ExemptNativeUsersFromTenantLevelRestricedAccessControl') | Out-Null
     $CurrentParameters.Remove('AllowSelectSGsInODBListInTenant') | Out-Null
     $CurrentParameters.Remove('DenySelectSGsInODBListInTenant') | Out-Null
@@ -505,13 +487,7 @@ function Set-TargetResource
     $CurrentParameters.Remove('AllowSelectSecurityGroupsInSPSitesList') | Out-Null
     $CurrentParameters.Remove('EnableAzureADB2BIntegration') | Out-Null
     $CurrentParameters.Remove('OneDriveSharingCapability') | Out-Null
-
     $CurrentParameters.Remove('TenantDefaultTimezone') | Out-Null # this one is updated separately using Graph
-    if ($CurrentParameters.Keys.Contains('UserVoiceForFeedbackEnabled'))
-    {
-        Write-Verbose -Message 'Property UserVoiceForFeedbackEnabled is deprecated, removing it'
-        $CurrentParameters.Remove('UserVoiceForFeedbackEnabled') | Out-Null
-    }
 
     if ($PublicCdnEnabled -eq $false)
     {
@@ -570,7 +546,7 @@ function Set-TargetResource
         if ($null -ne $OneDriveSharingCapability)
         {
             $needToUpdate = $true
-            $paramsToUpdate.Add('OneDriveSharingCapability', $OneDriveSharingCapability)
+            $paramsToUpdate.Add('ODBSharingCapability', $OneDriveSharingCapability)
         }
 
         if ($needToUpdate)
@@ -641,10 +617,6 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $UsePersistentCookiesForExplorerView,
-
-        [Parameter()]
-        [System.Boolean]
-        $UserVoiceForFeedbackEnabled,
 
         [Parameter()]
         [System.Boolean]
@@ -796,7 +768,6 @@ function Test-TargetResource
             'LegacyAuthProtocolsEnabled', `
             'SignInAccelerationDomain', `
             'UsePersistentCookiesForExplorerView', `
-            'UserVoiceForFeedbackEnabled', `
             'PublicCdnEnabled', `
             'PublicCdnAllowedFileTypes', `
             'UseFindPeopleInPeoplePicker', `
@@ -936,4 +907,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

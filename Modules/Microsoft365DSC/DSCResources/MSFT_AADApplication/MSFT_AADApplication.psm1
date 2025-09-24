@@ -20,10 +20,6 @@ function Get-TargetResource
         $AppId,
 
         [Parameter()]
-        [System.Boolean]
-        $AvailableToOtherTenants,
-
-        [Parameter()]
         [System.String]
         $Description,
 
@@ -215,7 +211,6 @@ function Get-TargetResource
         $complexAuthenticationBehaviors = @{
             BlockAzureADGraphAccess    = 'Null'
             RemoveUnverifiedEmailClaim = 'Null'
-            #RequireClientServicePrincipal = 'Null' #DEPRECATED
         }
         if ($null -ne $AADApp.authenticationBehaviors.blockAzureADGraphAccess)
         {
@@ -391,13 +386,6 @@ function Get-TargetResource
             $PublicClientRedirectUrisValue = $AADApp.PublicClient.RedirectUris
         }
 
-        # DEPRECATED
-        $AvailableToOtherTenantsValue = $false
-        if ($AADApp.SignInAudience -ne 'AzureADMyOrg')
-        {
-            $AvailableToOtherTenantsValue = $true
-        }
-
         $OwnersValues = @()
         foreach ($Owner in $($AADApp.Owners | Where-Object { -not $_.DeletedDateTime }))
         {
@@ -509,7 +497,6 @@ function Get-TargetResource
 
         $result = @{
             DisplayName              = $AADApp.DisplayName
-            AvailableToOtherTenants  = $AvailableToOtherTenantsValue
             AuthenticationBehaviors  = $complexAuthenticationBehaviors
             Description              = $AADApp.Description
             GroupMembershipClaims    = $AADApp.GroupMembershipClaims
@@ -581,10 +568,6 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $AppId,
-
-        [Parameter()]
-        [System.Boolean]
-        $AvailableToOtherTenants,
 
         [Parameter()]
         [System.String]
@@ -780,11 +763,6 @@ function Set-TargetResource
 
     }
 
-    if ($currentParameters.ContainsKey('AvailableToOtherTenants'))
-    {
-        Write-Verbose -Message "Property AvailableToOtherTenants is deprecated and will not have any effect. We recommend removing it from your configuration."
-    }
-    $currentParameters.Remove('AvailableToOtherTenants') | Out-Null
     $currentParameters.Remove('PublicClient') | Out-Null
     $currentParameters.Remove('Verbose') | Out-Null
 
@@ -1373,10 +1351,6 @@ function Test-TargetResource
         $AppId,
 
         [Parameter()]
-        [System.Boolean]
-        $AvailableToOtherTenants,
-
-        [Parameter()]
         [System.String]
         $Description,
 
@@ -1510,7 +1484,7 @@ function Test-TargetResource
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
                                          -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludedProperties @('AppId', 'ObjectId', 'AvailableToOtherTenants')
+                                         -ExcludedProperties @('AppId', 'ObjectId')
     return $result
 }
 

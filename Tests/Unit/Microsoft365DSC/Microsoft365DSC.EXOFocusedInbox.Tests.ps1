@@ -46,6 +46,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
             }
 
+            Mock -CommandName Get-FocusedInbox -MockWith {
+                return @{
+                    FocusedInboxOn               = $true;
+                    FocusedInboxOnLastUpdateTime = "1/1/0001 12:00:00 AM";
+                    Identity                     = "admin@contoso.com";
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -58,17 +66,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     Ensure                       = "Present";
-                    FocusedInboxOn               = $True;
-                    FocusedInboxOnLastUpdateTime = "1/1/0001 12:00:00 AM";
+                    FocusedInboxOn               = $false; # Drift
                     Identity                     = "admin@contoso.com";
-                }
-
-                Mock -CommandName Get-FocusedInbox -MockWith {
-                    return @{
-                        FocusedInboxOn               = $False;
-                        FocusedInboxOnLastUpdateTime = "1/1/0001 12:00:00 AM";
-                        Identity                     = "admin@contoso.com";
-                    }
                 }
             }
 
@@ -91,16 +90,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Ensure                       = "Present";
                     FocusedInboxOn               = $True;
-                    FocusedInboxOnLastUpdateTime = "1/1/0001 12:00:00 AM";
                     Identity                     = "admin@contoso.com";
-                }
-
-                Mock -CommandName Get-FocusedInbox -MockWith {
-                    return @{
-                        FocusedInboxOn               = $True;
-                        FocusedInboxOnLastUpdateTime = "1/1/0001 12:00:00 AM";
-                        Identity                     = "admin@contoso.com";
-                    }
                 }
             }
 
@@ -118,7 +108,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Ensure                       = "Present";
                     FocusedInboxOn               = $True;
-                    FocusedInboxOnLastUpdateTime = "1/1/0001 12:00:00 AM";
                     Identity                     = "admin@contoso.com";
                 }
 
@@ -144,22 +133,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential  = $Credential;
-                }
-
-                Mock -CommandName Get-Mailbox -MockWith {
-                    return @{
-                        Id                = "12345-12345-12345-12345-12345"
-                        UserPrincipalName = "admin@contoso.com"
-                    }
-                }
-                Mock -CommandName Get-FocusedInbox -MockWith {
-                    return @{
-                        Ensure                       = "Present";
-                        FocusedInboxOn               = $True;
-                        FocusedInboxOnLastUpdateTime = "1/1/0001 12:00:00 AM";
-                        Identity                     = "admin@contoso.com";
-
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {

@@ -62,6 +62,26 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 )
             }
 
+            Mock -CommandName Get-MgBetaNetworkAccessFilteringProfile -MockWith {
+                return @{
+                    Id          = '22222-22222-22222-22222-22222'
+                    Name        = 'My Profile'
+                    Description = 'Description of profile'
+                    State       = 'enabled'
+                    Priority    = 120
+                    Policies    = @(
+                        @{
+                            Id                   = '11111-22222-33333-44444-55556'
+                            State                = 'enabled'
+                            AdditionalProperties = @{
+                                priority     = 200
+                                loggingState = 'enabled'
+                            }
+                        }
+                    )
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -123,26 +143,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure              = 'Absent'
                     Credential          = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaNetworkAccessFilteringProfile -MockWith {
-                    return @{
-                        Id          = '22222-22222-22222-22222-22222'
-                        Name        = 'My Profile'
-                        Description = 'Description of profile'
-                        State       = 'enabled'
-                        Priority    = 120
-                        Policies    = @(
-                            @{
-                                Id                   = '11111-22222-33333-44444-55556'
-                                State                = 'enabled'
-                                AdditionalProperties = @{
-                                    priority     = 200
-                                    loggingState = 'enabled'
-                                }
-                            }
-                        )
-                    }
-                }
             }
             It 'Should return Values from the Get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
@@ -175,26 +175,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure              = 'Present'
                     Credential          = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaNetworkAccessFilteringProfile -MockWith {
-                    return @{
-                        Id          = '22222-22222-22222-22222-22222'
-                        Name        = 'My Profile'
-                        Description = 'Description of profile'
-                        State       = 'enabled'
-                        Priority    = 120
-                        Policies    = @(
-                            @{
-                                Id                   = '11111-22222-33333-44444-55556'
-                                State                = 'enabled'
-                                AdditionalProperties = @{
-                                    priority     = 200
-                                    loggingState = 'enabled'
-                                }
-                            }
-                        )
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -220,26 +200,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure              = 'Present'
                     Credential          = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaNetworkAccessFilteringProfile -MockWith {
-                    return @{
-                        Id          = '22222-22222-22222-22222-22222'
-                        Name        = 'My Profile'
-                        Description = 'Description of profile'
-                        State       = 'enabled'
-                        Priority    = 120
-                        Policies    = @(
-                            @{
-                                Id                   = '11111-22222-33333-44444-55556'
-                                State                = 'enabled'
-                                AdditionalProperties = @{
-                                    priority     = 200
-                                    loggingState = 'enabled'
-                                }
-                            }
-                        )
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -263,26 +223,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential  = $Credential;
-                }
-
-                Mock -CommandName Get-MgBetaNetworkAccessFilteringProfile -MockWith {
-                    return @{
-                        Id          = '22222-22222-22222-22222-22222'
-                        Name        = 'My Profile'
-                        Description = 'Description of profile'
-                        State       = 'enabled'
-                        Priority    = 120
-                        Policies    = @(
-                            @{
-                                Id                   = '11111-22222-33333-44444-55556'
-                                State                = 'enabled'
-                                AdditionalProperties = @{
-                                    priority     = 200
-                                    loggingState = 'enabled'
-                                }
-                            }
-                        )
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {

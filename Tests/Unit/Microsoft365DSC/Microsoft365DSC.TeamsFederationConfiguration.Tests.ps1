@@ -38,7 +38,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Get-CsTenantFederationConfiguration -MockWith {
                 return @{
                     AllowFederatedUsers       = $True
-                    AllowPublicUsers          = $True
                     AllowTeamsConsumer        = $False
                     AllowTeamsConsumerInbound = $False
                     Identity                  = 'Global'
@@ -63,7 +62,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     AllowFederatedUsers       = $True
-                    AllowPublicUsers          = $True
                     AllowTeamsConsumer        = $False
                     AllowTeamsConsumerInbound = $False
                     Identity                  = 'Global'
@@ -84,7 +82,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     AllowFederatedUsers       = $True
-                    AllowPublicUsers          = $True
                     AllowTeamsConsumer        = $True
                     AllowTeamsConsumerInbound = $True
                     Identity                  = 'Global'

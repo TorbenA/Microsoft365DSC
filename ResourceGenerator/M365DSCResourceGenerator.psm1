@@ -924,7 +924,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
         Write-TokenReplacement -Token '<#AssignmentsFunctions#>' -Value $AssignmentsFunctions -FilePath $moduleFilePath
         Write-TokenReplacement -Token '<#AssignmentsConvertComplexToString#>' -Value $AssignmentsConvertComplexToString -FilePath $moduleFilePath
 
-        $defaultTestValuesToCheck = "    `$ValuesToCheck = ([hashtable]`$PSBoundParameters).Clone()"
+        $defaultTestValuesToCheck = "    `$ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters `$PSBoundParameters"
         if ($CmdLetNoun -like "*DeviceManagementConfigurationPolicy")
         {
             $defaultTestValuesToCheck = @"

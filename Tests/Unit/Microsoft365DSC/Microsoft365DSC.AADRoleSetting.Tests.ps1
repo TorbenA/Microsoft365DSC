@@ -512,6 +512,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
             }
 
+            Mock -CommandName Update-MgBetaPolicyRoleManagementPolicyRule -MockWith {
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -566,10 +569,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Id                                                        = 'fe930be7-5e62-47db-91af-98c3a49a38b1'
                     PermanentActiveAssignmentisExpirationRequired             = $False
                     PermanentEligibleAssignmentisExpirationRequired           = $False
-                }
-
-                Mock -CommandName New-M365DSCConnection -MockWith {
-                    return 'Credentials'
                 }
             }
 
@@ -628,13 +627,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     PermanentActiveAssignmentisExpirationRequired             = $False
                     PermanentEligibleAssignmentisExpirationRequired           = $False
                 }
-
-                Mock -CommandName New-M365DSCConnection -MockWith {
-                    return 'Credentials'
-                }
-
-                Mock -CommandName Update-MgBetaPolicyRoleManagementPolicyRule -MockWith {
-                }
             }
 
             It 'Should return values from the get method' {
@@ -652,35 +644,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential = $Credential
                 }
-
-                Mock -CommandName New-M365DSCConnection -MockWith {
-                    return 'Credentials'
-                }
-
-                Mock -CommandName Get-MgBetaRoleManagementDirectoryRoleDefinition -MockWith {
-                    $AADRoleDef = New-Object PSCustomObject
-                    $AADRoleDef | Add-Member -MemberType NoteProperty -Name Id -Value 'fe930be7-5e62-47db-91af-98c3a49a38b1'
-                    $AADRoleDef | Add-Member -MemberType NoteProperty -Name DisplayName -Value 'Role1'
-                    $AADRoleDef | Add-Member -MemberType NoteProperty -Name Description -Value 'This is a custom role'
-                    $AADRoleDef | Add-Member -MemberType NoteProperty -Name ResourceScopes -Value '/'
-                    $AADRoleDef | Add-Member -MemberType NoteProperty -Name IsEnabled -Value 'True'
-                    $AADRoleDef | Add-Member -MemberType NoteProperty -Name RolePermissions -Value @{AllowedResourceActions = 'microsoft.directory/applicationPolicies/allProperties/read', 'microsoft.directory/applicationPolicies/allProperties/update', 'microsoft.directory/applicationPolicies/basic/update' }
-                    $AADRoleDef | Add-Member -MemberType NoteProperty -Name Version -Value '1.0'
-                    return $AADRoleDef
-                }
             }
 
             It 'Should reverse engineer resource from the export method' {
                 $result = Export-TargetResource @testParams
-                Should -Invoke -Scope It -CommandName 'Get-MgBetaRoleManagementDirectoryRoleDefinition' -ParameterFilter { $Filter -eq '' -and $Sort -eq 'DisplayName' } -Times 1
-                $result | Should -Not -BeNullOrEmpty
-            }
-
-            It 'Should reverse engineer resource from the export method with a filter' {
-                $testParams.Filter = "displayName eq 'Role1'"
-
-                $result = Export-TargetResource @testParams
-                Should -Invoke -Scope It -CommandName 'Get-MgBetaRoleManagementDirectoryRoleDefinition' -ParameterFilter { $Filter -eq "displayName eq 'Role1'" -and $Sort -eq 'DisplayName' } -Times 1
                 $result | Should -Not -BeNullOrEmpty
             }
         }

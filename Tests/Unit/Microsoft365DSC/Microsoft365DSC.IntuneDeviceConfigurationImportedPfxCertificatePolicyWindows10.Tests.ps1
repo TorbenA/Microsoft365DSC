@@ -46,6 +46,25 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return "Credentials"
             }
 
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
+                return @{
+                    AdditionalProperties = @{
+                        intendedPurpose = "unassigned"
+                        subjectAlternativeNameType = "none"
+                        certificateValidityPeriodScale = "days"
+                        '@odata.type' = "#microsoft.graph.windows10ImportedPFXCertificateProfile"
+                        keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
+                        subjectNameFormat = "commonName"
+                        certificateValidityPeriodValue = 25
+                        renewalThresholdPercentage = 25
+                    }
+                    Description = "FakeStringValue"
+                    DisplayName = "FakeStringValue"
+                    Id = "FakeStringValue"
+
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -107,25 +126,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = 'Absent'
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            intendedPurpose = "unassigned"
-                            subjectAlternativeNameType = "none"
-                            certificateValidityPeriodScale = "days"
-                            '@odata.type' = "#microsoft.graph.windows10ImportedPFXCertificateProfile"
-                            keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
-                            subjectNameFormat = "commonName"
-                            certificateValidityPeriodValue = 25
-                            renewalThresholdPercentage = 25
-                        }
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        Id = "FakeStringValue"
-
-                    }
-                }
             }
 
             It 'Should return Values from the Get method' {
@@ -157,25 +157,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure = 'Present'
                     Credential = $Credential;
                 }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            intendedPurpose = "unassigned"
-                            subjectAlternativeNameType = "none"
-                            certificateValidityPeriodScale = "days"
-                            '@odata.type' = "#microsoft.graph.windows10ImportedPFXCertificateProfile"
-                            keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
-                            subjectNameFormat = "commonName"
-                            certificateValidityPeriodValue = 25
-                            renewalThresholdPercentage = 25
-                        }
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        Id = "FakeStringValue"
-
-                    }
-                }
             }
 
 
@@ -194,29 +175,11 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Id = "FakeStringValue"
                     IntendedPurpose = "unassigned"
                     KeyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
-                    RenewalThresholdPercentage = 25
+                    RenewalThresholdPercentage = 7 # Updated property
                     SubjectAlternativeNameType = "none"
                     SubjectNameFormat = "commonName"
                     Ensure = 'Present'
                     Credential = $Credential;
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            intendedPurpose = "unassigned"
-                            subjectAlternativeNameType = "none"
-                            certificateValidityPeriodScale = "days"
-                            '@odata.type' = "#microsoft.graph.windows10ImportedPFXCertificateProfile"
-                            keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
-                            subjectNameFormat = "commonName"
-                            certificateValidityPeriodValue = 7
-                            renewalThresholdPercentage = 7
-                        }
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        Id = "FakeStringValue"
-                    }
                 }
             }
 
@@ -240,25 +203,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
-                    return @{
-                        AdditionalProperties = @{
-                            intendedPurpose = "unassigned"
-                            subjectAlternativeNameType = "none"
-                            certificateValidityPeriodScale = "days"
-                            '@odata.type' = "#microsoft.graph.windows10ImportedPFXCertificateProfile"
-                            keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
-                            subjectNameFormat = "commonName"
-                            certificateValidityPeriodValue = 25
-                            renewalThresholdPercentage = 25
-                        }
-                        Description = "FakeStringValue"
-                        DisplayName = "FakeStringValue"
-                        Id = "FakeStringValue"
-
-                    }
                 }
             }
             It 'Should Reverse Engineer resource from the Export method' {

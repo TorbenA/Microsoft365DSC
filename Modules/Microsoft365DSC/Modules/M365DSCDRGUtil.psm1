@@ -159,7 +159,7 @@ function Get-M365DSCDRGComplexTypeToHashtable
     {
         $results = @{}
 
-        $ComplexObject = [hashtable]::new($ComplexObject)
+        $ComplexObject = [hashtable]$ComplexObject
         $keys = $ComplexObject.Keys
 
         foreach ($key in $keys)
@@ -1056,8 +1056,11 @@ function Compare-M365DSCComplexObjectV2
                 }
                 else
                 {
-                    $Global:AllDrifts.DriftInfo += $Global:PotentialDrifts[-1]
-                    $Global:PotentialDrifts = @()
+                    if ($null -ne $Global:PotentialDrifts[-1])
+                    {
+                        $Global:AllDrifts.DriftInfo += $Global:PotentialDrifts[-1]
+                        $Global:PotentialDrifts = @()
+                    }
                 }
 
                 return $false
@@ -1102,8 +1105,11 @@ function Compare-M365DSCComplexObjectV2
                     }
                     else
                     {
-                        $Global:AllDrifts.DriftInfo += $Global:PotentialDrifts[-1]
-                        $Global:PotentialDrifts = @()
+                        if ($null -ne $Global:PotentialDrifts[-1])
+                        {
+                            $Global:AllDrifts.DriftInfo += $Global:PotentialDrifts[-1]
+                            $Global:PotentialDrifts = @()
+                        }
                     }
                 }
 
@@ -2554,7 +2560,7 @@ function Get-OmaSettingPlainTextValue
 function Get-IntuneSettingCatalogPolicySetting
 {
     [CmdletBinding()]
-    [OutputType([System.Array])]
+    [OutputType([System.Object[]])]
     param (
         [Parameter(Mandatory = $true)]
         [System.Collections.Hashtable]
