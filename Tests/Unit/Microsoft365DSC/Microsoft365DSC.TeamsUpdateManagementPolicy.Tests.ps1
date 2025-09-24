@@ -27,6 +27,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             $DateTimeValue = [System.DateTime]::Parse("2022-12-08 6:00:00PM")
             $Global:PartialExportFileName = 'c:\TestPath'
 
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
+            }
+
             Mock -CommandName Save-M365DSCPartialExport -MockWith {
             }
 

@@ -29,6 +29,8 @@
     FIXES [#6489](https://github.com/microsoft/Microsoft365DSC/issues/6489)
 * AADGroupEligiblitySchedule
   * Aligned date time format for `Expiration.EndDateTime` with `Expiration.StartDateTime`.
+* EXOAtpPolicyForO365
+  * [BREAKING CHANGE] Removed `Ensure` property.
 * EXOCalendarProcessing
   * Added caching for export.
 * EXOClientAccessRule
@@ -146,6 +148,7 @@
   * Reduced repeated logins during export of SPO and Teams resources.
   * Removed unnecessary type casting across all resources.
   * Streamlined test cases.
+  * Updated most resource testing to use the new comparison function.
   * Updated required modules for Intune resources doing assignments to groups.
   * [BREAKING CHANGE] Removed `SupportsScopeTags` property from all resources because it's read-only.
   * Fixed an issue where a null drift would throw an exception.
