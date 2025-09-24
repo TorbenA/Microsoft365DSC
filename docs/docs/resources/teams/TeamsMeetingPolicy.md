@@ -79,7 +79,6 @@
 | **VideoFiltersMode** | Write | String | Determines the background effects that a user can configure in the Teams client.  | `NoFilters`, `BlurOnly`, `BlurAndDefaultBackgrounds`, `AllFilters` |
 | **VoiceIsolation** | Write | String | Determines whether you provide support for your users to enable voice isolation in Teams meeting calls. | `Disabled`, `Enabled` |
 | **WhoCanRegister** | Write | String | Specifies who can attend and register for webinars. | `Everyone`, `EveryoneInCompany` |
-| **ForceStreamingAttendeeMode** | Write | String | DEPRECATED | |
 | **Ensure** | Write | String | Present ensures the policy exists, absent ensures it is removed. | `Present`, `Absent` |
 | **Credential** | Write | PSCredential | Credentials of the Teams Global Admin. | |
 | **ApplicationId** | Write | String | Id of the Azure Active Directory application to authenticate with. | |

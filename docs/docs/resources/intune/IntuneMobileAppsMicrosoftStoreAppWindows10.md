@@ -1,24 +1,25 @@
-﻿# IntuneMobileAppsLobAppWindows10
+﻿# IntuneMobileAppsMicrosoftStoreAppWindows10
 
 ## Parameters
 
 | Parameter | Attribute | DataType | Description | Allowed Values |
 | --- | --- | --- | --- | --- |
-| **DisplayName** | Key | String | The admin provided or imported title of the app. | |
 | **Id** | Write | String | The unique identifier for an entity. Read-only. | |
-| **FileName** | Write | String | The name of the main Lob application file. Required for creating the resource. | |
+| **DisplayName** | Key | String | The admin provided or imported title of the app. | |
+| **InstallExperience** | Write | MSFT_MicrosoftGraphwinGetAppInstallExperience | The install experience settings associated with this application, which are used to ensure the desired install experiences on the target device are taken into account. This includes the account type (System or User) that actions should be run as on target devices. Cannot be changed after creation. | |
+| **PackageIdentifier** | Required | String | The PackageIdentifier from the WinGet source repository REST API. This also maps to the Id when using the WinGet client command line application. Required at creation time, cannot be modified on existing objects. | |
 | **Description** | Write | String | The description of the app. | |
 | **Developer** | Write | String | The developer of the app. | |
 | **InformationUrl** | Write | String | The more information Url. | |
 | **IsFeatured** | Write | Boolean | The value indicating whether the app is marked as featured by the admin. | |
-| **LargeIcon** | Write | MSFT_DeviceManagementMimeContent | The large icon, to be displayed in the app details and used for upload of the icon. | |
+| **LargeIcon** | Write | MSFT_MicrosoftGraphMimeContent | The large icon, to be displayed in the app details and used for upload of the icon. | |
 | **Notes** | Write | String | Notes for the app. | |
 | **Owner** | Write | String | The owner of the app. | |
 | **PrivacyInformationUrl** | Write | String | The privacy statement Url. | |
 | **Publisher** | Write | String | The publisher of the app. | |
-| **RoleScopeTagIds** | Write | StringArray[] | List of scope tag ids for this mobile app. | |
 | **Categories** | Write | MSFT_DeviceManagementMobileAppCategory[] | The list of categories for this app. | |
-| **Assignments** | Write | MSFT_DeviceManagementMobileAppAssignment[] | Represents the assignment to the Intune policy. | |
+| **RoleScopeTagIds** | Write | StringArray[] | List of scope tag ids for this mobile app. | |
+| **Assignments** | Write | MSFT_DeviceManagementWingetMobileAppAssignment[] | Represents the assignment to the Intune policy. | |
 | **Ensure** | Write | String | Present ensures the policy exists, absent ensures it is removed. | `Present`, `Absent` |
 | **Credential** | Write | PSCredential | Credentials of the Admin | |
 | **ApplicationId** | Write | String | Id of the Azure Active Directory application to authenticate with. | |
@@ -42,6 +43,26 @@
 | **groupDisplayName** | Write | String | The group Display Name that is the target of the assignment. | |
 | **intent** | Write | String | Possible values for the install intent chosen by the admin. | `available`, `required`, `uninstall`, `availableWithoutEnrollment` |
 
+### MSFT_DeviceManagementWinGetMobileAppAssignmentSettingsRestartSettings
+
+#### Parameters
+
+| Parameter | Attribute | DataType | Description | Allowed Values |
+| --- | --- | --- | --- | --- |
+| **countdownDisplayBeforeRestartInMinutes** | Write | SInt32 | The number of minutes to wait before restarting the device after an app installation. | |
+| **gracePeriodInMinutes** | Write | SInt32 | The number of minutes before the restart time to display the countdown dialog for pending restarts. | |
+| **restartNotificationSnoozeDurationInMinutes** | Write | SInt32 | The number of minutes to snooze the restart notification dialog when the snooze button is selected. | |
+
+### MSFT_DeviceManagementWinGetMobileAppAssignmentSettingsInstallTimeSettings
+
+#### Parameters
+
+| Parameter | Attribute | DataType | Description | Allowed Values |
+| --- | --- | --- | --- | --- |
+| **useLocalTime** | Write | Boolean | Whether the local device time or UTC time should be used when determining the available and deadline times. | |
+| **startDateTime** | Write | String | The time at which the app should be available for installation. | |
+| **deadlineDateTime** | Write | String | The time at which the app should be installed. | |
+
 ### MSFT_DeviceManagementMobileAppAssignmentSettings
 
 #### Parameters
@@ -50,16 +71,18 @@
 | --- | --- | --- | --- | --- |
 | **odataType** | Write | String | The odata type of the assignment type. | `#microsoft.graph.win32LobAppAssignmentSettings`, `#microsoft.graph.winGetAppAssignmentSettings`, `#microsoft.graph.windowsUniversalAppXAppAssignmentSettings` |
 
-### MSFT_DeviceManagementAppxMobileAppAssignmentSettings
+### MSFT_DeviceManagementWingetMobileAppAssignmentSettings
 
 #### Parameters
 
 | Parameter | Attribute | DataType | Description | Allowed Values |
 | --- | --- | --- | --- | --- |
 | **odataType** | Write | String | The odata type of the assignment type. | `#microsoft.graph.win32LobAppAssignmentSettings`, `#microsoft.graph.winGetAppAssignmentSettings`, `#microsoft.graph.windowsUniversalAppXAppAssignmentSettings` |
-| **useDeviceContext** | Write | Boolean | If true, uses device execution context for Windows Universal AppX mobile app. Device-context install is not allowed when this type of app is targeted with Available intent. Defaults to false. | |
+| **installTimeSettings** | Write | MSFT_DeviceManagementWinGetMobileAppAssignmentSettingsInstallTimeSettings | The install time settings to apply for this app assignment. | |
+| **notifications** | Write | String | The notification status for this app assignment. Possible values are: showAll, showReboot, hideAll. | `showAll`, `showReboot`, `hideAll` |
+| **restartSettings** | Write | MSFT_DeviceManagementWinGetMobileAppAssignmentSettingsRestartSettings | The reboot settings to apply for this app assignment. | |
 
-### MSFT_DeviceManagementAppxMobileAppAssignment
+### MSFT_DeviceManagementWingetMobileAppAssignment
 
 #### Parameters
 
@@ -72,15 +95,23 @@
 | **groupId** | Write | String | The group Id that is the target of the assignment. | |
 | **groupDisplayName** | Write | String | The group Display Name that is the target of the assignment. | |
 | **intent** | Write | String | Possible values for the install intent chosen by the admin. | `available`, `required`, `uninstall`, `availableWithoutEnrollment` |
-| **assignmentSettings** | Write | MSFT_DeviceManagementAppxMobileAppAssignmentSettings | The settings of the assignment. | |
+| **assignmentSettings** | Write | MSFT_DeviceManagementWingetMobileAppAssignmentSettings | The settings of the assignment. | |
 
-### MSFT_DeviceManagementMimeContent
+### MSFT_MicrosoftGraphWinGetAppInstallExperience
 
 #### Parameters
 
 | Parameter | Attribute | DataType | Description | Allowed Values |
 | --- | --- | --- | --- | --- |
-| **Type** | Write | String | Indicates the type of content mime. | |
+| **RunAsAccount** | Write | String | Indicates the type of execution context the app setup runs in on target devices. Options include values of the RunAsAccountType enum, which are System and User. Required at creation time, cannot be modified on existing objects. Possible values are: system, user. | `system`, `user` |
+
+### MSFT_MicrosoftGraphMimeContent
+
+#### Parameters
+
+| Parameter | Attribute | DataType | Description | Allowed Values |
+| --- | --- | --- | --- | --- |
+| **Type** | Write | String | Indicates the content mime type. | |
 | **Value** | Write | String | The Base64 encoded string content. | |
 
 ### MSFT_DeviceManagementMobileAppCategory
@@ -95,7 +126,7 @@
 
 ## Description
 
-Intune Mobile Apps Lob App for Windows10 for Appx, AppxBundle, Msix and MsixBundle applications.
+Intune Mobile Apps Microsoft Store App for Windows10 (new experience)
 
 ## Permissions
 
@@ -150,29 +181,27 @@ Configuration Example
 
     node localhost
     {
-        IntuneMobileAppsLobAppWindows10 "IntuneMobileAppsLobAppWindows10-Appx App"
+        IntuneMobileAppsMicrosoftStoreAppWindows10 "IntuneMobileAppsMicrosoftStoreAppWindows10-PowerShell"
         {
-            Description           = "Appx App Description";
-            Developer             = "Contoso";
-            DisplayName           = "Appx App";
+            Description           = "PowerShell Description";
+            Developer             = "";
+            DisplayName           = "PowerShell";
             Ensure                = "Present";
-            FileName              = "Contoso.Appx_1.0.0.0_x64__contoso.appx";
-            InformationUrl        = "";
+            InstallExperience     = MSFT_MicrosoftGraphWinGetAppInstallExperience{
+                RunAsAccount = "system"
+            };
             IsFeatured            = $False;
             Notes                 = "";
             Owner                 = "";
-            PrivacyInformationUrl = "";
-            Publisher             = "Contoso";
+            PackageIdentifier     = "9MZ1SNWT0N5D";
+            PrivacyInformationUrl = "https://github.com/PowerShell/PowerShell#telemetry";
+            Publisher             = "Microsoft Corporation";
             Assignments          = @(
-                MSFT_DeviceManagementAppxMobileAppAssignment {
+                MSFT_DeviceManagementWingetMobileAppAssignment {
                     groupDisplayName = 'All devices'
                     deviceAndAppManagementAssignmentFilterType = 'none'
                     dataType = '#microsoft.graph.allDevicesAssignmentTarget'
                     intent = 'required'
-                    assignmentSettings = MSFT_DeviceManagementAppxMobileAppAssignmentSettings{
-                        useDeviceContext = $true
-                        odataType = "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"
-                    }
                 }
             );
             Categories             = @(
@@ -181,6 +210,7 @@ Configuration Example
                     DisplayName = "App Category 1"
                 }
             );
+            RoleScopeTagIds       = @("0");
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;
@@ -214,29 +244,27 @@ Configuration Example
     Import-DscResource -ModuleName Microsoft365DSC
     node localhost
     {
-        IntuneMobileAppsLobAppWindows10 "IntuneMobileAppsLobAppWindows10-Appx App"
+        IntuneMobileAppsMicrosoftStoreAppWindows10 "IntuneMobileAppsMicrosoftStoreAppWindows10-PowerShell"
         {
-            Description           = "Appx App Description";
-            Developer             = "Contoso";
-            DisplayName           = "Appx App";
+            Description           = "PowerShell Description";
+            Developer             = "";
+            DisplayName           = "PowerShell";
             Ensure                = "Present";
-            FileName              = "Contoso.Appx_1.0.0.0_x64__contoso.appx";
-            InformationUrl        = "";
+            InstallExperience     = MSFT_MicrosoftGraphWinGetAppInstallExperience{
+                RunAsAccount = "system"
+            };
             IsFeatured            = $True; # Drift
             Notes                 = "";
             Owner                 = "";
-            PrivacyInformationUrl = "";
-            Publisher             = "Contoso";
+            PackageIdentifier     = "9MZ1SNWT0N5D";
+            PrivacyInformationUrl = "https://github.com/PowerShell/PowerShell#telemetry";
+            Publisher             = "Microsoft Corporation";
             Assignments          = @(
-                MSFT_DeviceManagementAppxMobileAppAssignment {
+                MSFT_DeviceManagementWingetMobileAppAssignment {
                     groupDisplayName = 'All devices'
                     deviceAndAppManagementAssignmentFilterType = 'none'
                     dataType = '#microsoft.graph.allDevicesAssignmentTarget'
                     intent = 'required'
-                    assignmentSettings = MSFT_DeviceManagementAppxMobileAppAssignmentSettings{
-                        useDeviceContext = $true
-                        odataType = "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"
-                    }
                 }
             );
             Categories             = @(
@@ -245,6 +273,7 @@ Configuration Example
                     DisplayName = "App Category 1"
                 }
             );
+            RoleScopeTagIds       = @("0");
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;
@@ -279,9 +308,10 @@ Configuration Example
 
     node localhost
     {
-        IntuneMobileAppsLobAppWindows10 "IntuneMobileAppsLobAppWindows10-Appx App"
+        IntuneMobileAppsMicrosoftStoreAppWindows10 "IntuneMobileAppsMicrosoftStoreAppWindows10-PowerShell"
         {
-            DisplayName           = "Appx App";
+            DisplayName           = "PowerShell App";
+            PackageIdentifier     = "9MZ1SNWT0N5D";
             Ensure                = "Absent";
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;

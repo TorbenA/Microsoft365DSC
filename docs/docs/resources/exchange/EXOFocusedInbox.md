@@ -6,7 +6,6 @@
 | --- | --- | --- | --- | --- |
 | **Identity** | Key | String | The Identity parameter specifies the mailbox that you want to modify. | |
 | **FocusedInboxOn** | Write | Boolean | The FocusedInboxOn parameter enables or disables Focused Inbox for the mailbox. | |
-| **FocusedInboxOnLastUpdateTime** | Write | DateTime | Gets the last updated time on focused inbox | |
 | **Ensure** | Write | String | Specify if the AcceptedDomain should exist or not. | `Present` |
 | **Credential** | Write | PSCredential | Credentials of the workload's Admin | |
 | **ApplicationId** | Write | String | Id of the Azure Active Directory application to authenticate with. | |
@@ -63,13 +62,12 @@ Configuration Example
         {
             Ensure                       = "Present";
             FocusedInboxOn               = $False; # Updated Property
-            FocusedInboxOnLastUpdateTime = "1/1/0001 12:00:00 AM";
             Identity                     = "admin@$TenantId";
             ApplicationId                = $ApplicationId;
             TenantId                     = $TenantId;
             CertificateThumbprint        = $CertificateThumbprint;
         }
-        
+
     }
 }
 ```

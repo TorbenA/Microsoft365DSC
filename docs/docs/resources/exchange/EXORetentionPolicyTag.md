@@ -6,7 +6,7 @@
 | --- | --- | --- | --- | --- |
 | **Identity** | Key | String | The Identity parameter specifies the name of the tag. | |
 | **Comment** | Write | String | The Description parameter specifies a comment for the tag. | |
-| **AgeLimitForRetention** | Write | String | The AgeLimitForRetention parameter specifies the age at which retention is enforced on an item. The age limit corresponds to the number of days from the date the item was delivered, or the date an item was created if it wasn't delivered. If this parameter isn't present and the RetentionEnabled parameter is set to $true, an error is returned. | |
+| **AgeLimitForRetention** | Write | UInt32 | The AgeLimitForRetention parameter specifies the age at which retention is enforced on an item. The age limit corresponds to the number of days from the date the item was delivered, or the date an item was created if it wasn't delivered. If this parameter isn't present and the RetentionEnabled parameter is set to $true, an error is returned. | |
 | **MessageClass** | Write | String | The MessageClass parameter specifies the message type to which the tag applies. If not specified, the default value is set to *. | |
 | **MustDisplayCommentEnabled** | Write | Boolean | The MustDisplayCommentEnabled parameter specifies whether the comment can be hidden. The default value is $true. | |
 | **RetentionAction** | Write | String | The RetentionAction parameter specifies the action for the retention policy. | |

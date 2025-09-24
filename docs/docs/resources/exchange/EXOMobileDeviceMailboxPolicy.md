@@ -43,11 +43,11 @@
 | **MaxEmailHTMLBodyTruncationSize** | Write | String | The MaxEmailHTMLBodyTruncationSize parameter specifies the maximum size at which HTML-formatted email messages are synchronized to the mobile phone. The value is specified in KB. | |
 | **MaxInactivityTimeLock** | Write | String | The MaxInactivityTimeDeviceLock parameter specifies the length of time that the mobile phone can be inactive before the password is required to reactivate it. | |
 | **MaxPasswordFailedAttempts** | Write | String | The MaxPasswordFailedAttempts parameter specifies the number of attempts a user can make to enter the correct password for the mobile phone. You can enter any number from 4 through 16 or the value Unlimited. | |
-| **MinPasswordComplexCharacters** | Write | String | The MinPasswordComplexCharacters parameter specifies the character sets that are required in the password of the mobile device. | |
+| **MinPasswordComplexCharacters** | Write | SInt32 | The MinPasswordComplexCharacters parameter specifies the character sets that are required in the password of the mobile device. | |
 | **MinPasswordLength** | Write | String | The MinPasswordLength parameter specifies the minimum number of characters in the mobile device password. | |
 | **PasswordEnabled** | Write | Boolean | The PasswordEnabled parameter specifies whether a password is required on the mobile device. | |
 | **PasswordExpiration** | Write | String | The PasswordExpiration parameter specifies how long a password can be used on a mobile device before the user is forced to change the password. | |
-| **PasswordHistory** | Write | String | The PasswordHistory parameter specifies the number of unique new passwords that need to be created on the mobile device before an old password can be reused. | |
+| **PasswordHistory** | Write | SInt32 | The PasswordHistory parameter specifies the number of unique new passwords that need to be created on the mobile device before an old password can be reused. | |
 | **PasswordRecoveryEnabled** | Write | Boolean | The PasswordRecoveryEnabled parameter specifies whether the recovery password for the mobile device is stored in Exchange. | |
 | **RequireDeviceEncryption** | Write | Boolean | The RequireDeviceEncryption parameter specifies whether encryption is required on the mobile device. | |
 | **RequireEncryptedSMIMEMessages** | Write | Boolean | The RequireEncryptedSMIMEMessages parameter specifies whether the mobile device must send encrypted S/MIME messages. | |
