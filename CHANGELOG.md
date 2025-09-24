@@ -43,7 +43,7 @@
   * [BREAKING] Renamed the UnifiedGroupWelcomeMessageEnabled parameter to
     WelcomeMessageEnabled.
 * EXOIntraOrganizationConnector
-  * Fix logic to allow empty string for TargetSharingEpr
+  * Fix logic to allow empty string for TargetSharingEpr.
 * EXOHostedContentFilterPolicy
   * [BREAKING CHANGE] Remove deprecated properties `DownloadLink`, `EnableEndUserSpamNotifications`,
     `EndUserSpamNotificationCustomSubject`, `EndUserSpamNotificationFrequency` and `EndUserSpamNotificationLanguage`.
