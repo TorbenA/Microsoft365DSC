@@ -151,21 +151,21 @@ function Get-TargetResource
                 $userPrincipalName = (Get-User -Identity $Identity).UserPrincipalName
             }
             $result = @{
-                Identity                         = $config.Identity
-                Owner                            = $config.Identity
+                Identity                         = $userPrincipalName
+                Owner                            = $userPrincipalName
                 AutoDeclineFutureRequestsWhenOOF = [Boolean]$config.AutoDeclineFutureRequestsWhenOOF
                 AutoReplyState                   = $config.AutoReplyState
                 CreateOOFEvent                   = [Boolean]$config.CreateOOFEvent
                 DeclineAllEventsForScheduledOOF  = [Boolean]$config.DeclineAllEventsForScheduledOOF
                 DeclineEventsForScheduledOOF     = [Boolean]$config.DeclineEventsForScheduledOOF
-                DeclineMeetingMessage            = if ($null -eq $config.DeclineMeetingMessage) { "" } else { $config.DeclineMeetingMessage }
-                EndTime                          = if ($null -eq $config.EndTime) { "" } else { $config.EndTime }
-                EventsToDeleteIDs                = if ($null -eq $config.EventsToDeleteIDs) { @() } else { [Array]$config.EventsToDeleteIDs }
+                DeclineMeetingMessage            = $config.DeclineMeetingMessage
+                EndTime                          = $config.EndTime
+                EventsToDeleteIDs                = [Array]$config.EventsToDeleteIDs
                 ExternalAudience                 = $config.ExternalAudience
-                ExternalMessage                  = if ($null -eq $config.ExternalMessage) { "" } else { $config.ExternalMessage }
-                InternalMessage                  = if ($null -eq $config.InternalMessage) { "" } else { $config.InternalMessage }
-                OOFEventSubject                  = if ($null -eq $config.OOFEventSubject) { "" } else { $config.OOFEventSubject }
-                StartTime                        = if ($null -eq $config.StartTime) { "" } else { $config.StartTime }
+                ExternalMessage                  = $config.ExternalMessage
+                InternalMessage                  = $config.InternalMessage
+                OOFEventSubject                  = $config.OOFEventSubject
+                StartTime                        = $config.StartTime
                 Credential                       = $Credential
                 Ensure                           = 'Present'
                 ApplicationId                    = $ApplicationId
@@ -175,7 +175,6 @@ function Get-TargetResource
                 ManagedIdentity                  = $ManagedIdentity.IsPresent
                 TenantId                         = $TenantId
                 AccessTokens                     = $AccessTokens
-            
             }
 
             Write-Verbose -Message "Found Mailbox $($Identity)"
