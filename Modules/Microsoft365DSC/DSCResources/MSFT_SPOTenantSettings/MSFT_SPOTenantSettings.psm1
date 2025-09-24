@@ -50,10 +50,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UserVoiceForFeedbackEnabled,
-
-        [Parameter()]
-        [System.Boolean]
         $PublicCdnEnabled,
 
         [Parameter()]
@@ -340,10 +336,6 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UserVoiceForFeedbackEnabled,
-
-        [Parameter()]
-        [System.Boolean]
         $PublicCdnEnabled,
 
         [Parameter()]
@@ -495,13 +487,7 @@ function Set-TargetResource
     $CurrentParameters.Remove('AllowSelectSecurityGroupsInSPSitesList') | Out-Null
     $CurrentParameters.Remove('EnableAzureADB2BIntegration') | Out-Null
     $CurrentParameters.Remove('OneDriveSharingCapability') | Out-Null
-
     $CurrentParameters.Remove('TenantDefaultTimezone') | Out-Null # this one is updated separately using Graph
-    if ($CurrentParameters.Keys.Contains('UserVoiceForFeedbackEnabled'))
-    {
-        Write-Verbose -Message 'Property UserVoiceForFeedbackEnabled is deprecated, removing it'
-        $CurrentParameters.Remove('UserVoiceForFeedbackEnabled') | Out-Null
-    }
 
     if ($PublicCdnEnabled -eq $false)
     {
@@ -631,10 +617,6 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $UsePersistentCookiesForExplorerView,
-
-        [Parameter()]
-        [System.Boolean]
-        $UserVoiceForFeedbackEnabled,
 
         [Parameter()]
         [System.Boolean]

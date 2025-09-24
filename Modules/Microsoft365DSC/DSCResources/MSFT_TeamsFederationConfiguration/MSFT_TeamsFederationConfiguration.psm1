@@ -23,11 +23,6 @@ function Get-TargetResource
         [System.Boolean]
         $AllowFederatedUsers,
 
-        # DEPRECATED
-        [Parameter()]
-        [System.Boolean]
-        $AllowPublicUsers,
-
         [Parameter()]
         [System.Boolean]
         $AllowTeamsConsumer,
@@ -132,8 +127,6 @@ function Get-TargetResource
             AllowedDomains                              = $AllowedDomainsValues
             BlockedDomains                              = $BlockedDomainsValues
             AllowFederatedUsers                         = $config.AllowFederatedUsers
-            #DEPRECATED
-            #AllowPublicUsers                            = $config.AllowPublicUsers
             AllowTeamsConsumer                          = $config.AllowTeamsConsumer
             AllowTeamsConsumerInbound                   = $config.AllowTeamsConsumerInbound
             ExternalAccessWithTrialTenants              = $config.ExternalAccessWithTrialTenants
@@ -181,10 +174,6 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $AllowFederatedUsers,
-
-        [Parameter()]
-        [System.Boolean]
-        $AllowPublicUsers,
 
         [Parameter()]
         [System.Boolean]
@@ -264,12 +253,6 @@ function Set-TargetResource
         $SetParams.Add('AllowedDomains', $AllowAllKnownDomains)
     }
 
-    if ($SetParams.ContainsKey('AllowPublicUsers'))
-    {
-        Write-Verbose -Message "[DEPRECATED] The AllowPublicUsers property is deprecated and will be removed."
-        $SetParams.Remove('AllowPublicUsers') | Out-Null
-    }
-
     Write-Verbose -Message "SetParams: $(Convert-M365DscHashtableToString -Hashtable $SetParams)"
     Set-CsTenantFederationConfiguration @SetParams
 }
@@ -296,10 +279,6 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $AllowFederatedUsers,
-
-        [Parameter()]
-        [System.Boolean]
-        $AllowPublicUsers,
 
         [Parameter()]
         [System.Boolean]
@@ -361,8 +340,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludedProperties @('AllowPublicUsers')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

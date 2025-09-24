@@ -36,7 +36,6 @@ Configuration Example
             FolderAnonymousLinkType                    = "Edit"
             NotifyOwnersWhenItemsReshared              = $true
             DefaultLinkPermission                      = "View"
-            RequireAcceptingAccountMatchInvitedAccount = $false
             Ensure                                     = "Present"
             Credential                                 = $Credscredential
         }

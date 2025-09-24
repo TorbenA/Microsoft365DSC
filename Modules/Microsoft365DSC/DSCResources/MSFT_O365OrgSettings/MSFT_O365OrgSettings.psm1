@@ -77,10 +77,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $MicrosoftVivaBriefingEmail,
-
-        [Parameter()]
-        [System.Boolean]
         $ToDoIsPushNotificationEnabled,
 
         [Parameter()]
@@ -444,10 +440,6 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $MicrosoftVivaBriefingEmail,
-
-        [Parameter()]
-        [System.Boolean]
         $ToDoIsPushNotificationEnabled,
 
         [Parameter()]
@@ -582,20 +574,6 @@ function Set-TargetResource
                 -AccountEnabled:$CortanaEnabled
         }
     }
-
-    # Microsoft Viva Briefing Email
-    if ($null -ne $MicrosoftVivaBriefingEmail)
-    {
-        Write-Verbose -Message 'DEPRECATED - The MicrosoftVivaBriefingEmail parameter is deprecated and will be ignored.'
-    }
-    #$briefingValue = 'opt-out'
-
-    <# DEPRECATED
-    if ($currentValues.MicrosoftVivaBriefingEmail -and $MicrosoftVivaBriefingEmail -ne $currentValues.MicrosoftVivaBriefingEmail)
-    {
-        Write-Verbose -Message "Updating Microsoft Viva Briefing Email settings."
-        Set-DefaultTenantBriefingConfig -IsEnabledByDefault $briefingValue | Out-Null
-    }#>
 
     # Viva Insights
     if ($PSBoundParameters.ContainsKey('VivaInsightsWebExperience') -and `
@@ -885,10 +863,6 @@ function Test-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $MicrosoftVivaBriefingEmail,
-
-        [Parameter()]
-        [System.Boolean]
         $ToDoIsPushNotificationEnabled,
 
         [Parameter()]
@@ -978,8 +952,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludedProperties @('MicrosoftVivaBriefingEmail') # Deprecated parameter
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

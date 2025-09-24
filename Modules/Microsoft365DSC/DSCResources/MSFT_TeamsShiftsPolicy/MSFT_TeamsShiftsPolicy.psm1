@@ -24,10 +24,6 @@ function Get-TargetResource
         $EnableScheduleOwnerPermissions,
 
         [Parameter()]
-        [System.Boolean]
-        $EnableShiftPresence,
-
-        [Parameter()]
         [ValidateSet('Always', 'ShowOnceOnChange', 'Never')]
         [System.String]
         $ShiftNoticeFrequency,
@@ -113,8 +109,6 @@ function Get-TargetResource
             AccessGracePeriodMinutes       = $instance.AccessGracePeriodMinutes
             AccessType                     = $instance.AccessType
             EnableScheduleOwnerPermissions = $instance.EnableScheduleOwnerPermissions
-            # DEPRECATED
-            #EnableShiftPresence            = $instance.EnableShiftPresence
             ShiftNoticeFrequency           = $instance.ShiftNoticeFrequency
             ShiftNoticeMessageCustom       = $instance.ShiftNoticeMessageCustom
             ShiftNoticeMessageType         = $instance.ShiftNoticeMessageType
@@ -161,10 +155,6 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $EnableScheduleOwnerPermissions,
-
-        [Parameter()]
-        [System.Boolean]
-        $EnableShiftPresence,
 
         [Parameter()]
         [ValidateSet('Always', 'ShowOnceOnChange', 'Never')]
@@ -225,12 +215,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
-    if ($PSBoundParameters.ContainsKey('EnableShiftPresence'))
-    {
-        Write-Verbose -Message 'The EnableShiftPresence parameter was used but is deprecated. It will be ignored.'
-        $PSBoundParameters.Remove('EnableShiftPresence') | Out-Null
-    }
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -299,10 +283,6 @@ function Test-TargetResource
         $EnableScheduleOwnerPermissions,
 
         [Parameter()]
-        [System.Boolean]
-        $EnableShiftPresence,
-
-        [Parameter()]
         [ValidateSet('Always', 'ShowOnceOnChange', 'Never')]
         [System.String]
         $ShiftNoticeFrequency,
@@ -356,8 +336,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludedProperties @('EnableShiftPresence')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

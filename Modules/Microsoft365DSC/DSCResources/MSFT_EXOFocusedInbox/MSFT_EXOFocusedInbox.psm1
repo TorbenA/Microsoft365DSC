@@ -11,10 +11,6 @@ function Get-TargetResource
         $Identity,
 
         [Parameter()]
-        [System.DateTime]
-        $FocusedInboxOnLastUpdateTime,
-
-        [Parameter()]
         [System.Boolean]
         $FocusedInboxOn,
 
@@ -83,8 +79,6 @@ function Get-TargetResource
         $results = @{
             Identity                     = $Identity
             FocusedInboxOn               = [Boolean]$instance.FocusedInboxOn
-            # DEPRECATED
-            # FocusedInboxOnLastUpdateTime = [DateTime]$instance.FocusedInboxOnLastUpdateTime
             Ensure                       = 'Present'
             Credential                   = $Credential
             ApplicationId                = $ApplicationId
@@ -115,10 +109,6 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $Identity,
-
-        [Parameter()]
-        [System.DateTime]
-        $FocusedInboxOnLastUpdateTime,
 
         [Parameter()]
         [System.Boolean]
@@ -171,7 +161,6 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
 
     $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $SetParameters.Remove('FocusedInboxOnLastUpdateTime') | Out-Null
     Set-FocusedInbox @SetParameters
 }
 
@@ -184,10 +173,6 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $Identity,
-
-        [Parameter()]
-        [System.DateTime]
-        $FocusedInboxOnLastUpdateTime,
 
         [Parameter()]
         [System.Boolean]

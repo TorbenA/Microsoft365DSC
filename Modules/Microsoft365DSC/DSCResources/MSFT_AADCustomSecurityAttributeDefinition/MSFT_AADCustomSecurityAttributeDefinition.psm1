@@ -31,6 +31,7 @@ function Get-TargetResource
         $IsSearchable,
 
         [Parameter()]
+        [ValidateSet('Available', 'Deprecated')]
         [System.String]
         $Status,
 
@@ -184,6 +185,7 @@ function Set-TargetResource
         $IsSearchable,
 
         [Parameter()]
+        [ValidateSet('Available', 'Deprecated')]
         [System.String]
         $Status,
 
@@ -306,6 +308,7 @@ function Test-TargetResource
         $IsSearchable,
 
         [Parameter()]
+        [ValidateSet('Available', 'Deprecated')]
         [System.String]
         $Status,
 

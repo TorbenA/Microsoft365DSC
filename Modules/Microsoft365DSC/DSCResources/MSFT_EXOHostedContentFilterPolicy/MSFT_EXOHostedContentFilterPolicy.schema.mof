@@ -1,4 +1,4 @@
-[ClassVersion("1.0.0.0"), FriendlyName("EXOHostedContentFilterPolicy")]
+[ClassVersion("1.0.0.1"), FriendlyName("EXOHostedContentFilterPolicy")]
 class MSFT_EXOHostedContentFilterPolicy : OMI_BaseResource
 {
     [Key, Description("The Identity parameter specifies the name of the Hosted Content Filter Policy that you want to modify.")] String Identity;

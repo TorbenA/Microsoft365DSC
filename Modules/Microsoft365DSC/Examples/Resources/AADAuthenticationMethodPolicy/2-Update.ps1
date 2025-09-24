@@ -27,7 +27,6 @@ Configuration Example
             DisplayName             = "Authentication Methods Policy";
             Ensure                  = "Present";
             Id                      = "authenticationMethodsPolicy";
-            PolicyMigrationState    = "migrationInProgress";
             PolicyVersion           = "1.5";
             RegistrationEnforcement = MSFT_MicrosoftGraphregistrationEnforcement{
                 AuthenticationMethodsRegistrationCampaign = MSFT_MicrosoftGraphAuthenticationMethodsRegistrationCampaign{

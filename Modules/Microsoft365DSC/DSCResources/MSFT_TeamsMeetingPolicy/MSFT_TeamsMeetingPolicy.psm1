@@ -236,10 +236,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
-        $ForceStreamingAttendeeMode,
-
-        [Parameter()]
-        [System.String]
         $InfoShownInReportMode,
 
         [Parameter()]
@@ -744,10 +740,6 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
-        $ForceStreamingAttendeeMode,
-
-        [Parameter()]
-        [System.String]
         $InfoShownInReportMode,
 
         [Parameter()]
@@ -898,9 +890,6 @@ function Set-TargetResource
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
     $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
-    # Parameter is Deprecated
-    $SetParameters.Remove('ForceStreamingAttendeeMode') | Out-Null
 
     if ($AllowCloudRecording -eq $false -and $SetParameters.Keys -contains 'AllowRecordingStorageOutsideRegion')
     {
@@ -1184,10 +1173,6 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
-        $ForceStreamingAttendeeMode,
-
-        [Parameter()]
-        [System.String]
         $InfoShownInReportMode,
 
         [Parameter()]
@@ -1334,9 +1319,8 @@ function Test-TargetResource
     # The AllowAnonymousUsersToDialOut is temporarly disabled. Therefore we can't create or update a policy with it and it needs to be removed
     # The AllowIPVideo is temporarly not working, therefore we won't check the value
     # The AllowUserToJoinExternalMeeting doesn't do anything based on official documentation
-    # The ForceStreamingAttendeeMode is deprecated
-    $excludedProperties = @('AllowAnonymousUsersToDialOut', 'AllowIPVideo', 'AllowUserToJoinExternalMeeting', 'ForceStreamingAttendeeMode')
-    if ($AllowCloudRecording -eq $false -and $PSBoundParameters.ContainsKey('AllowCloudRecording'))
+    $excludedProperties = @('AllowAnonymousUsersToDialOut', 'AllowIPVideo', 'AllowUserToJoinExternalMeeting')
+    if ($AllowCloudRecording -eq $false -and $PSBoundParameters.ContainsKey('AllowRecordingStorageOutsideRegion'))
     {
         $excludedProperties += 'AllowCloudRecording'
     }
