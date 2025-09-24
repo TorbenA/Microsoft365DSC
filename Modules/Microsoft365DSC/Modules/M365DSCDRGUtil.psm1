@@ -784,7 +784,7 @@ function Compare-M365DSCComplexObject
 
     foreach ($key in $keys)
     {
-        if (($target.GetType().Name -eq 'Hashtable' -and $target.ContainsKey($key)) -or `
+        if ((($target.GetType().Name -eq 'Hashtable' -and $target.ContainsKey($key)) -or ($target.GetType().Name -eq 'OrderedDictionary' -and $target.Contains($key))) -or `
             ($target.GetType().Name -eq 'CIMInstance' -and $null -ne $target.$key))
         {
             # Matching possible key names between Source and Target
@@ -1159,7 +1159,7 @@ function Compare-M365DSCComplexObjectV2
 
     foreach ($key in $keys)
     {
-        if (($target.GetType().Name -eq 'Hashtable' -and $target.ContainsKey($key)) -or `
+        if ((($target.GetType().Name -eq 'Hashtable' -and $target.ContainsKey($key)) -or ($target.GetType().Name -eq 'OrderedDictionary' -and $target.Contains($key))) -or `
             ($target.GetType().Name -eq 'CIMInstance' -and $null -ne $target.$key))
         {
             # Matching possible key names between Source and Target
@@ -1235,7 +1235,7 @@ function Compare-M365DSCComplexObjectV2
                             -NoDriftReport:$NoDriftReport
                     }
 
-                    if (-not $compareResult -and $targetValue.GetType().Name -ne "Hashtable" -and $targetValue.GetType().Name -ne 'Object[]')
+                    if (-not $compareResult -and $targetValue.GetType().Name -ne "Hashtable" -and $targetValue.GetType().Name -ne "OrderedDictionary" -and $targetValue.GetType().Name -ne 'Object[]')
                     {
                         Write-Verbose -Message "Configuration drift - complex object key: $key"
                         Write-Verbose -Message "Source {$sourceValue}"

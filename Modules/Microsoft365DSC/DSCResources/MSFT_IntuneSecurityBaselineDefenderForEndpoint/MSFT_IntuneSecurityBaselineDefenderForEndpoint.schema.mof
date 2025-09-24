@@ -58,7 +58,7 @@ class MSFT_MicrosoftGraphIntuneSettingsCatalogDeviceSettings_IntuneSecurityBasel
     [Write, Description("Deny write access to removable drives not protected by BitLocker (0: Disabled, 1: Enabled)"), ValueMap{"0", "1"}, Values{"0", "1"}] SInt32 RDVDenyWriteAccess_Name;
     [Write, Description("Do not allow write access to devices configured in another organization - Depends on RDVDenyWriteAccess_Name (0: False, 1: True)"), ValueMap{"0", "1"}, Values{"0", "1"}] SInt32 RDVCrossOrg;
     [Write, Description("Configure Windows Defender SmartScreen (0: Disabled, 1: Enabled)"), ValueMap{"0", "1"}, Values{"0", "1"}] SInt32 EnableSmartScreen;
-    [Write, Description("Pick one of the following settings: (Device) - Depends on EnableSmartScreen (block: Warn and prevent bypass, warn: Warn)"), ValueMap{"block", "warn"}, Values{"block", "warn"}] SInt32 EnableSmartScreenDropdown;
+    [Write, Description("Pick one of the following settings: (Device) - Depends on EnableSmartScreen (block: Warn and prevent bypass, warn: Warn)"), ValueMap{"Block", "Warn"}, Values{"Block", "Warn"}] String EnableSmartScreenDropdown;
     [Write, Description("Prevent bypassing SmartScreen Filter warnings about files that are not commonly downloaded from the Internet (0: Disabled, 1: Enabled)"), ValueMap{"0", "1"}, Values{"0", "1"}] SInt32 DisableSafetyFilterOverrideForAppRepUnknown;
     [Write, Description("Prevent managing SmartScreen Filter (0: Disabled, 1: Enabled)"), ValueMap{"0", "1"}, Values{"0", "1"}] SInt32 Disable_Managing_Safety_Filter_IE9;
     [Write, Description("Select SmartScreen Filter mode - Depends on Disable_Managing_Safety_Filter_IE9 (0: Off, 1: On)"), ValueMap{"0", "1"}, Values{"0", "1"}] String IE9SafetyFilterOptions;
