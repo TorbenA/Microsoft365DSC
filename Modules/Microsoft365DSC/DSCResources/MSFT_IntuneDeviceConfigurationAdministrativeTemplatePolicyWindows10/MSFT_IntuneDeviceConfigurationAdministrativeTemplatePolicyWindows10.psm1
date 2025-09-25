@@ -747,7 +747,6 @@ function Test-TargetResource
     }
 
     $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck.Remove('Ensure') | Out-Null
     $ValuesToCheck.Remove('PolicyConfigurationIngestionType') | Out-Null
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"

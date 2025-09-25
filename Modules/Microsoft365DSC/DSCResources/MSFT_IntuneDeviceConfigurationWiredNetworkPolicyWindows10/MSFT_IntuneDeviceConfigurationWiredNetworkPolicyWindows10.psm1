@@ -980,9 +980,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -992,52 +989,32 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune Device Configuration Wired Network Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $testResult = $true
-
-    $testResult = Compare-M365DSCIntunePolicyAssignment -Source $CurrentValues.Assignments -Target $Assignments
-
-    $ValuesToCheck.remove('Id') | Out-Null
-    $ValuesToCheck.Remove('Assignments') | Out-Null
-
-    if ($null -ne $ValuesToCheck.RootCertificatesForServerValidationDisplayNames)
+    $excludedProperties = @()
+    if ($PSBoundParameters.ContainsKey('RootCertificatesForServerValidationDisplayNames'))
     {
-        $ValuesToCheck.Remove('RootCertificatesForServerValidationIds')
+        $excludedProperties += 'RootCertificatesForServerValidationIds'
     }
-    if ($null -ne $ValuesToCheck.IdentityCertificateForClientAuthenticationDisplayName)
+    if ($PSBoundParameters.ContainsKey('IdentityCertificateForClientAuthenticationDisplayName'))
     {
-        $ValuesToCheck.Remove('IdentityCertificateForClientAuthenticationId')
+        $excludedProperties += 'IdentityCertificateForClientAuthenticationId'
     }
-    if ($null -ne $ValuesToCheck.SecondaryIdentityCertificateForClientAuthenticationDisplayName)
+    if ($PSBoundParameters.ContainsKey('SecondaryIdentityCertificateForClientAuthenticationDisplayName'))
     {
-        $ValuesToCheck.Remove('SecondaryIdentityCertificateForClientAuthenticationId')
+        $excludedProperties += 'SecondaryIdentityCertificateForClientAuthenticationId'
     }
-    if ($null -ne $ValuesToCheck.RootCertificateForClientValidationDisplayName)
+    if ($PSBoundParameters.ContainsKey('RootCertificateForClientValidationDisplayName'))
     {
-        $ValuesToCheck.Remove('RootCertificateForClientValidationId')
+        $excludedProperties += 'RootCertificateForClientValidationId'
     }
-    if ($null -ne $ValuesToCheck.SecondaryRootCertificateForClientValidationDisplayName)
+    if ($PSBoundParameters.ContainsKey('SecondaryRootCertificateForClientValidationDisplayName'))
     {
-        $ValuesToCheck.Remove('SecondaryRootCertificateForClientValidationId')
+        $excludedProperties += 'SecondaryRootCertificateForClientValidationId'
     }
 
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    if ($testResult)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties $excludedProperties
+    return $result
 }
 
 function Export-TargetResource

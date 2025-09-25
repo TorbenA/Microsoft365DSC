@@ -24,7 +24,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             $secpasswd = ConvertTo-SecureString (New-GUID).ToString() -AsPlainText -Force
             $Credential = New-Object System.Management.Automation.PSCredential ('tenantadmin@mydomain.com', $secpasswd)
 
-            Mock -CommandName Confirm-M365DSCDependencies -MockWith {
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
             }
 
             Mock -CommandName Get-PSSession -MockWith {
@@ -218,7 +218,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     EnterpriseProxiedDomains               = @(
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphwindowsInformationProtectionProxiedDomainCollection -Property @{
                             DisplayName    = 'FakeStringValue'
-                            ProxiedDomains = (New-CimInstance -ClassName MSFT_MicrosoftGraphproxiedDomain -Property @{
+                            ProxiedDomains = [CimInstance[]]@(New-CimInstance -ClassName MSFT_MicrosoftGraphproxiedDomain -Property @{
                                     Proxy           = 'FakeStringValue'
                                     IpAddressOrFQDN = 'FakeStringValue'
                                 } -ClientOnly)
@@ -340,7 +340,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     EnterpriseProxiedDomains               = @(
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphwindowsInformationProtectionProxiedDomainCollection -Property @{
                             DisplayName    = 'FakeStringValue'
-                            ProxiedDomains = (New-CimInstance -ClassName MSFT_MicrosoftGraphproxiedDomain -Property @{
+                            ProxiedDomains = [CimInstance[]]@(New-CimInstance -ClassName MSFT_MicrosoftGraphproxiedDomain -Property @{
                                     Proxy           = 'FakeStringValue'
                                     IpAddressOrFQDN = 'FakeStringValue'
                                 } -ClientOnly)
@@ -460,7 +460,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     EnterpriseProxiedDomains               = @(
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphwindowsInformationProtectionProxiedDomainCollection -Property @{
                             DisplayName    = 'FakeStringValue'
-                            ProxiedDomains = (New-CimInstance -ClassName MSFT_MicrosoftGraphproxiedDomain -Property @{
+                            ProxiedDomains = [CimInstance[]]@(New-CimInstance -ClassName MSFT_MicrosoftGraphproxiedDomain -Property @{
                                     Proxy           = 'FakeStringValue'
                                     IpAddressOrFQDN = 'FakeStringValue'
                                 } -ClientOnly)
@@ -572,10 +572,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     EnterpriseProxiedDomains               = @(
                         (New-CimInstance -ClassName MSFT_MicrosoftGraphwindowsInformationProtectionProxiedDomainCollection -Property @{
                             DisplayName    = 'FakeStringValue'
-                            ProxiedDomains = (New-CimInstance -ClassName MSFT_MicrosoftGraphproxiedDomain -Property @{
-                                    Proxy           = 'DefinedProxy' # Updated property
-                                    IpAddressOrFQDN = 'FakeStringValue'
-                                } -ClientOnly)
+                            ProxiedDomains = [CimInstance[]]@(New-CimInstance -ClassName MSFT_MicrosoftGraphproxiedDomain -Property @{
+                                Proxy           = 'DefinedProxy' # Updated property
+                                IpAddressOrFQDN = 'FakeStringValue'
+                            } -ClientOnly)
                         } -ClientOnly)
                     )
                     EnterpriseProxyServers                 = @(

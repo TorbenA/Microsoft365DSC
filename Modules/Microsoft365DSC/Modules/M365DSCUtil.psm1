@@ -1170,6 +1170,10 @@ function Test-M365DSCTargetResource
         [System.String[]]
         $ExcludedProperties,
 
+        [Parameter()]
+        [System.String[]]
+        $IncludedProperties,
+
         [Parameter(
             ParameterSetName = 'PassThru'
         )]
@@ -1232,71 +1236,105 @@ function Test-M365DSCTargetResource
         $ValuesToCheck.Remove($property) | Out-Null
     }
 
-    $testTargetResource = $true
-
-    # Compare Cim instances
-    $desiredKeys = ([Hashtable]$DesiredValues).Clone().Keys
-    foreach ($key in $desiredKeys)
+    # Add the IncludedProperties to the list of properties to be evaluated
+    foreach ($property in $IncludedProperties)
     {
-        $source = $DesiredValues.$key
-        $target = $CurrentValues.$key
-        if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
+        if ($DesiredValues.ContainsKey($property) -and -not $ValuesToCheck.ContainsKey($property))
         {
-            $CIMProperty = $resourceDefinition.Parameters | Where-Object -FilterScript { $_.Name -eq $key }
-            $CIMName = $CIMProperty.CIMType.Replace('[]', '')
-            $CIMDefinition = $Script:M365DSCSchema | Where-Object -FilterScript { $_.ClassName -eq $CIMName }
-            $CIMPrimaryKeys = $CIMDefinition.Parameters | Where-Object -FilterScript { $_.Option -eq 'Required' }
+            $ValuesToCheck.Add($property, $DesiredValues.$property)
+        }
+    }
 
-            $targetObjects = @{}
-            if ($source.GetType().Name -eq 'CimInstance[]')
-            {
-                $targetObjects = @()
-            }
+    $testTargetResource = $true
+    if ($DesiredValues.Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
+    {
+        Write-Verbose -Message "The resource $ResourceName with $finalString was not found in the tenant."
+        $Global:AllDrifts.DriftInfo += @{
+            PropertyName = 'Ensure'
+            CurrentValue = 'Absent'
+            DesiredValue = 'Present'
+        }
+        $testTargetResource = $false
+    }
+    elseif ($DesiredValues.Ensure -eq 'Absent' -and $CurrentValues.Ensure -eq 'Present')
+    {
+        Write-Verbose -Message "The resource $ResourceName with $finalString should not exist in the tenant."
+        $Global:AllDrifts.DriftInfo += @{
+            PropertyName = 'Ensure'
+            CurrentValue = 'Present'
+            DesiredValue = 'Absent'
+        }
+        $testTargetResource = $false
+    }
 
-            foreach ($targetObject in $target)
+    $testResult = $true
+    if ($testTargetResource)
+    {
+        # Compare Cim instances
+        $desiredKeys = ([Hashtable]$DesiredValues).Clone().Keys
+        foreach ($key in $desiredKeys)
+        {
+            $source = $DesiredValues.$key
+            $target = $CurrentValues.$key
+            if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
             {
-                foreach ($primaryKey in $CIMPrimaryKeys.Name)
+                $CIMProperty = $resourceDefinition.Parameters | Where-Object -FilterScript { $_.Name -eq $key }
+                $CIMName = $CIMProperty.CIMType.Replace('[]', '')
+                $CIMDefinition = $Script:M365DSCSchema | Where-Object -FilterScript { $_.ClassName -eq $CIMName }
+                $CIMPrimaryKeys = $CIMDefinition.Parameters | Where-Object -FilterScript { $_.Option -eq 'Required' }
+
+                $targetObjects = @{}
+                if ($source.GetType().Name -eq 'CimInstance[]')
                 {
-                    $targetObject.Remove($primaryKey) | Out-Null
+                    $targetObjects = @()
                 }
 
-                if ($targetObjects -is [array])
+                foreach ($targetObject in $target)
                 {
-                    $targetObjects += $targetObject
+                    foreach ($primaryKey in $CIMPrimaryKeys.Name)
+                    {
+                        $targetObject.Remove($primaryKey) | Out-Null
+                    }
+
+                    if ($targetObjects -is [array])
+                    {
+                        $targetObjects += $targetObject
+                    }
+                    else
+                    {
+                        $targetObjects = $targetObject
+                    }
                 }
-                else
+
+                $testResult = Compare-M365DSCComplexObjectV2 `
+                    -Source ($source) `
+                    -Target ($targetObjects) `
+                    -PropertyName $key
+
+                if (-not $testResult)
                 {
-                    $targetObjects = $targetObject
+                    Write-Verbose "TestResult returned False for $source"
+                    $testTargetResource = $false
                 }
+
+                $DesiredValues.Remove($key) | Out-Null
+                $ValuesToCheck.Remove($key) | Out-Null
             }
-
-            $testResult = Compare-M365DSCComplexObjectV2 `
-                -Source ($source) `
-                -Target ($targetObjects) `
-                -PropertyName $key
-
-            if (-not $testResult)
-            {
-                Write-Verbose "TestResult returned False for $source"
-                $testTargetResource = $false
-            }
-
-            $DesiredValues.Remove($key) | Out-Null
-            $ValuesToCheck.Remove($key) | Out-Null
         }
     }
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
 
-    $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
+    if ($testResult)
+    {
+        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
             -Source $ResourceName `
             -DesiredValues $DesiredValues `
             -ValuesToCheck $ValuesToCheck.Keys `
             -NoEventMessage `
             -NoDriftReset
-
-    Write-Verbose -Message "Test-M365DSCTargetResource returned $testResult"
+    }
 
     if (-not $testResult)
     {
@@ -1312,6 +1350,8 @@ function Test-M365DSCTargetResource
                                       -CurrentValues $CurrentValues `
                                       -DesiredValues $DesiredValues
     }
+
+    Write-Verbose -Message "Test-M365DSCTargetResource returned $testTargetResource"
 
     if ($PassThru)
     {
