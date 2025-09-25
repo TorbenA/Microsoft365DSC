@@ -1267,6 +1267,7 @@ function Test-M365DSCTargetResource
         $testTargetResource = $false
     }
 
+    $testResult = $true
     if ($testTargetResource)
     {
         # Compare Cim instances
