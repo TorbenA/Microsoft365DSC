@@ -233,9 +233,13 @@ function Set-TargetResource
     $IntraOrganizationConnector = $IntraOrganizationConnectors | Where-Object -FilterScript { $_.Identity -eq $Identity }
     $IntraOrganizationConnectorParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
+    if ($IntraOrganizationConnectorParams.TargetSharingEpr -eq '')
+    {
+        $IntraOrganizationConnectorParams.TargetSharingEpr = $null
+    }
     if (('Present' -eq $Ensure ) -and ($null -eq $IntraOrganizationConnector))
     {
-        Write-Verbose -Message "Creating IntraOrganizationConnector $($Identity)."
+        Write-Verbose -Message "Creating IntraOrganizationConnector $($Identity) with:`r`n $(ConvertTo-Json $IntraOrganizationConnectorParams -Depth 10)"
         $IntraOrganizationConnectorParams.Add('Name', $Identity)
         $IntraOrganizationConnectorParams.Remove('Identity') | Out-Null
         New-IntraOrganizationConnector @IntraOrganizationConnectorParams
