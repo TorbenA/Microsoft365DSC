@@ -163,6 +163,7 @@
   * Updated most resource testing to use the new comparison function.
   * Updated required modules for Intune resources doing assignments to groups.
   * [BREAKING CHANGE] Removed `SupportsScopeTags` property from all resources because it's read-only.
+  * Updated all resource settings files to include a `configuration` or `data` mode.
 * M365DSCDRGUtil
   * Changed the way how Settings Catalog properties are exported.
   * Fixed an issue where a null drift would throw an exception.
@@ -173,6 +174,7 @@
   * Added parameter `-Parallel` to `Export-M365DSCConfiguration`.
   * Renamed function `Get-M365DSCWorkloadsListFromResourceNames` to `Get-M365DSCConnectedWorkloadList`.
   * Added function `Get-M365DSCWorkloadForResource` to look up the workload of a resource.
+  * Added function `Get-M365DSCResourcesByExportMode` to determine which resources belong to an export mode.
 
 # 1.25.910.1
 

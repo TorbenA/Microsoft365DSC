@@ -57,5 +57,6 @@
   },
   "requiredModules": [
     "PnP.PowerShell"
-  ]
+  ],
+  "mode": "Configuration"
 }

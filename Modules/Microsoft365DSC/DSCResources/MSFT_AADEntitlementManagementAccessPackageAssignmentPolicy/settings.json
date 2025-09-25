@@ -41,5 +41,6 @@
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.Governance",
     "Microsoft.Graph.Users"
-  ]
+  ],
+  "mode": "Configuration"
 }

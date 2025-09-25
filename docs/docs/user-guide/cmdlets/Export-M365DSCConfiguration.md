@@ -19,7 +19,7 @@ This function does not generate any output.
 | Components | False | String[] |  |  | Specifies the components for which an export should be created. |
 | ExcludeComponents | False | String[] |  |  | Specifies the components to skip when creating the export |
 | Workloads | False | String[] |  | AAD, ADO, AZURE, COMMERCE, DEFENDER, EXO, FABRIC, INTUNE, O365, OD, PLANNER, PP, SC, SENTINEL, SH, SPO, TEAMS | Specifies the workload for which an export should be created for all resources. |
-| Mode | False | String | Default | Lite, Default, Full | Specifies the mode of the export: Lite, Default or Full. |
+| Mode | False | String | Default | Default, Full | Specifies the mode of the export: Default or Full. |
 | GenerateInfo | False | Boolean |  |  | Specifies if each exported resource should get a link to the Wiki article of the resource. |
 | Filters | False | Hashtable |  |  | Specifies resource level filters to apply in order to reduce the number of instances exported. |
 | ApplicationId | False | String |  |  | Specifies the application id to be used for authentication. |
@@ -55,5 +55,3 @@ This function does not generate any output.
 -------------------------- EXAMPLE 5 --------------------------
 
 `Export-M365DSCConfiguration -Workloads @("SPO") -ExcludeComponents @("SPOPropertyBag") -Credential $Credential`
-
-
