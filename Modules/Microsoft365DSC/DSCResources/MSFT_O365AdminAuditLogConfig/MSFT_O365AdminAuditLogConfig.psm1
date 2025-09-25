@@ -11,11 +11,6 @@ function Get-TargetResource
         [String]
         $IsSingleInstance,
 
-        [Parameter()]
-        [ValidateSet('Present')]
-        [System.String]
-        $Ensure = 'Present',
-
         [Parameter(Mandatory = $true)]
         [ValidateSet('Enabled', 'Disabled')]
         [System.String]
@@ -132,11 +127,6 @@ function Set-TargetResource
         [String]
         $IsSingleInstance,
 
-        [Parameter()]
-        [ValidateSet('Present')]
-        [System.String]
-        $Ensure = 'Present',
-
         [Parameter(Mandatory = $true)]
         [ValidateSet('Enabled', 'Disabled')]
         [System.String]
@@ -237,11 +227,6 @@ function Test-TargetResource
         [String]
         $IsSingleInstance,
 
-        [Parameter()]
-        [ValidateSet('Present')]
-        [System.String]
-        $Ensure = 'Present',
-
         [Parameter(Mandatory = $true)]
         [ValidateSet('Enabled', 'Disabled')]
         [System.String]
@@ -290,8 +275,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludedProperties @('Ensure')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
