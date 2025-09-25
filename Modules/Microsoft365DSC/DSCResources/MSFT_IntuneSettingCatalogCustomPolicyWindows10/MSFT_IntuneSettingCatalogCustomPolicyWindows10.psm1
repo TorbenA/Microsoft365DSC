@@ -142,8 +142,8 @@ function Get-TargetResource
         $complexSettings = @()
         foreach ($currentSettings in $getValue.settings)
         {
-            $mySettings = @{}
-            $complexSettingInstance = @{}
+            $mySettings = [ordered]@{}
+            $complexSettingInstance = [ordered]@{}
             $complexSettingInstance.Add('SettingDefinitionId', $currentSettings.settingInstance.settingDefinitionId)
             $complexSettingInstance.Add('odataType', $currentSettings.settingInstance.AdditionalProperties.'@odata.type')
             $valueName = $currentSettings.settingInstance.AdditionalProperties.'@odata.type'.Replace('#microsoft.graph.deviceManagementConfiguration', '').Replace('Instance', 'Value')
@@ -468,9 +468,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -480,46 +477,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune Setting Catalog Custom Policy for Windows10 with Id {$Id} and Name {$Name}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $testResult = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($source.GetType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-not $testResult)
-            {
-                $testResult = $false
-                break
-            }
-            $ValuesToCheck.Remove($key) | Out-Null
-        }
-    }
-
-    $ValuesToCheck.Remove('Id') | Out-Null
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    if ($testResult)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -763,16 +723,16 @@ function Get-SettingValue
     {
         '*ChoiceSettingInstance'
         {
-            $complexValue = @{}
+            $complexValue = [ordered]@{}
             $complexValue.Add('odataType', $SettingValue.'@odata.type')
             $complexValue.Add('Value', $SettingValue.value)
             $children = @()
             foreach ($child in $SettingValue.children)
             {
-                $complexChild = @{}
+                $complexChild = [ordered]@{}
                 $complexChild.Add('SettingDefinitionId', $child.settingDefinitionId)
                 $complexChild.Add('odataType', $child.'@odata.type')
-                $valueName = $child.'@odata.type'.replace('#microsoft.graph.deviceManagementConfiguration', '').replace('Instance', 'Value')
+                $valueName = $child.'@odata.type'.Replace('#microsoft.graph.deviceManagementConfiguration', '').Replace('Instance', 'Value')
                 $valueName = Get-StringFirstCharacterToLower -Value $valueName
                 $rawValue = $child.$valueName
                 $childSettingValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $child.'@odata.type'
@@ -786,15 +746,15 @@ function Get-SettingValue
             $complexCollection = @()
             foreach ($item in $SettingValue)
             {
-                $complexValue = @{}
+                $complexValue = [ordered]@{}
                 $complexValue.Add('Value', $item.value)
                 $children = @()
                 foreach ($child in $item.children)
                 {
-                    $complexChild = @{}
+                    $complexChild = [ordered]@{}
                     $complexChild.Add('SettingDefinitionId', $child.settingDefinitionId)
                     $complexChild.Add('odataType', $child.'@odata.type')
-                    $valueName = $child.'@odata.type'.replace('#microsoft.graph.deviceManagementConfiguration', '').replace('Instance', 'Value')
+                    $valueName = $child.'@odata.type'.Replace('#microsoft.graph.deviceManagementConfiguration', '').Replace('Instance', 'Value')
                     $valueName = Get-StringFirstCharacterToLower -Value $valueName
                     $rawValue = $child.$valueName
                     $childSettingValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $child.'@odata.type'
@@ -808,7 +768,7 @@ function Get-SettingValue
         }
         '*SimpleSettingInstance'
         {
-            $complexValue = @{}
+            $complexValue = [ordered]@{}
             $complexValue.Add('odataType', $SettingValue.'@odata.type')
             $valueName = 'IntValue'
             $value = $SettingValue.value
@@ -828,7 +788,7 @@ function Get-SettingValue
 
             foreach ($item in $SettingValue)
             {
-                $complexValue = @{}
+                $complexValue = [ordered]@{}
                 $complexValue.Add('odataType', $item.'@odata.type')
                 $valueName = 'IntValue'
                 $value = $item.value
@@ -847,15 +807,15 @@ function Get-SettingValue
         }
         '*GroupSettingInstance'
         {
-            $complexValue = @{}
+            $complexValue = [ordered]@{}
             $complexValue.Add('odataType', $SettingValue.'@odata.type')
             $children = @()
             foreach ($child in $SettingValue.children)
             {
-                $complexChild = @{}
+                $complexChild = [ordered]@{}
                 $complexChild.Add('SettingDefinitionId', $child.settingDefinitionId)
                 $complexChild.Add('odataType', $child.'@odata.type')
-                $valueName = $child.'@odata.type'.replace('#microsoft.graph.deviceManagementConfiguration', '').replace('Instance', 'Value')
+                $valueName = $child.'@odata.type'.Replace('#microsoft.graph.deviceManagementConfiguration', '').Replace('Instance', 'Value')
                 $valueName = Get-StringFirstCharacterToLower -Value $valueName
                 $rawValue = $child.$valueName
                 $settingValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $child.'@odata.type'
@@ -869,15 +829,15 @@ function Get-SettingValue
             $complexCollection = @()
             foreach ($groupSettingValue in $SettingValue)
             {
-                $complexValue = @{}
+                $complexValue = [ordered]@{}
                 #$complexValue.Add('odataType',$SettingValue.'@odata.type')
                 $children = @()
                 foreach ($child in $groupSettingValue.children)
                 {
-                    $complexChild = @{}
+                    $complexChild = [ordered]@{}
                     $complexChild.Add('SettingDefinitionId', $child.settingDefinitionId)
                     $complexChild.Add('odataType', $child.'@odata.type')
-                    $valueName = $child.'@odata.type'.replace('#microsoft.graph.deviceManagementConfiguration', '').replace('Instance', 'Value')
+                    $valueName = $child.'@odata.type'.Replace('#microsoft.graph.deviceManagementConfiguration', '').Replace('Instance', 'Value')
                     $valueName = Get-StringFirstCharacterToLower -Value $valueName
                     $rawValue = $child.$valueName
                     $settingValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $child.'@odata.type'

@@ -63,6 +63,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             OffsetUri = '/Config/Defender/AttackSurfaceReductionRules'
                             AdditionalProperties = @{
                                 '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                options = @(
+                                    @{
+                                        itemId = 'device_vendor_msft_policy_config_defender_attacksurfacereductionrules_useadvancedprotectionagainstransomware_block'
+                                        name = 'Block'
+                                        optionValue = @{
+                                            '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                            value = 'block'
+                                        }
+                                    }
+                                )
                             }
                         },
                         @{

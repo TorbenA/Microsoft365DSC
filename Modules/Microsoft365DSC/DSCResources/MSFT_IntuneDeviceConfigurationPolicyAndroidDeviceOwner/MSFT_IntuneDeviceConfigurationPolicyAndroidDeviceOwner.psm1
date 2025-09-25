@@ -692,7 +692,7 @@ function Get-TargetResource
             }
         }
 
-        $complexDetailedHelpText = @{}
+        $complexDetailedHelpText = [ordered]@{}
         $currentValue = $getValue.AdditionalProperties.detailedHelpText
         if ($null -ne $currentValue)
         {
@@ -717,7 +717,7 @@ function Get-TargetResource
             $complexDetailedHelpText = $null
         }
 
-        $complexDeviceOwnerLockScreenMessage = @{}
+        $complexDeviceOwnerLockScreenMessage = [ordered]@{}
         $currentValue = $getValue.AdditionalProperties.deviceOwnerLockScreenMessage
         if ($null -ne $currentValue)
         {
@@ -742,7 +742,7 @@ function Get-TargetResource
             $complexDeviceOwnerLockScreenMessage = $null
         }
 
-        $complexGlobalProxy = @{}
+        $complexGlobalProxy = [ordered]@{}
         $currentValue = $getValue.AdditionalProperties.globalProxy
         if ($null -ne $currentValue)
         {
@@ -763,7 +763,7 @@ function Get-TargetResource
         {
             foreach ($currentValue in $currentValueArray)
             {
-                $currentHash = @{}
+                $currentHash = [ordered]@{}
                 $currentHash.Add('AppId', $currentValue.appid)
                 $currentHash.Add('Publisher', $currentValue.publisher)
                 $currentHash.Add('AppStoreUrl', $currentValue.appStoreUrl)
@@ -779,7 +779,7 @@ function Get-TargetResource
         {
             foreach ($currentValue in $currentValueArray)
             {
-                $currentHash = @{}
+                $currentHash = [ordered]@{}
                 $currentHash.Add('AppId', $currentValue.appid)
                 $currentHash.Add('Publisher', $currentValue.publisher)
                 $currentHash.Add('AppStoreUrl', $currentValue.appStoreUrl)
@@ -789,7 +789,7 @@ function Get-TargetResource
             }
         }
 
-        $complexShortHelpText = @{}
+        $complexShortHelpText = [ordered]@{}
         $currentValue = $getValue.AdditionalProperties.shortHelpText
         if ($null -ne $currentValue)
         {
@@ -2377,9 +2377,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -2389,50 +2386,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of {$id}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $testResult = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($source.GetType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-Not $testResult)
-            {
-                Write-Verbose -Message "Drift detected for the complex object key: $key"
-                $testResult = $false
-                break
-            }
-
-            $ValuesToCheck.Remove($key) | Out-Null
-        }
-    }
-
-    if ($testResult)
-    {
-        $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
-        $ValuesToCheck.Remove('Id') | Out-Null
-
-        Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-        Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource

@@ -1302,7 +1302,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Device Configuration Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found."
 
         #region resource generator code
-        $complexDefenderDetectedMalwareActions = @{}
+        $complexDefenderDetectedMalwareActions = [ordered]@{}
         if ($null -ne $getValue.AdditionalProperties.defenderDetectedMalwareActions.highSeverity)
         {
             $complexDefenderDetectedMalwareActions.Add('HighSeverity', $getValue.AdditionalProperties.defenderDetectedMalwareActions.highSeverity.ToString())
@@ -1324,7 +1324,7 @@ function Get-TargetResource
             $complexDefenderDetectedMalwareActions = $null
         }
 
-        $complexEdgeHomeButtonConfiguration = @{}
+        $complexEdgeHomeButtonConfiguration = [ordered]@{}
         $complexEdgeHomeButtonConfiguration.Add('HomeButtonCustomURL', $getValue.AdditionalProperties.edgeHomeButtonConfiguration.homeButtonCustomURL)
         if ($null -ne $getValue.AdditionalProperties.edgeHomeButtonConfiguration.'@odata.type')
         {
@@ -1335,7 +1335,7 @@ function Get-TargetResource
             $complexEdgeHomeButtonConfiguration = $null
         }
 
-        $complexEdgeSearchEngine = @{}
+        $complexEdgeSearchEngine = [ordered]@{}
         if ($null -ne $getValue.AdditionalProperties.edgeSearchEngine.edgeSearchEngineType)
         {
             $complexEdgeSearchEngine.Add('EdgeSearchEngineType', $getValue.AdditionalProperties.edgeSearchEngine.edgeSearchEngineType.ToString())
@@ -1350,7 +1350,7 @@ function Get-TargetResource
             $complexEdgeSearchEngine = $null
         }
 
-        $complexNetworkProxyServer = @{}
+        $complexNetworkProxyServer = [ordered]@{}
         $complexNetworkProxyServer.Add('Address', $getValue.AdditionalProperties.networkProxyServer.address)
         $complexNetworkProxyServer.Add('Exceptions', $getValue.AdditionalProperties.networkProxyServer.exceptions)
         $complexNetworkProxyServer.Add('UseForLocalAddresses', $getValue.AdditionalProperties.networkProxyServer.useForLocalAddresses)
@@ -1359,7 +1359,7 @@ function Get-TargetResource
             $complexNetworkProxyServer = $null
         }
 
-        $complexWindows10AppsForceUpdateSchedule = @{}
+        $complexWindows10AppsForceUpdateSchedule = [ordered]@{}
         if ($null -ne $getValue.AdditionalProperties.windows10AppsForceUpdateSchedule.recurrence)
         {
             $complexWindows10AppsForceUpdateSchedule.Add('Recurrence', $getValue.AdditionalProperties.windows10AppsForceUpdateSchedule.recurrence.ToString())
@@ -4617,9 +4617,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -4629,48 +4626,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune Device Configuration Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $testResult = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($source.getType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-Not $testResult)
-            {
-                break
-            }
-
-            $ValuesToCheck.Remove($key) | Out-Null
-        }
-    }
-
-    $ValuesToCheck.remove('Id') | Out-Null
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    if ($testResult)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource

@@ -42,6 +42,8 @@
     on update.
   * [BREAKING] Renamed the UnifiedGroupWelcomeMessageEnabled parameter to
     WelcomeMessageEnabled.
+* EXOIntraOrganizationConnector
+  * Fix logic to allow empty string for TargetSharingEpr.
 * EXOHostedContentFilterPolicy
   * [BREAKING CHANGE] Remove deprecated properties `DownloadLink`, `EnableEndUserSpamNotifications`,
     `EndUserSpamNotificationCustomSubject`, `EndUserSpamNotificationFrequency` and `EndUserSpamNotificationLanguage`.
@@ -68,6 +70,9 @@
     `ExceptIfMessageContainsDataClassifications`, `HasSenderOverride`, `NotifySender`, `ApplyOME` and `RemoveOME`.
 * IntuneAccountProtectionPolicy
   * [BREAKING CHANGE] Removed deprecated resource.
+* IntuneAccountProtectionLocalUserGroupMembershipPolicy
+  * [BREAKING CHANGE] Renamed properties to match their Settings Catalog counterpart.
+    FIXES [#6342](https://github.com/microsoft/Microsoft365DSC/issues/6432)
 * IntuneAppConfigurationPolicy
   * Fixed an issue with MOF instance parsing.
     FIXES [#6520](https://github.com/microsoft/Microsoft365DSC/issues/6520)
@@ -91,6 +96,10 @@
 * IntuneDeviceRemediation
   * [BREAKING CHANGE] Made Id optional and enabled creation of remediation scripts using DisplayName only.
     FIXES [#6445](https://github.com/microsoft/Microsoft365DSC/issues/6445)
+* IntuneEpmElevationRulesPolicyWindows10
+  * Initial release.
+* IntuneEpmElevationSettingsPolicyWindows10
+  * Initial release.
 * IntuneMobileAppsMacOSLobApp
   * Added filter capability.
 * IntuneMobileAppsMicrosoftStoreAppWindows10
@@ -111,6 +120,8 @@
 * IntuneWifiConfigurationPolicyAndroidForWork
   * [BREAKING CHANGE] Removed resource because it's not supported anymore.
     Instead, use the `IntuneWifiConfigurationPolicyAndroidEnterpriseWorkProfile` resource.
+* O365AdminAuditLogConfig
+  * [BREAKING CHANGE] Removed `Ensure` parameter because it is a single instance object.
 * O365OrgSettings
   * [BREAKING CHANGE] Removed deprecated parameter `MicrosoftVivaBriefingEmail`.
 * ODSettings
@@ -137,6 +148,9 @@
 * TeamsTenantDialPlan
   * [BREAKING CHANGE] Removed deprecated parameter `OptimizeDeviceDialing` and `ExternalAccessPrefix`.
 * MISC
+  * Added ordering to hashtables.
+  * [BREAKING CHANGE] Changed multiple property values and types in Intune resources. Refer to the
+    breaking change blog post for more information about the affected resources.
   * Added performance improvements to speed up resource processing.
   * Code cleanup across all Intune resources.
   * Code cleanup across all O365, OD and SPO resources.
@@ -151,6 +165,9 @@
   * Updated most resource testing to use the new comparison function.
   * Updated required modules for Intune resources doing assignments to groups.
   * [BREAKING CHANGE] Removed `SupportsScopeTags` property from all resources because it's read-only.
+  * Updated all resource settings files to include a `configuration` or `data` mode.
+* M365DSCDRGUtil
+  * Changed the way how Settings Catalog properties are exported.
   * Fixed an issue where a null drift would throw an exception.
   * Fixed an issue where group filtering would not find the specified groups.
   * Fixed an issue where 0 requests passed to `Invoke-M365DSCGraphBatchRequests` would fail.
@@ -159,6 +176,8 @@
   * Updated MSCloudLoginAssistant to version 1.1.51.
   * Added parameter `-Parallel` to `Export-M365DSCConfiguration`.
   * Renamed function `Get-M365DSCWorkloadsListFromResourceNames` to `Get-M365DSCConnectedWorkloadList`.
+  * Added function `Get-M365DSCWorkloadForResource` to look up the workload of a resource.
+  * Added function `Get-M365DSCResourcesByExportMode` to determine which resources belong to an export mode.
 
 # 1.25.910.1
 

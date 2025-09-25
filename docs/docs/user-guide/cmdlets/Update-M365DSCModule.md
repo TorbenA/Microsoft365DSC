@@ -14,6 +14,7 @@ This function does not generate any output.
 | --- | --- | --- | --- | --- | --- |
 | Scope | False | Object | AllUsers | CurrentUser, AllUsers | Specifies the scope of the update of the module. The default value is AllUsers(needs to run as elevated user). |
 | Proxy | False | String |  |  |  |
+| NoUninstall | False | SwitchParameter |  |  |  |
 
 ## Examples
 

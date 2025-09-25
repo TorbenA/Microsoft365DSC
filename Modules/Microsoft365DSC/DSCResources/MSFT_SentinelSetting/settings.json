@@ -34,5 +34,6 @@
   "requiredModules": [
     "Az.Resources",
     "Az.SecurityInsights"
-  ]
+  ],
+  "mode": "Data"
 }

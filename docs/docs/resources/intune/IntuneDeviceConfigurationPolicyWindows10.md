@@ -288,7 +288,6 @@
 | **WirelessDisplayRequirePinForPairing** | Write | Boolean | Indicates whether or not to require a PIN for new devices to initiate pairing. | |
 | **Description** | Write | String | Admin provided description of the Device Configuration. | |
 | **DisplayName** | Key | String | Admin provided name of the device configuration. | |
-| **SupportsScopeTags** | Write | Boolean | Indicates whether or not the underlying Device Configuration supports the assignment of scope tags. Assigning to the ScopeTags property is not allowed when this value is false and entities will not be visible to scoped users. This occurs for Legacy policies created in Silverlight and can be resolved by deleting and recreating the policy in the Azure Portal. This property is read-only. | |
 | **Id** | Write | String | The unique identifier for an entity. Read-only. | |
 | **RoleScopeTagIds** | Write | StringArray[] | List of Scope Tags for this Entity instance. | |
 | **Assignments** | Write | MSFT_DeviceManagementConfigurationPolicyAssignments[] | Represents the assignment to the Intune policy. | |
@@ -651,7 +650,6 @@ Configuration Example
             StorageRequireMobileDeviceEncryption                 = $False;
             StorageRestrictAppDataToSystemVolume                 = $False;
             StorageRestrictAppInstallToSystemVolume              = $False;
-            SupportsScopeTags                                    = $True;
             TaskManagerBlockEndTask                              = $False;
             TenantLockdownRequireNetworkDuringOutOfBoxExperience = $False;
             UninstallBuiltInApps                                 = $False;
@@ -936,7 +934,6 @@ Configuration Example
             StorageRequireMobileDeviceEncryption                 = $False;
             StorageRestrictAppDataToSystemVolume                 = $False;
             StorageRestrictAppInstallToSystemVolume              = $False;
-            SupportsScopeTags                                    = $True;
             TaskManagerBlockEndTask                              = $False;
             TenantLockdownRequireNetworkDuringOutOfBoxExperience = $False;
             UninstallBuiltInApps                                 = $False;

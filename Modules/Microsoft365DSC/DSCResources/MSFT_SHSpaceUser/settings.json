@@ -31,5 +31,6 @@
   },
   "requiredModules": [
     "MSCloudLoginAssistant"
-  ]
+  ],
+  "mode": "Configuration"
 }

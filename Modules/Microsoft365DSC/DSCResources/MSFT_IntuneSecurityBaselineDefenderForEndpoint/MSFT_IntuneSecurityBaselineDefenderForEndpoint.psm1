@@ -138,7 +138,7 @@ function Get-TargetResource
         $policySettings = Export-IntuneSettingCatalogPolicySettings -Settings $settings -ReturnHashtable $policySettings -ContainsDeviceAndUserSettings
 
         #region resource generator code
-        $complexDeviceSettings = @{}
+        $complexDeviceSettings = [ordered]@{}
 
         # Add device settings with conditional checks
         if ($null -ne $policySettings.DeviceSettings.deviceInstall_Classes_Deny)
@@ -653,7 +653,7 @@ function Get-TargetResource
         }
         $policySettings.Remove('DeviceSettings') | Out-Null
 
-        $complexUserSettings = @{}
+        $complexUserSettings = [ordered]@{}
 
         # Add user settings with conditional checks
         if ($null -ne $policySettings.UserSettings.DisableSafetyFilterOverrideForAppRepUnknown)

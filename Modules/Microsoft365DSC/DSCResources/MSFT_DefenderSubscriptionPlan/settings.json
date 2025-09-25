@@ -34,5 +34,6 @@
   "requiredModules": [
     "Az.Accounts",
     "Az.Security"
-  ]
+  ],
+  "mode": "Data"
 }

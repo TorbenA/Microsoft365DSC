@@ -58,5 +58,6 @@
   ],
   "supportedEnvironments": [
     "Global"
-  ]
+  ],
+  "mode": "Configuration"
 }

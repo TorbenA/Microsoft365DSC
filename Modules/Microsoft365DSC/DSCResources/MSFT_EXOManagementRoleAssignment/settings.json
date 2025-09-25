@@ -43,5 +43,6 @@
   "supportedEnvironments": [
     "Global",
     "USGov"
-  ]
+  ],
+  "mode": "Data"
 }

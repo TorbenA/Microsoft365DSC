@@ -101,7 +101,7 @@ function Get-TargetResource
         {
             foreach ($CurrentComplianceRecordingApplications in $instance.ComplianceRecordingApplications)
             {
-                $MyComplianceRecordingApplications = @{}
+                $MyComplianceRecordingApplications = [ordered]@{}
                 $ComplianceRecordingPairedApplications = @()
                 if ($CurrentComplianceRecordingApplications.ComplianceRecordingPairedApplications.Count -gt 0)
                 {

@@ -10,10 +10,10 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
     [Write, Description("The collection Id that is the target of the assignment.(ConfigMgr)")] String collectionId;
 };
 
-[ClassVersion("1.0.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphIntuneSettingsCatalogExclusionsV2
 {
-    [Write, Description("Type - (0: Path, 1: Process name)"), ValueMap{"0", "1"}, Values{"0", "1"}] String exclusions_item_type;
+    [Write, Description("Type - (excludedPath: Path, excludedFileName: Process name)"), ValueMap{"excludedPath", "excludedFileName"}, Values{"excludedPath", "excludedFileName"}] String exclusions_item_type;
     [Write, Description("Path")] String exclusions_item_path;
     [Write, Description("Process name")] String exclusions_item_name;
     [Write, Description("Is directory (false: Disabled, true: Enabled)"), ValueMap{"false", "true"}, Values{"false", "true"}] String exclusions_item_isDirectory;

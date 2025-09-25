@@ -183,7 +183,7 @@ function Get-TargetResource
 
         Write-Verbose -Message "Found an Intune Wifi Configuration Policy for Windows10 with id {$Id}"
 
-        $complexDeviceManagementApplicabilityRuleOsEdition = @{}
+        $complexDeviceManagementApplicabilityRuleOsEdition = [ordered]@{}
         $complexDeviceManagementApplicabilityRuleOsEdition.Add('OsEditionTypes', [string[]]$getValue.DeviceManagementApplicabilityRuleOSEdition.OsEditionTypes)
         $complexDeviceManagementApplicabilityRuleOsEdition.Add('RuleType', [string]$getValue.DeviceManagementApplicabilityRuleOSEdition.RuleType)
         if ($complexDeviceManagementApplicabilityRuleOsEdition.values.Where({$null -ne $_}).Count -eq 0)
@@ -191,7 +191,7 @@ function Get-TargetResource
             $complexDeviceManagementApplicabilityRuleOsEdition = $null
         }
 
-        $complexDeviceManagementApplicabilityRuleOsVersion = @{}
+        $complexDeviceManagementApplicabilityRuleOsVersion = [ordered]@{}
         $complexDeviceManagementApplicabilityRuleOsVersion.Add('MaxOSVersion', $getValue.DeviceManagementApplicabilityRuleOSVersion.MaxOSVersion)
         $complexDeviceManagementApplicabilityRuleOsVersion.Add('MinOSVersion', $getValue.DeviceManagementApplicabilityRuleOSVersion.MinOSVersion)
         $complexDeviceManagementApplicabilityRuleOsVersion.Add('RuleType', [string]$getValue.DeviceManagementApplicabilityRuleOSVersion.RuleType)
@@ -636,8 +636,9 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
+    if ($ProxySetting -ne 'automatic' -and $ProxyAutomaticConfigurationUrl -ne '') {
+        throw 'ProxyAutomaticConfigurationUrl must be empty if ProxySetting is not "automatic".'
+    }
 
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
@@ -648,52 +649,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune Wifi Configuration Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
-
-    if ($ProxySetting -ne 'automatic' -and $ProxyAutomaticConfigurationUrl -ne '') {
-        throw 'ProxyAutomaticConfigurationUrl must be empty if ProxySetting is not "automatic".'
-    }
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $testResult = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-not $testResult)
-            {
-                break
-            }
-
-            $ValuesToCheck.Remove($key) | Out-Null
-        }
-    }
-    $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck.Remove('PreSharedKey') | Out-Null
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    if ($testResult)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties @('PreSharedKey')
+    return $result
 }
 
 function Export-TargetResource

@@ -44,8 +44,8 @@
 | **TargetedAppManagementLevels** | Write | String | The intended app management levels for this policy. Inherited from targetedManagedAppProtection. | `unspecified`, `unmanaged`, `mdm`, `androidEnterprise`, `androidEnterpriseDedicatedDevicesWithAzureAdSharedMode`, `androidOpenSourceProjectUserAssociated`, `androidOpenSourceProjectUserless`, `unknownFutureValue` |
 | **ApprovedKeyboards** | Write | StringArray[] | If Keyboard Restriction is enabled, only keyboards in this approved list will be allowed. A key should be Android package id for a keyboard and value should be a friendly name. | |
 | **ExemptedAppPackages** | Write | StringArray[] | App packages in this list will be exempt from the policy and will be able to receive data from managed apps. | |
-| **PeriodOfflineBeforeAccessCheck** | Write | String | The period after which access is checked when the device is not connected to the internet. | |
-| **PeriodOnlineBeforeAccessCheck** | Write | String | The period after which access is checked when the device is connected to the internet. | |
+| **PeriodOfflineBeforeAccessCheck** | Write | String | The period after which access is checked when the device is not connected to the internet. Must be an ISO8601 timespan format. | |
+| **PeriodOnlineBeforeAccessCheck** | Write | String | The period after which access is checked when the device is connected to the internet. Must be an ISO8601 timespan format. | |
 | **AllowedInboundDataTransferSources** | Write | String | Sources from which data is allowed to be transferred. Possible values are: allApps, managedApps, none. | `allApps`, `managedApps`, `none` |
 | **AllowedOutboundDataTransferDestinations** | Write | String | Destinations to which data is allowed to be transferred. Possible values are: allApps, managedApps, none. | `allApps`, `managedApps`, `none` |
 | **OrganizationalCredentialsRequired** | Write | Boolean | Indicates whether organizational credentials are required for app use. | |
@@ -54,7 +54,7 @@
 | **DeviceComplianceRequired** | Write | Boolean | Indicates whether device compliance is required. | |
 | **ManagedBrowserToOpenLinksRequired** | Write | Boolean | Indicates whether internet links should be opened in the managed browser app, or any custom browser specified by CustomBrowserProtocol (for Android) or CustomBrowserPackageId/CustomBrowserDisplayName (for Android). | |
 | **SaveAsBlocked** | Write | Boolean | Indicates whether users may use the Save As menu item to save a copy of protected files. | |
-| **PeriodOfflineBeforeWipeIsEnforced** | Write | String | The amount of time an app is allowed to remain disconnected from the internet before all managed data it is wiped. | |
+| **PeriodOfflineBeforeWipeIsEnforced** | Write | String | The amount of time an app is allowed to remain disconnected from the internet before all managed data it is wiped. Must be an ISO8601 timespan format. | |
 | **PinRequired** | Write | Boolean | Indicates whether an app-level pin is required. | |
 | **DisableAppPinIfDevicePinIsSet** | Write | Boolean | Indicates whether use of the app pin is required if the device pin is set. | |
 | **MaximumPinRetries** | Write | UInt32 | Maximum number of incorrect pin retry attempts before the managed app is either blocked or wiped. | |
@@ -63,13 +63,13 @@
 | **PinCharacterSet** | Write | String | Character set which may be used for an app-level pin if PinRequired is set to True. Possible values are: numeric, alphanumericAndSymbol. | `numeric`, `alphanumericAndSymbol` |
 | **AllowedDataStorageLocations** | Write | StringArray[] | Data storage locations where a user may store managed data. | |
 | **ContactSyncBlocked** | Write | Boolean | Indicates whether contacts can be synced to the user's device. | |
-| **PeriodBeforePinReset** | Write | String | TimePeriod before the all-level pin must be reset if PinRequired is set to True. | |
+| **PeriodBeforePinReset** | Write | String | TimePeriod before the all-level pin must be reset if PinRequired is set to True. Must be an ISO8601 timespan format. | |
 | **PrintBlocked** | Write | Boolean | Indicates whether printing is allowed from managed apps. | |
 | **RequireClass3Biometrics** | Write | Boolean | Require user to apply Class 3 Biometrics on their Android device. | |
 | **RequirePinAfterBiometricChange** | Write | Boolean | A PIN prompt will override biometric prompts if class 3 biometrics are updated on the device. | |
 | **FingerprintBlocked** | Write | Boolean | Indicates whether use of the fingerprint reader is allowed in place of a pin if PinRequired is set to True. | |
 | **Apps** | Write | StringArray[] | List of IDs representing the Android apps controlled by this protection policy. | |
-| **Assignments** | Write | StringArray[] | List of IDs of the groups assigned to this Android Protection Policy. | |
+| **Assignments** | Write | MSFT_DeviceManagementConfigurationPolicyAssignments[] | Assignments of the Android Protection Policy. | |
 | **ExcludedGroups** | Write | StringArray[] | List of IDs of the groups that are excluded from this Android Protection Policy. | |
 | **Ensure** | Write | String | Present ensures the policy exists, absent ensures it is removed. | `Present`, `Absent` |
 | **Credential** | Write | PSCredential | Credentials of the Intune Admin | |
@@ -86,7 +86,6 @@
 | **MinimumWarningOSVersion** | Write | String | Versions less than the specified version will result in warning message on the managed app | |
 | **MinimumWarningPatchVersion** | Write | String | Versions less than the specified version will result in warning message on the managed app | |
 | **AppGroupType** | Write | String | The apps controlled by this protection policy, overrides any values in Apps unless this value is 'selectedPublicApps'. | `allApps`, `allMicrosoftApps`, `allCoreMicrosoftApps`, `selectedPublicApps` |
-| **IsAssigned** | Write | Boolean | Indicates if the policy is deployed to any inclusion groups or not. Inherited from targetedManagedAppProtection. | |
 | **ScreenCaptureBlocked** | Write | Boolean | Indicates whether or not to Block the user from taking Screenshots. | |
 | **EncryptAppData** | Write | Boolean | Indicates whether or not the 'Encrypt org data' value is enabled.  True = require | |
 | **DisableAppEncryptionIfDeviceEncryptionIsEnabled** | Write | Boolean | Indicates whether or not the 'Encrypt org data on enrolled devices' value is enabled.  False = require.  Only functions if EncryptAppData is set to True | |
@@ -94,6 +93,20 @@
 | **CustomBrowserPackageId** | Write | String | The application ID for a single browser. Web content (http/s) from policy managed applications will open in the specified browser. | |
 | **Id** | Write | String | Id of the Intune policy. To avoid creation of duplicate policies DisplayName will be searched for if the ID is not found | |
 | **AccessTokens** | Write | StringArray[] | Access token used for authentication. | |
+
+### MSFT_DeviceManagementConfigurationPolicyAssignments
+
+#### Parameters
+
+| Parameter | Attribute | DataType | Description | Allowed Values |
+| --- | --- | --- | --- | --- |
+| **dataType** | Write | String | The type of the target assignment. | `#microsoft.graph.groupAssignmentTarget`, `#microsoft.graph.allLicensedUsersAssignmentTarget`, `#microsoft.graph.allDevicesAssignmentTarget`, `#microsoft.graph.exclusionGroupAssignmentTarget`, `#microsoft.graph.configurationManagerCollectionAssignmentTarget` |
+| **deviceAndAppManagementAssignmentFilterType** | Write | String | The type of filter of the target assignment i.e. Exclude or Include. Possible values are:none, include, exclude. | `none`, `include`, `exclude` |
+| **deviceAndAppManagementAssignmentFilterId** | Write | String | The Id of the filter for the target assignment. | |
+| **deviceAndAppManagementAssignmentFilterDisplayName** | Write | String | The display name of the filter for the target assignment. | |
+| **groupId** | Write | String | The group Id that is the target of the assignment. | |
+| **groupDisplayName** | Write | String | The group Display Name that is the target of the assignment. | |
+| **collectionId** | Write | String | The collection Id that is the target of the assignment.(ConfigMgr) | |
 
 
 ## Description

@@ -187,7 +187,7 @@ function Get-TargetResource
         $complexCategories = @()
         foreach ($category in $instance.Categories)
         {
-            $myCategory = @{}
+            $myCategory = [ordered]@{}
             $myCategory.Add('Id', $category.id)
             $myCategory.Add('DisplayName', $category.displayName)
             $complexCategories += $myCategory
@@ -196,21 +196,21 @@ function Get-TargetResource
         $complexChildApps = @()
         foreach ($childApp in $instance.AdditionalProperties.childApps)
         {
-            $myChildApp = @{}
+            $myChildApp = [ordered]@{}
             $myChildApp.Add('BundleId', $childApp.bundleId)
             $myChildApp.Add('BuildNumber', $childApp.buildNumber)
             $myChildApp.Add('VersionNumber', $childApp.versionNumber)
             $complexChildApps += $myChildApp
         }
 
-        $complexLargeIcon = @{}
+        $complexLargeIcon = [ordered]@{}
         if ($null -ne $instance.LargeIcon.Value)
         {
             $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($instance.LargeIcon.Value))
             $complexLargeIcon.Add('Type', $instance.LargeIcon.Type)
         }
 
-        $complexMinimumSupportedOperatingSystem = @{}
+        $complexMinimumSupportedOperatingSystem = [ordered]@{}
         if ($null -ne $instance.AdditionalProperties.minimumSupportedOperatingSystem)
         {
             $instance.AdditionalProperties.minimumSupportedOperatingSystem.GetEnumerator() | ForEach-Object {
@@ -612,9 +612,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -624,53 +621,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune MacOS Lob App with Id {$Id} and DisplayName {$DisplayName}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $testResult = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-not $testResult)
-            {
-                break
-            }
-
-            $ValuesToCheck.Remove($key) | Out-Null
-        }
-    }
-
-    # Prevent screen from filling up with the LargeIcon value
-    # Comparison will already be done because it's a CimInstance
-    $CurrentValues.Remove('LargeIcon') | Out-Null
-    $PSBoundParameters.Remove('LargeIcon') | Out-Null
-
-    $ValuesToCheck.Remove('Id') | Out-Null
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    if ($testResult)
-    {
-        $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource

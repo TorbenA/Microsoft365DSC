@@ -10,7 +10,6 @@
 | **OrganizationalUnit** | Write | String | Organizational unit (OU) where the computer account will be created. If this parameter is NULL, the well known computer object container will be used as published in the domain. | |
 | **Description** | Write | String | Admin provided description of the Device Configuration. | |
 | **DisplayName** | Key | String | Admin provided name of the device configuration. | |
-| **SupportsScopeTags** | Write | Boolean | Indicates whether or not the underlying Device Configuration supports the assignment of scope tags. Assigning to the ScopeTags property is not allowed when this value is false and entities will not be visible to scoped users. This occurs for Legacy policies created in Silverlight and can be resolved by deleting and recreating the policy in the Azure Portal. This property is read-only. | |
 | **Id** | Write | String | The unique identifier for an entity. Read-only. | |
 | **RoleScopeTagIds** | Write | StringArray[] | List of Scope Tags for this Entity instance. | |
 | **Assignments** | Write | MSFT_DeviceManagementConfigurationPolicyAssignments[] | Represents the assignment to the Intune policy. | |
@@ -109,7 +108,6 @@ Configuration Example
             DisplayName                       = "Domain Join";
             Ensure                            = "Present";
             OrganizationalUnit                = "OU=workstation,CN=domain,CN=com";
-            SupportsScopeTags                 = $True;
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;
@@ -153,11 +151,10 @@ Configuration Example
                 }
             );
             ComputerNameStaticPrefix          = "WK-";
-            ComputerNameSuffixRandomCharCount = 12;
+            ComputerNameSuffixRandomCharCount = 13; # Updated Property
             DisplayName                       = "Domain Join";
             Ensure                            = "Present";
             OrganizationalUnit                = "OU=workstation,CN=domain,CN=com";
-            SupportsScopeTags                 = $False; # Updated Property
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;

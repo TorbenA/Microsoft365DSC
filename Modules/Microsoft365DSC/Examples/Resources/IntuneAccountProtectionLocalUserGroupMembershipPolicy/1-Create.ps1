@@ -33,12 +33,12 @@ Configuration Example
                     dataType = '#microsoft.graph.allLicensedUsersAssignmentTarget'
                 }
             );
-            LocalUserGroupCollection = @(
-                MSFT_IntuneAccountProtectionLocalUserGroupCollection{
-                    LocalGroups = @('administrators', 'users')
-                    Members = @('S-1-12-1-1167842105-1150511762-402702254-1917434032')
-                    Action = 'add_update'
-                    UserSelectionType = 'users'
+            AccessGroup = @(
+                MSFT_MicrosoftGraphIntuneSettingsCatalogAccessGroup{
+                    desc = @('administrators', 'users')
+                    member = @('S-1-12-1-1167842105-1150511762-402702254-1917434032')
+                    action = 'AddUpdate'
+                    userselectiontype = 'users'
                 }
             );
             ApplicationId         = $ApplicationId;

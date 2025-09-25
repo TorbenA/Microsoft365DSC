@@ -3,17 +3,6 @@ $Global:SessionSecurityCompliance = $null
 [hashtable]$Script:M365DSCTelemetryConnectionToGraphParams = @{}
 #endregion
 
-#region Extraction Modes
-$Global:DefaultComponents = @('SPOApp', 'SPOSiteDesign')
-
-$Global:FullComponents = @('AADRoleManagementPolicyRule', 'AADGroup', 'AADServicePrincipal', 'ADOSecurityPolicy', 'AzureSubscription','FabricAdminTenantSettings', `
-        'DefenderSubscriptionPlan', 'EXOCalendarProcessing', 'EXODistributionGroup', 'EXOMailboxAutoReplyConfiguration', `
-        'EXOMailboxPermission','EXOMailboxCalendarFolder','EXOMailboxSettings', 'EXOManagementRole', 'O365Group', 'AADUser', `
-        'PlannerPlan', 'PlannerBucket', 'PlannerTask', 'PPPowerAppsEnvironment', 'PPTenantSettings', 'SentinelSetting', 'SentinelWatchlist', `
-        'SPOSiteAuditSettings', 'SPOSiteGroup', 'SPOSite', 'SPOUserProfileProperty', 'SPOPropertyBag', 'TeamsTeam', 'TeamsChannel', `
-        'TeamsUser', 'TeamsChannelTab', 'TeamsOnlineVoicemailUserSettings', 'TeamsUserCallingSettings', 'TeamsUserPolicyAssignment')
-#endregion
-
 $Script:M365DSCWorkloads = @('AAD', 'ADO', 'AZURE', 'COMMERCE', 'DEFENDER', 'EXO', 'FABRIC', 'INTUNE', 'O365', 'OD', 'PLANNER', 'PP', 'SC', 'SENTINEL', 'SH', 'SPO', 'TEAMS')
 $Script:M365DSCDependenciesValidated = $false
 $Script:IsPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
@@ -31,9 +20,76 @@ if ($null -eq $Script:M365DSCDependencies)
         Write-Verbose -Message "Processing settings.json file at path: $($file.FullName)"
         $jsonContent = [System.IO.File]::ReadAllText($file.FullName) | ConvertFrom-Json
         $directoryName = (Split-Path -Path $file.DirectoryName -Leaf).Replace('MSFT_', '')
-        $Script:M365DSCResourceSettings.Add($directoryName, $jsonContent.requiredModules)
+        $Script:M365DSCResourceSettings.Add($directoryName, @{
+            requiredModules = $jsonContent.requiredModules
+            mode = $jsonContent.mode
+        })
     }
     $Script:M365DSCValidatedDependencies = [System.Collections.Generic.List[System.String]]::new($Script:M365DSCDependencies.Count)
+}
+
+<#
+.DESCRIPTION
+    This function retrieves the resources available in the M365DSC project based on the specified export mode.
+
+.FUNCTIONALITY
+    Public
+
+.PARAMETER Mode
+    Specifies the mode of the export. Valid values are 'Default' and 'Full'.
+    - 'Default' includes only configuration resources.
+    - 'Full' includes all resources, both configuration and data.
+
+.PARAMETER ExcludeConfigurationResources
+    If specified, configuration resources will be excluded from the results. Works only for the 'Full' mode.
+
+.EXAMPLE
+    Get-M365DSCResourcesByExportMode -Mode 'Default'
+
+    This command retrieves all resources that are available in the Default export mode.
+
+.EXAMPLE
+    Get-M365DSCResourcesByExportMode -Mode 'Full'
+
+    This command retrieves all resources that are available in the Full export mode.
+
+.OUTPUTS
+    [System.String[]] - An array of resource names that match the specified export mode.
+#>
+function Get-M365DSCResourcesByExportMode
+{
+    [CmdletBinding()]
+    [OutputType([System.String[]])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Default', 'Full')]
+        [System.String]
+        $Mode,
+
+        [Parameter(Mandatory = $false)]
+        [switch]
+        $ExcludeConfigurationResources
+    )
+
+    $resources = [System.Collections.Generic.List[System.String]]::new($Script:M365DSCResourceSettings.Keys.Count)
+    foreach ($resource in $Script:M365DSCResourceSettings.Keys)
+    {
+        if ($Mode -eq 'Default' -and $Script:M365DSCResourceSettings[$resource].mode -eq 'Configuration')
+        {
+            $resources.Add($resource)
+        }
+        elseif ($Mode -eq 'Full')
+        {
+            if ($ExcludeConfigurationResources -and $Script:M365DSCResourceSettings[$resource].mode -eq 'Configuration')
+            {
+                continue
+            }
+            $resources.Add($resource)
+        }
+    }
+
+    return $resources.ToArray()
 }
 
 <#
@@ -1114,6 +1170,10 @@ function Test-M365DSCTargetResource
         [System.String[]]
         $ExcludedProperties,
 
+        [Parameter()]
+        [System.String[]]
+        $IncludedProperties,
+
         [Parameter(
             ParameterSetName = 'PassThru'
         )]
@@ -1176,71 +1236,105 @@ function Test-M365DSCTargetResource
         $ValuesToCheck.Remove($property) | Out-Null
     }
 
-    $testTargetResource = $true
-
-    # Compare Cim instances
-    $desiredKeys = ([Hashtable]$DesiredValues).Clone().Keys
-    foreach ($key in $desiredKeys)
+    # Add the IncludedProperties to the list of properties to be evaluated
+    foreach ($property in $IncludedProperties)
     {
-        $source = $DesiredValues.$key
-        $target = $CurrentValues.$key
-        if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
+        if ($DesiredValues.ContainsKey($property) -and -not $ValuesToCheck.ContainsKey($property))
         {
-            $CIMProperty = $resourceDefinition.Parameters | Where-Object -FilterScript { $_.Name -eq $key }
-            $CIMName = $CIMProperty.CIMType.Replace('[]', '')
-            $CIMDefinition = $Script:M365DSCSchema | Where-Object -FilterScript { $_.ClassName -eq $CIMName }
-            $CIMPrimaryKeys = $CIMDefinition.Parameters | Where-Object -FilterScript { $_.Option -eq 'Required' }
+            $ValuesToCheck.Add($property, $DesiredValues.$property)
+        }
+    }
 
-            $targetObjects = @{}
-            if ($source.GetType().Name -eq 'CimInstance[]')
-            {
-                $targetObjects = @()
-            }
+    $testTargetResource = $true
+    if ($DesiredValues.Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
+    {
+        Write-Verbose -Message "The resource $ResourceName with $finalString was not found in the tenant."
+        $Global:AllDrifts.DriftInfo += @{
+            PropertyName = 'Ensure'
+            CurrentValue = 'Absent'
+            DesiredValue = 'Present'
+        }
+        $testTargetResource = $false
+    }
+    elseif ($DesiredValues.Ensure -eq 'Absent' -and $CurrentValues.Ensure -eq 'Present')
+    {
+        Write-Verbose -Message "The resource $ResourceName with $finalString should not exist in the tenant."
+        $Global:AllDrifts.DriftInfo += @{
+            PropertyName = 'Ensure'
+            CurrentValue = 'Present'
+            DesiredValue = 'Absent'
+        }
+        $testTargetResource = $false
+    }
 
-            foreach ($targetObject in $target)
+    $testResult = $true
+    if ($testTargetResource)
+    {
+        # Compare Cim instances
+        $desiredKeys = ([Hashtable]$DesiredValues).Clone().Keys
+        foreach ($key in $desiredKeys)
+        {
+            $source = $DesiredValues.$key
+            $target = $CurrentValues.$key
+            if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
             {
-                foreach ($primaryKey in $CIMPrimaryKeys.Name)
+                $CIMProperty = $resourceDefinition.Parameters | Where-Object -FilterScript { $_.Name -eq $key }
+                $CIMName = $CIMProperty.CIMType.Replace('[]', '')
+                $CIMDefinition = $Script:M365DSCSchema | Where-Object -FilterScript { $_.ClassName -eq $CIMName }
+                $CIMPrimaryKeys = $CIMDefinition.Parameters | Where-Object -FilterScript { $_.Option -eq 'Required' }
+
+                $targetObjects = @{}
+                if ($source.GetType().Name -eq 'CimInstance[]')
                 {
-                    $targetObject.Remove($primaryKey) | Out-Null
+                    $targetObjects = @()
                 }
 
-                if ($targetObjects -is [array])
+                foreach ($targetObject in $target)
                 {
-                    $targetObjects += $targetObject
+                    foreach ($primaryKey in $CIMPrimaryKeys.Name)
+                    {
+                        $targetObject.Remove($primaryKey) | Out-Null
+                    }
+
+                    if ($targetObjects -is [array])
+                    {
+                        $targetObjects += $targetObject
+                    }
+                    else
+                    {
+                        $targetObjects = $targetObject
+                    }
                 }
-                else
+
+                $testResult = Compare-M365DSCComplexObjectV2 `
+                    -Source ($source) `
+                    -Target ($targetObjects) `
+                    -PropertyName $key
+
+                if (-not $testResult)
                 {
-                    $targetObjects = $targetObject
+                    Write-Verbose "TestResult returned False for $source"
+                    $testTargetResource = $false
                 }
+
+                $DesiredValues.Remove($key) | Out-Null
+                $ValuesToCheck.Remove($key) | Out-Null
             }
-
-            $testResult = Compare-M365DSCComplexObjectV2 `
-                -Source ($source) `
-                -Target ($targetObjects) `
-                -PropertyName $key
-
-            if (-not $testResult)
-            {
-                Write-Verbose "TestResult returned False for $source"
-                $testTargetResource = $false
-            }
-
-            $DesiredValues.Remove($key) | Out-Null
-            $ValuesToCheck.Remove($key) | Out-Null
         }
     }
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
 
-    $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
+    if ($testResult)
+    {
+        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
             -Source $ResourceName `
             -DesiredValues $DesiredValues `
             -ValuesToCheck $ValuesToCheck.Keys `
             -NoEventMessage `
             -NoDriftReset
-
-    Write-Verbose -Message "Test-M365DSCTargetResource returned $testResult"
+    }
 
     if (-not $testResult)
     {
@@ -1256,6 +1350,8 @@ function Test-M365DSCTargetResource
                                       -CurrentValues $CurrentValues `
                                       -DesiredValues $DesiredValues
     }
+
+    Write-Verbose -Message "Test-M365DSCTargetResource returned $testTargetResource"
 
     if ($PassThru)
     {
@@ -1313,7 +1409,7 @@ Specifies the components to skip when creating the export
 Specifies the workload for which an export should be created for all resources.
 
 .Parameter Mode
-Specifies the mode of the export: Lite, Default or Full.
+Specifies the mode of the export: Default or Full.
 
 .Parameter GenerateInfo
 Specifies if each exported resource should get a link to the Wiki article of the resource.
@@ -1401,7 +1497,7 @@ function Export-M365DSCConfiguration
         $Workloads,
 
         [Parameter(ParameterSetName = 'Export')]
-        [ValidateSet('Lite', 'Default', 'Full')]
+        [ValidateSet('Default', 'Full')]
         [System.String]
         $Mode = 'Default',
 
@@ -1805,7 +1901,7 @@ function Confirm-M365DSCModuleDependency
         return
     }
 
-    $modulesToCheck = $Script:M365DSCResourceSettings[$ModuleName.Replace('MSFT_', '')]
+    $modulesToCheck = $Script:M365DSCResourceSettings[$ModuleName.Replace('MSFT_', '')].requiredModules
     foreach ($module in $modulesToCheck)
     {
         Write-Verbose -Message "Validating module dependency: $($module)"
@@ -5489,13 +5585,14 @@ Export-ModuleMember -Function @(
     'Get-AllSPOPackages',
     'Get-M365DSCAllResources',
     'Get-M365DSCAllResourcesDictionary',
-    'Get-M365DSCAPIEndpoint'
+    'Get-M365DSCAPIEndpoint',
     'Get-M365DSCAuthenticationMode',
     'Get-M365DSCComponentsWithMostSecureAuthenticationType',
     'Get-M365DSCConfigurationConflict',
     'Get-M365DSCConnectedWorkloadList',
     'Get-M365DSCExportContentForResource',
     'Get-M365DSCOrganization',
+    'Get-M365DSCResourcesByExportMode',
     'Get-M365DSCTelemetryConnectionParameter',
     'Get-M365DSCTenantDomain',
     'Get-M365DSCTenantNameFromParameterSet',

@@ -46,5 +46,9 @@
     "Microsoft.Graph.Beta.Devices.CorporateManagement",
     "Microsoft.Graph.Groups"
   ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
   "mode": "Data"
 }

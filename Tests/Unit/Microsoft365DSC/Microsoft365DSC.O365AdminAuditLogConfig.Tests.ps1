@@ -44,7 +44,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     IsSingleInstance                = 'Yes'
-                    Ensure                          = 'Present'
                     Credential                      = $Credential
                     UnifiedAuditLogIngestionEnabled = 'Enabled'
                 }
@@ -73,7 +72,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     IsSingleInstance                = 'Yes'
-                    Ensure                          = 'Present'
                     Credential                      = $Credential
                     UnifiedAuditLogIngestionEnabled = 'Disabled'
                 }
@@ -103,7 +101,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     IsSingleInstance                = 'Yes'
-                    Ensure                          = 'Present'
                     Credential                      = $Credential
                     UnifiedAuditLogIngestionEnabled = 'Disabled'
                 }
@@ -129,7 +126,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     IsSingleInstance                = 'Yes'
-                    Ensure                          = 'Present'
                     Credential                      = $Credential
                     UnifiedAuditLogIngestionEnabled = 'Enabled'
                 }

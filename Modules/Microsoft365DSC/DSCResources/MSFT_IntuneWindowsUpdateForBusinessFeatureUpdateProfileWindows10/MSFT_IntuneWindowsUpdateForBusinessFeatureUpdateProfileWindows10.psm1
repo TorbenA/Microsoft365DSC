@@ -137,7 +137,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Windows Update For Business Feature Update Profile for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found."
 
         #region resource generator code
-        $complexRolloutSettings = @{}
+        $complexRolloutSettings = [ordered]@{}
         if ($null -ne $getValue.RolloutSettings.offerEndDateTimeInUTC)
         {
             $complexRolloutSettings.Add('OfferEndDateTimeInUTC', ([DateTimeOffset]$getValue.RolloutSettings.offerEndDateTimeInUTC).ToString('o'))

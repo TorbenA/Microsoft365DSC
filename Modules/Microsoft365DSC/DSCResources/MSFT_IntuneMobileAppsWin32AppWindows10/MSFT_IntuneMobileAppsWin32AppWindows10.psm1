@@ -228,7 +228,7 @@ function Get-TargetResource
         $complexCategories = @()
         foreach ($category in $getValue.Categories)
         {
-            $myCategory = @{}
+            $myCategory = [ordered]@{}
             $myCategory.Add('Id', $category.id)
             $myCategory.Add('DisplayName', $category.displayName)
             $complexCategories += $myCategory
@@ -236,7 +236,7 @@ function Get-TargetResource
         $complexLargeIcon = $null
         if ($null -ne $getValue.LargeIcon.Value)
         {
-            $complexLargeIcon = @{}
+            $complexLargeIcon = [ordered]@{}
             $complexLargeIcon.Add('Type', $getValue.LargeIcon.Type)
             $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($getValue.LargeIcon.Value))
         }
@@ -286,7 +286,7 @@ function Get-TargetResource
 
         if ($null -ne $getValue.AdditionalProperties.installExperience)
         {
-            $complexInstallExperience = @{}
+            $complexInstallExperience = [ordered]@{}
             $complexInstallExperience.Add('DeviceRestartBehavior', $getValue.AdditionalProperties.installExperience.deviceRestartBehavior)
             $complexInstallExperience.Add('MaxRunTimeInMinutes', $getValue.AdditionalProperties.installExperience.maxRunTimeInMinutes)
             $complexInstallExperience.Add('RunAsAccount', $getValue.AdditionalProperties.installExperience.runAsAccount)
@@ -303,7 +303,7 @@ function Get-TargetResource
 
         if ($null -ne $getValue.AdditionalProperties.msiInformation)
         {
-            $complexMsiInformation = @{}
+            $complexMsiInformation = [ordered]@{}
             $complexMsiInformation.Add('ProductCode', $getValue.AdditionalProperties.msiInformation.productCode)
             $complexMsiInformation.Add('ProductVersion', $getValue.AdditionalProperties.msiInformation.productVersion)
             $complexMsiInformation.Add('UpgradeCode', $getValue.AdditionalProperties.msiInformation.upgradeCode)
@@ -887,9 +887,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -899,48 +896,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune Mobile Apps Win32 App for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $testResult = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-not $testResult)
-            {
-                break
-            }
-
-            $ValuesToCheck.Remove($key) | Out-Null
-        }
-    }
-
-    $ValuesToCheck.Remove('Id') | Out-Null
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    if ($testResult)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource

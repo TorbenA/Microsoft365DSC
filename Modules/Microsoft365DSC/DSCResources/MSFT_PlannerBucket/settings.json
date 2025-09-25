@@ -33,5 +33,6 @@
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Groups",
     "Microsoft.Graph.Planner"
-  ]
+  ],
+  "mode": "Data"
 }

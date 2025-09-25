@@ -189,7 +189,7 @@ function Get-TargetResource
             $complexPresentationValues = @()
             foreach ($presentationValue in $presentationValues)
             {
-                $complexPresentationValue = @{}
+                $complexPresentationValue = [ordered]@{}
                 $complexPresentationValue.Add('odataType', $presentationValue.AdditionalProperties.'@odata.type')
                 $complexPresentationValue.Add('Id', $presentationValue.Id)
                 $complexPresentationValue.Add('presentationDefinitionId', $presentationValue.Presentation.Id)
@@ -747,7 +747,6 @@ function Test-TargetResource
     }
 
     $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck.Remove('Ensure') | Out-Null
     $ValuesToCheck.Remove('PolicyConfigurationIngestionType') | Out-Null
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"

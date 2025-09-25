@@ -85,6 +85,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 OffsetUri = '/'
                                 AdditionalProperties = @{
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                    options = @(
+                                        @{
+                                            itemId = 'device_vendor_msft_windowsadvancedthreatprotection_configurationtype_onboard'
+                                            name = 'Onboard'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                                value = 'Onboard'
+                                            }
+                                        }
+                                    )
                                 }
                             }
                         )
@@ -122,6 +132,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 OffsetUri = '/Configuration/SampleSharing'
                                 AdditionalProperties = @{
                                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                    options = @(
+                                        @{
+                                            itemId = 'device_vendor_msft_windowsadvancedthreatprotection_configuration_samplesharing_0'
+                                            name = 'Disabled'
+                                            optionValue = @{
+                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                                value = 0
+                                            }
+                                        }
+                                    )
                                 }
                             }
                         )

@@ -92,6 +92,9 @@ Parameters that have been marked deprecated since last release have been removed
 <li><strong>TeamsMeetingPolicy:</strong> ForceStreamingAttendeeMode</li>
 <li><strong>TeamsShiftPolicy:</strong> EnableShiftPresence</li>
 <li><strong>TeamsTenantDialPlan:</strong> ExternalAccessPrefix, OptimizeDeviceDialing</li>
+<li><strong></strong></li>
+<li><strong></strong></li>
+<li><strong></strong></li>
 </ul>
 
 ## IntuneAccountProtection Resource is Removed ([#6510](https://github.com/microsoft/Microsoft365DSC/pull/6510))

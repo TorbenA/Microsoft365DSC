@@ -55,6 +55,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             OffsetUri = '/Config/Defender/AllowArchiveScanning'
                             AdditionalProperties = @{
                                 '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                options = @(
+                                    @{
+                                        itemId = 'device_vendor_msft_policy_config_defender_allowarchivescanning_1'
+                                        name = 'Allowed. Scans the archive files.'
+                                        optionValue = @{
+                                            '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                            value = 1
+                                        }
+                                    }
+                                )
                             }
                         }
                     )

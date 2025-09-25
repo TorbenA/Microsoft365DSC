@@ -28,7 +28,7 @@ function Get-TargetResource
         $tags_item_value,
 
         [Parameter()]
-        [ValidateSet('0')]
+        [ValidateSet('GROUP')]
         [System.String]
         $tags_item_key,
 
@@ -215,7 +215,7 @@ function Set-TargetResource
         $tags_item_value,
 
         [Parameter()]
-        [ValidateSet('0')]
+        [ValidateSet('GROUP')]
         [System.String]
         $tags_item_key,
 
@@ -373,7 +373,7 @@ function Test-TargetResource
         $tags_item_value,
 
         [Parameter()]
-        [ValidateSet('0')]
+        [ValidateSet('GROUP')]
         [System.String]
         $tags_item_key,
 

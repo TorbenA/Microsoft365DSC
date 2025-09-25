@@ -134,12 +134,12 @@ function Get-TargetResource
         Write-Verbose -Message "An Azure AD Authentication Method Policy with Id {$Id} and DisplayName {$DisplayName} was found."
 
         #region resource generator code
-        $complexRegistrationEnforcement = @{}
-        $complexAuthenticationMethodsRegistrationCampaign = @{}
+        $complexRegistrationEnforcement = [ordered]@{}
+        $complexAuthenticationMethodsRegistrationCampaign = [ordered]@{}
         $complexExcludeTargets = @()
         foreach ($currentExcludeTargets in $getValue.registrationEnforcement.authenticationMethodsRegistrationCampaign.excludeTargets)
         {
-            $myExcludeTargets = @{}
+            $myExcludeTargets = [ordered]@{}
             $myExcludeTargets.Add('Id', $currentExcludeTargets.id)
             if ($null -ne $currentExcludeTargets.targetType)
             {
@@ -154,7 +154,7 @@ function Get-TargetResource
         $complexIncludeTargets = @()
         foreach ($currentIncludeTargets in $getValue.registrationEnforcement.authenticationMethodsRegistrationCampaign.includeTargets)
         {
-            $myIncludeTargets = @{}
+            $myIncludeTargets = [ordered]@{}
             $myIncludeTargets.Add('Id', $currentIncludeTargets.id)
             $myIncludeTargets.Add('TargetedAuthenticationMethod', $currentIncludeTargets.targetedAuthenticationMethod)
             if ($null -ne $currentIncludeTargets.targetType)
@@ -182,8 +182,8 @@ function Get-TargetResource
             $complexRegistrationEnforcement = $null
         }
 
-        $complexReportSuspiciousActivitySettings = @{}
-        $newComplexIncludeTarget = @{}
+        $complexReportSuspiciousActivitySettings = [ordered]@{}
+        $newComplexIncludeTarget = [ordered]@{}
         $newComplexIncludeTarget.Add('Id', $getValue.ReportSuspiciousActivitySettings.IncludeTarget.id)
         if ($null -ne $getValue.ReportSuspiciousActivitySettings.IncludeTarget.targetType)
         {
@@ -204,11 +204,11 @@ function Get-TargetResource
             $complexReportSuspiciousActivitySettings = $null
         }
 
-        $complexSystemCredentialPreferences = @{}
+        $complexSystemCredentialPreferences = [ordered]@{}
         $complexExcludeTargets = @()
         foreach ($currentExcludeTargets in $getValue.SystemCredentialPreferences.excludeTargets)
         {
-            $myExcludeTargets = @{}
+            $myExcludeTargets = [ordered]@{}
             $myExcludeTargets.Add('Id', $currentExcludeTargets.id)
             if ($null -ne $currentExcludeTargets.targetType)
             {
@@ -223,7 +223,7 @@ function Get-TargetResource
         $complexIncludeTargets = @()
         foreach ($currentIncludeTargets in $getValue.SystemCredentialPreferences.includeTargets)
         {
-            $myIncludeTargets = @{}
+            $myIncludeTargets = [ordered]@{}
             $myIncludeTargets.Add('Id', $currentIncludeTargets.id)
             if ($null -ne $currentIncludeTargets.targetType)
             {

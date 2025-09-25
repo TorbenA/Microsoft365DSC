@@ -55,7 +55,7 @@
 | **RequireSenderAuthenticationEnabled** | Write | Boolean | The RequireSenderAuthenticationEnabled parameter specifies whether to accept messages only from authenticated (internal) senders.  | |
 | **SensitivityLabelId** | Write | String | The SensitivityLabelId parameter specifies the GUID value of the sensitivity label that's assigned to the Microsoft 365 Group. | |
 | **SubscriptionEnabled** | Write | Boolean | The SubscriptionEnabled switch specifies whether the group owners can enable subscription to conversations and calendar events on the groups they own.  | |
-| **UnifiedGroupWelcomeMessageEnabled** | Write | Boolean | The UnifiedGroupWelcomeMessageEnabled switch specifies whether to enable or disable sending system-generated welcome messages to users who are added as members to the Microsoft 365 Group. | |
+| **WelcomeMessageEnabled** | Write | Boolean | The WelcomeMessageEnabled switch specifies whether to enable or disable sending system-generated welcome messages to users who are added as members to the Microsoft 365 Group. | |
 | **Credential** | Write | PSCredential | Credentials of the Exchange Admin | |
 | **ApplicationId** | Write | String | Id of the Azure Active Directory application to authenticate with. | |
 | **TenantId** | Write | String | Id of the Azure Active Directory tenant used for authentication. | |
