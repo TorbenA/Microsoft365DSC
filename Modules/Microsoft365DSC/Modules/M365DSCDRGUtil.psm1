@@ -1269,6 +1269,7 @@ function Compare-M365DSCComplexObjectV2
                     $differenceObject = $Source.$key
 
                     # Identifying date from the current values
+                    $sourceType = ($Source.$key.GetType()).Name
                     $targetType = ($Target.$key.GetType()).Name
                     if ($targetType -like '*Date*')
                     {
@@ -1287,7 +1288,7 @@ function Compare-M365DSCComplexObjectV2
                             $referenceObject = $referenceObject.Replace("`r`n", "`n")
                         }
 
-                        if (-not [System.String]::IsNullOrEmpty($differenceObject))
+                        if (-not [System.String]::IsNullOrEmpty($differenceObject) -and $sourceType -eq 'String')
                         {
                             $differenceObject = $differenceObject.Replace("`r`n", "`n")
                         }
