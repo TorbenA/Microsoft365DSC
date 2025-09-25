@@ -1699,7 +1699,7 @@ function Get-SCDLPSensitiveInformationGroups
 
     foreach ($group in $SensitiveInformationGroups.groups)
     {
-        $myGroup = @{
+        $myGroup = [ordered]@{
             name = $group.name
         }
         if ($null -ne $group.operator)

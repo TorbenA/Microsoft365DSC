@@ -24,13 +24,13 @@ function Get-TargetResource
         $Id,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowMicrosoftAccountConnection,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $VideoPowerDownTimeOutAC_2,
 
         [Parameter()]
@@ -39,28 +39,28 @@ function Get-TargetResource
         $EnterVideoACPowerDownTimeOut,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $AllowCookies,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowPasswordManager,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowSmartScreen,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowUSBConnection,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $DevicePasswordEnabled,
 
         [Parameter()]
@@ -74,8 +74,8 @@ function Get-TargetResource
         $MinDevicePasswordLength,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $AlphanumericDevicePasswordRequired,
 
         [Parameter()]
@@ -84,8 +84,8 @@ function Get-TargetResource
         $MaxDevicePasswordFailedAttempts,
 
         [Parameter()]
-        [ValidateSet('1', '2', '3', '4')]
-        [System.String]
+        [ValidateSet(1, 2, 3, 4)]
+        [System.Int32]
         $MinDevicePasswordComplexCharacters,
 
         [Parameter()]
@@ -99,38 +99,38 @@ function Get-TargetResource
         $DevicePasswordHistory,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowSimpleDevicePassword,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowManualMDMUnenrollment,
 
         [Parameter()]
-        [ValidateSet('0', '1', '65535')]
-        [System.String]
+        [ValidateSet(0, 1, 65535)]
+        [System.Int32]
         $AllowAllTrustedApps,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $AllowAppStoreAutoUpdate,
 
         [Parameter()]
-        [ValidateSet('0', '1', '65535')]
-        [System.String]
+        [ValidateSet(0, 1, 65535)]
+        [System.Int32]
         $AllowDeveloperUnlock,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $BlockThirdPartyCookies,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $ExtensionInstallBlocklist,
 
         [Parameter()]
@@ -139,13 +139,13 @@ function Get-TargetResource
         $ExtensionInstallBlocklistDesc,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $PasswordManagerEnabled,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $SmartScreenEnabled,
 
         [Parameter()]
@@ -154,8 +154,8 @@ function Get-TargetResource
         $AADGroupMembershipCacheValidityInDays,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowVPN,
 
         [Parameter()]
@@ -164,8 +164,8 @@ function Get-TargetResource
         $PageVisibilityList,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowStorageCard,
 
         [Parameter()]
@@ -179,8 +179,8 @@ function Get-TargetResource
         $TPM12,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $Digits,
 
         [Parameter()]
@@ -194,8 +194,8 @@ function Get-TargetResource
         $History,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $LowercaseLetters,
 
         [Parameter()]
@@ -209,13 +209,13 @@ function Get-TargetResource
         $MinimumPINLength,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $SpecialCharacters,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $UppercaseLetters,
 
         [Parameter()]
@@ -239,13 +239,13 @@ function Get-TargetResource
         $UsePassportForWork,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowUpdateService,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2', '3')]
-        [System.String]
+        [ValidateSet(0, 1, 2, 3)]
+        [System.Int32]
         $ManagePreviewBuilds,
 
         [Parameter()]
@@ -422,13 +422,13 @@ function Set-TargetResource
         $Id,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowMicrosoftAccountConnection,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $VideoPowerDownTimeOutAC_2,
 
         [Parameter()]
@@ -437,28 +437,28 @@ function Set-TargetResource
         $EnterVideoACPowerDownTimeOut,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $AllowCookies,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowPasswordManager,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowSmartScreen,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowUSBConnection,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $DevicePasswordEnabled,
 
         [Parameter()]
@@ -472,8 +472,8 @@ function Set-TargetResource
         $MinDevicePasswordLength,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $AlphanumericDevicePasswordRequired,
 
         [Parameter()]
@@ -482,8 +482,8 @@ function Set-TargetResource
         $MaxDevicePasswordFailedAttempts,
 
         [Parameter()]
-        [ValidateSet('1', '2', '3', '4')]
-        [System.String]
+        [ValidateSet(1, 2, 3, 4)]
+        [System.Int32]
         $MinDevicePasswordComplexCharacters,
 
         [Parameter()]
@@ -497,38 +497,38 @@ function Set-TargetResource
         $DevicePasswordHistory,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowSimpleDevicePassword,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowManualMDMUnenrollment,
 
         [Parameter()]
-        [ValidateSet('0', '1', '65535')]
-        [System.String]
+        [ValidateSet(0, 1, 65535)]
+        [System.Int32]
         $AllowAllTrustedApps,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $AllowAppStoreAutoUpdate,
 
         [Parameter()]
-        [ValidateSet('0', '1', '65535')]
-        [System.String]
+        [ValidateSet(0, 1, 65535)]
+        [System.Int32]
         $AllowDeveloperUnlock,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $BlockThirdPartyCookies,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $ExtensionInstallBlocklist,
 
         [Parameter()]
@@ -537,13 +537,13 @@ function Set-TargetResource
         $ExtensionInstallBlocklistDesc,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $PasswordManagerEnabled,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $SmartScreenEnabled,
 
         [Parameter()]
@@ -552,8 +552,8 @@ function Set-TargetResource
         $AADGroupMembershipCacheValidityInDays,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowVPN,
 
         [Parameter()]
@@ -562,8 +562,8 @@ function Set-TargetResource
         $PageVisibilityList,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowStorageCard,
 
         [Parameter()]
@@ -577,8 +577,8 @@ function Set-TargetResource
         $TPM12,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $Digits,
 
         [Parameter()]
@@ -592,8 +592,8 @@ function Set-TargetResource
         $History,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $LowercaseLetters,
 
         [Parameter()]
@@ -607,13 +607,13 @@ function Set-TargetResource
         $MinimumPINLength,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $SpecialCharacters,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $UppercaseLetters,
 
         [Parameter()]
@@ -637,13 +637,13 @@ function Set-TargetResource
         $UsePassportForWork,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowUpdateService,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2', '3')]
-        [System.String]
+        [ValidateSet(0, 1, 2, 3)]
+        [System.Int32]
         $ManagePreviewBuilds,
 
         [Parameter()]
@@ -803,13 +803,13 @@ function Test-TargetResource
         $Id,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowMicrosoftAccountConnection,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $VideoPowerDownTimeOutAC_2,
 
         [Parameter()]
@@ -818,28 +818,28 @@ function Test-TargetResource
         $EnterVideoACPowerDownTimeOut,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $AllowCookies,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowPasswordManager,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowSmartScreen,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowUSBConnection,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $DevicePasswordEnabled,
 
         [Parameter()]
@@ -853,8 +853,8 @@ function Test-TargetResource
         $MinDevicePasswordLength,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $AlphanumericDevicePasswordRequired,
 
         [Parameter()]
@@ -863,8 +863,8 @@ function Test-TargetResource
         $MaxDevicePasswordFailedAttempts,
 
         [Parameter()]
-        [ValidateSet('1', '2', '3', '4')]
-        [System.String]
+        [ValidateSet(1, 2, 3, 4)]
+        [System.Int32]
         $MinDevicePasswordComplexCharacters,
 
         [Parameter()]
@@ -878,38 +878,38 @@ function Test-TargetResource
         $DevicePasswordHistory,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowSimpleDevicePassword,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowManualMDMUnenrollment,
 
         [Parameter()]
-        [ValidateSet('0', '1', '65535')]
-        [System.String]
+        [ValidateSet(0, 1, 65535)]
+        [System.Int32]
         $AllowAllTrustedApps,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $AllowAppStoreAutoUpdate,
 
         [Parameter()]
-        [ValidateSet('0', '1', '65535')]
-        [System.String]
+        [ValidateSet(0, 1, 65535)]
+        [System.Int32]
         $AllowDeveloperUnlock,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $BlockThirdPartyCookies,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $ExtensionInstallBlocklist,
 
         [Parameter()]
@@ -918,13 +918,13 @@ function Test-TargetResource
         $ExtensionInstallBlocklistDesc,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $PasswordManagerEnabled,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $SmartScreenEnabled,
 
         [Parameter()]
@@ -933,8 +933,8 @@ function Test-TargetResource
         $AADGroupMembershipCacheValidityInDays,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowVPN,
 
         [Parameter()]
@@ -943,8 +943,8 @@ function Test-TargetResource
         $PageVisibilityList,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowStorageCard,
 
         [Parameter()]
@@ -958,8 +958,8 @@ function Test-TargetResource
         $TPM12,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $Digits,
 
         [Parameter()]
@@ -973,8 +973,8 @@ function Test-TargetResource
         $History,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $LowercaseLetters,
 
         [Parameter()]
@@ -988,13 +988,13 @@ function Test-TargetResource
         $MinimumPINLength,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $SpecialCharacters,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2')]
-        [System.String]
+        [ValidateSet(0, 1, 2)]
+        [System.Int32]
         $UppercaseLetters,
 
         [Parameter()]
@@ -1018,13 +1018,13 @@ function Test-TargetResource
         $UsePassportForWork,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $AllowUpdateService,
 
         [Parameter()]
-        [ValidateSet('0', '1', '2', '3')]
-        [System.String]
+        [ValidateSet(0, 1, 2, 3)]
+        [System.Int32]
         $ManagePreviewBuilds,
 
         [Parameter()]

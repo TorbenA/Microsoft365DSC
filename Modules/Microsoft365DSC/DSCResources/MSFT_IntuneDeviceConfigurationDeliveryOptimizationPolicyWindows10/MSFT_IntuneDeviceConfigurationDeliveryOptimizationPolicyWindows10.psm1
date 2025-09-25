@@ -199,10 +199,10 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Device Configuration Delivery Optimization Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found."
 
         #region resource generator code
-        $complexBandwidthMode = @{}
+        $complexBandwidthMode = [ordered]@{}
         $complexBandwidthMode.Add('MaximumDownloadBandwidthInKilobytesPerSecond', $getValue.AdditionalProperties.bandwidthMode.maximumDownloadBandwidthInKilobytesPerSecond)
         $complexBandwidthMode.Add('MaximumUploadBandwidthInKilobytesPerSecond', $getValue.AdditionalProperties.bandwidthMode.maximumUploadBandwidthInKilobytesPerSecond)
-        $complexBandwidthBackgroundPercentageHours = @{}
+        $complexBandwidthBackgroundPercentageHours = [ordered]@{}
         $complexBandwidthBackgroundPercentageHours.Add('BandwidthBeginBusinessHours', $getValue.AdditionalProperties.bandwidthMode.bandwidthBackgroundPercentageHours.bandwidthBeginBusinessHours)
         $complexBandwidthBackgroundPercentageHours.Add('BandwidthEndBusinessHours', $getValue.AdditionalProperties.bandwidthMode.bandwidthBackgroundPercentageHours.bandwidthEndBusinessHours)
         $complexBandwidthBackgroundPercentageHours.Add('BandwidthPercentageDuringBusinessHours', $getValue.AdditionalProperties.bandwidthMode.bandwidthBackgroundPercentageHours.bandwidthPercentageDuringBusinessHours)
@@ -212,7 +212,7 @@ function Get-TargetResource
             $complexBandwidthBackgroundPercentageHours = $null
         }
         $complexBandwidthMode.Add('BandwidthBackgroundPercentageHours', $complexBandwidthBackgroundPercentageHours)
-        $complexBandwidthForegroundPercentageHours = @{}
+        $complexBandwidthForegroundPercentageHours = [ordered]@{}
         $complexBandwidthForegroundPercentageHours.Add('BandwidthBeginBusinessHours', $getValue.AdditionalProperties.bandwidthMode.bandwidthForegroundPercentageHours.bandwidthBeginBusinessHours)
         $complexBandwidthForegroundPercentageHours.Add('BandwidthEndBusinessHours', $getValue.AdditionalProperties.bandwidthMode.bandwidthForegroundPercentageHours.bandwidthEndBusinessHours)
         $complexBandwidthForegroundPercentageHours.Add('BandwidthPercentageDuringBusinessHours', $getValue.AdditionalProperties.bandwidthMode.bandwidthForegroundPercentageHours.bandwidthPercentageDuringBusinessHours)
@@ -233,7 +233,7 @@ function Get-TargetResource
             $complexBandwidthMode = $null
         }
 
-        $complexGroupIdSource = @{}
+        $complexGroupIdSource = [ordered]@{}
         $complexGroupIdSource.Add('GroupIdCustom', $getValue.AdditionalProperties.groupIdSource.groupIdCustom)
         if ($null -ne $getValue.AdditionalProperties.groupIdSource.groupIdSourceOption)
         {
@@ -248,7 +248,7 @@ function Get-TargetResource
             $complexGroupIdSource = $null
         }
 
-        $complexMaximumCacheSize = @{}
+        $complexMaximumCacheSize = [ordered]@{}
         $complexMaximumCacheSize.Add('MaximumCacheSizeInGigabytes', $getValue.AdditionalProperties.maximumCacheSize.maximumCacheSizeInGigabytes)
         $complexMaximumCacheSize.Add('MaximumCacheSizePercentage', $getValue.AdditionalProperties.maximumCacheSize.maximumCacheSizePercentage)
         if ($null -ne $getValue.AdditionalProperties.maximumCacheSize.'@odata.type')

@@ -137,7 +137,7 @@ function Get-TargetResource
         $complexFirewallRuleName = @()
         foreach ($currentFirewallRuleName in $policySettings.FirewallRuleName)
         {
-            $myFirewallRuleName = @{}
+            $myFirewallRuleName = [ordered]@{}
             foreach ($key in $currentFirewallRuleName.Keys)
             {
                 $myFirewallRuleName.Add($key, $currentFirewallRuleName[$key])

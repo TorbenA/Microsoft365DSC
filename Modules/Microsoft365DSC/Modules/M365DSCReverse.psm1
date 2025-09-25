@@ -258,10 +258,10 @@ function Start-M365DSCConfigurationExtract
         # If some resources are not supported based on the Authentication parameters
         # received, write a warning.
         $Components = $Components | Select-Object -Unique
+        $allResourcesInModule = Get-M365DSCAllResources
         if ($Components.Length -eq 0)
         {
             Write-Verbose -Message 'Retrieving all resources'
-            $allResourcesInModule = Get-M365DSCAllResources
             $selectedItems = Compare-Object -ReferenceObject $allResourcesInModule `
                 -DifferenceObject $ComponentsToSkip | Where-Object -FilterScript { $_.SideIndicator -eq '<=' }
             $selectedResources = @()
@@ -272,6 +272,14 @@ function Start-M365DSCConfigurationExtract
         }
         else
         {
+            foreach ($component in $Components)
+            {
+                if ($allResourcesInModule -notcontains $component)
+                {
+                    Write-Warning -Message "The component '$component' is not a valid Microsoft365DSC resource and will be ignored."
+                    $ComponentsToSkip += $component
+                }
+            }
             $selectedResources = $Components
         }
 
@@ -299,7 +307,7 @@ function Start-M365DSCConfigurationExtract
 
         if ($null -ne $compareResourcesResult)
         {
-            # The client is trying to extract act least one resource which is not supported
+            # The client is trying to extract at least one resource which is not supported
             # using only the provided authentication parameters;
             $resourcesNotSupported = @()
             foreach ($resource in $compareResourcesResult)

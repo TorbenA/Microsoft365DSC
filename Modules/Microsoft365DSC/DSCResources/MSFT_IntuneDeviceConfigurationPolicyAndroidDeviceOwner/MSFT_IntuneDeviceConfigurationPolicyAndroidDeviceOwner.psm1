@@ -692,7 +692,7 @@ function Get-TargetResource
             }
         }
 
-        $complexDetailedHelpText = @{}
+        $complexDetailedHelpText = [ordered]@{}
         $currentValue = $getValue.AdditionalProperties.detailedHelpText
         if ($null -ne $currentValue)
         {
@@ -717,7 +717,7 @@ function Get-TargetResource
             $complexDetailedHelpText = $null
         }
 
-        $complexDeviceOwnerLockScreenMessage = @{}
+        $complexDeviceOwnerLockScreenMessage = [ordered]@{}
         $currentValue = $getValue.AdditionalProperties.deviceOwnerLockScreenMessage
         if ($null -ne $currentValue)
         {
@@ -742,7 +742,7 @@ function Get-TargetResource
             $complexDeviceOwnerLockScreenMessage = $null
         }
 
-        $complexGlobalProxy = @{}
+        $complexGlobalProxy = [ordered]@{}
         $currentValue = $getValue.AdditionalProperties.globalProxy
         if ($null -ne $currentValue)
         {
@@ -763,7 +763,7 @@ function Get-TargetResource
         {
             foreach ($currentValue in $currentValueArray)
             {
-                $currentHash = @{}
+                $currentHash = [ordered]@{}
                 $currentHash.Add('AppId', $currentValue.appid)
                 $currentHash.Add('Publisher', $currentValue.publisher)
                 $currentHash.Add('AppStoreUrl', $currentValue.appStoreUrl)
@@ -779,7 +779,7 @@ function Get-TargetResource
         {
             foreach ($currentValue in $currentValueArray)
             {
-                $currentHash = @{}
+                $currentHash = [ordered]@{}
                 $currentHash.Add('AppId', $currentValue.appid)
                 $currentHash.Add('Publisher', $currentValue.publisher)
                 $currentHash.Add('AppStoreUrl', $currentValue.appStoreUrl)
@@ -789,7 +789,7 @@ function Get-TargetResource
             }
         }
 
-        $complexShortHelpText = @{}
+        $complexShortHelpText = [ordered]@{}
         $currentValue = $getValue.AdditionalProperties.shortHelpText
         if ($null -ne $currentValue)
         {

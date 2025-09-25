@@ -126,11 +126,11 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Device Configuration Network Boundary Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found."
 
         #region resource generator code
-        $complexWindowsNetworkIsolationPolicy = @{}
+        $complexWindowsNetworkIsolationPolicy = [ordered]@{}
         $complexEnterpriseCloudResources = @()
         foreach ($currentEnterpriseCloudResources in $getValue.AdditionalProperties.windowsNetworkIsolationPolicy.enterpriseCloudResources)
         {
-            $myEnterpriseCloudResources = @{}
+            $myEnterpriseCloudResources = [ordered]@{}
             $myEnterpriseCloudResources.Add('IpAddressOrFQDN', $currentEnterpriseCloudResources.ipAddressOrFQDN)
             $myEnterpriseCloudResources.Add('Proxy', $currentEnterpriseCloudResources.proxy)
             if ($myEnterpriseCloudResources.values.Where({ $null -ne $_ }).count -gt 0)
@@ -143,7 +143,7 @@ function Get-TargetResource
         $complexEnterpriseIPRanges = @()
         foreach ($currentEnterpriseIPRanges in $getValue.AdditionalProperties.windowsNetworkIsolationPolicy.enterpriseIPRanges)
         {
-            $myEnterpriseIPRanges = @{}
+            $myEnterpriseIPRanges = [ordered]@{}
             $myEnterpriseIPRanges.Add('CidrAddress', $currentEnterpriseIPRanges.cidrAddress)
             $myEnterpriseIPRanges.Add('LowerAddress', $currentEnterpriseIPRanges.lowerAddress)
             $myEnterpriseIPRanges.Add('UpperAddress', $currentEnterpriseIPRanges.upperAddress)

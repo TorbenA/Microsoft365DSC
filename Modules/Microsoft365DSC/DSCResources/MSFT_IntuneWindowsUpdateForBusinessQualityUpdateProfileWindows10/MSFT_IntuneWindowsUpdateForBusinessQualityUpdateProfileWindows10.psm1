@@ -125,7 +125,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Windows Update For Business Quality Update Profile for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
-        $complexExpeditedUpdateSettings = @{}
+        $complexExpeditedUpdateSettings = [ordered]@{}
         $complexExpeditedUpdateSettings.Add('DaysUntilForcedReboot', $getValue.ExpeditedUpdateSettings.daysUntilForcedReboot)
         $complexExpeditedUpdateSettings.Add('QualityUpdateRelease', $getValue.ExpeditedUpdateSettings.qualityUpdateRelease)
         if ($complexExpeditedUpdateSettings.values.Where({ $null -ne $_ }).Count -eq 0)

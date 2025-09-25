@@ -171,7 +171,6 @@ function Get-M365DSCDRGComplexTypeToHashtable
                 if ($keyType -like '*CimInstance*' -or $keyType -like '*Dictionary*' -or $keyType -like 'Microsoft.Graph.PowerShell.Models.*' -or $keyType -like 'Microsoft.Graph.Beta.PowerShell.Models.*' -or $keyType -like '*[[\]]')
                 {
                     $hash = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject $ComplexObject.$key
-
                     $results.Add($keyName, $hash)
                 }
                 else
@@ -636,7 +635,8 @@ function Compare-M365DSCComplexObject
         [Parameter()]
         $Target
     )
-    #Comparing full objects
+
+    # Comparing full objects
     if ($null -eq $Source -and $null -eq $Target)
     {
         return $true
@@ -661,12 +661,12 @@ function Compare-M365DSCComplexObject
 
     if ($Source.GetType().FullName -like '*CimInstance[[\]]' -or $Source.GetType().FullName -like '*Hashtable[[\]]')
     {
-        if ($Source.Length -ne $Target.Length)
+        if ($Source.Count -ne $Target.Count)
         {
-            Write-Verbose -Message "Configuration drift - The complex array have different number of items: Source {$($Source.Length)}, Target {$($Target.Length)}"
+            Write-Verbose -Message "Configuration drift - The complex array have different number of items: Source {$($Source.Count)}, Target {$($Target.Count)}"
             return $false
         }
-        if ($Source.Length -eq 0)
+        if ($Source.Count -eq 0)
         {
             return $true
         }
@@ -772,7 +772,7 @@ function Compare-M365DSCComplexObject
             }
         }
     }
-    elseif ($Target.GetType().FullName -like "*Hashtable")
+    elseif ($Target.GetType().FullName -like "*Hashtable" -or $Target.GetType().FullName -like "*OrderedDictionary")
     {
         $targetKeys = $Target.Keys | Where-Object -FilterScript { $_ -ne 'PSComputerName' }
     }
@@ -784,10 +784,10 @@ function Compare-M365DSCComplexObject
 
     foreach ($key in $keys)
     {
-        if (($target.GetType().Name -eq 'Hashtable' -and $target.ContainsKey($key)) -or `
+        if ((($target.GetType().Name -eq 'Hashtable' -and $target.ContainsKey($key)) -or ($target.GetType().Name -eq 'OrderedDictionary' -and $target.Contains($key))) -or `
             ($target.GetType().Name -eq 'CIMInstance' -and $null -ne $target.$key))
         {
-            #Matching possible key names between Source and Target
+            # Matching possible key names between Source and Target
             $sourceValue = $Source.$key
 
             # Some classes might contain default properties that have the same name as the key,
@@ -801,7 +801,7 @@ function Compare-M365DSCComplexObject
                 $targetValue = $null
             }
 
-            #One of the item is null and not the other
+            # One of the item is null and not the other
             if (($Source.$key.Length -eq 0) -xor ($targetValue.Length -eq 0))
             {
                 if ($null -eq $Source.$key)
@@ -820,11 +820,11 @@ function Compare-M365DSCComplexObject
                 return $false
             }
 
-            #Both keys aren't null or empty
+            # Both keys aren't null or empty
             if (($null -ne $Source.$key) -and ($null -ne $Target.$key))
             {
-                if ($Source.$key.GetType().FullName -like '*CimInstance*' -or $Source.$key.GetType().FullName -like '*hashtable*' -or `
-                    $Source.$key.GetType().Name -eq 'Object[]')
+                if ($Source.$key.GetType().FullName -like '*CimInstance*' -or $Source.$key.GetType().FullName -like '*Hashtable*' -or `
+                    $Source.$key.GetType().FullName -like "*OrderedDictionary*" -or $Source.$key.GetType().Name -eq 'Object[]')
                 {
                     if ($Source.$key.GetType().FullName -like '*CimInstance' -and (
                             $Source.$key.CimClass.CimClassName -eq 'MSFT_DeviceManagementConfigurationPolicyAssignments' -or
@@ -854,11 +854,11 @@ function Compare-M365DSCComplexObject
                 }
                 else
                 {
-                    #Simple object comparison
+                    # Simple object comparison
                     $referenceObject = $Target.$key
                     $differenceObject = $Source.$key
 
-                    #Identifying date from the current values
+                    # Identifying date from the current values
                     $targetType = ($Target.$key.GetType()).Name
                     if ($targetType -like '*Date*')
                     {
@@ -981,13 +981,13 @@ function Compare-M365DSCComplexObjectV2
 
     if ($Source.GetType().FullName -like '*CimInstance[[\]]' -or $Source.GetType().FullName -like '*Hashtable[[\]]')
     {
-        if ($Source.Length -ne $Target.Length)
+        if ($Source.Count -ne $Target.Count)
         {
-            Write-Verbose -Message "Configuration drift - The complex array have different number of items: Source {$($Source.Length)}, Target {$($Target.Length)}"
+            Write-Verbose -Message "Configuration drift - The complex array have different number of items: Source {$($Source.Count)}, Target {$($Target.Count)}"
             $Global:AllDrifts.DriftInfo += @{
                 PropertyName = $PropertyName
-                CurrentValue = "Current value has {$($Source.Length)} items"
-                DesiredValue = "Desired value has {$($Target.Length)} items"
+                CurrentValue = "Current value has {$($Source.Count)} items"
+                DesiredValue = "Desired value has {$($Target.Count)} items"
             }
 
             $returnValue = $false
@@ -1147,7 +1147,7 @@ function Compare-M365DSCComplexObjectV2
             }
         }
     }
-    elseif ($Target.GetType().FullName -like "*Hashtable")
+    elseif ($Target.GetType().FullName -like "*Hashtable" -or $Target.GetType().FullName -like "*OrderedDictionary")
     {
         $targetKeys = $Target.Keys | Where-Object -FilterScript { $_ -ne 'PSComputerName' }
     }
@@ -1159,7 +1159,7 @@ function Compare-M365DSCComplexObjectV2
 
     foreach ($key in $keys)
     {
-        if (($target.GetType().Name -eq 'Hashtable' -and $target.ContainsKey($key)) -or `
+        if ((($target.GetType().Name -eq 'Hashtable' -and $target.ContainsKey($key)) -or ($target.GetType().Name -eq 'OrderedDictionary' -and $target.Contains($key))) -or `
             ($target.GetType().Name -eq 'CIMInstance' -and $null -ne $target.$key))
         {
             # Matching possible key names between Source and Target
@@ -1212,8 +1212,8 @@ function Compare-M365DSCComplexObjectV2
             # Both keys aren't null or empty
             if (($null -ne $Source.$key) -and ($null -ne $Target.$key))
             {
-                if ($Source.$key.GetType().FullName -like '*CimInstance*' -or $Source.$key.GetType().FullName -like '*hashtable*' -or `
-                    $Source.$key.GetType().Name -eq 'Object[]')
+                if ($Source.$key.GetType().FullName -like '*CimInstance*' -or $Source.$key.GetType().FullName -like '*Hashtable*' -or `
+                    $Source.$key.GetType().FullName -like "*OrderedDictionary*" -or $Source.$key.GetType().Name -eq 'Object[]')
                 {
                     if ($Source.$key.GetType().FullName -like '*CimInstance' -and (
                             $Source.$key.CimClass.CimClassName -eq 'MSFT_DeviceManagementConfigurationPolicyAssignments' -or
@@ -1235,7 +1235,7 @@ function Compare-M365DSCComplexObjectV2
                             -NoDriftReport:$NoDriftReport
                     }
 
-                    if (-not $compareResult -and $targetValue.GetType().Name -ne "Hashtable" -and $targetValue.GetType().Name -ne 'Object[]')
+                    if (-not $compareResult -and $targetValue.GetType().Name -ne "Hashtable" -and $targetValue.GetType().Name -ne "OrderedDictionary" -and $targetValue.GetType().Name -ne 'Object[]')
                     {
                         Write-Verbose -Message "Configuration drift - complex object key: $key"
                         Write-Verbose -Message "Source {$sourceValue}"
@@ -1562,7 +1562,7 @@ function ConvertFrom-IntunePolicyAssignment
     $assignmentResult = @()
     foreach ($assignment in $Assignments)
     {
-        $hashAssignment = @{}
+        $hashAssignment = [ordered]@{}
         if ($null -ne $assignment.Target.'@odata.type')
         {
             $dataType = $assignment.Target.'@odata.type'
@@ -1601,10 +1601,6 @@ function ConvertFrom-IntunePolicyAssignment
                 $groupDisplayName = $group.DisplayName
             }
         }
-        if (-not [string]::IsNullOrEmpty($collectionId))
-        {
-            $hashAssignment.Add('collectionId', $collectionId)
-        }
         if ($dataType -eq '#microsoft.graph.allLicensedUsersAssignmentTarget')
         {
             $groupDisplayName = 'All users'
@@ -1616,6 +1612,10 @@ function ConvertFrom-IntunePolicyAssignment
         if ($null -ne $groupDisplayName)
         {
             $hashAssignment.Add('groupDisplayName', $groupDisplayName)
+        }
+        if (-not [string]::IsNullOrEmpty($collectionId))
+        {
+            $hashAssignment.Add('collectionId', $collectionId)
         }
         if ($IncludeDeviceFilter)
         {
@@ -3173,12 +3173,30 @@ function Get-IntuneSettingCatalogPolicySettingDSCValue
             Value = if ($isArray) { ,$DSCParams[$key] } else { $DSCParams[$key] }
         }
     }
+    elseif ($SettingValueType -like "*ChoiceSetting*" -and $SettingValueType -notlike "*Collection*")
+    {
+        $settingValue = ($SettingDefinition.AdditionalProperties.options | Where-Object { $_.optionValue.value -eq "$($DSCParams[$key])" }).itemId
+        if ([System.String]::IsNullOrEmpty($settingValue))
+        {
+            $settingValue = ($SettingDefinition.AdditionalProperties.options | Where-Object { $_.itemId -eq "$($SettingDefinition.Id)_$($DSCParams[$key])" }).itemId
+        }
+        return @{
+            SettingDefinition = $SettingDefinition
+            SettingValueType = $SettingValueType
+            Value = $settingValue
+        }
+    }
     elseif ($SettingValueType -like "*ChoiceSettingCollection*")
     {
         $values = @()
         foreach ($value in $DSCParams[$key])
         {
-            $values += "$($SettingDefinition.Id)_$value"
+            $valueToAdd = ($SettingDefinition.AdditionalProperties.options | Where-Object { $_.optionValue.value -eq "$value" }).itemId
+            if ([System.String]::IsNullOrEmpty($valueToAdd))
+            {
+                $valueToAdd = ($SettingDefinition.AdditionalProperties.options | Where-Object { $_.itemId -eq "$($SettingDefinition.Id)_$value" }).itemId
+            }
+            $values += $valueToAdd
         }
 
         return @{
@@ -3330,8 +3348,16 @@ function Export-IntuneSettingCatalogPolicySettings
         }
         '#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance'
         {
-            $settingValue = if ($IsRoot) { $SettingInstance.AdditionalProperties.choiceSettingValue.value } else { $SettingInstance.choiceSettingValue.value }
-            $settingValue = $settingValue.Split('_') | Select-Object -Last 1
+            $options = $settingDefinition.AdditionalProperties.options
+            $beforeSettingValue = if ($IsRoot) { $SettingInstance.AdditionalProperties.choiceSettingValue.value } else { $SettingInstance.choiceSettingValue.value }
+
+            $settingValue = ($options | Where-Object { $_.itemId -eq $beforeSettingValue }).optionValue.value
+            if ($settingValue -like "*=*" -or $settingValue -like "*{*}*")
+            {
+                # The value is not an actual value, but rather an assignment string. Fall back to the itemId and strip the prefix
+                # Examples are IntuneFirewallPolicyWindows10 -> target is a GUID, IntuneAntivirusPolicyWindows10ConfigMgr -> *Severity* is an assignment, e.g. 2=2
+                $settingValue = ($options | Where-Object { $_.itemId -eq $beforeSettingValue }).itemId.Replace("$($settingDefinition.Id)_", "")
+            }
             $childSettings = if ($IsRoot) { $SettingInstance.AdditionalProperties.choiceSettingValue.children } else { $SettingInstance.choiceSettingValue.children }
             foreach ($childSetting in $childSettings)
             {
@@ -3341,10 +3367,26 @@ function Export-IntuneSettingCatalogPolicySettings
         '#microsoft.graph.deviceManagementConfigurationChoiceSettingCollectionInstance'
         {
             $values = @()
+            $options = $settingDefinition.AdditionalProperties.options
             $childValues = if ($IsRoot) { $SettingInstance.AdditionalProperties.choiceSettingCollectionValue.value } else { $SettingInstance.choiceSettingCollectionValue.value }
             foreach ($value in $childValues)
             {
-                $values += $value.Split('_') | Select-Object -Last 1
+                $valueToReturn = ($options | Where-Object { $_.itemId -eq $value }).optionValue.value
+                if ($valueToReturn -like "*=*" -or $valueToReturn -like "*{*}*")
+                {
+                    # The value is not an actual value, but rather an assignment string. Fall back to the itemId and strip the prefix
+                    # Examples are IntuneFirewallPolicyWindows10 -> target is a GUID, IntuneAntivirusPolicyWindows10ConfigMgr -> *Severity* is an assignment, e.g. 2=2
+                    $valueToReturn = ($options | Where-Object { $_.itemId -eq $value }).itemId.Replace("$($settingDefinition.Id)_", "")
+                }
+                $values += $valueToReturn
+            }
+            if ($options[0].optionValue.'@odata.type' -like "*Integer*")
+            {
+                $values = [int[]]$values
+            }
+            elseif ($options[0].optionValue.'@odata.type' -like "*String*")
+            {
+                $values = [string[]]$values
             }
             $settingValue = $values
         }

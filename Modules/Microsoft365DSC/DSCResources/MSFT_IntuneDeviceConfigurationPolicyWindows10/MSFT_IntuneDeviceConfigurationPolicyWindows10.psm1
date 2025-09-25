@@ -1302,7 +1302,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Device Configuration Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found."
 
         #region resource generator code
-        $complexDefenderDetectedMalwareActions = @{}
+        $complexDefenderDetectedMalwareActions = [ordered]@{}
         if ($null -ne $getValue.AdditionalProperties.defenderDetectedMalwareActions.highSeverity)
         {
             $complexDefenderDetectedMalwareActions.Add('HighSeverity', $getValue.AdditionalProperties.defenderDetectedMalwareActions.highSeverity.ToString())
@@ -1324,7 +1324,7 @@ function Get-TargetResource
             $complexDefenderDetectedMalwareActions = $null
         }
 
-        $complexEdgeHomeButtonConfiguration = @{}
+        $complexEdgeHomeButtonConfiguration = [ordered]@{}
         $complexEdgeHomeButtonConfiguration.Add('HomeButtonCustomURL', $getValue.AdditionalProperties.edgeHomeButtonConfiguration.homeButtonCustomURL)
         if ($null -ne $getValue.AdditionalProperties.edgeHomeButtonConfiguration.'@odata.type')
         {
@@ -1335,7 +1335,7 @@ function Get-TargetResource
             $complexEdgeHomeButtonConfiguration = $null
         }
 
-        $complexEdgeSearchEngine = @{}
+        $complexEdgeSearchEngine = [ordered]@{}
         if ($null -ne $getValue.AdditionalProperties.edgeSearchEngine.edgeSearchEngineType)
         {
             $complexEdgeSearchEngine.Add('EdgeSearchEngineType', $getValue.AdditionalProperties.edgeSearchEngine.edgeSearchEngineType.ToString())
@@ -1350,7 +1350,7 @@ function Get-TargetResource
             $complexEdgeSearchEngine = $null
         }
 
-        $complexNetworkProxyServer = @{}
+        $complexNetworkProxyServer = [ordered]@{}
         $complexNetworkProxyServer.Add('Address', $getValue.AdditionalProperties.networkProxyServer.address)
         $complexNetworkProxyServer.Add('Exceptions', $getValue.AdditionalProperties.networkProxyServer.exceptions)
         $complexNetworkProxyServer.Add('UseForLocalAddresses', $getValue.AdditionalProperties.networkProxyServer.useForLocalAddresses)
@@ -1359,7 +1359,7 @@ function Get-TargetResource
             $complexNetworkProxyServer = $null
         }
 
-        $complexWindows10AppsForceUpdateSchedule = @{}
+        $complexWindows10AppsForceUpdateSchedule = [ordered]@{}
         if ($null -ne $getValue.AdditionalProperties.windows10AppsForceUpdateSchedule.recurrence)
         {
             $complexWindows10AppsForceUpdateSchedule.Add('Recurrence', $getValue.AdditionalProperties.windows10AppsForceUpdateSchedule.recurrence.ToString())

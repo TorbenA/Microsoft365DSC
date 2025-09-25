@@ -110,11 +110,11 @@ function Get-TargetResource
         Write-Verbose -Message "An Azure AD Authentication Method Policy Authenticator with Id {$Id} was found."
 
         #region resource generator code
-        $complexFeatureSettings = @{}
+        $complexFeatureSettings = [ordered]@{}
 
         Write-Verbose 'Processing FeatureSettings > companionAppAllowedState > excludeTarget'
-        $complexCompanionAppAllowedState = @{}
-        $complexExcludeTarget = @{}
+        $complexCompanionAppAllowedState = [ordered]@{}
+        $complexExcludeTarget = [ordered]@{}
         if ($getValue.additionalProperties.featureSettings.companionAppAllowedState.excludeTarget.id -notmatch 'all_users|00000000-0000-0000-0000-000000000000')
         {
             try
@@ -156,7 +156,7 @@ function Get-TargetResource
         $complexCompanionAppAllowedState.Add('ExcludeTarget', $complexExcludeTarget)
 
         Write-Verbose 'Processing FeatureSettings > companionAppAllowedState > includeTarget'
-        $complexIncludeTarget = @{}
+        $complexIncludeTarget = [ordered]@{}
         if ($getValue.additionalProperties.featureSettings.companionAppAllowedState.includeTarget.id -notmatch 'all_users|00000000-0000-0000-0000-000000000000')
         {
             try
@@ -209,10 +209,10 @@ function Get-TargetResource
         }
 
         $complexFeatureSettings.Add('CompanionAppAllowedState', $complexCompanionAppAllowedState)
-        $complexDisplayAppInformationRequiredState = @{}
+        $complexDisplayAppInformationRequiredState = [ordered]@{}
 
         Write-Verbose 'Processing FeatureSettings > displayAppInformationRequiredState > excludeTarget'
-        $complexExcludeTarget = @{}
+        $complexExcludeTarget = [ordered]@{}
         if ($getValue.additionalProperties.featureSettings.displayAppInformationRequiredState.excludeTarget.id -notmatch 'all_users|00000000-0000-0000-0000-000000000000')
         {
             try
@@ -253,7 +253,7 @@ function Get-TargetResource
         $complexDisplayAppInformationRequiredState.Add('ExcludeTarget', $complexExcludeTarget)
 
         Write-Verbose 'Processing FeatureSettings > displayAppInformationRequiredState > includeTarget'
-        $complexIncludeTarget = @{}
+        $complexIncludeTarget = [ordered]@{}
         if ($getValue.additionalProperties.featureSettings.displayAppInformationRequiredState.includeTarget.id -notmatch 'all_users|00000000-0000-0000-0000-000000000000')
         {
             try
@@ -308,8 +308,8 @@ function Get-TargetResource
         $complexFeatureSettings.Add('DisplayAppInformationRequiredState', $complexDisplayAppInformationRequiredState)
 
         Write-Verbose 'Processing FeatureSettings > displayLocationInformationRequiredState > excludeTarget'
-        $complexDisplayLocationInformationRequiredState = @{}
-        $complexExcludeTarget = @{}
+        $complexDisplayLocationInformationRequiredState = [ordered]@{}
+        $complexExcludeTarget = [ordered]@{}
         if ($getValue.additionalProperties.featureSettings.displayLocationInformationRequiredState.excludeTarget.id -notmatch 'all_users|00000000-0000-0000-0000-000000000000')
         {
             try
@@ -352,7 +352,7 @@ function Get-TargetResource
         $complexDisplayLocationInformationRequiredState.Add('ExcludeTarget', $complexExcludeTarget)
 
         Write-Verbose 'Processing FeatureSettings > displayLocationInformationRequiredState > includeTarget'
-        $complexIncludeTarget = @{}
+        $complexIncludeTarget = [ordered]@{}
         if ($getValue.additionalProperties.featureSettings.displayLocationInformationRequiredState.includeTarget.id -notmatch 'all_users|00000000-0000-0000-0000-000000000000')
         {
             try
@@ -410,7 +410,7 @@ function Get-TargetResource
         $complexExcludeTargets = @()
         foreach ($currentExcludeTargets in $getValue.excludeTargets)
         {
-            $myExcludeTargets = @{}
+            $myExcludeTargets = [ordered]@{}
             if ($currentExcludeTargets.id -ne 'all_users')
             {
                 $myExcludeTargetsDisplayName = Get-MgGroup -GroupId $currentExcludeTargets.id -ErrorAction SilentlyContinue
@@ -440,7 +440,7 @@ function Get-TargetResource
         $complexIncludeTargets = @()
         foreach ($currentIncludeTargets in $getValue.AdditionalProperties.includeTargets)
         {
-            $myIncludeTargets = @{}
+            $myIncludeTargets = [ordered]@{}
             if ($currentIncludeTargets.id -ne 'all_users')
             {
                 $myIncludeTargetsDisplayName = Get-MgGroup -GroupId $currentIncludeTargets.id -ErrorAction SilentlyContinue

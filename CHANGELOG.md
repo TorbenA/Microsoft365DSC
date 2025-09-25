@@ -70,6 +70,9 @@
     `ExceptIfMessageContainsDataClassifications`, `HasSenderOverride`, `NotifySender`, `ApplyOME` and `RemoveOME`.
 * IntuneAccountProtectionPolicy
   * [BREAKING CHANGE] Removed deprecated resource.
+* IntuneAccountProtectionLocalUserGroupMembershipPolicy
+  * [BREAKING CHANGE] Renamed properties to match their Settings Catalog counterpart.
+    FIXES [#6342](https://github.com/microsoft/Microsoft365DSC/issues/6432)
 * IntuneAppConfigurationPolicy
   * Fixed an issue with MOF instance parsing.
     FIXES [#6520](https://github.com/microsoft/Microsoft365DSC/issues/6520)
@@ -93,6 +96,10 @@
 * IntuneDeviceRemediation
   * [BREAKING CHANGE] Made Id optional and enabled creation of remediation scripts using DisplayName only.
     FIXES [#6445](https://github.com/microsoft/Microsoft365DSC/issues/6445)
+* IntuneEpmElevationRulesPolicyWindows10
+  * Initial release.
+* IntuneEpmElevationSettingsPolicyWindows10
+  * Initial release.
 * IntuneMobileAppsMacOSLobApp
   * Added filter capability.
 * IntuneMobileAppsMicrosoftStoreAppWindows10
@@ -139,6 +146,9 @@
 * TeamsTenantDialPlan
   * [BREAKING CHANGE] Removed deprecated parameter `OptimizeDeviceDialing` and `ExternalAccessPrefix`.
 * MISC
+  * Added ordering to hashtables.
+  * [BREAKING CHANGE] Changed multiple property values and types in Intune resources. Refer to the
+    breaking change blog post for more information about the affected resources.
   * Added performance improvements to speed up resource processing.
   * Code cleanup across all Intune resources.
   * Code cleanup across all O365, OD and SPO resources.
@@ -154,6 +164,7 @@
   * Updated required modules for Intune resources doing assignments to groups.
   * [BREAKING CHANGE] Removed `SupportsScopeTags` property from all resources because it's read-only.
 * M365DSCDRGUtil
+  * Changed the way how Settings Catalog properties are exported.
   * Fixed an issue where a null drift would throw an exception.
   * Fixed an issue where group filtering would not find the specified groups.
   * Fixed an issue where 0 requests passed to `Invoke-M365DSCGraphBatchRequests` would fail.

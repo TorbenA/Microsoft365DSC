@@ -183,7 +183,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Mobile Apps Store App with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
-        $complexApplicableDeviceType = @{}
+        $complexApplicableDeviceType = [ordered]@{}
         $complexApplicableDeviceType.Add('IPad', $getValue.AdditionalProperties.applicableDeviceType.iPad)
         $complexApplicableDeviceType.Add('IPhoneAndIPod', $getValue.AdditionalProperties.applicableDeviceType.iPhoneAndIPod)
         if ($complexApplicableDeviceType.Values.Where({ $null -ne $_ }).Count -eq 0)
@@ -223,7 +223,7 @@ function Get-TargetResource
         $complexCategories = @()
         foreach ($category in $getValue.Categories)
         {
-            $myCategory = @{}
+            $myCategory = [ordered]@{}
             $myCategory.Add('Id', $category.id)
             $myCategory.Add('DisplayName', $category.displayName)
             $complexCategories += $myCategory
@@ -231,7 +231,7 @@ function Get-TargetResource
         $complexLargeIcon = $null
         if ($null -ne $getValue.LargeIcon.Value)
         {
-            $complexLargeIcon = @{}
+            $complexLargeIcon = [ordered]@{}
             $complexLargeIcon.Add('Type', $getValue.LargeIcon.Type)
             $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($getValue.LargeIcon.Value))
         }

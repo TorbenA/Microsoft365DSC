@@ -265,7 +265,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Window Update For Business Ring Update Profile for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found."
 
         #region resource generator code
-        $complexInstallationSchedule = @{}
+        $complexInstallationSchedule = [ordered]@{}
         if ($null -ne $getValue.AdditionalProperties.installationSchedule.activeHoursEnd)
         {
             $complexInstallationSchedule.Add('ActiveHoursEnd', ([TimeSpan]$getValue.AdditionalProperties.installationSchedule.activeHoursEnd).ToString())

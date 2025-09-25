@@ -244,7 +244,7 @@ function Get-TargetResource
         $complexValidOperatingSystemBuildRanges = @()
         foreach ($currentValidOperatingSystemBuildRanges in $devicePolicy.AdditionalProperties.validOperatingSystemBuildRanges)
         {
-            $myValidOperatingSystemBuildRanges = @{}
+            $myValidOperatingSystemBuildRanges = [ordered]@{}
             if ($null -ne $currentValidOperatingSystemBuildRanges.lowestVersion)
             {
                 $myValidOperatingSystemBuildRanges.Add('LowestVersion', $currentValidOperatingSystemBuildRanges.lowestVersion.ToString())
@@ -263,7 +263,7 @@ function Get-TargetResource
             }
         }
 
-        $complexDeviceCompliancePolicyScript = @{}
+        $complexDeviceCompliancePolicyScript = [ordered]@{}
         if ($null -ne $devicePolicy.AdditionalProperties.deviceCompliancePolicyScript)
         {
             Write-Verbose -Message "Resolving Device Compliance Policy Script with Id {$($devicePolicy.AdditionalProperties.deviceCompliancePolicyScript.deviceComplianceScriptId)}"
@@ -279,7 +279,7 @@ function Get-TargetResource
         $complexScheduledActionsForRule = @()
         foreach ($actionConfiguration in $devicePolicy.ScheduledActionsForRule.ScheduledActionConfigurations)
         {
-            $scheduledAction = @{
+            $scheduledAction = [ordered]@{
                 ActionType    = [string]$actionConfiguration.ActionType
                 GracePeriodHours = $actionConfiguration.GracePeriodHours
             }

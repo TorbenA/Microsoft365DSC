@@ -136,7 +136,7 @@ function Get-TargetResource
         $complexExclusions = @()
         foreach ($currentExclusions in $policySettings.exclusions)
         {
-            $myExclusions = @{}
+            $myExclusions = [ordered]@{}
             if ($null -ne $currentExclusions.exclusions_item_type)
             {
                 $myExclusions.Add('Exclusions_item_type', $currentExclusions.exclusions_item_type)

@@ -166,13 +166,13 @@ function Get-TargetResource
         $complexKioskProfiles = @()
         foreach ($currentkioskProfiles in $getValue.AdditionalProperties.kioskProfiles)
         {
-            $mykioskProfiles = @{}
-            $complexAppConfiguration = @{}
+            $mykioskProfiles = [ordered]@{}
+            $complexAppConfiguration = [ordered]@{}
             $complexAppConfiguration.Add('AllowAccessToDownloadsFolder', $currentkioskProfiles.appConfiguration.allowAccessToDownloadsFolder)
             $complexApps = @()
             foreach ($currentApps in $currentkioskProfiles.appConfiguration.apps)
             {
-                $myApps = @{}
+                $myApps = [ordered]@{}
                 if ($null -ne $currentApps.appType)
                 {
                     $myApps.Add('AppType', $currentApps.appType.ToString())
@@ -210,7 +210,7 @@ function Get-TargetResource
             $complexAppConfiguration.Add('DisallowDesktopApps', $currentkioskProfiles.appConfiguration.disallowDesktopApps)
             $complexAppConfiguration.Add('ShowTaskBar', $currentkioskProfiles.appConfiguration.showTaskBar)
             $complexAppConfiguration.Add('StartMenuLayoutXml', $currentkioskProfiles.appConfiguration.startMenuLayoutXml)
-            $complexUwpApp = @{}
+            $complexUwpApp = [ordered]@{}
             $complexUwpApp.Add('AppId', $currentkioskProfiles.appConfiguration.uwpApp.appId)
             $complexUwpApp.Add('AppUserModelId', $currentkioskProfiles.appConfiguration.uwpApp.appUserModelId)
             $complexUwpApp.Add('ContainedAppId', $currentkioskProfiles.appConfiguration.uwpApp.containedAppId)
@@ -244,7 +244,7 @@ function Get-TargetResource
                 $complexUwpApp = $null
             }
             $complexAppConfiguration.Add('UwpApp', $complexUwpApp)
-            $complexWin32App = @{}
+            $complexWin32App = [ordered]@{}
             $complexWin32App.Add('ClassicAppPath', $currentkioskProfiles.appConfiguration.win32App.classicAppPath)
             $complexWin32App.Add('EdgeKiosk', $currentkioskProfiles.appConfiguration.win32App.edgeKiosk)
             $complexWin32App.Add('EdgeKioskIdleTimeoutMinutes', $currentkioskProfiles.appConfiguration.win32App.edgeKioskIdleTimeoutMinutes)
@@ -292,7 +292,7 @@ function Get-TargetResource
             $complexUserAccountsConfiguration = @()
             foreach ($currentUserAccountsConfiguration in $currentkioskProfiles.userAccountsConfiguration)
             {
-                $myUserAccountsConfiguration = @{}
+                $myUserAccountsConfiguration = [ordered]@{}
                 $myUserAccountsConfiguration.Add('GroupName', $currentUserAccountsConfiguration.groupName)
                 $myUserAccountsConfiguration.Add('DisplayName', $currentUserAccountsConfiguration.displayName)
                 $myUserAccountsConfiguration.Add('GroupId', $currentUserAccountsConfiguration.groupId)
@@ -315,7 +315,7 @@ function Get-TargetResource
             }
         }
 
-        $complexWindowsKioskForceUpdateSchedule = @{}
+        $complexWindowsKioskForceUpdateSchedule = [ordered]@{}
         $complexWindowsKioskForceUpdateSchedule.Add('DayofMonth', $getValue.AdditionalProperties.windowsKioskForceUpdateSchedule.dayofMonth)
         if ($null -ne $getValue.AdditionalProperties.windowsKioskForceUpdateSchedule.dayofWeek)
         {

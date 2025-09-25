@@ -333,7 +333,7 @@ function Get-TargetResource
                     ComputerSid = $currentEntry.ComputerSid
                 }
             }
-            $myPolicyRule = @{}
+            $myPolicyRule = [ordered]@{}
             $myPolicyRule.Add('Entry', $complexEntry)
             $myPolicyRule.Add('Name', $currentPolicyRule.name)
             $myPolicyRule.Add('ExcludedIdList_GroupId', $currentPolicyRule.excludedIdList_GroupId)

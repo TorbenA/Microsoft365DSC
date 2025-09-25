@@ -189,7 +189,7 @@ function Get-TargetResource
             $complexPresentationValues = @()
             foreach ($presentationValue in $presentationValues)
             {
-                $complexPresentationValue = @{}
+                $complexPresentationValue = [ordered]@{}
                 $complexPresentationValue.Add('odataType', $presentationValue.AdditionalProperties.'@odata.type')
                 $complexPresentationValue.Add('Id', $presentationValue.Id)
                 $complexPresentationValue.Add('presentationDefinitionId', $presentationValue.Presentation.Id)

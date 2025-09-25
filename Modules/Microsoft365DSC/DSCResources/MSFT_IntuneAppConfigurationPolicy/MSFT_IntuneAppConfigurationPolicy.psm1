@@ -169,7 +169,7 @@ function Get-TargetResource
                             windowsAppId  = $currentValue.mobileAppIdentifier.AdditionalProperties.windowsAppId
                         }
                     }
-                    $complexAppsHash = @{}
+                    $complexAppsHash = [ordered]@{}
                     $complexAppsHash.Add('id', $currentValue.Id)
                     $complexAppsHash.Add('mobileAppIdentifier', $complexMobileAppIdentifier)
                     $complexAppsArray += $complexAppsHash

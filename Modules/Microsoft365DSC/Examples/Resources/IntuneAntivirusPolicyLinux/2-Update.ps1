@@ -34,22 +34,22 @@ Configuration Example
             exclusions                         = @(
                 MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions{
                     Exclusions_item_extension = '.vba' # Updated property
-                    Exclusions_item_type = '1'
+                    Exclusions_item_type = 'excludedFileExtension'
                 }
                 MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions{
                     Exclusions_item_name = 'process1'
-                    Exclusions_item_type = '2'
+                    Exclusions_item_type = 'excludedFileName'
                 }
             );
             RoleScopeTagIds                    = @("0");
             threatTypeSettings                 = @(
                 MSFT_MicrosoftGraphIntuneSettingsCatalogThreatTypeSettings{
-                    ThreatTypeSettings_item_key = '0'
-                    ThreatTypeSettings_item_value = '0'
+                    ThreatTypeSettings_item_key = 'potentially_unwanted_application'
+                    ThreatTypeSettings_item_value = 'audit'
                 }
                 MSFT_MicrosoftGraphIntuneSettingsCatalogThreatTypeSettings{
-                    ThreatTypeSettings_item_key = '1'
-                    ThreatTypeSettings_item_value = '1'
+                    ThreatTypeSettings_item_key = 'archive_bomb'
+                    ThreatTypeSettings_item_value = 'block'
                 }
             );
             unmonitoredFilesystems             = @("Filesystem 1");

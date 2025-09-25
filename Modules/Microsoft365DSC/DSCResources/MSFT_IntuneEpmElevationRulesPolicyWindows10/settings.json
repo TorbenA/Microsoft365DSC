@@ -1,0 +1,50 @@
+{
+  "resourceName": "IntuneEpmElevationRulesPolicyWindows10",
+  "description": "This resource configures an Intune Epm Elevation Rules Policy for Windows10.",
+  "permissions": {
+    "graph": {
+      "application": {
+        "update": [
+          {
+            "name": "DeviceManagementConfiguration.ReadWrite.All"
+          },
+          {
+            "name": "Group.Read.All"
+          }
+        ],
+        "read": [
+          {
+            "name": "DeviceManagementConfiguration.Read.All"
+          },
+          {
+            "name": "Group.Read.All"
+          }
+        ]
+      },
+      "delegated": {
+        "update": [
+          {
+            "name": "DeviceManagementConfiguration.ReadWrite.All"
+          },
+          {
+            "name": "Group.Read.All"
+          }
+        ],
+        "read": [
+          {
+            "name": "DeviceManagementConfiguration.Read.All"
+          },
+          {
+            "name": "Group.Read.All"
+          }
+        ]
+      }
+    }
+  },
+  "requiredModules": [
+    "Microsoft.Graph.Authentication",
+    "Microsoft.Graph.Beta.DeviceManagement",
+    "Microsoft.Graph.Groups"
+  ],
+  "mode": "Configuration"
+}

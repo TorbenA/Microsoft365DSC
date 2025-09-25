@@ -202,7 +202,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Device Configuration Shared Multi Device Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found."
 
         #region resource generator code
-        $complexAccountManagerPolicy = @{}
+        $complexAccountManagerPolicy = [ordered]@{}
         if ($null -ne $getValue.AdditionalProperties.accountManagerPolicy.accountDeletionPolicy)
         {
             $complexAccountManagerPolicy.Add('AccountDeletionPolicy', $getValue.AdditionalProperties.accountManagerPolicy.accountDeletionPolicy.ToString())
@@ -220,7 +220,7 @@ function Get-TargetResource
         $enumAllowedAccounts = @()
         if ($null -ne $getValue.AdditionalProperties.allowedAccounts)
         {
-            $allowedAccounts = $getValue.AdditionalProperties.allowedAccounts.ToString().split(',')
+            $allowedAccounts = $getValue.AdditionalProperties.allowedAccounts.ToString().Split(',')
             foreach ($allowedAccount in $allowedAccounts)
             {
                 $enumAllowedAccounts += $allowedAccount

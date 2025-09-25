@@ -24,7 +24,7 @@ function Get-TargetResource
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
-        $LocalUserGroupCollection,
+        $AccessGroup,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -123,8 +123,7 @@ function Get-TargetResource
             $policy = Get-MgBetaDeviceManagementConfigurationPolicy -DeviceManagementConfigurationPolicyId $Script:exportedInstance.Id -ExpandProperty settings
         }
 
-
-        #Retrieve policy specific settings
+        # Retrieve policy specific settings
         $Identity = $policy.Id
         [array]$settings = $policy.settings
 
@@ -134,40 +133,32 @@ function Get-TargetResource
         $returnHashtable.Add('Description', $policy.Description)
         $returnHashtable.Add('RoleScopeTagIds', $policy.RoleScopeTagIds)
 
-        $groupCollections = @()
-        foreach ($setting in $settings)
+        [array]$settings = Get-MgBetaDeviceManagementConfigurationPolicySetting `
+            -DeviceManagementConfigurationPolicyId $Identity `
+            -ExpandProperty 'settingDefinitions' `
+            -ErrorAction Stop
+        $returnHashtable = Export-IntuneSettingCatalogPolicySettings -Settings $settings -ReturnHashtable $returnHashtable
+
+        foreach ($group in $returnHashtable.AccessGroup)
         {
-            foreach ($group in $setting.settingInstance.AdditionalProperties.groupSettingCollectionValue)
+            for ($i = 0; $i -lt $group.desc.Count; $i++)
             {
-                $groupSettings = $group.children[0].groupSettingCollectionValue.children
-                $newGroupCollection = @{}
-                $userSelectionType = $groupSettings | Where-Object -FilterScript { $_.settingDefinitionId -like '*_userselectiontype*' }
-                $newGroupCollection.Add('UserSelectionType', $userSelectionType.choiceSettingValue.value.Split('_')[-1])
-
-                $members = @()
-                foreach ($member in $userSelectionType.choiceSettingValue.children[0].simpleSettingCollectionValue)
+                $member = $group.desc[$i]
+                switch ($member)
                 {
-                    $members += $member.value
+                    "S-1-5-32-544" { $member = "administrators" }
+                    "S-1-5-32-545" { $member = "users" }
+                    "S-1-5-32-546" { $member = "guests" }
+                    "S-1-5-32-547" { $member = "powerusers" }
+                    "S-1-5-32-555" { $member = "remotedesktopusers" }
+                    "S-1-5-32-580" { $member = "RemoteManagementUsers" }
                 }
-                $newGroupCollection.Add('Members', $members)
-
-                $action = $groupSettings | Where-Object -FilterScript { $_.settingDefinitionId -like '*_action*' }
-                $newGroupCollection.Add('Action', $($action.choiceSettingValue.value.Split('_')[-2, -1] -join '_'))
-
-                $newLocalGroups = @()
-                $localGroups = $groupSettings | Where-Object -FilterScript { $_.settingDefinitionId -like '*_desc*' }
-                foreach ($localGroup in $localGroups.choiceSettingCollectionValue)
-                {
-                    $newLocalGroups += $localGroup.value.Split('_')[-1]
-                }
-                $newGroupCollection.Add('LocalGroups', $newLocalGroups)
-                $groupCollections += $newGroupCollection
+                $group.desc[$i] = $member
             }
         }
 
         Write-Verbose -Message "Found Account Protection Local User Group Membership Policy {$DisplayName}"
 
-        $returnHashtable.Add('LocalUserGroupCollection', $groupCollections)
         $returnHashtable.Add('Ensure', 'Present')
         $returnHashtable.Add('Credential', $Credential)
         $returnHashtable.Add('ApplicationId', $ApplicationId)
@@ -235,7 +226,7 @@ function Set-TargetResource
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
-        $LocalUserGroupCollection,
+        $AccessGroup,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -291,9 +282,28 @@ function Set-TargetResource
 
     $currentPolicy = Get-TargetResource @PSBoundParameters
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+
     $templateReferenceId = '22968f54-45fa-486c-848e-f8224aa69772_1'
     $platforms = 'windows10'
     $technologies = 'mdm'
+
+    foreach ($group in $boundParameters.AccessGroup)
+    {
+        for ($i = 0; $i -lt $group.desc.Count; $i++)
+        {
+            $member = $group.desc[$i]
+            switch ($member)
+            {
+                "administrators" { $member = "S-1-5-32-544" }
+                "users" { $member = "S-1-5-32-545" }
+                "guests" { $member = "S-1-5-32-546" }
+                "powerusers" { $member = "S-1-5-32-547" }
+                "remotedesktopusers" { $member = "S-1-5-32-555" }
+                "RemoteManagementUsers" { $member = "S-1-5-32-580" }
+            }
+            $group.desc[$i] = $member
+        }
+    }
 
     if ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Absent')
     {
@@ -387,7 +397,7 @@ function Test-TargetResource
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
-        $LocalUserGroupCollection,
+        $AccessGroup,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -426,6 +436,7 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -577,17 +588,17 @@ function Export-TargetResource
             $Script:exportedInstance = $policy
             $Results = Get-TargetResource @params
 
-            if ($Results.LocalUserGroupCollection)
+            if ($Results.AccessGroup)
             {
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString -ComplexObject ([Array]$Results.LocalUserGroupCollection) -CIMInstanceName IntuneAccountProtectionLocalUserGroupCollection
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString -ComplexObject ([Array]$Results.AccessGroup) -CIMInstanceName MicrosoftGraphIntuneSettingsCatalogAccessGroup
 
                 if ($complexTypeStringResult)
                 {
-                    $Results.LocalUserGroupCollection = $complexTypeStringResult
+                    $Results.AccessGroup = $complexTypeStringResult
                 }
                 else
                 {
-                    $Results.Remove('LocalUserGroupCollection') | Out-Null
+                    $Results.Remove('AccessGroup') | Out-Null
                 }
             }
 
@@ -610,7 +621,7 @@ function Export-TargetResource
                 -ModulePath $PSScriptRoot `
                 -Results $Results `
                 -Credential $Credential `
-                -NoEscape @('LocalUserGroupCollection', 'Assignments')
+                -NoEscape @('AccessGroup', 'Assignments')
 
             $dscContent += $currentDSCBlock
             Save-M365DSCPartialExport -Content $currentDSCBlock `

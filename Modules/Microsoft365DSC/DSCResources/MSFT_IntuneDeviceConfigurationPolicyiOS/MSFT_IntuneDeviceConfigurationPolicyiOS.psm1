@@ -1122,7 +1122,7 @@ function Get-TargetResource
         )
         foreach ($country in $ratingCountries)
         {
-            $complexMediaContentRating = @{}
+            $complexMediaContentRating = [ordered]@{}
             $currentValue = $getValue.AdditionalProperties."mediaContentRating$country"
             if ($null -ne $currentValue)
             {
