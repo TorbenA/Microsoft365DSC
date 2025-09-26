@@ -2653,6 +2653,11 @@ function Get-IntuneSettingCatalogPolicySetting
         {
             $settingValueType = $settingValueType.Replace('ValueTemplate', 'Value')
         }
+        if ([System.String]::IsNullOrEmpty($settingValueType) -and $settingValueName -eq 'choiceSettingValue')
+        {
+            # Special case for ChoiceSettingValue which does not have a ValueTemplate property
+            $settingValueType = '#microsoft.graph.deviceManagementConfigurationChoiceSettingValue'
+        }
 
         $settingValueTemplateId = $settingInstanceTemplate.AdditionalProperties."$($settingValueName)Template".settingValueTemplateId
 
@@ -3176,7 +3181,7 @@ function Get-IntuneSettingCatalogPolicySettingDSCValue
     }
     elseif ($SettingValueType -like "*ChoiceSetting*" -and $SettingValueType -notlike "*Collection*")
     {
-        $settingValue = ($SettingDefinition.AdditionalProperties.options | Where-Object { $_.optionValue.value -eq "$($DSCParams[$key])" }).itemId
+        $settingValue = ($SettingDefinition.AdditionalProperties.options | Where-Object { $_.optionValue.value -eq $($DSCParams[$key]) }).itemId
         if ([System.String]::IsNullOrEmpty($settingValue))
         {
             $settingValue = ($SettingDefinition.AdditionalProperties.options | Where-Object { $_.itemId -eq "$($SettingDefinition.Id)_$($DSCParams[$key])" }).itemId

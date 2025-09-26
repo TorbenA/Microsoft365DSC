@@ -172,12 +172,14 @@
   * Fixed an issue where group filtering would not find the specified groups.
   * Fixed an issue where 0 requests passed to `Invoke-M365DSCGraphBatchRequests` would fail.
     FIXES [#6521](https://github.com/microsoft/Microsoft365DSC/issues/6521)
-* DEPENDENCIES
-  * Updated MSCloudLoginAssistant to version 1.1.51.
+  * Fixed an issue with applying Intune Settings Catalog policies.
+* M365DSCUtil
   * Added parameter `-Parallel` to `Export-M365DSCConfiguration`.
   * Renamed function `Get-M365DSCWorkloadsListFromResourceNames` to `Get-M365DSCConnectedWorkloadList`.
   * Added function `Get-M365DSCWorkloadForResource` to look up the workload of a resource.
   * Added function `Get-M365DSCResourcesByExportMode` to determine which resources belong to an export mode.
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.51.
 
 # 1.25.910.1
 
