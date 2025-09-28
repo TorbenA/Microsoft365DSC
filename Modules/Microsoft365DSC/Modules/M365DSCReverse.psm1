@@ -55,10 +55,6 @@ function Start-M365DSCConfigurationExtract
         $GenerateInfo = $false,
 
         [Parameter()]
-        [System.Collections.Hashtable]
-        $Filters,
-
-        [Parameter()]
         [System.String]
         $ApplicationId,
 

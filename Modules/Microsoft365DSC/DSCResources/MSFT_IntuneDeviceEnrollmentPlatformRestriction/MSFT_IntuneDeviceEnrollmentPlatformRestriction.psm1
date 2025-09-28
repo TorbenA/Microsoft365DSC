@@ -867,7 +867,7 @@ function Get-DevicePlatformRestrictionSetting
 
     if ($null -ne $Properties.platformType)
     {
-        $keyName = ($Properties.platformType).Substring(0, 1).ToUpper() + ($Properties.platformType).Substring(1, $Properties.platformType.length - 1) + 'Restriction'
+        $keyName = ($Properties.platformType).Substring(0, 1).ToUpper() + ($Properties.platformType).Substring(1, $Properties.platformType.Length - 1) + 'Restriction'
         $keyValue = $Properties.platformRestriction.Clone()
         $hash = @{}
         foreach ($key in $keyValue.Keys)
@@ -878,7 +878,7 @@ function Get-DevicePlatformRestrictionSetting
                 {
                     '*[[\]]'
                     {
-                        if ($keyValue.$key.count -gt 0)
+                        if ($keyValue.$key.Count -gt 0)
                         {
                             $hash.Add($key, $keyValue.$key)
                         }
@@ -917,7 +917,7 @@ function Get-DevicePlatformRestrictionSetting
                     {
                         '*[[\]]'
                         {
-                            if ($keyValue.$key.count -gt 0)
+                            if ($keyValue.$key.Count -gt 0)
                             {
                                 $hash.Add($key, $keyValue.$key)
                             }

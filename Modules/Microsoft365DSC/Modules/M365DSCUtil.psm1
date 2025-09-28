@@ -516,18 +516,14 @@ function Test-M365DSCParameterState
         $Source = 'Generic',
 
         [Parameter(Position = 5)]
-        [System.String]
-        $Tenant,
-
-        [Parameter(Position = 6)]
         [System.Collections.Hashtable]
         $IncludedDrifts,
 
-        [Parameter(Position = 7)]
+        [Parameter(Position = 6)]
         [switch]
         $NoEventMessage,
 
-        [Parameter(Position = 8)]
+        [Parameter(Position = 7)]
         [switch]
         $NoDriftReset
     )
@@ -774,6 +770,7 @@ function Test-M365DSCParameterState
                                     }
                                     catch
                                     {
+                                        Write-Warning -Message "Could not replace line breaks in current value of property $fieldName"
                                     }
                                 }
                                 if (-not [string]::IsNullOrEmpty($DesiredValues.$fieldName))
@@ -784,6 +781,7 @@ function Test-M365DSCParameterState
                                     }
                                     catch
                                     {
+                                        Write-Warning -Message "Could not replace line breaks in desired value of property $fieldName"
                                     }
                                 }
 
@@ -1366,6 +1364,16 @@ function Test-M365DSCTargetResource
     return $testTargetResource
 }
 
+<#
+.DESCRIPTION
+    Sets the script scoped variable that holds all the M365DSC resources.
+
+.PARAMETER DscResourceDictionary
+    A dictionary containing all the M365DSC resources.
+
+.FUNCTIONALITY
+    Internal
+#>
 function Set-M365DSCAllResourcesDictionary {
     [CmdletBinding()]
     param(
@@ -1376,6 +1384,13 @@ function Set-M365DSCAllResourcesDictionary {
     $Script:AllM365DSCResources = $DscResourceDictionary
 }
 
+<#
+.DESCRIPTION
+    Retrieves the script scoped variable that holds all the M365DSC resources.
+
+.FUNCTIONALITY
+    Internal
+#>
 function Get-M365DSCAllResourcesDictionary {
     [CmdletBinding()]
     param()
@@ -5151,21 +5166,21 @@ function Get-M365DSCConfigurationConflict
     return $results
 }
 
-# TODO: Check if necessary to keep this function.
 <#
-.Description
-This function returns a hashtable with aligned to the parameter pattern of the given cmdlet.
+.DESCRIPTION
+    This function returns a hashtable with aligned to the parameter pattern of the given cmdlet.
 
-.Example
-$param = @{
-    Path = 'C:\Test'
-    DoesNotExist = '123'
-}
-Sync-M365DSCParameter -Command (Get-Command -Name Get-ChildItem) -Parameters $param
+.EXAMPLE
+    PS> $param = @{
+            Path = 'C:\Test'
+            DoesNotExist = '123'
+        }
+    PS> Sync-M365DSCParameter -Command (Get-Command -Name Get-ChildItem) -Parameters $param
 
-.Functionality
-Private
+.FUNCTIONALITY
+    Private
 #>
+# TODO: Check if necessary to keep this function.
 function Sync-M365DSCParameter
 {
     [Cmdletbinding()]
@@ -5351,9 +5366,6 @@ function Join-M365DSCConfiguration
 .DESCRIPTION
     Invokes a script-based DSC resource from a Windows PowerShell 5.1 session into a PowerShell Core session.
 
-.PARAMETER Name
-    The name of the resource to invoke.
-
 .PARAMETER Path
     The path to the module containing the resource.
 
@@ -5364,7 +5376,7 @@ function Join-M365DSCConfiguration
     The parameters to pass to the function.
 
 .EXAMPLE
-    Invoke-PowerShellCoreResource -Name Resource -Path 'C:\Program Files\...\DSCResources\MSFT_Resource\MSFT_Resource.psm1' -FunctionName Test -Parameters @{ Name = 'Value' }
+    Invoke-PowerShellCoreResource -Path 'C:\Program Files\...\DSCResources\MSFT_Resource\MSFT_Resource.psm1' -FunctionName Test -Parameters @{ Name = 'Value' }
 
 .FUNCTIONALITY
     Internal
@@ -5376,9 +5388,6 @@ function Invoke-PowerShellCoreResource
 {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)]
-        [string]$Name,
-
         [Parameter(Mandatory = $true)]
         [string]$Path,
 

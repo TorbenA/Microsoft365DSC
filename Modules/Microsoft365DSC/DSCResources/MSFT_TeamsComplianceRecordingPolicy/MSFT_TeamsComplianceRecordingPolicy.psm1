@@ -118,7 +118,7 @@ function Get-TargetResource
                 $MyComplianceRecordingApplications.Add('RequiredDuringCall', $CurrentComplianceRecordingApplications.RequiredDuringCall)
                 $MyComplianceRecordingApplications.Add('ConcurrentInvitationCount', $CurrentComplianceRecordingApplications.ConcurrentInvitationCount)
 
-                if ($MyComplianceRecordingApplications.values.Where({ $null -ne $_ }).count -gt 0)
+                if ($MyComplianceRecordingApplications.values.Where({ $null -ne $_ }).Count -gt 0)
                 {
                     $ComplexComplianceRecordingApplications += $MyComplianceRecordingApplications
                 }
@@ -237,7 +237,7 @@ function Set-TargetResource
         {
             if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.GetType().Name -like '*cimInstance*')
             {
-                $keyName = $key.substring(0, 1).ToLower() + $key.substring(1, $key.length - 1)
+                $keyName = $key.Substring(0, 1).ToLower() + $key.Substring(1, $key.Length - 1)
                 $keyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters.$key
                 $CreateParameters.Remove($key) | Out-Null
                 $CreateParameters.Add($keyName, $keyValue)
