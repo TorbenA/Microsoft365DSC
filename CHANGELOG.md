@@ -29,6 +29,8 @@
     FIXES [#6489](https://github.com/microsoft/Microsoft365DSC/issues/6489)
 * AADGroupEligiblitySchedule
   * Aligned date time format for `Expiration.EndDateTime` with `Expiration.StartDateTime`.
+  * [BREAKING CHANGE] Update AADGroupEligiblitySchedule align with AADRoleEligibilityScheduleRequest to allow User (UPN), Group (Group Name) as Principal
+  * Fixed issue where AADGroupEligiblitySchedule didn't correctly work with member and owner assignment types
 * EXOAtpPolicyForO365
   * [BREAKING CHANGE] Removed `Ensure` property.
 * EXOCalendarProcessing
