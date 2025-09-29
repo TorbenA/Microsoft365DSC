@@ -108,6 +108,8 @@
   * Added filter capability.
 * IntuneMobileAppsMicrosoftStoreAppWindows10
   * Initial release.
+* IntuneMobileAppsStoreApp
+  * Added support for `assignmentSettings` to the assignments.
 * IntuneMobileAppsWebLink
   * Fixed an issue where filtering was applied after fetching all apps.
 * IntuneMobileAppsWindowsOfficeSuiteApp
