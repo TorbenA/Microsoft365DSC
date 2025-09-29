@@ -40,6 +40,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Get-MgGroup -MockWith {
             }
 
+            Mock -CommandName Get-MgBetaGroup -MockWith {
+            }
+
             Mock -CommandName Restore-MgBetaDirectoryDeletedItem -MockWith {
             }
 
@@ -132,13 +135,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return 'Credentials'
                 }
 
-                Mock -CommandName Get-MgGroup -MockWith {
+                Mock -CommandName Get-MgBetaGroup -MockWith {
                     return $null
                 }
             }
+
             It 'Should return Values from the Get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Absent'
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
             }
             It 'Should return false from the Test method' {
                 Test-TargetResource @testParams | Should -Be $false
@@ -167,7 +171,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return 'Credentials'
                 }
 
-                Mock -CommandName Get-MgGroup -MockWith {
+                Mock -CommandName Get-MgBetaGroup -MockWith {
                     return @{
                         DisplayName = 'DSCGroup'
                         ID          = '12345-12345-12345-12345-12345'
@@ -177,7 +181,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return Values from the Get method' {
                 (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
             }
 
             It 'Should return false from the Test method' {
@@ -210,7 +214,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return 'Credentials'
                 }
 
-                Mock -CommandName Get-MgGroup -MockWith {
+                Mock -CommandName Get-MgBetaGroup -MockWith {
                     return @{
                         DisplayName     = 'DSCGroup'
                         ID              = '12345-12345-12345-12345-12345'
@@ -226,7 +230,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return Values from the Get method' {
                 Get-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
             }
 
             It 'Should return true from the Test method' {
@@ -253,7 +257,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return 'Credentials'
                 }
 
-                Mock -CommandName Get-MgGroup -ParameterFilter { $Id -eq '12345-12345-12345-12345-12345' -or $Filter -eq "DisplayName eq 'DSCGroup'" } -MockWith {
+                Mock -CommandName Get-MgBetaGroup -ParameterFilter { $Id -eq '12345-12345-12345-12345-12345' -or $Filter -eq "DisplayName eq 'DSCGroup'" } -MockWith {
                     return @{
                         DisplayName     = 'DSCGroup'
                         ID              = '12345-12345-12345-12345-12345'
@@ -277,7 +281,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         }
                     )
                 }
-                Mock -CommandName Get-MgGroup -ParameterFilter { $Id -eq '67890-67890-67890-67890' -or $Filter -eq "DisplayName -eq 'DSCMemberOfGroup'" } -MockWith {
+                Mock -CommandName Get-MgBetaGroup -ParameterFilter { $Id -eq '67890-67890-67890-67890' -or $Filter -eq "DisplayName -eq 'DSCMemberOfGroup'" } -MockWith {
                     $returnData = @{
                         DisplayName     = 'DSCMemberOfGroup'
                         ID              = '67890-67890-67890-67890'
@@ -295,7 +299,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return Values from the Get method' {
                 Get-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
                 Should -Invoke -CommandName 'Invoke-M365DSCGraphBatchRequest' -Exactly 1
             }
 
@@ -325,7 +329,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return 'Credentials'
                 }
 
-                Mock -CommandName Get-MgGroup -MockWith {
+                Mock -CommandName Get-MgBetaGroup -MockWith {
                     return @{
                         DisplayName        = 'DSCGroup'
                         ID                 = '12345-12345-12345-12345-12345'
@@ -355,7 +359,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return Values from the Get method' {
                 Get-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
                 Should -Invoke -CommandName 'Invoke-M365DSCGraphBatchRequest' -Exactly 1
             }
 
@@ -382,7 +386,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return 'Credentials'
                 }
 
-                Mock -CommandName Get-MgGroup -MockWith {
+                Mock -CommandName Get-MgBetaGroup -MockWith {
                     return @{
                         DisplayName     = 'DSCGroup'
                         Description     = 'Microsoft DSC' #Drift
@@ -398,7 +402,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return Values from the Get method' {
                 Get-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
             }
 
             It 'Should return false from the Test method' {
@@ -430,7 +434,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 Mock -CommandName New-M365DSCConnection -MockWith {
                     return 'Credentials'
                 }
-                Mock -CommandName Get-MgGroup -ParameterFilter { $Id -eq '12345-12345-12345-12345-12345' -or $Filter -eq "DisplayName eq 'DSCGroup'" } -MockWith {
+                Mock -CommandName Get-MgBetaGroup -ParameterFilter { $Id -eq '12345-12345-12345-12345-12345' -or $Filter -eq "DisplayName eq 'DSCGroup'" } -MockWith {
                     $returnData = @{
                         DisplayName     = 'DSCGroup'
                         ID              = '12345-12345-12345-12345-12345'
@@ -445,7 +449,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     $returnData.psobject.TypeNames.Insert(0, 'Group')
                     return $returnData
                 }
-                Mock -CommandName Get-MgGroup -ParameterFilter { $Id -eq '67890-67890-67890-67890' -or $Filter -eq "DisplayName -eq 'DSCMemberOfGroup'" } -MockWith {
+                Mock -CommandName Get-MgBetaGroup -ParameterFilter { $Id -eq '67890-67890-67890-67890' -or $Filter -eq "DisplayName -eq 'DSCMemberOfGroup'" } -MockWith {
                     $returnData = @{
                         DisplayName     = 'DSCMemberOfGroup'
                         ID              = '67890-67890-67890-67890'
@@ -463,7 +467,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return Values from the Get method' {
                 Get-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
             }
 
             It 'Should return false from the Test method' {
@@ -472,7 +476,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 2
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 2
             }
         }
 
@@ -496,7 +500,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return 'Credentials'
                 }
 
-                Mock -CommandName Get-MgGroup -MockWith {
+                Mock -CommandName Get-MgBetaGroup -MockWith {
                     return @{
                         DisplayName        = 'DSCGroupMember'
                         ID                 = '12345-12345-12345-12345-12345'
@@ -517,7 +521,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return Values from the Get method' {
                 Get-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
             }
 
             It 'Should return false from the Test method' {
@@ -526,7 +530,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 2
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 2
                 Should -Invoke -CommandName 'New-MgBetaGroupMemberByRef' -Exactly 1
             }
         }
@@ -552,7 +556,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return 'Credentials'
                 }
 
-                Mock -CommandName Get-MgGroup -MockWith {
+                Mock -CommandName Get-MgBetaGroup -MockWith {
                     return @{
                         DisplayName        = 'DSCGroup'
                         ID                 = '12345-12345-12345-12345-12345'
@@ -581,7 +585,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return Values from the Get method' {
                 Get-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
                 Should -Invoke -CommandName 'Invoke-M365DSCGraphBatchRequest' -Exactly 1
             }
 
@@ -591,7 +595,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
                 Should -Invoke -CommandName 'Get-MgBetaRoleManagementDirectoryRoleDefinition' -Exactly 1
                 Should -Invoke -CommandName 'Remove-MgBetaRoleManagementDirectoryRoleAssignment' -Exactly 1
             }
@@ -621,7 +625,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return 'Credentials'
                 }
 
-                Mock -CommandName Get-MgGroup -MockWith {
+                Mock -CommandName Get-MgBetaGroup -MockWith {
                 }
 
                 Mock -CommandName Get-MgBetaSubscribedSku -MockWith {
@@ -640,7 +644,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return Values from the Get method' {
                 Get-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
             }
 
             It 'Should return false from the Test method' {
@@ -678,7 +682,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return 'Credentials'
                 }
 
-                Mock -CommandName Get-MgGroup -MockWith {
+                Mock -CommandName Get-MgBetaGroup -MockWith {
                     return @{
                         DisplayName        = 'DSCGroup'
                         ID                 = '12345-12345-12345-12345-12345'
@@ -721,7 +725,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return Values from the Get method' {
                 Get-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
                 Should -Invoke -CommandName 'Invoke-M365DSCGraphBatchRequest' -Exactly 1
             }
 
@@ -754,7 +758,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return 'Credentials'
                 }
 
-                Mock -CommandName Get-MgGroup -MockWith {
+                Mock -CommandName Get-MgBetaGroup -MockWith {
                     return @{
                         DisplayName        = 'DSCGroup'
                         ID                 = '12345-12345-12345-12345-12345'
@@ -783,7 +787,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return Values from the Get method' {
                 Get-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
             }
 
             It 'Should return false from the Test method' {
@@ -792,7 +796,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
                 Should -Invoke -CommandName 'Set-MgGroupLicense' -Exactly 1
             }
         }
@@ -815,7 +819,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return 'Credentials'
                 }
 
-                Mock -CommandName Get-MgGroup -MockWith {
+                Mock -CommandName Get-MgBetaGroup -MockWith {
                     return @{
                         DisplayName        = 'DSCGroup'
                         ID                 = '12345-12345-12345-12345-12345'
@@ -858,7 +862,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return Values from the Get method' {
                 Get-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
                 Should -Invoke -CommandName 'Invoke-M365DSCGraphBatchRequest' -Exactly 1
             }
 
@@ -868,7 +872,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
                 Should -Invoke -CommandName 'Set-MgGroupLicense' -Exactly 1
             }
         }
@@ -891,7 +895,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return 'Credentials'
                 }
 
-                Mock -CommandName Get-MgGroup -MockWith {
+                Mock -CommandName Get-MgBetaGroup -MockWith {
                     return @{
                         DisplayName        = 'DSCGroup'
                         ID                 = '12345-12345-12345-12345-12345'
@@ -920,7 +924,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should return Values from the Get method' {
                 Get-TargetResource @testParams
-                Should -Invoke -CommandName 'Get-MgGroup' -Exactly 1
+                Should -Invoke -CommandName 'Get-MgBetaGroup' -Exactly 1
             }
 
             It 'Should return true from the Test method' {
@@ -940,7 +944,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return 'Credentials'
                 }
 
-                Mock -CommandName Get-MgGroup -MockWith {
+                Mock -CommandName Get-MgBetaGroup -MockWith {
                     return @{
                         DisplayName        = 'DSCGroup'
                         ID                 = '12345-12345-12345-12345-12345'
