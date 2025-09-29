@@ -4,7 +4,7 @@ on: [push]
 jobs:
   Integration-Global-AAD:
     # The type of runner that the job will run on
-    runs-on: M365DSC_Runner
+    runs-on: [self-hosted, windows, x64]
 
     permissions: write-all
 
