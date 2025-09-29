@@ -45,4 +45,5 @@ jobs:
       - name: Execute {Create} Integration Tests
         shell: powershell
         run: |
+            dir
             & .\Tests\Integration\Microsoft365DSC\M365DSCIntegration.AAD.Create.ps1 -ApplicationID ${{ secrets.RUNNERAPPLICATIONID }} -TenantId ${{ secrets.RUNNERTENANTID }} -CertificateThumbprint ${{ secrets.RUNNERCERTIFICATETHUMBPRINT }}
