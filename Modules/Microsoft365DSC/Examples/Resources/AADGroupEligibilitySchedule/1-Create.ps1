@@ -17,10 +17,13 @@ Configuration Example
         AADGroupEligibilitySchedule 'Example'
         {
             AccessId              = "member";
+            ApplicationId         = $ApplicationId
+            TenantId              = $TenantId
+            CertificateThumbprint = $CertificateThumbprint
             Ensure                = "Present";
-            GroupDisplayName      = "MyPIMGroup";
             MemberType            = "direct";
-            PrincipalDisplayname  = "MyPrincipalGroup";
+            GroupDisplayName      = "MyPIMGroup";
+            Principal             = "FakePrincipalGroup";
             PrincipalType         = "group";
             ScheduleInfo          = MSFT_MicrosoftGraphrequestSchedule{
                 StartDateTime = '2024-12-23T08:59:28.1200000+00:00'

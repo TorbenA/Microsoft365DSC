@@ -4,13 +4,12 @@
 
 | Parameter | Attribute | DataType | Description | Allowed Values |
 | --- | --- | --- | --- | --- |
-| **AccessId** | Write | String | The identifier of the membership or ownership eligibility to the group that is governed by PIM. Required. The possible values are: owner, member. Supports $filter (eq). | `owner`, `member`, `unknownFutureValue` |
+| **AccessId** | Key | String | The identifier of the membership or ownership eligibility to the group that is governed by PIM. Required. The possible values are: owner, member. Supports $filter (eq). | `owner`, `member`, `unknownFutureValue` |
 | **GroupId** | Write | String | The identifier of the group representing the scope of the membership or ownership eligibility through PIM for groups. Required. Supports $filter (eq). | |
 | **GroupDisplayName** | Key | String | Displayname of the group representing the scope of the membership or ownership eligibility through PIM for groups. | |
+| **Principal** | Key | String | "Displayname if the Principal is group, otherwise UserPrincipalName for user. | |
 | **MemberType** | Write | String | Indicates whether the assignment is derived from a group assignment. It can further imply whether the caller can manage the schedule. Required. The possible values are: direct, group, unknownFutureValue. Supports $filter (eq). | `direct`, `group`, `unknownFutureValue` |
-| **PrincipalId** | Write | String | The identifier of the principal whose membership or ownership eligibility is granted through PIM for groups. Required. Supports $filter (eq). | |
 | **PrincipalType** | Write | String | Principal type user or group | `user`, `group` |
-| **PrincipalDisplayName** | Write | String | Displayname of the Principal | |
 | **ScheduleInfo** | Write | MSFT_MicrosoftGraphrequestSchedule | Represents the period of the access assignment or eligibility. The scheduleInfo can represent a single occurrence or multiple recurring instances. Required. | |
 | **Id** | Write | String | The unique identifier for an entity. Read-only. | |
 | **Ensure** | Write | String | Present ensures the policy exists, absent ensures it is removed. | `Present`, `Absent` |

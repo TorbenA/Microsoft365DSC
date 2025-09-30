@@ -7,6 +7,8 @@
 * IntuneAppControlForBusinessPolicyWindows10
   * Initial release.
     FIXES [#4761](https://github.com/microsoft/Microsoft365DSC/issues/4761)
+* IntuneUserSettingsPolicyWindows365
+  * Initial release.
 
 # UNRELEASED
 
@@ -35,8 +37,12 @@
     FIXES [#6476](https://github.com/microsoft/Microsoft365DSC/issues/6476)
   * Fixed an issue where GroupAsMembers not being added during initial group creation.
     FIXES [#6489](https://github.com/microsoft/Microsoft365DSC/issues/6489)
+  * Fixed an issue where not all members were exported.
+    FIXES [#6545](https://github.com/microsoft/Microsoft365DSC/issues/6545)
 * AADGroupEligiblitySchedule
   * Aligned date time format for `Expiration.EndDateTime` with `Expiration.StartDateTime`.
+  * [BREAKING CHANGE] Update AADGroupEligiblitySchedule align with AADRoleEligibilityScheduleRequest to allow User (UPN), Group (Group Name) as Principal
+  * Fixed issue where AADGroupEligiblitySchedule didn't correctly work with member and owner assignment types
 * EXOAtpPolicyForO365
   * [BREAKING CHANGE] Removed `Ensure` property.
 * EXOCalendarProcessing
@@ -112,6 +118,8 @@
   * Added filter capability.
 * IntuneMobileAppsMicrosoftStoreAppWindows10
   * Initial release.
+* IntuneMobileAppsStoreApp
+  * Added support for `assignmentSettings` to the assignments.
 * IntuneMobileAppsWebLink
   * Fixed an issue where filtering was applied after fetching all apps.
 * IntuneMobileAppsWindowsOfficeSuiteApp
