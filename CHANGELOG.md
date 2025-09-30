@@ -2,8 +2,12 @@
 
 # 1.25.1001.1
 
+* AADAccessReviewDefinition
+  * [BREAKING CHANGE] Removed ID as the key and made DisplayName the new key.
 * AADAdministrativeUnit
   * Reduced export time by 20%.
+* AADAgreement
+  * Fixed creation and update issues by calling the APIs directly.
 * AADApplication
   * [BREAKING CHANGE] Removed deprecated parameters `AvailableToOtherTenants` and `RequireClientServicePrincipal`.
 * AADAppManagementPolicy
@@ -18,6 +22,8 @@
   * Initial release.
 * AADCustomSecurityAttributeDefinition
   * [BREAKING CHANGE] Restricted accepted values for `Status` to `Available` and `Deprecated`.
+* AADDomain
+  * Fixed an issue where updating an existing instance failed due to the isVerified parameter.
 * AADEnrichedAuditLogs
   * [BREAKING CHANGE] Removed deprecated resource.
 * AADGroup
@@ -42,7 +48,7 @@
 * EXOGroupSettings
   * Fixed an issue with the retrieval by DisplayName and duplicate Id property
     on update.
-  * [BREAKING] Renamed the UnifiedGroupWelcomeMessageEnabled parameter to
+  * [BREAKING CHANGE] Renamed the UnifiedGroupWelcomeMessageEnabled parameter to
     WelcomeMessageEnabled.
 * EXOIntraOrganizationConnector
   * Fix logic to allow empty string for TargetSharingEpr.
