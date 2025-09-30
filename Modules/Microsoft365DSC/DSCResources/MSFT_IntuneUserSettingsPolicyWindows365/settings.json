@@ -6,6 +6,9 @@
       "application": {
         "update": [
           {
+            "name": "CloudPC.ReadWrite.All"
+          },
+          {
             "name": "Group.Read.All"
           }
         ],
@@ -20,6 +23,9 @@
       },
       "delegated": {
         "update": [
+          {
+            "name": "CloudPC.ReadWrite.All"
+          },
           {
             "name": "Group.Read.All"
           }
