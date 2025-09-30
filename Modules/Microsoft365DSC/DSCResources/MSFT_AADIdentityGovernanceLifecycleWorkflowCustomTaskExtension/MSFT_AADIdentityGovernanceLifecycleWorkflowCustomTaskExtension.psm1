@@ -300,9 +300,13 @@ function Set-TargetResource
             foreach ($app in $CallbackConfiguration.AuthorizedApps)
             {
                 $appInfo = Get-MgApplication -Filter "DisplayName eq '$($app -replace "'", "''")'" -ErrorAction SilentlyContinue
+                $currentApp = @{
+                    "@odata.type" = "microsoft.graph.application"
+                }
                 if ($null -ne $appInfo)
                 {
-                    $appsValue += $appInfo.Id
+                    $currentApp.Add('id', $appInfo.Id)
+                    $appsValue += $currentApp
                 }
             }
             $instanceParams.callbackConfiguration.Add('authorizedApps', $appsValue)
