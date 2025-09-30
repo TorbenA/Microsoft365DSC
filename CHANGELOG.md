@@ -27,6 +27,8 @@
     FIXES [#6476](https://github.com/microsoft/Microsoft365DSC/issues/6476)
   * Fixed an issue where GroupAsMembers not being added during initial group creation.
     FIXES [#6489](https://github.com/microsoft/Microsoft365DSC/issues/6489)
+  * Fixed an issue where not all members were exported.
+    FIXES [#6545](https://github.com/microsoft/Microsoft365DSC/issues/6545)
 * AADGroupEligiblitySchedule
   * Aligned date time format for `Expiration.EndDateTime` with `Expiration.StartDateTime`.
   * [BREAKING CHANGE] Update AADGroupEligiblitySchedule align with AADRoleEligibilityScheduleRequest to allow User (UPN), Group (Group Name) as Principal
