@@ -484,6 +484,7 @@ function Set-TargetResource {
             }
         }
         #region resource generator code
+        Write-Verbose -Message "Creating the Azure AD Group Eligibility Schedule with parameters:`r`n$(ConvertTo-Json $createParameters -Depth 10)"
         New-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilityScheduleRequest -BodyParameter $createParameters
         #endregion
     }
@@ -536,7 +537,7 @@ function Set-TargetResource {
                         )
                     }
                 }
-                Write-Verbose -Message "Updating the expiration policy for the group {$GroupDisplayName}"
+                Write-Verbose -Message "Updating the expiration policy for the group {$GroupDisplayName} with:`r`n$(ConvertTo-Json $params -Depth 10)"
                 Update-MgBetaPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $unifiedRoleManagementPolicyId -UnifiedRoleManagementPolicyRuleId $unifiedRoleManagementPolicyRuleId -BodyParameter $params
             }
         }
