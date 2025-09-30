@@ -30802,11 +30802,7 @@ function Get-MgBetaDeviceManagementVirtualEndpointUserSetting
 
         [Parameter()]
         [System.String]
-        $CountVariable,
-
-        [Parameter()]
-        [System.Management.Automation.ActionPreference]
-        $ProgressAction
+        $CountVariable
     )
 }
 
@@ -30900,10 +30896,6 @@ function New-MgBetaDeviceManagementVirtualEndpointUserSetting
         $ProxyUseDefaultCredentials,
 
         [Parameter()]
-        [System.Management.Automation.ActionPreference]
-        $ProgressAction,
-
-        [Parameter()]
         [System.Management.Automation.SwitchParameter]
         $Confirm
     )
@@ -30957,10 +30949,6 @@ function Remove-MgBetaDeviceManagementVirtualEndpointUserSetting
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
         $ProxyUseDefaultCredentials,
-
-        [Parameter()]
-        [System.Management.Automation.ActionPreference]
-        $ProgressAction,
 
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
@@ -31066,10 +31054,6 @@ function Update-MgBetaDeviceManagementVirtualEndpointUserSetting
         $ProxyUseDefaultCredentials,
 
         [Parameter()]
-        [System.Management.Automation.ActionPreference]
-        $ProgressAction,
-
-        [Parameter()]
         [System.Management.Automation.SwitchParameter]
         $Confirm
     )
@@ -31161,11 +31145,7 @@ function Get-MgBetaDeviceManagementVirtualEndpointUserSettingAssignment
 
         [Parameter()]
         [System.String]
-        $CountVariable,
-
-        [Parameter()]
-        [System.Management.Automation.ActionPreference]
-        $ProgressAction
+        $CountVariable
     )
 }
 
@@ -31233,10 +31213,6 @@ function New-MgBetaDeviceManagementVirtualEndpointUserSettingAssignment
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
         $ProxyUseDefaultCredentials,
-
-        [Parameter()]
-        [System.Management.Automation.ActionPreference]
-        $ProgressAction,
 
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
@@ -31383,6 +31359,91 @@ function Update-MgBetaDeviceManagementVirtualEndpointUserSettingAssignment
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
         $Confirm
+    )
+}
+function Get-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $CloudPcOnPremisesConnectionId,
+
+        [Parameter()]
+        [System.Collections.IDictionary]
+        $Headers,
+
+        [Parameter()]
+        [System.String[]]
+        $Property,
+
+        [Parameter()]
+        [PSObject]
+        $InputObject,
+
+        [Parameter()]
+        [System.Int32]
+        $PageSize,
+
+        [Parameter()]
+        [PSObject]
+        $HttpPipelinePrepend,
+
+        [Parameter()]
+        [System.Int32]
+        $Skip,
+
+        [Parameter()]
+        [System.Int32]
+        $Top,
+
+        [Parameter()]
+        [System.String]
+        $CountVariable,
+
+        [Parameter()]
+        [System.Uri]
+        $Proxy,
+
+        [Parameter()]
+        [System.String[]]
+        $Sort,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $All,
+
+        [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ProxyCredential,
+
+        [Parameter()]
+        [System.String]
+        $Search,
+
+        [Parameter()]
+        [System.String]
+        $ResponseHeadersVariable,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Break,
+
+        [Parameter()]
+        [System.String[]]
+        $ExpandProperty,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ProxyUseDefaultCredentials,
+
+        [Parameter()]
+        [PSObject]
+        $HttpPipelineAppend
     )
 }
 #endregion
