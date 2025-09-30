@@ -2,6 +2,11 @@
 
 # UNRELEASED
 
+* IntuneAppCategory
+  * Added missing authentication properties in examples.
+* IntuneAppControlForBusinessPolicyWindows10
+  * Initial release.
+    FIXES [#4761](https://github.com/microsoft/Microsoft365DSC/issues/4761)
 * IntuneUserSettingsPolicyWindows365
   * Initial release.
 
