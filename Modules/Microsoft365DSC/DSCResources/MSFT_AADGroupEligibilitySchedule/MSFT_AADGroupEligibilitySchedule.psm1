@@ -846,7 +846,7 @@ function Export-TargetResource {
         foreach ($group in $Script:exportedGroups)
         {
             Write-Verbose "Processing Group $($group.DisplayName), Id $($group.id)"
-            Write-M365DSCHost -Message "    |---[$j/$($Script:exportedGroup.Length)] $($group.DisplayName)" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$j/$($Script:exportedGroups.Length)] $($group.DisplayName)" -DeferWrite
             #region resource generator code
             $getValue = ($batchResponses | Where-Object { $_.id -eq $group.Id }).body.value
             Write-Verbose "GetValue set for schedule Id $($getValue.Id)"
