@@ -9,7 +9,8 @@
 * AADAgreement
   * Fixed creation and update issues by calling the APIs directly.
 * AADApplication
-  * [BREAKING CHANGE] Removed deprecated parameters `AvailableToOtherTenants` and `RequireClientServicePrincipal`.
+  * [BREAKING CHANGE] Removed deprecated parameters `AvailableToOtherTenants`
+    and `RequireClientServicePrincipal`.
 * AADAppManagementPolicy
   * Updated `RestrictForAppsCreatedAfterDateTime` to "o" format.
 * AADAuthenticationMethodPolicy
@@ -21,9 +22,11 @@
 * AADCrossTenantIdentitySyncPolicyPartner
   * Initial release.
 * AADCustomSecurityAttributeDefinition
-  * [BREAKING CHANGE] Restricted accepted values for `Status` to `Available` and `Deprecated`.
+  * [BREAKING CHANGE] Restricted accepted values for `Status` to `Available` and
+    `Deprecated`.
 * AADDomain
-  * Fixed an issue where updating an existing instance failed due to the isVerified parameter.
+  * Fixed an issue where updating an existing instance failed due to the
+    isVerified parameter.
 * AADEnrichedAuditLogs
   * [BREAKING CHANGE] Removed deprecated resource.
 * AADGroup
@@ -37,8 +40,11 @@
     FIXES [#6545](https://github.com/microsoft/Microsoft365DSC/issues/6545)
 * AADGroupEligiblitySchedule
   * Aligned date time format for `Expiration.EndDateTime` with `Expiration.StartDateTime`.
-  * [BREAKING CHANGE] Update AADGroupEligiblitySchedule align with AADRoleEligibilityScheduleRequest to allow User (UPN), Group (Group Name) as Principal
-  * Fixed issue where AADGroupEligiblitySchedule didn't correctly work with member and owner assignment types
+  * [BREAKING CHANGE] Update AADGroupEligiblitySchedule align with
+    AADRoleEligibilityScheduleRequest to allow User (UPN), Group (Group Name) as
+    Principal
+  * Fixed issue where AADGroupEligiblitySchedule didn't correctly work with
+    member and owner assignment types
 * EXOAtpPolicyForO365
   * [BREAKING CHANGE] Removed `Ensure` property.
 * EXOCalendarProcessing
@@ -56,7 +62,8 @@
   * Fix logic to allow empty string for TargetSharingEpr.
 * EXOHostedContentFilterPolicy
   * [BREAKING CHANGE] Remove deprecated properties `DownloadLink`, `EnableEndUserSpamNotifications`,
-    `EndUserSpamNotificationCustomSubject`, `EndUserSpamNotificationFrequency` and `EndUserSpamNotificationLanguage`.
+    `EndUserSpamNotificationCustomSubject`, `EndUserSpamNotificationFrequency`
+    and `EndUserSpamNotificationLanguage`.
     FIXES [#4958](https://github.com/microsoft/Microsoft365DSC/issues/4958)
 * EXOMailboxAutoReplyConfiguration
   * Added conditional user lookup.
@@ -69,15 +76,18 @@
 * EXOMailboxSettings
   * Added caching for export.
 * EXOMobileDeviceMailboxPolicy
-  * [BREAKING CHANGE] Updated properties `MinPasswordComplexCharacters` and `PasswordHistory` to integer types.
+  * [BREAKING CHANGE] Updated properties `MinPasswordComplexCharacters` and
+    `PasswordHistory` to integer types.
     FIXES [#6022](https://github.com/microsoft/Microsoft365DSC/issues/6022)
 * EXORecipientPermission
   * Added additional caching for export.
 * EXOSafeAttachmentPolicy
   * [BREAKING CHANGE] Removed deprecated parameter `ActionOnError`.
 * EXOTransportRule
-  * [BREAKING CHANGE] Removed deprecated parameters `ExceptIfHasSenderOverride`, `MessageContainsDataClassifications`,
-    `ExceptIfMessageContainsDataClassifications`, `HasSenderOverride`, `NotifySender`, `ApplyOME` and `RemoveOME`.
+  * [BREAKING CHANGE] Removed deprecated parameters `ExceptIfHasSenderOverride`,
+    `MessageContainsDataClassifications`,
+    `ExceptIfMessageContainsDataClassifications`, `HasSenderOverride`,
+    `NotifySender`, `ApplyOME` and `RemoveOME`.
 * IntuneAccountProtectionPolicy
   * [BREAKING CHANGE] Removed deprecated resource.
 * IntuneAccountProtectionLocalUserGroupMembershipPolicy
@@ -105,11 +115,14 @@
 * IntuneDeviceCleanupRule
   * [BREAKING CHANGE] Removed resource. It was replaced with `IntuneDeviceCleanupRuleV2`.
 * IntuneDeviceCompliancePolicyAndroid
-  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+  * [BREAKING CHANGE] Removed resource because the configuration type is not
+    supported anymore.
 * IntuneDeviceConfigurationPolicyAndroidDeviceAdministrator
-  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+  * [BREAKING CHANGE] Removed resource because the configuration type is not
+    supported anymore.
 * IntuneDeviceRemediation
-  * [BREAKING CHANGE] Made Id optional and enabled creation of remediation scripts using DisplayName only.
+  * [BREAKING CHANGE] Made Id optional and enabled creation of remediation
+    scripts using DisplayName only.
     FIXES [#6445](https://github.com/microsoft/Microsoft365DSC/issues/6445)
 * IntuneEpmElevationRulesPolicyWindows10
   * Initial release.
@@ -129,18 +142,23 @@
 * IntuneRoleAssignment
   * Fixed an issue where deleted groups would throw an error during export.
 * IntuneTrustedRootCertificateAndroidEnterprise
-  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+  * [BREAKING CHANGE] Removed resource because the configuration type is not
+    supported anymore.
 * IntuneUserSettingsPolicyWindows365
   * Initial release.
 * IntuneVPNConfigurationPolicyAndroidEnterprise
-  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+  * [BREAKING CHANGE] Removed resource because the configuration type is not
+    supported anymore.
 * IntuneWifiConfigurationPolicyAndroidDeviceAdministrator
-  * [BREAKING CHANGE] Removed resource because the configuration type is not supported anymore.
+  * [BREAKING CHANGE] Removed resource because the configuration type is not
+    supported anymore.
 * IntuneWifiConfigurationPolicyAndroidForWork
   * [BREAKING CHANGE] Removed resource because it's not supported anymore.
-    Instead, use the `IntuneWifiConfigurationPolicyAndroidEnterpriseWorkProfile` resource.
+    Instead, use the `IntuneWifiConfigurationPolicyAndroidEnterpriseWorkProfile`
+    resource.
 * O365AdminAuditLogConfig
-  * [BREAKING CHANGE] Removed `Ensure` parameter because it is a single instance object.
+  * [BREAKING CHANGE] Removed `Ensure` parameter because it is a single instance
+    object.
 * O365OrgSettings
   * [BREAKING CHANGE] Removed deprecated parameter `MicrosoftVivaBriefingEmail`.
 * ODSettings
@@ -168,7 +186,8 @@
   * [BREAKING CHANGE] Removed deprecated parameter `OptimizeDeviceDialing` and `ExternalAccessPrefix`.
 * MISC
   * Added ordering to hashtables.
-  * [BREAKING CHANGE] Changed multiple property values and types in Intune resources. Refer to the
+  * [BREAKING CHANGE] Changed multiple property values and types in Intune resources.
+    Refer to the
     breaking change blog post for more information about the affected resources.
   * Added performance improvements to speed up resource processing.
   * Code cleanup across all Intune resources.
@@ -183,20 +202,24 @@
   * Streamlined test cases.
   * Updated most resource testing to use the new comparison function.
   * Updated required modules for Intune resources doing assignments to groups.
-  * [BREAKING CHANGE] Removed `SupportsScopeTags` property from all resources because it's read-only.
+  * [BREAKING CHANGE] Removed `SupportsScopeTags` property from all resources
+    because it's read-only.
   * Updated all resource settings files to include a `configuration` or `data` mode.
 * M365DSCDRGUtil
   * Changed the way how Settings Catalog properties are exported.
   * Fixed an issue where a null drift would throw an exception.
   * Fixed an issue where group filtering would not find the specified groups.
-  * Fixed an issue where 0 requests passed to `Invoke-M365DSCGraphBatchRequests` would fail.
+  * Fixed an issue where 0 requests passed to `Invoke-M365DSCGraphBatchRequests`
+    would fail.
     FIXES [#6521](https://github.com/microsoft/Microsoft365DSC/issues/6521)
   * Fixed an issue with applying Intune Settings Catalog policies.
 * M365DSCUtil
   * Added parameter `-Parallel` to `Export-M365DSCConfiguration`.
   * Renamed function `Get-M365DSCWorkloadsListFromResourceNames` to `Get-M365DSCConnectedWorkloadList`.
-  * Added function `Get-M365DSCWorkloadForResource` to look up the workload of a resource.
-  * Added function `Get-M365DSCResourcesByExportMode` to determine which resources belong to an export mode.
+  * Added function `Get-M365DSCWorkloadForResource` to look up the workload of
+    a resource.
+  * Added function `Get-M365DSCResourcesByExportMode` to determine which
+    resources belong to an export mode.
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.51.
 
