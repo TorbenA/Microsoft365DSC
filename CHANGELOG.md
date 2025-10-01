@@ -83,9 +83,14 @@
 * IntuneAccountProtectionLocalUserGroupMembershipPolicy
   * [BREAKING CHANGE] Renamed properties to match their Settings Catalog counterpart.
     FIXES [#6342](https://github.com/microsoft/Microsoft365DSC/issues/6432)
+* IntuneAppCategory
+  * Added missing authentication properties in examples.
 * IntuneAppConfigurationPolicy
   * Fixed an issue with MOF instance parsing.
     FIXES [#6520](https://github.com/microsoft/Microsoft365DSC/issues/6520)
+* IntuneAppControlForBusinessPolicyWindows10
+  * Initial release.
+    FIXES [#4761](https://github.com/microsoft/Microsoft365DSC/issues/4761)
 * IntuneAppProtectionPolicyAndroid
   * [BREAKING CHANGE] Combined `ExcludedGroups` with `Assignments`, updated
     time parameters to ISO8601 format, removed `IsAssigned` property.
