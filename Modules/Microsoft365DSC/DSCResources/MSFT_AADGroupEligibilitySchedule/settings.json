@@ -63,15 +63,16 @@
   "mode": "Configuration",
   "commands": [
     {
-      "module": "Microsoft.Graph.Users",
-      "cmdlets": [
-        "Get-MgUser"
-      ]
-    },
-    {
       "module": "Microsoft.Graph.Beta.DirectoryObjects",
       "cmdlets": [
         "Get-MgBetaDirectoryObjectById"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.Identity.Governance",
+      "cmdlets": [
+        "Get-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilitySchedule",
+        "New-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilityScheduleRequest"
       ]
     },
     {
@@ -89,10 +90,9 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Beta.Identity.Governance",
+      "module": "Microsoft.Graph.Users",
       "cmdlets": [
-        "Get-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilitySchedule",
-        "New-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilityScheduleRequest"
+        "Get-MgUser"
       ]
     }
   ]

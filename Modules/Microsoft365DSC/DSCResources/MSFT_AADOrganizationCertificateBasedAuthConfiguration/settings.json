@@ -42,9 +42,9 @@
   "mode": "Configuration",
   "commands": [
     {
-      "module": "Microsoft.Graph.Beta.Identity.SignIns",
+      "module": "Microsoft.Graph.Authentication",
       "cmdlets": [
-        "Get-MgBetaOrganizationCertificateBasedAuthConfiguration"
+        "Invoke-MgGraphRequest"
       ]
     },
     {
@@ -54,9 +54,9 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Authentication",
+      "module": "Microsoft.Graph.Beta.Identity.SignIns",
       "cmdlets": [
-        "Invoke-MgGraphRequest"
+        "Get-MgBetaOrganizationCertificateBasedAuthConfiguration"
       ]
     }
   ]

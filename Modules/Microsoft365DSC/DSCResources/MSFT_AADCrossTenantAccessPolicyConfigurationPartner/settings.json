@@ -48,9 +48,12 @@
   "mode": "Configuration",
   "commands": [
     {
-      "module": "Microsoft.Graph.Users",
+      "module": "Microsoft.Graph.Beta.Identity.SignIns",
       "cmdlets": [
-        "Get-MgUser"
+        "Get-MgBetaPolicyCrossTenantAccessPolicyPartner",
+        "New-MgBetaPolicyCrossTenantAccessPolicyPartner",
+        "Remove-MgBetaPolicyCrossTenantAccessPolicyPartner",
+        "Update-MgBetaPolicyCrossTenantAccessPolicyPartner"
       ]
     },
     {
@@ -60,12 +63,9 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Beta.Identity.SignIns",
+      "module": "Microsoft.Graph.Users",
       "cmdlets": [
-        "Get-MgBetaPolicyCrossTenantAccessPolicyPartner",
-        "New-MgBetaPolicyCrossTenantAccessPolicyPartner",
-        "Remove-MgBetaPolicyCrossTenantAccessPolicyPartner",
-        "Update-MgBetaPolicyCrossTenantAccessPolicyPartner"
+        "Get-MgUser"
       ]
     }
   ]

@@ -64,16 +64,16 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Groups",
-      "cmdlets": [
-        "Get-MgGroup"
-      ]
-    },
-    {
       "module": "Microsoft.Graph.DeviceManagement.Administration",
       "cmdlets": [
         "Get-MgDeviceManagementRoleDefinition",
         "Get-MgDeviceManagementRoleDefinitionRoleAssignment"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
       ]
     }
   ]

@@ -88,9 +88,15 @@
   "mode": "Configuration",
   "commands": [
     {
-      "module": "Microsoft.Graph.Users",
+      "module": "Microsoft.Graph.Applications",
       "cmdlets": [
-        "Get-MgUser"
+        "Get-MgServicePrincipal"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
       ]
     },
     {
@@ -113,15 +119,9 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Applications",
+      "module": "Microsoft.Graph.Users",
       "cmdlets": [
-        "Get-MgServicePrincipal"
-      ]
-    },
-    {
-      "module": "Microsoft.Graph.Groups",
-      "cmdlets": [
-        "Get-MgGroup"
+        "Get-MgUser"
       ]
     }
   ]

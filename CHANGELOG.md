@@ -11,6 +11,7 @@
   * Initial release.
 * MISC
   * Improved function and cmdlet count for module import.
+    FIXES [#6544](https://github.com/microsoft/Microsoft365DSC/issues/6544)
 
 # UNRELEASED
 

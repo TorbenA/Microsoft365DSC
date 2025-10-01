@@ -32,13 +32,14 @@ if ($null -eq $Script:M365DSCDependencies)
     }
 
     Write-Verbose -Message "Processing config.json for global required modules"
+    $Script:M365DSCValidatedDependencies = [System.Collections.Generic.List[System.String]]::new($Script:M365DSCDependencies.Count)
     $globalRequiredModules = (Get-Content -Path "$PSScriptRoot/../config.json" | ConvertFrom-Json).requiredModules
     foreach ($entry in $commandToModuleMap.GetEnumerator())
     {
         $sortedFunctions = @($globalRequiredModules.$($entry.Key)) + @($entry.Value) | Sort-Object -Unique
         $Script:M365DSCDependencies[$entry.Key].Commands = $sortedFunctions
     }
-    $Script:M365DSCValidatedDependencies = [System.Collections.Generic.List[System.String]]::new($Script:M365DSCDependencies.Count)
+    $Script:M365DSCRequiredModules = @($globalRequiredModules.psobject.Properties.Name)
 }
 
 <#
@@ -1387,7 +1388,8 @@ function Test-M365DSCTargetResource
 .FUNCTIONALITY
     Internal
 #>
-function Set-M365DSCAllResourcesDictionary {
+function Set-M365DSCAllResourcesDictionary
+{
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
@@ -1404,7 +1406,8 @@ function Set-M365DSCAllResourcesDictionary {
 .FUNCTIONALITY
     Internal
 #>
-function Get-M365DSCAllResourcesDictionary {
+function Get-M365DSCAllResourcesDictionary
+{
     [CmdletBinding()]
     param()
 
@@ -1598,7 +1601,7 @@ function Export-M365DSCConfiguration
 
     $currentStartDateTime = [System.DateTime]::Now
     $Global:M365DSCExportInProgress = $true
-    #$Global:MaximumFunctionCount = 32767
+    $Global:MaximumFunctionCount = 32767
 
     # Define the exported resource instances' names Global variable
     $Global:M365DSCExportedResourceInstancesNames = @()
@@ -1962,7 +1965,7 @@ function Confirm-M365DSCModuleDependency
         $ModuleName
     )
 
-    #$Global:MaximumFunctionCount = 32767
+    $Global:MaximumFunctionCount = 32767
 
     if ($Global:IsTestEnvironment)
     {
@@ -2308,7 +2311,11 @@ function New-M365DSCConnection
         $SkipModuleReload = $false
     )
 
-    #$Global:MaximumFunctionCount = 32767
+    foreach ($requiredModule in $Script:M365DSCRequiredModules)
+    {
+        Write-Verbose -Message "Ensuring required module '$requiredModule' is loaded."
+        Confirm-M365DSCLoadedModule -ModuleName $requiredModule
+    }
 
     if ($Workload -eq 'MicrosoftTeams')
     {

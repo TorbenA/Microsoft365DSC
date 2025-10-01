@@ -56,19 +56,6 @@
   "mode": "Data",
   "commands": [
     {
-      "module": "Microsoft.Graph.Beta.Identity.DirectoryManagement",
-      "cmdlets": [
-        "Get-MgBetaDirectoryDeletedItemAsApplication",
-        "Restore-MgBetaDirectoryDeletedItem"
-      ]
-    },
-    {
-      "module": "Microsoft.Graph.Users",
-      "cmdlets": [
-        "Get-MgUser"
-      ]
-    },
-    {
       "module": "Microsoft.Graph.Applications",
       "cmdlets": [
         "Get-MgApplication",
@@ -81,6 +68,12 @@
       ]
     },
     {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
       "module": "Microsoft.Graph.Beta.Applications",
       "cmdlets": [
         "Get-MgBetaApplication",
@@ -89,9 +82,16 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Authentication",
+      "module": "Microsoft.Graph.Beta.Identity.DirectoryManagement",
       "cmdlets": [
-        "Invoke-MgGraphRequest"
+        "Get-MgBetaDirectoryDeletedItemAsApplication",
+        "Restore-MgBetaDirectoryDeletedItem"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Users",
+      "cmdlets": [
+        "Get-MgUser"
       ]
     }
   ]

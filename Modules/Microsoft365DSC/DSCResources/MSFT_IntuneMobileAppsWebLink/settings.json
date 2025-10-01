@@ -53,9 +53,9 @@
   "mode": "Data",
   "commands": [
     {
-      "module": "Microsoft.Graph.Groups",
+      "module": "Microsoft.Graph.Beta.DeviceManagement",
       "cmdlets": [
-        "Get-MgGroup"
+        "Get-MgBetaDeviceManagementAssignmentFilter"
       ]
     },
     {
@@ -63,9 +63,16 @@
       "cmdlets": [
         "Get-MgBetaDeviceAppManagementMobileApp",
         "Get-MgBetaDeviceAppManagementMobileAppAssignment",
+        "Get-MgBetaDeviceAppManagementMobileAppCategory",
         "New-MgBetaDeviceAppManagementMobileApp",
         "Remove-MgBetaDeviceAppManagementMobileApp",
         "Update-MgBetaDeviceAppManagementMobileApp"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
       ]
     }
   ]

@@ -79,9 +79,13 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Users",
+      "module": "Microsoft.Graph.Beta.Identity.SignIns",
       "cmdlets": [
-        "Get-MgUser"
+        "Get-MgBetaIdentityConditionalAccessAuthenticationContextClassReference",
+        "Get-MgBetaPolicyRoleManagementPolicy",
+        "Get-MgBetaPolicyRoleManagementPolicyAssignment",
+        "Get-MgBetaPolicyRoleManagementPolicyRule",
+        "Update-MgBetaPolicyRoleManagementPolicyRule"
       ]
     },
     {
@@ -91,13 +95,9 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Beta.Identity.SignIns",
+      "module": "Microsoft.Graph.Users",
       "cmdlets": [
-        "Get-MgBetaIdentityConditionalAccessAuthenticationContextClassReference",
-        "Get-MgBetaPolicyRoleManagementPolicy",
-        "Get-MgBetaPolicyRoleManagementPolicyAssignment",
-        "Get-MgBetaPolicyRoleManagementPolicyRule",
-        "Update-MgBetaPolicyRoleManagementPolicyRule"
+        "Get-MgUser"
       ]
     }
   ]

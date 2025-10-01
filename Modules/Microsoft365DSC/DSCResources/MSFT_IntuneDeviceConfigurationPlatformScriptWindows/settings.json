@@ -53,19 +53,20 @@
   "mode": "Configuration",
   "commands": [
     {
-      "module": "Microsoft.Graph.Groups",
-      "cmdlets": [
-        "Get-MgGroup"
-      ]
-    },
-    {
       "module": "Microsoft.Graph.Beta.DeviceManagement",
       "cmdlets": [
+        "Get-MgBetaDeviceManagementAssignmentFilter",
         "Get-MgBetaDeviceManagementScript",
         "Get-MgBetaDeviceManagementScriptAssignment",
         "New-MgBetaDeviceManagementScript",
         "Remove-MgBetaDeviceManagementScript",
         "Update-MgBetaDeviceManagementScript"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
       ]
     }
   ]

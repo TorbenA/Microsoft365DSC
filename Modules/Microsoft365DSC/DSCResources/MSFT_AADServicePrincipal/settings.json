@@ -73,12 +73,6 @@
   "mode": "Data",
   "commands": [
     {
-      "module": "Microsoft.Graph.Users",
-      "cmdlets": [
-        "Get-MgUser"
-      ]
-    },
-    {
       "module": "Microsoft.Graph.Applications",
       "cmdlets": [
         "Get-MgApplication",
@@ -95,15 +89,21 @@
       ]
     },
     {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
       "module": "Microsoft.Graph.Groups",
       "cmdlets": [
         "Get-MgGroup"
       ]
     },
     {
-      "module": "Microsoft.Graph.Authentication",
+      "module": "Microsoft.Graph.Users",
       "cmdlets": [
-        "Invoke-MgGraphRequest"
+        "Get-MgUser"
       ]
     }
   ]

@@ -50,9 +50,9 @@
   "mode": "Data",
   "commands": [
     {
-      "module": "Microsoft.Graph.Users",
+      "module": "Microsoft.Graph.Authentication",
       "cmdlets": [
-        "Get-MgUser"
+        "Invoke-MgGraphRequest"
       ]
     },
     {
@@ -68,9 +68,9 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Authentication",
+      "module": "Microsoft.Graph.Users",
       "cmdlets": [
-        "Invoke-MgGraphRequest"
+        "Get-MgUser"
       ]
     }
   ]

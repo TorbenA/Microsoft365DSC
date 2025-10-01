@@ -46,9 +46,9 @@
   "mode": "Configuration",
   "commands": [
     {
-      "module": "Microsoft.Graph.Users",
+      "module": "Microsoft.Graph.Applications",
       "cmdlets": [
-        "Get-MgUser"
+        "Get-MgServicePrincipal"
       ]
     },
     {
@@ -58,9 +58,11 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Applications",
+      "module": "Microsoft.Graph.Beta.Identity.Governance",
       "cmdlets": [
-        "Get-MgServicePrincipal"
+        "Get-MgBetaRoleManagementDirectoryRoleDefinition",
+        "Get-MgBetaRoleManagementDirectoryRoleEligibilitySchedule",
+        "New-MgBetaRoleManagementDirectoryRoleEligibilityScheduleRequest"
       ]
     },
     {
@@ -70,11 +72,9 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Beta.Identity.Governance",
+      "module": "Microsoft.Graph.Users",
       "cmdlets": [
-        "Get-MgBetaRoleManagementDirectoryRoleDefinition",
-        "Get-MgBetaRoleManagementDirectoryRoleEligibilitySchedule",
-        "New-MgBetaRoleManagementDirectoryRoleEligibilityScheduleRequest"
+        "Get-MgUser"
       ]
     }
   ]

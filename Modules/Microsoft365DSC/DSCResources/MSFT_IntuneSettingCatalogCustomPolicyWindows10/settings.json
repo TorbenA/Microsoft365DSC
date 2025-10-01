@@ -59,18 +59,19 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Groups",
-      "cmdlets": [
-        "Get-MgGroup"
-      ]
-    },
-    {
       "module": "Microsoft.Graph.Beta.DeviceManagement",
       "cmdlets": [
+        "Get-MgBetaDeviceManagementAssignmentFilter",
         "Get-MgBetaDeviceManagementConfigurationPolicy",
         "Get-MgBetaDeviceManagementConfigurationPolicyAssignment",
         "New-MgBetaDeviceManagementConfigurationPolicy",
         "Remove-MgBetaDeviceManagementConfigurationPolicy"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
       ]
     }
   ]

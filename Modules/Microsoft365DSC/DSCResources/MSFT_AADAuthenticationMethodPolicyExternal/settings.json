@@ -68,17 +68,17 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Groups",
-      "cmdlets": [
-        "Get-MgGroup"
-      ]
-    },
-    {
       "module": "Microsoft.Graph.Beta.Identity.SignIns",
       "cmdlets": [
         "New-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration",
         "Remove-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration",
         "Update-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
       ]
     }
   ]

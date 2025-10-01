@@ -48,17 +48,17 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Groups",
-      "cmdlets": [
-        "Get-MgGroup"
-      ]
-    },
-    {
       "module": "Microsoft.Graph.Beta.Identity.SignIns",
       "cmdlets": [
         "Get-MgBetaPolicyRoleManagementPolicyAssignment",
         "Get-MgBetaPolicyRoleManagementPolicyRule",
         "Update-MgBetaPolicyRoleManagementPolicyRule"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
       ]
     }
   ]

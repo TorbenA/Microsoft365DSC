@@ -70,12 +70,6 @@
   "mode": "Data",
   "commands": [
     {
-      "module": "Microsoft.Graph.Groups",
-      "cmdlets": [
-        "Get-MgGroup"
-      ]
-    },
-    {
       "module": "Microsoft.Graph.Beta.Teams",
       "cmdlets": [
         "Get-MgBetaTeam",
@@ -84,6 +78,12 @@
         "New-MgBetaTeamChannelTab",
         "Remove-MgBetaTeamChannelTab",
         "Update-MgBetaTeamChannelTab"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
       ]
     }
   ]

@@ -76,15 +76,10 @@
   "mode": "Configuration",
   "commands": [
     {
-      "module": "Microsoft.Graph.Users",
+      "module": "Microsoft.Graph.Beta.Identity.SignIns",
       "cmdlets": [
-        "Get-MgUser"
-      ]
-    },
-    {
-      "module": "Microsoft.Graph.Identity.SignIns",
-      "cmdlets": [
-        "Get-MgPolicyRoleManagementPolicyAssignment"
+        "Get-MgBetaIdentityConditionalAccessAuthenticationContextClassReference",
+        "Update-MgBetaPolicyRoleManagementPolicyRule"
       ]
     },
     {
@@ -94,10 +89,15 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Beta.Identity.SignIns",
+      "module": "Microsoft.Graph.Identity.SignIns",
       "cmdlets": [
-        "Get-MgBetaIdentityConditionalAccessAuthenticationContextClassReference",
-        "Update-MgBetaPolicyRoleManagementPolicyRule"
+        "Get-MgPolicyRoleManagementPolicyAssignment"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Users",
+      "cmdlets": [
+        "Get-MgUser"
       ]
     }
   ]

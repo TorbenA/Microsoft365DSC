@@ -57,6 +57,18 @@
   "mode": "Configuration",
   "commands": [
     {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.DirectoryObjects",
+      "cmdlets": [
+        "Get-MgBetaDirectoryObject"
+      ]
+    },
+    {
       "module": "Microsoft.Graph.Beta.Identity.Governance",
       "cmdlets": [
         "Get-MgBetaEntitlementManagementConnectedOrganization",
@@ -72,21 +84,9 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Beta.DirectoryObjects",
-      "cmdlets": [
-        "Get-MgBetaDirectoryObject"
-      ]
-    },
-    {
       "module": "Microsoft.Graph.Users",
       "cmdlets": [
         "Get-MgUser"
-      ]
-    },
-    {
-      "module": "Microsoft.Graph.Authentication",
-      "cmdlets": [
-        "Invoke-MgGraphRequest"
       ]
     }
   ]

@@ -126,9 +126,21 @@
   "mode": "Configuration",
   "commands": [
     {
-      "module": "Microsoft.Graph.Users",
+      "module": "Microsoft.Graph.Applications",
       "cmdlets": [
-        "Get-MgUser"
+        "Get-MgApplication"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.Identity.Governance",
+      "cmdlets": [
+        "Get-MgBetaAgreement"
       ]
     },
     {
@@ -148,27 +160,15 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Beta.Identity.Governance",
-      "cmdlets": [
-        "Get-MgBetaAgreement"
-      ]
-    },
-    {
-      "module": "Microsoft.Graph.Authentication",
-      "cmdlets": [
-        "Invoke-MgGraphRequest"
-      ]
-    },
-    {
-      "module": "Microsoft.Graph.Applications",
-      "cmdlets": [
-        "Get-MgApplication"
-      ]
-    },
-    {
       "module": "Microsoft.Graph.Identity.DirectoryManagement",
       "cmdlets": [
         "Get-MgDirectoryRoleTemplate"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Users",
+      "cmdlets": [
+        "Get-MgUser"
       ]
     }
   ]

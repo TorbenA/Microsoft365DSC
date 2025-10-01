@@ -53,9 +53,9 @@
   "mode": "Configuration",
   "commands": [
     {
-      "module": "Microsoft.Graph.Groups",
+      "module": "Microsoft.Graph.Beta.DeviceManagement",
       "cmdlets": [
-        "Get-MgGroup"
+        "Get-MgBetaDeviceManagementAssignmentFilter"
       ]
     },
     {
@@ -67,6 +67,12 @@
         "New-MgBetaDeviceAppManagementMobileAppConfiguration",
         "Remove-MgBetaDeviceAppManagementMobileAppConfiguration",
         "Update-MgBetaDeviceAppManagementMobileAppConfiguration"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
       ]
     }
   ]

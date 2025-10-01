@@ -57,6 +57,12 @@
       ]
     },
     {
+      "module": "Microsoft.Graph.Beta.DeviceManagement",
+      "cmdlets": [
+        "Get-MgBetaDeviceManagementAssignmentFilter"
+      ]
+    },
+    {
       "module": "Microsoft.Graph.Groups",
       "cmdlets": [
         "Get-MgGroup"

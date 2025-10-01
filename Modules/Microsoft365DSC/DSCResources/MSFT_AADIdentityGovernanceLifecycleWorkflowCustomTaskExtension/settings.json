@@ -44,18 +44,18 @@
   "mode": "Configuration",
   "commands": [
     {
+      "module": "Microsoft.Graph.Applications",
+      "cmdlets": [
+        "Get-MgApplication"
+      ]
+    },
+    {
       "module": "Microsoft.Graph.Beta.Identity.Governance",
       "cmdlets": [
         "Get-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension",
         "New-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension",
         "Remove-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension",
         "Update-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension"
-      ]
-    },
-    {
-      "module": "Microsoft.Graph.Applications",
-      "cmdlets": [
-        "Get-MgApplication"
       ]
     }
   ]

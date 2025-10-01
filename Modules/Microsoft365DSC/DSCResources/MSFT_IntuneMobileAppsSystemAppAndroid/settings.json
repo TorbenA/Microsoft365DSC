@@ -53,9 +53,15 @@
   "mode": "Data",
   "commands": [
     {
-      "module": "Microsoft.Graph.Groups",
+      "module": "Microsoft.Graph.Authentication",
       "cmdlets": [
-        "Get-MgGroup"
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.DeviceManagement",
+      "cmdlets": [
+        "Get-MgBetaDeviceManagementAssignmentFilter"
       ]
     },
     {
@@ -68,9 +74,9 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Authentication",
+      "module": "Microsoft.Graph.Groups",
       "cmdlets": [
-        "Invoke-MgGraphRequest"
+        "Get-MgGroup"
       ]
     }
   ]

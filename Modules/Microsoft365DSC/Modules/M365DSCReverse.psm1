@@ -657,6 +657,7 @@ function Start-M365DSCConfigurationExtract
         })
         $resourceDictionary = Get-M365DSCAllResourcesDictionary
         $exportScriptBlock = {
+            $Global:MaximumFunctionCount = 32768
             $Global:PartialExportFileName = $using:partialExportName
             $Global:M365DSCSkipDependenciesValidation = $true
             $resource = $_

@@ -52,9 +52,15 @@
   ],
   "commands": [
     {
-      "module": "Microsoft.Graph.Groups",
+      "module": "Microsoft.Graph.Authentication",
       "cmdlets": [
-        "Get-MgGroup"
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.DeviceManagement",
+      "cmdlets": [
+        "Get-MgBetaDeviceManagementAssignmentFilter"
       ]
     },
     {
@@ -62,13 +68,14 @@
       "cmdlets": [
         "Get-MgBetaDeviceAppManagementMobileApp",
         "Get-MgBetaDeviceAppManagementMobileAppAssignment",
+        "Get-MgBetaDeviceAppManagementMobileAppCategory",
         "Remove-MgBetaDeviceAppManagementMobileApp"
       ]
     },
     {
-      "module": "Microsoft.Graph.Authentication",
+      "module": "Microsoft.Graph.Groups",
       "cmdlets": [
-        "Invoke-MgGraphRequest"
+        "Get-MgGroup"
       ]
     }
   ]

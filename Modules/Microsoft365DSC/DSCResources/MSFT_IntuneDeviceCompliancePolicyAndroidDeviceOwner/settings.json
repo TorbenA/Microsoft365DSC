@@ -60,19 +60,20 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Groups",
-      "cmdlets": [
-        "Get-MgGroup"
-      ]
-    },
-    {
       "module": "Microsoft.Graph.Beta.DeviceManagement",
       "cmdlets": [
+        "Get-MgBetaDeviceManagementAssignmentFilter",
         "Get-MgBetaDeviceManagementDeviceCompliancePolicy",
         "Get-MgBetaDeviceManagementDeviceCompliancePolicyAssignment",
         "New-MgBetaDeviceManagementDeviceCompliancePolicy",
         "Remove-MgBetaDeviceManagementDeviceCompliancePolicy",
         "Update-MgBetaDeviceManagementDeviceCompliancePolicy"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
       ]
     }
   ]

@@ -60,14 +60,9 @@
       ]
     },
     {
-      "module": "Microsoft.Graph.Groups",
-      "cmdlets": [
-        "Get-MgGroup"
-      ]
-    },
-    {
       "module": "Microsoft.Graph.Beta.DeviceManagement",
       "cmdlets": [
+        "Get-MgBetaDeviceManagementAssignmentFilter",
         "Get-MgBetaDeviceManagementGroupPolicyConfiguration",
         "Get-MgBetaDeviceManagementGroupPolicyConfigurationAssignment",
         "Get-MgBetaDeviceManagementGroupPolicyConfigurationDefinitionValue",
@@ -76,6 +71,12 @@
         "New-MgBetaDeviceManagementGroupPolicyConfiguration",
         "Remove-MgBetaDeviceManagementGroupPolicyConfiguration",
         "Update-MgBetaDeviceManagementGroupPolicyConfiguration"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
       ]
     }
   ]
