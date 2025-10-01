@@ -50,5 +50,23 @@
     "Global",
     "USGov"
   ],
-  "mode": "Data"
+  "mode": "Data",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.Devices.CorporateManagement",
+      "cmdlets": [
+        "Get-MgBetaDeviceAppManagementMobileApp",
+        "Get-MgBetaDeviceAppManagementMobileAppAssignment",
+        "New-MgBetaDeviceAppManagementMobileApp",
+        "Remove-MgBetaDeviceAppManagementMobileApp",
+        "Update-MgBetaDeviceAppManagementMobileApp"
+      ]
+    }
+  ]
 }

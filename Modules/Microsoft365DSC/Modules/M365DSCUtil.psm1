@@ -15,15 +15,28 @@ if ($null -eq $Script:M365DSCDependencies)
         $Script:M365DSCDependencies.Add($dependency.ModuleName, $dependency)
     }
 
+    $commandToModuleMap = @{}
     $Script:M365DSCResourceSettings = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new([System.StringComparer]::OrdinalIgnoreCase)
     foreach ($file in (Get-ChildItem -Path "$PSScriptRoot/../DSCResources" -Filter 'settings.json' -Recurse)) {
         Write-Verbose -Message "Processing settings.json file at path: $($file.FullName)"
         $jsonContent = [System.IO.File]::ReadAllText($file.FullName) | ConvertFrom-Json
+        foreach ($commandMap in $jsonContent.commands) {
+            $commandToModuleMap[$commandMap.module] += @($commandMap.cmdlets)
+        }
         $directoryName = (Split-Path -Path $file.DirectoryName -Leaf).Replace('MSFT_', '')
         $Script:M365DSCResourceSettings.Add($directoryName, @{
             requiredModules = $jsonContent.requiredModules
+            commands = $jsonContent.commands
             mode = $jsonContent.mode
         })
+    }
+
+    Write-Verbose -Message "Processing config.json for global required modules"
+    $globalRequiredModules = (Get-Content -Path "$PSScriptRoot/../config.json" | ConvertFrom-Json).requiredModules
+    foreach ($entry in $commandToModuleMap.GetEnumerator())
+    {
+        $sortedFunctions = @($globalRequiredModules.$($entry.Key)) + @($entry.Value) | Sort-Object -Unique
+        $Script:M365DSCDependencies[$entry.Key].Commands = $sortedFunctions
     }
     $Script:M365DSCValidatedDependencies = [System.Collections.Generic.List[System.String]]::new($Script:M365DSCDependencies.Count)
 }
@@ -1531,30 +1544,15 @@ function Export-M365DSCConfiguration
         [Parameter(ParameterSetName = 'Export')]
         [ValidateScript({
             $invalid = $false
-            try
-            {
-                [System.Guid]::Parse($_) | Out-Null
-                $invalid = $true
-            }
-            catch
-            {
-                $invalid = $false
-            }
-            if ($invalid)
+            $parseGuid = [System.Guid]::Empty
+            if ([System.Guid]::TryParse($_, [ref]$parseGuid))
             {
                 throw "Please provide the tenant name (e.g., contoso.onmicrosoft.com) for TenantId instead of its GUID."
             }
-            else
+            $invalid = $_ -notmatch ".onmicrosoft."
+            if ($invalid)
             {
-                $invalid = $_ -notmatch ".onmicrosoft."
-                if (-not $invalid)
-                {
-                    return $true
-                }
-                else
-                {
-                    Write-Warning -Message "We recommend providing the TenantId property in the format of <tenant>.onmicrosoft.*"
-                }
+                Write-Warning -Message "We recommend providing the TenantId property in the format of <tenant>.onmicrosoft.*"
             }
             return $true
         })]
@@ -1600,7 +1598,7 @@ function Export-M365DSCConfiguration
 
     $currentStartDateTime = [System.DateTime]::Now
     $Global:M365DSCExportInProgress = $true
-    $Global:MaximumFunctionCount = 32767
+    #$Global:MaximumFunctionCount = 32767
 
     # Define the exported resource instances' names Global variable
     $Global:M365DSCExportedResourceInstancesNames = @()
@@ -1832,6 +1830,48 @@ function Export-M365DSCConfiguration
 
 <#
 .DESCRIPTION
+    This function imports all the required M365DSC module dependencies as specified in the M365DSC dependencies manifest.
+
+.EXAMPLE
+    PS> Import-M365DSCModuleDependency
+
+.FUNCTIONALITY
+    Internal
+#>
+function Import-M365DSCModuleDependency
+{
+    [CmdletBinding()]
+    param ()
+
+    foreach ($entry in $Script:M365DSCDependencies.GetEnumerator())
+    {
+        if ($entry.Value.PowerShellCore -and -not $Script:IsPowerShellCore)
+        {
+            continue
+        }
+
+        Write-Verbose -Message "Importing $($entry.Key) with version $($entry.Value.RequiredVersion)"
+        $importModuleSplat = @{
+            Name             = $entry.Key
+            RequiredVersion  = $entry.Value.RequiredVersion
+            Global           = $true
+            Function         = @('*')
+            Cmdlet           = @('*')
+            Alias            = @()
+            Variable         = @()
+            DisableNameChecking = $true
+        }
+        if ($entry.Value.Commands.Count -gt 0)
+        {
+            $importModuleSplat.Function = $entry.Value.Commands
+            $importModuleSplat.Cmdlet = $entry.Value.Commands
+        }
+        Import-Module @importModuleSplat -Verbose:$false
+    }
+}
+
+<#
+.DESCRIPTION
     This function checks if a specific module is loaded and validates its version against the required version specified in the M365DSC dependencies manifest.
 
 .PARAMETER ModuleName
@@ -1864,7 +1904,21 @@ function Confirm-M365DSCLoadedModule
     if ($null -eq $loadedModule)
     {
         Write-Verbose -Message "Module '$ModuleName' is not loaded. Importing it now."
-        Import-Module -Name $ModuleName -RequiredVersion $manifestModule.RequiredVersion -Global -Alias @() -Cmdlet @() -Variable @() -DisableNameChecking
+        $importModuleSplat = @{
+            Name             = $ModuleName
+            RequiredVersion  = $manifestModule.RequiredVersion
+            Global           = $true
+            Alias            = @()
+            Cmdlet           = @()
+            Variable         = @()
+            DisableNameChecking = $true
+        }
+        if ($manifestModule.Commands.Count -gt 0)
+        {
+            $importModuleSplat.Add('Function', $manifestModule.Commands)
+            $importModuleSplat.Cmdlet = $manifestModule.Commands
+        }
+        Import-Module @importModuleSplat
         Write-Verbose -Message "Module '$ModuleName' with version '$($manifestModule.RequiredVersion)' has been imported."
     }
     elseif ($loadedModule.Version -ne $manifestModule.RequiredVersion)
@@ -1908,7 +1962,7 @@ function Confirm-M365DSCModuleDependency
         $ModuleName
     )
 
-    $Global:MaximumFunctionCount = 32767
+    #$Global:MaximumFunctionCount = 32767
 
     if ($Global:IsTestEnvironment)
     {
@@ -2089,10 +2143,10 @@ function Get-M365DSCTenantDomain
 
         try
         {
-            $tenantDetails = Get-MgBetaOrganization -ErrorAction 'Stop'
-            $defaultDomain = $tenantDetails.VerifiedDomains | Where-Object -FilterScript { $_.IsInitial }
+            $tenantDetails = (Invoke-MgGraphRequest -Uri "/beta/organization" -Method GET -ErrorAction 'Stop').value
+            $defaultDomain = $tenantDetails.verifiedDomains | Where-Object -FilterScript { $_.isInitial }
 
-            return $defaultDomain.Name
+            return $defaultDomain.name
         }
         catch
         {
@@ -2254,7 +2308,7 @@ function New-M365DSCConnection
         $SkipModuleReload = $false
     )
 
-    $Global:MaximumFunctionCount = 32767
+    #$Global:MaximumFunctionCount = 32767
 
     if ($Workload -eq 'MicrosoftTeams')
     {
@@ -2826,15 +2880,16 @@ function Get-SPOAdministrationUrl
     $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
     Write-Verbose -Message 'Getting SharePoint Online admin URL...'
-    [Array]$defaultDomain = Get-MgBetaDomain | Where-Object { ($_.Id -like '*.onmicrosoft.com' -or $_.Id -like '*.onmicrosoft.de' -or $_.Id -like '*.onmicrosoft.us') -and $_.IsInitial -eq $true } # We don't use IsDefault here because the default could be a custom domain
+    $domain = Invoke-MgGraphRequest -Uri "beta/domains" -Method GET
+    [Array]$defaultDomain = $domain | Where-Object { ($_.id -like '*.onmicrosoft.com' -or $_.id -like '*.onmicrosoft.de' -or $_.id -like '*.onmicrosoft.us') -and $_.isInitial -eq $true } # We don't use IsDefault here because the default could be a custom domain
 
-    if ($defaultDomain[0].Id -like '*.onmicrosoft.com*')
+    if ($defaultDomain[0].id -like '*.onmicrosoft.com*')
     {
-        $global:tenantName = $defaultDomain[0].Id -replace '.onmicrosoft.com', ''
+        $global:tenantName = $defaultDomain[0].id -replace '.onmicrosoft.com', ''
     }
-    elseif ($defaultDomain[0].Id -like '*.onmicrosoft.de*')
+    elseif ($defaultDomain[0].id -like '*.onmicrosoft.de*')
     {
-        $global:tenantName = $defaultDomain[0].Id -replace '.onmicrosoft.de', ''
+        $global:tenantName = $defaultDomain[0].id -replace '.onmicrosoft.de', ''
     }
     $global:AdminUrl = "https://$global:tenantName-admin.sharepoint.com"
     Write-Verbose -Message "SharePoint Online admin URL is $global:AdminUrl"
@@ -2872,15 +2927,16 @@ function Get-M365TenantName
     $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
     Write-Verbose -Message 'Getting SharePoint Online admin URL...'
-    [Array]$defaultDomain = Get-MgBetaDomain | Where-Object { ($_.Id -like '*.onmicrosoft.com' -or $_.Id -like '*.onmicrosoft.de') -and $_.IsInitial -eq $true } # We don't use IsDefault here because the default could be a custom domain
+    $domain = Invoke-MgGraphRequest -Uri "beta/domains" -Method GET
+    [Array]$defaultDomain = $domain | Where-Object { ($_.id -like '*.onmicrosoft.com' -or $_.id -like '*.onmicrosoft.de') -and $_.isInitial -eq $true } # We don't use IsDefault here because the default could be a custom domain
 
-    if ($defaultDomain[0].Id -like '*.onmicrosoft.com*')
+    if ($defaultDomain[0].id -like '*.onmicrosoft.com*')
     {
-        $tenantName = $defaultDomain[0].Id -replace '.onmicrosoft.com', ''
+        $tenantName = $defaultDomain[0].id -replace '.onmicrosoft.com', ''
     }
-    elseif ($defaultDomain[0].Id -like '*.onmicrosoft.de*')
+    elseif ($defaultDomain[0].id -like '*.onmicrosoft.de*')
     {
-        $tenantName = $defaultDomain[0].Id -replace '.onmicrosoft.de', ''
+        $tenantName = $defaultDomain[0].id -replace '.onmicrosoft.de', ''
     }
 
     Write-Verbose -Message "M365 tenant name is $tenantName"
@@ -5387,16 +5443,20 @@ function Join-M365DSCConfiguration
 function Invoke-PowerShellCoreResource
 {
     [CmdletBinding()]
+    [OutputType([System.Nullable[System.Object]])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Path', Justification = 'Using statement not detected')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'FunctionName', Justification = 'Using statement not detected')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Parameters', Justification = 'Using statement not detected')]
     param (
         [Parameter(Mandatory = $true)]
-        [string]$Path,
+        [System.String]$Path,
 
         [Parameter(Mandatory = $true)]
         [ValidateSet('Get', 'Set', 'Test', 'Export')]
-        [string]$FunctionName,
+        [System.String]$FunctionName,
 
         [Parameter(Mandatory = $true)]
-        [hashtable]$Parameters
+        [System.Collections.Hashtable]$Parameters
     )
 
     if (-not $script:PSCoreSessionInitialized)
@@ -5424,6 +5484,9 @@ function Invoke-PowerShellCoreResource
 #>
 function Initialize-PowerShellCoreSession
 {
+    [CmdletBinding()]
+    param ()
+
     $script:PSCoreSession = New-PSSession -ComputerName localhost -ConfigurationName PowerShell.7 -EnableNetworkAccess
     $lcmConfig = Get-DscLocalConfigurationManager
     Invoke-Command -Session $script:PSCoreSession -ScriptBlock {
@@ -5631,5 +5694,6 @@ Export-ModuleMember -Function @(
     'Update-M365DSCDependencies',
     'Update-M365DSCExportAuthenticationResults',
     'Update-M365DSCModule',
-    'Write-M365DSCHost'
+    'Write-M365DSCHost',
+    'Import-M365DSCModuleDependency'
 )

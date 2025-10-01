@@ -46,5 +46,29 @@
     "Microsoft.Graph.Beta.DeviceManagement",
     "Microsoft.Graph.Groups"
   ],
-  "mode": "Configuration"
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.DeviceManagement",
+      "cmdlets": [
+        "Get-MgBetaDeviceManagementConfigurationPolicy",
+        "Get-MgBetaDeviceManagementConfigurationPolicyAssignment",
+        "Get-MgBetaDeviceManagementConfigurationPolicySetting",
+        "New-MgBetaDeviceManagementConfigurationPolicy",
+        "Remove-MgBetaDeviceManagementConfigurationPolicy"
+      ]
+    }
+  ]
 }

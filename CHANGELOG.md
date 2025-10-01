@@ -9,6 +9,8 @@
     FIXES [#4761](https://github.com/microsoft/Microsoft365DSC/issues/4761)
 * IntuneUserSettingsPolicyWindows365
   * Initial release.
+* MISC
+  * Improved function and cmdlet count for module import.
 
 # UNRELEASED
 

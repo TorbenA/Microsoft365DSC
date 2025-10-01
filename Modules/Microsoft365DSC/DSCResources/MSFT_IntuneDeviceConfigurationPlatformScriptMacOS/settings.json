@@ -50,5 +50,23 @@
     "Global",
     "USGov"
   ],
-  "mode": "Configuration"
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.DeviceManagement",
+      "cmdlets": [
+        "Get-MgBetaDeviceManagementDeviceShellScript",
+        "Get-MgBetaDeviceManagementDeviceShellScriptAssignment",
+        "New-MgBetaDeviceManagementDeviceShellScript",
+        "Remove-MgBetaDeviceManagementDeviceShellScript",
+        "Update-MgBetaDeviceManagementDeviceShellScript"
+      ]
+    }
+  ]
 }

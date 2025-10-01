@@ -11,6 +11,8 @@ function Start-M365DSCConfigurationExtract
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Conversion for credential creation')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'GenerateInfo', Justification = 'Using statement not detected')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Filters', Justification = 'Using statement not detected')]
     param(
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -53,6 +55,10 @@ function Start-M365DSCConfigurationExtract
         [Parameter()]
         [System.Boolean]
         $GenerateInfo = $false,
+
+        [Parameter()]
+        [System.Collections.Hashtable]
+        $Filters,
 
         [Parameter()]
         [System.String]

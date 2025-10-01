@@ -540,7 +540,7 @@ function Set-TargetResource
             -DeviceCompliancePolicyId $configDeviceAndroidPolicy.Id#`
             #-ScheduledActionsForRule $myScheduledActionsForRule #This does not work even though it is a valid parameter
 
-        #handle ScheduledActionsForRule separately with Invoke-MgGraph
+        #handle ScheduledActionsForRule separately with Invoke-MgGraphRequest
         $Uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceManagement/deviceCompliancePolicies/$($configDeviceAndroidPolicy.Id)/scheduleActionsForRules"
         $mgGraphScheduledActionForRules = @{
             deviceComplianceScheduledActionForRules = @( $myScheduledActionsForRule )
