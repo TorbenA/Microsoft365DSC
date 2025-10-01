@@ -138,7 +138,7 @@ function Get-TargetResource {
             else
             {
                 $getValue = Get-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilitySchedule `
-                    -PrivilegedAccessGroupEligibilityScheduleId $Id
+                    -PrivilegedAccessGroupEligibilityScheduleId $Id `
                     -ErrorAction SilentlyContinue
             }
 
