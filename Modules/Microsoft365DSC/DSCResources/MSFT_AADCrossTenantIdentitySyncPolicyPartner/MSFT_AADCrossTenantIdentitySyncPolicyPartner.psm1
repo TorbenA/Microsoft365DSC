@@ -181,7 +181,7 @@ function Set-TargetResource
                 isSyncAllowed = $IsSyncAllowed
             }
         }
-        Write-Verbose -Message "Creating Cross-Tenant Identity Sync Policy for Tenant {$CrossTenantAccessPolicyConfigurationPartnerTenantId}"
+        Write-Verbose -Message "Creating Cross-Tenant Identity Sync Policy for Tenant {$CrossTenantAccessPolicyConfigurationPartnerTenantId} with:`r`n$(ConvertTo-Json $params -Depth 10)"
         Set-MgBetaPolicyCrossTenantAccessPolicyPartnerIdentitySynchronization @params `
             -CrossTenantAccessPolicyConfigurationPartnerTenantId $CrossTenantAccessPolicyConfigurationPartnerTenantId
     }

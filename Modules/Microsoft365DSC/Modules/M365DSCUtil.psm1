@@ -5562,9 +5562,11 @@ function Invoke-M365DSCGraphBatchRequest
             requests = $batchRequestSized
         }
 
+        Write-Verbose -Message "Sending BATCH Request with:`r`n$($request | ConvertTo-Json -Depth 10))"
         $batchResponses.AddRange([System.Collections.Hashtable[]](Invoke-MgGraphRequest -Method POST `
             -Uri 'beta/$batch' `
-            -Body ($request | ConvertTo-Json -Depth 10)).responses)
+            -Body ($request | ConvertTo-Json -Depth 10) `
+            -ErrorAction SilentlyContinue).responses)
     }
 
     if ($AsList)
