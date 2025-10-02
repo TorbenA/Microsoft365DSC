@@ -154,6 +154,12 @@ function Get-TargetResource {
         }
         $Id = $getValue.Id
 
+        $newGetValue = @{}
+        $getValue | Get-Member -MemberType Property | ForEach-Object {
+            $newGetValue[$_.Name] = $getValue.$($_.Name)
+        }
+        $getValue = $newGetValue
+
         Write-Verbose -Message "An Azure AD Group Eligibility Schedule with Id {$Id} and DisplayName {$GroupDisplayName} was found"
 
         #region resource generator code
@@ -250,7 +256,15 @@ function Get-TargetResource {
 
         $PrincipalValue = $null
         $objectInfo = Get-MgBetaDirectoryObjectById -Ids $getvalue.PrincipalId -ErrorAction SilentlyContinue
-        $getValue.PrincipalType = $objectInfo.AdditionalProperties['@odata.type'].Split('.')[2]
+
+        if (-not $getValue.ContainsKey('PrincipalType'))
+        {
+            $getValue.Add('PrincipalType', $objectInfo.AdditionalProperties['@odata.type'].Split('.')[2])
+        }
+        else
+        {
+            $getValue.PrincipalType = $objectInfo.AdditionalProperties['@odata.type'].Split('.')[2]
+        }
 
        	switch ($getValue.PrincipalType)
         {
