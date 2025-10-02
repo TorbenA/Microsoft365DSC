@@ -1,16 +1,17 @@
-﻿# IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
+﻿# IntuneAppControlForBusinessPolicyWindows10
 
 ## Parameters
 
 | Parameter | Attribute | DataType | Description | Allowed Values |
 | --- | --- | --- | --- | --- |
-| **AllowDeviceHealthMonitoring** | Write | String | Enables device health monitoring on the device. Possible values are: notConfigured, enabled, disabled. | `notConfigured`, `enabled`, `disabled` |
-| **ConfigDeviceHealthMonitoringCustomScope** | Write | String | Specifies custom set of events collected from the device where health monitoring is enabled | |
-| **ConfigDeviceHealthMonitoringScope** | Write | StringArray[] | Specifies set of events collected from the device where health monitoring is enabled. Possible values are: undefined, healthMonitoring, bootPerformance, windowsUpdates, privilegeManagement. | `undefined`, `healthMonitoring`, `bootPerformance`, `windowsUpdates`, `privilegeManagement` |
-| **Description** | Write | String | Admin provided description of the Device Configuration. | |
-| **DisplayName** | Key | String | Admin provided name of the device configuration. | |
-| **Id** | Write | String | The unique identifier for an entity. Read-only. | |
+| **Description** | Write | String | Policy description | |
+| **DisplayName** | Key | String | Policy name | |
 | **RoleScopeTagIds** | Write | StringArray[] | List of Scope Tags for this Entity instance. | |
+| **Id** | Write | String | The unique identifier for an entity. Read-only. | |
+| **ConfigureApplicationControlOptions** | Write | SInt32 | Configuration settings format (0: Enter xml data, 1: Use built-in controls) | `0`, `1` |
+| **Enter_path_of_xml_data** | Write | String | The XML file content of the policy - Depends on ConfigureApplicationControlOptions. Can only be applied if 'ConfigureApplicationControlOptions' is set to '0'. | |
+| **ConfigureApplicationControlSelectAdditionalRulesForTrustingApps** | Write | SInt32Array[] | Select additional rules for trusting apps. Can only be applied if 'ConfigureApplicationControlOptions' is set to '1'. Allowed values: (1: Trust apps with good reputation, 2: Trust apps from managed installers) | `1`, `2` |
+| **ConfigureApplicationControlEnableAppControlPolicy** | Write | SInt32 | Enable App Control for Business policy to trust Windows components and Store apps. Can only be applied if 'ConfigureApplicationControlOptions' is set to '1'. Allowed values: (0: Enforce, 1: Audit only) | `0`, `1` |
 | **Assignments** | Write | MSFT_DeviceManagementConfigurationPolicyAssignments[] | Represents the assignment to the Intune policy. | |
 | **Ensure** | Write | String | Present ensures the policy exists, absent ensures it is removed. | `Present`, `Absent` |
 | **Credential** | Write | PSCredential | Credentials of the Admin | |
@@ -38,7 +39,7 @@
 
 ## Description
 
-Intune Device Configuration Health Monitoring Configuration Policy for Windows10
+Intune App Control For Business Policy for Windows10
 
 ## Permissions
 
@@ -50,21 +51,21 @@ To authenticate with the Microsoft Graph API, this resource required the followi
 
 - **Read**
 
-    - Group.Read.All, DeviceManagementConfiguration.Read.All
+    - DeviceManagementConfiguration.Read.All, Group.Read.All
 
 - **Update**
 
-    - Group.Read.All, DeviceManagementConfiguration.ReadWrite.All
+    - DeviceManagementConfiguration.ReadWrite.All, Group.Read.All
 
 #### Application permissions
 
 - **Read**
 
-    - Group.Read.All, DeviceManagementConfiguration.Read.All
+    - DeviceManagementConfiguration.Read.All, Group.Read.All
 
 - **Update**
 
-    - Group.Read.All, DeviceManagementConfiguration.ReadWrite.All
+    - DeviceManagementConfiguration.ReadWrite.All, Group.Read.All
 
 ## Examples
 
@@ -89,22 +90,19 @@ Configuration Example
         [System.String]
         $CertificateThumbprint
     )
-    Import-DscResource -ModuleName Microsoft365DSC
 
+    Import-DscResource -ModuleName Microsoft365DSC
     node localhost
     {
-        IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10 'Example'
+        IntuneAppControlForBusinessPolicyWindows10 "IntuneAppControlForBusinessPolicyWindows10-Example"
         {
-            AllowDeviceHealthMonitoring       = "enabled";
-            Assignments                       = @(
-                MSFT_DeviceManagementConfigurationPolicyAssignments{
-                    deviceAndAppManagementAssignmentFilterType = 'none'
-                    dataType = '#microsoft.graph.allLicensedUsersAssignmentTarget'
-                }
-            );
-            ConfigDeviceHealthMonitoringScope = @("bootPerformance","windowsUpdates");
-            DisplayName                       = "Health Monitoring Configuration";
-            Ensure                            = "Present";
+            Id                    = "a1fc9fe2-728d-4867-9a72-a61e18f8c606";
+            ConfigureApplicationControlEnableAppControlPolicy               = 1;
+            ConfigureApplicationControlOptions                              = 1;
+            ConfigureApplicationControlSelectAdditionalRulesForTrustingApps = @(1);
+            Description           = "";
+            DisplayName           = "Example";
+            Ensure                = "Present";
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;
@@ -134,22 +132,19 @@ Configuration Example
         [System.String]
         $CertificateThumbprint
     )
-    Import-DscResource -ModuleName Microsoft365DSC
 
+    Import-DscResource -ModuleName Microsoft365DSC
     node localhost
     {
-        IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10 'Example'
+        IntuneAppControlForBusinessPolicyWindows10 "IntuneAppControlForBusinessPolicyWindows10-Example"
         {
-            AllowDeviceHealthMonitoring       = "enabled";
-            Assignments                       = @(
-                MSFT_DeviceManagementConfigurationPolicyAssignments{
-                    deviceAndAppManagementAssignmentFilterType = 'none'
-                    dataType = '#microsoft.graph.allLicensedUsersAssignmentTarget'
-                }
-            );
-            ConfigDeviceHealthMonitoringScope = @("bootPerformance","windowsUpdates");
-            DisplayName                       = "Health Monitoring Configuration";
-            Ensure                            = "Present";
+            Id                    = "a1fc9fe2-728d-4867-9a72-a61e18f8c606";
+            ConfigureApplicationControlEnableAppControlPolicy               = 1;
+            ConfigureApplicationControlOptions                              = 1;
+            ConfigureApplicationControlSelectAdditionalRulesForTrustingApps = @(1,2); # Updated property
+            Description           = "";
+            DisplayName           = "Example";
+            Ensure                = "Present";
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;
@@ -179,14 +174,15 @@ Configuration Example
         [System.String]
         $CertificateThumbprint
     )
-    Import-DscResource -ModuleName Microsoft365DSC
 
+    Import-DscResource -ModuleName Microsoft365DSC
     node localhost
     {
-        IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10 'Example'
+        IntuneAppControlForBusinessPolicyWindows10 "IntuneAppControlForBusinessPolicyWindows10-Example"
         {
-            DisplayName                       = "Health Monitoring Configuration";
-            Ensure                            = "Absent";
+            Id                   = "a1fc9fe2-728d-4867-9a72-a61e18f8c606";
+            DisplayName          = "Example";
+            Ensure               = "Absent";
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;

@@ -1,16 +1,19 @@
-﻿# IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
+﻿# IntuneEpmElevationSettingsPolicyWindows10
 
 ## Parameters
 
 | Parameter | Attribute | DataType | Description | Allowed Values |
 | --- | --- | --- | --- | --- |
-| **AllowDeviceHealthMonitoring** | Write | String | Enables device health monitoring on the device. Possible values are: notConfigured, enabled, disabled. | `notConfigured`, `enabled`, `disabled` |
-| **ConfigDeviceHealthMonitoringCustomScope** | Write | String | Specifies custom set of events collected from the device where health monitoring is enabled | |
-| **ConfigDeviceHealthMonitoringScope** | Write | StringArray[] | Specifies set of events collected from the device where health monitoring is enabled. Possible values are: undefined, healthMonitoring, bootPerformance, windowsUpdates, privilegeManagement. | `undefined`, `healthMonitoring`, `bootPerformance`, `windowsUpdates`, `privilegeManagement` |
-| **Description** | Write | String | Admin provided description of the Device Configuration. | |
-| **DisplayName** | Key | String | Admin provided name of the device configuration. | |
-| **Id** | Write | String | The unique identifier for an entity. Read-only. | |
+| **Description** | Write | String | Policy description | |
+| **DisplayName** | Key | String | Policy name | |
 | **RoleScopeTagIds** | Write | StringArray[] | List of Scope Tags for this Entity instance. | |
+| **Id** | Write | String | The unique identifier for an entity. Read-only. | |
+| **EndpointPrivilegeManagement** | Write | SInt32 | Endpoint Privilege Management (1: Enabled, 0: Disabled) | `1`, `0` |
+| **DefaultElevationResponse** | Write | SInt32 | Default elevation response - Depends on EndpointPrivilegeManagement (0: DenyAllRequests, 1: RequireUserConfirmation, 2: RequireSupportApproval) | `0`, `1`, `2` |
+| **DefaultBehaviorValidation** | Write | SInt32Array[] | Validation (0: Business Justification, 1: Windows Authentication) | `0`, `1` |
+| **AllowElevationDetection** | Write | SInt32 | (Preview) Automatically detect elevations - Depends on EndpointPrivilegeManagement (0: No, 1: Yes) | `0`, `1` |
+| **SendDataToMicrosoft** | Write | SInt32 | Send elevation data for reporting - Depends on EndpointPrivilegeManagement (1: Yes, 0: No) | `1`, `0` |
+| **ReportingScope** | Write | SInt32 | Reporting scope (1: DiagnosticDataAndManagedElevationsOnly, 2: DiagnosticDataAndAllEndpointElevations, 0: DiagnosticDataOnly) | `1`, `2`, `0` |
 | **Assignments** | Write | MSFT_DeviceManagementConfigurationPolicyAssignments[] | Represents the assignment to the Intune policy. | |
 | **Ensure** | Write | String | Present ensures the policy exists, absent ensures it is removed. | `Present`, `Absent` |
 | **Credential** | Write | PSCredential | Credentials of the Admin | |
@@ -38,7 +41,7 @@
 
 ## Description
 
-Intune Device Configuration Health Monitoring Configuration Policy for Windows10
+Intune Endpoint Privilege Management Elevation Settings Policy for Windows10
 
 ## Permissions
 
@@ -50,28 +53,27 @@ To authenticate with the Microsoft Graph API, this resource required the followi
 
 - **Read**
 
-    - Group.Read.All, DeviceManagementConfiguration.Read.All
+    - DeviceManagementConfiguration.Read.All, Group.Read.All
 
 - **Update**
 
-    - Group.Read.All, DeviceManagementConfiguration.ReadWrite.All
+    - DeviceManagementConfiguration.ReadWrite.All, Group.Read.All
 
 #### Application permissions
 
 - **Read**
 
-    - Group.Read.All, DeviceManagementConfiguration.Read.All
+    - DeviceManagementConfiguration.Read.All, Group.Read.All
 
 - **Update**
 
-    - Group.Read.All, DeviceManagementConfiguration.ReadWrite.All
+    - DeviceManagementConfiguration.ReadWrite.All, Group.Read.All
 
 ## Examples
 
 ### Example 1
 
-This example is used to test new resources and showcase the usage of new resources being worked on.
-It is not meant to use as a production baseline.
+This example creates a new Intune Firewall Policy for Windows10.
 
 ```powershell
 Configuration Example
@@ -93,21 +95,27 @@ Configuration Example
 
     node localhost
     {
-        IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10 'Example'
+        IntuneEpmElevationSettingsPolicyWindows10 'Example'
         {
-            AllowDeviceHealthMonitoring       = "enabled";
-            Assignments                       = @(
+            Assignments           = @(
                 MSFT_DeviceManagementConfigurationPolicyAssignments{
                     deviceAndAppManagementAssignmentFilterType = 'none'
-                    dataType = '#microsoft.graph.allLicensedUsersAssignmentTarget'
+                    dataType = '#microsoft.graph.groupAssignmentTarget'
+                    groupId = '11111111-1111-1111-1111-111111111111'
                 }
             );
-            ConfigDeviceHealthMonitoringScope = @("bootPerformance","windowsUpdates");
-            DisplayName                       = "Health Monitoring Configuration";
-            Ensure                            = "Present";
-            ApplicationId         = $ApplicationId;
-            TenantId              = $TenantId;
-            CertificateThumbprint = $CertificateThumbprint;
+            Description                 = 'Description'
+            DefaultElevationResponse    = "0";
+            DisplayName                 = "IntuneEpmElevationSettingsPolicyWindows10_1";
+            EndpointPrivilegeManagement = "1";
+            ReportingScope              = "1";
+            SendDataToMicrosoft         = "1";
+            Ensure                      = "Present";
+            Id                          = '00000000-0000-0000-0000-000000000000'
+            RoleScopeTagIds             = @("0");
+            ApplicationId               = $ApplicationId;
+            TenantId                    = $TenantId;
+            CertificateThumbprint       = $CertificateThumbprint;
         }
     }
 }
@@ -115,8 +123,7 @@ Configuration Example
 
 ### Example 2
 
-This example is used to test new resources and showcase the usage of new resources being worked on.
-It is not meant to use as a production baseline.
+This example updates a Intune Firewall Policy for Windows10.
 
 ```powershell
 Configuration Example
@@ -138,21 +145,27 @@ Configuration Example
 
     node localhost
     {
-        IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10 'Example'
+        IntuneEpmElevationSettingsPolicyWindows10 'Example'
         {
-            AllowDeviceHealthMonitoring       = "enabled";
-            Assignments                       = @(
+            Assignments           = @(
                 MSFT_DeviceManagementConfigurationPolicyAssignments{
                     deviceAndAppManagementAssignmentFilterType = 'none'
-                    dataType = '#microsoft.graph.allLicensedUsersAssignmentTarget'
+                    dataType = '#microsoft.graph.groupAssignmentTarget'
+                    groupId = '11111111-1111-1111-1111-111111111111'
                 }
             );
-            ConfigDeviceHealthMonitoringScope = @("bootPerformance","windowsUpdates");
-            DisplayName                       = "Health Monitoring Configuration";
-            Ensure                            = "Present";
-            ApplicationId         = $ApplicationId;
-            TenantId              = $TenantId;
-            CertificateThumbprint = $CertificateThumbprint;
+            Description                 = 'Description'
+            DefaultElevationResponse    = "0";
+            DisplayName                 = "IntuneEpmElevationSettingsPolicyWindows10_1";
+            EndpointPrivilegeManagement = "1";
+            ReportingScope              = "1";
+            SendDataToMicrosoft         = "1";
+            Ensure                      = "Present";
+            Id                          = '00000000-0000-0000-0000-000000000000'
+            RoleScopeTagIds             = @("0");
+            ApplicationId               = $ApplicationId;
+            TenantId                    = $TenantId;
+            CertificateThumbprint       = $CertificateThumbprint;
         }
     }
 }
@@ -160,8 +173,7 @@ Configuration Example
 
 ### Example 3
 
-This example is used to test new resources and showcase the usage of new resources being worked on.
-It is not meant to use as a production baseline.
+This example removes a Device Control Policy.
 
 ```powershell
 Configuration Example
@@ -183,13 +195,14 @@ Configuration Example
 
     node localhost
     {
-        IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10 'Example'
+        IntuneEpmElevationSettingsPolicyWindows10 'Example'
         {
-            DisplayName                       = "Health Monitoring Configuration";
-            Ensure                            = "Absent";
-            ApplicationId         = $ApplicationId;
-            TenantId              = $TenantId;
-            CertificateThumbprint = $CertificateThumbprint;
+            DisplayName                 = "IntuneEpmElevationSettingsPolicyWindows10_1";
+            Ensure                      = "Absent";
+            Id                          = '00000000-0000-0000-0000-000000000000'
+            ApplicationId               = $ApplicationId;
+            TenantId                    = $TenantId;
+            CertificateThumbprint       = $CertificateThumbprint;
         }
     }
 }
