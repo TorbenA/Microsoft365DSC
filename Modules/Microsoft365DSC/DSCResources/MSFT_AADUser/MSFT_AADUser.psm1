@@ -1128,7 +1128,8 @@ function Export-TargetResource
                         -ConnectionMode $ConnectionMode `
                         -ModulePath $PSScriptRoot `
                         -Results $Results `
-                        -Credential $Credential
+                        -Credential $Credential `
+                        -NoEscape @('Password')
 
                     $dscContent.Append($currentDSCBlock) | Out-Null
                     Save-M365DSCPartialExport -Content $currentDSCBlock `
