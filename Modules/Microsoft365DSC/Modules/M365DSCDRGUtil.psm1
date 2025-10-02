@@ -665,7 +665,8 @@ function Compare-M365DSCComplexObject
         return $false
     }
 
-    if ($Source.GetType().FullName -like '*CimInstance[[\]]' -or $Source.GetType().FullName -like '*Hashtable[[\]]')
+    if ($Source.GetType().FullName -like '*CimInstance[[\]]' -or $Source.GetType().FullName -like '*Hashtable[[\]]' -or `
+        ($Source.GetType().FullName -like '*Object[[\]]' -and $Source.Count -gt 0 -and ($Source[0].GetType().FullName -like '*CimInstance*' -or $Source[0].GetType().FullName -like '*Hashtable*')))
     {
         if ($Source.Count -ne $Target.Count)
         {
@@ -985,7 +986,8 @@ function Compare-M365DSCComplexObjectV2
         return $false
     }
 
-    if ($Source.GetType().FullName -like '*CimInstance[[\]]' -or $Source.GetType().FullName -like '*Hashtable[[\]]')
+    if ($Source.GetType().FullName -like '*CimInstance[[\]]' -or $Source.GetType().FullName -like '*Hashtable[[\]]' -or `
+        ($Source.GetType().FullName -like '*Object[[\]]' -and $Source.Count -gt 0 -and ($Source[0].GetType().FullName -like '*CimInstance*' -or $Source[0].GetType().FullName -like '*Hashtable*')))
     {
         if ($Source.Count -ne $Target.Count)
         {
