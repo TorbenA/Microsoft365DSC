@@ -73,7 +73,7 @@ function Rename-M365DSCCimInstanceParameter
         }
         $result = $values
 
-        return [System.Collections.Hashtable[]]$result
+        return ,[System.Collections.Hashtable[]]$result
     }
     #endregion
 
@@ -152,7 +152,7 @@ function Get-M365DSCDRGComplexTypeToHashtable
         # PowerShell returns all non-captured stream output, not just the argument of the return statement.
         #An empty array is mangled into $null in the process.
         #However, an array can be preserved on return by prepending it with the array construction operator (,)
-        return [System.Collections.Hashtable[]]$results
+        return ,[System.Collections.Hashtable[]]$results
     }
 
     if ($ComplexObject.GetType().FullName -like '*Dictionary*')
@@ -209,7 +209,14 @@ function Get-M365DSCDRGComplexTypeToHashtable
 
                 if ($null -ne $hash -and $hash.Keys.Count -gt 0)
                 {
-                    $results.Add($keyName, $hash)
+                    if ($ComplexObject.$keyName.GetType().FullName -like '*[[\]]')
+                    {
+                        $results.Add($keyName, @($hash))
+                    }
+                    else
+                    {
+                        $results.Add($keyName, $hash)
+                    }
                 }
             }
             else
@@ -1485,7 +1492,7 @@ function Convert-M365DSCDRGComplexTypeToHashtable
         # PowerShell returns all non-captured stream output, not just the argument of the return statement.
         #An empty array is mangled into $null in the process.
         #However, an array can be preserved on return by prepending it with the array construction operator (,)
-        return [System.Collections.Hashtable[]]$results
+        return ,[System.Collections.Hashtable[]]$results
     }
 
     if ($SingleLevel)
@@ -1634,7 +1641,7 @@ function ConvertFrom-IntunePolicyAssignment
         $assignmentResult += $hashAssignment
     }
 
-    return [System.Collections.Hashtable[]]$assignmentResult
+    return ,[System.Collections.Hashtable[]]$assignmentResult
 }
 
 function ConvertTo-IntunePolicyAssignment
@@ -1744,7 +1751,7 @@ function ConvertTo-IntunePolicyAssignment
         }
     }
 
-    return [System.Collections.Hashtable[]]$assignmentResult
+    return ,[System.Collections.Hashtable[]]$assignmentResult
 }
 
 function ConvertFrom-IntuneMobileAppAssignment
@@ -1843,7 +1850,7 @@ function ConvertFrom-IntuneMobileAppAssignment
         $assignmentResult += $hashAssignment
     }
 
-    return [System.Collections.Hashtable[]]$assignmentResult
+    return ,[System.Collections.Hashtable[]]$assignmentResult
 }
 
 function ConvertTo-IntuneMobileAppAssignment
@@ -1957,7 +1964,7 @@ function ConvertTo-IntuneMobileAppAssignment
         $assignmentResult += $formattedAssignment
     }
 
-    return [System.Collections.Hashtable[]]$assignmentResult
+    return ,[System.Collections.Hashtable[]]$assignmentResult
 }
 
 function Compare-M365DSCIntunePolicyAssignment
