@@ -881,12 +881,12 @@ function Compare-M365DSCComplexObject
                         # Align line breaks
                         if (-not [System.String]::IsNullOrEmpty($referenceObject))
                         {
-                            $referenceObject = $referenceObject.Replace("`r`n", "`n")
+                            $referenceObject = $referenceObject.ToString().Replace("`r`n", "`n")
                         }
 
                         if (-not [System.String]::IsNullOrEmpty($differenceObject))
                         {
-                            $differenceObject = $differenceObject.Replace("`r`n", "`n")
+                            $differenceObject = $differenceObject.ToString().Replace("`r`n", "`n")
                         }
 
                         $compareResult = $true
@@ -927,10 +927,10 @@ function Compare-M365DSCComplexObjectV2
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param(
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         $Source,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         $Target,
 
         [Parameter(Mandatory = $true)]
@@ -3275,7 +3275,6 @@ function Export-IntuneSettingCatalogPolicySettings
         )]
         [switch]$ContainsDeviceAndUserSettings
     )
-
     if ($PSCmdlet.ParameterSetName -eq 'Start')
     {
         if ($ContainsDeviceAndUserSettings)
