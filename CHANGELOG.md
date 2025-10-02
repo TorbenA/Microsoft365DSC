@@ -9,6 +9,9 @@
     FIXES [#4761](https://github.com/microsoft/Microsoft365DSC/issues/4761)
 * IntuneUserSettingsPolicyWindows365
   * Initial release.
+* TeamsMessagingConfiguration
+  * Initial release.
+    FIXES [#6536](https://github.com/microsoft/Microsoft365DSC/issues/6536)
 
 # UNRELEASED
 
