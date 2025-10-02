@@ -303,6 +303,7 @@ function Get-TargetResource
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
+                        -All `
                         -Filter "Name eq '$($DisplayName -replace "'", "''")' and creationSource eq 'SccmAV' and technologies eq 'configManager'" `
                         -ErrorAction SilentlyContinue
                 }
@@ -331,6 +332,12 @@ function Get-TargetResource
         $policySettings = @{}
         $policySettings = Export-IntuneSettingCatalogPolicySettings -Settings $settings -ReturnHashtable $policySettings
 
+        $disableRestorePointInstance = $settings | Where-Object { $_.SettingInstance.SettingDefinitionId -like "*_disablerestorepoint" }
+        if ($null -ne $disableRestorePointInstance)
+        {
+            $policySettings.DisableRestorePoint = [int]$disableRestorePointInstance.SettingInstance.AdditionalProperties.choiceSettingValue.value.Split("_")[-1]
+        }
+
         $results = @{
             #region resource generator code
             Description           = $getValue.Description
@@ -356,7 +363,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

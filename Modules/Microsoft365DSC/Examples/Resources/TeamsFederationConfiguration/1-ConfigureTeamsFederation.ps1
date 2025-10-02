@@ -19,7 +19,6 @@ Configuration Example
             AllowedDomains                              = @();
             BlockedDomains                              = @();
             AllowFederatedUsers                         = $True;
-            AllowPublicUsers                            = $True;
             AllowTeamsConsumer                          = $True;
             AllowTeamsConsumerInbound                   = $True;
             RestrictTeamsConsumerToExternalUserProfiles = $False;

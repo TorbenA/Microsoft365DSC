@@ -1,4 +1,4 @@
-﻿# IntuneDeviceConfigurationScepCertificatePolicyWindows10
+﻿# IntuneDeviceConfigurationSCEPCertificatePolicyWindows10
 
 ## Parameters
 
@@ -125,7 +125,7 @@ Configuration Example
 
     node localhost
     {
-        IntuneDeviceConfigurationScepCertificatePolicyWindows10 'Example'
+        IntuneDeviceConfigurationSCEPCertificatePolicyWindows10 'Example'
         {
             Assignments                    = @(
                 MSFT_DeviceManagementConfigurationPolicyAssignments{
@@ -193,7 +193,7 @@ Configuration Example
 
     node localhost
     {
-        IntuneDeviceConfigurationScepCertificatePolicyWindows10 'Example'
+        IntuneDeviceConfigurationSCEPCertificatePolicyWindows10 'Example'
         {
             Assignments                    = @(
                 MSFT_DeviceManagementConfigurationPolicyAssignments{
@@ -261,7 +261,7 @@ Configuration Example
 
     node localhost
     {
-        IntuneDeviceConfigurationScepCertificatePolicyWindows10 'Example'
+        IntuneDeviceConfigurationSCEPCertificatePolicyWindows10 'Example'
         {
             DisplayName                    = "SCEP";
             Ensure                         = "Absent";

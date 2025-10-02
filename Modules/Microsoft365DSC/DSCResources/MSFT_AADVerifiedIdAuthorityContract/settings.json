@@ -21,5 +21,6 @@
   "supportedEnvironments": [
     "Global",
     "USGov"
-  ]
+  ],
+  "mode": "Configuration"
 }

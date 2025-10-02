@@ -77,7 +77,7 @@ function Get-TargetResource
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
 
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -110,6 +110,7 @@ function Get-TargetResource
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
+                        -All `
                         -Filter "Name eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue
                 }
@@ -160,7 +161,7 @@ function Get-TargetResource
         $complexPol_hardenedpaths = @()
         foreach ($currentPol_hardenedpaths in $policySettings.DeviceSettings.pol_hardenedpaths)
         {
-            $myPol_hardenedpaths = @{}
+            $myPol_hardenedpaths = [ordered]@{}
             if ($null -ne $currentPol_hardenedpaths.value)
             {
                 $myPol_hardenedpaths.Add('Value', $currentPol_hardenedpaths.value)
@@ -687,7 +688,7 @@ function Get-TargetResource
                 $complexUserSettings.Remove($key)
             }
         }
-        if ($complexUserSettings.values.Where({$null -ne $_}).Count -eq 0)
+        if ($complexUserSettings.Values.Where({$null -ne $_}).Count -eq 0)
         {
             $complexUserSettings = $null
         }
@@ -721,7 +722,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -1224,4 +1225,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -116,7 +116,7 @@ function Get-TargetResource
         $complexPolicies = @()
         foreach ($currentPolicy in $forwardingProfilePolicies)
         {
-            $myPolicies = @{}
+            $myPolicies = [ordered]@{}
             $myPolicies.Add('Name', $currentPolicy.Policy.Name)
             $myPolicies.Add('State', $currentPolicy.State)
             $myPolicies.Add('PolicyLinkId', $currentPolicy.Id)
@@ -139,7 +139,7 @@ function Get-TargetResource
             ManagedIdentity       = $ManagedIdentity.IsPresent
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

@@ -16,11 +16,6 @@ function Get-TargetResource
         $DisplayName,
 
         [Parameter()]
-        [ValidateSet('preMigration', 'migrationInProgress', 'migrationComplete', 'unknownFutureValue')]
-        [System.String]
-        $PolicyMigrationState,
-
-        [Parameter()]
         [System.String]
         $PolicyVersion,
 
@@ -139,12 +134,12 @@ function Get-TargetResource
         Write-Verbose -Message "An Azure AD Authentication Method Policy with Id {$Id} and DisplayName {$DisplayName} was found."
 
         #region resource generator code
-        $complexRegistrationEnforcement = @{}
-        $complexAuthenticationMethodsRegistrationCampaign = @{}
+        $complexRegistrationEnforcement = [ordered]@{}
+        $complexAuthenticationMethodsRegistrationCampaign = [ordered]@{}
         $complexExcludeTargets = @()
         foreach ($currentExcludeTargets in $getValue.registrationEnforcement.authenticationMethodsRegistrationCampaign.excludeTargets)
         {
-            $myExcludeTargets = @{}
+            $myExcludeTargets = [ordered]@{}
             $myExcludeTargets.Add('Id', $currentExcludeTargets.id)
             if ($null -ne $currentExcludeTargets.targetType)
             {
@@ -159,7 +154,7 @@ function Get-TargetResource
         $complexIncludeTargets = @()
         foreach ($currentIncludeTargets in $getValue.registrationEnforcement.authenticationMethodsRegistrationCampaign.includeTargets)
         {
-            $myIncludeTargets = @{}
+            $myIncludeTargets = [ordered]@{}
             $myIncludeTargets.Add('Id', $currentIncludeTargets.id)
             $myIncludeTargets.Add('TargetedAuthenticationMethod', $currentIncludeTargets.targetedAuthenticationMethod)
             if ($null -ne $currentIncludeTargets.targetType)
@@ -187,8 +182,8 @@ function Get-TargetResource
             $complexRegistrationEnforcement = $null
         }
 
-        $complexReportSuspiciousActivitySettings = @{}
-        $newComplexIncludeTarget = @{}
+        $complexReportSuspiciousActivitySettings = [ordered]@{}
+        $newComplexIncludeTarget = [ordered]@{}
         $newComplexIncludeTarget.Add('Id', $getValue.ReportSuspiciousActivitySettings.IncludeTarget.id)
         if ($null -ne $getValue.ReportSuspiciousActivitySettings.IncludeTarget.targetType)
         {
@@ -209,11 +204,11 @@ function Get-TargetResource
             $complexReportSuspiciousActivitySettings = $null
         }
 
-        $complexSystemCredentialPreferences = @{}
+        $complexSystemCredentialPreferences = [ordered]@{}
         $complexExcludeTargets = @()
         foreach ($currentExcludeTargets in $getValue.SystemCredentialPreferences.excludeTargets)
         {
-            $myExcludeTargets = @{}
+            $myExcludeTargets = [ordered]@{}
             $myExcludeTargets.Add('Id', $currentExcludeTargets.id)
             if ($null -ne $currentExcludeTargets.targetType)
             {
@@ -228,7 +223,7 @@ function Get-TargetResource
         $complexIncludeTargets = @()
         foreach ($currentIncludeTargets in $getValue.SystemCredentialPreferences.includeTargets)
         {
-            $myIncludeTargets = @{}
+            $myIncludeTargets = [ordered]@{}
             $myIncludeTargets.Add('Id', $currentIncludeTargets.id)
             if ($null -ne $currentIncludeTargets.targetType)
             {
@@ -254,7 +249,6 @@ function Get-TargetResource
             #region resource generator code
             Description                      = $getValue.Description
             DisplayName                      = $getValue.DisplayName
-            #PolicyMigrationState             = $enumPolicyMigrationState #DEPRECATED - Cannot be set
             PolicyVersion                    = $getValue.PolicyVersion
             ReconfirmationInDays             = $getValue.ReconfirmationInDays
             RegistrationEnforcement          = $complexRegistrationEnforcement
@@ -267,12 +261,12 @@ function Get-TargetResource
             TenantId                         = $TenantId
             ApplicationSecret                = $ApplicationSecret
             CertificateThumbprint            = $CertificateThumbprint
-            Managedidentity                  = $ManagedIdentity.IsPresent
+            ManagedIdentity                  = $ManagedIdentity.IsPresent
             AccessTokens                     = $AccessTokens
             #endregion
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -299,11 +293,6 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
-
-        [Parameter()]
-        [ValidateSet('preMigration', 'migrationInProgress', 'migrationComplete', 'unknownFutureValue')]
-        [System.String]
-        $PolicyMigrationState,
 
         [Parameter()]
         [System.String]
@@ -404,12 +393,6 @@ function Set-TargetResource
             }
         }
 
-        if (-not [System.String]::IsNullOrEmpty($PolicyMigrationState))
-        {
-            Write-Verbose -Message "DEPRECATED - Property PolicyMigrationState cannot be set."
-            $UpdateParameters.Remove('PolicyMigrationState') | Out-Null
-        }
-
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.AuthenticationMethodsPolicy')
         Write-Verbose -Message "Updating AuthenticationMethodPolicy with: `r`n$(Convert-M365DscHashtableToString -Hashtable $UpdateParameters)"
@@ -432,11 +415,6 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
-
-        [Parameter()]
-        [ValidateSet('preMigration', 'migrationInProgress', 'migrationComplete', 'unknownFutureValue')]
-        [System.String]
-        $PolicyMigrationState,
 
         [Parameter()]
         [System.String]
@@ -506,8 +484,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludedProperties @('PolicyMigrationState')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

@@ -189,11 +189,11 @@ The following settings are supported on Android 10 or later, but not on Knox.
         * Pattern
         * Numeric PIN has a repeating (4444) or ordered (1234, 4321, 2468) sequence.
     * Medium - The password satisfies one of the following conditions:
-        * Numeric PIN doesnâ€™t have a repeating (4444) or ordered (1234, 4321, 2468) sequence, and has minimum length of 4.
+        * Numeric PIN doesn’t have a repeating (4444) or ordered (1234, 4321, 2468) sequence, and has minimum length of 4.
         * Alphabetic, with a minimum length of 4.
         * Alphanumeric, with a minimum length of 4.
     * High - The password satisfies one of the following conditions:
-        * Numeric PIN doesnâ€™t have a repeating (4444) or ordered (1234, 4321, 2468) sequence, and has minimum length of 8.
+        * Numeric PIN doesn’t have a repeating (4444) or ordered (1234, 4321, 2468) sequence, and has minimum length of 8.
         * Alphabetic, with a minimum length of 6.
         * Alphanumeric, with a minimum length of 6.
 

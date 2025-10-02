@@ -299,14 +299,14 @@ function Get-TargetResource
             try
             {
                 $Policy = Get-MgBetaIdentityConditionalAccessPolicy -ConditionalAccessPolicyId $Id -ErrorAction Stop
-                $jsonPolicy = ConvertTo-Json $Policy -ErrorAction SilentlyContinue
+                $jsonPolicy = ConvertTo-Json $Policy -Depth 10 -ErrorAction SilentlyContinue
                 Write-Verbose -Message "Retrieved policy:`r`n$($jsonPolicy)"
             }
             catch
             {
                 Write-Verbose -Message "Couldn't find existing policy by ID {$Id}"
                 $Policy = Get-MgBetaIdentityConditionalAccessPolicy -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
-                $jsonPolicy = ConvertTo-Json $Policy -ErrorAction SilentlyContinue
+                $jsonPolicy = ConvertTo-Json -Depth 10 $Policy -ErrorAction SilentlyContinue
                 Write-Verbose -Message "Retrieved policy:`r`n$($jsonPolicy)"
 
                 if ($Policy.Length -gt 1)
@@ -320,7 +320,7 @@ function Get-TargetResource
             Write-Verbose -Message 'Id was NOT specified'
             ## Can retreive multiple CA Policies since displayname is not unique
             $Policy = Get-MgBetaIdentityConditionalAccessPolicy -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
-            $jsonPolicy = ConvertTo-Json $Policy -ErrorAction SilentlyContinue
+            $jsonPolicy = ConvertTo-Json -Depth 10 $Policy -ErrorAction SilentlyContinue
             Write-Verbose -Message "Retrieved policy:`r`n$($jsonPolicy)"
 
             if ($Policy.Length -gt 1)
@@ -776,7 +776,7 @@ function Get-TargetResource
         ApplicationId                            = $ApplicationId
         TenantId                                 = $TenantId
         CertificateThumbprint                    = $CertificateThumbprint
-        Managedidentity                          = $ManagedIdentity.IsPresent
+        ManagedIdentity                          = $ManagedIdentity.IsPresent
         AccessTokens                             = $AccessTokens
     }
 
@@ -1112,7 +1112,7 @@ function Set-TargetResource
 
             $conditions.Applications.Add('includeApplications', $IncludeApplicationsValue)
         }
-        if ($currentParameters.ContainsKey('excludeApplications'))
+        if ($currentParameters.ContainsKey('ExcludeApplications'))
         {
             $ExcludeApplicationsValue = @()
             foreach ($app in $ExcludeApplications)
@@ -1810,15 +1810,15 @@ function Set-TargetResource
                 operator = $GrantControlOperator
             }
 
-            if ($currentParameters.ContainsKey('builtInControls'))
+            if ($currentParameters.ContainsKey('BuiltInControls'))
             {
                 $GrantControls.Add('builtInControls', $BuiltInControls)
             }
-            if ($currentParameters.ContainsKey('customAuthenticationFactors'))
+            if ($currentParameters.ContainsKey('CustomAuthenticationFactors'))
             {
                 $GrantControls.Add('customAuthenticationFactors', $CustomAuthenticationFactors)
             }
-            if ($currentParameters.ContainsKey('authenticationStrength'))
+            if ($currentParameters.ContainsKey('AuthenticationStrength'))
             {
                 $strengthPolicy = Get-MgBetaPolicyAuthenticationStrengthPolicy | Where-Object -FilterScript { $_.DisplayName -eq $AuthenticationStrength } -ErrorAction SilentlyContinue
                 if ($null -ne $strengthPolicy)
@@ -1831,7 +1831,7 @@ function Set-TargetResource
                 }
             }
 
-           if ($currentParameters.ContainsKey('termsOfUse'))
+           if ($currentParameters.ContainsKey('TermsOfUse'))
            {
                Write-Verbose -Message "Getting Terms of Use {$TermsOfUse}"
                $TermsOfUseObj = Get-MgBetaAgreement | Where-Object -FilterScript { $_.DisplayName -eq $TermsOfUse }
@@ -2370,7 +2370,7 @@ function Export-TargetResource
                     ApplicationSecret     = $ApplicationSecret
                     CertificateThumbprint = $CertificateThumbprint
                     Credential            = $Credential
-                    Managedidentity       = $ManagedIdentity.IsPresent
+                    ManagedIdentity       = $ManagedIdentity.IsPresent
                     AccessTokens          = $AccessTokens
                 }
                 $Script:exportedInstance = $Policy

@@ -76,7 +76,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -138,7 +138,7 @@ function Get-TargetResource
         $policySettings = Export-IntuneSettingCatalogPolicySettings -Settings $settings -ReturnHashtable $policySettings -ContainsDeviceAndUserSettings
 
         #region resource generator code
-        $complexDeviceSettings = @{}
+        $complexDeviceSettings = [ordered]@{}
         $complexDeviceSettings.Add('Pol_SecGuide_A001_Block_Flash', $policySettings.DeviceSettings.pol_SecGuide_A001_Block_Flash)
         $complexDeviceSettings.Add('Pol_SecGuide_Block_Flash', $policySettings.DeviceSettings.pol_SecGuide_Block_Flash)
         $complexDeviceSettings.Add('Pol_SecGuide_Legacy_JScript', $policySettings.DeviceSettings.pol_SecGuide_Legacy_JScript)
@@ -354,7 +354,7 @@ function Get-TargetResource
         }
         $policySettings.Remove('DeviceSettings') | Out-Null
 
-        $complexUserSettings = @{}
+        $complexUserSettings = [ordered]@{}
         $complexUserSettings.Add('MicrosoftAccess_Security_TrustCenter_L_BlockMacroExecutionFromInternet', $policySettings.UserSettings.microsoftAccess_Security_TrustCenter_L_BlockMacroExecutionFromInternet)
         $complexUserSettings.Add('MicrosoftAccess_Security_TrustCenter_L_DisableTrustBarNotificationforunsigned', $policySettings.UserSettings.microsoftAccess_Security_TrustCenter_L_DisableTrustBarNotificationforunsigned)
         $complexUserSettings.Add('MicrosoftAccess_Security_TrustCenter_L_RequirethatApplicationExtensionsaresigned', $policySettings.UserSettings.microsoftAccess_Security_TrustCenter_L_RequirethatApplicationExtensionsaresigned)
@@ -617,7 +617,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -1106,4 +1106,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

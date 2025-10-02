@@ -61,12 +61,14 @@ function Get-TargetResource
         $ApplicationSecret
     )
 
+    Write-Verbose -Message "Getting configuration of SC Unified Audit Log Retention Policy for $Name"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-                -InboundParameters $PSBoundParameters | Out-Null
+            $null = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+                -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
             Confirm-M365DSCDependencies
@@ -118,7 +120,7 @@ function Get-TargetResource
             CertificateThumbprint = $CertificateThumbprint
             ApplicationSecret     = $ApplicationSecret
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -192,8 +194,7 @@ function Set-TargetResource
         $ApplicationSecret
     )
 
-    New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Setting configuration of SC Unified Audit Log Retention Policy for $Name"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -208,14 +209,12 @@ function Set-TargetResource
     #endregion
 
     $GetParameters = ([Hashtable]$PSBoundParameters).Clone()
-
     $GetParameters.Remove('Description') | Out-Null
     $GetParameters.Remove('Operations') | Out-Null
     $GetParameters.Remove('RecordTypes') | Out-Null
     $GetParameters.Remove('UserIds') | Out-Null
 
     $currentInstance = Get-TargetResource @GetParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
@@ -242,7 +241,6 @@ function Set-TargetResource
         Write-Verbose -Message "Updating {$Name}"
 
         $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
-        $UpdateParameters.Remove('Verbose') | Out-Null
         $UpdateParameters.Remove('Name') | Out-Null
         $UpdateParameters.Add('Identity', $currentInstance.Identity) | Out-Null
 
@@ -327,9 +325,6 @@ function Test-TargetResource
         $ApplicationSecret
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -339,33 +334,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of {$Name}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-    $ValuesToCheck.Remove('Name') | Out-Null
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    #Convert any DateTime to String
-    foreach ($key in $ValuesToCheck.Keys)
-    {
-        if (($null -ne $CurrentValues[$key]) `
-                -and ($CurrentValues[$key].GetType().Name -eq 'DateTime'))
-        {
-            $CurrentValues[$key] = $CurrentValues[$key].ToString()
-        }
-    }
-
-    $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties @('Name')
+    return $result
 }
 
 function Export-TargetResource
@@ -485,4 +457,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

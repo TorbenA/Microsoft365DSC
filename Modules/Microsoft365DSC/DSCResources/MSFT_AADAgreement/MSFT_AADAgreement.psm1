@@ -142,7 +142,7 @@ function Get-TargetResource
             AccessTokens                         = $AccessTokens
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -249,13 +249,15 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating Azure AD Agreement with DisplayName {$DisplayName}"
-
         # Prepare the file content
-        $fileContent = @{
-            data     = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($FileData))
-            name     = $FileName
+        $fileContent = @()
+        $fileContent += @{
+            fileData = @{
+                data     = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($FileData))
+            }
+            fileName     = $FileName
             language = $Language
+            isDefault = $true
         }
 
         $CreateParameters = @{
@@ -264,24 +266,26 @@ function Set-TargetResource
             isPerDeviceAcceptanceRequired      = $IsPerDeviceAcceptanceRequired
             userReacceptRequiredFrequency      = $UserReacceptRequiredFrequency
             acceptanceStatement                = $AcceptanceStatement
-            file                               = $fileContent
+            files                              = $fileContent
         }
 
         $CreateParameters = Remove-NullEntriesFromHashtable -Hash $CreateParameters
+        Write-Verbose -Message "Creating Azure AD Agreement with DisplayName {$DisplayName} with:`r`n$(ConvertTo-Json $CreateParameters -Depth 5)"
 
-        New-MgBetaAgreement -BodyParameter $CreateParameters
+        Invoke-MgGraphRequest -Uri "/beta/agreements" -Method POST -Body ($CreateParameters | ConvertTo-Json -Depth 5) | Out-Null
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating Azure AD Agreement with DisplayName {$DisplayName}"
-
         # Prepare the file content if provided
         $fileContent = $null
         if (-not [System.String]::IsNullOrEmpty($FileData))
         {
-            $fileContent = @{
-                data     = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($FileData))
-                name     = $FileName
+            $fileContent = @()
+            $fileContent += @{
+                fileData     = @{
+                    data = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($FileData))
+                }
+                fileName     = $FileName
                 language = $Language
             }
         }
@@ -296,15 +300,18 @@ function Set-TargetResource
 
         if ($null -ne $fileContent)
         {
-            $UpdateParameters.file = $fileContent
+            $UpdateParameters.files = $fileContent
         }
 
         $UpdateParameters = Remove-NullEntriesFromHashtable -Hash $UpdateParameters
-        Update-MgBetaAgreement -AgreementId $currentInstance.Id -BodyParameter $UpdateParameters
+        Write-Verbose -Message "Updating Azure AD Agreement with ID {$($currentInstance.Id)} with:`r`n$(ConvertTo-Json $UpdateParameters -Depth 5)"
+        Invoke-MgGraphRequest -Method PATCH `
+                              -Uri "/beta/agreements/$($currentInstance.Id)" `
+                              -Body ($UpdateParameters | ConvertTo-Json -Depth 5) | Out-Null
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removing Azure AD Agreement with DisplayName {$DisplayName}"
+        Write-Verbose -Message "Removing Azure AD Agreement with DisplayName {$DisplayName} with ID {$($currentInstance.Id)}"
         Remove-MgBetaAgreement -AgreementId $currentInstance.Id
     }
 }
@@ -385,11 +392,8 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -397,25 +401,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration for the Azure AD Agreement with DisplayName {$DisplayName}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
-    if ($CurrentValues.Ensure -ne $Ensure)
-    {
-        Write-Verbose -Message "Test-TargetResource returned $false"
-        return $false
-    }
-
-    $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource

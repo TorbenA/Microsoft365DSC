@@ -76,7 +76,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -140,116 +140,116 @@ function Get-TargetResource
             -All `
             -ErrorAction Stop
 
-        $policySettings = @{}
+        $policySettings = [ordered]@{}
         $policySettings = Export-IntuneSettingCatalogPolicySettings -Settings $settings -ReturnHashtable $policySettings -ContainsDeviceAndUserSettings
 
         #region resource generator code
-        $complexDeviceSettings = @{}
-        if ($null -ne $policySettings.deviceSettings.lsaCfgFlags)
+        $complexDeviceSettings = [ordered]@{}
+        if ($null -ne $policySettings.DeviceSettings.lsaCfgFlags)
         {
-            $complexDeviceSettings.Add('LsaCfgFlags', $policySettings.deviceSettings.lsaCfgFlags)
+            $complexDeviceSettings.Add('LsaCfgFlags', $policySettings.DeviceSettings.lsaCfgFlags)
         }
-        if ($null -ne $policySettings.deviceSettings.facialFeaturesUseEnhancedAntiSpoofing)
+        if ($null -ne $policySettings.DeviceSettings.facialFeaturesUseEnhancedAntiSpoofing)
         {
-            $complexDeviceSettings.Add('FacialFeaturesUseEnhancedAntiSpoofing', $policySettings.deviceSettings.facialFeaturesUseEnhancedAntiSpoofing)
+            $complexDeviceSettings.Add('FacialFeaturesUseEnhancedAntiSpoofing', $policySettings.DeviceSettings.facialFeaturesUseEnhancedAntiSpoofing)
         }
-        if ($null -ne $policySettings.deviceSettings.enablePinRecovery)
+        if ($null -ne $policySettings.DeviceSettings.enablePinRecovery)
         {
-            $complexDeviceSettings.Add('EnablePinRecovery', $policySettings.deviceSettings.enablePinRecovery)
+            $complexDeviceSettings.Add('EnablePinRecovery', $policySettings.DeviceSettings.enablePinRecovery)
         }
-        if ($null -ne $policySettings.deviceSettings.expiration)
+        if ($null -ne $policySettings.DeviceSettings.expiration)
         {
-            $complexDeviceSettings.Add('Expiration', $policySettings.deviceSettings.expiration)
+            $complexDeviceSettings.Add('Expiration', $policySettings.DeviceSettings.expiration)
         }
-        if ($null -ne $policySettings.deviceSettings.history)
+        if ($null -ne $policySettings.DeviceSettings.history)
         {
-            $complexDeviceSettings.Add('History', $policySettings.deviceSettings.history)
+            $complexDeviceSettings.Add('History', $policySettings.DeviceSettings.history)
         }
-        if ($null -ne $policySettings.deviceSettings.lowercaseLetters)
+        if ($null -ne $policySettings.DeviceSettings.lowercaseLetters)
         {
-            $complexDeviceSettings.Add('LowercaseLetters', $policySettings.deviceSettings.lowercaseLetters)
+            $complexDeviceSettings.Add('LowercaseLetters', $policySettings.DeviceSettings.lowercaseLetters)
         }
-        if ($null -ne $policySettings.deviceSettings.maximumPINLength)
+        if ($null -ne $policySettings.DeviceSettings.maximumPINLength)
         {
-            $complexDeviceSettings.Add('MaximumPINLength', $policySettings.deviceSettings.maximumPINLength)
+            $complexDeviceSettings.Add('MaximumPINLength', $policySettings.DeviceSettings.maximumPINLength)
         }
-        if ($null -ne $policySettings.deviceSettings.minimumPINLength)
+        if ($null -ne $policySettings.DeviceSettings.minimumPINLength)
         {
-            $complexDeviceSettings.Add('MinimumPINLength', $policySettings.deviceSettings.minimumPINLength)
+            $complexDeviceSettings.Add('MinimumPINLength', $policySettings.DeviceSettings.minimumPINLength)
         }
-        if ($null -ne $policySettings.deviceSettings.specialCharacters)
+        if ($null -ne $policySettings.DeviceSettings.specialCharacters)
         {
-            $complexDeviceSettings.Add('SpecialCharacters', $policySettings.deviceSettings.specialCharacters)
+            $complexDeviceSettings.Add('SpecialCharacters', $policySettings.DeviceSettings.specialCharacters)
         }
-        if ($null -ne $policySettings.deviceSettings.uppercaseLetters)
+        if ($null -ne $policySettings.DeviceSettings.uppercaseLetters)
         {
-            $complexDeviceSettings.Add('UppercaseLetters', $policySettings.deviceSettings.uppercaseLetters)
+            $complexDeviceSettings.Add('UppercaseLetters', $policySettings.DeviceSettings.uppercaseLetters)
         }
-        if ($null -ne $policySettings.deviceSettings.requireSecurityDevice)
+        if ($null -ne $policySettings.DeviceSettings.requireSecurityDevice)
         {
-            $complexDeviceSettings.Add('RequireSecurityDevice', $policySettings.deviceSettings.requireSecurityDevice)
+            $complexDeviceSettings.Add('RequireSecurityDevice', $policySettings.DeviceSettings.requireSecurityDevice)
         }
-        if ($null -ne $policySettings.deviceSettings.useCertificateForOnPremAuth)
+        if ($null -ne $policySettings.DeviceSettings.useCertificateForOnPremAuth)
         {
-            $complexDeviceSettings.Add('UseCertificateForOnPremAuth', $policySettings.deviceSettings.useCertificateForOnPremAuth)
+            $complexDeviceSettings.Add('UseCertificateForOnPremAuth', $policySettings.DeviceSettings.useCertificateForOnPremAuth)
         }
-        if ($null -ne $policySettings.deviceSettings.usePassportForWork)
+        if ($null -ne $policySettings.DeviceSettings.usePassportForWork)
         {
-            $complexDeviceSettings.Add('UsePassportForWork', $policySettings.deviceSettings.usePassportForWork)
+            $complexDeviceSettings.Add('UsePassportForWork', $policySettings.DeviceSettings.usePassportForWork)
         }
-        if ($complexDeviceSettings.Values.Where({ $_ -ne $null }).Count -eq 0)
+        if ($complexDeviceSettings.Values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexDeviceSettings = $null
         }
 
-        $complexUserSettings = @{}
-        if ($null -ne $policySettings.userSettings.enablePinRecovery)
+        $complexUserSettings = [ordered]@{}
+        if ($null -ne $policySettings.UserSettings.enablePinRecovery)
         {
-            $complexUserSettings.Add('EnablePinRecovery', $policySettings.userSettings.enablePinRecovery)
+            $complexUserSettings.Add('EnablePinRecovery', $policySettings.UserSettings.enablePinRecovery)
         }
-        if ($null -ne $policySettings.userSettings.expiration)
+        if ($null -ne $policySettings.UserSettings.expiration)
         {
-            $complexUserSettings.Add('Expiration', $policySettings.userSettings.expiration)
+            $complexUserSettings.Add('Expiration', $policySettings.UserSettings.expiration)
         }
-        if ($null -ne $policySettings.userSettings.history)
+        if ($null -ne $policySettings.UserSettings.history)
         {
-            $complexUserSettings.Add('History', $policySettings.userSettings.history)
+            $complexUserSettings.Add('History', $policySettings.UserSettings.history)
         }
-        if ($null -ne $policySettings.userSettings.lowercaseLetters)
+        if ($null -ne $policySettings.UserSettings.lowercaseLetters)
         {
-            $complexUserSettings.Add('LowercaseLetters', $policySettings.userSettings.lowercaseLetters)
+            $complexUserSettings.Add('LowercaseLetters', $policySettings.UserSettings.lowercaseLetters)
         }
-        if ($null -ne $policySettings.userSettings.maximumPINLength)
+        if ($null -ne $policySettings.UserSettings.maximumPINLength)
         {
-            $complexUserSettings.Add('MaximumPINLength', $policySettings.userSettings.maximumPINLength)
+            $complexUserSettings.Add('MaximumPINLength', $policySettings.UserSettings.maximumPINLength)
         }
-        if ($null -ne $policySettings.userSettings.minimumPINLength)
+        if ($null -ne $policySettings.UserSettings.minimumPINLength)
         {
-            $complexUserSettings.Add('MinimumPINLength', $policySettings.userSettings.minimumPINLength)
+            $complexUserSettings.Add('MinimumPINLength', $policySettings.UserSettings.minimumPINLength)
         }
-        if ($null -ne $policySettings.userSettings.specialCharacters)
+        if ($null -ne $policySettings.UserSettings.specialCharacters)
         {
-            $complexUserSettings.Add('SpecialCharacters', $policySettings.userSettings.specialCharacters)
+            $complexUserSettings.Add('SpecialCharacters', $policySettings.UserSettings.specialCharacters)
         }
-        if ($null -ne $policySettings.userSettings.uppercaseLetters)
+        if ($null -ne $policySettings.UserSettings.uppercaseLetters)
         {
-            $complexUserSettings.Add('UppercaseLetters', $policySettings.userSettings.uppercaseLetters)
+            $complexUserSettings.Add('UppercaseLetters', $policySettings.UserSettings.uppercaseLetters)
         }
-        if ($null -ne $policySettings.userSettings.requireSecurityDevice)
+        if ($null -ne $policySettings.UserSettings.requireSecurityDevice)
         {
-            $complexUserSettings.Add('RequireSecurityDevice', $policySettings.userSettings.requireSecurityDevice)
+            $complexUserSettings.Add('RequireSecurityDevice', $policySettings.UserSettings.requireSecurityDevice)
         }
-        if ($null -ne $policySettings.userSettings.usePassportForWork)
+        if ($null -ne $policySettings.UserSettings.usePassportForWork)
         {
-            $complexUserSettings.Add('UsePassportForWork', $policySettings.userSettings.usePassportForWork)
+            $complexUserSettings.Add('UsePassportForWork', $policySettings.UserSettings.usePassportForWork)
         }
-        if ($complexUserSettings.Values.Where({ $_ -ne $null }).Count -eq 0)
+        if ($complexUserSettings.Values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexUserSettings = $null
         }
 
-        $policySettings.Remove('deviceSettings') | Out-Null
-        $policySettings.Remove('userSettings') | Out-Null
+        $policySettings.Remove('DeviceSettings') | Out-Null
+        $policySettings.Remove('UserSettings') | Out-Null
         #endregion
 
         $results = @{
@@ -279,7 +279,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -773,4 +773,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

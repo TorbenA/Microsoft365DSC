@@ -137,7 +137,7 @@ function Get-TargetResource
             #endregion
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -336,7 +336,6 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
-
 
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')

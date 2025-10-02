@@ -981,10 +981,6 @@ function Get-TargetResource
         $DisplayName,
 
         [Parameter()]
-        [System.Boolean]
-        $SupportsScopeTags,
-
-        [Parameter()]
         [System.String]
         $Id,
 
@@ -1037,7 +1033,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -1098,12 +1094,12 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Device Configuration Endpoint Protection Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found."
 
         #region resource generator code
-        $complexBitLockerFixedDrivePolicy = @{}
+        $complexBitLockerFixedDrivePolicy = [ordered]@{}
         if ($null -ne $getValue.AdditionalProperties.bitLockerFixedDrivePolicy.encryptionMethod)
         {
             $complexBitLockerFixedDrivePolicy.Add('EncryptionMethod', $getValue.AdditionalProperties.bitLockerFixedDrivePolicy.encryptionMethod.ToString())
         }
-        $complexRecoveryOptions = @{}
+        $complexRecoveryOptions = [ordered]@{}
         $complexRecoveryOptions.Add('BlockDataRecoveryAgent', $getValue.AdditionalProperties.bitLockerFixedDrivePolicy.recoveryOptions.blockDataRecoveryAgent)
         $complexRecoveryOptions.Add('EnableBitLockerAfterRecoveryInformationToStore', $getValue.AdditionalProperties.bitLockerFixedDrivePolicy.recoveryOptions.enableBitLockerAfterRecoveryInformationToStore)
         $complexRecoveryOptions.Add('EnableRecoveryInformationSaveToStore', $getValue.AdditionalProperties.bitLockerFixedDrivePolicy.recoveryOptions.enableRecoveryInformationSaveToStore)
@@ -1131,7 +1127,7 @@ function Get-TargetResource
             $complexBitLockerFixedDrivePolicy = $null
         }
 
-        $complexBitLockerRemovableDrivePolicy = @{}
+        $complexBitLockerRemovableDrivePolicy = [ordered]@{}
         $complexBitLockerRemovableDrivePolicy.Add('BlockCrossOrganizationWriteAccess', $getValue.AdditionalProperties.bitLockerRemovableDrivePolicy.blockCrossOrganizationWriteAccess)
         if ($null -ne $getValue.AdditionalProperties.bitLockerRemovableDrivePolicy.encryptionMethod)
         {
@@ -1143,7 +1139,7 @@ function Get-TargetResource
             $complexBitLockerRemovableDrivePolicy = $null
         }
 
-        $complexBitLockerSystemDrivePolicy = @{}
+        $complexBitLockerSystemDrivePolicy = [ordered]@{}
         if ($null -ne $getValue.AdditionalProperties.bitLockerSystemDrivePolicy.encryptionMethod)
         {
             $complexBitLockerSystemDrivePolicy.Add('EncryptionMethod', $getValue.AdditionalProperties.bitLockerSystemDrivePolicy.encryptionMethod.ToString())
@@ -1152,7 +1148,7 @@ function Get-TargetResource
         $complexBitLockerSystemDrivePolicy.Add('PrebootRecoveryEnableMessageAndUrl', $getValue.AdditionalProperties.bitLockerSystemDrivePolicy.prebootRecoveryEnableMessageAndUrl)
         $complexBitLockerSystemDrivePolicy.Add('PrebootRecoveryMessage', $getValue.AdditionalProperties.bitLockerSystemDrivePolicy.prebootRecoveryMessage)
         $complexBitLockerSystemDrivePolicy.Add('PrebootRecoveryUrl', $getValue.AdditionalProperties.bitLockerSystemDrivePolicy.prebootRecoveryUrl)
-        $complexRecoveryOptions = @{}
+        $complexRecoveryOptions = [ordered]@{}
         $complexRecoveryOptions.Add('BlockDataRecoveryAgent', $getValue.AdditionalProperties.bitLockerSystemDrivePolicy.recoveryOptions.blockDataRecoveryAgent)
         $complexRecoveryOptions.Add('EnableBitLockerAfterRecoveryInformationToStore', $getValue.AdditionalProperties.bitLockerSystemDrivePolicy.recoveryOptions.enableBitLockerAfterRecoveryInformationToStore)
         $complexRecoveryOptions.Add('EnableRecoveryInformationSaveToStore', $getValue.AdditionalProperties.bitLockerSystemDrivePolicy.recoveryOptions.enableRecoveryInformationSaveToStore)
@@ -1197,7 +1193,7 @@ function Get-TargetResource
             $complexBitLockerSystemDrivePolicy = $null
         }
 
-        $complexDefenderDetectedMalwareActions = @{}
+        $complexDefenderDetectedMalwareActions = [ordered]@{}
         if ($null -ne $getValue.AdditionalProperties.defenderDetectedMalwareActions.highSeverity)
         {
             $complexDefenderDetectedMalwareActions.Add('HighSeverity', $getValue.AdditionalProperties.defenderDetectedMalwareActions.highSeverity.ToString())
@@ -1219,7 +1215,7 @@ function Get-TargetResource
             $complexDefenderDetectedMalwareActions = $null
         }
 
-        $complexFirewallProfileDomain = @{}
+        $complexFirewallProfileDomain = [ordered]@{}
         $complexFirewallProfileDomain.Add('AuthorizedApplicationRulesFromGroupPolicyMerged', $getValue.AdditionalProperties.firewallProfileDomain.authorizedApplicationRulesFromGroupPolicyMerged)
         $complexFirewallProfileDomain.Add('AuthorizedApplicationRulesFromGroupPolicyNotMerged', $getValue.AdditionalProperties.firewallProfileDomain.authorizedApplicationRulesFromGroupPolicyNotMerged)
         $complexFirewallProfileDomain.Add('ConnectionSecurityRulesFromGroupPolicyMerged', $getValue.AdditionalProperties.firewallProfileDomain.connectionSecurityRulesFromGroupPolicyMerged)
@@ -1251,7 +1247,7 @@ function Get-TargetResource
             $complexFirewallProfileDomain = $null
         }
 
-        $complexFirewallProfilePrivate = @{}
+        $complexFirewallProfilePrivate = [ordered]@{}
         $complexFirewallProfilePrivate.Add('AuthorizedApplicationRulesFromGroupPolicyMerged', $getValue.AdditionalProperties.firewallProfilePrivate.authorizedApplicationRulesFromGroupPolicyMerged)
         $complexFirewallProfilePrivate.Add('AuthorizedApplicationRulesFromGroupPolicyNotMerged', $getValue.AdditionalProperties.firewallProfilePrivate.authorizedApplicationRulesFromGroupPolicyNotMerged)
         $complexFirewallProfilePrivate.Add('ConnectionSecurityRulesFromGroupPolicyMerged', $getValue.AdditionalProperties.firewallProfilePrivate.connectionSecurityRulesFromGroupPolicyMerged)
@@ -1283,7 +1279,7 @@ function Get-TargetResource
             $complexFirewallProfilePrivate = $null
         }
 
-        $complexFirewallProfilePublic = @{}
+        $complexFirewallProfilePublic = [ordered]@{}
         $complexFirewallProfilePublic.Add('AuthorizedApplicationRulesFromGroupPolicyMerged', $getValue.AdditionalProperties.firewallProfilePublic.authorizedApplicationRulesFromGroupPolicyMerged)
         $complexFirewallProfilePublic.Add('AuthorizedApplicationRulesFromGroupPolicyNotMerged', $getValue.AdditionalProperties.firewallProfilePublic.authorizedApplicationRulesFromGroupPolicyNotMerged)
         $complexFirewallProfilePublic.Add('ConnectionSecurityRulesFromGroupPolicyMerged', $getValue.AdditionalProperties.firewallProfilePublic.connectionSecurityRulesFromGroupPolicyMerged)
@@ -1318,7 +1314,7 @@ function Get-TargetResource
         $complexFirewallRules = @()
         foreach ($currentfirewallRules in $getValue.AdditionalProperties.firewallRules)
         {
-            $myfirewallRules = @{}
+            $myfirewallRules = [ordered]@{}
             if ($null -ne $currentfirewallRules.action)
             {
                 $myfirewallRules.Add('Action', $currentfirewallRules.action.ToString())
@@ -1356,11 +1352,11 @@ function Get-TargetResource
             }
         }
 
-        $complexUserRightsAccessCredentialManagerAsTrustedCaller = @{}
+        $complexUserRightsAccessCredentialManagerAsTrustedCaller = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsAccessCredentialManagerAsTrustedCaller.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1379,11 +1375,11 @@ function Get-TargetResource
             $complexUserRightsAccessCredentialManagerAsTrustedCaller = $null
         }
 
-        $complexUserRightsActAsPartOfTheOperatingSystem = @{}
+        $complexUserRightsActAsPartOfTheOperatingSystem = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsActAsPartOfTheOperatingSystem.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1402,11 +1398,11 @@ function Get-TargetResource
             $complexUserRightsActAsPartOfTheOperatingSystem = $null
         }
 
-        $complexUserRightsAllowAccessFromNetwork = @{}
+        $complexUserRightsAllowAccessFromNetwork = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsAllowAccessFromNetwork.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1425,11 +1421,11 @@ function Get-TargetResource
             $complexUserRightsAllowAccessFromNetwork = $null
         }
 
-        $complexUserRightsBackupData = @{}
+        $complexUserRightsBackupData = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsBackupData.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1448,11 +1444,11 @@ function Get-TargetResource
             $complexUserRightsBackupData = $null
         }
 
-        $complexUserRightsBlockAccessFromNetwork = @{}
+        $complexUserRightsBlockAccessFromNetwork = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsBlockAccessFromNetwork.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1471,11 +1467,11 @@ function Get-TargetResource
             $complexUserRightsBlockAccessFromNetwork = $null
         }
 
-        $complexUserRightsChangeSystemTime = @{}
+        $complexUserRightsChangeSystemTime = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsChangeSystemTime.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1494,11 +1490,11 @@ function Get-TargetResource
             $complexUserRightsChangeSystemTime = $null
         }
 
-        $complexUserRightsCreateGlobalObjects = @{}
+        $complexUserRightsCreateGlobalObjects = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsCreateGlobalObjects.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1517,11 +1513,11 @@ function Get-TargetResource
             $complexUserRightsCreateGlobalObjects = $null
         }
 
-        $complexUserRightsCreatePageFile = @{}
+        $complexUserRightsCreatePageFile = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsCreatePageFile.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1540,11 +1536,11 @@ function Get-TargetResource
             $complexUserRightsCreatePageFile = $null
         }
 
-        $complexUserRightsCreatePermanentSharedObjects = @{}
+        $complexUserRightsCreatePermanentSharedObjects = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsCreatePermanentSharedObjects.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1563,11 +1559,11 @@ function Get-TargetResource
             $complexUserRightsCreatePermanentSharedObjects = $null
         }
 
-        $complexUserRightsCreateSymbolicLinks = @{}
+        $complexUserRightsCreateSymbolicLinks = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsCreateSymbolicLinks.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1586,11 +1582,11 @@ function Get-TargetResource
             $complexUserRightsCreateSymbolicLinks = $null
         }
 
-        $complexUserRightsCreateToken = @{}
+        $complexUserRightsCreateToken = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsCreateToken.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1609,11 +1605,11 @@ function Get-TargetResource
             $complexUserRightsCreateToken = $null
         }
 
-        $complexUserRightsDebugPrograms = @{}
+        $complexUserRightsDebugPrograms = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsDebugPrograms.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1632,11 +1628,11 @@ function Get-TargetResource
             $complexUserRightsDebugPrograms = $null
         }
 
-        $complexUserRightsDelegation = @{}
+        $complexUserRightsDelegation = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsDelegation.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1655,11 +1651,11 @@ function Get-TargetResource
             $complexUserRightsDelegation = $null
         }
 
-        $complexUserRightsDenyLocalLogOn = @{}
+        $complexUserRightsDenyLocalLogOn = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsDenyLocalLogOn.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1678,11 +1674,11 @@ function Get-TargetResource
             $complexUserRightsDenyLocalLogOn = $null
         }
 
-        $complexUserRightsGenerateSecurityAudits = @{}
+        $complexUserRightsGenerateSecurityAudits = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsGenerateSecurityAudits.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1701,11 +1697,11 @@ function Get-TargetResource
             $complexUserRightsGenerateSecurityAudits = $null
         }
 
-        $complexUserRightsImpersonateClient = @{}
+        $complexUserRightsImpersonateClient = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsImpersonateClient.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1724,11 +1720,11 @@ function Get-TargetResource
             $complexUserRightsImpersonateClient = $null
         }
 
-        $complexUserRightsIncreaseSchedulingPriority = @{}
+        $complexUserRightsIncreaseSchedulingPriority = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsIncreaseSchedulingPriority.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1747,11 +1743,11 @@ function Get-TargetResource
             $complexUserRightsIncreaseSchedulingPriority = $null
         }
 
-        $complexUserRightsLoadUnloadDrivers = @{}
+        $complexUserRightsLoadUnloadDrivers = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsLoadUnloadDrivers.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1770,11 +1766,11 @@ function Get-TargetResource
             $complexUserRightsLoadUnloadDrivers = $null
         }
 
-        $complexUserRightsLocalLogOn = @{}
+        $complexUserRightsLocalLogOn = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsLocalLogOn.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1793,11 +1789,11 @@ function Get-TargetResource
             $complexUserRightsLocalLogOn = $null
         }
 
-        $complexUserRightsLockMemory = @{}
+        $complexUserRightsLockMemory = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsLockMemory.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1816,11 +1812,11 @@ function Get-TargetResource
             $complexUserRightsLockMemory = $null
         }
 
-        $complexUserRightsManageAuditingAndSecurityLogs = @{}
+        $complexUserRightsManageAuditingAndSecurityLogs = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsManageAuditingAndSecurityLogs.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1839,11 +1835,11 @@ function Get-TargetResource
             $complexUserRightsManageAuditingAndSecurityLogs = $null
         }
 
-        $complexUserRightsManageVolumes = @{}
+        $complexUserRightsManageVolumes = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsManageVolumes.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1862,11 +1858,11 @@ function Get-TargetResource
             $complexUserRightsManageVolumes = $null
         }
 
-        $complexUserRightsModifyFirmwareEnvironment = @{}
+        $complexUserRightsModifyFirmwareEnvironment = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsModifyFirmwareEnvironment.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1885,11 +1881,11 @@ function Get-TargetResource
             $complexUserRightsModifyFirmwareEnvironment = $null
         }
 
-        $complexUserRightsModifyObjectLabels = @{}
+        $complexUserRightsModifyObjectLabels = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsModifyObjectLabels.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1908,11 +1904,11 @@ function Get-TargetResource
             $complexUserRightsModifyObjectLabels = $null
         }
 
-        $complexUserRightsProfileSingleProcess = @{}
+        $complexUserRightsProfileSingleProcess = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsProfileSingleProcess.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1931,11 +1927,11 @@ function Get-TargetResource
             $complexUserRightsProfileSingleProcess = $null
         }
 
-        $complexUserRightsRemoteDesktopServicesLogOn = @{}
+        $complexUserRightsRemoteDesktopServicesLogOn = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsRemoteDesktopServicesLogOn.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1954,11 +1950,11 @@ function Get-TargetResource
             $complexUserRightsRemoteDesktopServicesLogOn = $null
         }
 
-        $complexUserRightsRemoteShutdown = @{}
+        $complexUserRightsRemoteShutdown = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsRemoteShutdown.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -1977,11 +1973,11 @@ function Get-TargetResource
             $complexUserRightsRemoteShutdown = $null
         }
 
-        $complexUserRightsRestoreData = @{}
+        $complexUserRightsRestoreData = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsRestoreData.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -2000,11 +1996,11 @@ function Get-TargetResource
             $complexUserRightsRestoreData = $null
         }
 
-        $complexUserRightsTakeOwnership = @{}
+        $complexUserRightsTakeOwnership = [ordered]@{}
         $complexLocalUsersOrGroups = @()
         foreach ($currentLocalUsersOrGroups in $getValue.AdditionalProperties.userRightsTakeOwnership.localUsersOrGroups)
         {
-            $myLocalUsersOrGroups = @{}
+            $myLocalUsersOrGroups = [ordered]@{}
             $myLocalUsersOrGroups.Add('Description', $currentLocalUsersOrGroups.description)
             $myLocalUsersOrGroups.Add('Name', $currentLocalUsersOrGroups.name)
             $myLocalUsersOrGroups.Add('SecurityIdentifier', $currentLocalUsersOrGroups.securityIdentifier)
@@ -2639,7 +2635,6 @@ function Get-TargetResource
             XboxServicesLiveNetworkingServiceStartupMode                                 = $enumXboxServicesLiveNetworkingServiceStartupMode
             Description                                                                  = $getValue.Description
             DisplayName                                                                  = $getValue.DisplayName
-            SupportsScopeTags                                                            = $getValue.SupportsScopeTags
             Id                                                                           = $getValue.Id
             RoleScopeTagIds                                                              = $getValue.RoleScopeTagIds
             Ensure                                                                       = 'Present'
@@ -2648,7 +2643,7 @@ function Get-TargetResource
             TenantId                                                                     = $TenantId
             ApplicationSecret                                                            = $ApplicationSecret
             CertificateThumbprint                                                        = $CertificateThumbprint
-            Managedidentity                                                              = $ManagedIdentity.IsPresent
+            ManagedIdentity                                                              = $ManagedIdentity.IsPresent
             AccessTokens                                                                 = $AccessTokens
             #endregion
         }
@@ -2663,7 +2658,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $returnAssignments)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -3655,10 +3650,6 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
-
-        [Parameter()]
-        [System.Boolean]
-        $SupportsScopeTags,
 
         [Parameter()]
         [System.String]
@@ -4797,10 +4788,6 @@ function Test-TargetResource
         $DisplayName,
 
         [Parameter()]
-        [System.Boolean]
-        $SupportsScopeTags,
-
-        [Parameter()]
         [System.String]
         $Id,
 
@@ -4847,9 +4834,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -4859,51 +4843,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune Device Configuration Endpoint Protection Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
-    $ValuesToCheck.Remove('Id') | Out-Null
-    $testResult = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($source.GetType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-Not $testResult)
-            {
-                $testResult = $false
-                break
-            }
-
-            $ValuesToCheck.Remove($key) | Out-Null
-
-        }
-    }
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    if ($testResult)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -5002,7 +4944,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
@@ -6019,4 +5961,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

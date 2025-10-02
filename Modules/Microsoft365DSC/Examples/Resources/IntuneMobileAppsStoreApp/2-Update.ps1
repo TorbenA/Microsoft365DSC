@@ -64,11 +64,17 @@ Configuration Example
             PrivacyInformationUrl = "";
             Publisher             = "Contoso";
             Assignments          = @(
-                MSFT_DeviceManagementMobileAppAssignment {
+                MSFT_DeviceManagementStoreMobileAppAssignment {
                     groupDisplayName = 'All devices'
                     deviceAndAppManagementAssignmentFilterType = 'none'
                     dataType = '#microsoft.graph.allDevicesAssignmentTarget'
                     intent = 'required'
+                    assignmentSettings = MSFT_DeviceManagementStoreMobileAppAssignmentSettings {
+                        odataType = '#microsoft.graph.iosStoreAppAssignmentSettings'
+                        uninstallOnDeviceRemoval = $False
+                        isRemovable = $True
+                        preventManagedAppBackup = $True
+                    }
                 }
             );
             Categories             = @(

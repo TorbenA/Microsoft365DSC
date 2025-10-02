@@ -108,13 +108,13 @@ function Get-TargetResource
         Write-Verbose -Message "An Azure AD Authentication Method Policy X509 with Id {$Id} was found."
 
         #region resource generator code
-        $complexAuthenticationModeConfiguration = @{}
+        $complexAuthenticationModeConfiguration = [ordered]@{}
         $complexRules = @()
         if ($getValue.AdditionalProperties.authenticationModeConfiguration.rules.length -ne 0)
         {
             foreach ($currentRules in $getValue.AdditionalProperties.authenticationModeConfiguration.rules)
             {
-                $myRules = @{}
+                $myRules = [ordered]@{}
                 $myRules.Add('Identifier', $currentRules.identifier)
                 if ($null -ne $currentRules.x509CertificateAuthenticationMode)
                 {
@@ -152,7 +152,7 @@ function Get-TargetResource
         $complexCertificateUserBindings = @()
         foreach ($currentcertificateUserBindings in $getValue.AdditionalProperties.certificateUserBindings)
         {
-            $mycertificateUserBindings = @{}
+            $mycertificateUserBindings = [ordered]@{}
             $mycertificateUserBindings.Add('Priority', $currentcertificateUserBindings.priority)
             $mycertificateUserBindings.Add('UserProperty', $currentcertificateUserBindings.userProperty)
             $mycertificateUserBindings.Add('X509CertificateField', $currentcertificateUserBindings.x509CertificateField)
@@ -166,7 +166,7 @@ function Get-TargetResource
         $complexExcludeTargets = @()
         foreach ($currentExcludeTargets in $getValue.excludeTargets)
         {
-            $myExcludeTargets = @{}
+            $myExcludeTargets = [ordered]@{}
             if ($currentExcludeTargets.id -ne 'all_users')
             {
                 try
@@ -206,7 +206,7 @@ function Get-TargetResource
         $complexIncludeTargets = @()
         foreach ($currentIncludeTargets in $getValue.AdditionalProperties.includeTargets)
         {
-            $myIncludeTargets = @{}
+            $myIncludeTargets = [ordered]@{}
             if ($currentIncludeTargets.id -ne 'all_users')
             {
                 try
@@ -267,12 +267,12 @@ function Get-TargetResource
             TenantId                        = $TenantId
             ApplicationSecret               = $ApplicationSecret
             CertificateThumbprint           = $CertificateThumbprint
-            Managedidentity                 = $ManagedIdentity.IsPresent
+            ManagedIdentity                 = $ManagedIdentity.IsPresent
             AccessTokens                    = $AccessTokens
             #endregion
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -589,7 +589,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

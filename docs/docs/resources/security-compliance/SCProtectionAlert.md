@@ -87,7 +87,7 @@ Configuration Example
             Disabled                = $False;
             Ensure                  = "Present";
             Filter                  = "(Mail.IsMailZAPSuccessful -eq 1) -and Mail.IsCampaignZapped -eq 1 -and (Mail.TenantPolicyFinalVerdictSource -ne 'PhishEdu') -and (Mail.TenantPolicyFinalVerdictSource -ne 'SecOps') -and (Mail.TenantPolicyFinalVerdictSource -ne 'ThirdPartyFiltering')";
-            Name                    = "Custom Email messages from a campaign removed after deliveryâ€‹";
+            Name                    = "Custom Email messages from a campaign removed after delivery​";
             NotificationEnabled     = $False;
             NotifyUser              = @("TenantAdmins");
             NotifyUserOnFilterMatch = $False;

@@ -186,7 +186,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -249,11 +249,11 @@ function Get-TargetResource
             -All `
             -ErrorAction Stop
         $policyTemplateId = $getValue.TemplateReference.TemplateId
-        [array]$settingDefinitions = Get-MgBetaDeviceManagementConfigurationPolicyTemplateSettingTemplate `
+        [array]$settingDefinitions = (Get-MgBetaDeviceManagementConfigurationPolicyTemplateSettingTemplate `
             -DeviceManagementConfigurationPolicyTemplateId $policyTemplateId `
             -ExpandProperty 'settingDefinitions' `
             -All `
-            -ErrorAction Stop | Select-Object -ExpandProperty SettingDefinitions
+            -ErrorAction Stop).SettingDefinitions
 
         $policySettings = @{}
         $policySettings = Export-IntuneSettingCatalogPolicySettings -Settings $settings -ReturnHashtable $policySettings -AllSettingDefinitions $settingDefinitions
@@ -262,7 +262,7 @@ function Get-TargetResource
         $complexExclusions = @()
         foreach ($currentExclusions in $policySettings.exclusions)
         {
-            $myExclusions = @{}
+            $myExclusions = [ordered]@{}
             if ($null -ne $currentExclusions.exclusions_item_type)
             {
                 $myExclusions.Add('Exclusions_item_type', $currentExclusions.exclusions_item_type)
@@ -293,7 +293,7 @@ function Get-TargetResource
         $complexThreatTypeSettings = @()
         foreach ($currentThreatTypeSettings in $policySettings.threatTypeSettings)
         {
-            $myThreatTypeSettings = @{}
+            $myThreatTypeSettings = [ordered]@{}
             $myThreatTypeSettings.Add('ThreatTypeSettings_item_key', $currentThreatTypeSettings.threatTypeSettings_item_key)
             $myThreatTypeSettings.Add('ThreatTypeSettings_item_value', $currentThreatTypeSettings.threatTypeSettings_item_value)
             if ($myThreatTypeSettings.values.Where({ $null -ne $_ }).Count -gt 0)
@@ -331,7 +331,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -1043,4 +1043,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

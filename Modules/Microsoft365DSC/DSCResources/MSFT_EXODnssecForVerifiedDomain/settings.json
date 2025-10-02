@@ -28,5 +28,6 @@
   "requiredModules": [],
   "supportedEnvironments": [
     "Global"
-  ]
+  ],
+  "mode": "Configuration"
 }

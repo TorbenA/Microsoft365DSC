@@ -71,6 +71,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             OffsetUri = '/Policies/BackupDirectory'
                             AdditionalProperties = @{
                                 '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingDefinition'
+                                options = @(
+                                    @{
+                                        itemId = 'device_vendor_msft_laps_policies_backupdirectory_1'
+                                        name   = 'Backup the password to Azure AD only'
+                                        optionValue = @{
+                                            '@odata.type' = "#microsoft.graph.deviceManagementConfigurationIntegerSettingValue"
+                                            value = 1
+                                        }
+                                    }
+                                )
                             }
                         }
                     )

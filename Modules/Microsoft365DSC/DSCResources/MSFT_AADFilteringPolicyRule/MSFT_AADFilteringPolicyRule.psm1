@@ -84,6 +84,7 @@ function Get-TargetResource
         {
             Write-Verbose -Message "Found existing Policy {$Policy}"
 
+            $instance = $null
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
                 Write-Verbose -Message "Retrieving Filtering Policy Rule by Id {$Id}"
@@ -133,7 +134,7 @@ function Get-TargetResource
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -262,15 +263,15 @@ function Set-TargetResource
     # CREATE
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating new Filtering Policy Rule {$Name}"
+        Write-Verbose -Message "Creating new Filtering Policy Rule {$Name} with:`r`n$(ConvertTo-Json $instanceParams -Depth 10)"
         New-MgBetaNetworkAccessFilteringPolicyRule -FilteringPolicyId $policyInstance.Id `
             -BodyParameter $instanceParams
     }
     # UPDATE
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating Filtering Policy Rule {$Name}"
         $instanceParams.Remove('ruleType') | Out-Null
+        Write-Verbose -Message "Updating Filtering Policy Rule {$Name} with:`r`n$(ConvertTo-Json $instanceParams -Depth 10)"
         Update-MgBetaNetworkAccessFilteringPolicyRule -FilteringPolicyId $policyInstance.Id `
             -PolicyRuleId $currentInstance.Id `
             -BodyParameter $instanceParams

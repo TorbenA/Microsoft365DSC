@@ -76,7 +76,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -138,7 +138,7 @@ function Get-TargetResource
         $policySettings = Export-IntuneSettingCatalogPolicySettings -Settings $settings -ReturnHashtable $policySettings -ContainsDeviceAndUserSettings
 
         #region resource generator code
-        $complexDeviceSettings = @{}
+        $complexDeviceSettings = [ordered]@{}
 
         # Add device settings with conditional checks
         if ($null -ne $policySettings.DeviceSettings.deviceInstall_Classes_Deny)
@@ -653,7 +653,7 @@ function Get-TargetResource
         }
         $policySettings.Remove('DeviceSettings') | Out-Null
 
-        $complexUserSettings = @{}
+        $complexUserSettings = [ordered]@{}
 
         # Add user settings with conditional checks
         if ($null -ne $policySettings.UserSettings.DisableSafetyFilterOverrideForAppRepUnknown)
@@ -698,7 +698,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -1186,4 +1186,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

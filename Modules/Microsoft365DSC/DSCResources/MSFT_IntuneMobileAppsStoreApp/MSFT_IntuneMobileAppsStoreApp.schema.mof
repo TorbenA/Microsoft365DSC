@@ -10,6 +10,27 @@ class MSFT_DeviceManagementMobileAppAssignment
     [Write, Description("Possible values for the install intent chosen by the admin."), ValueMap{"available", "required", "uninstall", "availableWithoutEnrollment"}, Values{"available", "required", "uninstall", "availableWithoutEnrollment"}] String intent;
 };
 
+[ClassVersion("1.0.0.2")]
+class MSFT_DeviceManagementMobileAppAssignmentSettings
+{
+    [Required, Description("The odata type of the assignment type."), ValueMap{"#microsoft.graph.iosStoreAppAssignmentSettings", "#microsoft.graph.win32LobAppAssignmentSettings", "#microsoft.graph.winGetAppAssignmentSettings", "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"}, Values{"#microsoft.graph.iosStoreAppAssignmentSettings", "#microsoft.graph.win32LobAppAssignmentSettings", "#microsoft.graph.winGetAppAssignmentSettings", "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"}] String odataType;
+};
+
+[ClassVersion("1.0.0.0")]
+class MSFT_DeviceManagementStoreMobileAppAssignmentSettings : MSFT_DeviceManagementMobileAppAssignmentSettings
+{
+    [Write, Description("Display name or Id of the VPN configuration profile associated with this policy.")] String vpnConfigurationId;
+    [Write, Description("When TRUE, indicates that the app should be uninstalled when the device is removed from Intune. When FALSE, indicates that the app will not be uninstalled when the device is removed from Intune. By default, property is set to null which internally is treated as TRUE.")] Boolean uninstallOnDeviceRemoval;
+    [Write, Description("When TRUE, indicates that the app can be uninstalled by the user. When FALSE, indicates that the app cannot be uninstalled by the user. By default, this property is set to null which internally is treated as TRUE.")] Boolean isRemovable;
+    [Write, Description("When TRUE, indicates that the app should not be backed up to iCloud. When FALSE, indicates that the app may be backed up to iCloud. By default, this property is set to null which internally is treated as FALSE.")] Boolean preventManagedAppBackup;
+};
+
+[ClassVersion("1.0.0.0")]
+class MSFT_DeviceManagementStoreMobileAppAssignment : MSFT_DeviceManagementMobileAppAssignment
+{
+    [Write, Description("The settings of the assignment."), EmbeddedInstance("MSFT_DeviceManagementStoreMobileAppAssignmentSettings")] String assignmentSettings;
+};
+
 [ClassVersion("1.0.0")]
 class MSFT_MicrosoftGraphIosDeviceType
 {
@@ -59,7 +80,7 @@ class MSFT_DeviceManagementMobileAppCategory
     [Write, Description("The unique identifier for an entity. Read-only.")] String Id;
 };
 
-[ClassVersion("1.0.0.0"), FriendlyName("IntuneMobileAppsStoreApp")]
+[ClassVersion("1.0.0.1"), FriendlyName("IntuneMobileAppsStoreApp")]
 class MSFT_IntuneMobileAppsStoreApp : OMI_BaseResource
 {
     [Write, Description("The unique identifier for an entity. Read-only.")] String Id;
@@ -80,7 +101,7 @@ class MSFT_IntuneMobileAppsStoreApp : OMI_BaseResource
     [Write, Description("List of scope tag ids for this mobile app.")] String RoleScopeTagIds[];
     [Required, Description("The target platform of the mobile app."), ValueMap{"android","ios"}, Values{"android","ios"}] String TargetPlatform;
     [Write, Description("The list of categories for this app."), EmbeddedInstance("MSFT_DeviceManagementMobileAppCategory")] String Categories[];
-    [Write, Description("Represents the assignment to the Intune policy."), EmbeddedInstance("MSFT_DeviceManagementMobileAppAssignment")] String Assignments[];
+    [Write, Description("Represents the assignment to the Intune policy."), EmbeddedInstance("MSFT_DeviceManagementStoreMobileAppAssignment")] String Assignments[];
     [Write, Description("Present ensures the policy exists, absent ensures it is removed."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] string Ensure;
     [Write, Description("Credentials of the Admin"), EmbeddedInstance("MSFT_Credential")] string Credential;
     [Write, Description("Id of the Azure Active Directory application to authenticate with.")] String ApplicationId;

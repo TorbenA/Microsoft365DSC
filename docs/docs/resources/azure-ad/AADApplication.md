@@ -7,7 +7,6 @@
 | **DisplayName** | Key | String | DisplayName of the app | |
 | **ObjectId** | Write | String | ObjectID of the app. | |
 | **AppId** | Write | String | AppId for the app. | |
-| **AvailableToOtherTenants** | Write | Boolean | DEPRECATED: Indicates whether this application is available in other tenants. | |
 | **Description** | Write | String | A free text field to provide a description of the application object to end users. The maximum allowed size is 1024 characters. | |
 | **GroupMembershipClaims** | Write | String | A bitmask that configures the groups claim issued in a user or OAuth 2.0 access token that the application expects. | |
 | **Homepage** | Write | String | The URL to the application's homepage. | |
@@ -173,7 +172,6 @@
 | --- | --- | --- | --- | --- |
 | **BlockAzureADGraphAccess** | Write | String | If false, allows the app to have extended access to Azure AD Graph until June 30, 2025 when Azure AD Graph is fully retired. For more information on Azure AD retirement updates, see June 2024 update on Azure AD Graph API retirement. Use 'Null' to ensure the value is not configured. | `True`, `False`, `Null` |
 | **RemoveUnverifiedEmailClaim** | Write | String | If true, removes the email claim from tokens sent to an application when the email address's domain can't be verified. Use 'Null' to ensure the value is not configured. | `True`, `False`, `Null` |
-| **RequireClientServicePrincipal** | Write | String | DEPRECATED | |
 
 ### MSFT_MicrosoftGraphKeyCredential
 
@@ -283,7 +281,6 @@ Configuration Example
         AADApplication 'AADApp1'
         {
             DisplayName               = "AppDisplayName"
-            AvailableToOtherTenants   = $false
             Description               = "Application Description"
             GroupMembershipClaims     = "None"
             Homepage                  = "https://$TenantId"
@@ -352,12 +349,10 @@ Configuration Example
         AADApplication 'AADApp1'
         {
             DisplayName               = "AppDisplayName"
-            AuthenticationBehaviors = MSFT_MicrosoftGraphauthenticationBehaviors # To make sure these parameters are not configured
-                {
-                    BlockAzureADGraphAccess       = 'Null'
-                    RemoveUnverifiedEmailClaim    = 'Null'
-                }
-            AvailableToOtherTenants   = $true # Updated Property
+            AuthenticationBehaviors = MSFT_MicrosoftGraphauthenticationBehaviors{ # To make sure these parameters are not configured
+                BlockAzureADGraphAccess       = 'Null'
+                RemoveUnverifiedEmailClaim    = 'Null'
+            }
             Description               = "Application Description"
             GroupMembershipClaims     = "None"
             Homepage                  = "https://$TenantId"

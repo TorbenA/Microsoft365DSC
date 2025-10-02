@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDefenderGlobalExclusionsPolicyLinux'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -71,7 +73,7 @@ function Get-TargetResource
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
 
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -104,6 +106,7 @@ function Get-TargetResource
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
+                        -All `
                         -Filter "Name eq '$DisplayName'" `
                         -ErrorAction SilentlyContinue
                 }
@@ -136,7 +139,7 @@ function Get-TargetResource
         $complexExclusions = @()
         foreach ($exclusion in $policySettings.Exclusions)
         {
-            $complexExclusion = @{}
+            $complexExclusion = [ordered]@{}
             $complexExclusion.Add('Exclusions_item_type', $exclusion.exclusions_item_type)
             $complexExclusion.Add('Exclusions_item_path', $exclusion.exclusions_item_path)
             $complexExclusion.Add('Exclusions_item_name', $exclusion.exclusions_item_name)
@@ -172,7 +175,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

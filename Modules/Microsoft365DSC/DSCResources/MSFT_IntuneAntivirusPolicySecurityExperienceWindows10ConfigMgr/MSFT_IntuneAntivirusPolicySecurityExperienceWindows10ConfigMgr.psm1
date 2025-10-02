@@ -185,6 +185,7 @@ function Get-TargetResource
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
+                        -All `
                         -Filter "Name eq '$($DisplayName -replace "'", "''")' and creationSource eq 'WindowsSecurity' and technologies eq 'configManager'" `
                         -ErrorAction SilentlyContinue
                 }
@@ -213,6 +214,12 @@ function Get-TargetResource
         $policySettings = @{}
         $policySettings = Export-IntuneSettingCatalogPolicySettings -Settings $settings -ReturnHashtable $policySettings
 
+        $disableNotificationsInstance = $settings | Where-Object { $_.SettingInstance.SettingDefinitionId -like "*_disablenotifications" }
+        if ($null -ne $disableNotificationsInstance)
+        {
+            $policySettings.DisableNotifications = [int]$disableNotificationsInstance.SettingInstance.AdditionalProperties.choiceSettingValue.value.Split("_")[-1]
+        }
+
         $results = @{
             #region resource generator code
             Description           = $getValue.Description
@@ -238,7 +245,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {

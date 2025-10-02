@@ -130,7 +130,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -182,7 +182,7 @@ function Get-TargetResource
         $complexServers = @()
         foreach ($currentservers in $getValue.AdditionalProperties.servers)
         {
-            $myservers = @{}
+            $myservers = [ordered]@{}
             $myservers.Add('address', $currentservers.address)
             $myservers.Add('description', $currentservers.description)
             $myservers.Add('isDefaultServer', $currentservers.isDefaultServer)
@@ -195,7 +195,7 @@ function Get-TargetResource
         $complexProxyServers = @()
         foreach ($currentservers in $getValue.AdditionalProperties.proxyServer)
         {
-            $myservers = @{}
+            $myservers = [ordered]@{}
             $myservers.Add('automaticConfigurationScriptUrl', $currentservers.automaticConfigurationScriptUrl)
             $myservers.Add('address', $currentservers.address)
             $myservers.Add('port', $currentservers.port)
@@ -208,7 +208,7 @@ function Get-TargetResource
         $complexCustomData = @()
         foreach ($value in $getValue.AdditionalProperties.customData)
         {
-            $myCustomdata = @{}
+            $myCustomdata = [ordered]@{}
             $myCustomdata.Add('key', $value.key)
             $myCustomdata.Add('value', $value.value)
             if ($myCustomdata.values.Where({$null -ne $_}).count -gt 0)
@@ -220,7 +220,7 @@ function Get-TargetResource
         $complexCustomKeyValueData = @()
         foreach ($value in $getValue.AdditionalProperties.customKeyValueData)
         {
-            $myCVdata = @{}
+            $myCVdata = [ordered]@{}
             $myCVdata.Add('name', $value.name)
             $myCVdata.Add('value', $value.value)
             if ($myCVdata.values.Where({$null -ne $_}).count -gt 0)
@@ -232,7 +232,7 @@ function Get-TargetResource
         $complexTargetedMobileApps = @()
         foreach ($value in $getValue.AdditionalProperties.targetedMobileApps)
         {
-            $myTMAdata = @{}
+            $myTMAdata = [ordered]@{}
             $myTMAdata.Add('name', $value.name)
             $myTMAdata.Add('publisher', $value.publisher)
             $myTMAdata.Add('appStoreUrl', $value.appStoreUrl)
@@ -270,7 +270,7 @@ function Get-TargetResource
             TenantId                       = $TenantId
             ApplicationSecret              = $ApplicationSecret
             CertificateThumbprint          = $CertificateThumbprint
-            Managedidentity                = $ManagedIdentity.IsPresent
+            ManagedIdentity                = $ManagedIdentity.IsPresent
             AccessTokens                   = $AccessTokens
         }
 
@@ -284,7 +284,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -421,15 +421,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    try
-    {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-            -InboundParameters $PSBoundParameters
-    }
-    catch
-    {
-        Write-Verbose -Message $_
-    }
+    Write-Verbose -Message "Setting configuration of the Intune VPN Policy for Android Work with Id {$Id} and DisplayName {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -694,9 +686,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -706,56 +695,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of {$Id}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-    $testResult = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($source.GetType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-not $testResult) { break }
-
-            $ValuesToCheck.Remove($key) | Out-Null
-        }
-    }
-
-    $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    #Convert any DateTime to String
-    foreach ($key in $ValuesToCheck.Keys)
-    {
-        if (($null -ne $CurrentValues[$key]) `
-                -and ($CurrentValues[$key].getType().Name -eq 'DateTime'))
-        {
-            $CurrentValues[$key] = $CurrentValues[$key].ToString()
-        }
-    }
-
-    if ($testResult)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -850,7 +792,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
@@ -1050,4 +992,3 @@ function Get-M365DSCAdditionalProperties
 }
 
 Export-ModuleMember -Function *-TargetResource
-

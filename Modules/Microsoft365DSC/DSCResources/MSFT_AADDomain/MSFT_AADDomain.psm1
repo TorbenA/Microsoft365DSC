@@ -135,7 +135,7 @@ function Get-TargetResource
             ManagedIdentity                  = $ManagedIdentity.IsPresent
             AccessTokens                     = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -289,9 +289,10 @@ function Set-TargetResource
     # UPDATE
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating custom domain name {$Id}"
         $setParameters.Add('DomainId', $Id)
         $setParameters.Remove('Id') | Out-Null
+        $setParameters.Remove('IsVerified') | Out-Null
+        Write-Verbose -Message "Updating custom domain name {$Id} with:`r`n$(ConvertTo-Json $SetParameters -Depth 5)"
         Update-MgBetaDomain @SetParameters
     }
     # REMOVE

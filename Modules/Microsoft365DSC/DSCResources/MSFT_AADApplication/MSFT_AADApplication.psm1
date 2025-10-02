@@ -20,10 +20,6 @@ function Get-TargetResource
         $AppId,
 
         [Parameter()]
-        [System.Boolean]
-        $AvailableToOtherTenants,
-
-        [Parameter()]
         [System.String]
         $Description,
 
@@ -215,7 +211,6 @@ function Get-TargetResource
         $complexAuthenticationBehaviors = @{
             BlockAzureADGraphAccess    = 'Null'
             RemoveUnverifiedEmailClaim = 'Null'
-            #RequireClientServicePrincipal = 'Null' #DEPRECATED
         }
         if ($null -ne $AADApp.authenticationBehaviors.blockAzureADGraphAccess)
         {
@@ -226,11 +221,11 @@ function Get-TargetResource
             $complexAuthenticationBehaviors.RemoveUnverifiedEmailClaim = $AADApp.authenticationBehaviors.removeUnverifiedEmailClaim.ToString()
         }
 
-        $complexOptionalClaims = @{}
+        $complexOptionalClaims = [ordered]@{}
         $complexAccessToken = @()
         foreach ($currentAccessToken in $AADApp.optionalClaims.accessToken)
         {
-            $myAccessToken = @{}
+            $myAccessToken = [ordered]@{}
             $myAccessToken.Add('Essential', $currentAccessToken.essential)
             $myAccessToken.Add('Name', $currentAccessToken.name)
             $myAccessToken.Add('Source', $currentAccessToken.source)
@@ -243,7 +238,7 @@ function Get-TargetResource
         $complexIdToken = @()
         foreach ($currentIdToken in $AADApp.optionalClaims.idToken)
         {
-            $myIdToken = @{}
+            $myIdToken = [ordered]@{}
             $myIdToken.Add('Essential', $currentIdToken.essential)
             $myIdToken.Add('Name', $currentIdToken.name)
             $myIdToken.Add('Source', $currentIdToken.source)
@@ -256,7 +251,7 @@ function Get-TargetResource
         $complexSaml2Token = @()
         foreach ($currentSaml2Token in $AADApp.optionalClaims.saml2Token)
         {
-            $mySaml2Token = @{}
+            $mySaml2Token = [ordered]@{}
             $mySaml2Token.Add('Essential', $currentSaml2Token.essential)
             $mySaml2Token.Add('Name', $currentSaml2Token.name)
             $mySaml2Token.Add('Source', $currentSaml2Token.source)
@@ -271,11 +266,11 @@ function Get-TargetResource
             $complexOptionalClaims = $null
         }
 
-        $complexApi = @{}
+        $complexApi = [ordered]@{}
         $complexPreAuthorizedApplications = @()
         foreach ($currentPreAuthorizedApplications in $AADApp.api.preAuthorizedApplications)
         {
-            $myPreAuthorizedApplications = @{}
+            $myPreAuthorizedApplications = [ordered]@{}
             $myPreAuthorizedApplications.Add('AppId', $currentPreAuthorizedApplications.appId)
             $myPreAuthorizedApplications.Add('PermissionIds', $currentPreAuthorizedApplications.permissionIds)
             if ($myPreAuthorizedApplications.values.Where({ $null -ne $_ }).Count -gt 0)
@@ -309,7 +304,7 @@ function Get-TargetResource
         $complexKeyCredentials = @()
         foreach ($currentkeyCredentials in $AADAppKeyCredentials)
         {
-            $mykeyCredentials = @{}
+            $mykeyCredentials = [ordered]@{}
             if ($null -ne $currentkeyCredentials.customKeyIdentifier)
             {
                 $mykeyCredentials.Add('CustomKeyIdentifier', [convert]::ToBase64String($currentkeyCredentials.customKeyIdentifier))
@@ -342,7 +337,7 @@ function Get-TargetResource
         $complexPasswordCredentials = @()
         foreach ($currentpasswordCredentials in $AADApp.passwordCredentials)
         {
-            $mypasswordCredentials = @{}
+            $mypasswordCredentials = [ordered]@{}
             $mypasswordCredentials.Add('DisplayName', $currentpasswordCredentials.displayName)
             if ($null -ne $currentpasswordCredentials.endDateTime)
             {
@@ -363,7 +358,7 @@ function Get-TargetResource
         $complexAppRoles = @()
         foreach ($currentappRoles in $AADApp.appRoles)
         {
-            $myappRoles = @{}
+            $myappRoles = [ordered]@{}
             $myappRoles.Add('AllowedMemberTypes', $currentappRoles.allowedMemberTypes)
             $myappRoles.Add('Description', $currentappRoles.description)
             $myappRoles.Add('DisplayName', $currentappRoles.displayName)
@@ -391,13 +386,6 @@ function Get-TargetResource
             $PublicClientRedirectUrisValue = $AADApp.PublicClient.RedirectUris
         }
 
-        # DEPRECATED
-        $AvailableToOtherTenantsValue = $false
-        if ($AADApp.SignInAudience -ne 'AzureADMyOrg')
-        {
-            $AvailableToOtherTenantsValue = $true
-        }
-
         $OwnersValues = @()
         foreach ($Owner in $($AADApp.Owners | Where-Object { -not $_.DeletedDateTime }))
         {
@@ -418,7 +406,7 @@ function Get-TargetResource
         }
 
         #region OnPremisesPublishing
-        $onPremisesPublishingValue = @{}
+        $onPremisesPublishingValue = [ordered]@{}
         $oppInfo = $null
 
         try
@@ -509,7 +497,6 @@ function Get-TargetResource
 
         $result = @{
             DisplayName              = $AADApp.DisplayName
-            AvailableToOtherTenants  = $AvailableToOtherTenantsValue
             AuthenticationBehaviors  = $complexAuthenticationBehaviors
             Description              = $AADApp.Description
             GroupMembershipClaims    = $AADApp.GroupMembershipClaims
@@ -581,10 +568,6 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $AppId,
-
-        [Parameter()]
-        [System.Boolean]
-        $AvailableToOtherTenants,
 
         [Parameter()]
         [System.String]
@@ -780,11 +763,6 @@ function Set-TargetResource
 
     }
 
-    if ($currentParameters.ContainsKey('AvailableToOtherTenants'))
-    {
-        Write-Verbose -Message "Property AvailableToOtherTenants is deprecated and will not have any effect. We recommend removing it from your configuration."
-    }
-    $currentParameters.Remove('AvailableToOtherTenants') | Out-Null
     $currentParameters.Remove('PublicClient') | Out-Null
     $currentParameters.Remove('Verbose') | Out-Null
 
@@ -1373,10 +1351,6 @@ function Test-TargetResource
         $AppId,
 
         [Parameter()]
-        [System.Boolean]
-        $AvailableToOtherTenants,
-
-        [Parameter()]
         [System.String]
         $Description,
 
@@ -1510,7 +1484,7 @@ function Test-TargetResource
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
                                          -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludedProperties @('AppId', 'ObjectId', 'AvailableToOtherTenants')
+                                         -ExcludedProperties @('AppId', 'ObjectId')
     return $result
 }
 
@@ -1598,7 +1572,7 @@ function Export-TargetResource
                 DisplayName           = $AADApp.DisplayName
                 ObjectID              = $AADApp.Id
                 Credential            = $Credential
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
             try

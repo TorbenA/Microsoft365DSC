@@ -887,10 +887,10 @@ $($userDefinitionSettings.MOF -join "`r`n")
             $AssignmentsUpdate += "            -Repository '$repository'"
 
             $AssignmentsCIM = @'
-[ClassVersion("1.0.0.1")]
+[ClassVersion("1.0.0.2")]
 class MSFT_DeviceManagementConfigurationPolicyAssignments
 {
-    [Write, Description("The type of the target assignment."), ValueMap{"#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}, Values{"#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}] String dataType;
+    [Write, Description("The type of the target assignment."), ValueMap{"#microsoft.graph.cloudPcManagementGroupAssignmentTarget","#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}, Values{"#microsoft.graph.cloudPcManagementGroupAssignmentTarget","#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}] String dataType;
     [Write, Description("The type of filter of the target assignment i.e. Exclude or Include. Possible values are:none, include, exclude."), ValueMap{"none","include","exclude"}, Values{"none","include","exclude"}] String deviceAndAppManagementAssignmentFilterType;
     [Write, Description("The Id of the filter for the target assignment.")] String deviceAndAppManagementAssignmentFilterId;
     [Write, Description("The display name of the filter for the target assignment.")] String deviceAndAppManagementAssignmentFilterDisplayName;
@@ -924,7 +924,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
         Write-TokenReplacement -Token '<#AssignmentsFunctions#>' -Value $AssignmentsFunctions -FilePath $moduleFilePath
         Write-TokenReplacement -Token '<#AssignmentsConvertComplexToString#>' -Value $AssignmentsConvertComplexToString -FilePath $moduleFilePath
 
-        $defaultTestValuesToCheck = "    `$ValuesToCheck = ([hashtable]`$PSBoundParameters).Clone()"
+        $defaultTestValuesToCheck = "    `$ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters `$PSBoundParameters"
         if ($CmdLetNoun -like "*DeviceManagementConfigurationPolicy")
         {
             $defaultTestValuesToCheck = @"
@@ -1985,7 +1985,7 @@ function Get-ComplexTypeConstructorToString
         $spacing = $indent * $IndentCount
     }
 
-    $complexString.AppendLine($spacing + "`$$tempPropertyName" + " = @{}") | Out-Null
+    $complexString.AppendLine($spacing + "`$$tempPropertyName" + " = [ordered]@{}") | Out-Null
 
     foreach ($nestedProperty in $property.Properties)
     {

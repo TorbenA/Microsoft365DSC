@@ -134,20 +134,22 @@ function Get-TargetResource
             $nullReturn.Ensure = 'Absent'
             $nullReturn.Owners = @()
             $nullReturn.Members = @()
+            $nullReturn.GroupAsMembers = @()
             $nullReturn.MemberOf = @()
             $nullReturn.AssignedToRole = @()
+            $nullReturn.AssignedLicenses = @()
 
             if ($PSBoundParameters.ContainsKey('Id'))
             {
                 Write-Verbose -Message 'GroupID was specified'
                 try
                 {
-                    $Group = Get-MgGroup -GroupId $Id -ExpandProperty "members" -ErrorAction Stop
+                    $Group = Get-MgBetaGroup -GroupId $Id -ExpandProperty "members" -ErrorAction Stop
                 }
                 catch
                 {
                     Write-Verbose -Message "Couldn't get group by ID, trying by name"
-                    $Group = Get-MgGroup -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ExpandProperty "members" -ErrorAction Stop
+                    $Group = Get-MgBetaGroup -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ExpandProperty "members" -ErrorAction Stop
                     if ($Group.Length -gt 1)
                     {
                         throw "Duplicate AzureAD Groups named $DisplayName exist in tenant"
@@ -158,7 +160,7 @@ function Get-TargetResource
             {
                 Write-Verbose -Message 'Id was NOT specified'
                 ## Can retreive multiple AAD Groups since displayname is not unique
-                $Group = Get-MgGroup -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ExpandProperty "members" -ErrorAction Stop
+                $Group = Get-MgBetaGroup -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ExpandProperty "members" -ErrorAction Stop
                 if ($Group.Length -gt 1)
                 {
                     throw "Duplicate AzureAD Groups named $DisplayName exist in tenant"
@@ -177,7 +179,6 @@ function Get-TargetResource
         }
 
         Write-Verbose -Message 'Found existing AzureAD Group'
-
         $batchRequests = @(
             @{
                 id     = 'Owners'
@@ -217,25 +218,59 @@ function Get-TargetResource
         if ($Group.MembershipRuleProcessingState -ne 'On')
         {
             # Members
-            $MembersValues = @()
-            $GroupAsMembersValues = @()
-            foreach ($member in $Group.Members)
+            $MembersValues = [System.Collections.Generic.List[System.String]]::new()
+            $GroupAsMembersValues = [System.Collections.Generic.List[System.String]]::new()
+            $groupMembers = $Group.Members
+            if ($Group.Members.Count -eq 20)
             {
-                if ($member.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.user')
+                # Fetch all group members
+                $uri = "/beta/groups/$($Group.Id)/members?`$top=999"
+                $groupMembers = [System.Collections.Generic.List[System.Object]]::new()
+                $graphRequest = Invoke-MgGraphRequest -Uri $uri -Method GET
+                $groupMembers.AddRange($graphRequest.value)
+                while (-not [System.String]::IsNullOrEmpty($graphRequest.'@odata.nextLink'))
                 {
-                    $MembersValues += $member.AdditionalProperties.userPrincipalName
+                    $graphRequest = Invoke-MgGraphRequest -Uri $graphRequest.'@odata.nextLink' -Method GET
+                    $groupMembers.AddRange($graphRequest.value)
                 }
-                elseif ($member.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.servicePrincipal')
+            }
+            foreach ($member in $groupMembers)
+            {
+                if ($null -ne $member.AdditionalProperties)
                 {
-                    $MembersValues += $member.AdditionalProperties.displayName
+                    switch ($member.AdditionalProperties.'@odata.type')
+                    {
+                        '#microsoft.graph.user' {
+                            $MembersValues.Add($member.AdditionalProperties.userPrincipalName)
+                        }
+                        '#microsoft.graph.servicePrincipal' {
+                            $MembersValues.Add($member.AdditionalProperties.displayName)
+                        }
+                        '#microsoft.graph.device' {
+                            $MembersValues.Add($member.AdditionalProperties.displayName)
+                        }
+                        '#microsoft.graph.group' {
+                            $GroupAsMembersValues.Add($member.AdditionalProperties.displayName)
+                        }
+                    }
                 }
-                elseif ($member.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.device')
+                else
                 {
-                    $MembersValues += $member.AdditionalProperties.displayName
-                }
-                elseif ($member.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.group')
-                {
-                    $GroupAsMembersValues += $member.AdditionalProperties.displayName
+                    switch ($member.'@odata.type')
+                    {
+                        '#microsoft.graph.user' {
+                            $MembersValues.Add($member.userPrincipalName)
+                        }
+                        '#microsoft.graph.servicePrincipal' {
+                            $MembersValues.Add($member.displayName)
+                        }
+                        '#microsoft.graph.device' {
+                            $MembersValues.Add($member.displayName)
+                        }
+                        '#microsoft.graph.group' {
+                            $GroupAsMembersValues.Add($member.displayName)
+                        }
+                    }
                 }
             }
             $result.Add('Members', $MembersValues)
@@ -321,7 +356,7 @@ function Get-TargetResource
             CertificateThumbprint         = $CertificateThumbprint
             ApplicationSecret             = $ApplicationSecret
             Credential                    = $Credential
-            Managedidentity               = $ManagedIdentity.IsPresent
+            ManagedIdentity               = $ManagedIdentity.IsPresent
             AccessTokens                  = $AccessTokens
         }
         $result += $policySettings
@@ -540,7 +575,7 @@ function Set-TargetResource
 
     foreach ($assignedLicense in $AllLicenses)
     {
-        $skuInfo = $allSkus | Where-Object -FilterScript { $_.SkuPartNumber -eq $assignedLicense.SkuId }
+        $skuInfo = $allSkus | Where-Object -FilterScript { ($_.SkuPartNumber -replace [char]0xFEFF, '') -eq $assignedLicense.SkuId }
         if ($skuInfo)
         {
             if ($toAdd.Contains($assignedLicense.SkuId))
@@ -552,7 +587,7 @@ function Set-TargetResource
                     $disabledPlansValues += $foundItem.ServicePlanId
                 }
 
-                $skuInfo = $allSkus | Where-Object -FilterScript { $_.SkuPartNumber -eq $assignedLicense.SkuId }
+                $skuInfo = $allSkus | Where-Object -FilterScript { ($_.SkuPartNumber -replace [char]0xFEFF, '') -eq $assignedLicense.SkuId }
                 $licensesToAdd += @{
                     DisabledPlans = $disabledPlansValues
                     SkuId         = $skuInfo.SkuId
@@ -586,7 +621,7 @@ function Set-TargetResource
             Write-Verbose -Message "Found an instance of a deleted group {$DisplayName}. Restoring it."
             Restore-MgBetaDirectoryDeletedItem -DirectoryObjectId $groups[0].Id
             $restoringExisting = $true
-            $currentGroup = Get-MgGroup -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ErrorAction Stop
+            $currentGroup = Get-MgBetaGroup -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ErrorAction Stop
         }
 
         if (-not $restoringExisting)
@@ -676,17 +711,12 @@ function Set-TargetResource
         Write-Verbose -Message 'Updating Owners'
         if ($PSBoundParameters.ContainsKey('Owners'))
         {
-            $currentOwnersValue = @()
-            if ($currentParameters.Owners.Length -gt 0)
-            {
-                $currentOwnersValue = $backCurrentOwners
-            }
             $desiredOwnersValue = @()
             if ($Owners.Length -gt 0)
             {
                 $desiredOwnersValue = $Owners
             }
-            if ($backCurrentOwners -eq $null)
+            if ($null -eq $backCurrentOwners)
             {
                 $backCurrentOwners = @()
             }
@@ -701,6 +731,18 @@ function Set-TargetResource
                     if ($null -ne $app)
                     {
                         $directoryObject = Get-MgServicePrincipal -Filter "AppId eq '$($app.AppId)'"
+                    }
+                    else
+                    {
+                        $spInstances = Get-MgServicePrincipal -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
+                        if ($null -ne $spInstances -and $spInstances.Count -gt 1)
+                        {
+                            Throw "Duplicate Service Principals named '$($diff.InputObject)' exist in tenant"
+                        }
+                        elseif ($null -ne $spInstances -and $spInstances.Count -eq 1)
+                        {
+                            $directoryObject = $spInstances
+                        }
                     }
                 }
                 if ($diff.SideIndicator -eq '=>')
@@ -734,17 +776,12 @@ function Set-TargetResource
         Write-Verbose -Message 'Updating Members'
         if ($MembershipRuleProcessingState -ne 'On' -and $PSBoundParameters.ContainsKey('Members'))
         {
-            $currentMembersValue = @()
-            if ($currentParameters.Members.Length -ne 0)
-            {
-                $currentMembersValue = $backCurrentMembers
-            }
             $desiredMembersValue = @()
             if ($Members.Length -ne 0)
             {
                 $desiredMembersValue = $Members
             }
-            if ($backCurrentMembers -eq $null)
+            if ($null -eq $backCurrentMembers)
             {
                 $backCurrentMembers = @()
             }
@@ -762,6 +799,18 @@ function Set-TargetResource
                     if ($null -ne $app)
                     {
                         $directoryObject = Get-MgServicePrincipal -Filter "AppId eq '$($app.AppId)'"
+                    }
+                    else
+                    {
+                        $spInstances = Get-MgServicePrincipal -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
+                        if ($null -ne $spInstances -and $spInstances.Count -gt 1)
+                        {
+                            Throw "Duplicate Service Principals named '$($diff.InputObject)' exist in tenant"
+                        }
+                        elseif ($null -ne $spInstances -and $spInstances.Count -eq 1)
+                        {
+                            $directoryObject = $spInstances
+                        }
                     }
                 }
 
@@ -798,17 +847,12 @@ function Set-TargetResource
         Write-Verbose -Message 'Updating GroupAsMembers'
         if ($MembershipRuleProcessingState -ne 'On' -and $PSBoundParameters.ContainsKey('GroupAsMembers'))
         {
-            $currentGroupAsMembersValue = @()
-            if ($currentParameters.GroupAsMembers.Length -ne 0)
-            {
-                $currentGroupAsMembersValue = $backCurrentGroupAsMembers
-            }
             $desiredGroupAsMembersValue = @()
             if ($GroupAsMembers.Length -ne 0)
             {
                 $desiredGroupAsMembersValue = $GroupAsMembers
             }
-            if ($backCurrentGroupAsMembers -eq $null)
+            if ($null -eq $backCurrentGroupAsMembers)
             {
                 $backCurrentGroupAsMembers = @()
             }
@@ -817,7 +861,7 @@ function Set-TargetResource
             {
                 try
                 {
-                    $groupAsMember = Get-MgGroup -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'" -ErrorAction SilentlyContinue
+                    $groupAsMember = Get-MgBetaGroup -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'" -ErrorAction SilentlyContinue
                 }
                 catch
                 {
@@ -850,11 +894,6 @@ function Set-TargetResource
         Write-Verbose -Message 'Updating MemberOf'
         if ($PSBoundParameters.ContainsKey('MemberOf'))
         {
-            $currentMemberOfValue = @()
-            if ($currentParameters.MemberOf.Length -ne 0)
-            {
-                $currentMemberOfValue = $backCurrentMemberOf
-            }
             $desiredMemberOfValue = @()
             if ($MemberOf.Length -ne 0)
             {
@@ -869,7 +908,7 @@ function Set-TargetResource
             {
                 try
                 {
-                    $memberOfGroup = Get-MgGroup -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'" -ErrorAction Stop
+                    $memberOfGroup = Get-MgBetaGroup -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'" -ErrorAction Stop
                 }
                 catch
                 {
@@ -912,12 +951,6 @@ function Set-TargetResource
 
         if ($currentGroup.IsAssignableToRole -eq $true -and $PSBoundParameters.ContainsKey('AssignedToRole'))
         {
-            #AssignedToRole
-            $currentAssignedToRoleValue = @()
-            if ($currentParameters.AssignedToRole.Length -ne 0)
-            {
-                $currentAssignedToRoleValue = $backCurrentAssignedToRole
-            }
             $desiredAssignedToRoleValue = @()
             if ($AssignedToRole.Length -ne 0)
             {
@@ -1183,11 +1216,11 @@ function Export-TargetResource
             $ExportParameters.Add('ConsistencyLevel', 'eventual')
         }
 
-        [array] $Script:exportedGroups = Get-MgGroup @ExportParameters
+        [array] $Script:exportedGroups = Get-MgBetaGroup @ExportParameters
         $Script:exportedGroups = $Script:exportedGroups | Where-Object -FilterScript {
             -not ($_.MailEnabled -and ($null -eq $_.GroupTypes -or $_.GroupTypes.Length -eq 0)) -and `
                 -not ($_.MailEnabled -and $_.SecurityEnabled)
-        }
+        } | Sort-Object -Property DisplayName
 
         $i = 1
         $dscContent = ''
@@ -1211,7 +1244,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 Credential            = $Credential
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
             $Script:exportedInstance = $group
@@ -1312,7 +1345,7 @@ function Get-M365DSCAzureADGroupLicenses
         }
         $currentLicense = @{
             DisabledPlans = $disabledPlansValues
-            SkuId         = $skuPartNumber.SkuPartNumber
+            SkuId         = $skuPartNumber.SkuPartNumber -replace [char]0xFEFF
         }
         $returnValue += $currentLicense
     }
@@ -1351,19 +1384,20 @@ function Get-M365DSCCombinedLicenses
     {
         foreach ($license in $DesiredLicenses)
         {
+            $licenseSkuId = $license.SkuId
             if ($result.Length -eq 0)
             {
                 $result += @{
-                    SkuId         = $license.SkuId
+                    SkuId         = $licenseSkuId
                     DisabledPlans = $license.DisabledPlans
                 }
             }
             else
             {
-                if (-not $result.SkuId.Contains($license.SkuId))
+                if (-not $result.SkuId.Contains($licenseSkuId))
                 {
                     $result += @{
-                        SkuId         = $license.SkuId
+                        SkuId         = $licenseSkuId
                         DisabledPlans = $license.DisabledPlans
                     }
                 }
@@ -1372,7 +1406,7 @@ function Get-M365DSCCombinedLicenses
                     # Set the Desired Disabled Plans if the sku is already added to the list
                     foreach ($item in $result)
                     {
-                        if ($item.SkuId -eq $license.SkuId)
+                        if ($item.SkuId -eq $licenseSkuId)
                         {
                             $item.DisabledPlans = $license.DisabledPlans
                         }

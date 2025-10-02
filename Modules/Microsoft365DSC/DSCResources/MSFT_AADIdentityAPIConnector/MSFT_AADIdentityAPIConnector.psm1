@@ -119,7 +119,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Azure AD Identity API Connector with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
-        $complexAuthenticationConfiguration = @{}
+        $complexAuthenticationConfiguration = [ordered]@{}
         if ($null -ne $getValue.AuthenticationConfiguration.AdditionalProperties.password)
         {
             $securePassword = ConvertTo-SecureString $getValue.AuthenticationConfiguration.AdditionalProperties.password -AsPlainText -Force
@@ -131,7 +131,7 @@ function Get-TargetResource
         $complexCertificates = @()
         foreach ($currentCertificate in $getValue.AuthenticationConfiguration.AdditionalProperties.certificateList)
         {
-            $myCertificate = @{}
+            $myCertificate = [ordered]@{}
             $myCertificate.Add('Pkcs12Value', "New-Object System.Management.Automation.PSCredential('Password', (ConvertTo-SecureString ('Please insert a valid Pkcs12Value') -AsPlainText -Force))")
             $myCertificate.Add('Thumbprint', $currentCertificate.thumbprint)
             $myCertificate.Add('Password', "New-Object System.Management.Automation.PSCredential('Password', (ConvertTo-SecureString ('Please insert a valid Password for the certificate') -AsPlainText -Force))")
@@ -162,7 +162,7 @@ function Get-TargetResource
             #endregion
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -322,7 +322,6 @@ function Set-TargetResource
     }
     else
     {
-
         # Remove the existing instance if already present
         if ($currentInstance.Ensure -ne 'Absent')
         {
@@ -345,7 +344,7 @@ function Set-TargetResource
         $inactiveCertificates = @()
         foreach ($currentCertificate in $Certificates)
         {
-            $myCertificate = @{}
+            $myCertificate = [ordered]@{}
             $myCertificate.Add('Pkcs12Value', ($currentCertificate.Pkcs12Value).Password)
             $myCertificate.Add('Password', ($currentCertificate.Password).Password)
 

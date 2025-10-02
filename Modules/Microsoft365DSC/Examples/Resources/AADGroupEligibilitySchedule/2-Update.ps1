@@ -17,10 +17,13 @@ Configuration Example
         AADGroupEligibilitySchedule 'Example'
         {
             AccessId              = "member";
+            ApplicationId         = $ApplicationId
+            TenantId              = $TenantId
+            CertificateThumbprint = $CertificateThumbprint
             Ensure                = "Present";
-            GroupDisplayName      = "MyPIMGroup";
             MemberType            = "direct";
-            PrincipalDisplayname  = "MyPrincipalGroup";
+            GroupDisplayName      = "sg-Retail";
+            Principal             = "sg-Retail";
             PrincipalType         = "group";
             ScheduleInfo          = MSFT_MicrosoftGraphrequestSchedule{
                 Expiration = MSFT_MicrosoftGraphExpirationPattern{

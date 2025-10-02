@@ -1,4 +1,4 @@
-[ClassVersion("1.0.0.0"), FriendlyName("SPOTenantSettings")]
+[ClassVersion("1.0.0.1"), FriendlyName("SPOTenantSettings")]
 class MSFT_SPOTenantSettings : OMI_BaseResource
 {
     [Key, Description("Specifies the resource is a single instance, the value must be 'Yes'"),ValueMap{"Yes"},Values{"Yes"}] String IsSingleInstance;
@@ -11,7 +11,6 @@ class MSFT_SPOTenantSettings : OMI_BaseResource
     [Write, Description("Setting this parameter prevents Office clients using non-modern authentication protocols from accessing SharePoint Online resources.")] boolean LegacyAuthProtocolsEnabled;
     [Write, Description("Specifies the home realm discovery value to be sent to Azure Active Directory (AAD) during the user sign-in process.")] String SignInAccelerationDomain;
     [Write, Description("Lets SharePoint issue a special cookie that will allow this feature to work even when Keep Me Signed In is not selected.")] boolean UsePersistentCookiesForExplorerView;
-    [Write, Description("Allow feedback via UserVoice.")] boolean UserVoiceForFeedbackEnabled;
     [Write, Description("Configure PublicCDN")] boolean PublicCdnEnabled;
     [Write, Description("Configure filetypes allowed for PublicCDN")] String PublicCdnAllowedFileTypes;
     [Write, Description("When set to $true, users aren't able to share with security groups or SharePoint groups.")] boolean UseFindPeopleInPeoplePicker;

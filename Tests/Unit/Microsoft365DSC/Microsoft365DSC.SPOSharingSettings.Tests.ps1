@@ -70,7 +70,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     FolderAnonymousLinkType                    = 'Edit'
                     NotifyOwnersWhenItemsReshared              = $true
                     DefaultLinkPermission                      = 'View'
-                    RequireAcceptingAccountMatchInvitedAccount = $false
                 }
 
                 Mock -CommandName Set-PnPTenant -MockWith {
@@ -119,7 +118,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         FolderAnonymousLinkType                    = 'Edit'
                         NotifyOwnersWhenItemsReshared              = $true
                         DefaultLinkPermission                      = 'View'
-                        RequireAcceptingAccountMatchInvitedAccount = $true
+                        RequireAcceptingAccountMatchInvitedAccount = $false
                     }
                 }
             }

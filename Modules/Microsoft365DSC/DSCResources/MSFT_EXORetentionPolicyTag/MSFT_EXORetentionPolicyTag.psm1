@@ -15,7 +15,7 @@ function Get-TargetResource
         $Comment,
 
         [Parameter()]
-        [System.String]
+        [System.UInt32]
         $AgeLimitForRetention,
 
         [Parameter()]
@@ -121,9 +121,9 @@ function Get-TargetResource
         }
         if (-not [System.String]::IsNullOrEmpty($instance.AgeLimitForRetention))
         {
-            $results.Add('AgeLimitForRetention', $instance.AgeLimitForRetention.Split('.')[0])
+            $results.Add('AgeLimitForRetention', [UInt32]::Parse($instance.AgeLimitForRetention.Split('.')[0]))
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -152,7 +152,7 @@ function Set-TargetResource
         $Comment,
 
         [Parameter()]
-        [System.String]
+        [System.UInt32]
         $AgeLimitForRetention,
 
         [Parameter()]
@@ -313,9 +313,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -325,20 +322,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource

@@ -84,7 +84,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
             #Ensure the proper dependencies are installed in the current environment.
             Confirm-M365DSCDependencies
@@ -137,7 +137,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Windows Update For Business Feature Update Profile for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found."
 
         #region resource generator code
-        $complexRolloutSettings = @{}
+        $complexRolloutSettings = [ordered]@{}
         if ($null -ne $getValue.RolloutSettings.offerEndDateTimeInUTC)
         {
             $complexRolloutSettings.Add('OfferEndDateTimeInUTC', ([DateTimeOffset]$getValue.RolloutSettings.offerEndDateTimeInUTC).ToString('o'))
@@ -184,7 +184,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -577,7 +577,7 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of the Intune Windows Update For Business Feature Update Profile for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
+    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $testResult = $true
 
     # Cannot be changed after creation
@@ -880,4 +880,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

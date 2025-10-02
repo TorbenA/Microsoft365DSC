@@ -32,11 +32,11 @@ Configuration Example
                 MSFT_MicrosoftGraphIntuneSettingsCatalogExclusionsV2{
                     exclusions_item_path = '/path/to/directory'
                     exclusions_item_isDirectory = 'true'
-                    exclusions_item_type = '0'
+                    exclusions_item_type = 'excludedPath'
                 }
                 MSFT_MicrosoftGraphIntuneSettingsCatalogExclusionsV2{
                     Exclusions_item_name = 'process1'
-                    Exclusions_item_type = '1'
+                    Exclusions_item_type = 'excludedFileName'
                 }
             );
             RoleScopeTagIds       = @("0");

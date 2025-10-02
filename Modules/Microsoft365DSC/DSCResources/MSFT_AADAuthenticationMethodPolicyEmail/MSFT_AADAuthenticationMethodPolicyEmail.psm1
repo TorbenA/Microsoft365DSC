@@ -110,7 +110,7 @@ function Get-TargetResource
         $complexExcludeTargets = @()
         foreach ($currentExcludeTargets in $getValue.excludeTargets)
         {
-            $myExcludeTargets = @{}
+            $myExcludeTargets = [ordered]@{}
             if ($currentExcludeTargets.id -ne 'all_users')
             {
                 try
@@ -156,7 +156,7 @@ function Get-TargetResource
         $complexIncludeTargets = @()
         foreach ($currentincludeTargets in $getValue.AdditionalProperties.includeTargets)
         {
-            $myincludeTargets = @{}
+            $myincludeTargets = [ordered]@{}
             if ($currentIncludeTargets.id -ne 'all_users')
             {
                 try
@@ -211,12 +211,12 @@ function Get-TargetResource
             TenantId                     = $TenantId
             ApplicationSecret            = $ApplicationSecret
             CertificateThumbprint        = $CertificateThumbprint
-            Managedidentity              = $ManagedIdentity.IsPresent
+            ManagedIdentity              = $ManagedIdentity.IsPresent
             AccessTokens                 = $AccessTokens
             #endregion
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -536,7 +536,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 

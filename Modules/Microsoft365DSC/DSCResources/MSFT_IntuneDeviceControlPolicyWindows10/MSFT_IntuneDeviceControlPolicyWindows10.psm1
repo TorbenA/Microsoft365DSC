@@ -252,7 +252,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -316,9 +316,11 @@ function Get-TargetResource
             -ErrorAction Stop
 
         $policySettings = @{}
+        Write-Verbose -Message "Exporting Calatog Policy Settings"
         $policySettings = Export-IntuneSettingCatalogPolicySettings -Settings $settings -ReturnHashtable $policySettings
 
         #region resource generator code
+        Write-Verbose -Message "Processing complex PolicyRule property"
         $complexPolicyRule = @()
         foreach ($currentPolicyRule in $policySettings.policyRule)
         {
@@ -333,7 +335,7 @@ function Get-TargetResource
                     ComputerSid = $currentEntry.ComputerSid
                 }
             }
-            $myPolicyRule = @{}
+            $myPolicyRule = [ordered]@{}
             $myPolicyRule.Add('Entry', $complexEntry)
             $myPolicyRule.Add('Name', $currentPolicyRule.name)
             $myPolicyRule.Add('ExcludedIdList_GroupId', $currentPolicyRule.excludedIdList_GroupId)
@@ -361,15 +363,19 @@ function Get-TargetResource
         }
         $results += $policySettings
 
+        Write-Verbose -Message "Getting Assignments"
         $assignmentsValues = Get-MgBetaDeviceManagementConfigurationPolicyAssignment -DeviceManagementConfigurationPolicyId $Id
         $assignmentResult = @()
+
+        Write-Verbose -Message "Converting Asignments"
         if ($assignmentsValues.Count -gt 0)
         {
             $assignmentResult += ConvertFrom-IntunePolicyAssignment -Assignments $assignmentsValues -IncludeDeviceFilter $true
         }
+        Write-Verbose -Message "Assignments converted"
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -982,6 +988,8 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of the Intune Device Control Policy for Windows10 with Id {$Id} and Name {$DisplayName}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
+
+    Write-Verbose -Message "Cleaning values to check"
     [Hashtable]$ValuesToCheck = @{}
     $MyInvocation.MyCommand.Parameters.GetEnumerator() | ForEach-Object {
         if ($_.Key -notlike '*Variable' -or $_.Key -notin @('Verbose', 'Debug', 'ErrorAction', 'WarningAction', 'InformationAction'))
@@ -999,6 +1007,7 @@ function Test-TargetResource
     $testResult = $true
 
     #Compare Cim instances
+    Write-Verbose -Message "Comparing complex objects"
     foreach ($key in $PSBoundParameters.Keys)
     {
         $source = $PSBoundParameters.$key
@@ -1018,6 +1027,7 @@ function Test-TargetResource
         }
     }
 
+    Write-Verbose -Message "Removing non-comparable values"
     $ValuesToCheck.Remove('Id') | Out-Null
     $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
 
@@ -1213,4 +1223,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

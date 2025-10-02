@@ -19,7 +19,6 @@
 | **FormsIsInOrgFormsPhishingScanEnabled** | Write | Boolean | Phishing protection. | |
 | **FormsIsRecordIdentityByDefaultEnabled** | Write | Boolean | Record names of people in your org. | |
 | **M365WebEnableUsersToOpenFilesFrom3PStorage** | Write | Boolean | Let users open files stored in third-party storage services in Microsoft 365 on the Web. | |
-| **MicrosoftVivaBriefingEmail** | Write | Boolean | Specifies whether or not to let people in your organization receive Briefing email from Microsoft Viva. | |
 | **VivaInsightsWebExperience** | Write | Boolean | Specifies whether or not to allow users to have access to use the Viva Insights web experience. | |
 | **VivaInsightsDigestEmail** | Write | Boolean | Specifies whether or not to allow users to have access to use the Viva Insights digest email feature. | |
 | **VivaInsightsOutlookAddInAndInlineSuggestions** | Write | Boolean | Specifies whether or not to allow users to have access to use the Viva Insights Outlook add-in and inline suggestions. | |

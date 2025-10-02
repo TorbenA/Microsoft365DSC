@@ -194,7 +194,7 @@ function Get-TargetResource
         [array]$Owners = Get-TeamUser -GroupId $team.GroupId | Where-Object { $_.Role -eq 'owner' }
         if ($null -eq $Owners)
         {
-            # Without Users, Get-TeamUser return null instead on empty array
+            # Without Users, Get-TeamUser returns null instead of an empty array
             $Owners = @()
         }
 
@@ -401,11 +401,7 @@ function Set-TargetResource
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' -InboundParameters $PSBoundParameters
 
     $team = Get-TargetResource @PSBoundParameters
-
-    $CurrentParameters = $PSBoundParameters
-    $CurrentParameters.Remove('Ensure') | Out-Null
-    $CurrentParameters.Remove('ManagedIdentity') | Out-Null
-    $CurrentParameters.Remove('AccessTokens') | Out-Null
+    $CurrentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present' -and ($team.Ensure -eq 'Present'))
     {
@@ -417,16 +413,6 @@ function Set-TargetResource
         if (-not $CurrentParameters.ContainsKey('GroupID'))
         {
             $CurrentParameters.Add('GroupID', $team.GroupID)
-        }
-        if ($ConnectionMode -eq 'Credentials')
-        {
-            $CurrentParameters.Remove('Credential') | Out-Null
-        }
-        else
-        {
-            $CurrentParameters.Remove('ApplicationId') | Out-Null
-            $CurrentParameters.Remove('TenantId') | Out-Null
-            $CurrentParameters.Remove('CertificateThumbprint') | Out-Null
         }
         Set-Team @CurrentParameters
         Write-Verbose -Message "Updating team $DisplayName"
@@ -490,7 +476,6 @@ function Set-TargetResource
                 $OwnerValue = $Owner[0].ToString()
             }
             $CurrentParameters.Owner = [System.String]$OwnerValue
-            $CurrentParameters.Remove('Credential') | Out-Null
             Write-Verbose -Message "Creating team with Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentParameters)"
             $newTeam = New-Team @CurrentParameters
             Write-Verbose -Message "Team {$DisplayName} was just created."
@@ -639,11 +624,9 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -651,33 +634,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of Team $DisplayName"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    If (!$PSBoundParameters.ContainsKey('Ensure'))
-    {
-        $PSBoundParameters.Add('Ensure', $Ensure)
-    }
-    $ValuesToCheck = $PSBoundParameters
-    $ValuesToCheck.Remove('GroupID') | Out-Null
-
-    if ($null -eq $CurrentValues.Owner)
-    {
-        $ValuesToCheck.Remove('Owner') | Out-Null
-    }
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties @('GroupID')
+    return $result
 }
 
 function Export-TargetResource
@@ -794,4 +754,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

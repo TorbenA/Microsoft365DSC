@@ -50,10 +50,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UserVoiceForFeedbackEnabled,
-
-        [Parameter()]
-        [System.Boolean]
         $PublicCdnEnabled,
 
         [Parameter()]
@@ -181,29 +177,32 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting configuration for SPO Tenant'
 
-    $ConnectionModeGraph = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
-
-    $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = $PSBoundParameters
-    $nullReturn.Ensure = 'Absent'
-
     try
     {
+        if (-not $Script:ExportMode)
+        {
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                -InboundParameters $PSBoundParameters
+
+            $null = New-M365DSCConnection -Workload 'PNP' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+        }
+
+        $nullReturn = $PSBoundParameters
+        $nullReturn.Ensure = 'Absent'
+
         $SPOTenantSettings = Get-PnPTenant -ErrorAction Stop
         $SPOTenantGraphSettings = Get-MgAdminSharepointSetting -Property TenantDefaultTimeZone # get tenantDefaultTimezone
         $CompatibilityRange = $SPOTenantSettings.CompatibilityRange.Split(',')
@@ -236,7 +235,7 @@ function Get-TargetResource
             DenySelectSecurityGroupsInSPSitesList                  = $response.DenySelectSecurityGroupsInSPSitesList
             AllowSelectSecurityGroupsInSPSitesList                 = $response.AllowSelectSecurityGroupsInSPSitesList
             EnableAzureADB2BIntegration                            = $response.EnableAzureADB2BIntegration
-            OneDriveSharingCapability                              = $response.OneDriveSharingCapability
+            OneDriveSharingCapability                              = $response.ODBSharingCapability
             MinCompatibilityLevel                                  = $MinCompat
             MaxCompatibilityLevel                                  = $MaxCompat
             SearchResolveExactEmailOrUPN                           = $SPOTenantSettings.SearchResolveExactEmailOrUPN
@@ -266,7 +265,7 @@ function Get-TargetResource
             CertificatePassword                                    = $CertificatePassword
             CertificatePath                                        = $CertificatePath
             CertificateThumbprint                                  = $CertificateThumbprint
-            Managedidentity                                        = $ManagedIdentity.IsPresent
+            ManagedIdentity                                        = $ManagedIdentity.IsPresent
             Ensure                                                 = 'Present'
             AccessTokens                                           = $AccessTokens
         }
@@ -334,10 +333,6 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $UsePersistentCookiesForExplorerView,
-
-        [Parameter()]
-        [System.Boolean]
-        $UserVoiceForFeedbackEnabled,
 
         [Parameter()]
         [System.Boolean]
@@ -478,23 +473,13 @@ function Set-TargetResource
 
     if (-not [string]::IsNullOrEmpty($TenantDefaultTimezone))
     {
-        $ConnectionModeGraph = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
     }
-    $ConnectionMode = New-M365DSCConnection -Workload 'PNP' -InboundParameters $PSBoundParameters
+    $null = New-M365DSCConnection -Workload 'PNP' -InboundParameters $PSBoundParameters
 
-    $CurrentParameters = $PSBoundParameters
-    $CurrentParameters.Remove('Credential') | Out-Null
+    $CurrentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $CurrentParameters.Remove('IsSingleInstance') | Out-Null
-    $CurrentParameters.Remove('Ensure') | Out-Null
-    $CurrentParameters.Remove('ApplicationId') | Out-Null
-    $CurrentParameters.Remove('TenantId') | Out-Null
-    $CurrentParameters.Remove('CertificatePath') | Out-Null
-    $CurrentParameters.Remove('CertificatePassword') | Out-Null
-    $CurrentParameters.Remove('CertificateThumbprint') | Out-Null
-    $CurrentParameters.Remove('ManagedIdentity') | Out-Null
-    $CurrentParameters.Remove('ApplicationSecret') | Out-Null
-    $CurrentParameters.Remove('AccessTokens') | Out-Null
     $CurrentParameters.Remove('ExemptNativeUsersFromTenantLevelRestricedAccessControl') | Out-Null
     $CurrentParameters.Remove('AllowSelectSGsInODBListInTenant') | Out-Null
     $CurrentParameters.Remove('DenySelectSGsInODBListInTenant') | Out-Null
@@ -502,13 +487,7 @@ function Set-TargetResource
     $CurrentParameters.Remove('AllowSelectSecurityGroupsInSPSitesList') | Out-Null
     $CurrentParameters.Remove('EnableAzureADB2BIntegration') | Out-Null
     $CurrentParameters.Remove('OneDriveSharingCapability') | Out-Null
-
     $CurrentParameters.Remove('TenantDefaultTimezone') | Out-Null # this one is updated separately using Graph
-    if ($CurrentParameters.Keys.Contains('UserVoiceForFeedbackEnabled'))
-    {
-        Write-Verbose -Message 'Property UserVoiceForFeedbackEnabled is deprecated, removing it'
-        $CurrentParameters.Remove('UserVoiceForFeedbackEnabled') | Out-Null
-    }
 
     if ($PublicCdnEnabled -eq $false)
     {
@@ -567,7 +546,7 @@ function Set-TargetResource
         if ($null -ne $OneDriveSharingCapability)
         {
             $needToUpdate = $true
-            $paramsToUpdate.Add('OneDriveSharingCapability', $OneDriveSharingCapability)
+            $paramsToUpdate.Add('ODBSharingCapability', $OneDriveSharingCapability)
         }
 
         if ($needToUpdate)
@@ -638,10 +617,6 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $UsePersistentCookiesForExplorerView,
-
-        [Parameter()]
-        [System.Boolean]
-        $UserVoiceForFeedbackEnabled,
 
         [Parameter()]
         [System.Boolean]
@@ -765,11 +740,9 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -777,42 +750,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Testing configuration for SPO Tenant'
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck @('IsSingleInstance', `
-            'MaxCompatibilityLevel', `
-            'SearchResolveExactEmailOrUPN', `
-            'OfficeClientADALDisabled', `
-            'LegacyAuthProtocolsEnabled', `
-            'SignInAccelerationDomain', `
-            'UsePersistentCookiesForExplorerView', `
-            'UserVoiceForFeedbackEnabled', `
-            'PublicCdnEnabled', `
-            'PublicCdnAllowedFileTypes', `
-            'UseFindPeopleInPeoplePicker', `
-            'NotificationsInSharePointEnabled', `
-            'OwnerAnonymousNotification', `
-            'ApplyAppEnforcedRestrictionsToAdHocRecipients', `
-            'FilePickerExternalImageSearchEnabled', `
-            'HideDefaultThemes', `
-            'HideSyncButtonOnTeamSite', `
-            'MarkNewFilesSensitiveByDefault', `
-            'DisabledWebPartIds', `
-            'SocialBarOnSitePagesDisabled', `
-            'CommentsOnSitePagesDisabled', `
-            'EnableAIPIntegration', `
-            'TenantDefaultTimezone'
-    )
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -883,6 +823,8 @@ function Export-TargetResource
             $Global:M365DSCExportResourceInstancesCount++
         }
 
+        $Script:ExportMode = $true
+
         $Params = @{
             IsSingleInstance      = 'Yes'
             ApplicationId         = $ApplicationId
@@ -891,7 +833,7 @@ function Export-TargetResource
             CertificatePassword   = $CertificatePassword
             CertificatePath       = $CertificatePath
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             Credential            = $Credential
             AccessTokens          = $AccessTokens
         }
@@ -931,4 +873,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

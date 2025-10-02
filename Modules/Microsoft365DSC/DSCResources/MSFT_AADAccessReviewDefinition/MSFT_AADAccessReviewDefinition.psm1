@@ -38,7 +38,7 @@ function Get-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $StageSettings,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -102,8 +102,11 @@ function Get-TargetResource
 
             $getValue = $null
             #region resource generator code
-            $getValue = Get-MgBetaIdentityGovernanceAccessReviewDefinition -AccessReviewScheduleDefinitionId $Id -ErrorAction SilentlyContinue
-
+            if (-not [System.String]::IsNullOrEmpty($Id))
+            {
+                $getValue = Get-MgBetaIdentityGovernanceAccessReviewDefinition -AccessReviewScheduleDefinitionId $Id `
+                    -ErrorAction SilentlyContinue
+            }
             if ($null -eq $getValue)
             {
                 Write-Verbose -Message "Could not find an Azure AD Access Review Definition with Id {$Id}"
@@ -133,7 +136,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Azure AD Access Review Definition with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
-        $complexScope = @{}
+        $complexScope = [ordered]@{}
         $complexScope.Add('Query', $getValue.Scope.AdditionalProperties.query)
         $complexScope.Add('QueryRoot', $getValue.Scope.AdditionalProperties.queryRoot)
         $complexScope.Add('QueryType', $getValue.Scope.AdditionalProperties.queryType)
@@ -141,7 +144,7 @@ function Get-TargetResource
         $complexPrincipalScopes = @()
         foreach ($currentPrincipalScopes in $getValue.Scope.AdditionalProperties.principalScopes)
         {
-            $myPrincipalScopes = @{}
+            $myPrincipalScopes = [ordered]@{}
             $myPrincipalScopes.Add('Query', $currentPrincipalScopes.query)
             $myPrincipalScopes.Add('QueryRoot', $currentPrincipalScopes.queryRoot)
             $myPrincipalScopes.Add('QueryType', $currentPrincipalScopes.queryType)
@@ -158,7 +161,7 @@ function Get-TargetResource
         $complexResourceScopes = @()
         foreach ($currentResourceScopes in $getValue.Scope.AdditionalProperties.resourceScopes)
         {
-            $myResourceScopes = @{}
+            $myResourceScopes = [ordered]@{}
             $myResourceScopes.Add('Query', $currentResourceScopes.query)
             $myResourceScopes.Add('QueryRoot', $currentResourceScopes.queryRoot)
             $myResourceScopes.Add('QueryType', $currentResourceScopes.queryType)
@@ -183,11 +186,11 @@ function Get-TargetResource
             $complexScope = $null
         }
 
-        $complexSettings = @{}
+        $complexSettings = [ordered]@{}
         $complexApplyActions = @()
         foreach ($currentApplyActions in $getValue.Settings.applyActions)
         {
-            $myApplyActions = @{}
+            $myApplyActions = [ordered]@{}
             if ($null -ne $currentApplyActions.AdditionalProperties.'@odata.type')
             {
                 $myApplyActions.Add('odataType', $currentApplyActions.AdditionalProperties.'@odata.type'.ToString())
@@ -208,7 +211,7 @@ function Get-TargetResource
         $complexRecommendationInsightSettings = @()
         foreach ($currentRecommendationInsightSettings in $getValue.Settings.recommendationInsightSettings)
         {
-            $myRecommendationInsightSettings = @{}
+            $myRecommendationInsightSettings = [ordered]@{}
             $myRecommendationInsightSettings.Add('RecommendationLookBackDuration', $currentRecommendationInsightSettings.AdditionalProperties.recommendationLookBackDuration)
             if ($null -ne $currentRecommendationInsightSettings.AdditionalProperties.signInScope)
             {
@@ -230,8 +233,8 @@ function Get-TargetResource
             $complexSettings.Add('RecommendationLookBackDuration', $getValue.Settings.recommendationLookBackDuration.ToString())
         }
         $complexSettings.Add('RecommendationsEnabled', $getValue.Settings.recommendationsEnabled)
-        $complexRecurrence = @{}
-        $complexPattern = @{}
+        $complexRecurrence = [ordered]@{}
+        $complexPattern = [ordered]@{}
         $complexPattern.Add('DayOfMonth', $getValue.settings.recurrence.pattern.dayOfMonth)
         if ($null -ne $getValue.settings.recurrence.pattern.daysOfWeek)
         {
@@ -257,7 +260,7 @@ function Get-TargetResource
             $complexPattern = $null
         }
         $complexRecurrence.Add('Pattern', $complexPattern)
-        $complexRange = @{}
+        $complexRange = [ordered]@{}
         if ($null -ne $getValue.settings.recurrence.range.endDate)
         {
             $complexRange.Add('EndDate', ([DateTime]$getValue.settings.recurrence.range.endDate).ToString(''))
@@ -291,14 +294,14 @@ function Get-TargetResource
         $complexStageSettings = @()
         foreach ($currentStageSettings in $getValue.stageSettings)
         {
-            $myStageSettings = @{}
+            $myStageSettings = [ordered]@{}
             $myStageSettings.Add('DecisionsThatWillMoveToNextStage', $currentStageSettings.decisionsThatWillMoveToNextStage)
             $myStageSettings.Add('DependsOnValue', $currentStageSettings.dependsOn)
             $myStageSettings.Add('DurationInDays', $currentStageSettings.durationInDays)
             $complexRecommendationInsightSettings = @()
             foreach ($currentRecommendationInsightSettings in $currentStageSettings.recommendationInsightSettings)
             {
-                $myRecommendationInsightSettings = @{}
+                $myRecommendationInsightSettings = [ordered]@{}
 
                 if ($null -ne $currentRecommendationInsightSettings.recommendationLookBackDuration)
                 {
@@ -343,7 +346,7 @@ function Get-TargetResource
                         url    = $query.Replace('/v1.0', '').Replace('transitiveMembers/microsoft.graph.user', '')
                     }
                 }
-
+                Write-Verbose -Message "Invoking BATCH request to resolve Fallback Reviewers from Get-TargetResource: $(ConvertTo-Json $batchRequests -Depth 10)"
                 $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
             }
 
@@ -361,7 +364,7 @@ function Get-TargetResource
                         $reviewerType = 'Group'
                     }
                 }
-                $myFallbackReviewer = @{}
+                $myFallbackReviewer = [ordered]@{}
                 $myFallbackReviewer.Add('DisplayName', $currentQuery.body.displayName)
                 $myFallbackReviewer.Add('Type', $reviewerType)
                 $complexFallbackReviewers += $myFallbackReviewer
@@ -385,6 +388,7 @@ function Get-TargetResource
         }
         if ($batchRequests.Count -gt 0)
         {
+            Write-Verbose -Message "Invoking BATCH request to resolve Reviewers from Get-TargetResource: $(ConvertTo-Json $batchRequests -Depth 10)"
             $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
         }
 
@@ -410,7 +414,7 @@ function Get-TargetResource
                     $reviewerType = 'Owner'
                 }
             }
-            $myReviewer = @{}
+            $myReviewer = [ordered]@{}
             $myReviewer.Add('DisplayName', $currentQuery.body.displayName)
             $myReviewer.Add('Type', $reviewerType)
             $complexReviewers += $myReviewer
@@ -436,7 +440,7 @@ function Get-TargetResource
             ManagedIdentity         = $ManagedIdentity.IsPresent
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -487,7 +491,7 @@ function Set-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $StageSettings,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -564,6 +568,7 @@ function Set-TargetResource
         }
         if ($batchRequests.Count -gt 0)
         {
+            Write-Verbose -Message "Invoking BATCH request to resolve FallbackReviewers: $(ConvertTo-Json $batchRequests -Depth 10)"
             $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
         }
         $newFallbackReviewers = @()
@@ -618,15 +623,19 @@ function Set-TargetResource
                     $reviewerType = 'groups'
                 }
             }
-            $filter = "displayName eq '$($currentReviewer.DisplayName -replace "'", "''")'"
-            $batchRequests += @{
-                id = $currentReviewer.DisplayName
-                method = 'GET'
-                url = "/$($reviewerType)?`$filter=$filter"
+            if (-not [System.String]::IsNullOrEmpty($currentReviewer.DisplayName))
+            {
+                $filter = "displayName eq '$($currentReviewer.DisplayName -replace "'", "''")'"
+                $batchRequests += @{
+                    id = $currentReviewer.DisplayName
+                    method = 'GET'
+                    url = "/$($reviewerType)?`$filter=$filter"
+                }
             }
         }
         if ($batchRequests.Count -gt 0)
         {
+            Write-Verbose -Message "Invoking BATCH request to resolve Reviewers: $(ConvertTo-Json $batchRequests -Depth 10)"
             $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
         }
         $newReviewers = @()
@@ -733,6 +742,7 @@ function Set-TargetResource
             }
         }
         $createParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
+        Write-Verbose -Message "Creating an Azure AD Access Review Definition with: $(ConvertTo-Json $createParameters -Depth 10)"
         $policy = New-MgBetaIdentityGovernanceAccessReviewDefinition -BodyParameter $createParameters
         return
     }
@@ -791,6 +801,7 @@ function Set-TargetResource
         }
         #region resource generator code
         $createParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
+        Write-Verbose -Message "Creating an Azure AD Access Review Definition with: $(ConvertTo-Json $createParameters -Depth 10)"
         $policy = New-MgBetaIdentityGovernanceAccessReviewDefinition -BodyParameter $createParameters
         #endregion
     }
@@ -821,6 +832,7 @@ function Set-TargetResource
 
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
+        Write-Verbose -Message "Updating Azure AD Access Review Definition {$($currentInstance.Id)} with: $(ConvertTo-Json $UpdateParameters -Depth 10)"
         Set-MgBetaIdentityGovernanceAccessReviewDefinition `
             -AccessReviewScheduleDefinitionId $currentInstance.Id `
             -BodyParameter $UpdateParameters
@@ -873,7 +885,7 @@ function Test-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $StageSettings,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
