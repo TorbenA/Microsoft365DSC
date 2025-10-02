@@ -154,11 +154,14 @@ function Get-TargetResource {
         }
         $Id = $getValue.Id
 
-        $newGetValue = @{}
-        $getValue | Get-Member -MemberType Property | ForEach-Object {
-            $newGetValue[$_.Name] = $getValue.$($_.Name)
+        if ($getValue.GetType().Name -eq 'MicrosoftGraphPrivilegedAccessGroupEligibilitySchedule')
+        {
+            $newGetValue = @{}
+            $getValue | Get-Member -MemberType Property | ForEach-Object {
+                $newGetValue[$_.Name] = $getValue.$($_.Name)
+            }
+            $getValue = $newGetValue
         }
-        $getValue = $newGetValue
 
         Write-Verbose -Message "An Azure AD Group Eligibility Schedule with Id {$Id} and DisplayName {$GroupDisplayName} was found"
 
