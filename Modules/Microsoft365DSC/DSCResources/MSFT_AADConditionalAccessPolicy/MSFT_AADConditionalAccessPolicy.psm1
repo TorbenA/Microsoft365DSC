@@ -634,7 +634,7 @@ function Get-TargetResource
         [Array]$ExcludeGuestOrExternalUserTypes = ($Policy.Conditions.Users.ExcludeGuestsOrExternalUsers.GuestOrExternalUserTypes).Split(',')
     }
 
-    $termsOfUseName = $null
+    $termOfUseName = $null
     if ($Policy.GrantControls.TermsOfUse)
     {
         $termofUse = Get-MgBetaAgreement | Where-Object -FilterScript { $_.Id -eq $Policy.GrantControls.TermsOfUse }
