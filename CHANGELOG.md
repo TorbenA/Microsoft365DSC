@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# Unreleased
+
+* O365OrgSettings
+  * Fix unicode issue in schema, that caused the website to contain
+    incorrect characters.
+
 # 1.25.1001.1
 
 * AADAccessReviewDefinition
