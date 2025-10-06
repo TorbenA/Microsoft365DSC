@@ -1,5 +1,12 @@
 # Change log for Microsoft365DSC
 
+# unreleased
+
+* Modules \ M365DSCReverse
+  * fix typo in termOfUseName for consistency
+  * removed $OutputDSCPath from $outputDSCFile and $outputConfigurationData
+    FIXES [#6580](https://github.com/microsoft/Microsoft365DSC/issues/6580)
+
 # 1.25.1001.1
 
 * AADAccessReviewDefinition
