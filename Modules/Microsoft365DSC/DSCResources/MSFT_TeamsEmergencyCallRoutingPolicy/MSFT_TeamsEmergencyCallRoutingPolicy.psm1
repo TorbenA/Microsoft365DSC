@@ -106,8 +106,16 @@ function Get-TargetResource
 
         if ($policy.EmergencyNumbers.Count -gt 0)
         {
-            $numbers = Get-TeamsEmergencyNumbers -Numbers $policy.EmergencyNumbers
-            $results.Add('EmergencyNumbers', [Array]$numbers)
+            $numbers = @()
+            foreach ($number in $policy.EmergencyNumbers)
+            {
+                $numbers += @{
+                    EmergencyDialString = $number.EmergencyDialString
+                    EmergencyDialMask   = $number.EmergencyDialMask
+                    OnlinePSTNUsage     = $number.OnlinePSTNUsage
+                }
+            }
+            $result.Add('EmergencyNumbers', $numbers)
         }
 
         return $results
@@ -207,13 +215,11 @@ function Set-TargetResource
     #endregion
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-
     $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($PSBoundParameters.ContainsKey('EmergencyNumbers'))
     {
-        $values = Convert-CIMToTeamsEmergencyNumbers $EmergencyNumbers
-        $SetParameters['EmergencyNumbers'] = $values
+        $SetParameters.EmergencyNumbers = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $SetParameters.EmergencyNumbers
     }
 
     if ($Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
@@ -321,12 +327,11 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of Team EmergencyCall Routing Policy {$Identity}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
+    $DesiredValues = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-    $DesiredValues = $PSBoundParameters
     if ($null -ne $DesiredValues.EmergencyNumbers -and $DesiredValues.EmergencyNumbers.Count -gt 0)
     {
-        $numbers = Convert-CIMToTeamsEmergencyNumbers -Numbers $DesiredValues.EmergencyNumbers
-        $DesiredValues['EmergencyNumbers'] = $numbers
+        $DesiredValues.EmergencyNumbers = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $DesiredValues.EmergencyNumbers
     }
 
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
@@ -467,60 +472,6 @@ function Export-TargetResource
 
         return ''
     }
-}
-
-function Get-TeamsEmergencyNumbers
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable[]])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [System.Object[]]
-        $Numbers
-    )
-
-    if ($null -eq $Numbers)
-    {
-        return $null
-    }
-
-    $result = @()
-    foreach ($number in $numbers)
-    {
-        $result += @{
-            EmergencyDialString = $number.EmergencyDialString
-            EmergencyDialMask   = $number.EmergencyDialMask
-            OnlinePSTNUsage     = $number.OnlinePSTNUsage
-        }
-    }
-
-    return $result
-}
-
-function Convert-CIMToTeamsEmergencyNumbers
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.ArrayList])]
-    param
-    (
-        [parameter(Mandatory = $true)]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $Numbers
-    )
-
-    $values = [System.Collections.ArrayList]@()
-    foreach ($number in $Numbers)
-    {
-        $current = @{
-            EmergencyDialString = $number.EmergencyDialString
-            EmergencyDialMask   = $number.EmergencyDialMask
-            OnlinePSTNUsage     = $number.OnlinePSTNUsage
-        }
-        $values += $current
-    }
-
-    return $values
 }
 
 Export-ModuleMember -Function *-TargetResource

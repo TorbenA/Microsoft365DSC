@@ -68,6 +68,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $AllowCreatePrivateChannels,
+
+        [Parameter()]
+        [System.Boolean]
         $AllowCreateUpdateRemoveConnectors,
 
         [Parameter()]
@@ -215,6 +219,7 @@ function Get-TargetResource
             AllowUserEditMessages             = $team.AllowUserEditMessages
             AllowUserDeleteMessages           = $team.AllowUserDeleteMessages
             AllowOwnerDeleteMessages          = $team.AllowOwnerDeleteMessages
+            AllowCreatePrivateChannels        = $team.AllowCreatePrivateChannels
             AllowCreateUpdateRemoveConnectors = $team.AllowCreateUpdateRemoveConnectors
             AllowCreateUpdateRemoveTabs       = $team.AllowCreateUpdateRemoveTabs
             AllowTeamMentions                 = $team.AllowTeamMentions
@@ -317,6 +322,10 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $AllowOwnerDeleteMessages,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowCreatePrivateChannels,
 
         [Parameter()]
         [System.Boolean]
@@ -558,6 +567,10 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $AllowOwnerDeleteMessages,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowCreatePrivateChannels,
 
         [Parameter()]
         [System.Boolean]

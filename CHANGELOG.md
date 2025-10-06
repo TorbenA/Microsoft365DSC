@@ -1,5 +1,40 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* TeamsAppSetupPolicy
+  * Added property `PinnedCallingBarApps`.
+* TeamsCallingPolicy
+  * Added property `ExplicitRecordingConsent`.
+* TeamsClientConfiguration
+  * Added property `AllowRoleBasedChatPermissions`.
+* TeamsComplianceRecordingPolicy
+  * Added property `RecordReroutedCalls`.
+* TeamsDialInConferencingTenantSettings
+  * Added properties `EnableNameRecording`, `MigrateServiceNumbersOnCrossForestMove` and `UseUniqueConferenceIds`.
+* TeamsEmergencyCallingPolicy
+  * Added property `ExtendedNotifications`.
+* TeamsFederationConfiguration
+  * Added property `DomainBlockingForMDOAdminsInTeams`.
+* TeamsFilesPolicy
+  * Added properties `FileSharingInChatswithExternalUsers` and `DefaultFileUploadAppId`.
+* TeamsGuestMessagingConfiguration
+  * Added property `UsersCanDeleteBotMessages`.
+* TeamsMeetingConfiguration
+  * Added properties `DisableAppInteractionForAnonymousUsers`, `FeedbackSurveyForAnonymousUsers` and `LimitPresenterRolePermissions`.
+* TeamsMessagingPolicy
+  * Added properties `AllowExtendedWorkInfoInSearch`, `AutoShareFilesInExternalChats` and `UseB2BInvitesToAddExternalUsers`.
+* TeamsOnlineVoicemailPolicy
+  * Added properties `PostambleAudioFile`, `PreambleAudioFile` and `PreamblePostambleMandatory`.
+* TeamsTeam
+  * Added property `AllowCreatePrivateChannels`.
+* TeamsUpdateManagementPolicy
+  * Added properties `BlockLegacyAuthorization` and `DisabledInProductMessages`.
+* TeamsVoiceRoute
+  * Added property `BridgeSourcePhoneNumber`.
+* MISC
+  * Removed unnecessary CIM instance conversion checks across all resources.
+
 # 1.25.1001.1
 
 * AADAccessReviewDefinition
