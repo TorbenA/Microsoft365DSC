@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneAntivirusPolicyWindows10SettingCatalog
+  * Fixed `DisableCoreServiceECSIntegration` and `DisableCoreServiceTelemetry` to allow multiple values.
+    FIXES [#6583](https://github.com/microsoft/Microsoft365DSC/issues/6583)
+
 # 1.25.1001.1
 
 * AADAccessReviewDefinition
