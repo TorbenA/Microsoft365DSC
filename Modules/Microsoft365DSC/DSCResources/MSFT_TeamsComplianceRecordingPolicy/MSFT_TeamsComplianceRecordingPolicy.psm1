@@ -275,7 +275,7 @@ function Set-TargetResource
             $CreateParameters['ComplianceRecordingApplications'] = $appObjects
         }
 
-        Write-Verbose -Message "Creating a Teams Compliance Recording Policy with Identity {$Identity} and Parameters:`r`n$(Convert-M365DscHashtableToString -Hashtable $CreateParameters)"
+        Write-Verbose -Message "Creating a Teams Compliance Recording Policy with Identity {$Identity}"
         New-CsTeamsComplianceRecordingPolicy @CreateParameters | Out-Null
 
         if ($ComplianceRecordingApplications.Count -gt 0)

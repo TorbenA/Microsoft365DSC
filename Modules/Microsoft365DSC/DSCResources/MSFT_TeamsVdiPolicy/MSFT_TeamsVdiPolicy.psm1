@@ -187,7 +187,7 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating a Teams VDI Policy with Identity {$Identity} and Parameters:`r`n$(Convert-M365DscHashtableToString -Hashtable $CreateParameters)"
+        Write-Verbose -Message "Creating a Teams VDI Policy with Identity {$Identity}"
         $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         New-CsTeamsVdiPolicy @CreateParameters | Out-Null
     }

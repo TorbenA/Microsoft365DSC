@@ -193,7 +193,7 @@ function Set-TargetResource
                 $CreateParameters.Add($key, $keyValue)
             }
         }
-        Write-Verbose -Message "Creating a Teams Audio Conferencing Policy with Identity {$Identity} and Parameters:`r`n$(Convert-M365DscHashtableToString -Hashtable $CreateParameters)"
+        Write-Verbose -Message "Creating a Teams Audio Conferencing Policy with Identity {$Identity}"
         New-CsTeamsAudioConferencingPolicy @CreateParameters | Out-Null
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')

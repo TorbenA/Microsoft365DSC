@@ -66243,6 +66243,10 @@ function New-CsTeamsAppSetupPolicy
 
         [Parameter()]
         [PSObject]
+        $PinnedCallingBarApps,
+
+        [Parameter()]
+        [PSObject]
         $PinnedMessageBarApps,
 
         [Parameter()]
@@ -68202,6 +68206,10 @@ function Set-CsTeamsAppSetupPolicy
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
         $Confirm,
+
+        [Parameter()]
+        [PSObject]
+        $PinnedCallingBarApps,
 
         [Parameter()]
         [PSObject]

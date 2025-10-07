@@ -197,18 +197,17 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating a Teams Mobility Policy with Identity {$Identity} and Parameters:`r`n$(Convert-M365DscHashtableToString -Hashtable $CreateParameters)"
-        $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-        New-CsTeamsMobilityPolicy @CreateParameters | Out-Null
+        Write-Verbose -Message "Creating a Teams Mobility Policy with Identity {$Identity}"
+        New-CsTeamsMobilityPolicy @boundParameters | Out-Null
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Teams Mobility Policy with Identity {$Identity}"
-        $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-        Set-CsTeamsMobilityPolicy @UpdateParameters | Out-Null
+        Set-CsTeamsMobilityPolicy @boundParameters | Out-Null
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {

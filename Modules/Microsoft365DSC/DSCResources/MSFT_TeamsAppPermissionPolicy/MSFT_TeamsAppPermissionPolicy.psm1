@@ -265,7 +265,7 @@ function Set-TargetResource
     {
         $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $CreateParameters.Remove('Verbose') | Out-Null
-        Write-Verbose -Message "Creating a Teams App Permission Policy with Identity {$Identity} and Parameters:`r`n$(Convert-M365DscHashtableToString -Hashtable $CreateParameters)"
+        Write-Verbose -Message "Creating a Teams App Permission Policy with Identity {$Identity}"
 
         $CreateParameters.GlobalCatalogApps = $GlobalCatalogAppsValue
         $CreateParameters.PrivateCatalogApps = $PrivateCatalogAppsValue

@@ -184,7 +184,7 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating a Teams Translation Rule with Identity {$Identity} and Parameters:`r`n$(Convert-M365DscHashtableToString -Hashtable $CreateParameters)"
+        Write-Verbose -Message "Creating a Teams Translation Rule with Identity {$Identity}"
         $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         New-CsTeamsTranslationRule @CreateParameters | Out-Null
     }

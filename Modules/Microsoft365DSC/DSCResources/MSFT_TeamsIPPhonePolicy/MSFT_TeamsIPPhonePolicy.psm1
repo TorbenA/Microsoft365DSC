@@ -230,7 +230,7 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-        Write-Verbose -Message "Creating a Teams IP Phone Policy with Identity {$Identity} and Parameters:`r`n$(Convert-M365DscHashtableToString -Hashtable $CreateParameters)"
+        Write-Verbose -Message "Creating a Teams IP Phone Policy with Identity {$Identity}"
         New-CsTeamsIPPhonePolicy @CreateParameters | Out-Null
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')

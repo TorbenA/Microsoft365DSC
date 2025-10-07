@@ -115,7 +115,7 @@ function Get-TargetResource
                     OnlinePSTNUsage     = $number.OnlinePSTNUsage
                 }
             }
-            $result.Add('EmergencyNumbers', $numbers)
+            $results.Add('EmergencyNumbers', $numbers)
         }
 
         return $results
@@ -337,7 +337,8 @@ function Test-TargetResource
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $DesiredValues)"
 
-    $ValuesToCheck = $DesiredValues
+    $DesiredValues.Add('Ensure', $Ensure)
+    $ValuesToCheck = $DesiredValues.Clone()
 
     $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
         -Source $($MyInvocation.MyCommand.Source) `

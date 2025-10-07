@@ -220,7 +220,7 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         $CreateParameters = ([Hashtable]$BoundParameters).Clone()
-        Write-Verbose -Message "Creating a Unified Audit Log Retention Policy with Name {$Name} and Parameters:`r`n$(Convert-M365DscHashtableToString -Hashtable $CreateParameters)"
+        Write-Verbose -Message "Creating a Unified Audit Log Retention Policy with Name {$Name}"
         New-UnifiedAuditLogRetentionPolicy @CreateParameters | Out-Null
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
