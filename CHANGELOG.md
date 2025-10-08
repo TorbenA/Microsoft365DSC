@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* MISC
+  * Removed documentation for `IntuneDeviceEnrollmentConfigurationWindows10`.
+    FIXES [#6589](https://github.com/microsoft/Microsoft365DSC/issues/6589)
+
 # 1.25.1001.1
 
 * AADAccessReviewDefinition
