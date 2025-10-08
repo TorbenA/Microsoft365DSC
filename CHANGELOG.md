@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCAgent
+  * Added requirement to regenerate the DSC agent certificate with `-ForceRenew` when
+    creating and exporting a PFX certificate using `Set-M365DSCAgentCertificateConfiguration`.
+
 # 1.25.1001.1
 
 * AADAccessReviewDefinition
