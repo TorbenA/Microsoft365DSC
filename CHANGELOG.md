@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* SentinelAlertRule
+  * Fixed the schema and export of the property `groupByAlertDetails`.
+    FIXES [#6591](https://github.com/microsoft/Microsoft365DSC/issues/6591)
+
 # 1.25.1001.1
 
 * AADAccessReviewDefinition
