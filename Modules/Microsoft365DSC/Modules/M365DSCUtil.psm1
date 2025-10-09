@@ -1703,7 +1703,7 @@ function Export-M365DSCConfiguration
             CertificateThumbprint = $CertificateThumbprint
             CertificatePassword   = $CertificatePassword
             CertificatePath       = $CertificatePath
-            ManagedIdentity       = $ManagedIdentity.IsPresent
+            Identity              = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
     }

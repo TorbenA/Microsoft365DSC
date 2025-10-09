@@ -1,5 +1,12 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADUser
+  * Fixed an issue where the phone and fax number was not exported.
+* M365DSCUtil
+  * Fixed parameter mapping of the telemetry connection parameters.
+
 # 1.25.1001.1
 
 * AADAccessReviewDefinition
