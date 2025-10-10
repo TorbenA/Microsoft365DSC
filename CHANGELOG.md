@@ -3,6 +3,8 @@
 # UNRELEASED
 
 * AADUser
+  * Added the property `AccountEnabled` to the export.
+    FIXES [#6595](https://github.com/microsoft/Microsoft365DSC/issues/6595)
   * Fixed an issue where the phone and fax number was not exported.
 * M365DSCUtil
   * Fixed parameter mapping of the telemetry connection parameters.
