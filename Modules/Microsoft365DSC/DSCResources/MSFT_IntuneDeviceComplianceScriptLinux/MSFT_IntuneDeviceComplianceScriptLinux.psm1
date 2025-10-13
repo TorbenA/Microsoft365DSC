@@ -1,4 +1,6 @@
+Confirm-M365DSCModuleDependency -ModuleName "MSFT_IntuneDeviceComplianceScriptLinux"
 $Script:PropertiesToRetrieve = @('id', 'displayName', 'description', 'settingDefinitionId', 'settingInstance')
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -224,9 +226,8 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $boundParameters.Remove('DiscoveryScript')
+    $boundParameters.Remove('DiscoveryScript') | Out-Null
     $boundParameters.Add('settingDefinitionId', 'linux_customcompliance_discoveryscript_reusablesetting')
     $boundParameters.Add('settingInstance', @{
         '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance'
@@ -444,6 +445,7 @@ function Export-TargetResource
             }
             Write-M365DSCHost -Message "    |---[$i/$($getValue.Count)] $displayedKey" -DeferWrite
             $params = @{
+                Id                    = $config.Id
                 DisplayName           = $config.DisplayName
                 Ensure                = 'Present'
                 Credential            = $Credential
