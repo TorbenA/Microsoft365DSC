@@ -6,6 +6,9 @@
   * Added support for the DelayedDelicensingEnabled,
     EndUserMailNotificationForDelayedDelicensingEnabled and
     TenantAdminNotificationForDelayedDelicensingEnabled parameters.
+* O365OrgSettings
+  * Fix unicode issue in schema, that caused the website to contain
+    incorrect characters.
 * TeamsMessagingConfiguration
   * Initial release.
     FIXES [#6536](https://github.com/microsoft/Microsoft365DSC/issues/6536)
