@@ -2,6 +2,10 @@
 
 # UNRELEASED
 
+* EXOOrganizationConfig
+  * Added support for the DelayedDelicensingEnabled,
+    EndUserMailNotificationForDelayedDelicensingEnabled and
+    TenantAdminNotificationForDelayedDelicensingEnabled parameters.
 * IntuneCloudProvisioningPolicyWindows365
   * Initial release.
 * TeamsMessagingConfiguration
