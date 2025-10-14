@@ -320,14 +320,6 @@ function Set-TargetResource
         $createParameters = ([Hashtable]$boundParameters).Clone()
         $createParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$createParameters).Clone()).Keys
-        foreach ($key in $keys)
-        {
-            if ($null -ne $createParameters.$key -and $createParameters.$key.GetType().Name -like '*CimInstance*')
-            {
-                $createParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $createParameters.$key
-            }
-        }
         #region resource generator code
         $null = Invoke-MgGraphRequest -Uri '/beta/deviceManagement/reusablePolicySettings' -Method POST -Body $($createParameters | ConvertTo-Json -Depth 10)
         #endregion

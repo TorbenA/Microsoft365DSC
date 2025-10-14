@@ -87,7 +87,10 @@ function Get-TargetResource
             #region resource generator code
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
-                $getValue = Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings/$($Id)?`$select=$($Script:PropertiesToRetrieve -join ',')" -SkipHttpErrorCheck -ErrorAction SilentlyContinue
+                $getValue = Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings/$($Id)?`$select=$($Script:PropertiesToRetrieve -join ',')" `
+                -Method GET `
+                -SkipHttpErrorCheck `
+                -ErrorAction SilentlyContinue
                 if ($getValue -is [hashtable] -and $getValue.ContainsKey('error'))
                 {
                     # Policy does not exist, set it to $null
@@ -102,6 +105,8 @@ function Get-TargetResource
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = (Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings?`$filter=DisplayName eq '$($DisplayName -replace "'", "''")' and settingDefinitionId eq 'linux_customcompliance_discoveryscript_reusablesetting'&select=$($Script:PropertiesToRetrieve -join ',')" `
+                        -Method GET `
+                        -SkipHttpErrorCheck `
                         -ErrorAction SilentlyContinue).value
                     if ($getValue -is [array] -and $getValue.Count -eq 0)
                     {
@@ -419,6 +424,8 @@ function Export-TargetResource
             $Filter = $baseFilter
         }
         [array]$getValue = (Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings?`$select=$($Script:PropertiesToRetrieve -join ',')&`$filter=$Filter" `
+            -Method GET `
+            -SkipHttpErrorCheck `
             -ErrorAction Stop).value
         #endregion
 

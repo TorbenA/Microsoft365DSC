@@ -4,6 +4,8 @@
 
 * AADFilteringPolicyRule
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
+* IntuneEpmCertificatePolicySetting
+  * Initial release.
 * IntuneFirewallPolicySetting
   * Initial release.
 * TeamsMeetingPolicy
