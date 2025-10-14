@@ -204,6 +204,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $DelayedDelicensingEnabled,
+
+        [Parameter()]
+        [System.Boolean]
         $DirectReportsGroupAutoCreationEnabled,
 
         [Parameter()]
@@ -229,6 +233,10 @@ function Get-TargetResource
         [Parameter()]
         [System.Boolean]
         $EndUserDLUpgradeFlowsDisabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $EndUserMailNotificationForDelayedDelicensingEnabled,
 
         [Parameter()]
         [System.Boolean]
@@ -433,6 +441,10 @@ function Get-TargetResource
         $SmtpActionableMessagesEnabled,
 
         [Parameter()]
+        [System.Boolean]
+        $TenantAdminNotificationForDelayedDelicensingEnabled,
+
+        [Parameter()]
         [System.String]
         $VisibleMeetingUpdateProperties,
 
@@ -567,6 +579,7 @@ function Get-TargetResource
             DefaultPublicFolderMaxItemSize                            = $ConfigSettings.DefaultPublicFolderMaxItemSize
             DefaultPublicFolderMovedItemRetention                     = $ConfigSettings.DefaultPublicFolderMovedItemRetention
             DefaultPublicFolderProhibitPostQuota                      = $ConfigSettings.DefaultPublicFolderProhibitPostQuota
+            DelayedDelicensingEnabled                                 = $ConfigSettings.DelayedDelicensingEnabled
             DirectReportsGroupAutoCreationEnabled                     = $ConfigSettings.DirectReportsGroupAutoCreationEnabled
             DisablePlusAddressInRecipients                            = $ConfigSettings.DisablePlusAddressInRecipients
             DistributionGroupDefaultOU                                = $ConfigSettings.DistributionGroupDefaultOU
@@ -575,6 +588,7 @@ function Get-TargetResource
             ElcProcessingDisabled                                     = $ConfigSettings.ElcProcessingDisabled
             EnableOutlookEvents                                       = $ConfigSettings.EnableOutlookEvents
             EndUserDLUpgradeFlowsDisabled                             = $ConfigSettings.EndUserDLUpgradeFlowsDisabled
+            EndUserMailNotificationForDelayedDelicensingEnabled       = $ConfigSettings.EndUserMailNotificationForDelayedDelicensingEnabled
             EwsAllowEntourage                                         = $ConfigSettings.EwsAllowEntourage
             EwsAllowList                                              = $ConfigSettings.EwsAllowList
             EwsAllowMacOutlook                                        = $ConfigSettings.EwsAllowMacOutlook
@@ -624,6 +638,7 @@ function Get-TargetResource
             ShortenEventScopeDefault                                  = $ConfigSettings.ShortenEventScopeDefault
             SiteMailboxCreationURL                                    = $ConfigSettings.SiteMailboxCreationURL
             SmtpActionableMessagesEnabled                             = $ConfigSettings.SmtpActionableMessagesEnabled
+            TenantAdminNotificationForDelayedDelicensingEnabled       = $ConfigSettings.TenantAdminNotificationForDelayedDelicensingEnabled
             VisibleMeetingUpdateProperties                            = $ConfigSettings.VisibleMeetingUpdateProperties
             WebPushNotificationsDisabled                              = $ConfigSettings.WebPushNotificationsDisabled
             WebSuggestedRepliesDisabled                               = $ConfigSettings.WebSuggestedRepliesDisabled
@@ -875,6 +890,10 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $DelayedDelicensingEnabled,
+
+        [Parameter()]
+        [System.Boolean]
         $DirectReportsGroupAutoCreationEnabled,
 
         [Parameter()]
@@ -900,6 +919,10 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $EndUserDLUpgradeFlowsDisabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $EndUserMailNotificationForDelayedDelicensingEnabled,
 
         [Parameter()]
         [System.Boolean]
@@ -1102,6 +1125,10 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $SmtpActionableMessagesEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $TenantAdminNotificationForDelayedDelicensingEnabled,
 
         [Parameter()]
         [System.String]
@@ -1392,6 +1419,10 @@ function Test-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $DelayedDelicensingEnabled,
+
+        [Parameter()]
+        [System.Boolean]
         $DirectReportsGroupAutoCreationEnabled,
 
         [Parameter()]
@@ -1417,6 +1448,10 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $EndUserDLUpgradeFlowsDisabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $EndUserMailNotificationForDelayedDelicensingEnabled,
 
         [Parameter()]
         [System.Boolean]
@@ -1619,6 +1654,10 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $SmtpActionableMessagesEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $TenantAdminNotificationForDelayedDelicensingEnabled,
 
         [Parameter()]
         [System.String]

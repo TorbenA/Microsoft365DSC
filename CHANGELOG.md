@@ -2,6 +2,10 @@
 
 # UNRELEASED
 
+* EXOOrganizationConfig
+  * Added support for the DelayedDelicensingEnabled,
+    EndUserMailNotificationForDelayedDelicensingEnabled and
+    TenantAdminNotificationForDelayedDelicensingEnabled parameters.
 * TeamsMessagingConfiguration
   * Initial release.
     FIXES [#6536](https://github.com/microsoft/Microsoft365DSC/issues/6536)
