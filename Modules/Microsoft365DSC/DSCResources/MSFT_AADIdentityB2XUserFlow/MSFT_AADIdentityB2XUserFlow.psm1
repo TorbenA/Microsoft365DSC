@@ -366,7 +366,7 @@ function Set-TargetResource
         {
             Write-Verbose -Message "Removing the Identity Provider with Id {$provider} from the Azure AD Identity B2X User Flow with Id {$($currentInstance.Id)}"
 
-            Remove-MgBetaIdentityB2XUserFlowIdentityProviderByRef -B2XIdentityUserFlowId $currentInstance.Id -IdentityProviderBaseId $provider
+            Remove-MgBetaIdentityB2XUserFlowIdentityProviderBaseByRef -B2XIdentityUserFlowId $currentInstance.Id -IdentityProviderBaseId $provider
         }
         #endregion
 

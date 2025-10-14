@@ -54745,7 +54745,7 @@ function Update-MgBetaPolicyTokenLifetimePolicy
         $HttpPipelineAppend
     )
 }
-function Remove-MgBetaIdentityB2XUserFlowIdentityProviderByRef
+function Remove-MgBetaIdentityB2XUserFlowIdentityProviderBaseByRef
 {
     [CmdletBinding()]
     param(

@@ -242,19 +242,19 @@ function Set-TargetResource
     Write-Verbose -Message "Updating Teams Update Management Policy {$Identity}"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $PSBoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($CurrentValues.Ensure -eq 'Absent' -and $Ensure -eq 'Present')
     {
         Write-Verbose "Creating new Teams Update Management Policy {$Identity}"
 
-        New-CsTeamsUpdateManagementPolicy @PSBoundParameters | Out-Null
+        New-CsTeamsUpdateManagementPolicy @boundParameters | Out-Null
     }
     elseif ($CurrentValues.Ensure -eq 'Present' -and $Ensure -eq 'Present')
     {
         Write-Verbose "Updating existing Teams Update Management Policy {$Identity}"
 
-        Set-CsTeamsUpdateManagementPolicy @PSBoundParameters | Out-Null
+        Set-CsTeamsUpdateManagementPolicy @boundParameters | Out-Null
     }
     elseif ($CurrentValues.Ensure -eq 'Present' -and $Ensure -eq 'Absent')
     {

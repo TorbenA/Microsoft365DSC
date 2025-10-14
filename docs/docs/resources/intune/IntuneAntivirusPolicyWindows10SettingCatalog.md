@@ -50,8 +50,8 @@
 | **DaysToRetainCleanedMalware** | Write | SInt32 | Time period (in days) that quarantine items will be stored on the system. | |
 | **DisableCatchupFullScan** | Write | String | This policy setting allows you to configure catch-up scans for scheduled full scans.  (1: disabled, 0: enabled) | `0`, `1` |
 | **DisableCatchupQuickScan** | Write | String | This policy setting allows you to configure catch-up scans for scheduled quick scans.  (1: disabled, 0: enabled) | `0`, `1` |
-| **DisableCoreServiceECSIntegration** | Write | String | Disable Core Service ECS Integration.  (0: disabled, 1: enabled) | `0`, `1` |
-| **DisableCoreServiceTelemetry** | Write | String | Disable Core Service Telemetry.  (1: disabled, 0: enabled) | `0`, `1` |
+| **DisableCoreServiceECSIntegration** | Write | StringArray[] | Disable Core Service ECS Integration.  (0: disabled, 1: enabled) | `0`, `1` |
+| **DisableCoreServiceTelemetry** | Write | StringArray[] | Disable Core Service Telemetry.  (1: disabled, 0: enabled) | `0`, `1` |
 | **DisableDnsOverTcpParsing** | Write | String | Disables or enables DNS over TCP Parsing for Network Protection. (0: enable feature. 1: disable feature) | `0`, `1` |
 | **DisableHttpParsing** | Write | String | Disables or enables HTTP Parsing for Network Protection. (0: enable feature. 1: disable feature) | `0`, `1` |
 | **DisableSshParsing** | Write | String | Disable Ssh Parsing (1: SSH parsing is disabled, 0: SSH parsing is enabled) | `1`, `0` |
@@ -272,4 +272,3 @@ Configuration Example
     }
 }
 ```
-
