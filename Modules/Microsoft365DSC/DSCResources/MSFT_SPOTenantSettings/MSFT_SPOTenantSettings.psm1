@@ -494,11 +494,11 @@ function Set-TargetResource
         Write-Verbose -Message 'The use of the public CDN is not enabled, for that the PublicCdnAllowedFileTypes parameter can not be configured and will be removed'
         $CurrentParameters.Remove('PublicCdnAllowedFileTypes') | Out-Null
     }
-    $tenant = Set-PnPTenant @CurrentParameters
+    $null = Set-PnPTenant @CurrentParameters
 
     if (-not [string]::IsNullOrEmpty($TenantDefaultTimezone))
     {
-        $tenantGraph = Update-MgAdminSharepointSetting -TenantDefaultTimezone $TenantDefaultTimezone -ErrorAction Stop
+        $null = Update-MgAdminSharepointSetting -TenantDefaultTimezone $TenantDefaultTimezone -ErrorAction Stop
     }
 
     # Updating via REST
