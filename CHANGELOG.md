@@ -6,6 +6,9 @@
   * Added support for the DelayedDelicensingEnabled,
     EndUserMailNotificationForDelayedDelicensingEnabled and
     TenantAdminNotificationForDelayedDelicensingEnabled parameters.
+* IntuneAntivirusPolicyWindows10SettingCatalog
+  * Fixed `DisableCoreServiceECSIntegration` and `DisableCoreServiceTelemetry` to allow multiple values.
+    FIXES [#6583](https://github.com/microsoft/Microsoft365DSC/issues/6583)
 * O365OrgSettings
   * Fix unicode issue in schema, that caused the website to contain
     incorrect characters.
