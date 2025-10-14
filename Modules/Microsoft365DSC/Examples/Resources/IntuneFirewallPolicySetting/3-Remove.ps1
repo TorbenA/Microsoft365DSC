@@ -1,5 +1,5 @@
 <#
-This example removes a Device Control Policy.
+This example removes a Intune Firewall Policy Setting.
 #>
 
 Configuration Example

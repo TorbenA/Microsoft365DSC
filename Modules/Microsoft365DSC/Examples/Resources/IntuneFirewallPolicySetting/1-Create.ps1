@@ -1,5 +1,5 @@
 <#
-This example creates a new Intune Firewall Policy for Windows10.
+This example creates a new Intune Firewall Policy Setting.
 #>
 
 Configuration Example
