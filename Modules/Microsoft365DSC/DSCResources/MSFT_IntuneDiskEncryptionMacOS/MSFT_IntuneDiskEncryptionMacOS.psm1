@@ -579,7 +579,7 @@ function Test-TargetResource
     {
         $source = $PSBoundParameters.$key
         $target = $CurrentValues.$key
-        if ($source.getType().Name -like '*CimInstance*')
+        if ($source.GetType().Name -like '*CimInstance*')
         {
             $testResult = Compare-M365DSCComplexObject `
                 -Source ($source) `

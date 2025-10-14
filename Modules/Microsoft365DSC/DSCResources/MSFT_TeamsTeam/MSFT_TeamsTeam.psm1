@@ -700,15 +700,6 @@ function Export-TargetResource
 
     try
     {
-        if ($ConnectionMode.StartsWith('ServicePrincipal'))
-        {
-            $organization = Get-M365DSCTenantDomain -ApplicationId $ApplicationId -TenantId $TenantId -CertificateThumbprint $CertificateThumbprint
-        }
-        else
-        {
-            $organization = $Credential.UserName.Split('@')[1]
-        }
-
         $teams = Get-Team | Sort-Object -Property GroupId
         $i = 1
         $dscContent = ''

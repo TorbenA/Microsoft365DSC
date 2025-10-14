@@ -271,13 +271,11 @@ function Set-TargetResource
     elseif ($CurrentValues.Ensure -eq 'Present' -and $Ensure -eq 'Present')
     {
         Write-Verbose "Updating existing Teams Update Management Policy {$Identity}"
-
         Set-CsTeamsUpdateManagementPolicy @boundParameters | Out-Null
     }
     elseif ($CurrentValues.Ensure -eq 'Present' -and $Ensure -eq 'Absent')
     {
         Write-Verbose "Removing existing Teams Update Management Policy {$Identity}"
-
         Remove-CsTeamsUpdateManagementPolicy -Identity $Identity | Out-Null
     }
 }

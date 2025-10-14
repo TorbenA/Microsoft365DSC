@@ -241,7 +241,6 @@ function Set-TargetResource
         Set-CsTenantDialPlan @boundParameters
 
         $differences = Get-M365DSCVoiceNormalizationRulesDifference -CurrentRules $CurrentValues.NormalizationRules -DesiredRules $desiredRules
-
         foreach ($ruleToAdd in $differences.RulesToAdd)
         {
             Write-Verbose "Adding new VoiceNormalizationRule {$($ruleToAdd.Identity)}"

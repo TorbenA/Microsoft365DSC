@@ -122,7 +122,7 @@ function Get-TargetResource
                 $MyComplianceRecordingApplications.Add('RequiredDuringCall', $CurrentComplianceRecordingApplications.RequiredDuringCall)
                 $MyComplianceRecordingApplications.Add('ConcurrentInvitationCount', $CurrentComplianceRecordingApplications.ConcurrentInvitationCount)
 
-                if ($MyComplianceRecordingApplications.values.Where({ $null -ne $_ }).count -gt 0)
+                if ($MyComplianceRecordingApplications.values.Where({ $null -ne $_ }).Count -gt 0)
                 {
                     $ComplexComplianceRecordingApplications += $MyComplianceRecordingApplications
                 }
