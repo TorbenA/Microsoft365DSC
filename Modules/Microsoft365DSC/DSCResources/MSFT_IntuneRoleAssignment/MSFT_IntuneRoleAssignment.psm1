@@ -561,7 +561,7 @@ function Test-TargetResource
     foreach ($key in $ValuesToCheck.Keys)
     {
         if (($null -ne $CurrentValues[$key]) `
-                -and ($CurrentValues[$key].getType().Name -eq 'DateTime'))
+                -and ($CurrentValues[$key].GetType().Name -eq 'DateTime'))
         {
             $CurrentValues[$key] = $CurrentValues[$key].ToString()
         }
