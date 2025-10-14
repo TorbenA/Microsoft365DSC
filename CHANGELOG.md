@@ -6,8 +6,20 @@
   * Added the property `AccountEnabled` to the export.
     FIXES [#6595](https://github.com/microsoft/Microsoft365DSC/issues/6595)
   * Fixed an issue where the phone and fax number was not exported.
+* EXOOrganizationConfig
+  * Added support for the DelayedDelicensingEnabled,
+    EndUserMailNotificationForDelayedDelicensingEnabled and
+    TenantAdminNotificationForDelayedDelicensingEnabled parameters.
+* TeamsMessagingConfiguration
+  * Initial release.
+    FIXES [#6536](https://github.com/microsoft/Microsoft365DSC/issues/6536)
 * M365DSCUtil
+  * Fixed an issue where `Uninstall-M365DSCOutdatedDependencies` removes the wrong version.
+    FIXES [#6573](https://github.com/microsoft/Microsoft365DSC/issues/6573)
   * Fixed parameter mapping of the telemetry connection parameters.
+* MISC
+  * Improved function and cmdlet count for module import.
+    FIXES [#6544](https://github.com/microsoft/Microsoft365DSC/issues/6544)
 
 # 1.25.1001.1
 
