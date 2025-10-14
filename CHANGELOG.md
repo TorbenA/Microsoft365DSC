@@ -2,6 +2,10 @@
 
 # UNRELEASED
 
+* EXOOrganizationConfig
+  * Added support for the DelayedDelicensingEnabled,
+    EndUserMailNotificationForDelayedDelicensingEnabled and
+    TenantAdminNotificationForDelayedDelicensingEnabled parameters.
 * TeamsAppSetupPolicy
   * Added property `PinnedCallingBarApps`.
 * TeamsCallingPolicy
@@ -22,6 +26,9 @@
   * Added property `UsersCanDeleteBotMessages`.
 * TeamsMeetingConfiguration
   * Added properties `DisableAppInteractionForAnonymousUsers`, `FeedbackSurveyForAnonymousUsers` and `LimitPresenterRolePermissions`.
+* TeamsMessagingConfiguration
+  * Initial release.
+    FIXES [#6536](https://github.com/microsoft/Microsoft365DSC/issues/6536)
 * TeamsMessagingPolicy
   * Added properties `AllowExtendedWorkInfoInSearch`, `AutoShareFilesInExternalChats` and `UseB2BInvitesToAddExternalUsers`.
 * TeamsOnlineVoicemailPolicy
@@ -32,6 +39,9 @@
   * Added properties `BlockLegacyAuthorization` and `DisabledInProductMessages`.
 * TeamsVoiceRoute
   * Added property `BridgeSourcePhoneNumber`.
+* M365DSCUtil
+  * Fixed an issue where `Uninstall-M365DSCOutdatedDependencies` removes the wrong version.
+    FIXES [#6573](https://github.com/microsoft/Microsoft365DSC/issues/6573)
 * MISC
   * Removed unnecessary CIM instance conversion checks across all resources.
 
