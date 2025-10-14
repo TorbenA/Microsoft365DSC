@@ -151,7 +151,7 @@
       IconUri      = 'https://github.com/microsoft/Microsoft365DSC/blob/Dev/Modules/Microsoft365DSC/Dependencies/Images/Logo.png?raw=true'
 
       # ReleaseNotes of this module
-      ReleaseNotes = 'For the complete release notes, please refer to https://GitHub.com/Microsoft/Microsoft365DSC.'
+      ReleaseNotes = 'For the complete release notes, please refer to https://github.com/Microsoft/Microsoft365DSC.'
 
       # Flag to indicate whether the module requires explicit user acceptance for install/update
       # RequireLicenseAcceptance = $false

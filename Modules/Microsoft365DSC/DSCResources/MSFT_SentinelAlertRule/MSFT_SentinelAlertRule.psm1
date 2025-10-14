@@ -1315,7 +1315,7 @@ function Remove-M365DSCSentinelAlertRule
         $uri = $hostUrl.AzureManagement + "/subscriptions/$($SubscriptionId)/resourceGroups/$($ResourceGroupName)/"
 
         $uri += "providers/Microsoft.OperationalInsights/workspaces/$($WorkspaceName)/providers/Microsoft.SecurityInsights/alertRules/$($Id)?api-version=2024-04-01-preview"
-        $response = Invoke-AzRest -Uri $uri -Method 'DELETE'
+        Invoke-AzRest -Uri $uri -Method 'DELETE' | Out-Null
     }
     catch
     {

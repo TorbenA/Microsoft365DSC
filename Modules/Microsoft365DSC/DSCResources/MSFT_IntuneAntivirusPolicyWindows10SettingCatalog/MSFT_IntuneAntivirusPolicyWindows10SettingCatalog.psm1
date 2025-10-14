@@ -208,12 +208,12 @@ function Get-TargetResource
 
         [Parameter()]
         [ValidateSet('0', '1')]
-        [System.String]
+        [System.String[]]
         $DisableCoreServiceECSIntegration,
 
         [Parameter()]
         [ValidateSet('0', '1')]
-        [System.String]
+        [System.String[]]
         $DisableCoreServiceTelemetry,
 
         [Parameter()]
@@ -778,12 +778,12 @@ function Set-TargetResource
 
         [Parameter()]
         [ValidateSet('0', '1')]
-        [System.String]
+        [System.String[]]
         $DisableCoreServiceECSIntegration,
 
         [Parameter()]
         [ValidateSet('0', '1')]
-        [System.String]
+        [System.String[]]
         $DisableCoreServiceTelemetry,
 
         [Parameter()]
@@ -1309,12 +1309,12 @@ function Test-TargetResource
 
         [Parameter()]
         [ValidateSet('0', '1')]
-        [System.String]
+        [System.String[]]
         $DisableCoreServiceECSIntegration,
 
         [Parameter()]
         [ValidateSet('0', '1')]
-        [System.String]
+        [System.String[]]
         $DisableCoreServiceTelemetry,
 
         [Parameter()]
