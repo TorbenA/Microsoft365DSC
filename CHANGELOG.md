@@ -2,6 +2,16 @@
 
 # UNRELEASED
 
+* EXOOrganizationConfig
+  * Added support for the DelayedDelicensingEnabled,
+    EndUserMailNotificationForDelayedDelicensingEnabled and
+    TenantAdminNotificationForDelayedDelicensingEnabled parameters.
+* TeamsMessagingConfiguration
+  * Initial release.
+    FIXES [#6536](https://github.com/microsoft/Microsoft365DSC/issues/6536)
+* M365DSCUtil
+  * Fixed an issue where `Uninstall-M365DSCOutdatedDependencies` removes the wrong version.
+    FIXES [#6573](https://github.com/microsoft/Microsoft365DSC/issues/6573)
 * MISC
   * Removed documentation for `IntuneDeviceEnrollmentConfigurationWindows10`.
     FIXES [#6589](https://github.com/microsoft/Microsoft365DSC/issues/6589)
