@@ -531,6 +531,42 @@ function Get-TargetResource
             throw 'There was an error retrieving values from the Get function in EXOOrganizationConfig.'
         }
 
+        # DelayedDelicensingEnabledState
+        $DelayedDelicensingEnabledStateParsed = $configSettings.DelayedDelicensingEnabledState.ToString().Split(';')[0].Replace('Enabled: ','')
+        $DelayedDelicensingEnabledStateValue = $false
+        if ($DelayedDelicensingEnabledStateParsed -eq 'True')
+        {
+            $DelayedDelicensingEnabledStateValue = $true
+        }
+        else
+        {
+            $DelayedDelicensingEnabledStateValue = $false
+        }
+
+        # EndUserMailNotificationForDelayedDelicensingEnabled
+        $EndUserMailNotificationForDelayedDelicensingEnabledParsed = $configSettings.EndUserMailNotificationForDelayedDelicensingState.ToString().Split(';')[0].Replace('Enabled: ','')
+        $EndUserMailNotificationForDelayedDelicensingEnabledValue = $false
+        if ($EndUserMailNotificationForDelayedDelicensingEnabledParsed -eq 'True')
+        {
+            $EndUserMailNotificationForDelayedDelicensingEnabledValue = $true
+        }
+        else
+        {
+            $EndUserMailNotificationForDelayedDelicensingEnabledValue = $false
+        }
+
+        # TenantAdminNotificationForDelayedDelicensingEnabled
+        $TenantAdminNotificationForDelayedDelicensingEnabledParsed = $configSettings.TenantAdminNotificationForDelayedDelicensingState.ToString().Split(';')[0].Replace('Enabled: ','')
+        $TenantAdminNotificationForDelayedDelicensingEnabledValue = $false
+        if ($TenantAdminNotificationForDelayedDelicensingEnabledParsed -eq 'True')
+        {
+            $TenantAdminNotificationForDelayedDelicensingEnabledValue = $true
+        }
+        else
+        {
+            $TenantAdminNotificationForDelayedDelicensingEnabledValue = $false
+        }
+
         $results = @{
             IsSingleInstance                                          = 'Yes'
             ActivityBasedAuthenticationTimeoutEnabled                 = $ConfigSettings.ActivityBasedAuthenticationTimeoutEnabled
@@ -579,7 +615,7 @@ function Get-TargetResource
             DefaultPublicFolderMaxItemSize                            = $ConfigSettings.DefaultPublicFolderMaxItemSize
             DefaultPublicFolderMovedItemRetention                     = $ConfigSettings.DefaultPublicFolderMovedItemRetention
             DefaultPublicFolderProhibitPostQuota                      = $ConfigSettings.DefaultPublicFolderProhibitPostQuota
-            DelayedDelicensingEnabled                                 = $ConfigSettings.DelayedDelicensingEnabled
+            DelayedDelicensingEnabled                                 = $DelayedDelicensingEnabledStateValue
             DirectReportsGroupAutoCreationEnabled                     = $ConfigSettings.DirectReportsGroupAutoCreationEnabled
             DisablePlusAddressInRecipients                            = $ConfigSettings.DisablePlusAddressInRecipients
             DistributionGroupDefaultOU                                = $ConfigSettings.DistributionGroupDefaultOU
@@ -588,7 +624,7 @@ function Get-TargetResource
             ElcProcessingDisabled                                     = $ConfigSettings.ElcProcessingDisabled
             EnableOutlookEvents                                       = $ConfigSettings.EnableOutlookEvents
             EndUserDLUpgradeFlowsDisabled                             = $ConfigSettings.EndUserDLUpgradeFlowsDisabled
-            EndUserMailNotificationForDelayedDelicensingEnabled       = $ConfigSettings.EndUserMailNotificationForDelayedDelicensingEnabled
+            EndUserMailNotificationForDelayedDelicensingEnabled       = $EndUserMailNotificationForDelayedDelicensingEnabledValue
             EwsAllowEntourage                                         = $ConfigSettings.EwsAllowEntourage
             EwsAllowList                                              = $ConfigSettings.EwsAllowList
             EwsAllowMacOutlook                                        = $ConfigSettings.EwsAllowMacOutlook
@@ -638,7 +674,7 @@ function Get-TargetResource
             ShortenEventScopeDefault                                  = $ConfigSettings.ShortenEventScopeDefault
             SiteMailboxCreationURL                                    = $ConfigSettings.SiteMailboxCreationURL
             SmtpActionableMessagesEnabled                             = $ConfigSettings.SmtpActionableMessagesEnabled
-            TenantAdminNotificationForDelayedDelicensingEnabled       = $ConfigSettings.TenantAdminNotificationForDelayedDelicensingEnabled
+            TenantAdminNotificationForDelayedDelicensingEnabled       = $TenantAdminNotificationForDelayedDelicensingEnabledValue
             VisibleMeetingUpdateProperties                            = $ConfigSettings.VisibleMeetingUpdateProperties
             WebPushNotificationsDisabled                              = $ConfigSettings.WebPushNotificationsDisabled
             WebSuggestedRepliesDisabled                               = $ConfigSettings.WebSuggestedRepliesDisabled
