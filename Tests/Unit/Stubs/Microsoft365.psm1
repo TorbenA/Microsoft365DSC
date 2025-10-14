@@ -75463,6 +75463,68 @@ function Set-CsUserCallingSettings
         $GroupNotificationOverride
     )
 }
+function Get-CsTeamsMessagingConfiguration
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $Identity,
+
+        [Parameter()]
+        [System.String]
+        $Filter
+    )
+}
+function Set-CsTeamsMessagingConfiguration
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.Boolean]
+        $EnableVideoMessageCaptions,
+
+        [Parameter()]
+        [System.Boolean]
+        $EnableInOrganizationChatControl,
+
+        [Parameter()]
+        [System.Boolean]
+        $CustomEmojis,
+
+        [Parameter()]
+        [System.String]
+        $Storyline,
+
+        [Parameter()]
+        [System.String]
+        $MessagingNotes,
+
+        [Parameter()]
+        [System.String]
+        $FileTypeCheck,
+
+        [Parameter()]
+        [System.String]
+        $UrlReputationCheck,
+
+        [Parameter()]
+        [System.String]
+        $ContentBasedPhishingCheck,
+
+        [Parameter()]
+        [System.String]
+        $ReportIncorrectSecurityDetections,
+
+        [Parameter()]
+        [System.String]
+        $Identity,
+
+        [Parameter()]
+        [switch]
+        $Force
+    )
+}
 #endregion
 
 #region PnP.PowerShell
