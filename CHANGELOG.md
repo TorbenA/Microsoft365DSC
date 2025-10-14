@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* TeamsMessagingConfiguration
+  * Initial release.
+    FIXES [#6536](https://github.com/microsoft/Microsoft365DSC/issues/6536)
 * M365DSCUtil
   * Fixed an issue where `Uninstall-M365DSCOutdatedDependencies` removes the wrong version.
     FIXES [#6573](https://github.com/microsoft/Microsoft365DSC/issues/6573)
