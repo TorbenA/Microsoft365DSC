@@ -39,15 +39,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-PSSession -MockWith {
             }
 
-            Mock -CommandName Update-MgBetaDeviceManagementReusableSetting -MockWith {
-            }
-
-            Mock -CommandName New-MgBetaDeviceManagementReusableSetting -MockWith {
-            }
-
-            Mock -CommandName Remove-MgBetaDeviceManagementReusableSetting -MockWith {
-            }
-
             Mock -CommandName Invoke-MgGraphRequest -MockWith {
             }
 
@@ -55,6 +46,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 id          = 'FakeStringValue'
                 displayName = 'FakeStringValue'
                 description = 'FakeStringValue'
+                settingDefinitionId = 'vendor_msft_firewall_mdmstore_dynamickeywords_addresses_{id}'
                 settingInstance = @{
                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationGroupSettingCollectionInstance'
                     settingDefinitionId = 'vendor_msft_firewall_mdmstore_dynamickeywords_addresses_{id}'

@@ -3,5 +3,9 @@
     "description": "This resource configures an <ResourceDescription>.",
     "permissions":<ResourcePermissions>,
     "requiredModules": [],
+    "supportedEnvironments": [
+        "Global",
+        "USGov"
+    ],
     "mode": "Configuration"
 }
