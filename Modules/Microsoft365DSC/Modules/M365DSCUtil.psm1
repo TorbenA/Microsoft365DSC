@@ -3635,7 +3635,7 @@ function Uninstall-M365DSCOutdatedDependencies
         $InformationPreference = 'Continue'
 
         [array]$microsoft365DscModules = Get-Module Microsoft365DSC -ListAvailable
-        $outdatedMicrosoft365DscModules = $microsoft365DscModules | Select-Object -SkipLast 1 | Sort-Object Version
+        $outdatedMicrosoft365DscModules = $microsoft365DscModules | Sort-Object -Property Version | Select-Object -SkipLast 1
 
         foreach ($module in $outdatedMicrosoft365DscModules)
         {
