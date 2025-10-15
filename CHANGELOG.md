@@ -2,6 +2,10 @@
 
 # UNRELEASED
 
+* AADUser
+  * Added the property `AccountEnabled` to the export.
+    FIXES [#6595](https://github.com/microsoft/Microsoft365DSC/issues/6595)
+  * Fixed an issue where the phone and fax number was not exported.
 * EXOOrganizationConfig
   * Added support for the DelayedDelicensingEnabled,
     EndUserMailNotificationForDelayedDelicensingEnabled and
@@ -53,6 +57,7 @@
 * M365DSCUtil
   * Fixed an issue where `Uninstall-M365DSCOutdatedDependencies` removes the wrong version.
     FIXES [#6573](https://github.com/microsoft/Microsoft365DSC/issues/6573)
+  * Fixed parameter mapping of the telemetry connection parameters.
 * MISC
   * Removed documentation for `IntuneDeviceEnrollmentConfigurationWindows10`.
     FIXES [#6589](https://github.com/microsoft/Microsoft365DSC/issues/6589)
