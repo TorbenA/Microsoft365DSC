@@ -12,6 +12,10 @@
 * O365OrgSettings
   * Fix unicode issue in schema, that caused the website to contain
     incorrect characters.
+* SPOTenantSettings
+  * Deprecated property `OneDriveSharingCapability` in favor of `MySiteSharingCapability` in SPOSharingSettings.
+    FIXES [#6588](https://github.com/microsoft/Microsoft365DSC/issues/6588)
+    FIXES [#5933](https://github.com/microsoft/Microsoft365DSC/issues/5933)
 * TeamsMessagingConfiguration
   * Initial release.
     FIXES [#6536](https://github.com/microsoft/Microsoft365DSC/issues/6536)

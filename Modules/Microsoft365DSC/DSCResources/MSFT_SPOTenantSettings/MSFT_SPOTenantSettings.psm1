@@ -221,7 +221,7 @@ function Get-TargetResource
             'DenySelectSecurityGroupsInSPSitesList',
             'AllowSelectSecurityGroupsInSPSitesList',
             'EnableAzureADB2BIntegration',
-            'OneDriveSharingCapability')
+            'ODBSharingCapability')
 
         $response = Invoke-PnPSPRestMethod -Method Get `
             -Url "$((Get-MSCloudLoginConnectionProfile -Workload PnP).AdminUrl)/_api/SPO.Tenant?`$select=$($parametersToRetrieve -join ',')"
@@ -235,7 +235,7 @@ function Get-TargetResource
             DenySelectSecurityGroupsInSPSitesList                  = $response.DenySelectSecurityGroupsInSPSitesList
             AllowSelectSecurityGroupsInSPSitesList                 = $response.AllowSelectSecurityGroupsInSPSitesList
             EnableAzureADB2BIntegration                            = $response.EnableAzureADB2BIntegration
-            OneDriveSharingCapability                              = $response.ODBSharingCapability
+            #OneDriveSharingCapability                              = $response.ODBSharingCapability
             MinCompatibilityLevel                                  = $MinCompat
             MaxCompatibilityLevel                                  = $MaxCompat
             SearchResolveExactEmailOrUPN                           = $SPOTenantSettings.SearchResolveExactEmailOrUPN
@@ -457,7 +457,12 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message 'Setting configuration for SPO Tenant'
+    if ($PSBoundParameters.ContainsKey('OneDriveSharingCapability'))
+    {
+        Write-Warning -Message "The property 'OneDriveSharingCapability' is deprecated and will be ignored. Please use 'MySiteSharingCapability' in the SPOSharingSettings resource."
+    }
+
+    Write-Verbose -Message 'Updating configuration for the SPO Tenant Settings'
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -543,11 +548,13 @@ function Set-TargetResource
             $paramsToUpdate.Add('EnableAzureADB2BIntegration', $EnableAzureADB2BIntegration)
         }
 
+        <#
         if ($null -ne $OneDriveSharingCapability)
         {
             $needToUpdate = $true
             $paramsToUpdate.Add('ODBSharingCapability', $OneDriveSharingCapability)
         }
+        #>
 
         if ($needToUpdate)
         {
@@ -741,6 +748,11 @@ function Test-TargetResource
         $AccessTokens
     )
 
+    if ($PSBoundParameters.ContainsKey('OneDriveSharingCapability'))
+    {
+        Write-Warning -Message "The property 'OneDriveSharingCapability' is deprecated and will be ignored. Please use 'MySiteSharingCapability' in the SPOSharingSettings resource."
+    }
+
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -751,7 +763,8 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties @('OneDriveSharingCapability')
     return $result
 }
 
