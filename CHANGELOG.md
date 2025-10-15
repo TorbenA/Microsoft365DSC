@@ -1,11 +1,34 @@
 # Change log for Microsoft365DSC
 
-# unreleased
+# UNRELEASED
 
-* Modules \ M365DSCReverse
-  * fix typo in termOfUseName for consistency
-  * removed $OutputDSCPath from $outputDSCFile and $outputConfigurationData
+* AADConditionalAccessPolicy
+  * Fixed a typo in variable initialization.
+* EXOOrganizationConfig
+  * Added support for the DelayedDelicensingEnabled,
+    EndUserMailNotificationForDelayedDelicensingEnabled and
+    TenantAdminNotificationForDelayedDelicensingEnabled parameters.
+* IntuneAntivirusPolicyWindows10SettingCatalog
+  * Fixed `DisableCoreServiceECSIntegration` and `DisableCoreServiceTelemetry` to allow multiple values.
+    FIXES [#6583](https://github.com/microsoft/Microsoft365DSC/issues/6583)
+* O365OrgSettings
+  * Fix unicode issue in schema, that caused the website to contain
+    incorrect characters.
+* TeamsMessagingConfiguration
+  * Initial release.
+    FIXES [#6536](https://github.com/microsoft/Microsoft365DSC/issues/6536)
+* M365DSCAgent
+  * Added requirement to regenerate the DSC agent certificate with `-ForceRenew` when
+    creating and exporting a PFX certificate using `Set-M365DSCAgentCertificateConfiguration`.
+* M365DSCReverse
+  * Fixed an issue where the export output path was not correct.
     FIXES [#6580](https://github.com/microsoft/Microsoft365DSC/issues/6580)
+* M365DSCUtil
+  * Fixed an issue where `Uninstall-M365DSCOutdatedDependencies` removes the wrong version.
+    FIXES [#6573](https://github.com/microsoft/Microsoft365DSC/issues/6573)
+* MISC
+  * Improved function and cmdlet count for module import.
+    FIXES [#6544](https://github.com/microsoft/Microsoft365DSC/issues/6544)
 
 # 1.25.1001.1
 

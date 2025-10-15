@@ -11,6 +11,8 @@ function Start-M365DSCConfigurationExtract
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Conversion for credential creation')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'GenerateInfo', Justification = 'Using statement not detected')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Filters', Justification = 'Using statement not detected')]
     param(
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -655,6 +657,7 @@ function Start-M365DSCConfigurationExtract
         })
         $resourceDictionary = Get-M365DSCAllResourcesDictionary
         $exportScriptBlock = {
+            $Global:MaximumFunctionCount = 32768
             $Global:PartialExportFileName = $using:partialExportName
             $Global:M365DSCSkipDependenciesValidation = $true
             $resource = $_
