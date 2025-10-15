@@ -898,7 +898,7 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating a new Teams Meeting Policy {$Identity}"
+        Write-Verbose -Message "Creating a Teams Meeting Policy with Identity {$Identity}"
 
         # The AllowAnonymousUsersToDialOut is temporarly disabled. Therefore
         # we can't create or update a policy with it and it needs to be removed;
@@ -916,7 +916,7 @@ function Set-TargetResource
     {
         # If we get here, it's because the Test-TargetResource detected a drift, therefore we always call
         # into the Set-CsTeamsMeetingPolicy cmdlet.
-        Write-Verbose -Message "Updating settings for Teams Meeting Policy {$Identity}"
+        Write-Verbose -Message "Updating the Teams Meeting Policy with Identity {$Identity}"
 
         # The AllowAnonymousUsersToDialOut is temporarly disabled. Therefore
         # we can't create or update a policy with it and it needs to be removed;

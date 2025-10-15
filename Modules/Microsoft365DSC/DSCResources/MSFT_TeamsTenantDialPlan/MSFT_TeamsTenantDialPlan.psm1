@@ -218,7 +218,6 @@ function Set-TargetResource
         }
 
         $boundParameters.NormalizationRules = @{ Add = $AllRules }
-
         New-CsTenantDialPlan @boundParameters
     }
     elseif ($Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Present')
@@ -237,6 +236,9 @@ function Set-TargetResource
             }
             $desiredRules += $desiredRule
         }
+
+        $boundParameters.Remove('NormalizationRules') | Out-Null
+        Set-CsTenantDialPlan @boundParameters
 
         $differences = Get-M365DSCVoiceNormalizationRulesDifference -CurrentRules $CurrentValues.NormalizationRules -DesiredRules $desiredRules
         foreach ($ruleToAdd in $differences.RulesToAdd)

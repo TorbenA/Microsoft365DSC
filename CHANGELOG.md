@@ -9,6 +9,8 @@
 * IntuneAntivirusPolicyWindows10SettingCatalog
   * Fixed `DisableCoreServiceECSIntegration` and `DisableCoreServiceTelemetry` to allow multiple values.
     FIXES [#6583](https://github.com/microsoft/Microsoft365DSC/issues/6583)
+* IntuneCloudProvisioningPolicyWindows365
+  * Initial release.
 * O365OrgSettings
   * Fix unicode issue in schema, that caused the website to contain
     incorrect characters.
@@ -16,9 +18,39 @@
   * Deprecated property `OneDriveSharingCapability` in favor of `MySiteSharingCapability` in SPOSharingSettings.
     FIXES [#6588](https://github.com/microsoft/Microsoft365DSC/issues/6588)
     FIXES [#5933](https://github.com/microsoft/Microsoft365DSC/issues/5933)
+* TeamsAppSetupPolicy
+  * Added property `PinnedCallingBarApps`.
+* TeamsCallingPolicy
+  * Added property `ExplicitRecordingConsent`.
+* TeamsClientConfiguration
+  * Added property `AllowRoleBasedChatPermissions`.
+* TeamsComplianceRecordingPolicy
+  * Added property `RecordReroutedCalls`.
+* TeamsDialInConferencingTenantSettings
+  * Added properties `EnableNameRecording`, `MigrateServiceNumbersOnCrossForestMove` and `UseUniqueConferenceIds`.
+* TeamsEmergencyCallingPolicy
+  * Added property `ExtendedNotifications`.
+* TeamsFederationConfiguration
+  * Added property `DomainBlockingForMDOAdminsInTeams`.
+* TeamsFilesPolicy
+  * Added properties `FileSharingInChatswithExternalUsers` and `DefaultFileUploadAppId`.
+* TeamsGuestMessagingConfiguration
+  * Added property `UsersCanDeleteBotMessages`.
+* TeamsMeetingConfiguration
+  * Added properties `DisableAppInteractionForAnonymousUsers`, `FeedbackSurveyForAnonymousUsers` and `LimitPresenterRolePermissions`.
 * TeamsMessagingConfiguration
   * Initial release.
     FIXES [#6536](https://github.com/microsoft/Microsoft365DSC/issues/6536)
+* TeamsMessagingPolicy
+  * Added properties `AllowExtendedWorkInfoInSearch`, `AutoShareFilesInExternalChats` and `UseB2BInvitesToAddExternalUsers`.
+* TeamsOnlineVoicemailPolicy
+  * Added properties `PostambleAudioFile`, `PreambleAudioFile` and `PreamblePostambleMandatory`.
+* TeamsTeam
+  * Added property `AllowCreatePrivateChannels`.
+* TeamsUpdateManagementPolicy
+  * Added properties `BlockLegacyAuthorization` and `DisabledInProductMessages`.
+* TeamsVoiceRoute
+  * Added property `BridgeSourcePhoneNumber`.
 * M365DSCAgent
   * Added requirement to regenerate the DSC agent certificate with `-ForceRenew` when
     creating and exporting a PFX certificate using `Set-M365DSCAgentCertificateConfiguration`.
@@ -26,8 +58,11 @@
   * Fixed an issue where `Uninstall-M365DSCOutdatedDependencies` removes the wrong version.
     FIXES [#6573](https://github.com/microsoft/Microsoft365DSC/issues/6573)
 * MISC
+  * Removed documentation for `IntuneDeviceEnrollmentConfigurationWindows10`.
+    FIXES [#6589](https://github.com/microsoft/Microsoft365DSC/issues/6589)
   * Improved function and cmdlet count for module import.
     FIXES [#6544](https://github.com/microsoft/Microsoft365DSC/issues/6544)
+  * Removed unnecessary CIM instance conversion checks across all resources.
 
 # 1.25.1001.1
 

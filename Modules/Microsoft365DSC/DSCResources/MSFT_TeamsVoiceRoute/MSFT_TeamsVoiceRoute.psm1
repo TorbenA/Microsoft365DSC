@@ -12,6 +12,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
+        $BridgeSourcePhoneNumber,
+
+        [Parameter()]
+        [System.String]
         $Description,
 
         [Parameter()]
@@ -107,19 +111,20 @@ function Get-TargetResource
 
         Write-Verbose -Message "Found Voice Route {$Identity}"
         return @{
-            Identity              = $Identity
-            Description           = $route.Description
-            NumberPattern         = $route.NumberPattern
-            OnlinePstnGatewayList = $route.OnlinePstnGatewayList
-            OnlinePstnUsages      = $route.OnlinePstnUsages
-            Priority              = $route.Priority
-            Ensure                = 'Present'
-            Credential            = $Credential
-            ApplicationId         = $ApplicationId
-            TenantId              = $TenantId
-            CertificateThumbprint = $CertificateThumbprint
-            ManagedIdentity       = $ManagedIdentity.IsPresent
-            AccessTokens          = $AccessTokens
+            Identity                = $Identity
+            BridgeSourcePhoneNumber = $route.BridgeSourcePhoneNumber
+            Description             = $route.Description
+            NumberPattern           = $route.NumberPattern
+            OnlinePstnGatewayList   = $route.OnlinePstnGatewayList
+            OnlinePstnUsages        = $route.OnlinePstnUsages
+            Priority                = $route.Priority
+            Ensure                  = 'Present'
+            Credential              = $Credential
+            ApplicationId           = $ApplicationId
+            TenantId                = $TenantId
+            CertificateThumbprint   = $CertificateThumbprint
+            ManagedIdentity         = $ManagedIdentity.IsPresent
+            AccessTokens            = $AccessTokens
         }
     }
     catch
@@ -142,6 +147,10 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $Identity,
+
+        [Parameter()]
+        [System.String]
+        $BridgeSourcePhoneNumber,
 
         [Parameter()]
         [System.String]
@@ -254,10 +263,6 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Present')
     {
-        <#
-            If we get here, it's because the Test-TargetResource detected a drift, therefore we always call
-            into the Set-CsOnlineVoiceRoute cmdlet.
-        #>
         Write-Verbose -Message "Updating settings for Voice Route {$Identity}"
         Set-CsOnlineVoiceRoute @boundParameters
     }
@@ -277,6 +282,10 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $Identity,
+
+        [Parameter()]
+        [System.String]
+        $BridgeSourcePhoneNumber,
 
         [Parameter()]
         [System.String]
