@@ -13,6 +13,8 @@
 * IntuneAntivirusPolicyWindows10SettingCatalog
   * Fixed `DisableCoreServiceECSIntegration` and `DisableCoreServiceTelemetry` to allow multiple values.
     FIXES [#6583](https://github.com/microsoft/Microsoft365DSC/issues/6583)
+* IntuneAzureNetworkConnectionWindows365
+  * Initial release.
 * IntuneCloudProvisioningPolicyWindows365
   * Initial release.
 * O365OrgSettings
@@ -69,6 +71,7 @@
 
 * AADAccessReviewDefinition
   * [BREAKING CHANGE] Removed ID as the key and made DisplayName the new key.
+
 * AADAdministrativeUnit
   * Reduced export time by 20%.
 * AADAgreement
