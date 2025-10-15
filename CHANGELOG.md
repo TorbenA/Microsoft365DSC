@@ -13,11 +13,17 @@
 * IntuneAntivirusPolicyWindows10SettingCatalog
   * Fixed `DisableCoreServiceECSIntegration` and `DisableCoreServiceTelemetry` to allow multiple values.
     FIXES [#6583](https://github.com/microsoft/Microsoft365DSC/issues/6583)
+* IntuneAzureNetworkConnectionWindows365
+  * Initial release.
 * IntuneCloudProvisioningPolicyWindows365
   * Initial release.
 * O365OrgSettings
   * Fix unicode issue in schema, that caused the website to contain
     incorrect characters.
+* SPOTenantSettings
+  * Deprecated property `OneDriveSharingCapability` in favor of `MySiteSharingCapability` in SPOSharingSettings.
+    FIXES [#6588](https://github.com/microsoft/Microsoft365DSC/issues/6588)
+    FIXES [#5933](https://github.com/microsoft/Microsoft365DSC/issues/5933)
 * TeamsAppSetupPolicy
   * Added property `PinnedCallingBarApps`.
 * TeamsCallingPolicy
@@ -69,6 +75,7 @@
 
 * AADAccessReviewDefinition
   * [BREAKING CHANGE] Removed ID as the key and made DisplayName the new key.
+
 * AADAdministrativeUnit
   * Reduced export time by 20%.
 * AADAgreement

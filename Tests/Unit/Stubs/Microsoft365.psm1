@@ -31212,10 +31212,6 @@ function New-MgBetaDeviceManagementVirtualEndpointUserSettingAssignment
 
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
-        $ProxyUseDefaultCredentials,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
         $Confirm
     )
 }
@@ -31272,10 +31268,6 @@ function Remove-MgBetaDeviceManagementVirtualEndpointUserSettingAssignment
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
         $ProxyUseDefaultCredentials,
-
-        [Parameter()]
-        [System.Management.Automation.ActionPreference]
-        $ProgressAction,
 
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
@@ -31351,10 +31343,6 @@ function Update-MgBetaDeviceManagementVirtualEndpointUserSettingAssignment
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
         $ProxyUseDefaultCredentials,
-
-        [Parameter()]
-        [System.Management.Automation.ActionPreference]
-        $ProgressAction,
 
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
@@ -31960,11 +31948,7 @@ function Get-MgBetaDeviceManagementVirtualEndpointProvisioningPolicyAssignment
 
         [Parameter()]
         [System.String]
-        $CountVariable,
-
-        [Parameter()]
-        [System.Management.Automation.ActionPreference]
-        $ProgressAction
+        $CountVariable
     )
 }
 
@@ -32034,10 +32018,6 @@ function New-MgBetaDeviceManagementVirtualEndpointProvisioningPolicyAssignment
         $ProxyUseDefaultCredentials,
 
         [Parameter()]
-        [System.Management.Automation.ActionPreference]
-        $ProgressAction,
-
-        [Parameter()]
         [System.Management.Automation.SwitchParameter]
         $Confirm
     )
@@ -32095,10 +32075,6 @@ function Remove-MgBetaDeviceManagementVirtualEndpointProvisioningPolicyAssignmen
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
         $ProxyUseDefaultCredentials,
-
-        [Parameter()]
-        [System.Management.Automation.ActionPreference]
-        $ProgressAction,
 
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
@@ -32176,8 +32152,423 @@ function Update-MgBetaDeviceManagementVirtualEndpointProvisioningPolicyAssignmen
         $ProxyUseDefaultCredentials,
 
         [Parameter()]
-        [System.Management.Automation.ActionPreference]
-        $ProgressAction,
+        [System.Management.Automation.SwitchParameter]
+        $Confirm
+    )
+}
+function Get-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter()]
+        [System.String]
+        $CloudPcOnPremisesConnectionId,
+
+        [Parameter()]
+        [PSObject]
+        $InputObject,
+
+        [Parameter()]
+        [System.String[]]
+        $ExpandProperty,
+
+        [Parameter()]
+        [System.String[]]
+        $Property,
+
+        [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
+        [System.String]
+        $Search,
+
+        [Parameter()]
+        [System.Int32]
+        $Skip,
+
+        [Parameter()]
+        [System.String[]]
+        $Sort,
+
+        [Parameter()]
+        [System.Int32]
+        $Top,
+
+        [Parameter()]
+        [System.String]
+        $ResponseHeadersVariable,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Break,
+
+        [Parameter()]
+        [System.Collections.IDictionary]
+        $Headers,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelineAppend,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelinePrepend,
+
+        [Parameter()]
+        [System.Uri]
+        $Proxy,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ProxyCredential,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ProxyUseDefaultCredentials,
+
+        [Parameter()]
+        [System.Int32]
+        $PageSize,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $All,
+
+        [Parameter()]
+        [System.String]
+        $CountVariable
+    )
+}
+
+function New-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter()]
+        [PSObject]
+        $BodyParameter,
+
+        [Parameter()]
+        [System.String]
+        $ResponseHeadersVariable,
+
+        [Parameter()]
+        [System.String]
+        $AdDomainName,
+
+        [Parameter()]
+        [System.String]
+        $AdDomainPassword,
+
+        [Parameter()]
+        [System.String]
+        $AdDomainUsername,
+
+        [Parameter()]
+        [System.Collections.Hashtable]
+        $AdditionalProperties,
+
+        [Parameter()]
+        [System.String]
+        $AlternateResourceUrl,
+
+        [Parameter()]
+        [System.String]
+        $ConnectionType,
+
+        [Parameter()]
+        [System.String]
+        $DisplayName,
+
+        [Parameter()]
+        [System.String]
+        $HealthCheckStatus,
+
+        [Parameter()]
+        [PSObject]
+        $HealthCheckStatusDetail,
+
+        [Parameter()]
+        [PSObject]
+        $HealthCheckStatusDetails,
+
+        [Parameter()]
+        [System.String]
+        $Id,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $InUse,
+
+        [Parameter()]
+        [System.String]
+        $ManagedBy,
+
+        [Parameter()]
+        [System.String]
+        $OrganizationalUnit,
+
+        [Parameter()]
+        [System.String]
+        $ResourceGroupId,
+
+        [Parameter()]
+        [System.String[]]
+        $ScopeIds,
+
+        [Parameter()]
+        [System.String]
+        $SubnetId,
+
+        [Parameter()]
+        [System.String]
+        $SubscriptionId,
+
+        [Parameter()]
+        [System.String]
+        $SubscriptionName,
+
+        [Parameter()]
+        [System.String]
+        $Type,
+
+        [Parameter()]
+        [System.String]
+        $VirtualNetworkId,
+
+        [Parameter()]
+        [System.String]
+        $VirtualNetworkLocation,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Break,
+
+        [Parameter()]
+        [System.Collections.IDictionary]
+        $Headers,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelineAppend,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelinePrepend,
+
+        [Parameter()]
+        [System.Uri]
+        $Proxy,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ProxyCredential,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ProxyUseDefaultCredentials,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm
+    )
+}
+
+function Remove-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter()]
+        [System.String]
+        $CloudPcOnPremisesConnectionId,
+
+        [Parameter()]
+        [PSObject]
+        $InputObject,
+
+        [Parameter()]
+        [System.String]
+        $ResponseHeadersVariable,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Break,
+
+        [Parameter()]
+        [System.Collections.IDictionary]
+        $Headers,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelineAppend,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelinePrepend,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $PassThru,
+
+        [Parameter()]
+        [System.Uri]
+        $Proxy,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ProxyCredential,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ProxyUseDefaultCredentials,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm
+    )
+}
+
+function Update-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter()]
+        [System.String]
+        $CloudPcOnPremisesConnectionId,
+
+        [Parameter()]
+        [PSObject]
+        $InputObject,
+
+        [Parameter()]
+        [PSObject]
+        $BodyParameter,
+
+        [Parameter()]
+        [System.String]
+        $ResponseHeadersVariable,
+
+        [Parameter()]
+        [System.String]
+        $AdDomainName,
+
+        [Parameter()]
+        [System.String]
+        $AdDomainPassword,
+
+        [Parameter()]
+        [System.String]
+        $AdDomainUsername,
+
+        [Parameter()]
+        [System.Collections.Hashtable]
+        $AdditionalProperties,
+
+        [Parameter()]
+        [System.String]
+        $AlternateResourceUrl,
+
+        [Parameter()]
+        [System.String]
+        $ConnectionType,
+
+        [Parameter()]
+        [System.String]
+        $DisplayName,
+
+        [Parameter()]
+        [System.String]
+        $HealthCheckStatus,
+
+        [Parameter()]
+        [PSObject]
+        $HealthCheckStatusDetail,
+
+        [Parameter()]
+        [PSObject]
+        $HealthCheckStatusDetails,
+
+        [Parameter()]
+        [System.String]
+        $Id,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $InUse,
+
+        [Parameter()]
+        [System.String]
+        $ManagedBy,
+
+        [Parameter()]
+        [System.String]
+        $OrganizationalUnit,
+
+        [Parameter()]
+        [System.String]
+        $ResourceGroupId,
+
+        [Parameter()]
+        [System.String[]]
+        $ScopeIds,
+
+        [Parameter()]
+        [System.String]
+        $SubnetId,
+
+        [Parameter()]
+        [System.String]
+        $SubscriptionId,
+
+        [Parameter()]
+        [System.String]
+        $SubscriptionName,
+
+        [Parameter()]
+        [System.String]
+        $Type,
+
+        [Parameter()]
+        [System.String]
+        $VirtualNetworkId,
+
+        [Parameter()]
+        [System.String]
+        $VirtualNetworkLocation,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Break,
+
+        [Parameter()]
+        [System.Collections.IDictionary]
+        $Headers,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelineAppend,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelinePrepend,
+
+        [Parameter()]
+        [System.Uri]
+        $Proxy,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ProxyCredential,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ProxyUseDefaultCredentials,
 
         [Parameter()]
         [System.Management.Automation.SwitchParameter]
