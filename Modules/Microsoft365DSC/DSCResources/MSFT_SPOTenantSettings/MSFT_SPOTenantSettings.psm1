@@ -548,14 +548,6 @@ function Set-TargetResource
             $paramsToUpdate.Add('EnableAzureADB2BIntegration', $EnableAzureADB2BIntegration)
         }
 
-        <#
-        if ($null -ne $OneDriveSharingCapability)
-        {
-            $needToUpdate = $true
-            $paramsToUpdate.Add('ODBSharingCapability', $OneDriveSharingCapability)
-        }
-        #>
-
         if ($needToUpdate)
         {
             Write-Verbose -Message 'Updating properties via REST PATCH call.'
