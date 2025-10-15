@@ -52,6 +52,8 @@
   * Fixed an issue where `Uninstall-M365DSCOutdatedDependencies` removes the wrong version.
     FIXES [#6573](https://github.com/microsoft/Microsoft365DSC/issues/6573)
 * MISC
+  * Removed documentation for `IntuneDeviceEnrollmentConfigurationWindows10`.
+    FIXES [#6589](https://github.com/microsoft/Microsoft365DSC/issues/6589)
   * Improved function and cmdlet count for module import.
     FIXES [#6544](https://github.com/microsoft/Microsoft365DSC/issues/6544)
   * Removed unnecessary CIM instance conversion checks across all resources.
