@@ -28,6 +28,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $RecordReroutedCalls,
+
+        [Parameter()]
+        [System.Boolean]
         $WarnUserOnRemoval,
 
         [Parameter()]
@@ -132,6 +136,7 @@ function Get-TargetResource
             Description                                         = $instance.Description
             DisableComplianceRecordingAudioNotificationForCalls = $instance.DisableComplianceRecordingAudioNotificationForCalls
             Enabled                                             = $instance.Enabled
+            RecordReroutedCalls                                 = $instance.RecordReroutedCalls
             WarnUserOnRemoval                                   = $instance.WarnUserOnRemoval
             Ensure                                              = 'Present'
             Credential                                          = $Credential
@@ -179,6 +184,10 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $Enabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $RecordReroutedCalls,
 
         [Parameter()]
         [System.Boolean]
@@ -266,7 +275,7 @@ function Set-TargetResource
             $CreateParameters['ComplianceRecordingApplications'] = $appObjects
         }
 
-        Write-Verbose -Message "Creating {$Identity} with Parameters:`r`n$(Convert-M365DscHashtableToString -Hashtable $CreateParameters)"
+        Write-Verbose -Message "Creating a Teams Compliance Recording Policy with Identity {$Identity}"
         New-CsTeamsComplianceRecordingPolicy @CreateParameters | Out-Null
 
         if ($ComplianceRecordingApplications.Count -gt 0)
@@ -317,8 +326,7 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating {$Identity}"
-
+        Write-Verbose -Message "Updating the Teams Compliance Recording Policy with Identity {$Identity}"
         $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         $keys = $UpdateParameters.Keys
@@ -404,7 +412,7 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removing {$Identity}"
+        Write-Verbose -Message "Removing the Teams Compliance Recording Policy with Identity {$Identity}"
         Remove-CsTeamsComplianceRecordingPolicy -Identity $currentInstance.Identity
     }
 }
@@ -434,6 +442,10 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $Enabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $RecordReroutedCalls,
 
         [Parameter()]
         [System.Boolean]
