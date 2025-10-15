@@ -3,7 +3,7 @@ param(
 )
 
 $currentDirectory = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
-[String]$DataPath = Join-Path -Path $currentDirectory -ChildPath "../public/data" -Resolve
+[String]$DataPath = Join-Path -Path $currentDirectory -ChildPath "../public/data"
 [String]$ResourcesOutputPath = "$DataPath/resources.json"
 [String]$WorkloadsOutputPath = "$DataPath/workloads.json"
 
@@ -37,7 +37,7 @@ Get-ChildItem -Path "../../Modules/Microsoft365DSC/DSCResources" -Directory | Fo
 }
 
 # Creating the data folder if it doesn't exist
-if (!(Test-Path $DataPath))
+if (-not (Test-Path $DataPath))
 {
     New-Item -ItemType Directory -Force -Path $DataPath | Out-Null
 }

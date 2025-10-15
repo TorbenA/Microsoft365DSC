@@ -32,9 +32,6 @@
             "name": "RoleManagement.ReadWrite.Directory"
           },
           {
-            "name": "User.Read.All"
-          },
-          {
             "name": "User.ReadWrite.All"
           },
           {
@@ -60,9 +57,6 @@
           },
           {
             "name": "RoleManagement.ReadWrite.Directory"
-          },
-          {
-            "name": "User.Read.All"
           },
           {
             "name": "User.ReadWrite.All"

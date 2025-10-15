@@ -2,6 +2,10 @@
 
 # UNRELEASED
 
+* AADUser
+  * Added the property `AccountEnabled` to the export.
+    FIXES [#6595](https://github.com/microsoft/Microsoft365DSC/issues/6595)
+  * Fixed an issue where the phone and fax number was not exported.
 * EXOOrganizationConfig
   * Added support for the DelayedDelicensingEnabled,
     EndUserMailNotificationForDelayedDelicensingEnabled and
@@ -9,12 +13,20 @@
 * IntuneAntivirusPolicyWindows10SettingCatalog
   * Fixed `DisableCoreServiceECSIntegration` and `DisableCoreServiceTelemetry` to allow multiple values.
     FIXES [#6583](https://github.com/microsoft/Microsoft365DSC/issues/6583)
+* IntuneAzureNetworkConnectionWindows365
+  * Initial release.
+* IntuneCloudProvisioningPolicyWindows365
+  * Initial release.
 * O365OrgSettings
   * Fix unicode issue in schema, that caused the website to contain
     incorrect characters.
 * SentinelAlertRule
   * Fixed the schema and export of the property `groupByAlertDetails`.
     FIXES [#6591](https://github.com/microsoft/Microsoft365DSC/issues/6591)
+* SPOTenantSettings
+  * Deprecated property `OneDriveSharingCapability` in favor of `MySiteSharingCapability` in SPOSharingSettings.
+    FIXES [#6588](https://github.com/microsoft/Microsoft365DSC/issues/6588)
+    FIXES [#5933](https://github.com/microsoft/Microsoft365DSC/issues/5933)
 * TeamsAppSetupPolicy
   * Added property `PinnedCallingBarApps`.
 * TeamsCallingPolicy
@@ -54,6 +66,7 @@
 * M365DSCUtil
   * Fixed an issue where `Uninstall-M365DSCOutdatedDependencies` removes the wrong version.
     FIXES [#6573](https://github.com/microsoft/Microsoft365DSC/issues/6573)
+  * Fixed parameter mapping of the telemetry connection parameters.
 * MISC
   * Removed documentation for `IntuneDeviceEnrollmentConfigurationWindows10`.
     FIXES [#6589](https://github.com/microsoft/Microsoft365DSC/issues/6589)
@@ -65,6 +78,7 @@
 
 * AADAccessReviewDefinition
   * [BREAKING CHANGE] Removed ID as the key and made DisplayName the new key.
+
 * AADAdministrativeUnit
   * Reduced export time by 20%.
 * AADAgreement
