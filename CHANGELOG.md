@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.25.1015.1
 
 * AADUser
   * Added the property `AccountEnabled` to the export.
