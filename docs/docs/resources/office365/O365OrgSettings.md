@@ -5,7 +5,7 @@
 | Parameter | Attribute | DataType | Description | Allowed Values |
 | --- | --- | --- | --- | --- |
 | **IsSingleInstance** | Key | String | Specifies the resource is a single instance, the value must be 'Yes' | `Yes` |
-| **AppsAndServicesIsAppAndServicesTrialEnabled** | Write | Boolean | Allow people in your organization to start trial subscriptions for apps and services that support trials. Admins manage licenses for these trials in the same way as other licenses in your organization. Only admins can upgrade these trials to paid subscriptions, so they wonât affect your billing. | |
+| **AppsAndServicesIsAppAndServicesTrialEnabled** | Write | Boolean | Allow people in your organization to start trial subscriptions for apps and services that support trials. Admins manage licenses for these trials in the same way as other licenses in your organization. Only admins can upgrade these trials to paid subscriptions, so they won't affect your billing. | |
 | **AppsAndServicesIsOfficeStoreEnabled** | Write | Boolean | Allow people in your organization to access the Office Store using their work account. The Office Store provides access to apps that aren't curated or managed by Microsoft. | |
 | **CortanaEnabled** | Write | Boolean | Allow Cortana in windows 10 (version 1909 and earlier), and the Cortana app on iOS and Android, to access Microsoft-hosted data on behalf of people in your organization. | |
 | **DynamicsCustomerVoiceIsInOrgFormsPhishingScanEnabled** | Write | Boolean | Automatically block any internal surveys that request confidential information. Admins will be notified in the Message Center when a survey is blocked. | |

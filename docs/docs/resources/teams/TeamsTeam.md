@@ -19,6 +19,7 @@
 | **AllowUserDeleteMessages** | Write | Boolean | Allow members to delete messages within Team. | |
 | **AllowOwnerDeleteMessages** | Write | Boolean | Allow owners to delete messages within Team. | |
 | **AllowDeleteChannels** | Write | Boolean | Allow members to delete channels within Team. | |
+| **AllowCreatePrivateChannels** | Write | Boolean | Determines whether private channel creation is allowed for the team. | |
 | **AllowCreateUpdateRemoveConnectors** | Write | Boolean | Allow members to manage connectors within Team. | |
 | **AllowCreateUpdateRemoveTabs** | Write | Boolean | Allow members to manage tabs within Team. | |
 | **AllowTeamMentions** | Write | Boolean | Allow mentions in Team. | |

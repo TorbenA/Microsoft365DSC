@@ -7,6 +7,7 @@
 | **Identity** | Key | String | Identity of the Teams Emergency Calling Policy. | |
 | **Description** | Write | String | Description of the Teams Emergency Calling Policy. | |
 | **EnhancedEmergencyServiceDisclaimer** | Write | String | Allows the tenant administrator to configure a text string, which is shown at the top of the Calls app. | |
+| **ExtendedNotifications** | Write | MSFT_TeamsEmergencyCallingExtendedNotification[] | A list of one or more instances of TeamsEmergencyCallingExtendedNotification. Each TeamsEmergencyCallingExtendedNotification should use a unique EmergencyDialString. If an extended notification is found for an emergency phone number based on the EmergencyDialString parameter the extended notification will be controlling the notification. If no extended notification is found the notification settings on the policy instance itself will be used. | |
 | **ExternalLocationLookupMode** | Write | String | Enables ExternalLocationLookupMode. This mode allows users to set Emergency addresses for remote locations. | `Disabled`, `Enabled` |
 | **NotificationDialOutNumber** | Write | String | This parameter represents PSTN number which can be dialed out if NotificationMode is set to either of the two Conference values. | |
 | **NotificationGroup** | Write | String | NotificationGroup is a email list of users and groups to be notified of an emergency call. | |
@@ -18,6 +19,17 @@
 | **CertificateThumbprint** | Write | String | Thumbprint of the Azure Active Directory application's authentication certificate to use for authentication. | |
 | **ManagedIdentity** | Write | Boolean | Managed ID being used for authentication. | |
 | **AccessTokens** | Write | StringArray[] | Access token used for authentication. | |
+
+### MSFT_TeamsEmergencyCallingExtendedNotification
+
+#### Parameters
+
+| Parameter | Attribute | DataType | Description | Allowed Values |
+| --- | --- | --- | --- | --- |
+| **EmergencyDialString** | Key | String | The emergency dial string. | |
+| **NotificationGroup** | Write | StringArray[] | The email recipients of the notifications. | |
+| **NotificationDialOutNumber** | Write | String | The additional number to call when contacting an emergency number. | |
+| **NotificationMode** | Write | String | The notification mode for the additional number. Possible values: ConferenceMuted - Join the emergency call muted. ConferenceUnMuted - Join the emergency call unmuted. NotificationOnly - Only receive a notification for an emergency call. | `ConferenceMuted`, `ConferenceUnMuted`, `NotificationOnly` |
 
 
 ## Description

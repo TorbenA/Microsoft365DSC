@@ -10,7 +10,10 @@
 | **HelpURL** | Write | String | URL to a website where users can obtain assistance on joining the meeting.This would be included in the meeting invite. Please ensure this URL is publicly accessible for invites that go beyond your federation boundaries. | |
 | **CustomFooterText** | Write | String | Text to be used on custom meeting invitations. | |
 | **DisableAnonymousJoin** | Write | Boolean | Determines whether anonymous users are blocked from joining meetings in the tenant. Set this to TRUE to block anonymous users from joining. Set this to FALSE to allow anonymous users to join meetings. | |
+| **DisableAppInteractionForAnonymousUsers** | Write | Boolean | Determines if anonymous users can interact with apps in meetings. Set to TRUE to disable App interaction.  | |
 | **EnableQoS** | Write | Boolean | Determines whether Quality of Service Marking for real-time media (audio, video, screen/app sharing) is enabled in the tenant. Set this to TRUE to enable and FALSE to disable. | |
+| **FeedbackSurveyForAnonymousUsers** | Write | String | Determines if anonymous participants receive surveys to provide feedback about their meeting experience. Set to Disabled to disable anonymous meeting participants to receive surveys. Set to Enabled to allow anonymous meeting participants to receive surveys. Possible values: Enabled, Disabled | `Disabled`, `Enabled` |
+| **LimitPresenterRolePermissions** | Write | Boolean | When set to True, users within the Tenant will have their presenter role capabilities limited. When set to False, the presenter role capabilities will not be impacted and will remain as is. | |
 | **ClientAudioPort** | Write | UInt32 | Determines the starting port number for client audio. Minimum allowed value: 1024 Maximum allowed value: 65535 Default value: 50000. | |
 | **ClientAudioPortRange** | Write | UInt32 | Determines the total number of ports available for client audio. Default value is 20. | |
 | **ClientVideoPort** | Write | UInt32 | Determines the starting port number for client video. Minimum allowed value: 1024 Maximum allowed value: 65535 Default value: 50020. | |

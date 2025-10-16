@@ -7,10 +7,12 @@
 | **Identity** | Key | String | Identity for the teams messaging policy you're modifying. To modify the global policy, use this syntax: -Identity global. To modify a per-user policy, use syntax similar to this: -Identity TeamsMessagingPolicy. | |
 | **AllowChatWithGroup** | Write | Boolean | This setting determines if users can chat with groups (Distribution, M365 and Security groups). Possible values: True, False | |
 | **AllowCustomGroupChatAvatars** | Write | Boolean | These settings enables, disables updating or fetching custom group chat avatars for the users included in the messaging policy. Possible values: True, False | |
+| **AllowExtendedWorkInfoInSearch** | Write | Boolean | This setting enables/disables showing company name and department name in search results for MTO users. Possible values: True, False | |
 | **AllowFullChatPermissionUserToDeleteAnyMessage** | Write | Boolean | This setting determines if users with the 'Full permissions' role can delete any group or meeting chat message within their tenant. Possible values: True, False | |
 | **AllowGiphyDisplay** | Write | Boolean | Determines if Giphy images should be displayed that had been already sent or received in chat. Possible values: True, False | |
 | **AllowGroupChatJoinLinks** | Write | Boolean | This setting determines if users in a group chat can create and share join links for other users within the organization to join that chat. Possible values: True, False | |
 | **AllowPasteInternetImage** | Write | Boolean | Determines if a user is allowed to paste internet-based images in compose. Possible values: True, False | |
+| **AutoShareFilesInExternalChats** | Write | String | Determines whether files are automatically shared in external chats. Possible values: Enabled: Files are automatically shared in external chats. Disabled: Files are not automatically shared in external chats. | `Enabled`, `Disabled` |
 | **ChatPermissionRole** | Write | String | Determines the Supervised Chat role of the user. Set this to Full to allow the user to supervise chats. Supervisors have the ability to initiate chats with and invite any user within the environment. Set this to Limited to allow the user to initiate conversations with Full and Limited permissioned users, but not Restricted. Set this to Restricted to block chat creation with anyone other than Full permissioned users. | `Full`, `Limited`, `Restricted` |
 | **CreateCustomEmojis** | Write | Boolean | This setting enables the creation of custom emojis and reactions within an organization for the specified policy users. | |
 | **DeleteCustomEmojis** | Write | Boolean | These settings enable and disable the editing and deletion of custom emojis and reactions for the users included in the messaging policy. | |
@@ -41,6 +43,7 @@
 | **ReadReceiptsEnabledType** | Write | String | Use this setting to specify whether read receipts are user controlled, enabled for everyone, or disabled. Set this to UserPreference, Everyone or None. | `UserPreference`, `Everyone`, `None` |
 | **ChannelsInChatListEnabledType** | Write | String | Possible values are: DisabledUserOverride,EnabledUserOverride. | `DisabledUserOverride`, `EnabledUserOverride` |
 | **AudioMessageEnabledType** | Write | String | Determines whether a user is allowed to send audio messages. Possible values are: ChatsAndChannels,ChatsOnly,Disabled. | `ChatsAndChannels`, `ChatsOnly`, `Disabled` |
+| **UseB2BInvitesToAddExternalUsers** | Write | String | Indicates whether B2B invites should be used to add external users when necessary. Possible values: Enabled: External users will be added using B2B invites. Disabled: External users will not be added using B2B invites. | `Enabled`, `Disabled` |
 | **Tenant** | Write | String | Globally unique identifier (GUID) of the tenant account whose external user communication policy are being created. | |
 | **Ensure** | Write | String | Present ensures the Team Message Policy exists, absent ensures it is removed | `Present`, `Absent` |
 | **Credential** | Write | PSCredential | Credentials of the Teams Service Admin | |

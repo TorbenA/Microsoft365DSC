@@ -10,6 +10,9 @@
 | **EnableTranscriptionProfanityMasking** | Write | Boolean | Allows you to disable or enable profanity masking for the voicemail transcriptions. Possible values are $true or $false. | |
 | **EnableTranscriptionTranslation** | Write | Boolean | Allows you to disable or enable translation for the voicemail transcriptions. Possible values are $true or $false. | |
 | **MaximumRecordingLength** | Write | String | A duration of voicemail maximum recording length. The length should be between 30 seconds to 600 seconds. | |
+| **PostambleAudioFile** | Write | String | The audio file to play to the caller after the user's voicemail greeting has played and before the caller is allowed to leave a voicemail message. | |
+| **PreambleAudioFile** | Write | String | The audio file to play to the caller before the user's voicemail greeting is played. | |
+| **PreamblePostambleMandatory** | Write | Boolean | Is playing the Pre- or Post-amble mandatory before the caller can leave a message. Possible values are $true or $false. | |
 | **PrimarySystemPromptLanguage** | Write | String | The primary (or first) language that voicemail system prompts will be presented in. Must also set SecondarySystemPromptLanguage. When set, this overrides the user language choice. | |
 | **SecondarySystemPromptLanguage** | Write | String | The secondary language that voicemail system prompts will be presented in. Must also set PrimarySystemPromptLanguage and may not be the same value as PrimarySystemPromptanguage. When set, this overrides the user language choice.  | |
 | **ShareData** | Write | String | Specifies whether voicemail and transcription data are shared with the service for training and improving accuracy. Possible values are Defer and Deny. | |

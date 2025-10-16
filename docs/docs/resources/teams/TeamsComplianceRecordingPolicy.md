@@ -9,6 +9,7 @@
 | **Description** | Write | String | Enables administrators to provide explanatory text to accompany a Teams recording policy. For example, the Description might include information about the users the policy should be assigned to. | |
 | **DisableComplianceRecordingAudioNotificationForCalls** | Write | Boolean | Setting this attribute to true disables recording audio notifications for 1:1 calls that are under compliance recording. | |
 | **Enabled** | Write | Boolean | Controls whether this Teams recording policy is active or not. | |
+| **RecordReroutedCalls** | Write | Boolean | Setting this attribute to true enables compliance recording for calls that have been re-routed from a compliance recording-enabled user. Supported call scenarios include forward, transfer, delegation, call groups, and simultaneous ring. | |
 | **WarnUserOnRemoval** | Write | Boolean | This parameter is reserved for future use. | |
 | **Ensure** | Write | String | Present ensures the instance exists, absent ensures it is removed. | `Present`, `Absent` |
 | **Credential** | Write | PSCredential | Credentials of the workload's Admin | |

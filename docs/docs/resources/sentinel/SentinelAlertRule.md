@@ -113,21 +113,12 @@
 | Parameter | Attribute | DataType | Description | Allowed Values |
 | --- | --- | --- | --- | --- |
 | **enabled** | Write | Boolean | Grouping enabled | |
-| **groupByAlertDetails** | Write | MSFT_SentinelAlertRuleIncidentConfigurationGroupingConfigurationAlertDetail[] | A list of alert details to group by (when matchingMethod is Selected) | |
+| **groupByAlertDetails** | Write | StringArray[] | A list of alert details to group by (when matchingMethod is Selected) | `DisplayName`, `Severity` |
 | **groupByCustomDetails** | Write | StringArray[] | A list of custom details keys to group by (when matchingMethod is Selected). Only keys defined in the current alert rule may be used. | |
 | **groupByEntities** | Write | StringArray[] | A list of entity types to group by (when matchingMethod is Selected). Only entities defined in the current alert rule may be used. | |
 | **lookbackDuration** | Write | String | Limit the group to alerts created within the lookback duration (in ISO 8601 duration format) | |
 | **matchingMethod** | Write | String | Grouping matching method. When method is Selected at least one of groupByEntities, groupByAlertDetails, groupByCustomDetails must be provided and not empty. | |
 | **reopenClosedIncident** | Write | Boolean | Re-open closed matching incidents | |
-
-### MSFT_SentinelAlertRuleIncidentConfigurationGroupingConfigurationAlertDetail
-
-#### Parameters
-
-| Parameter | Attribute | DataType | Description | Allowed Values |
-| --- | --- | --- | --- | --- |
-| **DisplayName** | Write | String | Display name of the alert detail. | |
-| **Severity** | Write | String | Severity level associated with the alert detail. | |
 
 
 ## Description

@@ -9,6 +9,8 @@
 | **AllowManagedUpdates** | Write | Boolean | Determines if managed updates should be allowed or not. | |
 | **AllowPreview** | Write | Boolean | Determines if preview builds should be allowed or not. | |
 | **AllowPublicPreview** | Write | String | Determines the ring of public previews to subscribes to. | `Disabled`, `Enabled`, `Forced`, `FollowOfficePreview` |
+| **BlockLegacyAuthorization** | Write | Boolean | This setting will force Teams clients to enforce session revocation for core Messaging and Calling/Meeting scenarios. If turned ON, session revocation will be enforced for calls, chats and meetings for opted-in users. If turned OFF, session revocation will not be enforced for calls, chats and meetings for opted-in users. | |
+| **DisabledInProductMessages** | Write | String | List of IDs of the categories of the in-product messages that will be disabled. You can choose one of the categories from this table: 91382d07-8b89-444c-bbcb-cfe43133af33	= What's New. edf2633e-9827-44de-b34c-8b8b9717e84c = Conferences | `91382d07-8b89-444c-bbcb-cfe43133af33`, `edf2633e-9827-44de-b34c-8b8b9717e84c` |
 | **UpdateDayOfWeek** | Write | UInt32 | Determines the day of week to perform the updates. Value should be between 0 and 6. | |
 | **UpdateTime** | Write | String | Determines the time of day to perform the updates. Must be a valid HH:MM format string with leading 0. For instance 08:30. | |
 | **UpdateTimeOfDay** | Write | String | Determines the time of day to perform the updates. Accepts a DateTime as string. Only the time will be considered. | |

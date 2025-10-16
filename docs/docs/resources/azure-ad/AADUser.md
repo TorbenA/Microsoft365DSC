@@ -5,6 +5,7 @@
 | Parameter | Attribute | DataType | Description | Allowed Values |
 | --- | --- | --- | --- | --- |
 | **UserPrincipalName** | Key | String | The login name of the user | |
+| **AccountEnabled** | Write | Boolean | Specifies whether the user account is enabled or not. Required when a user is created. | |
 | **DisplayName** | Write | String | The display name for the user | |
 | **FirstName** | Write | String | The first name of the user | |
 | **LastName** | Write | String | The last name of the user | |
@@ -59,7 +60,7 @@ To authenticate with the Microsoft Graph API, this resource required the followi
 
 - **Update**
 
-    - Organization.Read.All, RoleManagement.ReadWrite.Directory, User.Read.All, User.ReadWrite.All, Group.ReadWrite.All, GroupMember.ReadWrite.All
+    - Organization.Read.All, RoleManagement.ReadWrite.Directory, User.ReadWrite.All, Group.ReadWrite.All, GroupMember.ReadWrite.All
 
 #### Application permissions
 
@@ -69,7 +70,7 @@ To authenticate with the Microsoft Graph API, this resource required the followi
 
 - **Update**
 
-    - Organization.Read.All, RoleManagement.ReadWrite.Directory, User.Read.All, User.ReadWrite.All, Group.ReadWrite.All, GroupMember.ReadWrite.All
+    - Organization.Read.All, RoleManagement.ReadWrite.Directory, User.ReadWrite.All, Group.ReadWrite.All, GroupMember.ReadWrite.All
 
 ## Examples
 

@@ -5,8 +5,10 @@
 | Parameter | Attribute | DataType | Description | Allowed Values |
 | --- | --- | --- | --- | --- |
 | **Identity** | Key | String | Specifies the policy instance name | |
+| **FileSharingInChatswithExternalUsers** | Write | String | Indicates if file sharing in chats with external users is enabled. It is by default enabled, to disable admins can run following command. | `Enabled`, `Disabled` |
 | **NativeFileEntryPoints** | Write | String | Specifies whether users see the options to upload files from OneDrive for Business, other cloud storage services configured for the user account, and SharePoint Online | `Enabled`, `Disabled` |
 | **SPChannelFilesTab** | Write | String | Specifies whether users see the Teams Files channel tab in any channel or in Teams chat. | `Enabled`, `Disabled` |
+| **DefaultFileUploadAppId** | Write | String | This can be used by the 3p apps to configure their app, so when the files will be dragged and dropped in compose, it will get uploaded in that 3P app. | |
 | **Ensure** | Write | String | Present ensures the instance exists, absent ensures it is removed. | `Present`, `Absent` |
 | **Credential** | Write | PSCredential | Credentials of the workload's Admin | |
 | **ApplicationId** | Write | String | Id of the Azure Active Directory application to authenticate with. | |
