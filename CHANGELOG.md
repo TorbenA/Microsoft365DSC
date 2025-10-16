@@ -1,9 +1,89 @@
 # Change log for Microsoft365DSC
 
+# 1.25.1015.1
+
+* AADConditionalAccessPolicy
+  * Fixed a typo in variable initialization.
+* AADUser
+  * Added the property `AccountEnabled` to the export.
+    FIXES [#6595](https://github.com/microsoft/Microsoft365DSC/issues/6595)
+  * Fixed an issue where the phone and fax number was not exported.
+* EXOOrganizationConfig
+  * Added support for the DelayedDelicensingEnabled,
+    EndUserMailNotificationForDelayedDelicensingEnabled and
+    TenantAdminNotificationForDelayedDelicensingEnabled parameters.
+* IntuneAntivirusPolicyWindows10SettingCatalog
+  * Fixed `DisableCoreServiceECSIntegration` and `DisableCoreServiceTelemetry` to allow multiple values.
+    FIXES [#6583](https://github.com/microsoft/Microsoft365DSC/issues/6583)
+* IntuneAzureNetworkConnectionWindows365
+  * Initial release.
+* IntuneCloudProvisioningPolicyWindows365
+  * Initial release.
+* O365OrgSettings
+  * Fix unicode issue in schema, that caused the website to contain
+    incorrect characters.
+* SentinelAlertRule
+  * Fixed the schema and export of the property `groupByAlertDetails`.
+    FIXES [#6591](https://github.com/microsoft/Microsoft365DSC/issues/6591)
+* SPOTenantSettings
+  * Deprecated property `OneDriveSharingCapability` in favor of `MySiteSharingCapability` in SPOSharingSettings.
+    FIXES [#6588](https://github.com/microsoft/Microsoft365DSC/issues/6588)
+    FIXES [#5933](https://github.com/microsoft/Microsoft365DSC/issues/5933)
+* TeamsAppSetupPolicy
+  * Added property `PinnedCallingBarApps`.
+* TeamsCallingPolicy
+  * Added property `ExplicitRecordingConsent`.
+* TeamsClientConfiguration
+  * Added property `AllowRoleBasedChatPermissions`.
+* TeamsComplianceRecordingPolicy
+  * Added property `RecordReroutedCalls`.
+* TeamsDialInConferencingTenantSettings
+  * Added properties `EnableNameRecording`, `MigrateServiceNumbersOnCrossForestMove` and `UseUniqueConferenceIds`.
+* TeamsEmergencyCallingPolicy
+  * Added property `ExtendedNotifications`.
+* TeamsFederationConfiguration
+  * Added property `DomainBlockingForMDOAdminsInTeams`.
+* TeamsFilesPolicy
+  * Added properties `FileSharingInChatswithExternalUsers` and `DefaultFileUploadAppId`.
+* TeamsGuestMessagingConfiguration
+  * Added property `UsersCanDeleteBotMessages`.
+* TeamsMeetingConfiguration
+  * Added properties `DisableAppInteractionForAnonymousUsers`, `FeedbackSurveyForAnonymousUsers` and `LimitPresenterRolePermissions`.
+* TeamsMessagingConfiguration
+  * Initial release.
+    FIXES [#6536](https://github.com/microsoft/Microsoft365DSC/issues/6536)
+* TeamsMessagingPolicy
+  * Added properties `AllowExtendedWorkInfoInSearch`, `AutoShareFilesInExternalChats` and `UseB2BInvitesToAddExternalUsers`.
+* TeamsOnlineVoicemailPolicy
+  * Added properties `PostambleAudioFile`, `PreambleAudioFile` and `PreamblePostambleMandatory`.
+* TeamsTeam
+  * Added property `AllowCreatePrivateChannels`.
+* TeamsUpdateManagementPolicy
+  * Added properties `BlockLegacyAuthorization` and `DisabledInProductMessages`.
+* TeamsVoiceRoute
+  * Added property `BridgeSourcePhoneNumber`.
+* M365DSCAgent
+  * Added requirement to regenerate the DSC agent certificate with `-ForceRenew` when
+    creating and exporting a PFX certificate using `Set-M365DSCAgentCertificateConfiguration`.
+* M365DSCReverse
+  * Fixed an issue where the export output path was not correct.
+    FIXES [#6580](https://github.com/microsoft/Microsoft365DSC/issues/6580)
+* M365DSCUtil
+  * Fixed an issue where `Uninstall-M365DSCOutdatedDependencies` removes the wrong version.
+    FIXES [#6573](https://github.com/microsoft/Microsoft365DSC/issues/6573)
+  * Fixed parameter mapping of the telemetry connection parameters.
+* MISC
+  * Removed documentation for `IntuneDeviceEnrollmentConfigurationWindows10`.
+    FIXES [#6589](https://github.com/microsoft/Microsoft365DSC/issues/6589)
+  * Improved function and cmdlet count for module import.
+    FIXES [#6544](https://github.com/microsoft/Microsoft365DSC/issues/6544)
+  * Removed unnecessary CIM instance conversion checks across all resources.
+
 # 1.25.1001.1
 
 * AADAccessReviewDefinition
   * [BREAKING CHANGE] Removed ID as the key and made DisplayName the new key.
+
 * AADAdministrativeUnit
   * Reduced export time by 20%.
 * AADAgreement

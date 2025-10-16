@@ -878,7 +878,7 @@ function Get-DevicePlatformRestrictionSetting
                 {
                     '*[[\]]'
                     {
-                        if ($keyValue.$key.count -gt 0)
+                        if ($keyValue.$key.Count -gt 0)
                         {
                             $hash.Add($key, $keyValue.$key)
                         }
@@ -917,7 +917,7 @@ function Get-DevicePlatformRestrictionSetting
                     {
                         '*[[\]]'
                         {
-                            if ($keyValue.$key.count -gt 0)
+                            if ($keyValue.$key.Count -gt 0)
                             {
                                 $hash.Add($key, $keyValue.$key)
                             }

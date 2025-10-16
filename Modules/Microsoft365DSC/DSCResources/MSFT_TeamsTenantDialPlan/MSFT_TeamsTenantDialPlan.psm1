@@ -196,7 +196,7 @@ function Set-TargetResource
     #endregion
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-    $PSBoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
     {
@@ -217,9 +217,8 @@ function Set-TargetResource
             $AllRules += $ruleObject
         }
 
-        $PSBoundParameters.NormalizationRules = @{ Add = $AllRules }
-
-        New-CsTenantDialPlan @PSBoundParameters
+        $boundParameters.NormalizationRules = @{ Add = $AllRules }
+        New-CsTenantDialPlan @boundParameters
     }
     elseif ($Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Present')
     {
@@ -238,11 +237,10 @@ function Set-TargetResource
             $desiredRules += $desiredRule
         }
 
+        $boundParameters.Remove('NormalizationRules') | Out-Null
+        Set-CsTenantDialPlan @boundParameters
+
         $differences = Get-M365DSCVoiceNormalizationRulesDifference -CurrentRules $CurrentValues.NormalizationRules -DesiredRules $desiredRules
-
-        $rulesToRemove = @()
-        $rulesToAdd = @()
-
         foreach ($ruleToAdd in $differences.RulesToAdd)
         {
             Write-Verbose "Adding new VoiceNormalizationRule {$($ruleToAdd.Identity)}"
