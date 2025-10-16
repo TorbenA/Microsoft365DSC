@@ -1,5 +1,12 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCUtil
+  * Added custom post processing to `Test-M365DSCTargetResource`.
+* MISC
+  * Centralized more resource testing to the testing function.
+
 # 1.25.1015.1
 
 * AADConditionalAccessPolicy

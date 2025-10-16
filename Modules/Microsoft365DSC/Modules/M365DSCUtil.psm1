@@ -1162,6 +1162,12 @@ function Test-M365DSCParameterState
 .Description
     Centralized method to evaluate the result of the various Test-TargetResource functions
 
+.PARAMETER PostProcessing
+    Optional Func delegate that allows custom processing of the DesiredValues, CurrentValues and ValuesToCheck.
+    The function receives three hashtable parameters: DesiredValues, CurrentValues (from Get-TargetResource) and ValuesToCheck.
+    Additionally, it gets an array of objects as PostProcessingArgs.
+    The delegate must return a Tuple[Hashtable, Hashtable, Hashtable] where Item1 is the processed DesiredValues, Item2 is the processed CurrentValues and Item3 is the processed ValuesToCheck.
+
 .FUNCTIONALITY
     Internal
 #>
@@ -1185,6 +1191,14 @@ function Test-M365DSCTargetResource
         [Parameter()]
         [System.String[]]
         $IncludedProperties,
+
+        [Parameter()]
+        [Func[Hashtable, Hashtable, Hashtable, Object[], Tuple[Hashtable, Hashtable, Hashtable]]]
+        $PostProcessing,
+
+        [Parameter()]
+        [System.Object[]]
+        $PostProcessingArgs = @(),
 
         [Parameter(
             ParameterSetName = 'PassThru'
@@ -1228,6 +1242,30 @@ function Test-M365DSCTargetResource
     $ValuesToCheck = ([Hashtable]$DesiredValues).Clone()
     $ValuesToCheck.Remove('Id') | Out-Null
     $ValuesToCheck.Remove('Identity') | Out-Null
+
+    # Apply custom post-processing to CurrentValues and ValuesToCheck if specified
+    if ($null -ne $PostProcessing)
+    {
+        Write-Verbose -Message "Applying custom post-processing to CurrentValues and ValuesToCheck for resource $ResourceName"
+        try
+        {
+            $result = $PostProcessing.Invoke($DesiredValues, $CurrentValues, $ValuesToCheck, $PostProcessingArgs)
+            if ($null -ne $result -and $result.Item1 -is [Hashtable] -and $result.Item2 -is [Hashtable] -and $result.Item3 -is [Hashtable])
+            {
+                $DesiredValues = $result.Item1
+                $CurrentValues = $result.Item2
+                $ValuesToCheck = $result.Item3
+            }
+            else
+            {
+                Write-Warning -Message "PostProcessing function did not return a valid tuple for resource $ResourceName. Using original values."
+            }
+        }
+        catch
+        {
+            Write-Warning -Message "Error occurred during post-processing for resource $ResourceName`: $_"
+        }
+    }
 
     # Remove the key parameters from the comparison
     foreach ($keyToRemove in $resourceKeys)
