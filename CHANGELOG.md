@@ -2,6 +2,8 @@
 
 # 1.25.1015.1
 
+* AADConditionalAccessPolicy
+  * Fixed a typo in variable initialization.
 * AADUser
   * Added the property `AccountEnabled` to the export.
     FIXES [#6595](https://github.com/microsoft/Microsoft365DSC/issues/6595)
@@ -63,6 +65,9 @@
 * M365DSCAgent
   * Added requirement to regenerate the DSC agent certificate with `-ForceRenew` when
     creating and exporting a PFX certificate using `Set-M365DSCAgentCertificateConfiguration`.
+* M365DSCReverse
+  * Fixed an issue where the export output path was not correct.
+    FIXES [#6580](https://github.com/microsoft/Microsoft365DSC/issues/6580)
 * M365DSCUtil
   * Fixed an issue where `Uninstall-M365DSCOutdatedDependencies` removes the wrong version.
     FIXES [#6573](https://github.com/microsoft/Microsoft365DSC/issues/6573)
