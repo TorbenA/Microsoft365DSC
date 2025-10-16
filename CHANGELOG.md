@@ -20,6 +20,9 @@
 * O365OrgSettings
   * Fix unicode issue in schema, that caused the website to contain
     incorrect characters.
+* SentinelAlertRule
+  * Fixed the schema and export of the property `groupByAlertDetails`.
+    FIXES [#6591](https://github.com/microsoft/Microsoft365DSC/issues/6591)
 * SPOTenantSettings
   * Deprecated property `OneDriveSharingCapability` in favor of `MySiteSharingCapability` in SPOSharingSettings.
     FIXES [#6588](https://github.com/microsoft/Microsoft365DSC/issues/6588)
