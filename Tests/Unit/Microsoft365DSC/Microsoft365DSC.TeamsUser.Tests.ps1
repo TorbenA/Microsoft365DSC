@@ -26,12 +26,34 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             $Global:PartialExportFileName = 'c:\TestPath'
 
-
             Mock -CommandName Save-M365DSCPartialExport -MockWith {
             }
 
             Mock -CommandName New-M365DSCConnection -MockWith {
                 return 'Credentials'
+            }
+
+            Mock -CommandName Add-TeamUser -MockWith {
+                return $null
+            }
+
+            Mock -CommandName Remove-TeamUser -MockWith {
+                return $null
+            }
+
+            Mock -CommandName Get-TeamUser -MockWith {
+                return @{
+                    GroupID = '12345-12345-12345-12345-12345'
+                    Role    = 'Member'
+                    User    = 'JohnSmith@contoso.onmicrosoft.com'
+                }
+            }
+
+            Mock -CommandName Get-TeamByName -MockWith {
+                return @{
+                    DisplayName = 'TestTeam'
+                    GroupID     = '12345-12345-12345-12345-12345'
+                }
             }
 
             # Mock Write-M365DSCHost to hide output during the tests
@@ -42,7 +64,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         }
 
         # Test contexts
-        Context -Name 'When the Team user doesnt exist' -Fixture {
+        Context -Name 'When the Team user does not exist' -Fixture {
             BeforeAll {
                 $testParams = @{
                     TeamName   = 'TestTeam'
@@ -50,23 +72,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     User       = 'JohnSmith@contoso.onmicrosoft.com'
                     Ensure     = 'Present'
                     Credential = $Credential
-                }
-
-                Mock -CommandName New-M365DSCConnection -MockWith {
-                    return 'Credentials'
-                }
-
-                Mock -CommandName Get-TeamByName -MockWith {
-                    return @{
-                        DisplayName = 'TestTeam'
-                        GroupID     = '12345-12345-12345-12345-12345'
-                    }
-                }
-
-                Mock -CommandName Add-TeamUser -MockWith {
-                    return @{
-                        User = $null
-                    }
                 }
 
                 Mock -CommandName Get-TeamUser -MockWith {
@@ -96,29 +101,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure     = 'Present'
                     Credential = $Credential
                 }
-
-                Mock -CommandName New-M365DSCConnection -MockWith {
-                    return 'Credentials'
-                }
-
-                Mock -CommandName Get-TeamUser -MockWith {
-                    return @{
-                        GroupID = '12345-12345-12345-12345-12345'
-                        Role    = 'Member'
-                        User    = 'JohnSmith@contoso.onmicrosoft.com'
-                    }
-                }
-
-                Mock -CommandName Get-TeamByName -MockWith {
-                    return @{
-                        DisplayName = 'TestTeam'
-                        GroupID     = '12345-12345-12345-12345-12345'
-                    }
-                }
-
-                Mock -CommandName Add-TeamUser -MockWith {
-
-                }
             }
 
             It 'Should return present from the Get method' {
@@ -141,29 +123,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure     = 'Present'
                     Credential = $Credential
                 }
-
-                Mock -CommandName New-M365DSCConnection -MockWith {
-                    return 'Credentials'
-                }
-
-                Mock -CommandName Get-TeamUser -MockWith {
-                    return @{
-                        GroupID = '12345-12345-12345-12345-12345'
-                        Role    = 'Member'
-                        User    = 'JohnSmith@contoso.onmicrosoft.com'
-                    }
-                }
-
-                Mock -CommandName Get-TeamByName -MockWith {
-                    return @{
-                        DisplayName = 'TestTeam'
-                        GroupID     = '12345-12345-12345-12345-12345'
-                    }
-                }
-
-                Mock -CommandName Add-TeamUser -MockWith {
-
-                }
             }
 
             It 'Should return present from the Get method' {
@@ -185,17 +144,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Role       = 'Owner'
                     Ensure     = 'Present'
                     Credential = $Credential
-                }
-
-                Mock -CommandName New-M365DSCConnection -MockWith {
-                    return 'Credentials'
-                }
-
-                Mock -CommandName Get-TeamByName -MockWith {
-                    return @{
-                        DisplayName = 'TestTeam'
-                        GroupID     = '12345-12345-12345-12345-12345'
-                    }
                 }
 
                 Mock -CommandName Get-TeamUser -MockWith {
@@ -221,29 +169,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Ensure     = 'Absent'
                     Credential = $Credential
                 }
-
-                Mock -CommandName New-M365DSCConnection -MockWith {
-                    return 'Credentials'
-                }
-
-                Mock -CommandName Get-TeamUser -MockWith {
-                    return @{
-                        GroupID = '12345-12345-12345-12345-12345'
-                        Role    = 'Member'
-                        User    = 'JohnSmith@contoso.onmicrosoft.com'
-                    }
-                }
-
-                Mock -CommandName Get-TeamByName -MockWith {
-                    return @{
-                        DisplayName = 'TestTeam'
-                        GroupID     = '12345-12345-12345-12345-12345'
-                    }
-                }
-
-                Mock -CommandName Remove-TeamUser -MockWith {
-                    return $null
-                }
             }
 
             It 'Should return present from the Get method' {
@@ -253,7 +178,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             It 'Should remove user from Team in set method' {
                 Set-TargetResource @testParams
             }
-
         }
 
         Context -Name 'ReverseDSC Tests' -Fixture {
@@ -264,21 +188,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Credential = $Credential
                 }
 
-                Mock -CommandName New-M365DSCConnection -MockWith {
-                    return 'Credentials'
-                }
-
                 Mock -CommandName Get-Team -MockWith {
-                    return @(@{
+                    return @(
+                        @{
                             DisplayName = 'TestTeam'
                             GroupID     = '12345-12345-12345-12345-12345'
-                        })
-                }
-
-                Mock -CommandName Get-TeamUser -MockWith {
-                    return @{
-                        User = 'JohnSmith@contoso.onmicrosoft.com'
-                    }
+                        }
+                    )
                 }
             }
 

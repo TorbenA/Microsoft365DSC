@@ -1124,11 +1124,6 @@ function Export-TargetResource
                             CimInstanceName = 'SentinelAlertRuleIncidentConfigurationGroupingConfiguration'
                             IsRequired      = $False
                         }
-                        @{
-                            Name            = 'groupByAlertDetails'
-                            CimInstanceName = 'SentinelAlertRuleIncidentConfigurationGroupingConfigurationAlertDetail'
-                            IsRequired      = $False
-                        }
                     )
                     $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                         -ComplexObject $Results.IncidentConfiguration `
