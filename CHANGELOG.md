@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* TeamsMeetingPolicy
+  * Added support for new properties.
+    FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
+
 # 1.25.1015.1
 
 * AADConditionalAccessPolicy
