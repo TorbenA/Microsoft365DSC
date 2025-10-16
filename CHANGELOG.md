@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.25.1015.1
 
 * AADConditionalAccessPolicy
   * Fixed a typo in variable initialization.
