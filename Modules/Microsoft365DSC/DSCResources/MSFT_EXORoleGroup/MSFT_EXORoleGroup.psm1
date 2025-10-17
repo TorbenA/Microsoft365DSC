@@ -369,45 +369,48 @@ function Test-TargetResource
     #endregion
 
     # If the group is passed in a display name (no @) then we resolve it manually
-    $newMembersValue = @()
-    foreach ($member in $Members)
+    if ($PSBoundParameters.ContainsKey('Members'))
     {
-        Write-Verbose -Message "The current member {$member} is provided as a group display name."
-        $group = Get-Group -Filter "DisplayName eq '$member'" -ErrorAction 'SilentlyContinue'
+        $newMembersValue = @()
+        foreach ($member in $Members)
+        {
+            Write-Verbose -Message "The current member {$member} is provided as a group display name."
+            $group = Get-Group -Filter "DisplayName eq '$member'" -ErrorAction 'SilentlyContinue'
 
-        if ($null -ne $group)
-        {
-            if ($null -ne $group.PrimaryStmpAddress)
+            if ($null -ne $group)
             {
-                $newMembersValue += $group.PrimarySmtpAddress
-            }
-            elseif ($null -ne $group.WindowsEmailAddress)
-            {
-                $newMembersValue += $group.WindowsEmailAddress
-            }
-        }
-        else
-        {
-            $user = Get-User -Identity $member -ErrorAction 'SilentlyContinue'
-            if ($null -ne $user)
-            {
-                if ($member.Contains('@'))
+                if ($null -ne $group.PrimaryStmpAddress)
                 {
-                    $newMembersValue += $user.UserPrincipalName
+                    $newMembersValue += $group.PrimarySmtpAddress
                 }
-                else
+                elseif ($null -ne $group.WindowsEmailAddress)
                 {
-                    $newMembersValue += $user.DisplayName
+                    $newMembersValue += $group.WindowsEmailAddress
                 }
             }
             else
             {
-                # Case where the member is an app.
-                $newMembersValue += $member
+                $user = Get-User -Identity $member -ErrorAction 'SilentlyContinue'
+                if ($null -ne $user)
+                {
+                    if ($member.Contains('@'))
+                    {
+                        $newMembersValue += $user.UserPrincipalName
+                    }
+                    else
+                    {
+                        $newMembersValue += $user.DisplayName
+                    }
+                }
+                else
+                {
+                    # Case where the member is an app.
+                    $newMembersValue += $member
+                }
             }
         }
+        $PSBoundParameters.Members = $newMembersValue
     }
-    $PSBoundParameters.Members = $newMembersValue
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
                                          -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')

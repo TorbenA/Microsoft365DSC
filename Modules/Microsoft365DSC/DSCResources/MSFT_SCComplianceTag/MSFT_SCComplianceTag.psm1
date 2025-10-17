@@ -614,31 +614,4 @@ function Get-SCFilePlanProperty
     return $result
 }
 
-function Test-SCFilePlanProperties
-{
-    [CmdletBinding()]
-    [OutputType([System.Boolean])]
-    param
-    (
-        [Parameter(Mandatory = $true)] $CurrentProperty,
-        [Parameter(Mandatory = $true)] $DesiredProperty
-    )
-
-    Write-Verbose -Message 'Comparing File Plan properties.'
-    Write-Verbose -Message "Current: $(Convert-M365DscHashtableToString -Hashtable $CurrentProperty)"
-    Write-Verbose -Message "Desired: $(Convert-M365DscHashtableToString -Hashtable $DesiredProperty)"
-
-    if ($CurrentProperty.FilePlanProperty.FilePlanPropertyDepartment -ne $DesiredProperty.FilePlanProperty.FilePlanPropertyDepartment -or `
-            $CurrentProperty.FilePlanProperty.FilePlanPropertyCategory -ne $DesiredProperty.FilePlanProperty.FilePlanPropertyCategory -or `
-            $CurrentProperty.FilePlanProperty.FilePlanPropertySubcategory -ne $DesiredProperty.FilePlanProperty.FilePlanPropertySubcategory -or `
-            $CurrentProperty.FilePlanProperty.FilePlanPropertyCitation -ne $DesiredProperty.FilePlanProperty.FilePlanPropertyCitation -or `
-            $CurrentProperty.FilePlanProperty.FilePlanPropertyReferenceId -ne $DesiredProperty.FilePlanProperty.FilePlanPropertyReferenceId -or `
-            $CurrentProperty.FilePlanProperty.FilePlanPropertyAuthority -ne $DesiredProperty.FilePlanProperty.FilePlanPropertyAuthority)
-    {
-        return $false
-    }
-
-    return $true
-}
-
 Export-ModuleMember -Function *-TargetResource

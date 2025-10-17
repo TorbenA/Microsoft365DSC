@@ -481,19 +481,22 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $newSenderDomains = @()
-    foreach ($domain in $PSBoundParameters.SenderDomains)
+    if ($PSBoundParameters.ContainsKey('SenderDomains'))
     {
-        if ($domain -notlike 'smtp:*')
+        $newSenderDomains = @()
+        foreach ($domain in $PSBoundParameters.SenderDomains)
         {
-            $newSenderDomains += 'smtp:' + $domain + ';1'
+            if ($domain -notlike 'smtp:*')
+            {
+                $newSenderDomains += 'smtp:' + $domain + ';1'
+            }
+            else
+            {
+                $newSenderDomains += $domain
+            }
         }
-        else
-        {
-            $newSenderDomains += $domain
-        }
+        $PSBoundParameters.SenderDomains = $newSenderDomains
     }
-    $PSBoundParameters.SenderDomains = $newSenderDomains
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
                                          -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')

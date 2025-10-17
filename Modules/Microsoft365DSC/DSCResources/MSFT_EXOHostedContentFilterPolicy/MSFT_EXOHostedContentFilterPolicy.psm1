@@ -998,14 +998,6 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    foreach ($parameter in ($MyInvocation.MyCommand.Parameters.Keys | Where-Object { $_ -notin @('Verbose', 'Debug', 'WhatIf', 'Confirm', 'OutBuffer') -and $_ -notlike "*Action" -and $_ -notlike "*Variable" }))
-    {
-        if (-not $PSBoundParameters.ContainsKey($parameter))
-        {
-            $PSBoundParameters.Add($parameter, (Get-Variable -Name $parameter -ValueOnly))
-        }
-    }
-
     $postProcessingScript = {
         param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
         if ($CurrentValues.IntraOrgFilterState -ne $DesiredValues.IntraOrgFilterState -and $DesiredValues.IntraOrgFilterState -eq 'Default')

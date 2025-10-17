@@ -357,18 +357,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $postProcessingScript = {
-        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
-        if ($null -ne $ValuesToCheck.ExpirationDate -and $ValuesToCheck.ExpirationDate.Kind -eq 'Local')
-        {
-            $ValuesToCheck.ExpirationDate = $ValuesToCheck.ExpirationDate.ToUniversalTime().ToString()
-        }
-        return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
-    }
-
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
                                          -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -PostProcessing $postProcessingScript
+                                         -IncludedProperties @('Action', 'ListType', 'Value')
     return $result
 }
 
