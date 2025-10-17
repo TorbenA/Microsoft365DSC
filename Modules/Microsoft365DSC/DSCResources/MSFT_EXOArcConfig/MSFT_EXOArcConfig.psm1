@@ -241,7 +241,7 @@ function Test-TargetResource
     #endregion
 
     $postProcessingScript = {
-        param($DesiredValues, $CurrentValues, $ValuesToCheck, $null)
+        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
         $DesiredValues.ArcTrustedSealers = $DesiredValues.ArcTrustedSealers -join ","
         return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
     }

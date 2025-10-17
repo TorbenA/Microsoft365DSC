@@ -678,7 +678,7 @@ function Test-TargetResource
     #endregion
 
     $postProcessingScript = {
-        param($DesiredValues, $CurrentValues, $ValuesToCheck, $null)
+        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
         if ($CurrentValues.IsGlobalScript)
         {
             Write-Verbose -Message 'Detected a global script, removing read-only properties from the comparison'

@@ -358,7 +358,7 @@ function Test-TargetResource
     #endregion
 
     $postProcessingScript = {
-        param($DesiredValues, $CurrentValues, $ValuesToCheck, $null)
+        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
         if ($null -ne $ValuesToCheck.ExpirationDate -and $ValuesToCheck.ExpirationDate.Kind -eq 'Local')
         {
             $ValuesToCheck.ExpirationDate = $ValuesToCheck.ExpirationDate.ToUniversalTime().ToString()

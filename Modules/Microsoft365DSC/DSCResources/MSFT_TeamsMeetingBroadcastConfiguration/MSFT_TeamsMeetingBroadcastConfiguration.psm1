@@ -264,7 +264,7 @@ function Test-TargetResource
     #endregion
 
     $postProcessingScript = {
-        param($DesiredValues, $CurrentValues, $ValuesToCheck, $null)
+        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
         if ($CurrentValues.SdnApiToken -eq '**********')
         {
             $CurrentValues.Remove('SdnApiToken') | Out-Null

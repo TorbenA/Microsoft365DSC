@@ -1025,22 +1025,29 @@ function Test-M365DSCParameterState
         $LCMState = $null
         try
         {
-            $LCMInfo = Get-DscLocalConfigurationManager -ErrorAction Stop
+            if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
+            {
+                $LCMInfo = Get-DscLocalConfigurationManager -ErrorAction Stop
 
-            if ($LCMInfo.LCMStateDetail -eq 'LCM is performing a consistency check.' -or `
-                    $LCMInfo.LCMStateDetail -eq 'LCM exécute une vérification de cohérence.' -or `
-                    $LCMInfo.LCMStateDetail -eq 'LCM führt gerade eine Konsistenzüberprüfung durch.')
-            {
-                $LCMState = 'ConsistencyCheck'
+                if ($LCMInfo.LCMStateDetail -eq 'LCM is performing a consistency check.' -or `
+                        $LCMInfo.LCMStateDetail -eq 'LCM exécute une vérification de cohérence.' -or `
+                        $LCMInfo.LCMStateDetail -eq 'LCM führt gerade eine Konsistenzüberprüfung durch.')
+                {
+                    $LCMState = 'ConsistencyCheck'
+                }
+                elseif ($LCMInfo.LCMStateDetail -eq 'LCM is testing node against the configuration.')
+                {
+                    $LCMState = 'ManualTestDSCConfiguration'
+                }
+                elseif ($LCMInfo.LCMStateDetail -eq 'LCM is applying a new configuration.' -or `
+                        $LCMInfo.LCMStateDetail -eq 'LCM applique une nouvelle configuration.')
+                {
+                    $LCMState = 'Initial'
+                }
             }
-            elseif ($LCMInfo.LCMStateDetail -eq 'LCM is testing node against the configuration.')
+            else
             {
-                $LCMState = 'ManualTestDSCConfiguration'
-            }
-            elseif ($LCMInfo.LCMStateDetail -eq 'LCM is applying a new configuration.' -or `
-                    $LCMInfo.LCMStateDetail -eq 'LCM applique une nouvelle configuration.')
-            {
-                $LCMState = 'Initial'
+                $LCMState = 'Unauthorized'
             }
         }
         catch
@@ -1240,8 +1247,6 @@ function Test-M365DSCTargetResource
 
     $CurrentValues = & MSFT_$ResourceName\Get-TargetResource @DesiredValues
     $ValuesToCheck = ([Hashtable]$DesiredValues).Clone()
-    $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck.Remove('Identity') | Out-Null
 
     # Apply custom post-processing to CurrentValues and ValuesToCheck if specified
     if ($null -ne $PostProcessing)
@@ -1266,6 +1271,9 @@ function Test-M365DSCTargetResource
             Write-Warning -Message "Error occurred during post-processing for resource $ResourceName`: $_"
         }
     }
+
+    $ValuesToCheck.Remove('Id') | Out-Null
+    $ValuesToCheck.Remove('Identity') | Out-Null
 
     # Remove the key parameters from the comparison
     foreach ($keyToRemove in $resourceKeys)
@@ -1343,7 +1351,10 @@ function Test-M365DSCTargetResource
                 {
                     foreach ($primaryKey in $CIMPrimaryKeys.Name)
                     {
-                        $targetObject.Remove($primaryKey) | Out-Null
+                        if ($primaryKey -notin $IncludedProperties)
+                        {
+                            $targetObject.Remove($primaryKey) | Out-Null
+                        }
                     }
 
                     if ($targetObjects -is [array])

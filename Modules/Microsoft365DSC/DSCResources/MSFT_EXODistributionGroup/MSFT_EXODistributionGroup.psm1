@@ -1018,7 +1018,7 @@ function Test-TargetResource
     #endregion
 
     $postProcessingScript = {
-        param($DesiredValues, $CurrentValues, $ValuesToCheck, $null)
+        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
         if (-not $ValuesToCheck.OrganizationalUnit)
         {
             $ValuesToCheck.Remove('OrganizationalUnit') | Out-Null

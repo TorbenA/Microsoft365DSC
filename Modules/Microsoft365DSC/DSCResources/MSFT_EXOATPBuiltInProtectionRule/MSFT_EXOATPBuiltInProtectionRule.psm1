@@ -247,7 +247,7 @@ function Test-TargetResource
     #endregion
 
     $postProcessingScript = {
-        param($DesiredValues, $CurrentValues, $ValuesToCheck, $null)
+        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
         foreach ($key in $ValuesToCheck.Keys)
         {
             if ($null -eq $CurrentValues[$key])

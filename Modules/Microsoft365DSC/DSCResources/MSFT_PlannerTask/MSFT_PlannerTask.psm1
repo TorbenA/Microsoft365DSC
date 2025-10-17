@@ -655,12 +655,13 @@ function Test-TargetResource
     #endregion
 
     $postProcessingScript = {
-        param($DesiredValues, $CurrentValues, $ValuesToCheck, $null)
+        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
         if ([System.String]::IsNullOrEmpty($DesiredValues.Bucket) -and
                 -not [System.String]::IsNullOrEmpty($CurrentValues.Bucket))
         {
             if (-not $ValuesToCheck.ContainsKey('Bucket'))
             {
+                $DesiredValues.Bucket = $null
                 $ValuesToCheck.Add('Bucket', $null)
             }
         }
