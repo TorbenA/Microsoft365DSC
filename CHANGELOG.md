@@ -7,6 +7,10 @@
 * TeamsMeetingPolicy
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
+* M365DSCUtil
+  * Added custom post processing to `Test-M365DSCTargetResource`.
+* MISC
+  * Centralized more resource testing to the testing function.
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.53
 

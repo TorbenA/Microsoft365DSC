@@ -1025,22 +1025,29 @@ function Test-M365DSCParameterState
         $LCMState = $null
         try
         {
-            $LCMInfo = Get-DscLocalConfigurationManager -ErrorAction Stop
+            if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
+            {
+                $LCMInfo = Get-DscLocalConfigurationManager -ErrorAction Stop
 
-            if ($LCMInfo.LCMStateDetail -eq 'LCM is performing a consistency check.' -or `
-                    $LCMInfo.LCMStateDetail -eq 'LCM exécute une vérification de cohérence.' -or `
-                    $LCMInfo.LCMStateDetail -eq 'LCM führt gerade eine Konsistenzüberprüfung durch.')
-            {
-                $LCMState = 'ConsistencyCheck'
+                if ($LCMInfo.LCMStateDetail -eq 'LCM is performing a consistency check.' -or `
+                        $LCMInfo.LCMStateDetail -eq 'LCM exécute une vérification de cohérence.' -or `
+                        $LCMInfo.LCMStateDetail -eq 'LCM führt gerade eine Konsistenzüberprüfung durch.')
+                {
+                    $LCMState = 'ConsistencyCheck'
+                }
+                elseif ($LCMInfo.LCMStateDetail -eq 'LCM is testing node against the configuration.')
+                {
+                    $LCMState = 'ManualTestDSCConfiguration'
+                }
+                elseif ($LCMInfo.LCMStateDetail -eq 'LCM is applying a new configuration.' -or `
+                        $LCMInfo.LCMStateDetail -eq 'LCM applique une nouvelle configuration.')
+                {
+                    $LCMState = 'Initial'
+                }
             }
-            elseif ($LCMInfo.LCMStateDetail -eq 'LCM is testing node against the configuration.')
+            else
             {
-                $LCMState = 'ManualTestDSCConfiguration'
-            }
-            elseif ($LCMInfo.LCMStateDetail -eq 'LCM is applying a new configuration.' -or `
-                    $LCMInfo.LCMStateDetail -eq 'LCM applique une nouvelle configuration.')
-            {
-                $LCMState = 'Initial'
+                $LCMState = 'Unauthorized'
             }
         }
         catch
@@ -1162,6 +1169,12 @@ function Test-M365DSCParameterState
 .Description
     Centralized method to evaluate the result of the various Test-TargetResource functions
 
+.PARAMETER PostProcessing
+    Optional Func delegate that allows custom processing of the DesiredValues, CurrentValues and ValuesToCheck.
+    The function receives three hashtable parameters: DesiredValues, CurrentValues (from Get-TargetResource) and ValuesToCheck.
+    Additionally, it gets an array of objects as PostProcessingArgs.
+    The delegate must return a Tuple[Hashtable, Hashtable, Hashtable] where Item1 is the processed DesiredValues, Item2 is the processed CurrentValues and Item3 is the processed ValuesToCheck.
+
 .FUNCTIONALITY
     Internal
 #>
@@ -1185,6 +1198,14 @@ function Test-M365DSCTargetResource
         [Parameter()]
         [System.String[]]
         $IncludedProperties,
+
+        [Parameter()]
+        [Func[Hashtable, Hashtable, Hashtable, Object[], Tuple[Hashtable, Hashtable, Hashtable]]]
+        $PostProcessing,
+
+        [Parameter()]
+        [System.Object[]]
+        $PostProcessingArgs = @(),
 
         [Parameter(
             ParameterSetName = 'PassThru'
@@ -1226,6 +1247,31 @@ function Test-M365DSCTargetResource
 
     $CurrentValues = & MSFT_$ResourceName\Get-TargetResource @DesiredValues
     $ValuesToCheck = ([Hashtable]$DesiredValues).Clone()
+
+    # Apply custom post-processing to CurrentValues and ValuesToCheck if specified
+    if ($null -ne $PostProcessing)
+    {
+        Write-Verbose -Message "Applying custom post-processing to CurrentValues and ValuesToCheck for resource $ResourceName"
+        try
+        {
+            $result = $PostProcessing.Invoke($DesiredValues, $CurrentValues, $ValuesToCheck, $PostProcessingArgs)
+            if ($null -ne $result -and $result.Item1 -is [Hashtable] -and $result.Item2 -is [Hashtable] -and $result.Item3 -is [Hashtable])
+            {
+                $DesiredValues = $result.Item1
+                $CurrentValues = $result.Item2
+                $ValuesToCheck = $result.Item3
+            }
+            else
+            {
+                Write-Warning -Message "PostProcessing function did not return a valid tuple for resource $ResourceName. Using original values."
+            }
+        }
+        catch
+        {
+            Write-Warning -Message "Error occurred during post-processing for resource $ResourceName`: $_"
+        }
+    }
+
     $ValuesToCheck.Remove('Id') | Out-Null
     $ValuesToCheck.Remove('Identity') | Out-Null
 
@@ -1305,7 +1351,10 @@ function Test-M365DSCTargetResource
                 {
                     foreach ($primaryKey in $CIMPrimaryKeys.Name)
                     {
-                        $targetObject.Remove($primaryKey) | Out-Null
+                        if ($primaryKey -notin $IncludedProperties)
+                        {
+                            $targetObject.Remove($primaryKey) | Out-Null
+                        }
                     }
 
                     if ($targetObjects -is [array])
