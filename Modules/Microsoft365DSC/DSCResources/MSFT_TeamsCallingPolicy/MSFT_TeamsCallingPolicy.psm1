@@ -243,7 +243,7 @@ function Get-TargetResource
             Description                          = $policy.Description
             EnableSpendLimits                    = $policy.EnableSpendLimits
             EnableWebPstnMediaBypass             = $policy.EnableWebPstnMediaBypass
-            ExplicitRecordingConsent            = $policy.ExplicitRecordingConsent
+            ExplicitRecordingConsent             = $policy.ExplicitRecordingConsent
             InboundFederatedCallRoutingTreatment = $policy.InboundFederatedCallRoutingTreatment
             InboundPstnCallRoutingTreatment      = $policy.InboundPstnCallRoutingTreatment
             PopoutAppPathForIncomingPstnCalls    = $policy.PopoutAppPathForIncomingPstnCalls
