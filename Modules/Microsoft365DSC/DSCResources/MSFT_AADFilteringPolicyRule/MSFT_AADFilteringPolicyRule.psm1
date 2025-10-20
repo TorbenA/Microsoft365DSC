@@ -89,7 +89,7 @@ function Get-TargetResource
             {
                 Write-Verbose -Message "Retrieving Filtering Policy Rule by Id {$Id}"
                 $instance = Get-MgBetaNetworkAccessFilteringPolicyRule -FilteringPolicyId $policyInstance.Id `
-                    -PolicyRuleId Id -ErrorAction SilentlyContinue
+                    -PolicyRuleId $Id -ErrorAction SilentlyContinue
             }
             if ($null -eq $instance)
             {

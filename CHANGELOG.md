@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADFilteringPolicyRule
+  * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
+
 # 1.25.1015.1
 
 * AADConditionalAccessPolicy
