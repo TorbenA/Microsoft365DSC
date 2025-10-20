@@ -2,9 +2,13 @@
 
 # UNRELEASED
 
+* AADFilteringPolicyRule
+  * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
 * TeamsMeetingPolicy
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.53
 
 # 1.25.1015.1
 
