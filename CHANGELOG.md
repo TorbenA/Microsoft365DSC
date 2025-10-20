@@ -4,6 +4,8 @@
 
 * AADFilteringPolicyRule
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.53
 
 # 1.25.1015.1
 
