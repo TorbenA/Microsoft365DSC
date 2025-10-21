@@ -1870,12 +1870,10 @@ function ConvertTo-IntuneMobileAppAssignment
         [Parameter(Mandatory = $true)]
         [AllowNull()]
         $Assignments,
- 
         [Parameter()]
         [System.Boolean]
         $IncludeDeviceFilter = $true
     )
- 
     if ($null -eq $Script:IntuneAssignmentFilters)
     {
         $Script:IntuneAssignmentFilters = Get-MgBetaDeviceManagementAssignmentFilter -All -ErrorAction SilentlyContinue | ForEach-Object {
@@ -1885,18 +1883,15 @@ function ConvertTo-IntuneMobileAppAssignment
             }
         }
     }
- 
     if ($null -eq $Assignments)
     {
         return ,@()
     }
- 
     $assignmentResult = @()
     foreach ($assignment in $Assignments)
     {
         $formattedAssignment = @{}
-        $target = @{"@odata.type" = $assignment.dataType}
- 
+        $target = @{"@odata.type" = $assignment.dataType} 
         # Handle Device Filters
         if ($IncludeDeviceFilter)
         {
@@ -1925,27 +1920,22 @@ function ConvertTo-IntuneMobileAppAssignment
                 }
             }
         }
- 
         # Add intent (required for app assignments)
         $formattedAssignment.Add('intent', $assignment.intent)
- 
         # --- Group resolution logic (refactored) ---
         if ($assignment.dataType -like '*groupAssignmentTarget')
         {
             $group = $null
- 
             # Only check groupId if it's non-empty and looks valid
             if (-not [string]::IsNullOrWhiteSpace($assignment.groupId))
             {
                 $group = Get-MgGroup -GroupId $assignment.groupId -ErrorAction SilentlyContinue
             }
- 
             # If groupId lookup failed, try by display name
             if ($null -eq $group -and -not [string]::IsNullOrWhiteSpace($assignment.groupDisplayName))
             {
                 $escapedName = $assignment.groupDisplayName -replace "'", "''"
                 $group = Get-MgGroup -Filter "DisplayName eq '$escapedName'" -ErrorAction SilentlyContinue
- 
                 if ($null -eq $group)
                 {
                     Write-Warning "Skipping assignment: groupDisplayName '{$($assignment.groupDisplayName)}' not found."
@@ -1957,7 +1947,6 @@ function ConvertTo-IntuneMobileAppAssignment
                     $target = $null
                 }
             }
- 
             # If group found, add its ID
             if ($null -ne $group)
             {
@@ -1969,13 +1958,11 @@ function ConvertTo-IntuneMobileAppAssignment
                 $target = $null
             }
         }
- 
         # Add target if valid
         if ($target)
         {
             $formattedAssignment.Add('target', $target)
         }
- 
         # Add assignment settings if present
         if ($null -ne $assignment.assignmentSettings)
         {
@@ -1984,10 +1971,8 @@ function ConvertTo-IntuneMobileAppAssignment
             $formattedAssignment.settings.Add('@odata.type', $formattedAssignment.settings.odataType)
             $formattedAssignment.settings.Remove('odataType') | Out-Null
         }
- 
         $assignmentResult += $formattedAssignment
     }
- 
     return ,$assignmentResult
 }
 
