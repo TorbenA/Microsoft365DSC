@@ -1200,7 +1200,7 @@ function Test-M365DSCTargetResource
         $IncludedProperties,
 
         [Parameter()]
-        [Func[Hashtable, Hashtable, Hashtable, Object[], Tuple[Hashtable, Hashtable, Hashtable]]]
+        [System.Func[Hashtable, Hashtable, Hashtable, [Object[]], Tuple[Hashtable, Hashtable, Hashtable]]]
         $PostProcessing,
 
         [Parameter()]

@@ -487,6 +487,7 @@ function Set-TargetResource
             $PasswordPolicies = 'None'
         }
         $CreationParams = @{
+            AccountEnabled           = $AccountEnabled
             City                     = $City
             Country                  = $Country
             Department               = $Department
