@@ -141,7 +141,7 @@ function Get-TargetResource
                 Keyword     = $keywordObject.simpleSettingValue.value
             }
 
-            if ($autoResolveValue)
+            if (-not $autoResolveValue)
             {
                 $addressObject = $autoResolveObject.choiceSettingValue.children.simpleSettingCollectionValue.value
                 $policySetting.Add('Addresses', $addressObject)
@@ -251,39 +251,39 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $boundParameters.Remove('Addresses') | Out-Null
-    $boundParameters.Remove('AutoResolve') | Out-Null
-    $boundParameters.Remove('Keyword') | Out-Null
-    $boundParameters.Add('settingDefinitionId', 'vendor_msft_firewall_mdmstore_dynamickeywords_addresses_{id}')
-    $boundParameters.Add('settingInstance', @{
-        '@odata.type' = '#microsoft.graph.deviceManagementConfigurationGroupSettingCollectionInstance'
+    $boundParameters = @{
+        '@odata.type'       = '#microsoft.graph.deviceManagementReusablePolicySetting'
+        description         = "$Description"
+        displayName         = "$DisplayName"
+        id                  = $currentInstance.Id
         settingDefinitionId = 'vendor_msft_firewall_mdmstore_dynamickeywords_addresses_{id}'
-        groupSettingCollectionValue = @()
-    })
+        settingInstance     = @{
+            '@odata.type' = '#microsoft.graph.deviceManagementConfigurationGroupSettingCollectionInstance'
+            settingDefinitionId = 'vendor_msft_firewall_mdmstore_dynamickeywords_addresses_{id}'
+            groupSettingCollectionValue = @()
+        }
+    }
 
     foreach ($policySetting in $PolicySettings)
     {
         $groupSettingCollectionChildren = @()
 
         $autoResolveChildren = @()
-        if ($policySetting.AutoResolve)
+        if (-not $policySetting.AutoResolve)
         {
-            $autoResolveChildren += @{
+            $autoResolveChild += @{
                 '@odata.type'          = '#microsoft.graph.deviceManagementConfigurationSimpleSettingCollectionInstance'
                 settingDefinitionId    = 'vendor_msft_firewall_mdmstore_dynamickeywords_addresses_{id}_addresses'
-                simpleSettingCollectionValue = @{
-                    '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSimpleSettingCollection'
-                    value         = @()
-                }
+                simpleSettingCollectionValue = @()
             }
             foreach ($address in $policySetting.Addresses)
             {
-                $autoResolveChildren.simpleSettingCollectionValue.value += @{
+                $autoResolveChild.simpleSettingCollectionValue += @{
                     '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
                     value         = $address
                 }
             }
+            $autoResolveChildren += $autoResolveChild
         }
 
         $autoResolveValue = 'vendor_msft_firewall_mdmstore_dynamickeywords_addresses_{id}_autoresolve_' + $policySetting.AutoResolve.ToString().ToLower()
@@ -291,7 +291,7 @@ function Set-TargetResource
             '@odata.type'          = '#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance'
             settingDefinitionId    = 'vendor_msft_firewall_mdmstore_dynamickeywords_addresses_{id}_autoresolve'
             choiceSettingValue     = @{
-                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSetting'
+                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingValue'
                 value         = $autoResolveValue
                 children      = $autoResolveChildren
             }
@@ -302,7 +302,7 @@ function Set-TargetResource
             '@odata.type'          = '#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance'
             settingDefinitionId    = 'vendor_msft_firewall_mdmstore_dynamickeywords_addresses_{id}_keyword'
             simpleSettingValue     = @{
-                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSimpleSetting'
+                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
                 value         = $policySetting.Keyword
             }
         }
@@ -329,7 +329,7 @@ function Set-TargetResource
         Write-Verbose -Message "Updating the Intune Firewall Policy Setting with Id {$($currentInstance.Id)}"
 
         $updateParameters = ([Hashtable]$boundParameters).Clone()
-        $updateParameters.Remove('Id') | Out-Null
+        $updateParameters.Id = $currentInstance.Id
 
         #region resource generator code
         Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings/$($currentInstance.Id)" -Method PUT -Body $($updateParameters | ConvertTo-Json -Depth 10)
@@ -421,7 +421,8 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -IncludedProperties @('PolicySettings', 'Addresses', 'AutoResolve', 'Keyword')
     return $result
 }
 

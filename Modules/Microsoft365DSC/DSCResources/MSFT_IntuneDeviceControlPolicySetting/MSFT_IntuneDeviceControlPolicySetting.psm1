@@ -320,30 +320,30 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $boundParameters.Remove('MatchType') | Out-Null
-    $boundParameters.Remove('PrinterPolicySettings') | Out-Null
-    $boundParameters.Remove('StoragePolicySettings') | Out-Null
-    $boundParameters.Add('settingDefinitionId', 'device_vendor_msft_defender_configuration_devicecontrol_policygroups_{groupid}_groupdata')
-    $boundParameters.Add('settingInstance', @{
-        '@odata.type'               = '#microsoft.graph.deviceManagementConfigurationGroupSettingCollectionInstance'
-        settingDefinitionId         = 'device_vendor_msft_defender_configuration_devicecontrol_policygroups_{groupid}_groupdata'
-        groupSettingCollectionValue = @(
-            @{
-                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationGroupSettingCollection'
-                children      = @(
-                    @{
-                        '@odata.type'          = '#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance'
-                        settingDefinitionId    = 'device_vendor_msft_defender_configuration_devicecontrol_policygroups_{groupid}_groupdata_matchtype'
-                        choiceSettingValue     = @{
-                            '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSetting'
-                            value         = 'device_vendor_msft_defender_configuration_devicecontrol_policygroups_{groupid}_groupdata_matchtype_match' + $MatchType.ToLower()
+    $boundParameters = @{
+        description         = "$Description"
+        displayName         = "$DisplayName"
+        id                  = $currentInstance.Id
+        settingDefinitionId = 'device_vendor_msft_defender_configuration_devicecontrol_policygroups_{groupid}_groupdata'
+        settingInstance     = @{
+            '@odata.type'               = '#microsoft.graph.deviceManagementConfigurationGroupSettingCollectionInstance'
+            settingDefinitionId         = 'device_vendor_msft_defender_configuration_devicecontrol_policygroups_{groupid}_groupdata'
+            groupSettingCollectionValue = @(
+                @{
+                    children      = @(
+                        @{
+                            '@odata.type'          = '#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance'
+                            settingDefinitionId    = 'device_vendor_msft_defender_configuration_devicecontrol_policygroups_{groupid}_groupdata_matchtype'
+                            choiceSettingValue     = @{
+                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationChoiceSettingValue'
+                                value         = 'device_vendor_msft_defender_configuration_devicecontrol_policygroups_{groupid}_groupdata_matchtype_match' + $MatchType.ToLower()
+                            }
                         }
-                    }
-                )
-            }
-        )
-    })
+                    )
+                }
+            )
+        }
+    }
 
     $storageSettings = @{
         '@odata.type' = '#microsoft.graph.deviceManagementConfigurationGroupSettingCollectionInstance'
@@ -418,7 +418,6 @@ function Set-TargetResource
     {
         $boundParameters.settingInstance.groupSettingCollectionValue[0].children += $printerSettings
     }
-
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -536,7 +535,7 @@ function Test-TargetResource
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
                                          -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -IncludedProperties @('MatchType')
+                                         -IncludedProperties @('MatchType', 'Name')
     return $result
 }
 
@@ -635,7 +634,7 @@ function Export-TargetResource
             }
             Write-M365DSCHost -Message "    |---[$i/$($getValue.Count)] $displayedKey" -DeferWrite
             $matchObject = $config.settingInstance.groupSettingCollectionValue[0].children | Where-Object { $_.settingDefinitionId -eq 'device_vendor_msft_defender_configuration_devicecontrol_policygroups_{groupid}_groupdata_matchtype' }
-            $matchType = ($matchObject | Select-Object -ExpandProperty choiceSettingValue | Select-Object -ExpandProperty value).Split('_')[-1].Replace("matcha", "A")
+            $matchType = $matchObject.choiceSettingValue.value.Split('_')[-1].Replace("matcha", "A")
             $params = @{
                 Id                    = $config.Id
                 DisplayName           = $config.DisplayName

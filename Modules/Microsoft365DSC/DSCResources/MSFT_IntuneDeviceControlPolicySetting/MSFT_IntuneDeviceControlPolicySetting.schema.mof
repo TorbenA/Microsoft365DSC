@@ -4,12 +4,12 @@ class MSFT_ReusableStorageDeviceControlPolicySetting
     [Write, Description("The Bus ID of the logical bus where the device is connected to. Examples are USB, SCSI.")] String BusId;
     [Write, Description("The Device ID of the device.")] String DeviceId;
     [Write, Description("The Friendly Name of the device. Example is 'Generic Flash Disk USB Device'.")] String FriendlyNameId;
-    [Write, Description("The Hardware ID of the device. Example is 'USBSTOR\DiskGeneric_Flash_Disk___8.07'.")] String HardwareId;
-    [Write, Description("The Instance Path ID of the device. Uniquely identifies the device in the system. Example is 'USBSTOR\DISK&VEN_GENERIC&PROD_FLASH_DISK&REV_8.07\8735B611&0'.")] String InstancePathId;
+    [Write, Description("The Hardware ID of the device. Example is 'USBSTOR\\DiskGeneric_Flash_Disk___8.07'.")] String HardwareId;
+    [Write, Description("The Instance Path ID of the device. Uniquely identifies the device in the system. Example is 'USBSTOR\\DISK&VEN_GENERIC&PROD_FLASH_DISK&REV_8.07\\8735B611&0'.")] String InstancePathId;
     [Required, Description("The identifier of the reusable policy setting.")] String Name;
     [Write, Description("The Product ID of the device. Example is '55E0'.")] String PID;
     [Write, Description("The Primary ID of the device. Possible values are: RemovableMediaDevices, CdRomDevices, WpdDevices, and PrinterDevices"), ValueMap{"CdRomDevices", "PrinterDevices", "RemovableMediaDevices", "WpdDevices"}, Values{"CdRomDevices", "PrinterDevices", "RemovableMediaDevices", "WpdDevices"}] String PrimaryId;
-    [Write, Description("The Serial Number ID of the device. Example is '03003324080520232521', which corresponds to 'USBSTOR\DISK&VEN__USB&PROD__SANDISK_3.2GEN1&REV_1.00\03003324080520232521&0'.")] String SerialNumberId;
+    [Write, Description("The Serial Number ID of the device. Example is '03003324080520232521', which corresponds to 'USBSTOR\\DISK&VEN__USB&PROD__SANDISK_3.2GEN1&REV_1.00\\03003324080520232521&0'.")] String SerialNumberId;
     [Write, Description("The Vendor ID of the device. Example is '0751'.")] String VID;
     [Write, Description("The combination of Vendor and Product ID. Example is '0000_1111.")] String VID_PID;
 };

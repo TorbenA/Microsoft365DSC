@@ -21,7 +21,7 @@ function Get-TargetResource
         [System.String]
         $Id,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $CertificateFile,
         #endregion
@@ -179,7 +179,7 @@ function Set-TargetResource
         [System.String]
         $Id,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $CertificateFile,
         #endregion
@@ -233,17 +233,21 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $boundParameters.Remove('Certificate') | Out-Null
-    $boundParameters.Add('settingDefinitionId', 'device_vendor_msft_policy_privilegemanagement_reusablesettings_certificatefile')
-    $boundParameters.Add('settingInstance', @{
-        '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance'
+    $boundParameters = @{
+        '@odata.type'       = '#microsoft.graph.deviceManagementReusablePolicySetting'
+        description         = "$Description"
+        displayName         = "$DisplayName"
+        id                  = $currentInstance.Id
         settingDefinitionId = 'device_vendor_msft_policy_privilegemanagement_reusablesettings_certificatefile'
-        simpleSettingValue = @{
-            '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
-            value         = $CertificateFile
+        settingInstance     = @{
+            '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance'
+            settingDefinitionId = 'device_vendor_msft_policy_privilegemanagement_reusablesettings_certificatefile'
+            simpleSettingValue = @{
+                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                value         = $CertificateFile
+            }
         }
-    })
+    }
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -304,7 +308,7 @@ function Test-TargetResource
         [System.String]
         $Id,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $CertificateFile,
         #endregion
@@ -353,7 +357,8 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -IncludedProperties @('CertificateFile')
     return $result
 }
 
@@ -454,6 +459,7 @@ function Export-TargetResource
             $params = @{
                 Id                    = $config.Id
                 DisplayName           = $config.DisplayName
+                CertificateFile       = $config.settingInstance.simpleSettingValue.value
                 Ensure                = 'Present'
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId
