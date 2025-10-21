@@ -24,6 +24,7 @@ Configuration Example
         IntuneEpmCertificatePolicySetting "IntuneEpmCertificatePolicySetting-IntuneEpmCertificatePolicySetting_1"
         {
             DisplayName           = "IntuneEpmCertificatePolicySetting_1";
+            CertificateFile       = "<Base64EncodedCertificateContent>";
             Ensure                = "Absent";
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
