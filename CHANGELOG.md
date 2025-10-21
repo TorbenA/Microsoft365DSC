@@ -4,6 +4,8 @@
 
 * AADFilteringPolicyRule
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
+* AADUser
+  * Added new permission requirement `User.EnableDisableAccount.All` for enabling / disabling accounts.
 * TeamsMeetingPolicy
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
