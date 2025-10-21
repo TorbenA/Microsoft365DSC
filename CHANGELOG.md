@@ -14,6 +14,7 @@
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
+  * Moved resource initialization into dedicated function.
 * MISC
   * Centralized more resource testing to the testing function.
 * DEPENDENCIES
