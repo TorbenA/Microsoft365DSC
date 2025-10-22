@@ -7,6 +7,10 @@
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
 * AADUser
   * Added new permission requirement `User.EnableDisableAccount.All` for enabling / disabling accounts.
+* IntuneAlertRuleWindows365
+  * Initial release.
+* IntuneManagedInstallerPolicyWindows10
+  * Initial release.
 * ODSettings
   * Fixed an issue where exporting `DomainGuids` would throw because it is a GUID type.
     FIXES [#6615](https://github.com/microsoft/Microsoft365DSC/issues/6615)
