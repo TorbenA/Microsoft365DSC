@@ -15,6 +15,8 @@
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
+* IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
+  * Fixed a breaking issue where the resource failed with `ModelValidationFailure` due to property casing mismatch after Microsoft Graph SDK v2.10+. Updated to use camelCase property names to align with current Graph schema.  
 * MISC
   * Centralized more resource testing to the testing function.
 * DEPENDENCIES
