@@ -1,7 +1,8 @@
 # Change log for Microsoft365DSC
 
 # UNRELEASED
-
+* M365DSCUtil
+  * Fixed issue of function ConvertTo-IntuneMobileAppAssignment where groupID property was mantatory for the Assignment.
 * AADFilteringPolicyRule
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
 * AADUser
