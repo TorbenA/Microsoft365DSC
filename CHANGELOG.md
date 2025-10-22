@@ -15,6 +15,8 @@
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
   * Removed groupId requirement in `ConvertTo-IntuneMobileAppAssignment`.
+* IntuneSettingCatalogCustomPolicyWindows10
+  * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.  
 * MISC
   * Centralized more resource testing to the testing function.
 * DEPENDENCIES
