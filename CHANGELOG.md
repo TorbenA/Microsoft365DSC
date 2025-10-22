@@ -1,6 +1,7 @@
 # Change log for Microsoft365DSC
 
 # UNRELEASED
+
 * M365DSCUtil
   * Fixed issue of function ConvertTo-IntuneMobileAppAssignment where groupID property was mantatory for the Assignment.
 * AADFilteringPolicyRule
@@ -13,6 +14,8 @@
 * TeamsMeetingPolicy
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
+* VivaEngagementRoleMember
+  * Fixed issue loading the required modules to export this resource
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
 * MISC
