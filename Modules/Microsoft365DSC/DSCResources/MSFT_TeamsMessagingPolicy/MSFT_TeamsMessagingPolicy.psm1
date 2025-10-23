@@ -253,6 +253,8 @@ function Get-TargetResource
             {
                 $currentPolicy = $currentPolicy.Split(':')[1]
             }
+
+            $useB2BInvitesToAddExternalUsersValue = if ($policy.UseB2BInvitesToAddExternalUsers) { 'Enabled' } else { 'Disabled' }
             return @{
                 Identity                                      = $currentPolicy
                 AllowChatWithGroup                            = $policy.AllowChatWithGroup
@@ -292,7 +294,7 @@ function Get-TargetResource
                 AllowVideoMessages                            = $policy.AllowVideoMessages
                 ChannelsInChatListEnabledType                 = $policy.ChannelsInChatListEnabledType
                 AudioMessageEnabledType                       = $policy.AudioMessageEnabledType
-                UseB2BInvitesToAddExternalUsers               = $policy.UseB2BInvitesToAddExternalUsers
+                UseB2BInvitesToAddExternalUsers               = $useB2BInvitesToAddExternalUsersValue
                 Description                                   = $policy.Description
                 Tenant                                        = $policy.Tenant
                 Ensure                                        = 'Present'
@@ -541,6 +543,12 @@ function Set-TargetResource
 
     $curPolicy = Get-TargetResource @PSBoundParameters
     $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+
+    # TODO: Review during next breaking change for updated documentation - Refactor if necessary
+    if ($SetParams.ContainsKey('UseB2BInvitesToAddExternalUsers'))
+    {
+        $SetParams.UseB2BInvitesToAddExternalUsers = if ($UseB2BInvitesToAddExternalUsers -eq 'Enabled') { $true } else { $false }
+    }
 
     if ($curPolicy.Ensure -eq 'Absent' -and 'Present' -eq $Ensure )
     {
