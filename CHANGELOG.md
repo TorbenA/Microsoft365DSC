@@ -2,16 +2,22 @@
 
 # UNRELEASED
 
+* M365DSCUtil
+  * Fixed issue of function ConvertTo-IntuneMobileAppAssignment where groupID property was mantatory for the Assignment.
 * AADFilteringPolicyRule
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
 * AADUser
   * Added new permission requirement `User.EnableDisableAccount.All` for enabling / disabling accounts.
+* IntuneSettingCatalogCustomPolicyWindows10
+  * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.
 * ODSettings
   * Fixed an issue where exporting `DomainGuids` would throw because it is a GUID type.
     FIXES [#6615](https://github.com/microsoft/Microsoft365DSC/issues/6615)
 * TeamsMeetingPolicy
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
+* VivaEngagementRoleMember
+  * Fixed issue loading the required modules to export this resource
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
   * Moved resource initialization into dedicated function.
