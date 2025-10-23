@@ -299,7 +299,6 @@ function Set-TargetResource
                 $CreateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters.$key
             }
         }
-        $CreateParameters.ConfigDeviceHealthMonitoringScope = [String[]]$CreateParameters.ConfigDeviceHealthMonitoringScope -join ','
 		if ($CreateParameters.ContainsKey('ConfigDeviceHealthMonitoringScope')) {
 			$CreateParameters['configDeviceHealthMonitoringScope'] = ($CreateParameters['ConfigDeviceHealthMonitoringScope'] -join ',')
 			$CreateParameters.Remove('ConfigDeviceHealthMonitoringScope') | Out-Null
@@ -343,7 +342,6 @@ function Set-TargetResource
                 $UpdateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
             }
         }
-        $UpdateParameters.ConfigDeviceHealthMonitoringScope = [String[]]$UpdateParameters.ConfigDeviceHealthMonitoringScope -join ','
 		if ($UpdateParameters.ContainsKey('ConfigDeviceHealthMonitoringScope')) {
 			$UpdateParameters['configDeviceHealthMonitoringScope'] = ($UpdateParameters['ConfigDeviceHealthMonitoringScope'] -join ',')
 			$UpdateParameters.Remove('ConfigDeviceHealthMonitoringScope') | Out-Null
