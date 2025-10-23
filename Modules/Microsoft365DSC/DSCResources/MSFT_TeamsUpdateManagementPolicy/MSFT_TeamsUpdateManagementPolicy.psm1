@@ -16,7 +16,7 @@ function Get-TargetResource
 
         [Parameter()]
         [ValidateSet('91382d07-8b89-444c-bbcb-cfe43133af33', 'edf2633e-9827-44de-b34c-8b8b9717e84c')]
-        [System.String]
+        [System.String[]]
         $DisabledInProductMessages,
 
         [Parameter()]
@@ -178,7 +178,7 @@ function Set-TargetResource
 
         [Parameter()]
         [ValidateSet('91382d07-8b89-444c-bbcb-cfe43133af33', 'edf2633e-9827-44de-b34c-8b8b9717e84c')]
-        [System.String]
+        [System.String[]]
         $DisabledInProductMessages,
 
         [Parameter()]
@@ -296,7 +296,7 @@ function Test-TargetResource
 
         [Parameter()]
         [ValidateSet('91382d07-8b89-444c-bbcb-cfe43133af33', 'edf2633e-9827-44de-b34c-8b8b9717e84c')]
-        [System.String]
+        [System.String[]]
         $DisabledInProductMessages,
 
         [Parameter()]

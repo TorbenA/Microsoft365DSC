@@ -14,12 +14,15 @@
 * TeamsMeetingPolicy
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
+* TeamsUpdateManagementPolicy
+  * Fixed an issue where the type for `DisabledInProductMessages` was String instead of a String array.
+    FIXES [#6635](https://github.com/microsoft/Microsoft365DSC/issues/6635)
 * VivaEngagementRoleMember
   * Fixed issue loading the required modules to export this resource
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
 * IntuneSettingCatalogCustomPolicyWindows10
-  * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.  
+  * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.
 * MISC
   * Centralized more resource testing to the testing function.
 * DEPENDENCIES
