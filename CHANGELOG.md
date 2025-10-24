@@ -8,6 +8,9 @@
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
 * AADUser
   * Added new permission requirement `User.EnableDisableAccount.All` for enabling / disabling accounts.
+* EXOIRMConfiguration
+  * Fixed an issue where the `LicensingLocation` property was not exported correctly.
+    FIXES [#6644](https://github.com/microsoft/Microsoft365DSC/issues/6644)
 * ODSettings
   * Fixed an issue where exporting `DomainGuids` would throw because it is a GUID type.
     FIXES [#6615](https://github.com/microsoft/Microsoft365DSC/issues/6615)
@@ -19,9 +22,9 @@
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
 * IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
-  * Fixed a breaking issue where the resource failed with `ModelValidationFailure` due to property casing mismatch after Microsoft Graph SDK v2.10+. Updated to use camelCase property names to align with current Graph schema.  
+  * Fixed a breaking issue where the resource failed with `ModelValidationFailure` due to property casing mismatch after Microsoft Graph SDK v2.10+. Updated to use camelCase property names to align with current Graph schema.
 * IntuneSettingCatalogCustomPolicyWindows10
-  * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.  
+  * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.
 * MISC
   * Centralized more resource testing to the testing function.
 * DEPENDENCIES
