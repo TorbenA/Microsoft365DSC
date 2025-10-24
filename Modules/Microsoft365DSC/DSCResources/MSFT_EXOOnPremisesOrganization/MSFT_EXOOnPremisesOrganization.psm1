@@ -107,40 +107,35 @@ function Get-TargetResource
 
     try
     {
-        $AllOnPremisesOrganizations = Get-OnPremisesOrganization -ErrorAction Stop
-
-        $OnPremisesOrganization = $AllOnPremisesOrganizations | Where-Object -FilterScript { $_.Identity -eq $Identity }
-
+        $OnPremisesOrganization = Get-OnPremisesOrganization -Identity $Identity -ErrorAction SilentlyContinue
         if ($null -eq $OnPremisesOrganization)
         {
             Write-Verbose -Message "On-premises Organization $($Identity) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $result = @{
-                Identity                 = $OnPremisesOrganization.Identity
-                Comment                  = $OnPremisesOrganization.Comment
-                HybridDomains            = $OnPremisesOrganization.HybridDomains
-                InboundConnector         = $OnPremisesOrganization.InboundConnector
-                OrganizationName         = $OnPremisesOrganization.OrganizationName
-                OrganizationGuid         = $OnPremisesOrganization.OrganizationGuid
-                OrganizationRelationship = $OnPremisesOrganization.OrganizationRelationship
-                OutboundConnector        = $OnPremisesOrganization.OutboundConnector
-                Ensure                   = 'Present'
-                Credential               = $Credential
-                ApplicationId            = $ApplicationId
-                CertificateThumbprint    = $CertificateThumbprint
-                CertificatePath          = $CertificatePath
-                CertificatePassword      = $CertificatePassword
-                ManagedIdentity          = $ManagedIdentity.IsPresent
-                TenantId                 = $TenantId
-                AccessTokens             = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found On-premises Organization $($Identity)"
-            return $result
+        $result = @{
+            Identity                 = $OnPremisesOrganization.Identity
+            Comment                  = $OnPremisesOrganization.Comment
+            HybridDomains            = $OnPremisesOrganization.HybridDomains
+            InboundConnector         = $OnPremisesOrganization.InboundConnector
+            OrganizationName         = $OnPremisesOrganization.OrganizationName
+            OrganizationGuid         = $OnPremisesOrganization.OrganizationGuid
+            OrganizationRelationship = $OnPremisesOrganization.OrganizationRelationship
+            OutboundConnector        = $OnPremisesOrganization.OutboundConnector
+            Ensure                   = 'Present'
+            Credential               = $Credential
+            ApplicationId            = $ApplicationId
+            CertificateThumbprint    = $CertificateThumbprint
+            CertificatePath          = $CertificatePath
+            CertificatePassword      = $CertificatePassword
+            ManagedIdentity          = $ManagedIdentity.IsPresent
+            TenantId                 = $TenantId
+            AccessTokens             = $AccessTokens
         }
+
+        Write-Verbose -Message "Found On-premises Organization $($Identity)"
+        return $result
     }
     catch
     {

@@ -142,7 +142,6 @@ function Get-TargetResource
     try
     {
         $IRMConfiguration = Get-IRMConfiguration -ErrorAction Stop
-
         $RMSOnlineKeySharingLocationValue = $null
         if ($IRMConfiguration.RMSOnlineKeySharingLocation)
         {
@@ -327,7 +326,7 @@ function Set-TargetResource
     $IRMConfigurationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $IRMConfigurationParams.Remove('IsSingleInstance') | Out-Null
 
-    if (('Present' -eq $Ensure ) -and ($Null -ne $IRMConfigurationParams))
+    if (('Present' -eq $Ensure ) -and ($null -ne $IRMConfigurationParams))
     {
         Write-Verbose -Message "Setting IRM Configuration with values: $(Convert-M365DscHashtableToString -Hashtable $IRMConfigurationParams)"
         Set-IRMConfiguration @IRMConfigurationParams -Confirm:$false

@@ -127,56 +127,40 @@ function Get-TargetResource
 
     try
     {
-        try
-        {
-            $AllAuthenticationPolicies = Get-AuthenticationPolicy -ErrorAction Stop
-        }
-        catch
-        {
-            if ($_.Exception -like "The operation couldn't be performed because object*")
-            {
-                Write-Verbose 'Could not obtain Authentication Policies for Tenant'
-                return $nullReturn
-            }
-        }
-
-        $AuthenticationPolicy = $AllAuthenticationPolicies | Where-Object -FilterScript { $_.Identity -eq $Identity }
-
+        $AuthenticationPolicy = Get-AuthenticationPolicy -Identity $Identity -ErrorAction SilentlyContinue
         if ($null -eq $AuthenticationPolicy)
         {
             Write-Verbose -Message "Authentication Policy $($Identity) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $result = @{
-                Identity                           = $AuthenticationPolicy.Identity
-                AllowBasicAuthActiveSync           = $AuthenticationPolicy.AllowBasicAuthActiveSync
-                AllowBasicAuthAutodiscover         = $AuthenticationPolicy.AllowBasicAuthAutodiscover
-                AllowBasicAuthImap                 = $AuthenticationPolicy.AllowBasicAuthImap
-                AllowBasicAuthMapi                 = $AuthenticationPolicy.AllowBasicAuthMapi
-                AllowBasicAuthOfflineAddressBook   = $AuthenticationPolicy.AllowBasicAuthOfflineAddressBook
-                AllowBasicAuthOutlookService       = $AuthenticationPolicy.AllowBasicAuthOutlookService
-                AllowBasicAuthPop                  = $AuthenticationPolicy.AllowBasicAuthPop
-                AllowBasicAuthPowerShell           = $AuthenticationPolicy.AllowBasicAuthPowerShell
-                AllowBasicAuthReportingWebServices = $AuthenticationPolicy.AllowBasicAuthReportingWebServices
-                AllowBasicAuthRpc                  = $AuthenticationPolicy.AllowBasicAuthRpc
-                AllowBasicAuthSmtp                 = $AuthenticationPolicy.AllowBasicAuthSmtp
-                AllowBasicAuthWebServices          = $AuthenticationPolicy.AllowBasicAuthWebServices
-                Ensure                             = 'Present'
-                Credential                         = $Credential
-                ApplicationId                      = $ApplicationId
-                CertificateThumbprint              = $CertificateThumbprint
-                CertificatePath                    = $CertificatePath
-                CertificatePassword                = $CertificatePassword
-                ManagedIdentity                    = $ManagedIdentity.IsPresent
-                TenantId                           = $TenantId
-                AccessTokens                       = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found Authentication Policy $($Identity)"
-            return $result
+        $result = @{
+            Identity                           = $AuthenticationPolicy.Identity
+            AllowBasicAuthActiveSync           = $AuthenticationPolicy.AllowBasicAuthActiveSync
+            AllowBasicAuthAutodiscover         = $AuthenticationPolicy.AllowBasicAuthAutodiscover
+            AllowBasicAuthImap                 = $AuthenticationPolicy.AllowBasicAuthImap
+            AllowBasicAuthMapi                 = $AuthenticationPolicy.AllowBasicAuthMapi
+            AllowBasicAuthOfflineAddressBook   = $AuthenticationPolicy.AllowBasicAuthOfflineAddressBook
+            AllowBasicAuthOutlookService       = $AuthenticationPolicy.AllowBasicAuthOutlookService
+            AllowBasicAuthPop                  = $AuthenticationPolicy.AllowBasicAuthPop
+            AllowBasicAuthPowerShell           = $AuthenticationPolicy.AllowBasicAuthPowerShell
+            AllowBasicAuthReportingWebServices = $AuthenticationPolicy.AllowBasicAuthReportingWebServices
+            AllowBasicAuthRpc                  = $AuthenticationPolicy.AllowBasicAuthRpc
+            AllowBasicAuthSmtp                 = $AuthenticationPolicy.AllowBasicAuthSmtp
+            AllowBasicAuthWebServices          = $AuthenticationPolicy.AllowBasicAuthWebServices
+            Ensure                             = 'Present'
+            Credential                         = $Credential
+            ApplicationId                      = $ApplicationId
+            CertificateThumbprint              = $CertificateThumbprint
+            CertificatePath                    = $CertificatePath
+            CertificatePassword                = $CertificatePassword
+            ManagedIdentity                    = $ManagedIdentity.IsPresent
+            TenantId                           = $TenantId
+            AccessTokens                       = $AccessTokens
         }
+
+        Write-Verbose -Message "Found Authentication Policy $($Identity)"
+        return $result
     }
     catch
     {

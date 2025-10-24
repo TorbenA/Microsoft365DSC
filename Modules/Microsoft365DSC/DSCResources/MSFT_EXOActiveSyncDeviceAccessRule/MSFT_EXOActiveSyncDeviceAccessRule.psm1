@@ -92,9 +92,7 @@ function Get-TargetResource
     $nullReturn.Ensure = 'Absent'
     try
     {
-        $AllActiveSyncDeviceAccessRules = Get-ActiveSyncDeviceAccessRule -ErrorAction Stop
-        $ActiveSyncDeviceAccessRule = $AllActiveSyncDeviceAccessRules | Where-Object -FilterScript { $_.Identity -eq "$QueryString ($Characteristic)" }
-
+        $ActiveSyncDeviceAccessRule = Get-ActiveSyncDeviceAccessRule -Identity "$QueryString ($Characteristic)" -ErrorAction SilentlyContinue
         if ($null -eq $ActiveSyncDeviceAccessRule)
         {
             Write-Verbose -Message 'Trying to retrieve instance by Identity'

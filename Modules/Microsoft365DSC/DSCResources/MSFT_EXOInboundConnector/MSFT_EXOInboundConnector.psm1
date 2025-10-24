@@ -145,54 +145,50 @@ function Get-TargetResource
 
     try
     {
-        $InboundConnectors = Get-InboundConnector -ErrorAction Stop
-
-        $InboundConnector = $InboundConnectors | Where-Object -FilterScript { $_.Identity -eq $Identity }
+        $InboundConnector = Get-InboundConnector -Identity $Identity -ErrorAction SilentlyContinue
         if ($null -eq $InboundConnector)
         {
             Write-Verbose -Message "InboundConnector $($Identity) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $ConnectorSourceValue = $InboundConnector.ConnectorSource
-            if ($ConnectorSourceValue -eq 'AdminUI')
-            {
-                $ConnectorSourceValue = 'Default'
-            }
-            $result = @{
-                Identity                     = $Identity
-                AssociatedAcceptedDomains    = $InboundConnector.AssociatedAcceptedDomains
-                CloudServicesMailEnabled     = $InboundConnector.CloudServicesMailEnabled
-                Comment                      = $InboundConnector.Comment
-                ConnectorSource              = $ConnectorSourceValue
-                ConnectorType                = $InboundConnector.ConnectorType
-                EFSkipIPs                    = $InboundConnector.EFSkipIPs
-                EFSkipLastIP                 = $InboundConnector.EFSkipLastIP
-                EFUsers                      = $InboundConnector.EFUsers
-                Enabled                      = $InboundConnector.Enabled
-                RequireTls                   = $InboundConnector.RequireTls
-                RestrictDomainsToCertificate = $InboundConnector.RestrictDomainsToCertificate
-                RestrictDomainsToIPAddresses = $InboundConnector.RestrictDomainsToIPAddresses
-                SenderDomains                = $InboundConnector.SenderDomains
-                SenderIPAddresses            = $InboundConnector.SenderIPAddresses
-                TlsSenderCertificateName     = $InboundConnector.TlsSenderCertificateName
-                TreatMessagesAsInternal      = $InboundConnector.TreatMessagesAsInternal
-                Credential                   = $Credential
-                Ensure                       = 'Present'
-                ApplicationId                = $ApplicationId
-                CertificateThumbprint        = $CertificateThumbprint
-                CertificatePath              = $CertificatePath
-                CertificatePassword          = $CertificatePassword
-                ManagedIdentity              = $ManagedIdentity.IsPresent
-                TenantId                     = $TenantId
-                AccessTokens                 = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found InboundConnector $($Identity)"
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
-            return $result
+        $ConnectorSourceValue = $InboundConnector.ConnectorSource
+        if ($ConnectorSourceValue -eq 'AdminUI')
+        {
+            $ConnectorSourceValue = 'Default'
         }
+        $result = @{
+            Identity                     = $Identity
+            AssociatedAcceptedDomains    = $InboundConnector.AssociatedAcceptedDomains
+            CloudServicesMailEnabled     = $InboundConnector.CloudServicesMailEnabled
+            Comment                      = $InboundConnector.Comment
+            ConnectorSource              = $ConnectorSourceValue
+            ConnectorType                = $InboundConnector.ConnectorType
+            EFSkipIPs                    = $InboundConnector.EFSkipIPs
+            EFSkipLastIP                 = $InboundConnector.EFSkipLastIP
+            EFUsers                      = $InboundConnector.EFUsers
+            Enabled                      = $InboundConnector.Enabled
+            RequireTls                   = $InboundConnector.RequireTls
+            RestrictDomainsToCertificate = $InboundConnector.RestrictDomainsToCertificate
+            RestrictDomainsToIPAddresses = $InboundConnector.RestrictDomainsToIPAddresses
+            SenderDomains                = $InboundConnector.SenderDomains
+            SenderIPAddresses            = $InboundConnector.SenderIPAddresses
+            TlsSenderCertificateName     = $InboundConnector.TlsSenderCertificateName
+            TreatMessagesAsInternal      = $InboundConnector.TreatMessagesAsInternal
+            Credential                   = $Credential
+            Ensure                       = 'Present'
+            ApplicationId                = $ApplicationId
+            CertificateThumbprint        = $CertificateThumbprint
+            CertificatePath              = $CertificatePath
+            CertificatePassword          = $CertificatePassword
+            ManagedIdentity              = $ManagedIdentity.IsPresent
+            TenantId                     = $TenantId
+            AccessTokens                 = $AccessTokens
+        }
+
+        Write-Verbose -Message "Found InboundConnector $($Identity)"
+        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
+        return $result
     }
     catch
     {
@@ -346,7 +342,7 @@ function Set-TargetResource
         $InboundConnectorParams.Remove('Identity') | Out-Null
         New-InboundConnector @InboundConnectorParams
     }
-    elseif (('Present' -eq $Ensure ) -and ($Null -ne $InboundConnector))
+    elseif (('Present' -eq $Ensure ) -and ($null -ne $InboundConnector))
     {
         Write-Verbose -Message "Setting InboundConnector $($Identity) with values: $(Convert-M365DscHashtableToString -Hashtable $InboundConnectorParams)"
         Set-InboundConnector @InboundConnectorParams -Confirm:$false

@@ -105,58 +105,47 @@ function Get-TargetResource
 
     try
     {
-        try
+        if (-not [System.String]::IsNullOrEmpty($ForestName))
         {
-            if (-not [System.String]::IsNullOrEmpty($ForestName))
-            {
-                $AvailabilityAddressSpace = Get-AvailabilityAddressSpace -Identity $ForestName -ErrorAction Stop
-            }
-        }
-        catch
-        {
-            New-M365DSCLogEntry -Message "Couldn't get AvailabilityAddressSpaces" `
-                -Exception $_ `
-                -Source $MyInvocation.MyCommand.ModuleName
+            $AvailabilityAddressSpace = Get-AvailabilityAddressSpace -Identity $ForestName -ErrorAction SilentlyContinue
         }
         if ($null -eq $AvailabilityAddressSpace)
         {
             Write-Verbose -Message "AvailabilityAddressSpace $($ForestName) does not exist."
             return $nullReturn
         }
+
+        if ($null -eq $AvailabilityAddressSpace.TargetAutodiscoverEpr -or $AvailabilityAddressSpace.TargetAutodiscoverEpr -eq '' )
+        {
+            $TargetAutodiscoverEpr = ''
+        }
         else
         {
-            if ($Null -eq $AvailabilityAddressSpace.TargetAutodiscoverEpr -or $AvailabilityAddressSpace.TargetAutodiscoverEpr -eq '' )
-            {
-                $TargetAutodiscoverEpr = ''
-            }
-            else
-            {
-                $TargetAutodiscoverEpr = $AvailabilityAddressSpace.TargetAutodiscoverEpr.tostring()
-            }
-
-            $result = @{
-                Identity              = $Identity
-                AccessMethod          = $AvailabilityAddressSpace.AccessMethod
-                Credentials           = $AvailabilityAddressSpace.Credentials
-                TargetServiceEpr      = $AvailabilityAddressSpace.TargetServiceEpr
-                TargetTenantId        = $AvailabilityAddressSpace.TargetTenantId
-                ForestName            = $AvailabilityAddressSpace.ForestName
-                TargetAutodiscoverEpr = $TargetAutodiscoverEpr
-                Credential            = $Credential
-                Ensure                = 'Present'
-                ApplicationId         = $ApplicationId
-                CertificateThumbprint = $CertificateThumbprint
-                CertificatePath       = $CertificatePath
-                CertificatePassword   = $CertificatePassword
-                ManagedIdentity       = $ManagedIdentity.IsPresent
-                TenantId              = $TenantId
-                AccessTokens          = $AccessTokens
-            }
-
-            Write-Verbose -Message "Found AvailabilityAddressSpace $($Identity)"
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
-            return $result
+            $TargetAutodiscoverEpr = $AvailabilityAddressSpace.TargetAutodiscoverEpr.ToString()
         }
+
+        $result = @{
+            Identity              = $Identity
+            AccessMethod          = $AvailabilityAddressSpace.AccessMethod
+            Credentials           = $AvailabilityAddressSpace.Credentials
+            TargetServiceEpr      = $AvailabilityAddressSpace.TargetServiceEpr
+            TargetTenantId        = $AvailabilityAddressSpace.TargetTenantId
+            ForestName            = $AvailabilityAddressSpace.ForestName
+            TargetAutodiscoverEpr = $TargetAutodiscoverEpr
+            Credential            = $Credential
+            Ensure                = 'Present'
+            ApplicationId         = $ApplicationId
+            CertificateThumbprint = $CertificateThumbprint
+            CertificatePath       = $CertificatePath
+            CertificatePassword   = $CertificatePassword
+            ManagedIdentity       = $ManagedIdentity.IsPresent
+            TenantId              = $TenantId
+            AccessTokens          = $AccessTokens
+        }
+
+        Write-Verbose -Message "Found AvailabilityAddressSpace $($Identity)"
+        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
+        return $result
     }
     catch
     {

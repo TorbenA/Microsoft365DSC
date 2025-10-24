@@ -96,33 +96,22 @@ function Get-TargetResource
     try
     {
         $ApplicationAccessPolicy = $null
-        try
-        {
-            [Array]$ApplicationAccessPolicy = Get-ApplicationAccessPolicy -Identity $Identity -ErrorAction Stop
-            Write-Verbose -Message "Found policy by Identity {$Identity}"
-        }
-        catch
-        {
-            Write-Verbose -Message "Could not find policy by Identity {$Identity}"
-        }
+        [Array]$ApplicationAccessPolicy = Get-ApplicationAccessPolicy -Identity $Identity -ErrorAction SilentlyContinue
 
         $ScopeIdentityValue = $null
         if ($null -eq $ApplicationAccessPolicy)
         {
             $scopeIdentityGroup = $null
-            try
-            {
-                $scopeIdentityGroup = Get-Group -Identity $PolicyScopeGroupId -ErrorAction Stop
-            }
-            catch
-            {
-                Write-Verbose -Message "Could not find Group with Identity {$PolicyScopeGroupId}"
-            }
+            $scopeIdentityGroup = Get-Group -Identity $PolicyScopeGroupId -ErrorAction SilentlyContinue
 
             if ($null -ne $scopeIdentityGroup)
             {
                 $ScopeIdentityValue = $scopeIdentityGroup.WindowsEmailAddress
                 $ApplicationAccessPolicy = Get-ApplicationAccessPolicy | Where-Object -FilterScript { $AppID -eq $_.AppId -and $_.ScopeIdentity -eq $scopeIdentityGroup }
+            }
+            else
+            {
+                Write-Verbose -Message "Could not find Group with Identity {$PolicyScopeGroupId}"
             }
 
             if ($null -ne $ApplicationAccessPolicy)
@@ -140,29 +129,27 @@ function Get-TargetResource
             Write-Verbose -Message "Application Access Policy $($Identity) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $ApplicationAccessPolicy = $ApplicationAccessPolicy[0]
-            $result = @{
-                Identity              = $ApplicationAccessPolicy.Identity
-                AccessRight           = $ApplicationAccessPolicy.AccessRight
-                AppID                 = $ApplicationAccessPolicy.AppID
-                PolicyScopeGroupId    = $ScopeIdentityValue
-                Description           = $ApplicationAccessPolicy.Description
-                Ensure                = 'Present'
-                Credential            = $Credential
-                ApplicationId         = $ApplicationId
-                CertificateThumbprint = $CertificateThumbprint
-                CertificatePath       = $CertificatePath
-                CertificatePassword   = $CertificatePassword
-                ManagedIdentity       = $ManagedIdentity.IsPresent
-                TenantId              = $TenantId
-                AccessTokens          = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found Application Access Policy {$($Identity)}"
-            return $result
+        $ApplicationAccessPolicy = $ApplicationAccessPolicy[0]
+        $result = @{
+            Identity              = $ApplicationAccessPolicy.Identity
+            AccessRight           = $ApplicationAccessPolicy.AccessRight
+            AppID                 = $ApplicationAccessPolicy.AppID
+            PolicyScopeGroupId    = $ScopeIdentityValue
+            Description           = $ApplicationAccessPolicy.Description
+            Ensure                = 'Present'
+            Credential            = $Credential
+            ApplicationId         = $ApplicationId
+            CertificateThumbprint = $CertificateThumbprint
+            CertificatePath       = $CertificatePath
+            CertificatePassword   = $CertificatePassword
+            ManagedIdentity       = $ManagedIdentity.IsPresent
+            TenantId              = $TenantId
+            AccessTokens          = $AccessTokens
         }
+
+        Write-Verbose -Message "Found Application Access Policy {$($Identity)}"
+        return $result
     }
     catch
     {

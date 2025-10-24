@@ -192,7 +192,7 @@ function Set-TargetResource
     $PerimeterConfigurationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $PerimeterConfigurationParams.Remove('IsSingleInstance') | Out-Null
 
-    if (('Present' -eq $Ensure ) -and ($Null -ne $PerimeterConfigurationParams))
+    if ('Present' -eq $Ensure -and $null -ne $PerimeterConfigurationParams)
     {
         Write-Verbose -Message "Setting Perimeter Configuration with values: $(Convert-M365DscHashtableToString -Hashtable $PerimeterConfigurationParams)"
         Set-PerimeterConfig @PerimeterConfigurationParams -Confirm:$false

@@ -222,7 +222,7 @@ function Get-TargetResource
         }
         else
         {
-            $mailboxCasSettings = Get-CASMailbox -Identity $Identity -ErrorAction Stop
+            $mailboxCasSettings = Get-CASMailbox -Identity $Identity -ErrorAction SilentlyContinue
         }
     }
     catch

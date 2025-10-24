@@ -94,37 +94,32 @@ function Get-TargetResource
     $nullReturn.Ensure = 'Absent'
     try
     {
-        $AllAddressBookPolicies = Get-AddressBookPolicy -ErrorAction Stop
-
-        $AddressBookPolicy = $AllAddressBookPolicies | Where-Object -FilterScript { $_.Name -eq $Name }
-
+        $AddressBookPolicy = Get-AddressBookPolicy -Identity $Name -ErrorAction SilentlyContinue
         if ($null -eq $AddressBookPolicy)
         {
             Write-Verbose -Message "Address Book Policy $($Name) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $result = @{
-                Name                  = $AddressBookPolicy.Name
-                AddressLists          = $AddressBookPolicy.AddressLists
-                GlobalAddressList     = $AddressBookPolicy.GlobalAddressList
-                OfflineAddressBook    = $AddressBookPolicy.OfflineAddressBook
-                RoomList              = $AddressBookPolicy.RoomList
-                Ensure                = 'Present'
-                Credential            = $Credential
-                ApplicationId         = $ApplicationId
-                CertificateThumbprint = $CertificateThumbprint
-                CertificatePath       = $CertificatePath
-                CertificatePassword   = $CertificatePassword
-                ManagedIdentity       = $ManagedIdentity.IsPresent
-                TenantId              = $TenantId
-                AccessTokens          = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found Address Book Policy $($Name)"
-            return $result
+        $result = @{
+            Name                  = $AddressBookPolicy.Name
+            AddressLists          = $AddressBookPolicy.AddressLists
+            GlobalAddressList     = $AddressBookPolicy.GlobalAddressList
+            OfflineAddressBook    = $AddressBookPolicy.OfflineAddressBook
+            RoomList              = $AddressBookPolicy.RoomList
+            Ensure                = 'Present'
+            Credential            = $Credential
+            ApplicationId         = $ApplicationId
+            CertificateThumbprint = $CertificateThumbprint
+            CertificatePath       = $CertificatePath
+            CertificatePassword   = $CertificatePassword
+            ManagedIdentity       = $ManagedIdentity.IsPresent
+            TenantId              = $TenantId
+            AccessTokens          = $AccessTokens
         }
+
+        Write-Verbose -Message "Found Address Book Policy $($Name)"
+        return $result
     }
     catch
     {
