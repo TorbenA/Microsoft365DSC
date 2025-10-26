@@ -251,6 +251,27 @@ function Set-TargetResource
     $boundParameters.Add('description', $Script:currentAlertRule.Description)
     $boundParameters.Add('displayName', $Script:currentAlertRule.DisplayName)
 
+    $requiresThreshold = $false
+    if ($AlertRuleTemplate -in @('cloudPcImageUploadScenario', 'cloudPcOnPremiseNetworkConnectionCheckScenario'))
+    {
+        $requiresThreshold = $true
+        $aggregation = 'count'
+    }
+    elseif ($AlertRuleTemplate -eq 'cloudPcFrontlineInsufficientLicensesScenario')
+    {
+        $requiresThreshold = $true
+        $aggregation = 'percentage'
+    }
+
+    if ($requiresThreshold)
+    {
+        $boundParameters.Add('threshold', @{
+            aggregation = $aggregation
+            operator = "greaterOrEqual"
+            target = 1
+        })
+    }
+
     $updateParameters = ([Hashtable]$boundParameters).Clone()
     $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
 
