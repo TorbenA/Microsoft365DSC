@@ -132,7 +132,7 @@ function Get-TargetResource
             #region resource generator code
             Description              = $getValue.Description
             DisplayName              = $getValue.DisplayName
-            IsIntuneManagedInstaller = $getValue.DetectionScriptParameters[0].name -eq 'Enabled'
+            IsIntuneManagedInstaller = $getValue.DetectionScriptParameters[0].AdditionalProperties.defaultValue -eq 'true'
             RoleScopeTagIds          = $getValue.RoleScopeTagIds
             Id                       = $getValue.Id
             Ensure                   = 'Present'
@@ -246,22 +246,69 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
-    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $BoundParameters.Remove('IsGlobalScript') | Out-Null
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $boundParameters.Remove('IsIntuneManagedInstaller') | Out-Null
+    $boundParameters.detectionScriptParameters = @(
+        @{
+            '@odata.type' = "#microsoft.graph.deviceHealthScriptStringParameter"
+            applyDefaultValueWhenNotAssigned = $true
+            defaultValue = if ($IsIntuneManagedInstaller) { "true" } else { "false" }
+            description = "Enable Intune Managed Extension as Managed Installer"
+            isRequired = $true
+            name = "Enabled"
+        }
+    )
+    $boundParameters.enforceSignatureCheck = $true
+    $boundParameters.detectionScriptContent = $null
+    $boundParameters.remediationScriptContent = $null
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating an Intune Managed Installer Policy for Windows10 with DisplayName {$DisplayName}"
-        $BoundParameters.Remove('Assignments') | Out-Null
+        $boundParameters.Remove('Assignments') | Out-Null
 
-        $CreateParameters = ([Hashtable]$BoundParameters).Clone()
-        $CreateParameters.Remove('Id') | Out-Null
+        $createParameters = ([Hashtable]$boundParameters).Clone()
+        $createParameters.Remove('Id') | Out-Null
+        if ($createParameters.ContainsKey('Description'))
+        {
+            $createParameters.description = $createParameters.Description
+            $createParameters.Remove('Description') | Out-Null
+        }
+        if ($createParameters.ContainsKey('DisplayName'))
+        {
+            $createParameters.displayName = $createParameters.DisplayName
+            $createParameters.Remove('DisplayName') | Out-Null
+        }
+        if ($createParameters.ContainsKey('RoleScopeTagIds'))
+        {
+            $createParameters.roleScopeTagIds = $createParameters.RoleScopeTagIds
+            $createParameters.Remove('RoleScopeTagIds') | Out-Null
+        }
+        $createParameters.deviceHealthScriptType = 'managedInstallerScript'
+        $createParameters.detectionScriptContent = "ZGV0ZWN0aW9uU2NyaXB0Q29udGVudA=="
+        $createParameters.remediationScriptContent = "cmVtZWRpYXRpb25TY3JpcHRDb250ZW50"
+        $createParameters.isGlobalScript = $false
+        $createParameters.'@odata.type' = "#microsoft.graph.deviceHealthScript"
 
         #region resource generator code
-        $policy = New-MgBetaDeviceManagementDeviceHealthScript -BodyParameter $CreateParameters
+        $policy = Invoke-MgGraphRequest -Uri "/beta/deviceManagement/deviceHealthScripts" `
+            -Method POST `
+            -Body $($createParameters | ConvertTo-Json -Depth 10) `
+            -SkipHttpErrorCheck
 
-        if ($policy.Id)
+        if ($policy.error)
+        {
+            Write-Warning -Message "Received error while creating Intune Managed Installer Policy for Windows10: $($policy.error.message)"
+            Write-Verbose -Message "Check if policy was created despite the error."
+            $policy = Get-MgBetaDeviceManagementDeviceHealthScript -Filter "displayName eq '$DisplayName' and deviceHealthScriptType eq 'managedInstallerScript'" -ErrorAction SilentlyContinue
+
+            if ($null -eq $policy)
+            {
+                throw "Failed to create Intune Managed Installer Policy for Windows10 with DisplayName {$DisplayName}. Error: $($policy.error.message)"
+            }
+        }
+
+        if ($policy.id)
         {
             $assignmentsHash = @()
             foreach ($assignment in $Assignments)
@@ -273,7 +320,7 @@ function Set-TargetResource
                 }
             }
             Update-DeviceConfigurationPolicyAssignment `
-                -DeviceConfigurationPolicyId $currentInstance.Id `
+                -DeviceConfigurationPolicyId $policy.id `
                 -Targets $assignmentsHash `
                 -Repository 'deviceManagement/deviceHealthScripts' `
                 -RootIdentifier 'deviceHealthScriptAssignments'
@@ -283,15 +330,14 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Intune Managed Installer Policy for Windows10 with Id {$($currentInstance.Id)}"
-        $BoundParameters.Remove('Assignments') | Out-Null
+        $boundParameters.Remove('Assignments') | Out-Null
 
-        $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
-        $UpdateParameters.Remove('Id') | Out-Null
+        $updateParameters = ([Hashtable]$boundParameters).Clone()
 
         #region resource generator code
         Update-MgBetaDeviceManagementDeviceHealthScript  `
             -DeviceHealthScriptId $currentInstance.Id `
-            -BodyParameter $UpdateParameters
+            -BodyParameter $updateParameters
 
         $assignmentsHash = @()
         foreach ($assignment in $Assignments)

@@ -1336,6 +1336,7 @@ function Test-M365DSCTargetResource
             $target = $CurrentValues.$key
             if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
             {
+                Write-Verbose -Message "Comparing complex object property $key of resource $ResourceName"
                 $CIMProperty = $resourceDefinition.Parameters | Where-Object -FilterScript { $_.Name -eq $key }
                 $CIMName = $CIMProperty.CIMType.Replace('[]', '')
                 $CIMDefinition = $Script:M365DSCSchema | Where-Object -FilterScript { $_.ClassName -eq $CIMName }

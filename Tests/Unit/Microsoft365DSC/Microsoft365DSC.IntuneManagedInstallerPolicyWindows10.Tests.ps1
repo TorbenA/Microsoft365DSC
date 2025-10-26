@@ -39,9 +39,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-PSSession -MockWith {
             }
 
-            Mock -CommandName New-MgBetaDeviceManagementDeviceHealthScript -MockWith {
+            Mock -CommandName Remove-PSSession -MockWith {
+            }
+
+            Mock -CommandName Invoke-MgGraphRequest -MockWith {
                 return @{
-                    Id = '619bd4a4-3b3b-4441-bd6f-3f4c0c444870'
+                    error = "Forbidden"
                 }
             }
 
@@ -51,14 +54,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Update-MgBetaDeviceManagementDeviceHealthScript -MockWith {
             }
 
-            Mock -CommandName Get-MgBetaDeviceManagementDeviceHealthScript -MockWith {
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceHealthScript -ParameterFilter { $null -ne $DeviceHealthScriptId -or $null -ne $Filter  } -MockWith {
                 return @{
                     Description = "FakeStringValue"
                     DetectionScriptContent = $null
                     DetectionScriptParameters = @(
                         @{
-                            '@odata.type' = "#microsoft.graph.deviceHealthScriptStringParameter"
-                            DefaultValue = $True
+                            AdditionalProperties = @{
+                                '@odata.type' = "#microsoft.graph.deviceHealthScriptStringParameter"
+                                DefaultValue = $True
+                            }
                             IsRequired = $True
                             Description = "Enable Managed Installer"
                             Name = "Enabled"
@@ -129,7 +134,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Credential = $Credential;
                 }
 
-                Mock -CommandName Get-MgBetaDeviceManagementDeviceHealthScript -MockWith {
+                Mock -CommandName Get-MgBetaDeviceManagementDeviceHealthScript -ParameterFilter { $DeviceHealthScriptId -eq 'FakeStringValue' } -MockWith {
                     return $null
                 }
             }
@@ -141,7 +146,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
             It 'Should Create the group from the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName New-MgBetaDeviceManagementDeviceHealthScript -Exactly 1
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1
             }
         }
 
