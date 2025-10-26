@@ -3,4 +3,4 @@
 
 ## Description
 
-Intune Firewall Policy Setting
+Intune Device Control Policy Setting
