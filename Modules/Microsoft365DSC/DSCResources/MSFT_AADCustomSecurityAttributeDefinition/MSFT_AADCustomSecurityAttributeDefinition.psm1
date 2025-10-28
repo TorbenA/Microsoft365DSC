@@ -15,6 +15,10 @@ function Get-TargetResource
         $AttributeSet,
 
         [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $AllowedValues,
+
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -104,11 +108,13 @@ function Get-TargetResource
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
                 $instance = Get-MgBetaDirectoryCustomSecurityAttributeDefinition -CustomSecurityAttributeDefinitionId $Id `
+                    -ExpandProperty 'allowedValues' `
                     -ErrorAction SilentlyContinue
             }
             if ($null -eq $instance)
             {
                 $instance = Get-MgBetaDirectoryCustomSecurityAttributeDefinition -Filter "Name eq '$($Name -replace "'", "''")'" `
+                    -ExpandProperty 'allowedValues' `
                     -ErrorAction SilentlyContinue
             }
             if ($null -eq $instance)
@@ -123,6 +129,7 @@ function Get-TargetResource
 
         $results = @{
             Name                    = $instance.Name
+            AllowedValues           = $instance.AllowedValues
             AttributeSet            = $instance.AttributeSet
             Id                      = $instance.Id
             Description             = $instance.Description
@@ -167,6 +174,10 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $AttributeSet,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $AllowedValues,
 
         [Parameter()]
         [System.String]
@@ -290,6 +301,10 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $AttributeSet,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $AllowedValues,
 
         [Parameter()]
         [System.String]
@@ -420,7 +435,9 @@ function Export-TargetResource
 
     try
     {
-        [array] $Script:exportedInstances = Get-MgBetaDirectoryCustomSecurityAttributeDefinition -ErrorAction Stop
+        [array] $Script:exportedInstances = Get-MgBetaDirectoryCustomSecurityAttributeDefinition `
+            -ExpandProperty 'allowedValues' `
+            -ErrorAction Stop
 
         $i = 1
         $dscContent = ''
@@ -456,12 +473,28 @@ function Export-TargetResource
 
             $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
+            if ($null -ne $Results.AllowedValues)
+            {
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.AllowedValues `
+                    -CIMInstanceName 'CustomSecurityAttributeAllowedValue'
+
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                {
+                    $Results.AllowedValues = $complexTypeStringResult
+                }
+                else
+                {
+                    $Results.Remove('AllowedValues') | Out-Null
+                }
+            }
 
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
                 -ModulePath $PSScriptRoot `
                 -Results $Results `
-                -Credential $Credential
+                -Credential $Credential `
+                -NoEscape @('AllowedValues')
             $dscContent += $currentDSCBlock
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName

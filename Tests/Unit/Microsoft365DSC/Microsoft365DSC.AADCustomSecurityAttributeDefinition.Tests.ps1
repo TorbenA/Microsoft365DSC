@@ -43,6 +43,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDirectoryCustomSecurityAttributeDefinition -MockWith {
                 return @{
+                    AllowedValues           = @(
+                        @{
+                            Id = "Test"
+                            IsActive = $True
+                        }
+                    )
                     AttributeSet            = 'ContosoSet'
                     IsCollection            = $false
                     IsSearchable            = $true
@@ -65,6 +71,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The instance should exist but it DOES NOT" -Fixture {
             BeforeAll {
                 $testParams = @{
+                    AllowedValues           = [CimInstance[]]@(
+                        New-CimInstance -ClassName 'MSFT_CustomSecurityAttributeAllowedValue' -Property @{
+                            Id = "Test"
+                            IsActive = $True
+                        } -ClientOnly
+                    )
                     ApplicationId           = $ApplicationId;
                     AttributeSet            = "ContosoSet";
                     CertificateThumbprint   = $CertificateThumbprint;
@@ -102,6 +114,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     ApplicationId           = $ApplicationId;
+                    AllowedValues           = [CimInstance[]]@(
+                        New-CimInstance -ClassName 'MSFT_CustomSecurityAttributeAllowedValue' -Property @{
+                            Id = "Test"
+                            IsActive = $True
+                        } -ClientOnly
+                    )
                     AttributeSet            = "ContosoSet";
                     CertificateThumbprint   = $CertificateThumbprint;
                     Ensure                  = "Absent";
@@ -133,6 +151,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     ApplicationId           = $ApplicationId;
+                    AllowedValues           = [CimInstance[]]@(
+                        New-CimInstance -ClassName 'MSFT_CustomSecurityAttributeAllowedValue' -Property @{
+                            Id = "Test"
+                            IsActive = $True
+                        } -ClientOnly
+                    )
                     AttributeSet            = "ContosoSet";
                     CertificateThumbprint   = $CertificateThumbprint;
                     Ensure                  = "Present";
@@ -157,6 +181,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     ApplicationId           = $ApplicationId;
+                    AllowedValues           = [CimInstance[]]@(
+                        New-CimInstance -ClassName 'MSFT_CustomSecurityAttributeAllowedValue' -Property @{
+                            Id = "Test"
+                            IsActive = $True
+                        } -ClientOnly
+                    )
                     AttributeSet            = "ContosoSet";
                     CertificateThumbprint   = $CertificateThumbprint;
                     Ensure                  = "Absent";
