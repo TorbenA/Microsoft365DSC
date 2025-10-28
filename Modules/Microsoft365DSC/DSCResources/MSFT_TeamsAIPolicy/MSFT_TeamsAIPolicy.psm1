@@ -95,7 +95,7 @@ function Get-TargetResource
             return $nullResult
         }
 
-        Write-Verbose -Message "Found an instance with Identity {$Identity}"
+        Write-Verbose -Message "A Teams AI Policy with Identity {$Identity} was found"
         $results = @{
             Identity                  = $instance.Identity
             Description               = $instance.Description
@@ -297,6 +297,10 @@ function Export-TargetResource
     param
     (
         [Parameter()]
+        [System.String]
+        $Filter = "*",
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -342,7 +346,7 @@ function Export-TargetResource
 
     try
     {
-        [array]$getValue = Get-CsTeamsAIPolicy -ErrorAction Stop
+        [array]$getValue = Get-CsTeamsAIPolicy -Filter $Filter -ErrorAction Stop
 
         $i = 1
         $dscContent = ''
