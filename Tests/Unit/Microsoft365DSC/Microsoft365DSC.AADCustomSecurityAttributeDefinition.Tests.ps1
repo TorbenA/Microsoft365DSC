@@ -36,6 +36,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
 
             Mock -CommandName New-MgBetaDirectoryCustomSecurityAttributeDefinition -MockWith{
+                return @{
+                    Id = "ContosoSet_ShoeSize"
+                }
             }
 
             Mock -CommandName Update-MgBetaDirectoryCustomSecurityAttributeDefinition -MockWith{
@@ -61,6 +64,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
             }
 
+            Mock -CommandName New-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue {
+            }
+
+            Mock -CommandName Update-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue {
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -73,7 +82,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     AllowedValues           = [CimInstance[]]@(
                         New-CimInstance -ClassName 'MSFT_CustomSecurityAttributeAllowedValue' -Property @{
-                            Id = "Test"
+                            ValueId  = "Test"
                             IsActive = $True
                         } -ClientOnly
                     )
@@ -116,7 +125,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     ApplicationId           = $ApplicationId;
                     AllowedValues           = [CimInstance[]]@(
                         New-CimInstance -ClassName 'MSFT_CustomSecurityAttributeAllowedValue' -Property @{
-                            Id = "Test"
+                            ValueId  = "Test"
                             IsActive = $True
                         } -ClientOnly
                     )
@@ -153,7 +162,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     ApplicationId           = $ApplicationId;
                     AllowedValues           = [CimInstance[]]@(
                         New-CimInstance -ClassName 'MSFT_CustomSecurityAttributeAllowedValue' -Property @{
-                            Id = "Test"
+                            ValueId  = "Test"
                             IsActive = $True
                         } -ClientOnly
                     )
@@ -183,7 +192,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     ApplicationId           = $ApplicationId;
                     AllowedValues           = [CimInstance[]]@(
                         New-CimInstance -ClassName 'MSFT_CustomSecurityAttributeAllowedValue' -Property @{
-                            Id = "Test"
+                            ValueId  = "Test"
                             IsActive = $True
                         } -ClientOnly
                     )
