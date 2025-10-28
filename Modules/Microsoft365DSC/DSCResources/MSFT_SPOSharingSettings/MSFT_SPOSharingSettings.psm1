@@ -22,27 +22,27 @@ function Get-TargetResource
         $MySiteSharingCapability,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowEveryoneClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowAllUsersClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowEveryoneExceptExternalUsersClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ProvisionSharedWithEveryoneFolder,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $EnableGuestSignInAcceleration,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $BccExternalSharingInvitations,
 
         [Parameter()]
@@ -76,15 +76,15 @@ function Get-TargetResource
         $DefaultSharingLinkType,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $PreventExternalUsersFromResharing,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ExternalUserExpirationRequired,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowPeoplePickerSuggestionsForGuestUsers,
 
         [Parameter()]
@@ -98,7 +98,7 @@ function Get-TargetResource
         $FolderAnonymousLinkType,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $NotifyOwnersWhenItemsReshared,
 
         [Parameter()]
@@ -281,27 +281,27 @@ function Set-TargetResource
         $MySiteSharingCapability,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowEveryoneClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowAllUsersClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowEveryoneExceptExternalUsersClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ProvisionSharedWithEveryoneFolder,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $EnableGuestSignInAcceleration,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $BccExternalSharingInvitations,
 
         [Parameter()]
@@ -335,15 +335,15 @@ function Set-TargetResource
         $DefaultSharingLinkType,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $PreventExternalUsersFromResharing,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ExternalUserExpirationRequired,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowPeoplePickerSuggestionsForGuestUsers,
 
         [Parameter()]
@@ -357,7 +357,7 @@ function Set-TargetResource
         $FolderAnonymousLinkType,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $NotifyOwnersWhenItemsReshared,
 
         [Parameter()]
@@ -529,27 +529,27 @@ function Test-TargetResource
         $MySiteSharingCapability,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowEveryoneClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowAllUsersClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowEveryoneExceptExternalUsersClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ProvisionSharedWithEveryoneFolder,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $EnableGuestSignInAcceleration,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $BccExternalSharingInvitations,
 
         [Parameter()]
@@ -583,15 +583,15 @@ function Test-TargetResource
         $DefaultSharingLinkType,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $PreventExternalUsersFromResharing,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ExternalUserExpirationRequired,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowPeoplePickerSuggestionsForGuestUsers,
 
         [Parameter()]
@@ -605,7 +605,7 @@ function Test-TargetResource
         $FolderAnonymousLinkType,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $NotifyOwnersWhenItemsReshared,
 
         [Parameter()]
