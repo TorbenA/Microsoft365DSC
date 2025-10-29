@@ -13,6 +13,9 @@
         "read": [
           {
             "name": "Application.Read.All"
+          },
+          {
+            "name": "Policy.Read.All"
           }
         ],
         "update": [
@@ -28,6 +31,9 @@
         "read": [
           {
             "name": "Application.Read.All"
+          },
+          {
+            "name": "Policy.Read.All"
           }
         ],
         "update": [
@@ -86,6 +92,14 @@
       "cmdlets": [
         "Get-MgBetaDirectoryDeletedItemAsApplication",
         "Restore-MgBetaDirectoryDeletedItem"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.Identity.SignIns",
+      "cmdlets": [
+        "Get-MgBetaPolicyTokenLifetimePolicy",
+        "New-MgApplicationTokenLifetimePolicyByRef",
+        "Remove-MgApplicationTokenLifetimePolicyByRef"
       ]
     },
     {
