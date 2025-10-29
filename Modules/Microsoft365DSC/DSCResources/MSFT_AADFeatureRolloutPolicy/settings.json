@@ -44,7 +44,9 @@
       "cmdlets": [
         "Get-MgBetaPolicyFeatureRolloutPolicy",
         "New-MgBetaPolicyFeatureRolloutPolicy",
+        "New-MgBetaPolicyFeatureRolloutPolicyApplyToByRef",
         "Remove-MgBetaPolicyFeatureRolloutPolicy",
+        "Remove-MgBetaPolicyFeatureRolloutPolicyApplyToByRef",
         "Update-MgBetaPolicyFeatureRolloutPolicy"
       ]
     }

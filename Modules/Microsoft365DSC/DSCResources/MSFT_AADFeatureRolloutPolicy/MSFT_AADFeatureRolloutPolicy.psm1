@@ -8,6 +8,10 @@ function Get-TargetResource
     (
         #region resource generator code
         [Parameter()]
+        [System.String[]]
+        $AppliesTo,
+
+        [Parameter()]
         [System.String]
         $Description,
 
@@ -94,7 +98,10 @@ function Get-TargetResource
             #region resource generator code
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaPolicyFeatureRolloutPolicy -FeatureRolloutPolicyId $Id -ErrorAction SilentlyContinue
+                $getValue = Get-MgBetaPolicyFeatureRolloutPolicy `
+                    -FeatureRolloutPolicyId $Id `
+                    -ExpandProperty 'AppliesTo' `
+                    -ErrorAction SilentlyContinue
             }
             if ($null -eq $getValue)
             {
@@ -104,6 +111,7 @@ function Get-TargetResource
                 {
                     $getValue = Get-MgBetaPolicyFeatureRolloutPolicy `
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
+                        -ExpandProperty 'AppliesTo' `
                         -ErrorAction SilentlyContinue
                 }
             }
@@ -130,8 +138,21 @@ function Get-TargetResource
         }
         #endregion
 
+        $batchRequests = @()
+        foreach ($group in $getValue.AppliesTo)
+        {
+            $batchRequests += @{
+                id     = $group.Id
+                method = 'GET'
+                url    = "/groups/$($group.Id)?`$select=id,displayName"
+            }
+        }
+        $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
+        $groupDisplayNames = @($batchResponses.body.displayName | Sort-Object)
+
         $results = @{
             #region resource generator code
+            AppliesTo               = $groupDisplayNames
             Description             = $getValue.Description
             DisplayName             = $getValue.DisplayName
             Feature                 = $enumFeature
@@ -168,6 +189,10 @@ function Set-TargetResource
     param
     (
         #region resource generator code
+        [Parameter()]
+        [System.String[]]
+        $AppliesTo,
+
         [Parameter()]
         [System.String]
         $Description,
@@ -241,9 +266,55 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
+    if ($PSBoundParameters.ContainsKey('AppliesTo'))
+    {
+        $BoundParameters.Remove('AppliesTo') | Out-Null
+        $delta = Compare-Object -ReferenceObject $AppliesTo -DifferenceObject $currentInstance.AppliesTo
+        $groupsToRemove = $delta | Where-Object { $_.SideIndicator -eq '<=' }
+        $groupsToAdd = $delta | Where-Object { $_.SideIndicator -eq '=>' }
+
+        $batchRequestsToRemove = @()
+        foreach ($groupDisplayName in $groupsToRemove)
+        {
+            $batchRequestsToRemove += @{
+                id     = $groupDisplayName
+                method = 'GET'
+                url    = "/groups?`$filter=displayName eq '$($groupDisplayName -replace "'", "''")'&`$select=id"
+            }
+        }
+        $batchResponsesToRemove = Invoke-M365DSCGraphBatchRequest -Requests $batchRequestsToRemove
+        $groupIdsToRemove = $batchResponsesToRemove.body.value.id
+        foreach ($groupToRemove in $groupIdsToRemove)
+        {
+            Write-Verbose -Message "Removing Group with Id [$groupToRemove] from AAD Feature Rollout Policy [$DisplayName]"
+            Remove-MgBetaPolicyFeatureRolloutPolicyApplyToByRef `
+                -FeatureRolloutPolicyId $currentInstance.Id `
+                -DirectoryObjectId $groupToRemove
+        }
+
+        $batchRequestsToAdd = @()
+        foreach ($groupDisplayName in $groupsToAdd)
+        {
+            $batchRequestsToAdd += @{
+                id     = $groupDisplayName
+                method = 'GET'
+                url    = "/groups?`$filter=displayName eq '$($groupDisplayName -replace "'", "''")'&`$select=id"
+            }
+        }
+        $batchResponsesToAdd = Invoke-M365DSCGraphBatchRequest -Requests $batchRequestsToAdd
+        $groupIdsToAdd = $batchResponsesToAdd.body.value.id
+        foreach ($groupToAdd in $groupIdsToAdd)
+        {
+            Write-Verbose -Message "Adding Group with Id [$groupToAdd] to AAD Feature Rollout Policy [$DisplayName]"
+            New-MgBetaPolicyFeatureRolloutPolicyApplyToByRef `
+                -FeatureRolloutPolicyId $currentInstance.Id `
+                -BodyParameter @{
+                    '@odata.id' = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "v1.0/directoryObjects/$groupToAdd"
+                }
+        }
+    }
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -261,7 +332,6 @@ function Set-TargetResource
         Write-Verbose -Message "Updating the Azure AD Policy Feature Rollout Policy with Id {$($currentInstance.Id)}"
 
         $updateParameters = ([Hashtable]$BoundParameters).Clone()
-
         $updateParameters.Remove('Id') | Out-Null
         $updateParameters.Remove('Feature') | Out-Null
 
@@ -287,6 +357,10 @@ function Test-TargetResource
     param
     (
         #region resource generator code
+        [Parameter()]
+        [System.String[]]
+        $AppliesTo,
+
         [Parameter()]
         [System.String]
         $Description,
@@ -421,6 +495,7 @@ function Export-TargetResource
         #region resource generator code
         [array]$getValue = Get-MgBetaPolicyFeatureRolloutPolicy `
             -Filter $Filter `
+            -ExpandProperty 'AppliesTo' `
             -All `
             -ErrorAction Stop
         #endregion
