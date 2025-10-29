@@ -10,6 +10,9 @@
       "delegated": {
         "read": [
           {
+            "name": "Directory.Read.All"
+          },
+          {
             "name": "Group.Read.All"
           },
           {
@@ -17,6 +20,9 @@
           }
         ],
         "update": [
+          {
+            "name": "Directory.ReadWrite.All"
+          },
           {
             "name": "Group.ReadWrite.All"
           },
@@ -37,6 +43,9 @@
       "application": {
         "read": [
           {
+            "name": "Directory.Read.All"
+          },
+          {
             "name": "Group.Read.All"
           },
           {
@@ -44,6 +53,9 @@
           }
         ],
         "update": [
+          {
+            "name": "Directory.ReadWrite.All"
+          },
           {
             "name": "Group.ReadWrite.All"
           },
@@ -90,7 +102,10 @@
     {
       "module": "Microsoft.Graph.Beta.Groups",
       "cmdlets": [
+        "Add-MgBetaGroupToLifecyclePolicy",
+        "Get-MgBetaGroupLifecyclePolicy",
         "New-MgBetaGroupMemberByRef",
+        "Remove-MgBetaGroupFromLifecyclePolicy",
         "Remove-MgBetaGroupMemberDirectoryObjectByRef"
       ]
     },
