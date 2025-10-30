@@ -110,7 +110,7 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
-        $TokenLifetimePolicies,
+        $TokenLifetimePolicy,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -430,7 +430,7 @@ function Get-TargetResource
             $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
 
             $oppInfo = ($batchResponses | Where-Object -FilterScript { $_.id -eq 'onPremisesPublishing' }).body.value
-            $lifetimePolicies = ($batchResponses | Where-Object -FilterScript { $_.id -eq 'tokenLifetimePolicies' }).body.value
+            $lifetimePolicy = ($batchResponses | Where-Object -FilterScript { $_.id -eq 'tokenLifetimePolicies' }).body.value | Select-Object -First 1
         }
         catch
         {
@@ -535,7 +535,7 @@ function Get-TargetResource
             OnPremisesPublishing     = $onPremisesPublishingValue
             ApplicationTemplateId    = $AADApp.AdditionalProperties.applicationTemplateId
             Spa                      = $SpaValue
-            TokenLifetimePolicies    = [System.String[]]$lifetimePolicies.displayName
+            TokenLifetimePolicy      = $lifetimePolicy.displayName
             PublicClientRedirectUris = $PublicClientRedirectUrisValue
             SignInAudience           = $AADApp.SignInAudience
             Ensure                   = 'Present'
@@ -677,7 +677,7 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
-        $TokenLifetimePolicies,
+        $TokenLifetimePolicy,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -983,6 +983,7 @@ function Set-TargetResource
     {
         $currentParameters.Remove('ObjectId') | Out-Null
         $currentParameters.Remove('ApplicationTemplateId') | Out-Null
+        $currentParameters.Remove('TokenLifetimePolicy') | Out-Null
         Write-Verbose -Message "Creating New AzureAD Application {$DisplayName} with values:`r`n$($currentParameters | Out-String)"
 
         Write-Verbose -Message "Parameters with API: $(ConvertTo-Json $currentParameters -Depth 10)"
@@ -1017,6 +1018,7 @@ function Set-TargetResource
 
         $currentParameters.Add('ApplicationId', $currentAADApp.ObjectId)
         $currentParameters.Remove('AppRoles') | Out-Null
+        $currentParameters.Remove('TokenLifetimePolicy') | Out-Null
 
         Write-Verbose -Message "Updating existing AzureAD Application {$DisplayName} with values:`r`n$($currentParameters | Out-String)"
         Update-MgApplication @currentParameters
@@ -1352,26 +1354,43 @@ function Set-TargetResource
     }
     #endregion
 
-    if ($PSBoundParameters.ContainsKey('TokenLifetimePolicies'))
+    if ($PSBoundParameters.ContainsKey('TokenLifetimePolicy'))
     {
-        $allComparisons = Compare-Object -ReferenceObject $currentAADApp.TokenLifetimePolicies -DifferenceObject $TokenLifetimePolicies
-        $policiesToRemove = $allComparisons | Where-Object -FilterScript { $_.SideIndicator -eq '<=' } | ForEach-Object { $_.InputObject }
-        $policiesToAdd = $allComparisons | Where-Object -FilterScript { $_.SideIndicator -eq '=>' } | ForEach-Object { $_.InputObject }
-
-        $allTokenLifetimePolicies = Get-MgBetaPolicyTokenLifetimePolicy
-        foreach ($policyToRemove in $policiesToRemove)
+        if (-not [System.String]::IsNullOrEmpty($currentAADApp.TokenLifetimePolicy) -and -not [System.String]::IsNullOrEmpty($TokenLifetimePolicy) -and $TokenLifetimePolicy -ne $currentAADApp.TokenLifetimePolicy)
         {
-            Write-Verbose -Message "Removing Token Lifetime Policy with DisplayName [$policyToRemove] from Application [$($currentAADApp.DisplayName)]"
-            $tokenLifetimePolicy = $allTokenLifetimePolicies | Where-Object { $_.DisplayName -eq $policyToRemove }
-            Remove-MgApplicationTokenLifetimePolicyByRef -ApplicationId $currentAADApp.Id -TokenLifetimePolicyId $tokenLifetimePolicy.Id
+            $policyToRemove = $currentAADApp.TokenLifetimePolicy
+            $policyToAdd = $TokenLifetimePolicy
+        }
+        elseif ([System.String]::IsNullOrEmpty($currentAADApp.TokenLifetimePolicy) -and -not [System.String]::IsNullOrEmpty($TokenLifetimePolicy))
+        {
+            $policyToRemove = $null
+            $policyToAdd = $TokenLifetimePolicy
+        }
+        elseif (-not [System.String]::IsNullOrEmpty($currentAADApp.TokenLifetimePolicy) -and [System.String]::IsNullOrEmpty($TokenLifetimePolicy))
+        {
+            $policyToRemove = $currentAADApp.TokenLifetimePolicy
+            $policyToAdd = $null
+        }
+        else
+        {
+            $policyToRemove = $null
+            $policyToAdd = $null
         }
 
-        foreach ($policyToAdd in $policiesToAdd)
+        $allTokenLifetimePolicies = Get-MgBetaPolicyTokenLifetimePolicy
+        if ($null -ne $policyToRemove)
+        {
+            Write-Verbose -Message "Removing Token Lifetime Policy with DisplayName [$policyToRemove] from Application [$($currentAADApp.DisplayName)]"
+            $policy = $allTokenLifetimePolicies | Where-Object { $_.DisplayName -eq $policyToRemove }
+            Remove-MgApplicationTokenLifetimePolicyByRef -ApplicationId $currentAADApp.Id -TokenLifetimePolicyId $policy.Id
+        }
+
+        if ($null -ne $policyToAdd)
         {
             Write-Verbose -Message "Adding Token Lifetime Policy with DisplayName [$policyToAdd] to Application [$($currentAADApp.DisplayName)]"
-            $tokenLifetimePolicy = $allTokenLifetimePolicies | Where-Object { $_.DisplayName -eq $policyToAdd }
+            $policy = $allTokenLifetimePolicies | Where-Object { $_.DisplayName -eq $policyToAdd }
             New-MgApplicationTokenLifetimePolicyByRef -ApplicationId $currentAADApp.Id -BodyParameter @{
-                '@odata.id' = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "v1.0/policies/tokenLifetimePolicies/$($tokenLifetimePolicy.Id)"
+                '@odata.id' = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "v1.0/policies/tokenLifetimePolicies/$($policy.Id)"
             }
         }
     }
@@ -1486,7 +1505,7 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
-        $TokenLifetimePolicies,
+        $TokenLifetimePolicy,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
