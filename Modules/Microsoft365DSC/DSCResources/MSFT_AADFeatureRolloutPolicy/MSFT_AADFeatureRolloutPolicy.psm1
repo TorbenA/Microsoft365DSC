@@ -35,7 +35,6 @@ function Get-TargetResource
         [Parameter()]
         [System.String]
         $Id,
-
         #endregion
 
         [Parameter()]
@@ -272,11 +271,11 @@ function Set-TargetResource
     {
         $BoundParameters.Remove('AppliesTo') | Out-Null
         $delta = Compare-Object -ReferenceObject $AppliesTo -DifferenceObject $currentInstance.AppliesTo
-        $groupsToRemove = $delta | Where-Object { $_.SideIndicator -eq '<=' }
-        $groupsToAdd = $delta | Where-Object { $_.SideIndicator -eq '=>' }
+        $groupsToRemove = $delta | Where-Object { $_.SideIndicator -eq '=>' }
+        $groupsToAdd = $delta | Where-Object { $_.SideIndicator -eq '<=' }
 
         $batchRequestsToRemove = @()
-        foreach ($groupDisplayName in $groupsToRemove)
+        foreach ($groupDisplayName in $groupsToRemove.InputObject)
         {
             $batchRequestsToRemove += @{
                 id     = $groupDisplayName
@@ -295,7 +294,7 @@ function Set-TargetResource
         }
 
         $batchRequestsToAdd = @()
-        foreach ($groupDisplayName in $groupsToAdd)
+        foreach ($groupDisplayName in $groupsToAdd.InputObject)
         {
             $batchRequestsToAdd += @{
                 id     = $groupDisplayName
