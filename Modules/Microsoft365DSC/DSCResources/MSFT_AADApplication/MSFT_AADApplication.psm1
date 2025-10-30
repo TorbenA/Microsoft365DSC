@@ -1957,9 +1957,7 @@ function Get-M365DSCAzureADAppPermissions
                     url    = "/servicePrincipals/$($appServicePrincipal.Id)/appRoleAssignments"
                 }
             )
-            $batchResponses = (Invoke-MgGraphRequest -Method POST `
-                -Uri 'beta/$batch' `
-                -Body (ConvertTo-Json @{ requests = $batchRequests } -Depth 10)).responses
+            $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
             $oAuth2grant = ($batchResponses | Where-Object -FilterScript { $_.id -eq 'oAuth2grant' }).body.value
             $roleAssignments = ($batchResponses | Where-Object -FilterScript { $_.id -eq 'roleAssignments' }).body.value
         }
