@@ -21,6 +21,8 @@
     `IsSharePointNewsfeedEnabled`, `IsSiteCreationEnabled`, `IsSiteCreationUiEnabled`,
     `IsSitePagesCreationEnabled`, `NoAccessRedirectUrl`, `RequireAcceptingAccountMatchInvitedAccount`,
     `SpecialCharactersStateInFileFolderNames`.
+* TeamsAIPolicy
+  * Initial release.
 * TeamsMeetingPolicy
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
