@@ -279,8 +279,14 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
+    $excludedProperties = @()
+    if ($Ensure -eq 'Absent')
+    {
+        $excludedProperties += 'OnlinePstnUsages'
+    }
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties $excludedProperties
     return $result
 }
 
