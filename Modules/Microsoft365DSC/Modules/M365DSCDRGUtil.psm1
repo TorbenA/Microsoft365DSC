@@ -1460,6 +1460,7 @@ function Write-M365DSCDriftsToEventLog
         }
         $EventMessage.Append("    </CurrentValues>`r`n") | Out-Null
         $EventMessage.Append('</M365DSCEvent>') | Out-Null
+        Write-Verbose -Message $EventMessage.ToString()
         Add-M365DSCEvent -Message $EventMessage.ToString() -EventType 'Drift' -EntryType 'Warning' `
             -EventID 1 -Source $ResourceName
     }
@@ -1891,24 +1892,24 @@ function ConvertTo-IntuneMobileAppAssignment
     foreach ($assignment in $Assignments)
     {
         $formattedAssignment = @{}
-        $target = @{"@odata.type" = $assignment.dataType} 
+        $target = @{"@odata.type" = $assignment.dataType}
         # Handle Device Filters
         if ($IncludeDeviceFilter)
         {
-            if ($null -ne $assignment.DeviceAndAppManagementAssignmentFilterType -and 
+            if ($null -ne $assignment.DeviceAndAppManagementAssignmentFilterType -and
                 $assignment.DeviceAndAppManagementAssignmentFilterType -ne 'none')
             {
                 $filter = $Script:IntuneAssignmentFilters | Where-Object {
                     $_.FilterId -eq $assignment.DeviceAndAppManagementAssignmentFilterId
                 }
- 
+
                 if ($null -eq $filter)
                 {
                     $filter = $Script:IntuneAssignmentFilters | Where-Object {
                         $_.DisplayName -eq $assignment.DeviceAndAppManagementAssignmentFilterDisplayName
                     }
                 }
- 
+
                 if ($null -ne $filter)
                 {
                     $target.Add('deviceAndAppManagementAssignmentFilterType', $assignment.DeviceAndAppManagementAssignmentFilterType)

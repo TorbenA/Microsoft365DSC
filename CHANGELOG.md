@@ -17,13 +17,17 @@
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
 * VivaEngagementRoleMember
-  * Fixed issue loading the required modules to export this resource
+  * Fixed issue loading the required modules to export this resource.
+* M365DSCDRGUtil
+  * Added drift event message to Verbose output.
+    FIXES [#6666](https://github.com/microsoft/Microsoft365DSC/issues/6666).
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
+  * Improved logging output of `Test-M365DSCTargetResource`.
 * IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
-  * Fixed a breaking issue where the resource failed with `ModelValidationFailure` due to property casing mismatch after Microsoft Graph SDK v2.10+. Updated to use camelCase property names to align with current Graph schema.  
+  * Fixed a breaking issue where the resource failed with `ModelValidationFailure` due to property casing mismatch after Microsoft Graph SDK v2.10+. Updated to use camelCase property names to align with current Graph schema.
 * IntuneSettingCatalogCustomPolicyWindows10
-  * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.  
+  * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.
 * MISC
   * Centralized more resource testing to the testing function.
 * DEPENDENCIES
