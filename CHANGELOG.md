@@ -6,6 +6,8 @@
   * Fixed issue of function ConvertTo-IntuneMobileAppAssignment where groupID property was mantatory for the Assignment.
 * AADFilteringPolicyRule
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
+* AADGroup
+  * Fixed an issue where using advanced filtering during export failed.
 * AADUser
   * Added new permission requirement `User.EnableDisableAccount.All` for enabling / disabling accounts.
 * ODSettings
@@ -21,9 +23,9 @@
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
 * IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
-  * Fixed a breaking issue where the resource failed with `ModelValidationFailure` due to property casing mismatch after Microsoft Graph SDK v2.10+. Updated to use camelCase property names to align with current Graph schema.  
+  * Fixed a breaking issue where the resource failed with `ModelValidationFailure` due to property casing mismatch after Microsoft Graph SDK v2.10+. Updated to use camelCase property names to align with current Graph schema.
 * IntuneSettingCatalogCustomPolicyWindows10
-  * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.  
+  * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.
 * MISC
   * Centralized more resource testing to the testing function.
 * DEPENDENCIES
