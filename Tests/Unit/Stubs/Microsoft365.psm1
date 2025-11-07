@@ -66885,6 +66885,20 @@ function Get-CsOnlineVoicemailPolicy
         $Identity
     )
 }
+
+function Get-CsTeamsAIPolicy
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
+        [System.String]
+        $Identity
+    )
+}
 function Get-CsTeamsAppPermissionPolicy
 {
     [CmdletBinding()]
@@ -68994,6 +69008,24 @@ function Remove-CsOnlineVoicemailPolicy
         $Identity
     )
 }
+
+function Remove-CsTeamsAIPolicy
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Force,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm,
+
+        [Parameter()]
+        [System.String]
+        $Identity
+    )
+}
 function Remove-CsTeamsAppPermissionPolicy
 {
     [CmdletBinding()]
@@ -69391,6 +69423,40 @@ function Set-CsOnlineVoicemailPolicy
         [Parameter()]
         [System.Boolean]
         $EnableTranscriptionTranslation
+    )
+}
+
+function Set-CsTeamsAIPolicy
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $Identity,
+
+        [Parameter()]
+        [System.String]
+        $Description,
+
+        [Parameter()]
+        [System.String]
+        $EnrollFace,
+
+        [Parameter()]
+        [System.String]
+        $EnrollVoice,
+
+        [Parameter()]
+        [System.String]
+        $SpeakerAttributionForBYOD,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Force
     )
 }
 function Set-CsTeamsAppPermissionPolicy
@@ -73252,6 +73318,40 @@ function New-CsOnlineVoiceRoutingPolicy
         [Parameter()]
         [System.String]
         $MsftInternalProcessingMode
+    )
+}
+
+function New-CsTeamsAIPolicy
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $Identity,
+
+        [Parameter()]
+        [System.String]
+        $Description,
+
+        [Parameter()]
+        [System.String]
+        $EnrollFace,
+
+        [Parameter()]
+        [System.String]
+        $EnrollVoice,
+
+        [Parameter()]
+        [System.String]
+        $SpeakerAttributionForBYOD,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Force
     )
 }
 function New-CsTeamsAudioConferencingPolicy
