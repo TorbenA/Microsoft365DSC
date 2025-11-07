@@ -16,6 +16,8 @@
     FIXES [#6615](https://github.com/microsoft/Microsoft365DSC/issues/6615)
 * SCDLPSensitiveInformationType
   * Initial release.
+* TeamsAIPolicy
+  * Initial release.
 * TeamsMeetingPolicy
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
