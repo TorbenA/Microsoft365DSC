@@ -18,13 +18,20 @@
 * ODSettings
   * Fixed an issue where exporting `DomainGuids` would throw because it is a GUID type.
     FIXES [#6615](https://github.com/microsoft/Microsoft365DSC/issues/6615)
+* SCDLPSensitiveInformationType
+  * Initial release.
+* TeamsAIPolicy
+  * Initial release.
 * TeamsMeetingPolicy
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
-* M365DSCUtil
-  * Added custom post processing to `Test-M365DSCTargetResource`.
+* VivaEngagementRoleMember
+  * Fixed issue loading the required modules to export this resource
 * MISC
   * Centralized more resource testing to the testing function.
+  * M365DSCUtil
+    * Fixed issue of function ConvertTo-IntuneMobileAppAssignment where groupID property was mantatory for the Assignment.
+    * Added custom post processing to `Test-M365DSCTargetResource`.
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.53
 
