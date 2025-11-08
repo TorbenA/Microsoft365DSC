@@ -15,6 +15,12 @@
 * IntuneAppProtectionPolicyiOS
   * Fixes an issue where Set-TargetResource attempted to create an additional policy
     when two instances with the same name already existed.
+* IntuneDeviceControlPolicySetting
+  * Initial release.
+* IntuneEpmCertificatePolicySetting
+  * Initial release.
+* IntuneFirewallPolicySetting
+  * Initial release.
 * IntuneSettingCatalogCustomPolicyWindows10
   * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.
 * ODSettings
