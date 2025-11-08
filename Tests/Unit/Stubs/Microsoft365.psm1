@@ -195,6 +195,132 @@ function Invoke-AzRest
 #endregion
 
 #region ExchangeOnlineManagement
+
+function New-DlpSensitiveInformationType
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $Description,
+
+        [Parameter()]
+        [System.String]
+        $Name,
+
+        [Parameter()]
+        [System.Globalization.CultureInfo]
+        $Locale,
+
+        [Parameter()]
+        [System.Object]
+        $Fingerprints,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsExact,
+
+        [Parameter()]
+        [System.Object]
+        $ThresholdConfig,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm,
+
+        [Parameter()]
+        [System.UInt32]
+        $Threshold,
+
+        [Parameter()]
+        [System.Byte[]]
+        $FileData
+    )
+}
+function Set-DlpSensitiveInformationType
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $Description,
+
+        [Parameter()]
+        [System.String]
+        $Name,
+
+        [Parameter()]
+        [System.Object]
+        $ThresholdConfig,
+
+        [Parameter()]
+        [System.Globalization.CultureInfo]
+        $Locale,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm,
+
+        [Parameter()]
+        [System.Object]
+        $Fingerprints,
+
+        [Parameter()]
+        [System.Object]
+        $Identity,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsExact,
+
+        [Parameter()]
+        [System.UInt32]
+        $Threshold,
+
+        [Parameter()]
+        [System.Byte[]]
+        $FileData
+    )
+}
+function Get-DlpSensitiveInformationType
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.Object]
+        $IncludeElements,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $IncludeDetails,
+
+        [Parameter()]
+        [System.Object]
+        $Identity,
+
+        [Parameter()]
+        [System.Object]
+        $Organization,
+
+        [Parameter()]
+        [System.Object]
+        $Capability
+    )
+}
+function Remove-DlpSensitiveInformationType
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm,
+
+        [Parameter()]
+        [System.Object]
+        $Identity
+    )
+}
+
 function Stop-MigrationBatch
 {
     [CmdletBinding()]
