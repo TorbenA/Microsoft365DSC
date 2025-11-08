@@ -17,6 +17,12 @@
     when two instances with the same name already existed.
 * IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
   * Fixed an issue where the resource failed with `ModelValidationFailure` due to property casing mismatch.
+* IntuneDeviceControlPolicySetting
+  * Initial release.
+* IntuneEpmCertificatePolicySetting
+  * Initial release.
+* IntuneFirewallPolicySetting
+  * Initial release.
 * IntuneSettingCatalogCustomPolicyWindows10
   * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.
 * ODSettings

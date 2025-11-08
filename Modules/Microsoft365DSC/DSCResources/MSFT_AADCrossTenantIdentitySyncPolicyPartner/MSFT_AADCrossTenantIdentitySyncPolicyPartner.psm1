@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName "MSFT_AADCrossTenantIdentitySyncPolicyPartner"
+
 function Get-TargetResource
 {
     [CmdletBinding()]
