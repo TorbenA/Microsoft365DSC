@@ -2,17 +2,30 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Fixing issue where Set-TargetResource threw an error trying to recreate
+    an existing permissions scope when id was not provided.
 * AADFilteringPolicyRule
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
 * AADUser
   * Added new permission requirement `User.EnableDisableAccount.All` for enabling / disabling accounts.
+* IntuneAppProtectionPolicyAndroid
+  * Fixes an issue where Set-TargetResource attempted to create an additional policy
+    when two instances with the same name already existed.
+* IntuneAppProtectionPolicyiOS
+  * Fixes an issue where Set-TargetResource attempted to create an additional policy
+    when two instances with the same name already existed.
 * IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
   * Fixed an issue where the resource failed with `ModelValidationFailure` due to property casing mismatch.
 * IntuneSettingCatalogCustomPolicyWindows10
-  * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.  
+  * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.
 * ODSettings
   * Fixed an issue where exporting `DomainGuids` would throw because it is a GUID type.
     FIXES [#6615](https://github.com/microsoft/Microsoft365DSC/issues/6615)
+* SCDLPSensitiveInformationType
+  * Initial release.
+* TeamsAIPolicy
+  * Initial release.
 * TeamsMeetingPolicy
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
