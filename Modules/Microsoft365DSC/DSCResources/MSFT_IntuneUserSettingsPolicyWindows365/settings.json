@@ -46,5 +46,29 @@
     "Microsoft.Graph.Beta.DeviceManagement.Administration",
     "Microsoft.Graph.Groups"
   ],
-  "mode": "Configuration"
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.DeviceManagement",
+      "cmdlets": [
+        "Get-MgBetaDeviceManagementAssignmentFilter"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.DeviceManagement.Administration",
+      "cmdlets": [
+        "Get-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection",
+        "Get-MgBetaDeviceManagementVirtualEndpointUserSetting",
+        "New-MgBetaDeviceManagementVirtualEndpointUserSetting",
+        "Remove-MgBetaDeviceManagementVirtualEndpointUserSetting",
+        "Update-MgBetaDeviceManagementVirtualEndpointUserSetting"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
+      ]
+    }
+  ]
 }
