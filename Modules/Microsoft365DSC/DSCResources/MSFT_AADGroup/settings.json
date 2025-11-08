@@ -88,8 +88,15 @@
       ]
     },
     {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
       "module": "Microsoft.Graph.Beta.Groups",
       "cmdlets": [
+        "Get-MgBetaGroup",
         "New-MgBetaGroupMemberByRef",
         "Remove-MgBetaGroupMemberDirectoryObjectByRef"
       ]
@@ -114,7 +121,6 @@
     {
       "module": "Microsoft.Graph.Groups",
       "cmdlets": [
-        "Get-MgGroup",
         "New-MgGroup",
         "New-MgGroupMember",
         "New-MgGroupMemberByRef",
