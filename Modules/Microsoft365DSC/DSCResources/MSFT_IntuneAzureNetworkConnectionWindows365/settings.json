@@ -43,5 +43,16 @@
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.DeviceManagement.Administration"
   ],
-  "mode": "Configuration"
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.DeviceManagement.Administration",
+      "cmdlets": [
+        "Get-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection",
+        "New-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection",
+        "Remove-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection",
+        "Update-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection"
+      ]
+    }
+  ]
 }
