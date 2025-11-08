@@ -1,47 +1,47 @@
 {
-  "resourceName":"IntuneAppControlForBusinessPolicyWindows10",
-  "description":"This resource configures an Intune App Control For Business Policy for Windows10.",
-  "permissions":{
-    "graph":{
-      "delegated":{
-        "read":[
+  "resourceName": "IntuneAppControlForBusinessPolicyWindows10",
+  "description": "This resource configures an Intune App Control For Business Policy for Windows10.",
+  "permissions": {
+    "graph": {
+      "delegated": {
+        "read": [
           {
-            "name":"DeviceManagementConfiguration.Read.All"
+            "name": "DeviceManagementConfiguration.Read.All"
           },
           {
-            "name":"Group.Read.All"
+            "name": "Group.Read.All"
           }
         ],
-        "update":[
+        "update": [
           {
-            "name":"DeviceManagementConfiguration.ReadWrite.All"
+            "name": "DeviceManagementConfiguration.ReadWrite.All"
           },
           {
-            "name":"Group.Read.All"
+            "name": "Group.Read.All"
           }
         ]
       },
-      "application":{
-        "read":[
+      "application": {
+        "read": [
           {
-            "name":"DeviceManagementConfiguration.Read.All"
+            "name": "DeviceManagementConfiguration.Read.All"
           },
           {
-            "name":"Group.Read.All"
+            "name": "Group.Read.All"
           }
         ],
-        "update":[
+        "update": [
           {
-            "name":"DeviceManagementConfiguration.ReadWrite.All"
+            "name": "DeviceManagementConfiguration.ReadWrite.All"
           },
           {
-            "name":"Group.Read.All"
+            "name": "Group.Read.All"
           }
         ]
       }
     }
   },
-  "requiredModules":[
+  "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.DeviceManagement",
     "Microsoft.Graph.Groups"
@@ -50,5 +50,25 @@
     "Global",
     "USGov"
   ],
-  "mode":"Configuration"
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.DeviceManagement",
+      "cmdlets": [
+        "Get-MgBetaDeviceManagementAssignmentFilter",
+        "Get-MgBetaDeviceManagementConfigurationPolicy",
+        "Get-MgBetaDeviceManagementConfigurationPolicyAssignment",
+        "Get-MgBetaDeviceManagementConfigurationPolicySetting",
+        "Get-MgBetaDeviceManagementConfigurationPolicyTemplateSettingTemplate",
+        "New-MgBetaDeviceManagementConfigurationPolicy",
+        "Remove-MgBetaDeviceManagementConfigurationPolicy"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
+      ]
+    }
+  ]
 }

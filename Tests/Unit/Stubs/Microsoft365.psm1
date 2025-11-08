@@ -195,6 +195,132 @@ function Invoke-AzRest
 #endregion
 
 #region ExchangeOnlineManagement
+
+function New-DlpSensitiveInformationType
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $Description,
+
+        [Parameter()]
+        [System.String]
+        $Name,
+
+        [Parameter()]
+        [System.Globalization.CultureInfo]
+        $Locale,
+
+        [Parameter()]
+        [System.Object]
+        $Fingerprints,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsExact,
+
+        [Parameter()]
+        [System.Object]
+        $ThresholdConfig,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm,
+
+        [Parameter()]
+        [System.UInt32]
+        $Threshold,
+
+        [Parameter()]
+        [System.Byte[]]
+        $FileData
+    )
+}
+function Set-DlpSensitiveInformationType
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $Description,
+
+        [Parameter()]
+        [System.String]
+        $Name,
+
+        [Parameter()]
+        [System.Object]
+        $ThresholdConfig,
+
+        [Parameter()]
+        [System.Globalization.CultureInfo]
+        $Locale,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm,
+
+        [Parameter()]
+        [System.Object]
+        $Fingerprints,
+
+        [Parameter()]
+        [System.Object]
+        $Identity,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsExact,
+
+        [Parameter()]
+        [System.UInt32]
+        $Threshold,
+
+        [Parameter()]
+        [System.Byte[]]
+        $FileData
+    )
+}
+function Get-DlpSensitiveInformationType
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.Object]
+        $IncludeElements,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $IncludeDetails,
+
+        [Parameter()]
+        [System.Object]
+        $Identity,
+
+        [Parameter()]
+        [System.Object]
+        $Organization,
+
+        [Parameter()]
+        [System.Object]
+        $Capability
+    )
+}
+function Remove-DlpSensitiveInformationType
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm,
+
+        [Parameter()]
+        [System.Object]
+        $Identity
+    )
+}
+
 function Stop-MigrationBatch
 {
     [CmdletBinding()]
@@ -40432,6 +40558,135 @@ function New-MgBetaDirectoryCustomSecurityAttributeDefinition
         $HttpPipelineAppend
     )
 }
+
+function New-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ProxyUseDefaultCredentials,
+
+        [Parameter()]
+        [System.String]
+        $Id,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $IsActive,
+
+        [Parameter()]
+        [PSObject]
+        $AdditionalProperties,
+
+        [Parameter()]
+        [System.String]
+        $CustomSecurityAttributeDefinitionId,
+
+        [Parameter()]
+        [PSObject]
+        $HttpPipelinePrepend,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ProxyCredential,
+
+        [Parameter()]
+        [System.Uri]
+        $Proxy,
+
+        [Parameter()]
+        [PSObject]
+        $BodyParameter,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm,
+
+        [Parameter()]
+        [System.String]
+        $ResponseHeadersVariable,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Break,
+
+        [Parameter()]
+        [System.Collections.IDictionary]
+        $Headers,
+
+        [Parameter()]
+        [PSObject]
+        $HttpPipelineAppend
+    )
+}
+
+function Update-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ProxyUseDefaultCredentials,
+
+        [Parameter()]
+        [System.String]
+        $Id,
+
+        [Parameter()]
+        [System.String]
+        $AllowedValueId,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $IsActive,
+
+        [Parameter()]
+        [PSObject]
+        $AdditionalProperties,
+
+        [Parameter()]
+        [System.String]
+        $CustomSecurityAttributeDefinitionId,
+
+        [Parameter()]
+        [PSObject]
+        $HttpPipelinePrepend,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ProxyCredential,
+
+        [Parameter()]
+        [System.Uri]
+        $Proxy,
+
+        [Parameter()]
+        [PSObject]
+        $BodyParameter,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm,
+
+        [Parameter()]
+        [System.String]
+        $ResponseHeadersVariable,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Break,
+
+        [Parameter()]
+        [System.Collections.IDictionary]
+        $Headers,
+
+        [Parameter()]
+        [PSObject]
+        $HttpPipelineAppend
+    )
+}
+
 function Get-MgBetaDirectoryCustomSecurityAttributeDefinition
 {
     [CmdletBinding()]
@@ -66759,6 +67014,20 @@ function Get-CsOnlineVoicemailPolicy
         $Identity
     )
 }
+
+function Get-CsTeamsAIPolicy
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
+        [System.String]
+        $Identity
+    )
+}
 function Get-CsTeamsAppPermissionPolicy
 {
     [CmdletBinding()]
@@ -68868,6 +69137,24 @@ function Remove-CsOnlineVoicemailPolicy
         $Identity
     )
 }
+
+function Remove-CsTeamsAIPolicy
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Force,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm,
+
+        [Parameter()]
+        [System.String]
+        $Identity
+    )
+}
 function Remove-CsTeamsAppPermissionPolicy
 {
     [CmdletBinding()]
@@ -69265,6 +69552,40 @@ function Set-CsOnlineVoicemailPolicy
         [Parameter()]
         [System.Boolean]
         $EnableTranscriptionTranslation
+    )
+}
+
+function Set-CsTeamsAIPolicy
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $Identity,
+
+        [Parameter()]
+        [System.String]
+        $Description,
+
+        [Parameter()]
+        [System.String]
+        $EnrollFace,
+
+        [Parameter()]
+        [System.String]
+        $EnrollVoice,
+
+        [Parameter()]
+        [System.String]
+        $SpeakerAttributionForBYOD,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Force
     )
 }
 function Set-CsTeamsAppPermissionPolicy
@@ -73126,6 +73447,40 @@ function New-CsOnlineVoiceRoutingPolicy
         [Parameter()]
         [System.String]
         $MsftInternalProcessingMode
+    )
+}
+
+function New-CsTeamsAIPolicy
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $Identity,
+
+        [Parameter()]
+        [System.String]
+        $Description,
+
+        [Parameter()]
+        [System.String]
+        $EnrollFace,
+
+        [Parameter()]
+        [System.String]
+        $EnrollVoice,
+
+        [Parameter()]
+        [System.String]
+        $SpeakerAttributionForBYOD,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Force
     )
 }
 function New-CsTeamsAudioConferencingPolicy
