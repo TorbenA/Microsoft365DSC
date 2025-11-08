@@ -15,6 +15,12 @@
 * IntuneAppProtectionPolicyiOS
   * Fixes an issue where Set-TargetResource attempted to create an additional policy
     when two instances with the same name already existed.
+* IntuneDeviceControlPolicySetting
+  * Initial release.
+* IntuneEpmCertificatePolicySetting
+  * Initial release.
+* IntuneFirewallPolicySetting
+  * Initial release.
 * ODSettings
   * Fixed an issue where exporting `DomainGuids` would throw because it is a GUID type.
     FIXES [#6615](https://github.com/microsoft/Microsoft365DSC/issues/6615)

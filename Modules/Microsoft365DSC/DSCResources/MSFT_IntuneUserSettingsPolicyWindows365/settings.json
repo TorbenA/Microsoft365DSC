@@ -46,6 +46,10 @@
     "Microsoft.Graph.Beta.DeviceManagement.Administration",
     "Microsoft.Graph.Groups"
   ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
   "mode": "Configuration",
   "commands": [
     {
