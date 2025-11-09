@@ -15,6 +15,8 @@
 * IntuneAppProtectionPolicyiOS
   * Fixes an issue where Set-TargetResource attempted to create an additional policy
     when two instances with the same name already existed.
+* IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
+  * Fixed an issue where the resource failed with `ModelValidationFailure` due to property casing mismatch.
 * IntuneDeviceControlPolicySetting
   * Initial release.
 * IntuneEpmCertificatePolicySetting
@@ -38,6 +40,7 @@
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
   * Moved resource initialization into dedicated function.
+  * Removed groupId requirement in `ConvertTo-IntuneMobileAppAssignment`.
 * MISC
   * Centralized more resource testing to the testing function.
 * DEPENDENCIES
