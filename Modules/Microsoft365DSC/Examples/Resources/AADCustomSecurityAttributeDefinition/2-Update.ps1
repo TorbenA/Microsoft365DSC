@@ -24,6 +24,12 @@ Configuration Example
         AADCustomSecurityAttributeDefinition "AADCustomSecurityAttributeDefinition-ShoeSize"
         {
             ApplicationId           = $ApplicationId;
+            AllowedValues           = @(
+                MSFT_CustomSecurityAttributeAllowedValue{
+                    IsActive = $True
+                    ValueId = "AllowedValue1"
+                }
+            );
             AttributeSet            = "TestAttributeSet";
             CertificateThumbprint   = $CertificateThumbprint;
             Ensure                  = "Present";
