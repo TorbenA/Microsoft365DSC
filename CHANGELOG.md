@@ -38,6 +38,9 @@
 * TeamsMeetingPolicy
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
+* TeamsMessagingPolicy
+  * Fixed an issue where `UseB2BInvitesToAddExternalUsers` was exported with the wrong value.
+    FIXES [#6632](https://github.com/microsoft/Microsoft365DSC/issues/6632)
 * VivaEngagementRoleMember
   * Fixed issue loading the required modules to export this resource
 * M365DSCUtil
