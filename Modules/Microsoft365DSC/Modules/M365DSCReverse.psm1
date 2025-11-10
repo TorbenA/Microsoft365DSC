@@ -763,9 +763,25 @@ function Start-M365DSCConfigurationExtract
                         Write-M365DSCHost -Message "    `r`n$($Global:M365DSCEmojiYellowCircle) You specified a filter for resource {$resourceName} but it doesn't support filters. Filter will be ignored and all instances of the resource will be captured."
                     }
                 }
+
+                # Check for ErrorAction Preference
+                $parameters.Add('ErrorAction', $using:ErrorActionPreference)
                 $Global:M365DSCExportResourceTypes += $resourceName
-                $exportString.Append((Export-TargetResource @parameters)) | Out-Null
-                ($using:synchronizedHashtable).ResourcesResult.Add($resourceName, $exportString.ToString())
+
+                try
+                {
+                    $exportOutput = Export-TargetResource @parameters
+                    $exportString.Append($exportOutput) | Out-Null
+                    ($using:synchronizedHashtable).ResourcesResult.Add($resourceName, $exportString.ToString())
+                }
+                catch
+                {
+                    Write-M365DSCHost -Message "    `r`n$($Global:M365DSCEmojiRedX) An error occurred while exporting resource {$resourceName}: $($_.Exception.Message)" -CommitWrite
+                    if ($ErrorActionPreference -eq 'Stop')
+                    {
+                        throw $_
+                    }
+                }
             }
         }
 

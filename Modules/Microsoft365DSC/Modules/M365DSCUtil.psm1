@@ -1828,7 +1828,8 @@ function Export-M365DSCConfiguration
             -Filters $Filters `
             -Validate:$Validate `
             -Parallel:$Parallel `
-            -ResourceSettings $Script:M365DSCResourceSettings
+            -ResourceSettings $Script:M365DSCResourceSettings `
+            -ErrorAction $ErrorActionPreference
     }
     elseif ($null -ne $Components)
     {
@@ -1850,7 +1851,8 @@ function Export-M365DSCConfiguration
             -Filters $Filters `
             -Validate:$Validate `
             -Parallel:$Parallel `
-            -ResourceSettings $Script:M365DSCResourceSettings
+            -ResourceSettings $Script:M365DSCResourceSettings `
+            -ErrorAction $ErrorActionPreference
     }
     elseif ($null -ne $Mode)
     {
@@ -1873,7 +1875,8 @@ function Export-M365DSCConfiguration
             -Filters $Filters `
             -Validate:$Validate `
             -Parallel:$Parallel `
-            -ResourceSettings $Script:M365DSCResourceSettings
+            -ResourceSettings $Script:M365DSCResourceSettings `
+            -ErrorAction $ErrorActionPreference
     }
 
     # Clear the exported resource instances' names Global variable
