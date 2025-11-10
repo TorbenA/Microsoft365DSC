@@ -41,8 +41,15 @@
 * TeamsMessagingPolicy
   * Fixed an issue where `UseB2BInvitesToAddExternalUsers` was exported with the wrong value.
     FIXES [#6632](https://github.com/microsoft/Microsoft365DSC/issues/6632)
+* TeamsUpdateManagementPolicy
+  * Fixed an issue where the type for `DisabledInProductMessages` was String instead of a String array.
+    FIXES [#6635](https://github.com/microsoft/Microsoft365DSC/issues/6635)
 * VivaEngagementRoleMember
   * Fixed issue loading the required modules to export this resource
+* M365DSCReverse
+  * Fixed an issue where having resources specified in both include and exclude
+    during export would result in an exception.
+    FIXES [#6630](https://github.com/microsoft/Microsoft365DSC/issues/6630)
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
   * Moved resource initialization into dedicated function.
@@ -51,6 +58,8 @@
   * Centralized more resource testing to the testing function.
   * Updated single instance information retrieval in EXO resources.
     FIXES [#6643](https://github.com/microsoft/Microsoft365DSC/issues/6643)
+  * Improved support for `ErrorAction` during export.
+    FIXES [#6610](https://github.com/microsoft/Microsoft365DSC/issues/6610)
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.53
 
