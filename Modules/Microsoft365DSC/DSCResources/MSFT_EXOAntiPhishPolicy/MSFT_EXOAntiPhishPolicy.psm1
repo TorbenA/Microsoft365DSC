@@ -226,9 +226,7 @@ function Get-TargetResource
     $nullReturn.Ensure = 'Absent'
     try
     {
-        $AntiPhishPolicies = Get-AntiPhishPolicy -ErrorAction Stop
-
-        $AntiPhishPolicy = $AntiPhishPolicies | Where-Object -FilterScript { $_.Identity -eq $Identity }
+        $AntiPhishPolicy = Get-AntiPhishPolicy -Identity $Identity -ErrorAction SilentlyContinue
         if ($null -eq $AntiPhishPolicy)
         {
             Write-Verbose -Message "AntiPhishPolicy $($Identity) does not exist."

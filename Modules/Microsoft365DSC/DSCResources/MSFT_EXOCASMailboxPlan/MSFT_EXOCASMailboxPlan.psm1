@@ -101,7 +101,7 @@ function Get-TargetResource
 
     try
     {
-        $CASMailboxPlan = Get-CASMailboxPlan -Identity $Identity -ErrorAction Stop
+        $CASMailboxPlan = Get-CASMailboxPlan -Identity $Identity -ErrorAction SilentlyContinue
         if ($null -eq $MailboxPlan)
         {
             Write-Verbose -Message "MailboxPlan $($Identity) does not exist."

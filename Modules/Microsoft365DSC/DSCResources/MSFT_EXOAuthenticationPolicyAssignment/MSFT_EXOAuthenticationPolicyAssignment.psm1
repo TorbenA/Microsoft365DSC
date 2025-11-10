@@ -74,11 +74,8 @@ function Get-TargetResource
 
     try
     {
-        try
-        {
-            $user = Get-User -Identity $UserName -ErrorAction Stop
-        }
-        catch
+        $user = Get-User -Identity $UserName -ErrorAction SilentlyContinue
+        if ($null -eq $user)
         {
             Write-Verbose -Message "Could not find user {$UserName}."
             return $nullReturn

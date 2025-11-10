@@ -96,8 +96,7 @@ function Get-TargetResource
                 Ensure   = 'Absent'
             }
 
-            [Array]$permissions = Get-MailboxPermission -Identity $Identity -ErrorAction Stop
-
+            [Array]$permissions = Get-MailboxPermission -Identity $Identity -ErrorAction SilentlyContinue
             $permission = $permissions | Where-Object -FilterScript { $_.User -eq $User -and (Compare-Object -ReferenceObject $_.AccessRights.Replace(' ', '').Split(',') -DifferenceObject $AccessRights).Count -eq 0 }
 
             if ($null -eq $permission)
@@ -387,8 +386,7 @@ function Export-TargetResource
     try
     {
         [array]$mailboxes = Get-Mailbox -ResultSize 'Unlimited' -ErrorAction Stop
-
-        if ($mailboxes.Length -eq 0)
+        if ($mailboxes.Count -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }

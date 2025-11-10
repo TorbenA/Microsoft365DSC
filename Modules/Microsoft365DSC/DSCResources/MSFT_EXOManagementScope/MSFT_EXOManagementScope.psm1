@@ -83,7 +83,7 @@ function Get-TargetResource
         }
         else
         {
-            $ManagementScope = Get-ManagementScope -Identity $Identity -ErrorAction Stop
+            $ManagementScope = Get-ManagementScope -Identity $Identity -ErrorAction SilentlyContinue
         }
         if ($null -eq $ManagementScope)
         {

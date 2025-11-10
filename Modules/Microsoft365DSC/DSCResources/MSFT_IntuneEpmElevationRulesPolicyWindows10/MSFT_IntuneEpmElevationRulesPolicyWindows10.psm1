@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName "MSFT_IntuneEpmElevationRulesPolicyWindows10"
+
 function Get-TargetResource
 {
     [CmdletBinding()]

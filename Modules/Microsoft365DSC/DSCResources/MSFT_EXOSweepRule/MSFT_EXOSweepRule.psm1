@@ -103,7 +103,7 @@ function Get-TargetResource
         }
         else
         {
-            $instance = Get-SweepRule -Mailbox $Mailbox -ErrorAction Stop
+            $instance = Get-SweepRule -Mailbox $Mailbox -ErrorAction SilentlyContinue
         }
         if ($null -eq $instance)
         {

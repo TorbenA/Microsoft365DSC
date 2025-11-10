@@ -2,34 +2,74 @@
 
 # UNRELEASED
 
-* M365DSCUtil
-  * Fixed issue of function ConvertTo-IntuneMobileAppAssignment where groupID property was mantatory for the Assignment.
+* AADApplication
+  * Fixing issue where Set-TargetResource threw an error trying to recreate
+    an existing permissions scope when id was not provided.
 * AADFeatureRolloutPolicy
   * Added support for `AppliesTo`.
 * AADFilteringPolicyRule
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
 * AADUser
   * Added new permission requirement `User.EnableDisableAccount.All` for enabling / disabling accounts.
+* EXOIRMConfiguration
+  * Fixed an issue where the `LicensingLocation` property was not exported correctly.
+    FIXES [#6644](https://github.com/microsoft/Microsoft365DSC/issues/6644)
+* IntuneAppProtectionPolicyAndroid
+  * Fixes an issue where Set-TargetResource attempted to create an additional policy
+    when two instances with the same name already existed.
+* IntuneAppProtectionPolicyiOS
+  * Fixes an issue where Set-TargetResource attempted to create an additional policy
+    when two instances with the same name already existed.
+* IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
+  * Fixed an issue where the resource failed with `ModelValidationFailure` due to property casing mismatch.
+* IntuneDeviceControlPolicySetting
+  * Initial release.
+* IntuneEpmCertificatePolicySetting
+  * Initial release.
+* IntuneFirewallPolicySetting
+  * Initial release.
+* IntuneSettingCatalogCustomPolicyWindows10
+  * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.
 * ODSettings
   * Fixed an issue where exporting `DomainGuids` would throw because it is a GUID type.
     FIXES [#6615](https://github.com/microsoft/Microsoft365DSC/issues/6615)
+* SPOSharingSettings
+  * Changed from server-side filtering to local because of backend limitations.
+    FIXES [#6631](https://github.com/microsoft/Microsoft365DSC/issues/6631)
+* SCDLPSensitiveInformationType
+  * Initial release.
 * TeamsAIPolicy
   * Initial release.
 * TeamsMeetingPolicy
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
+* TeamsMessagingPolicy
+  * Fixed an issue where `UseB2BInvitesToAddExternalUsers` was exported with the wrong value.
+    FIXES [#6632](https://github.com/microsoft/Microsoft365DSC/issues/6632)
+* TeamsUpdateManagementPolicy
+  * Fixed an issue where the type for `DisabledInProductMessages` was String instead of a String array.
+    FIXES [#6635](https://github.com/microsoft/Microsoft365DSC/issues/6635)
+* TeamsVoiceRoutingPolicy
+  * Fixed an issue where removing a policy required PSTN usages to exist.
+    FIXES [#6449](https://github.com/microsoft/Microsoft365DSC/issues/6649)
 * VivaEngagementRoleMember
   * Fixed issue loading the required modules to export this resource
+* M365DSCReverse
+  * Fixed an issue where having resources specified in both include and exclude
+    during export would result in an exception.
+    FIXES [#6630](https://github.com/microsoft/Microsoft365DSC/issues/6630)
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
-* IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
-  * Fixed a breaking issue where the resource failed with `ModelValidationFailure` due to property casing mismatch after Microsoft Graph SDK v2.10+. Updated to use camelCase property names to align with current Graph schema.
-* IntuneSettingCatalogCustomPolicyWindows10
-  * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.
+  * Moved resource initialization into dedicated function.
+  * Removed groupId requirement in `ConvertTo-IntuneMobileAppAssignment`.
 * MISC
   * Centralized more resource testing to the testing function.
+  * Updated single instance information retrieval in EXO resources.
+    FIXES [#6643](https://github.com/microsoft/Microsoft365DSC/issues/6643)
+  * Improved support for `ErrorAction` during export.
+    FIXES [#6610](https://github.com/microsoft/Microsoft365DSC/issues/6610)
 * DEPENDENCIES
-  * Updated MSCloudLoginAssistant to version 1.1.53
+  * Updated MSCloudLoginAssistant to version 1.1.54
 
 # 1.25.1015.1
 
