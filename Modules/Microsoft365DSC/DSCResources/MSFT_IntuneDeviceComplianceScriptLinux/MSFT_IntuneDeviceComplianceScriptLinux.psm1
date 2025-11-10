@@ -1,4 +1,6 @@
+Confirm-M365DSCModuleDependency -ModuleName "MSFT_IntuneDeviceComplianceScriptLinux"
 $Script:PropertiesToRetrieve = @('id', 'displayName', 'description', 'settingDefinitionId', 'settingInstance')
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -85,7 +87,10 @@ function Get-TargetResource
             #region resource generator code
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
-                $getValue = Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings/$($Id)?`$select=$($Script:PropertiesToRetrieve -join ',')" -SkipHttpErrorCheck -ErrorAction SilentlyContinue
+                $getValue = Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings/$($Id)?`$select=$($Script:PropertiesToRetrieve -join ',')" `
+                -Method GET `
+                -SkipHttpErrorCheck `
+                -ErrorAction SilentlyContinue
                 if ($getValue -is [hashtable] -and $getValue.ContainsKey('error'))
                 {
                     # Policy does not exist, set it to $null
@@ -100,6 +105,8 @@ function Get-TargetResource
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = (Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings?`$filter=DisplayName eq '$($DisplayName -replace "'", "''")' and settingDefinitionId eq 'linux_customcompliance_discoveryscript_reusablesetting'&select=$($Script:PropertiesToRetrieve -join ',')" `
+                        -Method GET `
+                        -SkipHttpErrorCheck `
                         -ErrorAction SilentlyContinue).value
                     if ($getValue -is [array] -and $getValue.Count -eq 0)
                     {
@@ -224,9 +231,8 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $boundParameters.Remove('DiscoveryScript')
+    $boundParameters.Remove('DiscoveryScript') | Out-Null
     $boundParameters.Add('settingDefinitionId', 'linux_customcompliance_discoveryscript_reusablesetting')
     $boundParameters.Add('settingInstance', @{
         '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance'
@@ -418,6 +424,8 @@ function Export-TargetResource
             $Filter = $baseFilter
         }
         [array]$getValue = (Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings?`$select=$($Script:PropertiesToRetrieve -join ',')&`$filter=$Filter" `
+            -Method GET `
+            -SkipHttpErrorCheck `
             -ErrorAction Stop).value
         #endregion
 
@@ -444,6 +452,7 @@ function Export-TargetResource
             }
             Write-M365DSCHost -Message "    |---[$i/$($getValue.Count)] $displayedKey" -DeferWrite
             $params = @{
+                Id                    = $config.Id
                 DisplayName           = $config.DisplayName
                 Ensure                = 'Present'
                 Credential            = $Credential

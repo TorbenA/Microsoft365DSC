@@ -69,6 +69,10 @@ function New-M365DSCResource
         [switch]
         $SkipPlatformsAndTechnologies,
 
+        [Parameter()]
+        [System.String]
+        $FixActualType,
+
         # Use this switch with caution.
         # Navigation Properties could cause the DRG to enter an infinite loop
         # Navigation Properties are the properties refered as Relationships in the Graph REST API documentation.
@@ -140,7 +144,14 @@ function New-M365DSCResource
             $outputType = $outputType -replace '.$'
         }
 
-        $actualType = $outputType.Replace('IMicrosoftGraph', '')
+        if (-not $PSBoundParameters.ContainsKey('FixActualType'))
+        {
+            $actualType = $outputType.Replace('IMicrosoftGraph', '')
+        }
+        else
+        {
+            $actualType = $FixActualType
+        }
 
         $cmdletDefinition = Get-CmdletDefinition -APIVersion $ApiVersion
 
@@ -265,7 +276,6 @@ function New-M365DSCResource
                 throw "SettingsCatalogSettingTemplates is required for DeviceManagementConfigurationPolicy resources"
             }
 
-            $templateSettings = @()
             $deviceSettingsCatalogTemplates = $SettingsCatalogSettingTemplates | Where-Object -FilterScript { $_.SettingInstanceTemplate.SettingDefinitionId.StartsWith("device_") }
             $deviceSettingDefinitions = $deviceSettingsCatalogTemplates.SettingDefinitions
 
@@ -1276,10 +1286,9 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
         #endregion
 
         #region UnitTests
-        $fakeValuesString = [System.Text.StringBuilder]::New()
-        $fakeValuesDriftString = [System.Text.StringBuilder]::New()
+        $fakeValuesString = [System.Text.StringBuilder]::new()
+        $fakeValuesDriftString = [System.Text.StringBuilder]::new()
 
-        $numberOfProperties = $fakeValues.Keys.Count
         $currentKeyIndex = 1
         foreach ($key in $fakeValues.Keys)
         {
@@ -1873,7 +1882,7 @@ function Get-Microsoft365DSCModuleCimClass
                 $class = $line.Replace("class ","").Replace("Class ","")
                 if ($line -like "*:*")
                 {
-                    $class = $class.Split(":")[0].trim()
+                    $class = $class.Split(":")[0].Trim()
                 }
                 if ($class -notin $cimClasses)
                 {
@@ -2046,7 +2055,7 @@ function Get-ComplexTypeConstructorToString
             $AssignedPropertyName = Get-StringFirstCharacterToLower -Value $nestedProperty.Name
         }
 
-        if ($AssignedPropertyName.contains("@"))
+        if ($AssignedPropertyName.Contains("@"))
         {
             $AssignedPropertyName = "'$AssignedPropertyName'"
         }
@@ -2613,7 +2622,8 @@ function New-M365CmdLetHelper
 function Get-M365DSCDRGFakeValueForParameter
 {
     [CmdletBinding()]
-    [OutputType([System.Object])]
+    [OutputType([System.String])]
+    [OutputType([System.Int32])]
     param(
         [Parameter(Mandatory = $true)]
         [System.String]
@@ -2953,7 +2963,7 @@ function Get-M365DSCHashAsString
                     $propLine = ''
                     foreach ($prop in $Values.$Key.Properties)
                     {
-                        if ($isCmdletCall -and $prop.contains('odataType'))
+                        if ($isCmdletCall -and $prop.Contains('odataType'))
                         {
                             $prop.Add('@odata.type', $prop.odataType)
                             $prop.Remove('odataType')
@@ -3261,12 +3271,7 @@ function New-M365DSCResourceFolder
         # Parameter help description
         [Parameter()]
         [System.String]
-        $Path,
-
-        # Parameter help description
-        [Parameter()]
-        [Object[]]
-        $Properties
+        $Path
     )
 
     $directoryPath = "$Path\MSFT_$ResourceName"
