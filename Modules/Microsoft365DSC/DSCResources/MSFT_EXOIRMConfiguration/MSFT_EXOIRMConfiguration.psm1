@@ -151,7 +151,7 @@ function Get-TargetResource
         $LicensingLocationValue = $null
         if ($IRMConfiguration.LicensingLocation)
         {
-            $LicensingLocationValue = $IRMConfiguration.LicensingLocation.ToString()
+            $LicensingLocationValue = [System.String[]]$IRMConfiguration.LicensingLocation.OriginalString
         }
 
         $result = @{

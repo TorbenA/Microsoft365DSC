@@ -9,6 +9,9 @@
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
 * AADUser
   * Added new permission requirement `User.EnableDisableAccount.All` for enabling / disabling accounts.
+* EXOIRMConfiguration
+  * Fixed an issue where the `LicensingLocation` property was not exported correctly.
+    FIXES [#6644](https://github.com/microsoft/Microsoft365DSC/issues/6644)
 * IntuneAppProtectionPolicyAndroid
   * Fixes an issue where Set-TargetResource attempted to create an additional policy
     when two instances with the same name already existed.
