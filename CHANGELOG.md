@@ -28,6 +28,9 @@
 * ODSettings
   * Fixed an issue where exporting `DomainGuids` would throw because it is a GUID type.
     FIXES [#6615](https://github.com/microsoft/Microsoft365DSC/issues/6615)
+* SPOSharingSettings
+  * Changed from server-side filtering to local because of backend limitations.
+    FIXES [#6631](https://github.com/microsoft/Microsoft365DSC/issues/6631)
 * SCDLPSensitiveInformationType
   * Initial release.
 * TeamsAIPolicy
@@ -35,6 +38,9 @@
 * TeamsMeetingPolicy
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
+* TeamsMessagingPolicy
+  * Fixed an issue where `UseB2BInvitesToAddExternalUsers` was exported with the wrong value.
+    FIXES [#6632](https://github.com/microsoft/Microsoft365DSC/issues/6632)
 * TeamsUpdateManagementPolicy
   * Fixed an issue where the type for `DisabledInProductMessages` was String instead of a String array.
     FIXES [#6635](https://github.com/microsoft/Microsoft365DSC/issues/6635)
@@ -42,6 +48,7 @@
   * Fixed issue loading the required modules to export this resource
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
+  * Moved resource initialization into dedicated function.
   * Removed groupId requirement in `ConvertTo-IntuneMobileAppAssignment`.
 * MISC
   * Centralized more resource testing to the testing function.
