@@ -47,6 +47,9 @@
 * TeamsUpdateManagementPolicy
   * Fixed an issue where the type for `DisabledInProductMessages` was String instead of a String array.
     FIXES [#6635](https://github.com/microsoft/Microsoft365DSC/issues/6635)
+* TeamsVoiceRoutingPolicy
+  * Fixed an issue where removing a policy required PSTN usages to exist.
+    FIXES [#6449](https://github.com/microsoft/Microsoft365DSC/issues/6649)
 * VivaEngagementRoleMember
   * Fixed issue loading the required modules to export this resource
 * M365DSCReverse
