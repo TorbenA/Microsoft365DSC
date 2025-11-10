@@ -39,6 +39,7 @@
   * Fixed issue loading the required modules to export this resource
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
+  * Moved resource initialization into dedicated function.
   * Removed groupId requirement in `ConvertTo-IntuneMobileAppAssignment`.
 * MISC
   * Centralized more resource testing to the testing function.
