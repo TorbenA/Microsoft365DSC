@@ -41,11 +41,18 @@
 * TeamsMessagingPolicy
   * Fixed an issue where `UseB2BInvitesToAddExternalUsers` was exported with the wrong value.
     FIXES [#6632](https://github.com/microsoft/Microsoft365DSC/issues/6632)
+* TeamsUpdateManagementPolicy
+  * Fixed an issue where the type for `DisabledInProductMessages` was String instead of a String array.
+    FIXES [#6635](https://github.com/microsoft/Microsoft365DSC/issues/6635)
 * TeamsVoiceRoutingPolicy
   * Fixed an issue where removing a policy required PSTN usages to exist.
     FIXES [#6449](https://github.com/microsoft/Microsoft365DSC/issues/6649)
 * VivaEngagementRoleMember
   * Fixed issue loading the required modules to export this resource
+* M365DSCReverse
+  * Fixed an issue where having resources specified in both include and exclude
+    during export would result in an exception.
+    FIXES [#6630](https://github.com/microsoft/Microsoft365DSC/issues/6630)
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
   * Moved resource initialization into dedicated function.
