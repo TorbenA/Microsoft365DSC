@@ -197,6 +197,16 @@ function Start-M365DSCConfigurationExtract
             $ComponentsToSkip += $ExcludeComponents
         }
 
+        $resourcesInBothIncludeAndExclude = Compare-Object -ReferenceObject $Components `
+            -DifferenceObject $ComponentsToSkip -ExcludeDifferent -IncludeEqual
+        if ($resourcesInBothIncludeAndExclude.Count -gt 0)
+        {
+            foreach ($resource in $resourcesInBothIncludeAndExclude)
+            {
+                Write-Warning -Message "The component '$($resource.InputObject)' was specified in both -Components and -ExcludeComponents parameters. It will be excluded from the export."
+            }
+        }
+
         # Check to validate that based on the received authentication parameters
         # we are allowed to export the selected components.
         $AuthMethods = @()
@@ -755,8 +765,8 @@ function Start-M365DSCConfigurationExtract
                 }
                 $Global:M365DSCExportResourceTypes += $resourceName
                 $exportString.Append((Export-TargetResource @parameters)) | Out-Null
+                ($using:synchronizedHashtable).ResourcesResult.Add($resourceName, $exportString.ToString())
             }
-            ($using:synchronizedHashtable).ResourcesResult.Add($resourceName, $exportString.ToString())
         }
 
         if ($Parallel)
