@@ -119,61 +119,48 @@ function Get-TargetResource
 
     try
     {
-        try
-        {
-            $SafeAttachmentRules = Get-SafeAttachmentRule -ErrorAction Stop
-        }
-        catch
-        {
-            $Message = 'Error calling {Get-SafeAttachmentRule}'
-            New-M365DSCLogEntry -Message $Message `
-                -Exception $_ `
-                -Source $MyInvocation.MyCommand.ModuleName
-        }
-        $SafeAttachmentRule = $SafeAttachmentRules | Where-Object -FilterScript { $_.Identity -eq $Identity }
+        $SafeAttachmentRule = Get-SafeAttachmentRule -Identity $Identity -ErrorAction SilentlyContinue
         if (-not $SafeAttachmentRule)
         {
             Write-Verbose -Message "SafeAttachmentRule $($Identity) does not exist."
             return $nullReturn
         }
+
+        $result = @{
+            Ensure                    = 'Present'
+            Identity                  = $SafeAttachmentRule.Identity
+            SafeAttachmentPolicy      = $SafeAttachmentRule.SafeAttachmentPolicy
+            Comments                  = $SafeAttachmentRule.Comments
+            Enabled                   = $true
+            ExceptIfRecipientDomainIs = $SafeAttachmentRule.ExceptIfRecipientDomainIs
+            ExceptIfSentTo            = $SafeAttachmentRule.ExceptIfSentTo
+            ExceptIfSentToMemberOf    = $SafeAttachmentRule.ExceptIfSentToMemberOf
+            Priority                  = $SafeAttachmentRule.Priority
+            RecipientDomainIs         = $SafeAttachmentRule.RecipientDomainIs
+            SentTo                    = $SafeAttachmentRule.SentTo
+            SentToMemberOf            = $SafeAttachmentRule.SentToMemberOf
+            Credential                = $Credential
+            ApplicationId             = $ApplicationId
+            CertificateThumbprint     = $CertificateThumbprint
+            CertificatePath           = $CertificatePath
+            CertificatePassword       = $CertificatePassword
+            ManagedIdentity           = $ManagedIdentity.IsPresent
+            TenantId                  = $TenantId
+            AccessTokens              = $AccessTokens
+        }
+        if ('Enabled' -eq $SafeAttachmentRule.State)
+        {
+            # Accounts for Get-SafeAttachmentRule returning 'State' instead of 'Enabled' used by New/Set
+            $result.Enabled = $true
+        }
         else
         {
-            $result = @{
-                Ensure                    = 'Present'
-                Identity                  = $SafeAttachmentRule.Identity
-                SafeAttachmentPolicy      = $SafeAttachmentRule.SafeAttachmentPolicy
-                Comments                  = $SafeAttachmentRule.Comments
-                Enabled                   = $true
-                ExceptIfRecipientDomainIs = $SafeAttachmentRule.ExceptIfRecipientDomainIs
-                ExceptIfSentTo            = $SafeAttachmentRule.ExceptIfSentTo
-                ExceptIfSentToMemberOf    = $SafeAttachmentRule.ExceptIfSentToMemberOf
-                Priority                  = $SafeAttachmentRule.Priority
-                RecipientDomainIs         = $SafeAttachmentRule.RecipientDomainIs
-                SentTo                    = $SafeAttachmentRule.SentTo
-                SentToMemberOf            = $SafeAttachmentRule.SentToMemberOf
-                Credential                = $Credential
-                ApplicationId             = $ApplicationId
-                CertificateThumbprint     = $CertificateThumbprint
-                CertificatePath           = $CertificatePath
-                CertificatePassword       = $CertificatePassword
-                ManagedIdentity           = $ManagedIdentity.IsPresent
-                TenantId                  = $TenantId
-                AccessTokens              = $AccessTokens
-            }
-            if ('Enabled' -eq $SafeAttachmentRule.State)
-            {
-                # Accounts for Get-SafeAttachmentRule returning 'State' instead of 'Enabled' used by New/Set
-                $result.Enabled = $true
-            }
-            else
-            {
-                $result.Enabled = $false
-            }
-
-            Write-Verbose -Message "Found SafeAttachmentRule $($Identity)"
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
-            return $result
+            $result.Enabled = $false
         }
+
+        Write-Verbose -Message "Found SafeAttachmentRule $($Identity)"
+        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
+        return $result
     }
     catch
     {

@@ -98,53 +98,39 @@ function Get-TargetResource
     $nullReturn.Ensure = 'Absent'
     try
     {
-        try
-        {
-            $HostedConnectionFilterPolicy = Get-HostedConnectionFilterPolicy -Identity $Identity -ErrorAction Stop
-        }
-        catch
-        {
-            $Message = 'Error calling {Get-HostedConnectionFilterPolicy}'
-            New-M365DSCLogEntry -Message $Message `
-                -Exception $_ `
-                -Source $MyInvocation.MyCommand.ModuleName
-            return $nullReturn
-        }
-
+        $HostedConnectionFilterPolicy = Get-HostedConnectionFilterPolicy -Identity $Identity -ErrorAction SilentlyContinue
         if (-not $HostedConnectionFilterPolicy)
         {
             Write-Verbose -Message "HostedConnectionFilterPolicy [$($Identity)] does not exist."
             return $nullReturn
         }
-        else
-        {
-            $result = @{
-                Ensure                = 'Present'
-                Identity              = $Identity
-                AdminDisplayName      = $HostedConnectionFilterPolicy.AdminDisplayName
-                EnableSafeList        = $HostedConnectionFilterPolicy.EnableSafeList
-                IPAllowList           = $HostedConnectionFilterPolicy.IPAllowList
-                IPBlockList           = $HostedConnectionFilterPolicy.IPBlockList
-                MakeDefault           = $false
-                Credential            = $Credential
-                ApplicationId         = $ApplicationId
-                CertificateThumbprint = $CertificateThumbprint
-                CertificatePath       = $CertificatePath
-                CertificatePassword   = $CertificatePassword
-                ManagedIdentity       = $ManagedIdentity.IsPresent
-                TenantId              = $TenantId
-                AccessTokens          = $AccessTokens
-            }
 
-            if ($AntiPhishRule.IsDefault)
-            {
-                $result.MakeDefault = $true
-            }
-
-            Write-Verbose -Message "Found HostedConnectionFilterPolicy $($Identity)"
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
-            return $result
+        $result = @{
+            Ensure                = 'Present'
+            Identity              = $Identity
+            AdminDisplayName      = $HostedConnectionFilterPolicy.AdminDisplayName
+            EnableSafeList        = $HostedConnectionFilterPolicy.EnableSafeList
+            IPAllowList           = $HostedConnectionFilterPolicy.IPAllowList
+            IPBlockList           = $HostedConnectionFilterPolicy.IPBlockList
+            MakeDefault           = $false
+            Credential            = $Credential
+            ApplicationId         = $ApplicationId
+            CertificateThumbprint = $CertificateThumbprint
+            CertificatePath       = $CertificatePath
+            CertificatePassword   = $CertificatePassword
+            ManagedIdentity       = $ManagedIdentity.IsPresent
+            TenantId              = $TenantId
+            AccessTokens          = $AccessTokens
         }
+
+        if ($AntiPhishRule.IsDefault)
+        {
+            $result.MakeDefault = $true
+        }
+
+        Write-Verbose -Message "Found HostedConnectionFilterPolicy $($Identity)"
+        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
+        return $result
     }
     catch
     {

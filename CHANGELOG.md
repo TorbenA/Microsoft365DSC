@@ -56,6 +56,8 @@
   * Removed groupId requirement in `ConvertTo-IntuneMobileAppAssignment`.
 * MISC
   * Centralized more resource testing to the testing function.
+  * Updated single instance information retrieval in EXO resources.
+    FIXES [#6643](https://github.com/microsoft/Microsoft365DSC/issues/6643)
   * Improved support for `ErrorAction` during export.
     FIXES [#6610](https://github.com/microsoft/Microsoft365DSC/issues/6610)
 * DEPENDENCIES

@@ -702,17 +702,6 @@ function Get-AllSPOPackages
     )
 }
 
-# EXOAddressBookPolicy cmdlets
-function Get-AddressBookPolicy
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-
-    )
-}
-
 # EXOOfflineAddressBook cmdlets
 function Get-OfflineAddressBook
 {
@@ -1071,16 +1060,6 @@ function New-GlobalAddressList
         [Parameter()]
         [System.Boolean]
         $Confirm
-    )
-}
-# EXOAddressList cmdlets
-function Get-AddressList
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-
     )
 }
 

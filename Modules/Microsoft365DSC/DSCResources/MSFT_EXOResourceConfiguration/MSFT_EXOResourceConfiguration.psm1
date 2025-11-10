@@ -192,7 +192,7 @@ function Set-TargetResource
     $ResourceConfigurationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $ResourceConfigurationParams.Remove('IsSingleInstance') | Out-Null
 
-    if (('Present' -eq $Ensure ) -and ($Null -ne $ResourceConfigurationParams))
+    if ('Present' -eq $Ensure -and $null -ne $ResourceConfigurationParams)
     {
         Write-Verbose -Message "Setting Resource Configuration with values: $(Convert-M365DscHashtableToString -Hashtable $ResourceConfigurationParams)"
         Set-ResourceConfig @ResourceConfigurationParams -Confirm:$false
