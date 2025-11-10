@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName "MSFT_IntuneMobileAppsLobAppAndroid"
+
 function Get-TargetResource
 {
     [CmdletBinding()]
