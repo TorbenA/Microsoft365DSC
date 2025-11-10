@@ -115,7 +115,7 @@ function Get-TargetResource
         }
         else
         {
-            $instance = Get-ATPProtectionPolicyRule -Identity $Identity -ErrorAction Stop
+            $instance = Get-ATPProtectionPolicyRule -Identity $Identity -ErrorAction SilentlyContinue
         }
         if ($null -eq $instance)
         {

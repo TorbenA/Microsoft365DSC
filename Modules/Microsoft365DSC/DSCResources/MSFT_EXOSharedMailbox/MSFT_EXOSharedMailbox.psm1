@@ -96,18 +96,18 @@ function Get-TargetResource
             {
                 if (-not [System.String]::IsNullOrEmpty($Identity))
                 {
-                    $mailbox = $mailbox = Get-Mailbox -Identity $Identity `
+                    $mailbox = Get-Mailbox -Identity $Identity `
                         -RecipientTypeDetails 'SharedMailbox' `
                         -ResultSize Unlimited `
-                        -ErrorAction Stop
+                        -ErrorAction SilentlyContinue
                 }
 
                 if ($null -eq $mailbox)
                 {
-                    $mailbox = $mailbox = Get-Mailbox -Identity $DisplayName `
+                    $mailbox = Get-Mailbox -Identity $DisplayName `
                         -RecipientTypeDetails 'SharedMailbox' `
                         -ResultSize Unlimited `
-                        -ErrorAction Stop
+                        -ErrorAction SilentlyContinue
                 }
             }
             catch

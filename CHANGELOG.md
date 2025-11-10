@@ -9,6 +9,9 @@
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
 * AADUser
   * Added new permission requirement `User.EnableDisableAccount.All` for enabling / disabling accounts.
+* EXOIRMConfiguration
+  * Fixed an issue where the `LicensingLocation` property was not exported correctly.
+    FIXES [#6644](https://github.com/microsoft/Microsoft365DSC/issues/6644)
 * IntuneAlertRuleWindows365
   * Initial release.
 * IntuneAppProtectionPolicyAndroid
@@ -45,16 +48,30 @@
 * TeamsMessagingPolicy
   * Fixed an issue where `UseB2BInvitesToAddExternalUsers` was exported with the wrong value.
     FIXES [#6632](https://github.com/microsoft/Microsoft365DSC/issues/6632)
+* TeamsUpdateManagementPolicy
+  * Fixed an issue where the type for `DisabledInProductMessages` was String instead of a String array.
+    FIXES [#6635](https://github.com/microsoft/Microsoft365DSC/issues/6635)
+* TeamsVoiceRoutingPolicy
+  * Fixed an issue where removing a policy required PSTN usages to exist.
+    FIXES [#6449](https://github.com/microsoft/Microsoft365DSC/issues/6649)
 * VivaEngagementRoleMember
   * Fixed issue loading the required modules to export this resource
+* M365DSCReverse
+  * Fixed an issue where having resources specified in both include and exclude
+    during export would result in an exception.
+    FIXES [#6630](https://github.com/microsoft/Microsoft365DSC/issues/6630)
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
   * Moved resource initialization into dedicated function.
   * Removed groupId requirement in `ConvertTo-IntuneMobileAppAssignment`.
 * MISC
   * Centralized more resource testing to the testing function.
+  * Updated single instance information retrieval in EXO resources.
+    FIXES [#6643](https://github.com/microsoft/Microsoft365DSC/issues/6643)
+  * Improved support for `ErrorAction` during export.
+    FIXES [#6610](https://github.com/microsoft/Microsoft365DSC/issues/6610)
 * DEPENDENCIES
-  * Updated MSCloudLoginAssistant to version 1.1.53
+  * Updated MSCloudLoginAssistant to version 1.1.54
 
 # 1.25.1015.1
 

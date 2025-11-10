@@ -68,13 +68,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name 'Address Book Policy should exist. Address Book Policy is missing. Test should fail.' -Fixture {
             BeforeAll {
                 $testParams = @{
-                    Name               = 'Contoso Different ABP' # Drift
-                    AddressLists       = '\All Contoso'
+                    Name               = 'Contoso ABP'
+                    AddressLists       = '\All Contoso Other'
                     GlobalAddressList  = '\All Contoso'
                     OfflineAddressBook = '\Contoso-All-OAB'
                     RoomList           = '\All Contoso-Rooms'
                     Ensure             = 'Present'
                     Credential         = $Credential
+                }
+
+                Mock -CommandName Get-AddressBookPolicy -MockWith {
+                    return $null
                 }
             }
 

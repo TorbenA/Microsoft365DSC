@@ -91,34 +91,29 @@ function Get-TargetResource
 
     try
     {
-        $AllPolicyTips = Get-PolicyTipConfig -Erroraction Stop
-
-        $PolicyTipConfig = $AllPolicyTips | Where-Object -FilterScript { $_.Name -eq $Name }
-
+        $PolicyTipConfig = Get-PolicyTipConfig -Identity $Name -ErrorAction SilentlyContinue
         if ($null -eq $PolicyTipConfig)
         {
             Write-Verbose -Message "Policy Tip Config $($Name) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $result = @{
-                Name                  = $PolicyTipConfig.Name
-                Value                 = $PolicyTipConfig.Value
-                Ensure                = 'Present'
-                Credential            = $Credential
-                ApplicationId         = $ApplicationId
-                CertificateThumbprint = $CertificateThumbprint
-                CertificatePath       = $CertificatePath
-                CertificatePassword   = $CertificatePassword
-                ManagedIdentity       = $ManagedIdentity.IsPresent
-                TenantId              = $TenantId
-                AccessTokens          = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found Policy Tip Config $($Name)"
-            return $result
+        $result = @{
+            Name                  = $PolicyTipConfig.Name
+            Value                 = $PolicyTipConfig.Value
+            Ensure                = 'Present'
+            Credential            = $Credential
+            ApplicationId         = $ApplicationId
+            CertificateThumbprint = $CertificateThumbprint
+            CertificatePath       = $CertificatePath
+            CertificatePassword   = $CertificatePassword
+            ManagedIdentity       = $ManagedIdentity.IsPresent
+            TenantId              = $TenantId
+            AccessTokens          = $AccessTokens
         }
+
+        Write-Verbose -Message "Found Policy Tip Config $($Name)"
+        return $result
     }
     catch
     {
