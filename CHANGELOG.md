@@ -64,7 +64,7 @@
   * Improved support for `ErrorAction` during export.
     FIXES [#6610](https://github.com/microsoft/Microsoft365DSC/issues/6610)
 * DEPENDENCIES
-  * Updated MSCloudLoginAssistant to version 1.1.53
+  * Updated MSCloudLoginAssistant to version 1.1.54
 
 # 1.25.1015.1
 
