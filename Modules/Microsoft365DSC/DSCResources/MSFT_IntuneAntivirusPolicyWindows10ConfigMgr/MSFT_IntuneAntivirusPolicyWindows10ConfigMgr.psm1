@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName "MSFT_IntuneAntivirusPolicyWindows10ConfigMgr"
+
 function Get-TargetResource
 {
     [CmdletBinding()]
