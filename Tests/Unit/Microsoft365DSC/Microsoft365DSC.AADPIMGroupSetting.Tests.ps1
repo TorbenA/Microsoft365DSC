@@ -682,12 +682,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Credential = $Credential
                 }
+
+                $isM365DSCAvailable = $null -ne (Get-Module -ListAvailable -Name Microsoft365DSC)
             }
 
             It 'Should reverse engineer resource from the export method' {
                 $result = Export-TargetResource @testParams
                 Should -Invoke -CommandName Get-MgGroup -Exactly 1
-                Should -Invoke -CommandName Invoke-M365DSCGraphBatchRequest -Exactly 1
+                if ($isM365DSCAvailable)
+                {
+                    Should -Invoke -CommandName Invoke-M365DSCGraphBatchRequest -Exactly 1
+                }
                 $result | Should -Not -BeNullOrEmpty
             }
 
@@ -695,7 +700,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams.Filter = "displayName eq 'FakeGroup'"
                 $result = Export-TargetResource @testParams
                 Should -Invoke -CommandName Get-MgGroup -Exactly 1
-                Should -Invoke -CommandName Invoke-M365DSCGraphBatchRequest -Exactly 1
+                if ($isM365DSCAvailable)
+                {
+                    Should -Invoke -CommandName Invoke-M365DSCGraphBatchRequest -Exactly 1
+                }
                 $result | Should -Not -BeNullOrEmpty
             }
         }
