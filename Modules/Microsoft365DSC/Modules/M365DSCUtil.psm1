@@ -5518,7 +5518,7 @@ function Join-M365DSCConfiguration
 function Invoke-PowerShellCoreResource
 {
     [CmdletBinding()]
-    [OutputType([System.Nullable[System.Object]])]
+    [OutputType([System.Object])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Path', Justification = 'Using statement not detected')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'FunctionName', Justification = 'Using statement not detected')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Parameters', Justification = 'Using statement not detected')]

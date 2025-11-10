@@ -120,7 +120,7 @@ TODO
 
 ## Microsoft Graph Permissions
 
-Most components of the Microsoft365DSC solution are using the Microsoft Graph PowerShell SDK under the cover to authenticate and interact with Microsoft 365. The Graph API has two different authentication implementations:
+Most components of the Microsoft365DSC solution are using the Microsoft Graph PowerShell SDK under the hood to authenticate and interact with Microsoft 365. The Graph API has two different authentication implementations:
 
 1. **Delegated permissions**: Here a username/password is used to authenticate.
 
