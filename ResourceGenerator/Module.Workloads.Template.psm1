@@ -78,42 +78,42 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        $CreateParameters = ([Hashtable]$BoundParameters).Clone()
+        $createParameters = ([Hashtable]$BoundParameters).Clone()
 
-        $CreateParameters.Remove('Verbose') | Out-Null
+        $createParameters.Remove('Verbose') | Out-Null
 
-        $keys = $CreateParameters.Keys
+        $keys = $createParameters.Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.GetType().Name -like '*cimInstance*')
+            if ($null -ne $createParameters.$key -and $createParameters.$key.GetType().Name -like '*cimInstance*')
             {
-                $keyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters.$key
-                $CreateParameters.Remove($key) | Out-Null
-                $CreateParameters.Add($keyName, $keyValue)
+                $keyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $createParameters.$key
+                $createParameters.Remove($key) | Out-Null
+                $createParameters.Add($keyName, $keyValue)
             }
         }
-        Write-Verbose -Message "Creating {$<PrimaryKey>} with Parameters:`r`n$(Convert-M365DscHashtableToString -Hashtable $CreateParameters)"
-        <NewCmdLetName> @CreateParameters | Out-Null
+        Write-Verbose -Message "Creating {$<PrimaryKey>} with Parameters:`r`n$(Convert-M365DscHashtableToString -Hashtable $createParameters)"
+        <NewCmdLetName> @createParameters | Out-Null
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating {$<PrimaryKey>}"
 
-        $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
-        $UpdateParameters.Remove('Verbose') | Out-Null
+        $updateParameters = ([Hashtable]$BoundParameters).Clone()
+        $updateParameters.Remove('Verbose') | Out-Null
 
-        $keys = $UpdateParameters.Keys
+        $keys = $updateParameters.Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.GetType().Name -like '*cimInstance*')
+            if ($null -ne $updateParameters.$key -and $updateParameters.$key.GetType().Name -like '*cimInstance*')
             {
-                $keyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
-                $UpdateParameters.Remove($key) | Out-Null
-                $UpdateParameters.Add($keyName, $keyValue)
+                $keyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.$key
+                $updateParameters.Remove($key) | Out-Null
+                $updateParameters.Add($keyName, $keyValue)
             }
         }
 
-        <UpdateCmdLetName> @UpdateParameters | Out-Null
+        <UpdateCmdLetName> @updateParameters | Out-Null
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
