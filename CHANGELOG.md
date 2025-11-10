@@ -41,6 +41,9 @@
 * TeamsMessagingPolicy
   * Fixed an issue where `UseB2BInvitesToAddExternalUsers` was exported with the wrong value.
     FIXES [#6632](https://github.com/microsoft/Microsoft365DSC/issues/6632)
+* TeamsUpdateManagementPolicy
+  * Fixed an issue where the type for `DisabledInProductMessages` was String instead of a String array.
+    FIXES [#6635](https://github.com/microsoft/Microsoft365DSC/issues/6635)
 * VivaEngagementRoleMember
   * Fixed issue loading the required modules to export this resource
 * M365DSCUtil
