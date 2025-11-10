@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName "MSFT_IntuneUserSettingsPolicyWindows365"
+
 function Get-TargetResource
 {
     [CmdletBinding()]

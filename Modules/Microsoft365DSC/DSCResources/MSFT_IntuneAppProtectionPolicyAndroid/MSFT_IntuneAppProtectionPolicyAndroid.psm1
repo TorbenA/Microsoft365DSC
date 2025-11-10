@@ -432,7 +432,15 @@ function Get-TargetResource
         {
             $policy = $Script:exportedInstance
         }
-        $Id = $policy.Id
+        $IdArray = [Array]($policy.Id)
+        if ($IdArray.Length -gt 1)
+        {
+            throw "Multiple Policies with same displayname identified - Module currently only functions with unique names"
+        }
+        else
+        {
+            $Id = $policy.Id
+        }
 
         $policyApps = Get-MgBetaDeviceAppManagementAndroidManagedAppProtectionApp -AndroidManagedAppProtectionId $Id
 

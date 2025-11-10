@@ -804,8 +804,18 @@ function Set-TargetResource
             }
             else
             {
-                Write-Verbose -Message "Generating new scope id"
-                $scopeEntry.Add('id', (New-Guid).ToString())
+                Write-Verbose -Message "Retrieving Scope by Display Name {$($scope.value)}"
+                
+                $existingScope = $currentAADApp.Api.Oauth2PermissionScopes | Where-Object -FilterScript {$_.Value -eq $scope.value}
+                $existingScopeId = (New-Guid).ToString()
+                if ($null -ne $existingScope)
+                {
+                    $existingScopeId = $existingScope.Id
+                    Write-Verbose -Message "Found existing scope with ID {$existingScopeId}"
+                }
+
+                Write-Verbose -Message "Adding scope ID {$existingScopeId}"
+                $scopeEntry.Add('id', $existingScopeId)
             }
 
             $scopeValue += $scopeEntry
