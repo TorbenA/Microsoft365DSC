@@ -904,18 +904,20 @@ function Update-IntuneDeviceConfigurationPolicy
             'settings'          = $Settings
             'roleScopeTagIds'   = $RoleScopeTagIds
         }
+
 		if (-not $RoleScopeTagIds -or $RoleScopeTagIds.Count -eq 0)
 		{
-			# No tag IDs provided → use the default Intune tag "0"
+			# No tag IDs provided -> use the default Intune tag "0"
 			$policy['roleScopeTagIds'] = @("0")
 		}
 		else
 		{
-			# Tag IDs provided → force array type to ensure Graph serialization consistency
+			# Tag IDs provided -> force array type to ensure Graph serialization consistency
 			$policy['roleScopeTagIds'] = @($RoleScopeTagIds)
 		}
+
         $body = $policy | ConvertTo-Json -Depth 20
-        #write-verbose -Message $body
+        #Write-Verbose -Message $body
         Invoke-MgGraphRequest -Method PUT -Uri $Uri -Body $body -ErrorAction Stop 4> $null
     }
     catch

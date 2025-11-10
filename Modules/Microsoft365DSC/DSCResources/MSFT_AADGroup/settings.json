@@ -100,9 +100,16 @@
       ]
     },
     {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
       "module": "Microsoft.Graph.Beta.Groups",
       "cmdlets": [
         "Add-MgBetaGroupToLifecyclePolicy",
+        "Get-MgBetaGroup",
         "Get-MgBetaGroupLifecyclePolicy",
         "New-MgBetaGroupMemberByRef",
         "Remove-MgBetaGroupFromLifecyclePolicy",
@@ -129,7 +136,6 @@
     {
       "module": "Microsoft.Graph.Groups",
       "cmdlets": [
-        "Get-MgGroup",
         "New-MgGroup",
         "New-MgGroupMember",
         "New-MgGroupMemberByRef",

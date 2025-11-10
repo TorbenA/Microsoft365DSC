@@ -1685,7 +1685,9 @@ function ConvertTo-IntunePolicyAssignment
     $assignmentResult = @()
     foreach ($assignment in $Assignments)
     {
-        $target = @{"@odata.type" = $assignment.dataType}
+        $target = @{
+            '@odata.type' = $assignment.dataType
+        }
         if ($IncludeDeviceFilter)
         {
             if ($null -ne $assignment.DeviceAndAppManagementAssignmentFilterType -and $assignment.DeviceAndAppManagementAssignmentFilterType -ne 'none')
@@ -1718,39 +1720,30 @@ function ConvertTo-IntunePolicyAssignment
             {
                 $group = Get-MgGroup -GroupId ($assignment.groupId) -ErrorAction SilentlyContinue
             }
-            if ($null -eq $group)
+            if ($null -eq $group -and -not [System.String]::IsNullOrEmpty($assignment.groupDisplayName))
             {
-                if ($assignment.groupDisplayName)
+                $escapedName = $assignment.groupDisplayName -replace "'", "''"
+                $group = Get-MgGroup -Filter "DisplayName eq '$escapedName'" -All -ErrorAction SilentlyContinue
+                if ($null -eq $group)
                 {
-                    $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.groupDisplayName -replace "'", "''")'" -All -ErrorAction SilentlyContinue
-                    if ($null -eq $group)
-                    {
-                        $message = "Skipping assignment for the group with DisplayName {$($assignment.groupDisplayName)} as it could not be found in the directory.`r`n"
-                        $message += "Please update your DSC resource extract with the correct groupId or groupDisplayName."
-                        Write-Warning -Message $message
-                        $target = $null
-                    }
-                    if ($group -and $group.Count -gt 1)
-                    {
-                        $message = "Skipping assignment for the group with DisplayName {$($assignment.groupDisplayName)} as it is not unique in the directory.`r`n"
-                        $message += "Please update your DSC resource extract with the correct groupId or a unique group DisplayName."
-                        Write-Warning -Message $message
-                        $group = $null
-                        $target = $null
-                    }
+                    Write-Warning "Skipping assignment: groupDisplayName '{$($assignment.groupDisplayName)}' not found."
+                    $target = $null
                 }
-                else
+                elseif ($group.Count -gt 1)
                 {
-                    $message = "Skipping assignment for the group with Id {$($assignment.groupId)} as it could not be found in the directory.`r`n"
-                    $message += "Please update your DSC resource extract with the correct groupId or a unique group DisplayName."
-                    Write-Warning -Message $message
+                    Write-Warning "Skipping assignment: groupDisplayName '{$($assignment.groupDisplayName)}' is not unique."
                     $target = $null
                 }
             }
-            #Skipping assignment if group not found from either groupId or groupDisplayName
+            # If group found, add its ID
             if ($null -ne $group)
             {
                 $target.Add('groupId', $group.Id)
+            }
+            elseif ($null -eq $group -and [System.String]::IsNullOrEmpty($assignment.groupDisplayName))
+            {
+                Write-Warning "Skipping assignment: missing both groupId and groupDisplayName."
+                $target = $null
             }
         }
 
@@ -1760,7 +1753,7 @@ function ConvertTo-IntunePolicyAssignment
         }
     }
 
-    return ,[System.Collections.Hashtable[]]$assignmentResult
+    return ,$assignmentResult
 }
 
 function ConvertFrom-IntuneMobileAppAssignment
@@ -1870,10 +1863,12 @@ function ConvertTo-IntuneMobileAppAssignment
         [Parameter(Mandatory = $true)]
         [AllowNull()]
         $Assignments,
+
         [Parameter()]
         [System.Boolean]
         $IncludeDeviceFilter = $true
     )
+
     if ($null -eq $Script:IntuneAssignmentFilters)
     {
         $Script:IntuneAssignmentFilters = Get-MgBetaDeviceManagementAssignmentFilter -All -ErrorAction SilentlyContinue | ForEach-Object {
@@ -1883,32 +1878,37 @@ function ConvertTo-IntuneMobileAppAssignment
             }
         }
     }
+
     if ($null -eq $Assignments)
     {
         return ,@()
     }
+
     $assignmentResult = @()
     foreach ($assignment in $Assignments)
     {
         $formattedAssignment = @{}
-        $target = @{"@odata.type" = $assignment.dataType} 
+        $target = @{
+            '@odata.type' = $assignment.dataType
+        }
+
         # Handle Device Filters
         if ($IncludeDeviceFilter)
         {
-            if ($null -ne $assignment.DeviceAndAppManagementAssignmentFilterType -and 
+            if ($null -ne $assignment.DeviceAndAppManagementAssignmentFilterType -and
                 $assignment.DeviceAndAppManagementAssignmentFilterType -ne 'none')
             {
                 $filter = $Script:IntuneAssignmentFilters | Where-Object {
                     $_.FilterId -eq $assignment.DeviceAndAppManagementAssignmentFilterId
                 }
- 
+
                 if ($null -eq $filter)
                 {
                     $filter = $Script:IntuneAssignmentFilters | Where-Object {
                         $_.DisplayName -eq $assignment.DeviceAndAppManagementAssignmentFilterDisplayName
                     }
                 }
- 
+
                 if ($null -ne $filter)
                 {
                     $target.Add('deviceAndAppManagementAssignmentFilterType', $assignment.DeviceAndAppManagementAssignmentFilterType)
@@ -1920,22 +1920,22 @@ function ConvertTo-IntuneMobileAppAssignment
                 }
             }
         }
+
         # Add intent (required for app assignments)
         $formattedAssignment.Add('intent', $assignment.intent)
-        # --- Group resolution logic (refactored) ---
+
         if ($assignment.dataType -like '*groupAssignmentTarget')
         {
             $group = $null
-            # Only check groupId if it's non-empty and looks valid
-            if (-not [string]::IsNullOrWhiteSpace($assignment.groupId))
+            if (-not [System.String]::IsNullOrEmpty($assignment.groupId))
             {
                 $group = Get-MgGroup -GroupId $assignment.groupId -ErrorAction SilentlyContinue
             }
             # If groupId lookup failed, try by display name
-            if ($null -eq $group -and -not [string]::IsNullOrWhiteSpace($assignment.groupDisplayName))
+            if ($null -eq $group -and -not [System.String]::IsNullOrEmpty($assignment.groupDisplayName))
             {
                 $escapedName = $assignment.groupDisplayName -replace "'", "''"
-                $group = Get-MgGroup -Filter "DisplayName eq '$escapedName'" -ErrorAction SilentlyContinue
+                $group = Get-MgGroup -Filter "DisplayName eq '$escapedName'" -All -ErrorAction SilentlyContinue
                 if ($null -eq $group)
                 {
                     Write-Warning "Skipping assignment: groupDisplayName '{$($assignment.groupDisplayName)}' not found."
@@ -1952,7 +1952,7 @@ function ConvertTo-IntuneMobileAppAssignment
             {
                 $target.Add('groupId', $group.Id)
             }
-            elseif ($null -eq $group -and [string]::IsNullOrWhiteSpace($assignment.groupDisplayName))
+            elseif ($null -eq $group -and [System.String]::IsNullOrEmpty($assignment.groupDisplayName))
             {
                 Write-Warning "Skipping assignment: missing both groupId and groupDisplayName."
                 $target = $null
