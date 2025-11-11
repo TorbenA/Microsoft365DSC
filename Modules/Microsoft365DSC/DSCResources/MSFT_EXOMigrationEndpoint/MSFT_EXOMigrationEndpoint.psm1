@@ -137,7 +137,7 @@ function Get-TargetResource
         }
         else
         {
-            $migrationEndpoint = Get-MigrationEndpoint -Identity $Identity -ErrorAction Stop
+            $migrationEndpoint = Get-MigrationEndpoint -Identity $Identity -ErrorAction SilentlyContinue
         }
         if ($null -eq $migrationEndpoint)
         {

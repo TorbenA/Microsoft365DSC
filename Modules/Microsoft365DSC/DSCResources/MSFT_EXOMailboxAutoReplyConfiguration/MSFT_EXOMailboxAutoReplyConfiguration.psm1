@@ -136,51 +136,48 @@ function Get-TargetResource
     $nullReturn.Ensure = 'Absent'
     try
     {
-        $config = Get-MailboxAutoReplyConfiguration -Identity $Identity -ErrorAction Stop
-
+        $config = Get-MailboxAutoReplyConfiguration -Identity $Identity -ErrorAction SilentlyContinue
         if ($null -eq $config)
         {
             Write-Verbose -Message "Mailbox for $($Identity) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $userPrincipalName = $Identity
-            if ($userPrincipalName -notlike '*@*')
-            {
-                $userPrincipalName = (Get-User -Identity $Identity).UserPrincipalName
-            }
-            $result = @{
-                Identity                         = $userPrincipalName
-                Owner                            = $userPrincipalName
-                AutoDeclineFutureRequestsWhenOOF = [Boolean]$config.AutoDeclineFutureRequestsWhenOOF
-                AutoReplyState                   = $config.AutoReplyState
-                CreateOOFEvent                   = [Boolean]$config.CreateOOFEvent
-                DeclineAllEventsForScheduledOOF  = [Boolean]$config.DeclineAllEventsForScheduledOOF
-                DeclineEventsForScheduledOOF     = [Boolean]$config.DeclineEventsForScheduledOOF
-                DeclineMeetingMessage            = $config.DeclineMeetingMessage
-                EndTime                          = $config.EndTime
-                EventsToDeleteIDs                = [Array]$config.EventsToDeleteIDs
-                ExternalAudience                 = $config.ExternalAudience
-                ExternalMessage                  = $config.ExternalMessage
-                InternalMessage                  = $config.InternalMessage
-                OOFEventSubject                  = $config.OOFEventSubject
-                StartTime                        = $config.StartTime
-                Credential                       = $Credential
-                Ensure                           = 'Present'
-                ApplicationId                    = $ApplicationId
-                CertificateThumbprint            = $CertificateThumbprint
-                CertificatePath                  = $CertificatePath
-                CertificatePassword              = $CertificatePassword
-                ManagedIdentity                  = $ManagedIdentity.IsPresent
-                TenantId                         = $TenantId
-                AccessTokens                     = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found Mailbox $($Identity)"
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
-            return $result
+        $userPrincipalName = $Identity
+        if ($userPrincipalName -notlike '*@*')
+        {
+            $userPrincipalName = (Get-User -Identity $Identity).UserPrincipalName
         }
+        $result = @{
+            Identity                         = $userPrincipalName
+            Owner                            = $userPrincipalName
+            AutoDeclineFutureRequestsWhenOOF = [Boolean]$config.AutoDeclineFutureRequestsWhenOOF
+            AutoReplyState                   = $config.AutoReplyState
+            CreateOOFEvent                   = [Boolean]$config.CreateOOFEvent
+            DeclineAllEventsForScheduledOOF  = [Boolean]$config.DeclineAllEventsForScheduledOOF
+            DeclineEventsForScheduledOOF     = [Boolean]$config.DeclineEventsForScheduledOOF
+            DeclineMeetingMessage            = $config.DeclineMeetingMessage
+            EndTime                          = $config.EndTime
+            EventsToDeleteIDs                = [Array]$config.EventsToDeleteIDs
+            ExternalAudience                 = $config.ExternalAudience
+            ExternalMessage                  = $config.ExternalMessage
+            InternalMessage                  = $config.InternalMessage
+            OOFEventSubject                  = $config.OOFEventSubject
+            StartTime                        = $config.StartTime
+            Credential                       = $Credential
+            Ensure                           = 'Present'
+            ApplicationId                    = $ApplicationId
+            CertificateThumbprint            = $CertificateThumbprint
+            CertificatePath                  = $CertificatePath
+            CertificatePassword              = $CertificatePassword
+            ManagedIdentity                  = $ManagedIdentity.IsPresent
+            TenantId                         = $TenantId
+            AccessTokens                     = $AccessTokens
+        }
+
+        Write-Verbose -Message "Found Mailbox $($Identity)"
+        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
+        return $result
     }
     catch
     {

@@ -86,7 +86,7 @@ function Get-TargetResource
         }
         else
         {
-            $instance = Get-ServicePrincipal -Identity $servicePrincipal.Id -ErrorAction Stop
+            $instance = Get-ServicePrincipal -Identity $servicePrincipal.Id -ErrorAction SilentlyContinue
         }
         if ($null -eq $instance)
         {

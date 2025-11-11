@@ -85,9 +85,7 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            $AllRoleGroups = Get-RoleGroup -ErrorAction Stop
-            $RoleGroup = $AllRoleGroups | Where-Object -FilterScript { $_.Name -eq $Name }
-
+            $RoleGroup = Get-RoleGroup -Identity $Name -ErrorAction SilentlyContinue
             if ($null -eq $RoleGroup)
             {
                 Write-Verbose -Message "Role Group $($Name) does not exist."

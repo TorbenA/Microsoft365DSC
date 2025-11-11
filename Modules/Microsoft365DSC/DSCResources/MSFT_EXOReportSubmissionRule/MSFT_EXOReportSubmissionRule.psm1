@@ -93,35 +93,32 @@ function Get-TargetResource
 
     try
     {
-        $ReportSubmissionRule = Get-ReportSubmissionRule -ErrorAction Stop
-
+        $ReportSubmissionRule = Get-ReportSubmissionRule -ErrorAction SilentlyContinue
         if ($null -eq $ReportSubmissionRule)
         {
             Write-Verbose -Message 'ReportSubmissionRule does not exist.'
             return $nullReturn
         }
-        else
-        {
-            $result = @{
-                IsSingleInstance      = 'Yes'
-                Identity              = $ReportSubmissionRule.Identity
-                Comments              = $ReportSubmissionRule.Comments
-                SentTo                = $ReportSubmissionRule.SentTo
-                Credential            = $Credential
-                Ensure                = 'Present'
-                ApplicationId         = $ApplicationId
-                CertificateThumbprint = $CertificateThumbprint
-                CertificatePath       = $CertificatePath
-                CertificatePassword   = $CertificatePassword
-                ManagedIdentity       = $ManagedIdentity.IsPresent
-                TenantId              = $TenantId
-                AccessTokens          = $AccessTokens
-            }
 
-            Write-Verbose -Message 'Found ReportSubmissionRule'
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
-            return $result
+        $result = @{
+            IsSingleInstance      = 'Yes'
+            Identity              = $ReportSubmissionRule.Identity
+            Comments              = $ReportSubmissionRule.Comments
+            SentTo                = $ReportSubmissionRule.SentTo
+            Credential            = $Credential
+            Ensure                = 'Present'
+            ApplicationId         = $ApplicationId
+            CertificateThumbprint = $CertificateThumbprint
+            CertificatePath       = $CertificatePath
+            CertificatePassword   = $CertificatePassword
+            ManagedIdentity       = $ManagedIdentity.IsPresent
+            TenantId              = $TenantId
+            AccessTokens          = $AccessTokens
         }
+
+        Write-Verbose -Message 'Found ReportSubmissionRule'
+        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
+        return $result
     }
     catch
     {
