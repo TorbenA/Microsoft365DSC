@@ -302,10 +302,7 @@ function Get-TargetResource
 
     try
     {
-        $AllMobileDeviceMailboxPolicies = Get-MobileDeviceMailboxPolicy -ErrorAction Stop
-
-        $MobileDeviceMailboxPolicy = $AllMobileDeviceMailboxPolicies | Where-Object -FilterScript { $_.Name -eq $Name }
-
+        $MobileDeviceMailboxPolicy = Get-MobileDeviceMailboxPolicy -Identity $Name -ErrorAction SilentlyContinue
         if ($null -eq $MobileDeviceMailboxPolicy)
         {
             Write-Verbose -Message "Mobile Device Mailbox Policy $($Name) does not exist."

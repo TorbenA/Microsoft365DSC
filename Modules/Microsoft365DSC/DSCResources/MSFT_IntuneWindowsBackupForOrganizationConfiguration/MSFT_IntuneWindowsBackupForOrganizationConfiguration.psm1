@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName "MSFT_IntuneWindowsBackupForOrganizationConfiguration"
+
 function Get-TargetResource
 {
     [CmdletBinding()]

@@ -1470,6 +1470,37 @@ function Get-M365DSCAllResourcesDictionary
 }
 
 <#
+.DESCRIPTION
+    Initializes the script scoped variable that holds all the M365DSC resources.
+
+.FUNCTIONALITY
+    Internal
+#>
+function Initialize-M365DSCAllResourcesDictionary
+{
+    [CmdletBinding()]
+    param()
+
+    if ($null -eq $Script:AllM365DSCResources -and -not $Global:IsTestEnvironment)
+    {
+        $Script:AllM365DSCResources = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new([System.StringComparer]::InvariantCultureIgnoreCase)
+        if ($Script:IsPowerShellCore)
+        {
+            Import-Module -Name 'PSDesiredStateConfiguration' -RequiredVersion 2.0.7 -Prefix 'Pwsh' -Force
+            $resources = Get-PwshDscResource -Module 'Microsoft365Dsc'
+        }
+        else
+        {
+            $resources = Get-DscResource -Module 'Microsoft365Dsc'
+        }
+        foreach ($resource in $resources)
+        {
+            $Script:AllM365DSCResources.Add($resource.Name, $resource)
+        }
+    }
+}
+
+<#
 .Description
 This is the main Microsoft365DSC.Reverse function that extracts the DSC configuration from an existing Microsoft 365 Tenant.
 
@@ -1780,23 +1811,8 @@ function Export-M365DSCConfiguration
     }
 
     Add-M365DSCTelemetryEvent -Type 'ExportInitiated' -Data $data
-    if ($null -eq $Script:AllM365DSCResources -and -not $Global:IsTestEnvironment)
-    {
-        $Script:AllM365DSCResources = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new([System.StringComparer]::InvariantCultureIgnoreCase)
-        if ($Script:IsPowerShellCore)
-        {
-            Import-Module -Name 'PSDesiredStateConfiguration' -RequiredVersion 2.0.7 -Prefix 'Pwsh' -Force
-            $resources = Get-PwshDscResource -Module 'Microsoft365Dsc'
-        }
-        else
-        {
-            $resources = Get-DscResource -Module 'Microsoft365Dsc'
-        }
-        foreach ($resource in $resources)
-        {
-            $Script:AllM365DSCResources.Add($resource.Name, $resource)
-        }
-    }
+    Initialize-M365DSCAllResourcesDictionary
+
     if ($null -ne $Workloads)
     {
         Write-M365DSCHost -Message "Exporting Microsoft 365 configuration for Workloads: $($Workloads -join ', ')"
@@ -1818,7 +1834,8 @@ function Export-M365DSCConfiguration
             -Filters $Filters `
             -Validate:$Validate `
             -Parallel:$Parallel `
-            -ResourceSettings $Script:M365DSCResourceSettings
+            -ResourceSettings $Script:M365DSCResourceSettings `
+            -ErrorAction $ErrorActionPreference
     }
     elseif ($null -ne $Components)
     {
@@ -1840,7 +1857,8 @@ function Export-M365DSCConfiguration
             -Filters $Filters `
             -Validate:$Validate `
             -Parallel:$Parallel `
-            -ResourceSettings $Script:M365DSCResourceSettings
+            -ResourceSettings $Script:M365DSCResourceSettings `
+            -ErrorAction $ErrorActionPreference
     }
     elseif ($null -ne $Mode)
     {
@@ -1863,7 +1881,8 @@ function Export-M365DSCConfiguration
             -Filters $Filters `
             -Validate:$Validate `
             -Parallel:$Parallel `
-            -ResourceSettings $Script:M365DSCResourceSettings
+            -ResourceSettings $Script:M365DSCResourceSettings `
+            -ErrorAction $ErrorActionPreference
     }
 
     # Clear the exported resource instances' names Global variable
@@ -5505,7 +5524,7 @@ function Join-M365DSCConfiguration
 function Invoke-PowerShellCoreResource
 {
     [CmdletBinding()]
-    [OutputType([System.Nullable[System.Object]])]
+    [OutputType([System.Object])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Path', Justification = 'Using statement not detected')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'FunctionName', Justification = 'Using statement not detected')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Parameters', Justification = 'Using statement not detected')]
@@ -5737,6 +5756,7 @@ Export-ModuleMember -Function @(
     'Get-SPOAdministrationUrl',
     'Get-SPOUserProfilePropertyInstance',
     'Get-TeamByName',
+    'Initialize-M365DSCAllResourcesDictionary',
     'Install-M365DSCDevBranch',
     'Invoke-M365DSCGraphBatchRequest',
     'Invoke-PowerShellCoreResource',

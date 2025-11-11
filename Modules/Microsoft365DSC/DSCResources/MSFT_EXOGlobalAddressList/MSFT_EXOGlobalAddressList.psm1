@@ -156,11 +156,11 @@ function Get-TargetResource
 
             if ($null -eq (Get-Command 'Get-GlobalAddressList' -ErrorAction SilentlyContinue))
             {
+                Write-Warning -Message "Command 'Get-GlobalAddressList' not found. Returning Absent for Global Address List $($Name)."
                 return $nullReturn
             }
 
-            $GlobalAddressList = Get-GlobalAddressList -Identity $Name -ErrorAction Stop
-
+            $GlobalAddressList = Get-GlobalAddressList -Identity $Name -ErrorAction SilentlyContinue
             if ($null -eq $GlobalAddressList)
             {
                 Write-Verbose -Message "Global Address List $($Name) does not exist."

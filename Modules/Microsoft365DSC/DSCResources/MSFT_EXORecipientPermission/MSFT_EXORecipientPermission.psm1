@@ -116,17 +116,7 @@ function Get-TargetResource
         else
         {
             Write-Verbose -Message "Retrieving Recipient Permissions by Identity {$Identity}, Trustee {$Trustee} and AccessRights {$AccessRights}"
-            $recipientPermission = Get-RecipientPermission -Identity $Identity -Trustee $Trustee -AccessRights $AccessRights -ErrorAction Stop
-            $recipientPermissionValue = $recipientPermission | Where-Object -FilterScript {$_.Identity -eq $Identity}
-
-            if ($null -eq $recipientPermissionValue)
-            {
-                $userValue = Get-User -Identity $Identity
-                $recipientPermissionValue = $recipientPermission | Where-Object -FilterScript {
-                    $_.Identity -eq $userValue.Identity -and $_.Trustee -eq $Trustee -and $_.AccessRights -eq $AccessRights
-                }
-            }
-            $recipientPermission = $recipientPermissionValue
+            $recipientPermission = Get-RecipientPermission -Identity $Identity -Trustee $Trustee -AccessRights $AccessRights -ErrorAction SilentlyContinue
         }
 
         if ($null -eq $recipientPermission)

@@ -96,37 +96,32 @@ function Get-TargetResource
 
     try
     {
-        $AllEmailAddressPolicies = Get-EmailAddressPolicy -ErrorAction Stop
-
-        $EmailAddressPolicy = $AllEmailAddressPolicies | Where-Object -FilterScript { $_.Name -eq $Name }
-
+        $EmailAddressPolicy = Get-EmailAddressPolicy -Identity $Name -ErrorAction SilentlyContinue
         if ($null -eq $EmailAddressPolicy)
         {
             Write-Verbose -Message "Email Address Policy $($Name) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $result = @{
-                Name                              = $EmailAddressPolicy.Name
-                Priority                          = $EmailAddressPolicy.Priority
-                EnabledEmailAddressTemplates      = $EmailAddressPolicy.EnabledEmailAddressTemplates
-                EnabledPrimarySMTPAddressTemplate = $EmailAddressPolicy.EnabledPrimarySMTPAddressTemplate
-                ManagedByFilter                   = $EmailAddressPolicy.ManagedByFilter
-                Ensure                            = 'Present'
-                Credential                        = $Credential
-                ApplicationId                     = $ApplicationId
-                CertificateThumbprint             = $CertificateThumbprint
-                CertificatePath                   = $CertificatePath
-                CertificatePassword               = $CertificatePassword
-                ManagedIdentity                   = $ManagedIdentity.IsPresent
-                TenantId                          = $TenantId
-                AccessTokens                      = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found Email Address Policy $($Name)"
-            return $result
+        $result = @{
+            Name                              = $EmailAddressPolicy.Name
+            Priority                          = $EmailAddressPolicy.Priority
+            EnabledEmailAddressTemplates      = $EmailAddressPolicy.EnabledEmailAddressTemplates
+            EnabledPrimarySMTPAddressTemplate = $EmailAddressPolicy.EnabledPrimarySMTPAddressTemplate
+            ManagedByFilter                   = $EmailAddressPolicy.ManagedByFilter
+            Ensure                            = 'Present'
+            Credential                        = $Credential
+            ApplicationId                     = $ApplicationId
+            CertificateThumbprint             = $CertificateThumbprint
+            CertificatePath                   = $CertificatePath
+            CertificatePassword               = $CertificatePassword
+            ManagedIdentity                   = $ManagedIdentity.IsPresent
+            TenantId                          = $TenantId
+            AccessTokens                      = $AccessTokens
         }
+
+        Write-Verbose -Message "Found Email Address Policy $($Name)"
+        return $result
     }
     catch
     {

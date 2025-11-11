@@ -168,21 +168,24 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    # Validate that the selected PSTN usages exist in the environment
-    $existingUsages = Get-CsOnlinePstnUsage | Select-Object -ExpandProperty Usage
-    $notFoundUsageList = @()
-    foreach ($usage in $OnlinePstnUsages)
+    if ($Ensure -eq 'Present')
     {
-        if ( -not ($existingUsages -match $usage))
+        # Validate that the selected PSTN usages exist in the environment
+        $existingUsages = Get-CsOnlinePstnUsage | Select-Object -ExpandProperty Usage
+        $notFoundUsageList = @()
+        foreach ($usage in $OnlinePstnUsages)
         {
-            $notFoundUsageList += $usage
+            if ( -not ($existingUsages -match $usage))
+            {
+                $notFoundUsageList += $usage
+            }
         }
-    }
 
-    if ($notFoundUsageList)
-    {
-        $notFoundUsages = $notFoundUsageList -join ','
-        throw "Please create the PSTN Usage(s) ($notFoundUsages) using `"TeamsPstnUsage`""
+        if ($notFoundUsageList)
+        {
+            $notFoundUsages = $notFoundUsageList -join ','
+            throw "Please create the PSTN Usage(s) ($notFoundUsages) using `"TeamsPstnUsage`""
+        }
     }
 
     Write-Verbose -Message "Setting Voice Routing Policy {$Identity}"
@@ -276,8 +279,14 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
+    $excludedProperties = @()
+    if ($Ensure -eq 'Absent')
+    {
+        $excludedProperties += 'OnlinePstnUsages'
+    }
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties $excludedProperties
     return $result
 }
 

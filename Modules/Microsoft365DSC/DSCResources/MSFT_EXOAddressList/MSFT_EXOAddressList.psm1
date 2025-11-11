@@ -164,9 +164,7 @@ function Get-TargetResource
                 return $nullReturn
             }
 
-            $AddressLists = Get-AddressList -ErrorAction Stop
-            $AddressList = $AddressLists | Where-Object -FilterScript { $_.Name -eq $Name }
-
+            $AddressList = Get-AddressList -Identity $Name -ErrorAction SilentlyContinue
             if ($null -eq $AddressList)
             {
                 Write-Verbose -Message "Address List $($Name) does not exist."

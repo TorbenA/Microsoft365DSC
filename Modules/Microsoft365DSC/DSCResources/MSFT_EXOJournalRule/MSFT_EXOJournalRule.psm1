@@ -96,8 +96,7 @@ function Get-TargetResource
 
     try
     {
-        $rule = Get-JournalRule -Identity $Name -ErrorAction Stop
-
+        $rule = Get-JournalRule -Identity $Name -ErrorAction SilentlyContinue
         if ($null -eq $rule)
         {
             Write-Verbose -Message "Can't find the existing journal rule {$Name}."

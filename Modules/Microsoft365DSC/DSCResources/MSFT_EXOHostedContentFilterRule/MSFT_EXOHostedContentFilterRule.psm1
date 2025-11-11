@@ -118,70 +118,55 @@ function Get-TargetResource
     $nullReturn.Ensure = 'Absent'
     try
     {
-        try
+        $HostedContentFilterRule = Get-HostedContentFilterRule -Identity $Identity -ErrorAction SilentlyContinue
+        if ($null -eq $HostedContentFilterRule)
         {
-            $HostedContentFilterRule = Get-HostedContentFilterRule -Identity $Identity -ErrorAction Stop
+            Write-Verbose -Message "Couldn't find rule by ID, trying by name."
+            $rules = Get-HostedContentFilterRule
+            $HostedContentFilterRule = $rules | Where-Object -FilterScript { $_.Name -eq $Identity -and $_.HostedContentFilterPolicy -eq $HostedContentFilterPolicy }
         }
-        catch
-        {
-            try
-            {
-                Write-Verbose -Message "Couldn't find rule by ID, trying by name."
-                $rules = Get-HostedContentFilterRule
-                $HostedContentFilterRule = $rules | Where-Object -FilterScript { $_.Name -eq $Identity -and $_.HostedContentFilterPolicy -eq $HostedContentFilterPolicy }
-            }
-            catch
-            {
-                $Message = 'Error calling {Get-HostedContentFilterRule}'
-                New-M365DSCLogEntry -Message $Message `
-                    -Exception $_ `
-                    -Source $MyInvocation.MyCommand.ModuleName
-            }
-        }
-        if (-not $HostedContentFilterRule)
+
+        if ($null -eq $HostedContentFilterRule)
         {
             Write-Verbose -Message "HostedContentFilterRule $($Identity) does not exist."
             return $nullReturn
         }
+        $result = @{
+            Ensure                    = 'Present'
+            Identity                  = $Identity
+            HostedContentFilterPolicy = $HostedContentFilterRule.HostedContentFilterPolicy
+            Comments                  = $HostedContentFilterRule.Comments
+            Enabled                   = $false
+            ExceptIfRecipientDomainIs = $HostedContentFilterRule.ExceptIfRecipientDomainIs
+            ExceptIfSentTo            = $HostedContentFilterRule.ExceptIfSentTo
+            ExceptIfSentToMemberOf    = $HostedContentFilterRule.ExceptIfSentToMemberOf
+            Priority                  = $HostedContentFilterRule.Priority
+            RecipientDomainIs         = $HostedContentFilterRule.RecipientDomainIs
+            SentTo                    = $HostedContentFilterRule.SentTo
+            SentToMemberOf            = $HostedContentFilterRule.SentToMemberOf
+            Credential                = $Credential
+            ApplicationId             = $ApplicationId
+            CertificateThumbprint     = $CertificateThumbprint
+            CertificatePath           = $CertificatePath
+            CertificatePassword       = $CertificatePassword
+            ManagedIdentity           = $ManagedIdentity.IsPresent
+            TenantId                  = $TenantId
+            AccessTokens              = $AccessTokens
+        }
+
+        if ('Enabled' -eq $HostedContentFilterRule.State)
+        {
+            # Accounts for Get-HostedContentFilterRule returning 'State' instead of 'Enabled' used by New/Set
+            $result.Enabled = $true
+        }
         else
         {
-            $result = @{
-                Ensure                    = 'Present'
-                Identity                  = $Identity
-                HostedContentFilterPolicy = $HostedContentFilterRule.HostedContentFilterPolicy
-                Comments                  = $HostedContentFilterRule.Comments
-                Enabled                   = $false
-                ExceptIfRecipientDomainIs = $HostedContentFilterRule.ExceptIfRecipientDomainIs
-                ExceptIfSentTo            = $HostedContentFilterRule.ExceptIfSentTo
-                ExceptIfSentToMemberOf    = $HostedContentFilterRule.ExceptIfSentToMemberOf
-                Priority                  = $HostedContentFilterRule.Priority
-                RecipientDomainIs         = $HostedContentFilterRule.RecipientDomainIs
-                SentTo                    = $HostedContentFilterRule.SentTo
-                SentToMemberOf            = $HostedContentFilterRule.SentToMemberOf
-                Credential                = $Credential
-                ApplicationId             = $ApplicationId
-                CertificateThumbprint     = $CertificateThumbprint
-                CertificatePath           = $CertificatePath
-                CertificatePassword       = $CertificatePassword
-                ManagedIdentity           = $ManagedIdentity.IsPresent
-                TenantId                  = $TenantId
-                AccessTokens              = $AccessTokens
-            }
-
-            if ('Enabled' -eq $HostedContentFilterRule.State)
-            {
-                # Accounts for Get-HostedContentFilterRule returning 'State' instead of 'Enabled' used by New/Set
-                $result.Enabled = $true
-            }
-            else
-            {
-                $result.Enabled = $false
-            }
-
-            Write-Verbose -Message "Found HostedContentFilterRule $($Identity)"
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
-            return $result
+            $result.Enabled = $false
         }
+
+        Write-Verbose -Message "Found HostedContentFilterRule $($Identity)"
+        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
+        return $result
     }
     catch
     {

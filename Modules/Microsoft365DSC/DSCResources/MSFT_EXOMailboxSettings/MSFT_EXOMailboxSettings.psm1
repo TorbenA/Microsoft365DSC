@@ -111,7 +111,7 @@ function Get-TargetResource
                 DisplayName = $DisplayName
             }
 
-            $mailboxInfo = Get-Mailbox -Identity $DisplayName -ErrorAction Stop
+            $mailboxInfo = Get-Mailbox -Identity $DisplayName -ErrorAction SilentlyContinue
         }
         else
         {
@@ -123,8 +123,8 @@ function Get-TargetResource
 
         Write-Verbose -Message "Found an existing instance of Mailbox '$($DisplayName)'"
 
-        $mailboxSettings = Get-MailboxRegionalConfiguration -Identity $DisplayName -ErrorAction Stop
-        if ($null -eq $mailboxSettings)
+        $mailboxSettings = Get-MailboxRegionalConfiguration -Identity $DisplayName -ErrorAction SilentlyContinue
+        if ($null -eq $mailboxSettings -or $null -eq $mailboxInfo)
         {
             Write-Verbose -Message "The specified Mailbox doesn't already exist."
             return $nullReturn
