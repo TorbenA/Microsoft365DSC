@@ -177,7 +177,9 @@ function Get-TargetResource
         {
             $Script:SPOSharingSettings = Get-PnPTenant -ErrorAction Stop
         }
-        $MySite = Get-PnPTenantSite -Filter "Url -like '-my.sharepoint.' -and Template -notlike 'RedirectSite#'"
+
+        # Local filtering because server side filtering intermittently fails
+        $MySite = Get-PnPTenantSite -Filter "Url -like '-my.sharepoint.'" | Where-Object -FilterScript { $_.Template -notmatch '^RedirectSite#' }
 
         if ($null -ne $MySite)
         {

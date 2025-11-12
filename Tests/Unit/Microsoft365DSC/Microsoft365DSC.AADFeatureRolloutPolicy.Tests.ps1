@@ -41,8 +41,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return $null
             }
 
+            Mock -CommandName New-MgBetaPolicyFeatureRolloutPolicyApplyToByRef -MockWith {
+            }
+
             Mock -CommandName Remove-MgBetaPolicyFeatureRolloutPolicy -MockWith {
                 return $null
+            }
+
+            Mock -CommandName Remove-MgBetaPolicyFeatureRolloutPolicyApplyToByRef -MockWith {
             }
 
             Mock -CommandName Get-MgBetaPolicyFeatureRolloutPolicy -MockWith {

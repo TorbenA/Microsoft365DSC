@@ -174,7 +174,7 @@ function Set-TargetResource
     $ArcConfigParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $ArcConfigParams.Remove('IsSingleInstance') | Out-Null
 
-    if ($Null -ne $ArcConfigParams)
+    if ($null -ne $ArcConfigParams)
     {
         Write-Verbose -Message "Setting Arc Config with values: $(Convert-M365DscHashtableToString -Hashtable $ArcConfigParams)"
         Set-ArcConfig -Identity Default @ArcConfigParams

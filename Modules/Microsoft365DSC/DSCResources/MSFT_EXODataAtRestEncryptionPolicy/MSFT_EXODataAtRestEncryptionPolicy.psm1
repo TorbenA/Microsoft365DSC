@@ -80,7 +80,7 @@ function Get-TargetResource
         }
         else
         {
-            $instance = Get-M365DataAtRestEncryptionPolicy -Identity $Identity -ErrorAction Stop
+            $instance = Get-M365DataAtRestEncryptionPolicy -Identity $Identity -ErrorAction SilentlyContinue
         }
         if ($null -eq $instance)
         {

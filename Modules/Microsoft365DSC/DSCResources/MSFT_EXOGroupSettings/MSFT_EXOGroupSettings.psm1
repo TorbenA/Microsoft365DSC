@@ -281,10 +281,10 @@ function Get-TargetResource
             if ($group.Length -eq 0)
             {
                 Write-Verbose -Message "Couldn't retrieve group by ID. Trying by DisplayName {$DisplayName}"
-                [Array]$group = Get-UnifiedGroup -Identity $DisplayName -IncludeAllProperties -ErrorAction Stop
+                [Array]$group = Get-UnifiedGroup -Identity $DisplayName -IncludeAllProperties -ErrorAction SilentlyContinue
             }
 
-            if ($group.Length -gt 1)
+            if ($group.Count -gt 1)
             {
                 Write-Warning -Message "Multiple instances of a group named {$DisplayName} was discovered which could result in inconsistencies retrieving its values."
             }

@@ -218,7 +218,7 @@ function Set-TargetResource
     $EmailTenantSettingsParams.Remove('ObjectState') | Out-Null
     $EmailTenantSettingsParams.Remove('IsSingleInstance') | Out-Null
 
-    if ($Null -ne $EmailTenantSettingsParams)
+    if ($null -ne $EmailTenantSettingsParams)
     {
         Write-Verbose -Message "Setting Email tenant settings with values: $(Convert-M365DscHashtableToString -Hashtable $EmailTenantSettingsParams)"
         Set-EmailTenantSettings @EmailTenantSettingsParams

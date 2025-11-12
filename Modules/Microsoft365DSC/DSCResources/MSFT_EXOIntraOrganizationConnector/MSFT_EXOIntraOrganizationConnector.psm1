@@ -93,50 +93,46 @@ function Get-TargetResource
     $nullReturn.Ensure = 'Absent'
     try
     {
-        $IntraOrganizationConnectors = Get-IntraOrganizationConnector -ErrorAction Stop
-
-        $IntraOrganizationConnector = $IntraOrganizationConnectors | Where-Object -FilterScript { $_.Identity -eq $Identity }
+        $IntraOrganizationConnector = Get-IntraOrganizationConnector -Identity $Identity -ErrorAction SilentlyContinue
         if ($null -eq $IntraOrganizationConnector)
         {
             Write-Verbose -Message "IntraOrganizationConnector $($Identity) does not exist."
             return $nullReturn
         }
+
+        $DiscoveryEndpointValue = $IntraOrganizationConnector.DiscoveryEndpoint.ToString()
+        if (-not $DiscoveryEndpointValue.EndsWith('/'))
+        {
+            $DiscoveryEndpointValue += '/'
+        }
+        if ($IntraOrganizationConnector.TargetSharingEpr)
+        {
+            $TargetSharingEprValue = $IntraOrganizationConnector.TargetSharingEpr.AbsoluteUri.ToString()
+        }
         else
         {
-            $DiscoveryEndpointValue = $IntraOrganizationConnector.DiscoveryEndpoint.ToString()
-            if (-not $DiscoveryEndpointValue.EndsWith('/'))
-            {
-                $DiscoveryEndpointValue += '/'
-            }
-            if ($IntraOrganizationConnector.TargetSharingEpr)
-            {
-                $TargetSharingEprValue = $IntraOrganizationConnector.TargetSharingEpr.AbsoluteUri.ToString()
-            }
-            else
-            {
-                $TargetSharingEprValue = ''
-            }
-            $result = @{
-                Identity              = $Identity
-                DiscoveryEndpoint     = $IntraOrganizationConnector.DiscoveryEndpoint.ToString()
-                Enabled               = $IntraOrganizationConnector.Enabled
-                TargetAddressDomains  = $IntraOrganizationConnector.TargetAddressDomains
-                TargetSharingEpr      = $TargetSharingEprValue
-                Credential            = $Credential
-                Ensure                = 'Present'
-                ApplicationId         = $ApplicationId
-                CertificateThumbprint = $CertificateThumbprint
-                CertificatePath       = $CertificatePath
-                CertificatePassword   = $CertificatePassword
-                ManagedIdentity       = $ManagedIdentity.IsPresent
-                TenantId              = $TenantId
-                AccessTokens          = $AccessTokens
-            }
-
-            Write-Verbose -Message "Found IntraOrganizationConnector $($Identity)"
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
-            return $result
+            $TargetSharingEprValue = ''
         }
+        $result = @{
+            Identity              = $Identity
+            DiscoveryEndpoint     = $IntraOrganizationConnector.DiscoveryEndpoint.ToString()
+            Enabled               = $IntraOrganizationConnector.Enabled
+            TargetAddressDomains  = $IntraOrganizationConnector.TargetAddressDomains
+            TargetSharingEpr      = $TargetSharingEprValue
+            Credential            = $Credential
+            Ensure                = 'Present'
+            ApplicationId         = $ApplicationId
+            CertificateThumbprint = $CertificateThumbprint
+            CertificatePath       = $CertificatePath
+            CertificatePassword   = $CertificatePassword
+            ManagedIdentity       = $ManagedIdentity.IsPresent
+            TenantId              = $TenantId
+            AccessTokens          = $AccessTokens
+        }
+
+        Write-Verbose -Message "Found IntraOrganizationConnector $($Identity)"
+        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
+        return $result
     }
     catch
     {
@@ -244,7 +240,7 @@ function Set-TargetResource
         $IntraOrganizationConnectorParams.Remove('Identity') | Out-Null
         New-IntraOrganizationConnector @IntraOrganizationConnectorParams
     }
-    elseif (('Present' -eq $Ensure ) -and ($Null -ne $IntraOrganizationConnector))
+    elseif (('Present' -eq $Ensure ) -and ($null -ne $IntraOrganizationConnector))
     {
         Write-Verbose -Message "Setting IntraOrganizationConnector $($Identity) with values: $(Convert-M365DscHashtableToString -Hashtable $IntraOrganizationConnectorParams)"
         Set-IntraOrganizationConnector @IntraOrganizationConnectorParams -Confirm:$false

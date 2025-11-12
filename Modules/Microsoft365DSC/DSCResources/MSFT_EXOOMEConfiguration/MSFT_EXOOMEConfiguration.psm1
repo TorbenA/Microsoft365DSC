@@ -292,7 +292,7 @@ function Set-TargetResource
         Write-Verbose -Message "Creating OME Configuration $($Identity)."
         New-OMEConfiguration @OMEConfigurationParams
     }
-    elseif (('Present' -eq $Ensure ) -and ($Null -ne $OMEConfiguration))
+    elseif (('Present' -eq $Ensure ) -and ($null -ne $OMEConfiguration))
     {
         Write-Verbose -Message "Setting OME Configuration $($Identity) with values: $(Convert-M365DscHashtableToString -Hashtable $OMEConfigurationParams)"
         Set-OMEConfiguration @OMEConfigurationParams -Confirm:$false

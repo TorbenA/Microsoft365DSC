@@ -109,6 +109,10 @@ function Get-TargetResource
         $SignInAudience,
 
         [Parameter()]
+        [System.String]
+        $TokenLifetimePolicy,
+
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
@@ -405,16 +409,28 @@ function Get-TargetResource
             $IsFallbackPublicClientValue = $AADApp.IsFallbackPublicClient
         }
 
-        #region OnPremisesPublishing
+        #region OnPremisesPublishing & TokenLifetimePolicies
         $onPremisesPublishingValue = [ordered]@{}
         $oppInfo = $null
 
         try
         {
-            $Uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/applications/$($AADApp.Id)/onPremisesPublishing"
-            $oppInfo = Invoke-MgGraphRequest -Method GET `
-                -Uri $Uri `
-                -ErrorAction SilentlyContinue
+            $batchRequests = @(
+                @{
+                    id     = 'onPremisesPublishing'
+                    method = 'GET'
+                    url    = "applications/$($AADApp.Id)/onPremisesPublishing"
+                }
+                @{
+                    id     = 'tokenLifetimePolicies'
+                    method = 'GET'
+                    url    = "applications/$($AADApp.Id)/tokenLifetimePolicies"
+                }
+            )
+            $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
+
+            $oppInfo = ($batchResponses | Where-Object -FilterScript { $_.id -eq 'onPremisesPublishing' }).body.value
+            $lifetimePolicy = ($batchResponses | Where-Object -FilterScript { $_.id -eq 'tokenLifetimePolicies' }).body.value | Select-Object -First 1
         }
         catch
         {
@@ -519,6 +535,7 @@ function Get-TargetResource
             OnPremisesPublishing     = $onPremisesPublishingValue
             ApplicationTemplateId    = $AADApp.AdditionalProperties.applicationTemplateId
             Spa                      = $SpaValue
+            TokenLifetimePolicy      = $lifetimePolicy.displayName
             PublicClientRedirectUris = $PublicClientRedirectUrisValue
             SignInAudience           = $AADApp.SignInAudience
             Ensure                   = 'Present'
@@ -657,6 +674,10 @@ function Set-TargetResource
         [ValidateSet("AzureADandPersonalMicrosoftAccount", "AzureADMultipleOrgs", "AzureADMyOrg", "PersonalMicrosoftAccount")]
         [System.String]
         $SignInAudience,
+
+        [Parameter()]
+        [System.String]
+        $TokenLifetimePolicy,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -804,8 +825,18 @@ function Set-TargetResource
             }
             else
             {
-                Write-Verbose -Message "Generating new scope id"
-                $scopeEntry.Add('id', (New-Guid).ToString())
+                Write-Verbose -Message "Retrieving Scope by Display Name {$($scope.value)}"
+                
+                $existingScope = $currentAADApp.Api.Oauth2PermissionScopes | Where-Object -FilterScript {$_.Value -eq $scope.value}
+                $existingScopeId = (New-Guid).ToString()
+                if ($null -ne $existingScope)
+                {
+                    $existingScopeId = $existingScope.Id
+                    Write-Verbose -Message "Found existing scope with ID {$existingScopeId}"
+                }
+
+                Write-Verbose -Message "Adding scope ID {$existingScopeId}"
+                $scopeEntry.Add('id', $existingScopeId)
             }
 
             $scopeValue += $scopeEntry
@@ -962,6 +993,7 @@ function Set-TargetResource
     {
         $currentParameters.Remove('ObjectId') | Out-Null
         $currentParameters.Remove('ApplicationTemplateId') | Out-Null
+        $currentParameters.Remove('TokenLifetimePolicy') | Out-Null
         Write-Verbose -Message "Creating New AzureAD Application {$DisplayName} with values:`r`n$($currentParameters | Out-String)"
 
         Write-Verbose -Message "Parameters with API: $(ConvertTo-Json $currentParameters -Depth 10)"
@@ -996,6 +1028,7 @@ function Set-TargetResource
 
         $currentParameters.Add('ApplicationId', $currentAADApp.ObjectId)
         $currentParameters.Remove('AppRoles') | Out-Null
+        $currentParameters.Remove('TokenLifetimePolicy') | Out-Null
 
         Write-Verbose -Message "Updating existing AzureAD Application {$DisplayName} with values:`r`n$($currentParameters | Out-String)"
         Update-MgApplication @currentParameters
@@ -1330,6 +1363,47 @@ function Set-TargetResource
             -Body $onPremisesPayload
     }
     #endregion
+
+    if ($PSBoundParameters.ContainsKey('TokenLifetimePolicy'))
+    {
+        if (-not [System.String]::IsNullOrEmpty($currentAADApp.TokenLifetimePolicy) -and -not [System.String]::IsNullOrEmpty($TokenLifetimePolicy) -and $TokenLifetimePolicy -ne $currentAADApp.TokenLifetimePolicy)
+        {
+            $policyToRemove = $currentAADApp.TokenLifetimePolicy
+            $policyToAdd = $TokenLifetimePolicy
+        }
+        elseif ([System.String]::IsNullOrEmpty($currentAADApp.TokenLifetimePolicy) -and -not [System.String]::IsNullOrEmpty($TokenLifetimePolicy))
+        {
+            $policyToRemove = $null
+            $policyToAdd = $TokenLifetimePolicy
+        }
+        elseif (-not [System.String]::IsNullOrEmpty($currentAADApp.TokenLifetimePolicy) -and [System.String]::IsNullOrEmpty($TokenLifetimePolicy))
+        {
+            $policyToRemove = $currentAADApp.TokenLifetimePolicy
+            $policyToAdd = $null
+        }
+        else
+        {
+            $policyToRemove = $null
+            $policyToAdd = $null
+        }
+
+        $allTokenLifetimePolicies = Get-MgBetaPolicyTokenLifetimePolicy
+        if ($null -ne $policyToRemove)
+        {
+            Write-Verbose -Message "Removing Token Lifetime Policy with DisplayName [$policyToRemove] from Application [$($currentAADApp.DisplayName)]"
+            $policy = $allTokenLifetimePolicies | Where-Object { $_.DisplayName -eq $policyToRemove }
+            Remove-MgApplicationTokenLifetimePolicyByRef -ApplicationId $currentAADApp.Id -TokenLifetimePolicyId $policy.Id
+        }
+
+        if ($null -ne $policyToAdd)
+        {
+            Write-Verbose -Message "Adding Token Lifetime Policy with DisplayName [$policyToAdd] to Application [$($currentAADApp.DisplayName)]"
+            $policy = $allTokenLifetimePolicies | Where-Object { $_.DisplayName -eq $policyToAdd }
+            New-MgApplicationTokenLifetimePolicyByRef -ApplicationId $currentAADApp.Id -BodyParameter @{
+                '@odata.id' = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "v1.0/policies/tokenLifetimePolicies/$($policy.Id)"
+            }
+        }
+    }
 }
 
 function Test-TargetResource
@@ -1438,6 +1512,10 @@ function Test-TargetResource
         [ValidateSet("AzureADandPersonalMicrosoftAccount", "AzureADMultipleOrgs", "AzureADMyOrg", "PersonalMicrosoftAccount")]
         [System.String]
         $SignInAudience,
+
+        [Parameter()]
+        [System.String]
+        $TokenLifetimePolicy,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -1889,9 +1967,7 @@ function Get-M365DSCAzureADAppPermissions
                     url    = "/servicePrincipals/$($appServicePrincipal.Id)/appRoleAssignments"
                 }
             )
-            $batchResponses = (Invoke-MgGraphRequest -Method POST `
-                -Uri 'beta/$batch' `
-                -Body (ConvertTo-Json @{ requests = $batchRequests } -Depth 10)).responses
+            $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
             $oAuth2grant = ($batchResponses | Where-Object -FilterScript { $_.id -eq 'oAuth2grant' }).body.value
             $roleAssignments = ($batchResponses | Where-Object -FilterScript { $_.id -eq 'roleAssignments' }).body.value
         }

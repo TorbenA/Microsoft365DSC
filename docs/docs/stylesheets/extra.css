@@ -1,7 +1,9 @@
 /* Sets the width of the center column a bit wider than default, so tables render better. */
 .md-grid {
-    max-width: 67rem;
+    max-width: initial;
+    margin: 0 15%;
 }
+/* Hides the secondary sidebar, which is not used in this documentation site. */
 .md-sidebar--secondary:not([hidden]) {
-    display:hidden;
+    display: none;
 }

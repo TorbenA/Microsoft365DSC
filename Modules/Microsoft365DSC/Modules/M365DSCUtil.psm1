@@ -1243,7 +1243,13 @@ function Test-M365DSCTargetResource
     }
     $finalString = $keyStrings -join ' and '
 
-    Write-Verbose -Message "Testing configuration of the $ResourceName with $finalString"
+    $Verbose = $false
+    if ($DesiredValues.Verbose -eq $true)
+    {
+        $Verbose = $true
+    }
+
+    Write-Verbose -Message "Testing configuration of the $ResourceName with $finalString" -Verbose:$Verbose
 
     $CurrentValues = & MSFT_$ResourceName\Get-TargetResource @DesiredValues
     $ValuesToCheck = ([Hashtable]$DesiredValues).Clone()
@@ -1251,7 +1257,7 @@ function Test-M365DSCTargetResource
     # Apply custom post-processing to CurrentValues and ValuesToCheck if specified
     if ($null -ne $PostProcessing)
     {
-        Write-Verbose -Message "Applying custom post-processing to CurrentValues and ValuesToCheck for resource $ResourceName"
+        Write-Verbose -Message "Applying custom post-processing to CurrentValues and ValuesToCheck for resource $ResourceName" -Verbose:$Verbose
         try
         {
             $result = $PostProcessing.Invoke($DesiredValues, $CurrentValues, $ValuesToCheck, $PostProcessingArgs)
@@ -1306,7 +1312,7 @@ function Test-M365DSCTargetResource
     $testTargetResource = $true
     if ($DesiredValues.Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "The resource $ResourceName with $finalString was not found in the tenant."
+        Write-Verbose -Message "The resource $ResourceName with $finalString was not found in the tenant." -Verbose:$Verbose
         $Global:AllDrifts.DriftInfo += @{
             PropertyName = 'Ensure'
             CurrentValue = 'Absent'
@@ -1316,7 +1322,7 @@ function Test-M365DSCTargetResource
     }
     elseif ($DesiredValues.Ensure -eq 'Absent' -and $CurrentValues.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "The resource $ResourceName with $finalString should not exist in the tenant."
+        Write-Verbose -Message "The resource $ResourceName with $finalString should not exist in the tenant." -Verbose:$Verbose
         $Global:AllDrifts.DriftInfo += @{
             PropertyName = 'Ensure'
             CurrentValue = 'Present'
@@ -1336,6 +1342,7 @@ function Test-M365DSCTargetResource
             $target = $CurrentValues.$key
             if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
             {
+                Write-Verbose -Message "Comparing complex object property $key of resource $ResourceName"
                 $CIMProperty = $resourceDefinition.Parameters | Where-Object -FilterScript { $_.Name -eq $key }
                 $CIMName = $CIMProperty.CIMType.Replace('[]', '')
                 $CIMDefinition = $Script:M365DSCSchema | Where-Object -FilterScript { $_.ClassName -eq $CIMName }
@@ -1384,8 +1391,8 @@ function Test-M365DSCTargetResource
         }
     }
 
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
+    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)" -Verbose:$Verbose
+    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)" -Verbose:$Verbose
 
     if ($testResult)
     {
@@ -1412,7 +1419,7 @@ function Test-M365DSCTargetResource
                                       -DesiredValues $DesiredValues
     }
 
-    Write-Verbose -Message "Test-M365DSCTargetResource returned $testTargetResource"
+    Write-Verbose -Message "Test-M365DSCTargetResource returned $testTargetResource" -Verbose:$Verbose
 
     if ($PassThru)
     {
@@ -1461,6 +1468,37 @@ function Get-M365DSCAllResourcesDictionary
     param()
 
     $Script:AllM365DSCResources
+}
+
+<#
+.DESCRIPTION
+    Initializes the script scoped variable that holds all the M365DSC resources.
+
+.FUNCTIONALITY
+    Internal
+#>
+function Initialize-M365DSCAllResourcesDictionary
+{
+    [CmdletBinding()]
+    param()
+
+    if ($null -eq $Script:AllM365DSCResources -and -not $Global:IsTestEnvironment)
+    {
+        $Script:AllM365DSCResources = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new([System.StringComparer]::InvariantCultureIgnoreCase)
+        if ($Script:IsPowerShellCore)
+        {
+            Import-Module -Name 'PSDesiredStateConfiguration' -RequiredVersion 2.0.7 -Prefix 'Pwsh' -Force
+            $resources = Get-PwshDscResource -Module 'Microsoft365Dsc'
+        }
+        else
+        {
+            $resources = Get-DscResource -Module 'Microsoft365Dsc'
+        }
+        foreach ($resource in $resources)
+        {
+            $Script:AllM365DSCResources.Add($resource.Name, $resource)
+        }
+    }
 }
 
 <#
@@ -1774,23 +1812,8 @@ function Export-M365DSCConfiguration
     }
 
     Add-M365DSCTelemetryEvent -Type 'ExportInitiated' -Data $data
-    if ($null -eq $Script:AllM365DSCResources -and -not $Global:IsTestEnvironment)
-    {
-        $Script:AllM365DSCResources = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new([System.StringComparer]::InvariantCultureIgnoreCase)
-        if ($Script:IsPowerShellCore)
-        {
-            Import-Module -Name 'PSDesiredStateConfiguration' -RequiredVersion 2.0.7 -Prefix 'Pwsh' -Force
-            $resources = Get-PwshDscResource -Module 'Microsoft365Dsc'
-        }
-        else
-        {
-            $resources = Get-DscResource -Module 'Microsoft365Dsc'
-        }
-        foreach ($resource in $resources)
-        {
-            $Script:AllM365DSCResources.Add($resource.Name, $resource)
-        }
-    }
+    Initialize-M365DSCAllResourcesDictionary
+
     if ($null -ne $Workloads)
     {
         Write-M365DSCHost -Message "Exporting Microsoft 365 configuration for Workloads: $($Workloads -join ', ')"
@@ -1812,7 +1835,8 @@ function Export-M365DSCConfiguration
             -Filters $Filters `
             -Validate:$Validate `
             -Parallel:$Parallel `
-            -ResourceSettings $Script:M365DSCResourceSettings
+            -ResourceSettings $Script:M365DSCResourceSettings `
+            -ErrorAction $ErrorActionPreference
     }
     elseif ($null -ne $Components)
     {
@@ -1834,7 +1858,8 @@ function Export-M365DSCConfiguration
             -Filters $Filters `
             -Validate:$Validate `
             -Parallel:$Parallel `
-            -ResourceSettings $Script:M365DSCResourceSettings
+            -ResourceSettings $Script:M365DSCResourceSettings `
+            -ErrorAction $ErrorActionPreference
     }
     elseif ($null -ne $Mode)
     {
@@ -1857,7 +1882,8 @@ function Export-M365DSCConfiguration
             -Filters $Filters `
             -Validate:$Validate `
             -Parallel:$Parallel `
-            -ResourceSettings $Script:M365DSCResourceSettings
+            -ResourceSettings $Script:M365DSCResourceSettings `
+            -ErrorAction $ErrorActionPreference
     }
 
     # Clear the exported resource instances' names Global variable
@@ -5499,7 +5525,7 @@ function Join-M365DSCConfiguration
 function Invoke-PowerShellCoreResource
 {
     [CmdletBinding()]
-    [OutputType([System.Nullable[System.Object]])]
+    [OutputType([System.Object])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Path', Justification = 'Using statement not detected')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'FunctionName', Justification = 'Using statement not detected')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Parameters', Justification = 'Using statement not detected')]
@@ -5704,6 +5730,136 @@ function Invoke-M365DSCGraphBatchRequest
     return $batchResponses.ToArray()
 }
 
+<#
+.DESCRIPTION
+    This function splits a large M365DSC configuration file into smaller files based on size and resource count limits.
+
+.PARAMETER Path
+    The path to the M365DSC configuration file to split.
+
+.PARAMETER OutputFolder
+    The folder where the split configuration files will be saved. Defaults to the same folder as the input file.
+
+.PARAMETER MaxFileSizeMB
+    The maximum size (in megabytes) for each split configuration file. Default is 3 MB.
+
+.PARAMETER MaxResources
+    The maximum number of resources per split configuration file. Default is 0 (no limit).
+
+.EXAMPLE
+    Split-M365DSCConfiguration -Path 'C:\Configs\M365TenantConfig.ps1' -OutputFolder 'C:\Configs\Split' -MaxFileSizeMB 2 -MaxResources 50
+    This example splits the 'M365TenantConfig.ps1' file into smaller files, each with a maximum size of 2 MB and a maximum of 50 resources, saving them in the 'C:\Configs\Split' folder.
+
+.FUNCTIONALITY
+    Public
+#>
+function Split-M365DSCConfiguration {
+    param (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $Path,
+
+        [Parameter()]
+        [System.String]
+        $OutputFolder = (Split-Path $Path),
+
+        [Parameter()]
+        [System.Double]
+        $MaxFileSizeMB = 3,
+
+        [Parameter()]
+        [System.Int32]
+        $MaxResources = 0  # 0 = ignore resource count limit
+    )
+
+    $fileContent = Get-Content -Encoding utf8 -Path $Path -Raw
+
+    # Extract content inside "Node localhost { ... }"
+    $pattern = 'Node localhost\s*{([\s\S]*)\s+}(\r|\n)+\s+}'
+    $nodeMatch = [regex]::Match($fileContent, $pattern)
+    if (-not $nodeMatch.Success) {
+        throw "Could not find a 'Node localhost { ... }' block in file: $Path"
+    }
+
+    $nodeContent = $nodeMatch.Groups[1].Value
+
+    # Extract header (everything before Node localhost)
+    $header = ($fileContent -split 'Node localhost')[0] + "Node localhost`n    {`n"
+    $footer = "`n    }`n}`n`nM365TenantConfig -ConfigurationData .\ConfigurationData.psd1"
+
+    # Split into DSC resource text blocks using brace-depth parsing
+    $resources = @()
+    $lines = $nodeContent -split "`r?`n"
+    $currentResource = [System.Text.StringBuilder]::new()
+    $braceDepth = 0
+    $insideResource = $false
+
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        $line = $lines[$i]
+        # Detect resource start
+        if (-not $insideResource -and $line.Trim() -match '^[a-zA-Z0-9_]+\s+"[^"]+"') {
+            $insideResource = $true
+            $null = $currentResource.Clear()
+            $null = $currentResource.AppendLine($line)
+            # Calculate brace depth
+            $braceDepth = ($line -split '{').Count - ($line -split '}').Count
+            continue
+        }
+
+        if ($insideResource) {
+            $null = $currentResource.AppendLine($line)
+
+            # Adjust brace depth based on line content
+            $braceDepth += ($line -split '{').Count - ($line -split '}').Count
+
+            # End of resource block
+            if ($braceDepth -le 0) {
+                $resources += "        " + $currentResource.ToString().Trim()
+                $insideResource = $false
+            }
+        }
+    }
+
+    if (-not $resources) {
+        throw "No DSC resources found in the Node block."
+    }
+
+    # Splitting logic
+    $i = 1
+    $currentGroup = @()
+    $currentSize = 0
+    $maxBytes = $MaxFileSizeMB * 1MB
+
+    foreach ($res in $resources) {
+        # Calculate size of the resource in bytes
+        $resBytes = [System.Text.Encoding]::UTF8.GetByteCount($res)
+        $resourceCountLimitReached = ($MaxResources -gt 0 -and $currentGroup.Count -ge $MaxResources)
+        $sizeLimitReached = ($currentSize + $resBytes) -gt $maxBytes
+
+        # Write current group if limits are reached
+        if (($sizeLimitReached -or $resourceCountLimitReached) -and $currentGroup.Count -gt 0) {
+            $outPath = Join-Path $OutputFolder ("M365TenantConfig_{0}.ps1" -f $i)
+            $configText = $header + ($currentGroup -join "`n") + $footer
+            Set-Content -Path $outPath -Value $configText -Encoding UTF8 -Force
+            Write-M365DSCHost -Message "Created: $outPath" -CommitWrite
+            $i++
+            $currentGroup = @()
+            $currentSize = 0
+        }
+
+        $currentGroup += $res
+        $currentSize += $resBytes
+    }
+
+    # Write final group
+    if ($currentGroup.Count -gt 0) {
+        $outPath = Join-Path $OutputFolder ("M365TenantConfig_{0}.ps1" -f $i)
+        $configText = $header + ($currentGroup -join "`n`n") + $footer
+        Set-Content -Path $outPath -Value $configText -Encoding UTF8 -Force
+        Write-M365DSCHost -Message "Created: $outPath" -CommitWrite
+    }
+}
+
 Export-ModuleMember -Function @(
     'Assert-M365DSCBlueprint',
     'Confirm-ImportedCmdletIsAvailable',
@@ -5731,6 +5887,7 @@ Export-ModuleMember -Function @(
     'Get-SPOAdministrationUrl',
     'Get-SPOUserProfilePropertyInstance',
     'Get-TeamByName',
+    'Initialize-M365DSCAllResourcesDictionary',
     'Install-M365DSCDevBranch',
     'Invoke-M365DSCGraphBatchRequest',
     'Invoke-PowerShellCoreResource',
@@ -5743,6 +5900,7 @@ Export-ModuleMember -Function @(
     'Remove-NullEntriesFromHashtable',
     'Split-ArrayByParts',
     'Set-M365DSCAllResourcesDictionary',
+    'Split-M365DSCConfiguration',
     'Sync-M365DSCParameter',
     'Test-M365DSCDependenciesForNewVersions',
     'Test-M365DSCModuleValidity',

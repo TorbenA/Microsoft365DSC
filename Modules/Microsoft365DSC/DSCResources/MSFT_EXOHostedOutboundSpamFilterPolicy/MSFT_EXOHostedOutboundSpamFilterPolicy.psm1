@@ -118,43 +118,39 @@ function Get-TargetResource
     $nullReturn.Ensure = 'Absent'
     try
     {
-        $HostedOutboundSpamFilterPolicies = Get-HostedOutboundSpamFilterPolicy -ErrorAction Stop
-
-        $HostedOutboundSpamFilterPolicy = $HostedOutboundSpamFilterPolicies | Where-Object -FilterScript { $_.Identity -eq $Identity }
+        $HostedOutboundSpamFilterPolicy = Get-HostedOutboundSpamFilterPolicy -Identity $Identity -ErrorAction SilentlyContinue
         if (-not $HostedOutboundSpamFilterPolicy)
         {
             Write-Verbose -Message "HostedOutboundSpamFilterPolicy $($Identity) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $result = @{
-                Ensure                                    = 'Present'
-                Identity                                  = $Identity
-                AdminDisplayName                          = $HostedOutboundSpamFilterPolicy.AdminDisplayName
-                BccSuspiciousOutboundAdditionalRecipients = $HostedOutboundSpamFilterPolicy.BccSuspiciousOutboundAdditionalRecipients
-                BccSuspiciousOutboundMail                 = $HostedOutboundSpamFilterPolicy.BccSuspiciousOutboundMail
-                NotifyOutboundSpamRecipients              = $HostedOutboundSpamFilterPolicy.NotifyOutboundSpamRecipients
-                NotifyOutboundSpam                        = $HostedOutboundSpamFilterPolicy.NotifyOutboundSpam
-                RecipientLimitInternalPerHour             = $HostedOutboundSpamFilterPolicy.RecipientLimitInternalPerHour
-                RecipientLimitPerDay                      = $HostedOutboundSpamFilterPolicy.RecipientLimitPerDay
-                RecipientLimitExternalPerHour             = $HostedOutboundSpamFilterPolicy.RecipientLimitExternalPerHour
-                ActionWhenThresholdReached                = $HostedOutboundSpamFilterPolicy.ActionWhenThresholdReached
-                AutoForwardingMode                        = $HostedOutboundSpamFilterPolicy.AutoForwardingMode
-                Credential                                = $Credential
-                ApplicationId                             = $ApplicationId
-                CertificateThumbprint                     = $CertificateThumbprint
-                CertificatePath                           = $CertificatePath
-                CertificatePassword                       = $CertificatePassword
-                ManagedIdentity                           = $ManagedIdentity.IsPresent
-                TenantId                                  = $TenantId
-                AccessTokens                              = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found HostedOutboundSpamFilterPolicy $($Identity)"
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
-            return $result
+        $result = @{
+            Ensure                                    = 'Present'
+            Identity                                  = $Identity
+            AdminDisplayName                          = $HostedOutboundSpamFilterPolicy.AdminDisplayName
+            BccSuspiciousOutboundAdditionalRecipients = $HostedOutboundSpamFilterPolicy.BccSuspiciousOutboundAdditionalRecipients
+            BccSuspiciousOutboundMail                 = $HostedOutboundSpamFilterPolicy.BccSuspiciousOutboundMail
+            NotifyOutboundSpamRecipients              = $HostedOutboundSpamFilterPolicy.NotifyOutboundSpamRecipients
+            NotifyOutboundSpam                        = $HostedOutboundSpamFilterPolicy.NotifyOutboundSpam
+            RecipientLimitInternalPerHour             = $HostedOutboundSpamFilterPolicy.RecipientLimitInternalPerHour
+            RecipientLimitPerDay                      = $HostedOutboundSpamFilterPolicy.RecipientLimitPerDay
+            RecipientLimitExternalPerHour             = $HostedOutboundSpamFilterPolicy.RecipientLimitExternalPerHour
+            ActionWhenThresholdReached                = $HostedOutboundSpamFilterPolicy.ActionWhenThresholdReached
+            AutoForwardingMode                        = $HostedOutboundSpamFilterPolicy.AutoForwardingMode
+            Credential                                = $Credential
+            ApplicationId                             = $ApplicationId
+            CertificateThumbprint                     = $CertificateThumbprint
+            CertificatePath                           = $CertificatePath
+            CertificatePassword                       = $CertificatePassword
+            ManagedIdentity                           = $ManagedIdentity.IsPresent
+            TenantId                                  = $TenantId
+            AccessTokens                              = $AccessTokens
         }
+
+        Write-Verbose -Message "Found HostedOutboundSpamFilterPolicy $($Identity)"
+        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
+        return $result
     }
     catch
     {
