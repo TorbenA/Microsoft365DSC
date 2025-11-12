@@ -2,6 +2,12 @@
 
 # Release 1.25.1112.1
 
+* AADActivityBasedTimeoutPolicy
+  * Fixed an issue where the `DisplayName` property was not used for create and update.
+    FIXES [#6680](https://github.com/microsoft/Microsoft365DSC/issues/6680)
+
+# UNRELEASED
+
 * AADApplication
   * Added support for `TokenLifetimePolicies`.
   * Fixing issue where Set-TargetResource threw an error trying to recreate
@@ -11,6 +17,8 @@
 * AADFilteringPolicyRule
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
 * AADGroup
+  * Added support for `GroupLifecyclePolicySelectedEnabled`, which indicates
+    if a Group has a Group Lifecycle Policy assigned to it.
   * Fixed an issue where using advanced filtering during export failed.
   * Updated the required permissions to match the used cmdlets.
 * AADUser
