@@ -11,6 +11,8 @@
 * AADFilteringPolicyRule
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
 * AADGroup
+  * Added support for `GroupLifecyclePolicySelectedEnabled`, which indicates
+    if a Group has a Group Lifecycle Policy assigned to it.
   * Fixed an issue where using advanced filtering during export failed.
   * Updated the required permissions to match the used cmdlets.
 * AADUser
