@@ -110,6 +110,7 @@
     'New-M365DSCStubFiles',
     'Remove-M365DSCNotificationEndPointRegistration',
     'Set-M365DSCAgentCertificateConfiguration',
+    'Split-M365DSCConfiguration',
     'Test-M365DSCAgent',
     'Test-M365DSCDependenciesForNewVersions',
     'Test-M365DSCModuleValidity',

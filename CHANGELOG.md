@@ -58,6 +58,7 @@
     FIXES [#6630](https://github.com/microsoft/Microsoft365DSC/issues/6630)
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
+  * Added new function `Split-M365DSCConfiguration`.
   * Moved resource initialization into dedicated function.
   * Removed groupId requirement in `ConvertTo-IntuneMobileAppAssignment`.
 * MISC
