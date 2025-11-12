@@ -12,6 +12,8 @@
 * EXOIRMConfiguration
   * Fixed an issue where the `LicensingLocation` property was not exported correctly.
     FIXES [#6644](https://github.com/microsoft/Microsoft365DSC/issues/6644)
+* IntuneAlertRuleWindows365
+  * Initial release.
 * IntuneAppProtectionPolicyAndroid
   * Fixes an issue where Set-TargetResource attempted to create an additional policy
     when two instances with the same name already existed.
@@ -25,6 +27,8 @@
 * IntuneEpmCertificatePolicySetting
   * Initial release.
 * IntuneFirewallPolicySetting
+  * Initial release.
+* IntuneManagedInstallerPolicyWindows10
   * Initial release.
 * IntuneSettingCatalogCustomPolicyWindows10
   * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.
