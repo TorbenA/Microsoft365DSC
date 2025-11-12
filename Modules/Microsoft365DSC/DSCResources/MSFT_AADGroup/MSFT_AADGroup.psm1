@@ -230,7 +230,7 @@ function Get-TargetResource
             $MembersValues = [System.Collections.Generic.List[System.String]]::new()
             $GroupAsMembersValues = [System.Collections.Generic.List[System.String]]::new()
             $groupMembers = $Group.Members
-            if ($Group.Members.Count -eq 20)
+            if ($Group.Members.Count -eq 20 -or $Script:requireGroupMemberFetching -eq $true)
             {
                 # Fetch all group members
                 $uri = "/beta/groups/$($Group.Id)/members?`$top=999"
@@ -1284,6 +1284,8 @@ function Export-TargetResource
         {
             $ExportParameters.Add('CountVariable', 'count')
             $ExportParameters.Add('ConsistencyLevel', 'eventual')
+            $ExportParameters.Remove('ExpandProperty') | Out-Null
+            $Script:requireGroupMemberFetching = $true
         }
 
         [array] $Script:exportedGroups = Get-MgBetaGroup @ExportParameters
