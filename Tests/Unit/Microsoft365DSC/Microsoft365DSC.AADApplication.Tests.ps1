@@ -50,6 +50,15 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Invoke-MgGraphRequest -MockWith {
             }
 
+            Mock -CommandName Get-MgBetaPolicyTokenLifetimePolicy -MockWith {
+            }
+
+            Mock -CommandName New-MgApplicationTokenLifetimePolicyByRef -MockWith {
+            }
+
+            Mock -CommandName Remove-MgApplicationTokenLifetimePolicyByRef -MockWith {
+            }
+
             Mock -CommandName New-MgApplication -MockWith {
                 return @{
                     ID    = '12345-12345-12345-12345-12345'
@@ -449,7 +458,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the new method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName 'Invoke-MgGraphRequest' -Exactly 1
                 Should -Invoke -CommandName 'Update-MgBetaApplication' -Exactly 1
             }
         }

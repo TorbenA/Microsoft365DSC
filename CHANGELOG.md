@@ -3,15 +3,22 @@
 # UNRELEASED
 
 * AADApplication
+  * Added support for `TokenLifetimePolicies`.
   * Fixing issue where Set-TargetResource threw an error trying to recreate
     an existing permissions scope when id was not provided.
+* AADFeatureRolloutPolicy
+  * Added support for `AppliesTo`.
 * AADFilteringPolicyRule
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
+* AADGroup
+  * Updated the required permissions to match the used cmdlets.
 * AADUser
   * Added new permission requirement `User.EnableDisableAccount.All` for enabling / disabling accounts.
 * EXOIRMConfiguration
   * Fixed an issue where the `LicensingLocation` property was not exported correctly.
     FIXES [#6644](https://github.com/microsoft/Microsoft365DSC/issues/6644)
+* IntuneAlertRuleWindows365
+  * Initial release.
 * IntuneAppProtectionPolicyAndroid
   * Fixes an issue where Set-TargetResource attempted to create an additional policy
     when two instances with the same name already existed.
@@ -26,6 +33,8 @@
   * Initial release.
 * IntuneFirewallPolicySetting
   * Initial release.
+* IntuneManagedInstallerPolicyWindows10
+  * Initial release.
 * IntuneSettingCatalogCustomPolicyWindows10
   * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.
 * ODSettings
@@ -38,6 +47,9 @@
   * Initial release.
 * TeamsAIPolicy
   * Initial release.
+* TeamsFederationConfiguration
+  * Fixed an issue where `AllowedDomains` could not be set.
+    FIXES [#6654](https://github.com/microsoft/Microsoft365DSC/issues/6654)
 * TeamsMeetingPolicy
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)
@@ -63,6 +75,7 @@
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
   * Improved logging output of `Test-M365DSCTargetResource`.
+  * Added new function `Split-M365DSCConfiguration`.
   * Moved resource initialization into dedicated function.
   * Removed groupId requirement in `ConvertTo-IntuneMobileAppAssignment`.
 * MISC
