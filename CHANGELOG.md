@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# Release 1.25.1112.1
 
 * AADActivityBasedTimeoutPolicy
   * Fixed an issue where the `DisplayName` property was not used for create and update.
