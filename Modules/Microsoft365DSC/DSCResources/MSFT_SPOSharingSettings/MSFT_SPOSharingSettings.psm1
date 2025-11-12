@@ -247,7 +247,7 @@ function Get-TargetResource
     }
     catch
     {
-        if ($error[0].Exception.Message -like 'No connection available')
+        if ($_.Exception.Message -like 'No connection available')
         {
             Write-Verbose -Message 'Make sure that you are connected to your SPOService'
         }
