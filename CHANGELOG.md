@@ -2,12 +2,15 @@
 
 # UNRELEASED
 
-* AADAuthorizationPolicy
-  * Added new property `AllowUserConsentForRiskyApps`.
+* AADActivityBasedTimeoutPolicy
+  * Fixed an issue where the `DisplayName` property was not used for create and update.
+    FIXES [#6680](https://github.com/microsoft/Microsoft365DSC/issues/6680)
 * AADApplication
   * Added support for `TokenLifetimePolicies`.
   * Fixing issue where Set-TargetResource threw an error trying to recreate
     an existing permissions scope when id was not provided.
+* AADAuthorizationPolicy
+  * Added new property `AllowUserConsentForRiskyApps`.
 * AADFeatureRolloutPolicy
   * Added support for `AppliesTo`.
 * AADFilteringPolicyRule
