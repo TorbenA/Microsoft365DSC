@@ -55,7 +55,8 @@ Configuration Example
                     AdminConsentGranted = $True
                 }
             )
-            Ensure                    = "Present"
+            TokenLifetimePolicy   = 'AADTokenLifetimePolicy_1'
+            Ensure                = "Present"
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint
