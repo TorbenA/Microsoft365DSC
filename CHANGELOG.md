@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# Release 1.25.1112.1
 
 * AADApplication
   * Added support for `TokenLifetimePolicies`.
