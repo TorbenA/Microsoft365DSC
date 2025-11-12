@@ -38,6 +38,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $AllowUserConsentForRiskyApps,
+
+        [Parameter()]
+        [System.Boolean]
         $BlockMsolPowerShell,
 
         [Parameter()]
@@ -165,6 +169,7 @@ function Get-TargetResource
             AllowedToUseSSPR                                        = $Policy.AllowedToUseSSPR
             AllowEmailVerifiedUsersToJoinOrganization               = $Policy.AllowEmailVerifiedUsersToJoinOrganization
             AllowInvitesFrom                                        = $Policy.AllowInvitesFrom
+            AllowUserConsentForRiskyApps                            = $Policy.AllowUserConsentForRiskyApps
             BlockMsolPowerShell                                     = $Policy.BlockMsolPowerShell
             DefaultUserRoleAllowedToCreateApps                      = $Policy.DefaultUserRolePermissions.AllowedToCreateApps
             DefaultUserRoleAllowedToCreateSecurityGroups            = $Policy.DefaultUserRolePermissions.AllowedToCreateSecurityGroups
@@ -222,6 +227,10 @@ function Set-TargetResource
         [System.String]
         [validateset('None', 'AdminsAndGuestInviters', 'AdminsGuestInvitersAndAllMembers', 'Everyone')]
         $AllowInvitesFrom,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowUserConsentForRiskyApps,
 
         [Parameter()]
         [System.Boolean]
@@ -376,7 +385,7 @@ function Set-TargetResource
     try
     {
         Write-Verbose -Message "Updating existing authorization policy with values: $(Convert-M365DscHashtableToString -Hashtable $UpdateParameters)"
-        $response = Update-MgBetaPolicyAuthorizationPolicy @updateParameters -ErrorAction Stop
+        $null = Update-MgBetaPolicyAuthorizationPolicy @updateParameters -ErrorAction Stop
     }
     catch
     {
@@ -427,6 +436,10 @@ function Test-TargetResource
         [System.String]
         [validateset('None', 'AdminsAndGuestInviters', 'AdminsGuestInvitersAndAllMembers', 'Everyone')]
         $AllowInvitesFrom,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowUserConsentForRiskyApps,
 
         [Parameter()]
         [System.Boolean]

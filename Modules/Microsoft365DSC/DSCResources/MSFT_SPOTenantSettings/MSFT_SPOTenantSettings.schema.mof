@@ -1,4 +1,4 @@
-[ClassVersion("1.0.0.2"), FriendlyName("SPOTenantSettings")]
+[ClassVersion("1.0.0.3"), FriendlyName("SPOTenantSettings")]
 class MSFT_SPOTenantSettings : OMI_BaseResource
 {
     [Key, Description("Specifies the resource is a single instance, the value must be 'Yes'"),ValueMap{"Yes"},Values{"Yes"}] String IsSingleInstance;
@@ -31,6 +31,23 @@ class MSFT_SPOTenantSettings : OMI_BaseResource
     [Write, Description("List of security groups to exclude in SharePoint access restrictions")] String DenySelectSecurityGroupsInSPSitesList[];
     [Write, Description("List of security groups to include in SharePoint access restrictions.")] String AllowSelectSecurityGroupsInSPSitesList[];
     [Write, Description("The default timezone of a tenant for newly created sites.")] String TenantDefaultTimezone;
+    [Write, Description("Gets or sets a value to specify if user checks handle mobile friendly url.")] Boolean MobileFriendlyUrlEnabledInTenant;
+    [Write, Description("Gets or sets a value to specify the advanced setting of the conditional access policy.")] Boolean AllowDownloadingNonWebViewableFiles;
+    [Write, Description("Prevents users from editing Office files in the browser and copying and pasting Office file contents out of the browser window.")] Boolean AllowEditing;
+    [Write, Description("Set whether to hide the sync button on OneDrive for Business sites.")] Boolean HideSyncButtonOnODB;
+    [Write, Description("Configure if ACS-based app-only authentication should be disabled or not.")] Boolean DisableCustomAppAuthentication;
+    [Write, Description("Guids of out of the box modern list templates to hide when creating a new list.")] String DisabledModernListTemplateIds[];
+    [Write, Description("Allows configuring whether personal lists created within the OneDrive for Business site of the user is enabled or disabled in the tenant. If set to $false, personal lists will be allowed to be created in the tenant. If set to $true, it will be disabled in the tenant.")] Boolean DisablePersonalListCreation;
+    [Write, Description("Allows configuring whether display name of people who view the file are visible in the property pane of the site in SharePoint site collection.")] Boolean DisplayNamesOfFileViewersInSpo;
+    [Write, Description("Allows configuration on whether Fluid components are enabled or disabled in the tenant. If set to $true, then this feature will be enabled on all sites in the tenant. If set to $false, it will be disabled on all sites in the tenant.")] Boolean IsFluidEnabled;
+    [Write, Description("Allows configuring whether loop components are enabled or disabled in the tenant. If set to $true, loop components will be allowed to be created in the tenant. If set to $false, it will be disabled in the tenant.")] Boolean IsLoopEnabled;
+    [Write, Description("Indicates whether the newsfeed is allowed on the modern site pages in SharePoint.")] Boolean IsSharePointNewsfeedEnabled;
+    [Write, Description("Indicates whether users are allowed to create sites.")] Boolean IsSiteCreationEnabled;
+    [Write, Description("Indicates whether the UI commands for creating sites are shown.")] Boolean IsSiteCreationUiEnabled;
+    [Write, Description("Indicates whether creating new modern pages is allowed on SharePoint sites.")] Boolean IsSitePagesCreationEnabled;
+    [Write, Description("Specifies the URL of the redirected site for those site collections which have the locked state 'NoAccess'. The valid values are: '' (default) - Blank by default, this will also remove or clear any value that has been set. Full URL - Example: https://contoso.sharepoint.com/Pages/Locked.aspx")] String NoAccessRedirectUrl;
+    [Write, Description("Ensures that an external user can only accept an external sharing invitation with an account matching the invited email address. Note, this only applies to new external users accepting new sharing invitations. Also, the resource owner must share with an organizational or Microsoft account or the external user will be unable to access the resource. ")] Boolean RequireAcceptingAccountMatchInvitedAccount;
+    [Write, Description("Permits the use of special characters in file and folder names in SharePoint Online and OneDrive for Business document libraries. The only two characters that can be managed at this time are the # and % characters."), ValueMap{"NoPreference","Allowed","Disallowed"}, Values{"NoPreference","Allowed","Disallowed"}] String SpecialCharactersStateInFileFolderNames;
     [Write, Description("Only accepted value is 'Present'."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] String Ensure;
     [Write, Description("Credentials of the account to authenticate with."), EmbeddedInstance("MSFT_Credential")] string Credential;
     [Write, Description("Id of the Azure Active Directory application to authenticate with.")] String ApplicationId;
