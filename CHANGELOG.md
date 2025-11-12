@@ -5,13 +5,12 @@
 * AADActivityBasedTimeoutPolicy
   * Fixed an issue where the `DisplayName` property was not used for create and update.
     FIXES [#6680](https://github.com/microsoft/Microsoft365DSC/issues/6680)
-
-# UNRELEASED
-
 * AADApplication
   * Added support for `TokenLifetimePolicies`.
   * Fixing issue where Set-TargetResource threw an error trying to recreate
     an existing permissions scope when id was not provided.
+* AADAuthorizationPolicy
+  * Added new property `AllowUserConsentForRiskyApps`.
 * AADFeatureRolloutPolicy
   * Added support for `AppliesTo`.
 * AADFilteringPolicyRule
@@ -47,11 +46,19 @@
 * IntuneSettingCatalogCustomPolicyWindows10
   * Fixed issue where roleScopeTagIds was sent as null instead of array, causing BadRequest (400) during policy update.
 * ODSettings
+  * Added new property `DisplayNamesOfFileViewers`.
   * Fixed an issue where exporting `DomainGuids` would throw because it is a GUID type.
     FIXES [#6615](https://github.com/microsoft/Microsoft365DSC/issues/6615)
 * SPOSharingSettings
   * Changed from server-side filtering to local because of backend limitations.
     FIXES [#6631](https://github.com/microsoft/Microsoft365DSC/issues/6631)
+* SPOTenantSettings
+  * Added support for the following properties: `HideSyncButtonOnODB`, `MobileFriendlyUrlEnabledInTenant`,
+    `AllowDownloadingNonWebViewableFiles`, `AllowEditing`, `DisableCustomAppAuthentication`,
+    `DisabledModernListTemplateIds`, `DisablePersonalListCreation`, `IsLoopEnabled`,
+    `IsSharePointNewsfeedEnabled`, `IsSiteCreationEnabled`, `IsSiteCreationUiEnabled`,
+    `IsSitePagesCreationEnabled`, `NoAccessRedirectUrl`, `RequireAcceptingAccountMatchInvitedAccount`,
+    `SpecialCharactersStateInFileFolderNames`.
 * SCDLPSensitiveInformationType
   * Initial release.
 * TeamsAIPolicy
@@ -83,8 +90,8 @@
     FIXES [#6630](https://github.com/microsoft/Microsoft365DSC/issues/6630)
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
-  * Improved logging output of `Test-M365DSCTargetResource`.
   * Added new function `Split-M365DSCConfiguration`.
+  * Improved logging output of `Test-M365DSCTargetResource`.
   * Moved resource initialization into dedicated function.
   * Removed groupId requirement in `ConvertTo-IntuneMobileAppAssignment`.
 * MISC

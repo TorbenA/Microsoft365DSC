@@ -84,7 +84,7 @@ function Get-TargetResource
         $DenyAddAndCustomizePages,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $SocialBarOnSitePagesDisabled,
 
         [Parameter()]
@@ -377,7 +377,7 @@ function Set-TargetResource
         $DenyAddAndCustomizePages,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $SocialBarOnSitePagesDisabled,
 
         [Parameter()]
@@ -765,7 +765,7 @@ function Test-TargetResource
         $DenyAddAndCustomizePages,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $SocialBarOnSitePagesDisabled,
 
         [Parameter()]

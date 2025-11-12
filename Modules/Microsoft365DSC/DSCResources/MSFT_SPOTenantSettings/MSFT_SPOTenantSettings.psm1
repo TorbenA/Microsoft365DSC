@@ -82,6 +82,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $HideSyncButtonOnODB,
+
+        [Parameter()]
+        [System.Boolean]
         $HideSyncButtonOnTeamSite,
 
         [Parameter()]
@@ -132,6 +136,63 @@ function Get-TargetResource
         [Parameter()]
         [System.String[]]
         $AllowSelectSecurityGroupsInSPSitesList,
+
+        [Parameter()]
+        [System.Boolean]
+        $MobileFriendlyUrlEnabledInTenant,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowDownloadingNonWebViewableFiles,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowEditing,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisableCustomAppAuthentication,
+
+        [Parameter()]
+        [System.String[]]
+        $DisabledModernListTemplateIds,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisablePersonalListCreation,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsLoopEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSharePointNewsfeedEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSiteCreationEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSiteCreationUiEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSitePagesCreationEnabled,
+
+        [Parameter()]
+        [System.String]
+        $NoAccessRedirectUrl,
+
+        [Parameter()]
+        [System.Boolean]
+        $RequireAcceptingAccountMatchInvitedAccount,
+
+        [Parameter()]
+        [ValidateSet('NoPreference', 'Allowed', 'Disallowed')]
+        [System.String]
+        $SpecialCharactersStateInFileFolderNames,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -204,7 +265,7 @@ function Get-TargetResource
         $nullReturn.Ensure = 'Absent'
 
         $SPOTenantSettings = Get-PnPTenant -ErrorAction Stop
-        $SPOTenantGraphSettings = Get-MgAdminSharepointSetting -Property TenantDefaultTimeZone # get tenantDefaultTimezone
+        $SPOTenantGraphSettings = Get-MgAdminSharepointSetting -Property *
         $CompatibilityRange = $SPOTenantSettings.CompatibilityRange.Split(',')
         $MinCompat = $null
         $MaxCompat = $null
@@ -215,13 +276,16 @@ function Get-TargetResource
         }
 
         # Additional Properties via REST
-        $parametersToRetrieve = @('ExemptNativeUsersFromTenantLevelRestricedAccessControl',
+        $parametersToRetrieve = @(
+            'ExemptNativeUsersFromTenantLevelRestricedAccessControl',
             'AllowSelectSGsInODBListInTenant',
             'DenySelectSGsInODBListInTenant',
             'DenySelectSecurityGroupsInSPSitesList',
             'AllowSelectSecurityGroupsInSPSitesList',
             'EnableAzureADB2BIntegration',
-            'ODBSharingCapability')
+            'HideSyncButtonOnODB',
+            'MobileFriendlyUrlEnabledInTenant'
+        )
 
         $response = Invoke-PnPSPRestMethod -Method Get `
             -Url "$((Get-MSCloudLoginConnectionProfile -Workload PnP).AdminUrl)/_api/SPO.Tenant?`$select=$($parametersToRetrieve -join ',')"
@@ -235,28 +299,48 @@ function Get-TargetResource
             DenySelectSecurityGroupsInSPSitesList                  = $response.DenySelectSecurityGroupsInSPSitesList
             AllowSelectSecurityGroupsInSPSitesList                 = $response.AllowSelectSecurityGroupsInSPSitesList
             EnableAzureADB2BIntegration                            = $response.EnableAzureADB2BIntegration
+            HideSyncButtonOnODB                                    = $response.HideSyncButtonOnODB
+            MobileFriendlyUrlEnabledInTenant                       = $response.MobileFriendlyUrlEnabledInTenant
             #OneDriveSharingCapability                              = $response.ODBSharingCapability
             MinCompatibilityLevel                                  = $MinCompat
             MaxCompatibilityLevel                                  = $MaxCompat
-            SearchResolveExactEmailOrUPN                           = $SPOTenantSettings.SearchResolveExactEmailOrUPN
-            OfficeClientADALDisabled                               = $SPOTenantSettings.OfficeClientADALDisabled
-            LegacyAuthProtocolsEnabled                             = $SPOTenantSettings.LegacyAuthProtocolsEnabled
-            SignInAccelerationDomain                               = $SPOTenantSettings.SignInAccelerationDomain
-            UsePersistentCookiesForExplorerView                    = $SPOTenantSettings.UsePersistentCookiesForExplorerView
-            PublicCdnEnabled                                       = $SPOTenantSettings.PublicCdnEnabled
-            PublicCdnAllowedFileTypes                              = $SPOTenantSettings.PublicCdnAllowedFileTypes
-            UseFindPeopleInPeoplePicker                            = $SPOTenantSettings.UseFindPeopleInPeoplePicker
-            NotificationsInSharePointEnabled                       = $SPOTenantSettings.NotificationsInSharePointEnabled
-            OwnerAnonymousNotification                             = $SPOTenantSettings.OwnerAnonymousNotification
+            AllowDownloadingNonWebViewableFiles                    = $SPOTenantSettings.AllowDownloadingNonWebViewableFiles
+            AllowEditing                                           = $SPOTenantSettings.AllowEditing
             ApplyAppEnforcedRestrictionsToAdHocRecipients          = $SPOTenantSettings.ApplyAppEnforcedRestrictionsToAdHocRecipients
+            CommentsOnSitePagesDisabled                            = $SPOTenantSettings.CommentsOnSitePagesDisabled
+            DisableCustomAppAuthentication                         = $SPOTenantSettings.DisableCustomAppAuthentication
+            DisabledModernListTemplateIds                          = [System.String[]]$SPOTenantSettings.DisabledModernListTemplateIds
+            DisabledWebPartIds                                     = [System.String[]]$SPOTenantSettings.DisabledWebPartIds
+            DisablePersonalListCreation                            = $SPOTenantSettings.DisablePersonalListCreation
+            #DisableSpacesActivation                                = $SPOTenantSettings.DisableSpacesActivation
+            DisplayNamesOfFileViewersInSpo                         = $SPOTenantSettings.DisplayNamesOfFileViewersInSpo
+            EnableAIPIntegration                                   = $SPOTenantSettings.EnableAIPIntegration
             FilePickerExternalImageSearchEnabled                   = $SPOTenantSettings.FilePickerExternalImageSearchEnabled
             HideDefaultThemes                                      = $SPOTenantSettings.HideDefaultThemes
             HideSyncButtonOnTeamSite                               = $SPOTenantSettings.HideSyncButtonOnTeamSite
+            IsFluidEnabled                                         = $SPOTenantSettings.IsFluidEnabled
+            IsLoopEnabled                                          = $SPOTenantSettings.IsLoopEnabled
+            LegacyAuthProtocolsEnabled                             = $SPOTenantSettings.LegacyAuthProtocolsEnabled
             MarkNewFilesSensitiveByDefault                         = $SPOTenantSettings.MarkNewFilesSensitiveByDefault
-            DisabledWebPartIds                                     = [String[]]$SPOTenantSettings.DisabledWebPartIds
+            NoAccessRedirectUrl                                    = $SPOTenantSettings.NoAccessRedirectUrl
+            NotificationsInSharePointEnabled                       = $SPOTenantSettings.NotificationsInSharePointEnabled
+            OfficeClientADALDisabled                               = $SPOTenantSettings.OfficeClientADALDisabled
+            OwnerAnonymousNotification                             = $SPOTenantSettings.OwnerAnonymousNotification
+            #PermissiveBrowserFileHandlingOverride                  = $SPOTenantSettings.PermissiveBrowserFileHandlingOverride
+            PublicCdnAllowedFileTypes                              = $SPOTenantSettings.PublicCdnAllowedFileTypes
+            PublicCdnEnabled                                       = $SPOTenantSettings.PublicCdnEnabled
+            #PublicCdnOrigins                                       = $SPOTenantSettings.PublicCdnOrigins
+            RequireAcceptingAccountMatchInvitedAccount             = $SPOTenantSettings.RequireAcceptingAccountMatchInvitedAccount
+            SearchResolveExactEmailOrUPN                           = $SPOTenantSettings.SearchResolveExactEmailOrUPN
+            SignInAccelerationDomain                               = $SPOTenantSettings.SignInAccelerationDomain
             SocialBarOnSitePagesDisabled                           = $SPOTenantSettings.SocialBarOnSitePagesDisabled
-            CommentsOnSitePagesDisabled                            = $SPOTenantSettings.CommentsOnSitePagesDisabled
-            EnableAIPIntegration                                   = $SPOTenantSettings.EnableAIPIntegration
+            SpecialCharactersStateInFileFolderNames                = $SPOTenantSettings.SpecialCharactersStateInFileFolderNames
+            UseFindPeopleInPeoplePicker                            = $SPOTenantSettings.UseFindPeopleInPeoplePicker
+            UsePersistentCookiesForExplorerView                    = $SPOTenantSettings.UsePersistentCookiesForExplorerView
+            IsSharePointNewsfeedEnabled                            = $SPOTenantGraphSettings.IsSharePointNewsfeedEnabled
+            IsSiteCreationEnabled                                  = $SPOTenantGraphSettings.IsSiteCreationEnabled
+            IsSiteCreationUiEnabled                                = $SPOTenantGraphSettings.IsSiteCreationUiEnabled
+            IsSitePagesCreationEnabled                             = $SPOTenantGraphSettings.IsSitePagesCreationEnabled
             TenantDefaultTimezone                                  = $SPOTenantGraphSettings.TenantDefaultTimeZone
             Credential                                             = $Credential
             ApplicationId                                          = $ApplicationId
@@ -368,6 +452,10 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $HideSyncButtonOnODB,
+
+        [Parameter()]
+        [System.Boolean]
         $HideSyncButtonOnTeamSite,
 
         [Parameter()]
@@ -378,6 +466,10 @@ function Set-TargetResource
         [Parameter()]
         [System.Guid[]]
         $DisabledWebPartIds,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsFluidEnabled,
 
         [Parameter()]
         [System.Boolean]
@@ -414,6 +506,63 @@ function Set-TargetResource
         [Parameter()]
         [System.String[]]
         $AllowSelectSecurityGroupsInSPSitesList,
+
+        [Parameter()]
+        [System.Boolean]
+        $MobileFriendlyUrlEnabledInTenant,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowDownloadingNonWebViewableFiles,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowEditing,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisableCustomAppAuthentication,
+
+        [Parameter()]
+        [System.String[]]
+        $DisabledModernListTemplateIds,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisablePersonalListCreation,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsLoopEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSharePointNewsfeedEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSiteCreationEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSiteCreationUiEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSitePagesCreationEnabled,
+
+        [Parameter()]
+        [System.String]
+        $NoAccessRedirectUrl,
+
+        [Parameter()]
+        [System.Boolean]
+        $RequireAcceptingAccountMatchInvitedAccount,
+
+        [Parameter()]
+        [ValidateSet('NoPreference', 'Allowed', 'Disallowed')]
+        [System.String]
+        $SpecialCharactersStateInFileFolderNames,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -484,15 +633,36 @@ function Set-TargetResource
     $null = New-M365DSCConnection -Workload 'PNP' -InboundParameters $PSBoundParameters
 
     $CurrentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $spoRestParameters = @(
+        'ExemptNativeUsersFromTenantLevelRestricedAccessControl',
+        'AllowSelectSGsInODBListInTenant',
+        'DenySelectSGsInODBListInTenant',
+        'DenySelectSecurityGroupsInSPSitesList',
+        'AllowSelectSecurityGroupsInSPSitesList',
+        'EnableAzureADB2BIntegration',
+        'HideSyncButtonOnODB',
+        'MobileFriendlyUrlEnabledInTenant'
+    )
+    $spoGraphParameters = @(
+        'IsSharePointNewsfeedEnabled',
+        'IsSiteCreationEnabled',
+        'IsSiteCreationUiEnabled',
+        'IsSitePagesCreationEnabled',
+        'TenantDefaultTimezone'
+    )
     $CurrentParameters.Remove('IsSingleInstance') | Out-Null
-    $CurrentParameters.Remove('ExemptNativeUsersFromTenantLevelRestricedAccessControl') | Out-Null
-    $CurrentParameters.Remove('AllowSelectSGsInODBListInTenant') | Out-Null
-    $CurrentParameters.Remove('DenySelectSGsInODBListInTenant') | Out-Null
-    $CurrentParameters.Remove('DenySelectSecurityGroupsInSPSitesList') | Out-Null
-    $CurrentParameters.Remove('AllowSelectSecurityGroupsInSPSitesList') | Out-Null
-    $CurrentParameters.Remove('EnableAzureADB2BIntegration') | Out-Null
-    $CurrentParameters.Remove('OneDriveSharingCapability') | Out-Null
-    $CurrentParameters.Remove('TenantDefaultTimezone') | Out-Null # this one is updated separately using Graph
+    $spoRestParametersSplat = @{}
+    foreach ($param in $spoRestParameters)
+    {
+        $spoRestParametersSplat.Add($param, $CurrentParameters[$param])
+        $CurrentParameters.Remove($param) | Out-Null
+    }
+    $spoGraphParametersSplat = @{}
+    foreach ($param in $spoGraphParameters)
+    {
+        $spoGraphParametersSplat.Add($param, $CurrentParameters[$param])
+        $CurrentParameters.Remove($param) | Out-Null
+    }
 
     if ($PublicCdnEnabled -eq $false)
     {
@@ -501,60 +671,18 @@ function Set-TargetResource
     }
     $null = Set-PnPTenant @CurrentParameters
 
-    if (-not [string]::IsNullOrEmpty($TenantDefaultTimezone))
+    if ($spoGraphParametersSplat.Keys.Count -gt 0)
     {
-        $null = Update-MgAdminSharepointSetting -TenantDefaultTimezone $TenantDefaultTimezone -ErrorAction Stop
+        $null = Update-MgAdminSharepointSetting @spoGraphParametersSplat -ErrorAction Stop
     }
 
     # Updating via REST
     try
     {
-        $paramsToUpdate = @{}
-        $needToUpdate = $false
-
-        if ($null -ne $ExemptNativeUsersFromTenantLevelRestricedAccessControl)
-        {
-            $needToUpdate = $true
-            $paramsToUpdate.Add('ExemptNativeUsersFromTenantLevelRestricedAccessControl', $ExemptNativeUsersFromTenantLevelRestricedAccessControl)
-        }
-
-        if ($null -ne $AllowSelectSGsInODBListInTenant)
-        {
-            $needToUpdate = $true
-            $paramsToUpdate.Add('AllowSelectSGsInODBListInTenant', $AllowSelectSGsInODBListInTenant)
-        }
-
-        if ($null -ne $DenySelectSGsInODBListInTenant)
-        {
-            $needToUpdate = $true
-            $paramsToUpdate.Add('DenySelectSGsInODBListInTenant', $DenySelectSGsInODBListInTenant)
-        }
-
-        if ($null -ne $DenySelectSecurityGroupsInSPSitesList)
-        {
-            $needToUpdate = $true
-            $paramsToUpdate.Add('DenySelectSecurityGroupsInSPSitesList', $DenySelectSecurityGroupsInSPSitesList)
-        }
-
-        if ($null -ne $AllowSelectSecurityGroupsInSPSitesList)
-        {
-            $needToUpdate = $true
-            $paramsToUpdate.Add('AllowSelectSecurityGroupsInSPSitesList', $AllowSelectSecurityGroupsInSPSitesList)
-        }
-
-        if ($null -ne $EnableAzureADB2BIntegration)
-        {
-            $needToUpdate = $true
-            $paramsToUpdate.Add('EnableAzureADB2BIntegration', $EnableAzureADB2BIntegration)
-        }
-
-        if ($needToUpdate)
-        {
-            Write-Verbose -Message 'Updating properties via REST PATCH call.'
-            Invoke-PnPSPRestMethod -Method PATCH `
-                -Url "$((Get-MSCloudLoginConnectionProfile -Workload PnP).AdminUrl)/_api/SPO.Tenant" `
-                -Content $paramsToUpdate
-        }
+        Write-Verbose -Message 'Updating properties via REST PATCH call.'
+        Invoke-PnPSPRestMethod -Method PATCH `
+            -Url "$((Get-MSCloudLoginConnectionProfile -Workload PnP).AdminUrl)/_api/SPO.Tenant" `
+            -Content $spoRestParametersSplat
     }
     catch
     {
@@ -651,6 +779,10 @@ function Test-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $HideSyncButtonOnODB,
+
+        [Parameter()]
+        [System.Boolean]
         $HideSyncButtonOnTeamSite,
 
         [Parameter()]
@@ -661,6 +793,10 @@ function Test-TargetResource
         [Parameter()]
         [System.Guid[]]
         $DisabledWebPartIds,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsFluidEnabled,
 
         [Parameter()]
         [System.Boolean]
@@ -697,6 +833,63 @@ function Test-TargetResource
         [Parameter()]
         [System.String[]]
         $AllowSelectSecurityGroupsInSPSitesList,
+
+        [Parameter()]
+        [System.Boolean]
+        $MobileFriendlyUrlEnabledInTenant,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowDownloadingNonWebViewableFiles,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowEditing,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisableCustomAppAuthentication,
+
+        [Parameter()]
+        [System.String[]]
+        $DisabledModernListTemplateIds,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisablePersonalListCreation,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsLoopEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSharePointNewsfeedEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSiteCreationEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSiteCreationUiEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSitePagesCreationEnabled,
+
+        [Parameter()]
+        [System.String]
+        $NoAccessRedirectUrl,
+
+        [Parameter()]
+        [System.Boolean]
+        $RequireAcceptingAccountMatchInvitedAccount,
+
+        [Parameter()]
+        [ValidateSet('NoPreference', 'Allowed', 'Disallowed')]
+        [System.String]
+        $SpecialCharactersStateInFileFolderNames,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]

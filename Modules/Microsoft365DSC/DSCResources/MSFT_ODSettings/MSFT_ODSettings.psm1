@@ -63,6 +63,10 @@ function Get-TargetResource
         $GrooveBlockOption,
 
         [Parameter()]
+        [System.Boolean]
+        $DisplayNamesOfFileViewers,
+
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
@@ -187,6 +191,8 @@ function Get-TargetResource
             DomainGuids                               = $FixedAllowedDomainList
             ExcludedFileExtensions                    = $FixedExcludedFileExtensions
             GrooveBlockOption                         = $GrooveOption
+            DisableAddToOneDrive                      = $tenant.DisableAddToOneDrive
+            DisplayNamesOfFileViewers                 = $tenant.DisplayNamesOfFileViewers
             OneDriveStorageQuota                      = $tenant.OneDriveStorageQuota
             OrphanedPersonalSitesRetentionPeriod      = $tenant.OrphanedPersonalSitesRetentionPeriod
             OneDriveForGuestsEnabled                  = $tenant.OneDriveForGuestsEnabled
