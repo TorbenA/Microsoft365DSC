@@ -64,13 +64,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name 'Address List should exist. Address List is missing. Test should fail.' -Fixture {
             BeforeAll {
                 $testParams = @{
-                    Name                       = 'Contoso Different Address List' # Drift
+                    Name                       = 'Contoso Address List'
                     ConditionalCompany         = 'Contoso'
                     ConditionalDepartment      = 'HR'
                     ConditionalStateOrProvince = 'US'
                     IncludedRecipients         = 'AllRecipients'
                     Ensure                     = 'Present'
                     Credential                 = $Credential
+                }
+
+                Mock -CommandName Get-AddressList -MockWith {
+                    return $null
                 }
             }
 

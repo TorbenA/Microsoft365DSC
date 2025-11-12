@@ -116,8 +116,7 @@ function Get-TargetResource
 
     try
     {
-        $MailboxPlan = Get-MailboxPlan -Identity $Identity -ErrorAction Stop
-
+        $MailboxPlan = Get-MailboxPlan -Identity $Identity -ErrorAction SilentlyContinue
         if ($null -eq $MailboxPlan)
         {
             if (-not [System.String]::IsNullOrEmpty($DisplayName))
@@ -447,7 +446,7 @@ function Export-TargetResource
     {
         [array]$MailboxPlans = Get-MailboxPlan -ErrorAction Stop
 
-        if ($MailboxPlans.Length -eq 0)
+        if ($MailboxPlans.Count -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }

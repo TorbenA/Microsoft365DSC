@@ -1387,22 +1387,29 @@ function Write-M365DSCDriftsToEventLog
         $LCMState = $null
         try
         {
-            $LCMInfo = Get-DscLocalConfigurationManager -ErrorAction Stop
+            if (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
+            {
+                $LCMInfo = Get-DscLocalConfigurationManager -ErrorAction Stop
 
-            if ($LCMInfo.LCMStateDetail -eq 'LCM is performing a consistency check.' -or `
-                    $LCMInfo.LCMStateDetail -eq 'LCM exécute une vérification de cohérence.' -or `
-                    $LCMInfo.LCMStateDetail -eq 'LCM führt gerade eine Konsistenzüberprüfung durch.')
-            {
-                $LCMState = 'ConsistencyCheck'
+                if ($LCMInfo.LCMStateDetail -eq 'LCM is performing a consistency check.' -or `
+                        $LCMInfo.LCMStateDetail -eq 'LCM exécute une vérification de cohérence.' -or `
+                        $LCMInfo.LCMStateDetail -eq 'LCM führt gerade eine Konsistenzüberprüfung durch.')
+                {
+                    $LCMState = 'ConsistencyCheck'
+                }
+                elseif ($LCMInfo.LCMStateDetail -eq 'LCM is testing node against the configuration.')
+                {
+                    $LCMState = 'ManualTestDSCConfiguration'
+                }
+                elseif ($LCMInfo.LCMStateDetail -eq 'LCM is applying a new configuration.' -or `
+                        $LCMInfo.LCMStateDetail -eq 'LCM applique une nouvelle configuration.')
+                {
+                    $LCMState = 'Initial'
+                }
             }
-            elseif ($LCMInfo.LCMStateDetail -eq 'LCM is testing node against the configuration.')
+            else
             {
-                $LCMState = 'ManualTestDSCConfiguration'
-            }
-            elseif ($LCMInfo.LCMStateDetail -eq 'LCM is applying a new configuration.' -or `
-                    $LCMInfo.LCMStateDetail -eq 'LCM applique une nouvelle configuration.')
-            {
-                $LCMState = 'Initial'
+                $LCMState = 'Unauthorized'
             }
         }
         catch
@@ -1453,6 +1460,7 @@ function Write-M365DSCDriftsToEventLog
         }
         $EventMessage.Append("    </CurrentValues>`r`n") | Out-Null
         $EventMessage.Append('</M365DSCEvent>') | Out-Null
+        Write-Verbose -Message $EventMessage.ToString()
         Add-M365DSCEvent -Message $EventMessage.ToString() -EventType 'Drift' -EntryType 'Warning' `
             -EventID 1 -Source $ResourceName
     }
@@ -1678,7 +1686,9 @@ function ConvertTo-IntunePolicyAssignment
     $assignmentResult = @()
     foreach ($assignment in $Assignments)
     {
-        $target = @{"@odata.type" = $assignment.dataType}
+        $target = @{
+            '@odata.type' = $assignment.dataType
+        }
         if ($IncludeDeviceFilter)
         {
             if ($null -ne $assignment.DeviceAndAppManagementAssignmentFilterType -and $assignment.DeviceAndAppManagementAssignmentFilterType -ne 'none')
@@ -1711,39 +1721,30 @@ function ConvertTo-IntunePolicyAssignment
             {
                 $group = Get-MgGroup -GroupId ($assignment.groupId) -ErrorAction SilentlyContinue
             }
-            if ($null -eq $group)
+            if ($null -eq $group -and -not [System.String]::IsNullOrEmpty($assignment.groupDisplayName))
             {
-                if ($assignment.groupDisplayName)
+                $escapedName = $assignment.groupDisplayName -replace "'", "''"
+                $group = Get-MgGroup -Filter "DisplayName eq '$escapedName'" -All -ErrorAction SilentlyContinue
+                if ($null -eq $group)
                 {
-                    $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.groupDisplayName -replace "'", "''")'" -All -ErrorAction SilentlyContinue
-                    if ($null -eq $group)
-                    {
-                        $message = "Skipping assignment for the group with DisplayName {$($assignment.groupDisplayName)} as it could not be found in the directory.`r`n"
-                        $message += "Please update your DSC resource extract with the correct groupId or groupDisplayName."
-                        Write-Warning -Message $message
-                        $target = $null
-                    }
-                    if ($group -and $group.Count -gt 1)
-                    {
-                        $message = "Skipping assignment for the group with DisplayName {$($assignment.groupDisplayName)} as it is not unique in the directory.`r`n"
-                        $message += "Please update your DSC resource extract with the correct groupId or a unique group DisplayName."
-                        Write-Warning -Message $message
-                        $group = $null
-                        $target = $null
-                    }
+                    Write-Warning "Skipping assignment: groupDisplayName '{$($assignment.groupDisplayName)}' not found."
+                    $target = $null
                 }
-                else
+                elseif ($group.Count -gt 1)
                 {
-                    $message = "Skipping assignment for the group with Id {$($assignment.groupId)} as it could not be found in the directory.`r`n"
-                    $message += "Please update your DSC resource extract with the correct groupId or a unique group DisplayName."
-                    Write-Warning -Message $message
+                    Write-Warning "Skipping assignment: groupDisplayName '{$($assignment.groupDisplayName)}' is not unique."
                     $target = $null
                 }
             }
-            #Skipping assignment if group not found from either groupId or groupDisplayName
+            # If group found, add its ID
             if ($null -ne $group)
             {
                 $target.Add('groupId', $group.Id)
+            }
+            elseif ($null -eq $group -and [System.String]::IsNullOrEmpty($assignment.groupDisplayName))
+            {
+                Write-Warning "Skipping assignment: missing both groupId and groupDisplayName."
+                $target = $null
             }
         }
 
@@ -1753,7 +1754,7 @@ function ConvertTo-IntunePolicyAssignment
         }
     }
 
-    return ,[System.Collections.Hashtable[]]$assignmentResult
+    return ,$assignmentResult
 }
 
 function ConvertFrom-IntuneMobileAppAssignment
@@ -1888,18 +1889,24 @@ function ConvertTo-IntuneMobileAppAssignment
     foreach ($assignment in $Assignments)
     {
         $formattedAssignment = @{}
-        $target = @{"@odata.type" = $assignment.dataType}
+        $target = @{
+            '@odata.type' = $assignment.dataType
+        }
+
+        # Handle Device Filters
         if ($IncludeDeviceFilter)
         {
-            if ($null -ne $assignment.DeviceAndAppManagementAssignmentFilterType -and $assignment.DeviceAndAppManagementAssignmentFilterType -ne 'none')
+            if ($null -ne $assignment.DeviceAndAppManagementAssignmentFilterType -and
+                $assignment.DeviceAndAppManagementAssignmentFilterType -ne 'none')
             {
-                $filter = $Script:IntuneAssignmentFilters | Where-Object -FilterScript { $_.FilterId -eq $assignment.DeviceAndAppManagementAssignmentFilterId }
+                $filter = $Script:IntuneAssignmentFilters | Where-Object {
+                    $_.FilterId -eq $assignment.DeviceAndAppManagementAssignmentFilterId
+                }
+
                 if ($null -eq $filter)
                 {
-                    $filter = $Script:IntuneAssignmentFilters | Where-Object -FilterScript { $_.DisplayName -eq $assignment.DeviceAndAppManagementAssignmentFilterDisplayName }
-                    if ($null -eq $filter)
-                    {
-                        Write-Warning -Message "Assignment filter with DisplayName {$($assignment.DeviceAndAppManagementAssignmentFilterDisplayName)} not found in the directory. Please update your DSC resource extract with the correct filterId or filterDisplayName."
+                    $filter = $Script:IntuneAssignmentFilters | Where-Object {
+                        $_.DisplayName -eq $assignment.DeviceAndAppManagementAssignmentFilterDisplayName
                     }
                 }
 
@@ -1908,54 +1915,56 @@ function ConvertTo-IntuneMobileAppAssignment
                     $target.Add('deviceAndAppManagementAssignmentFilterType', $assignment.DeviceAndAppManagementAssignmentFilterType)
                     $target.Add('deviceAndAppManagementAssignmentFilterId', $filter.FilterId)
                 }
+                else
+                {
+                    Write-Warning "Assignment filter with DisplayName {$($assignment.DeviceAndAppManagementAssignmentFilterDisplayName)} not found."
+                }
             }
         }
 
+        # Add intent (required for app assignments)
         $formattedAssignment.Add('intent', $assignment.intent)
 
         if ($assignment.dataType -like '*groupAssignmentTarget')
         {
-            $group = Get-MgGroup -GroupId ($assignment.groupId) -ErrorAction SilentlyContinue
-            if ($null -eq $group)
+            $group = $null
+            if (-not [System.String]::IsNullOrEmpty($assignment.groupId))
             {
-                if ($assignment.groupDisplayName)
+                $group = Get-MgGroup -GroupId $assignment.groupId -ErrorAction SilentlyContinue
+            }
+            # If groupId lookup failed, try by display name
+            if ($null -eq $group -and -not [System.String]::IsNullOrEmpty($assignment.groupDisplayName))
+            {
+                $escapedName = $assignment.groupDisplayName -replace "'", "''"
+                $group = Get-MgGroup -Filter "DisplayName eq '$escapedName'" -All -ErrorAction SilentlyContinue
+                if ($null -eq $group)
                 {
-                    $group = Get-MgGroup -Filter "DisplayName eq '$($assignment.groupDisplayName -replace "'", "''")'" -All -ErrorAction SilentlyContinue
-                    if ($null -eq $group)
-                    {
-                        $message = "Skipping assignment for the group with DisplayName {$($assignment.groupDisplayName)} as it could not be found in the directory.`r`n"
-                        $message += "Please update your DSC resource extract with the correct groupId or groupDisplayName."
-                        Write-Warning -Message $message
-                        $target = $null
-                    }
-                    if ($group -and $group.Count -gt 1)
-                    {
-                        $message = "Skipping assignment for the group with DisplayName {$($assignment.groupDisplayName)} as it is not unique in the directory.`r`n"
-                        $message += "Please update your DSC resource extract with the correct groupId or a unique group DisplayName."
-                        Write-Warning -Message $message
-                        $group = $null
-                        $target = $null
-                    }
+                    Write-Warning "Skipping assignment: groupDisplayName '{$($assignment.groupDisplayName)}' not found."
+                    $target = $null
                 }
-                else
+                elseif ($group.Count -gt 1)
                 {
-                    $message = "Skipping assignment for the group with Id {$($assignment.groupId)} as it could not be found in the directory.`r`n"
-                    $message += "Please update your DSC resource extract with the correct groupId or a unique group DisplayName."
-                    Write-Warning -Message $message
+                    Write-Warning "Skipping assignment: groupDisplayName '{$($assignment.groupDisplayName)}' is not unique."
                     $target = $null
                 }
             }
-            else {
-                #Skipping assignment if group not found from either groupId or groupDisplayName
+            # If group found, add its ID
+            if ($null -ne $group)
+            {
                 $target.Add('groupId', $group.Id)
             }
+            elseif ($null -eq $group -and [System.String]::IsNullOrEmpty($assignment.groupDisplayName))
+            {
+                Write-Warning "Skipping assignment: missing both groupId and groupDisplayName."
+                $target = $null
+            }
         }
-
+        # Add target if valid
         if ($target)
         {
             $formattedAssignment.Add('target', $target)
         }
-
+        # Add assignment settings if present
         if ($null -ne $assignment.assignmentSettings)
         {
             $settings = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $assignment.assignmentSettings
@@ -1965,8 +1974,7 @@ function ConvertTo-IntuneMobileAppAssignment
         }
         $assignmentResult += $formattedAssignment
     }
-
-    return ,[System.Collections.Hashtable[]]$assignmentResult
+    return ,$assignmentResult
 }
 
 function Compare-M365DSCIntunePolicyAssignment

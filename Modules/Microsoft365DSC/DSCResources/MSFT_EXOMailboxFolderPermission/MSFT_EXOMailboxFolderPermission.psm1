@@ -79,7 +79,7 @@ function Get-TargetResource
         }
         else
         {
-            $instances = Get-MailboxFolderPermission -Identity $Identity -ErrorAction Stop
+            $instances = Get-MailboxFolderPermission -Identity $Identity -ErrorAction SilentlyContinue
         }
         if ($null -eq $instances)
         {

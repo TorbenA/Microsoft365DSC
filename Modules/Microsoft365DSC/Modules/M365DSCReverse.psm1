@@ -197,6 +197,16 @@ function Start-M365DSCConfigurationExtract
             $ComponentsToSkip += $ExcludeComponents
         }
 
+        $resourcesInBothIncludeAndExclude = Compare-Object -ReferenceObject $Components `
+            -DifferenceObject $ComponentsToSkip -ExcludeDifferent -IncludeEqual
+        if ($resourcesInBothIncludeAndExclude.Count -gt 0)
+        {
+            foreach ($resource in $resourcesInBothIncludeAndExclude)
+            {
+                Write-Warning -Message "The component '$($resource.InputObject)' was specified in both -Components and -ExcludeComponents parameters. It will be excluded from the export."
+            }
+        }
+
         # Check to validate that based on the received authentication parameters
         # we are allowed to export the selected components.
         $AuthMethods = @()
@@ -753,10 +763,26 @@ function Start-M365DSCConfigurationExtract
                         Write-M365DSCHost -Message "    `r`n$($Global:M365DSCEmojiYellowCircle) You specified a filter for resource {$resourceName} but it doesn't support filters. Filter will be ignored and all instances of the resource will be captured."
                     }
                 }
+
+                # Check for ErrorAction Preference
+                $parameters.Add('ErrorAction', $using:ErrorActionPreference)
                 $Global:M365DSCExportResourceTypes += $resourceName
-                $exportString.Append((Export-TargetResource @parameters)) | Out-Null
+
+                try
+                {
+                    $exportOutput = Export-TargetResource @parameters
+                    $exportString.Append($exportOutput) | Out-Null
+                    ($using:synchronizedHashtable).ResourcesResult.Add($resourceName, $exportString.ToString())
+                }
+                catch
+                {
+                    Write-M365DSCHost -Message "    `r`n$($Global:M365DSCEmojiRedX) An error occurred while exporting resource {$resourceName}: $($_.Exception.Message)" -CommitWrite
+                    if ($ErrorActionPreference -eq 'Stop')
+                    {
+                        throw $_
+                    }
+                }
             }
-            ($using:synchronizedHashtable).ResourcesResult.Add($resourceName, $exportString.ToString())
         }
 
         if ($Parallel)

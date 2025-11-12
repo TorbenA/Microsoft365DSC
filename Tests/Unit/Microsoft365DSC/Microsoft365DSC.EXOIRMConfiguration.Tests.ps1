@@ -49,7 +49,11 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Identity                                   = 'Test Config'
                     InternalLicensingEnabled                   = $True
                     JournalReportDecryptionEnabled             = $True
-                    LicensingLocation                          = 'https://contoso.com/_wmcs/licensing'
+                    LicensingLocation                          = @{
+                        AbsolutePath   = '/_wmcs/licensing'
+                        OriginalString = 'https://contoso.com/_wmcs/licensing'
+                        IdnHost        = 'contoso.com'
+                    }
                     RejectIfRecipientHasNoRights               = $False
                     SearchEnabled                              = $True
                     SimplifiedClientAccessDoNotForwardDisabled = $False

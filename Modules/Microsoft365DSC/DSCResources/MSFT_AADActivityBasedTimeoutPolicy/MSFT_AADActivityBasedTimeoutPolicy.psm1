@@ -263,7 +263,7 @@ function Set-TargetResource
                 definition            = @(
                     "$json"
                 )
-                displayName           = 'displayName-value'
+                displayName           = $DisplayName
                 isOrganizationDefault = $true
             }
 
@@ -307,7 +307,7 @@ function Set-TargetResource
                 definition            = @(
                     "$json"
                 )
-                displayName           = 'displayName-value'
+                displayName           = $DisplayName
                 isOrganizationDefault = $true
             }
 

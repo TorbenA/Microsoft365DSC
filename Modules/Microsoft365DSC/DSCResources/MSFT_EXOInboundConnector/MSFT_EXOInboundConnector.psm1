@@ -145,54 +145,50 @@ function Get-TargetResource
 
     try
     {
-        $InboundConnectors = Get-InboundConnector -ErrorAction Stop
-
-        $InboundConnector = $InboundConnectors | Where-Object -FilterScript { $_.Identity -eq $Identity }
+        $InboundConnector = Get-InboundConnector -Identity $Identity -ErrorAction SilentlyContinue
         if ($null -eq $InboundConnector)
         {
             Write-Verbose -Message "InboundConnector $($Identity) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $ConnectorSourceValue = $InboundConnector.ConnectorSource
-            if ($ConnectorSourceValue -eq 'AdminUI')
-            {
-                $ConnectorSourceValue = 'Default'
-            }
-            $result = @{
-                Identity                     = $Identity
-                AssociatedAcceptedDomains    = $InboundConnector.AssociatedAcceptedDomains
-                CloudServicesMailEnabled     = $InboundConnector.CloudServicesMailEnabled
-                Comment                      = $InboundConnector.Comment
-                ConnectorSource              = $ConnectorSourceValue
-                ConnectorType                = $InboundConnector.ConnectorType
-                EFSkipIPs                    = $InboundConnector.EFSkipIPs
-                EFSkipLastIP                 = $InboundConnector.EFSkipLastIP
-                EFUsers                      = $InboundConnector.EFUsers
-                Enabled                      = $InboundConnector.Enabled
-                RequireTls                   = $InboundConnector.RequireTls
-                RestrictDomainsToCertificate = $InboundConnector.RestrictDomainsToCertificate
-                RestrictDomainsToIPAddresses = $InboundConnector.RestrictDomainsToIPAddresses
-                SenderDomains                = $InboundConnector.SenderDomains
-                SenderIPAddresses            = $InboundConnector.SenderIPAddresses
-                TlsSenderCertificateName     = $InboundConnector.TlsSenderCertificateName
-                TreatMessagesAsInternal      = $InboundConnector.TreatMessagesAsInternal
-                Credential                   = $Credential
-                Ensure                       = 'Present'
-                ApplicationId                = $ApplicationId
-                CertificateThumbprint        = $CertificateThumbprint
-                CertificatePath              = $CertificatePath
-                CertificatePassword          = $CertificatePassword
-                ManagedIdentity              = $ManagedIdentity.IsPresent
-                TenantId                     = $TenantId
-                AccessTokens                 = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found InboundConnector $($Identity)"
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
-            return $result
+        $ConnectorSourceValue = $InboundConnector.ConnectorSource
+        if ($ConnectorSourceValue -eq 'AdminUI')
+        {
+            $ConnectorSourceValue = 'Default'
         }
+        $result = @{
+            Identity                     = $Identity
+            AssociatedAcceptedDomains    = $InboundConnector.AssociatedAcceptedDomains
+            CloudServicesMailEnabled     = $InboundConnector.CloudServicesMailEnabled
+            Comment                      = $InboundConnector.Comment
+            ConnectorSource              = $ConnectorSourceValue
+            ConnectorType                = $InboundConnector.ConnectorType
+            EFSkipIPs                    = $InboundConnector.EFSkipIPs
+            EFSkipLastIP                 = $InboundConnector.EFSkipLastIP
+            EFUsers                      = $InboundConnector.EFUsers
+            Enabled                      = $InboundConnector.Enabled
+            RequireTls                   = $InboundConnector.RequireTls
+            RestrictDomainsToCertificate = $InboundConnector.RestrictDomainsToCertificate
+            RestrictDomainsToIPAddresses = $InboundConnector.RestrictDomainsToIPAddresses
+            SenderDomains                = $InboundConnector.SenderDomains
+            SenderIPAddresses            = $InboundConnector.SenderIPAddresses
+            TlsSenderCertificateName     = $InboundConnector.TlsSenderCertificateName
+            TreatMessagesAsInternal      = $InboundConnector.TreatMessagesAsInternal
+            Credential                   = $Credential
+            Ensure                       = 'Present'
+            ApplicationId                = $ApplicationId
+            CertificateThumbprint        = $CertificateThumbprint
+            CertificatePath              = $CertificatePath
+            CertificatePassword          = $CertificatePassword
+            ManagedIdentity              = $ManagedIdentity.IsPresent
+            TenantId                     = $TenantId
+            AccessTokens                 = $AccessTokens
+        }
+
+        Write-Verbose -Message "Found InboundConnector $($Identity)"
+        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
+        return $result
     }
     catch
     {
@@ -346,7 +342,7 @@ function Set-TargetResource
         $InboundConnectorParams.Remove('Identity') | Out-Null
         New-InboundConnector @InboundConnectorParams
     }
-    elseif (('Present' -eq $Ensure ) -and ($Null -ne $InboundConnector))
+    elseif (('Present' -eq $Ensure ) -and ($null -ne $InboundConnector))
     {
         Write-Verbose -Message "Setting InboundConnector $($Identity) with values: $(Convert-M365DscHashtableToString -Hashtable $InboundConnectorParams)"
         Set-InboundConnector @InboundConnectorParams -Confirm:$false
@@ -471,11 +467,9 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -483,41 +477,26 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of InboundConnector for $($Identity)"
-
-    #check syntax of SenderDomains parameter
-    $senderDomains = @()
-    foreach ($domain in $PSBoundParameters.SenderDomains)
+    if ($PSBoundParameters.ContainsKey('SenderDomains'))
     {
-        if ($domain -notlike 'smtp:*')
+        $newSenderDomains = @()
+        foreach ($domain in $PSBoundParameters.SenderDomains)
         {
-            $senderDomains += 'smtp:' + $domain + ';1'
+            if ($domain -notlike 'smtp:*')
+            {
+                $newSenderDomains += 'smtp:' + $domain + ';1'
+            }
+            else
+            {
+                $newSenderDomains += $domain
+            }
         }
-        else
-        {
-            $senderDomains += $domain
-        }
+        $PSBoundParameters.SenderDomains = $newSenderDomains
     }
 
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    $ValuesToCheck = $PSBoundParameters
-    if ($senderDomains.Length -gt 0)
-    {
-        $ValuesToCheck.SenderDomains = $senderDomains
-    }
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $($TestResult)"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource

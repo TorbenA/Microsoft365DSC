@@ -36,7 +36,7 @@ function Get-TargetResource
         $DisallowInfectedFileDownload,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ExternalServicesEnabled,
 
         [Parameter()]
@@ -50,6 +50,11 @@ function Get-TargetResource
         [Parameter()]
         [System.Boolean]
         $EnableRestrictedAccessControl,
+
+        [Parameter()]
+        [ValidateSet('AllowFullAccess', 'AllowLimitedAccess', 'BlockAccess', 'ProtectionLevel')]
+        [System.String]
+        $ConditionalAccessPolicy,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -89,11 +94,6 @@ function Get-TargetResource
         $ManagedIdentity,
 
         [Parameter()]
-        [ValidateSet('AllowFullAccess', 'AllowLimitedAccess', 'BlockAccess', 'ProtectionLevel')]
-        [System.String]
-        $ConditionalAccessPolicy,
-
-        [Parameter()]
         [System.String[]]
         $AccessTokens
     )
@@ -131,6 +131,7 @@ function Get-TargetResource
 
         return @{
             IsSingleInstance              = 'Yes'
+            ConditionalAccessPolicy       = $SPOAccessControlSettings.ConditionalAccessPolicy
             DisplayStartASiteOption       = $SPOAccessControlSettings.DisplayStartASiteOption
             StartASiteFormUrl             = $SPOAccessControlSettings.StartASiteFormUrl
             IPAddressEnforcement          = $SPOAccessControlSettings.IPAddressEnforcement
@@ -150,7 +151,6 @@ function Get-TargetResource
             CertificateThumbprint         = $CertificateThumbprint
             ManagedIdentity               = $ManagedIdentity.IsPresent
             Ensure                        = 'Present'
-            ConditionalAccessPolicy       = $SPOAccessControlSettings.ConditionalAccessPolicy
             AccessTokens                  = $AccessTokens
         }
     }
@@ -206,7 +206,7 @@ function Set-TargetResource
         $DisallowInfectedFileDownload,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ExternalServicesEnabled,
 
         [Parameter()]
@@ -220,6 +220,11 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $EnableRestrictedAccessControl,
+
+        [Parameter()]
+        [ValidateSet('AllowFullAccess', 'AllowLimitedAccess', 'BlockAccess', 'ProtectionLevel')]
+        [System.String]
+        $ConditionalAccessPolicy,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -257,11 +262,6 @@ function Set-TargetResource
         [Parameter()]
         [Switch]
         $ManagedIdentity,
-
-        [Parameter()]
-        [ValidateSet('AllowFullAccess', 'AllowLimitedAccess', 'BlockAccess', 'ProtectionLevel')]
-        [System.String]
-        $ConditionalAccessPolicy,
 
         [Parameter()]
         [System.String[]]
@@ -357,7 +357,7 @@ function Test-TargetResource
         $DisallowInfectedFileDownload,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ExternalServicesEnabled,
 
         [Parameter()]
@@ -371,6 +371,11 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $EnableRestrictedAccessControl,
+
+        [Parameter()]
+        [ValidateSet('AllowFullAccess', 'AllowLimitedAccess', 'BlockAccess', 'ProtectionLevel')]
+        [System.String]
+        $ConditionalAccessPolicy,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -408,11 +413,6 @@ function Test-TargetResource
         [Parameter()]
         [Switch]
         $ManagedIdentity,
-
-        [Parameter()]
-        [ValidateSet('AllowFullAccess', 'AllowLimitedAccess', 'BlockAccess', 'ProtectionLevel')]
-        [System.String]
-        $ConditionalAccessPolicy,
 
         [Parameter()]
         [System.String[]]

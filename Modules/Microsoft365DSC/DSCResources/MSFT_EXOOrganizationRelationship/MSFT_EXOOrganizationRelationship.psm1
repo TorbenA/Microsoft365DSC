@@ -163,85 +163,80 @@ function Get-TargetResource
 
     try
     {
-        $AllOrganizationRelationships = Get-OrganizationRelationship -ErrorAction Stop
-
-        $OrganizationRelationship = $AllOrganizationRelationships | Where-Object -FilterScript { $_.Name -eq $Name }
-
+        $OrganizationRelationship = Get-OrganizationRelationship -Identity $Name -ErrorAction SilentlyContinue
         if ($null -eq $OrganizationRelationship)
         {
             Write-Verbose -Message "Organization Relationship configuration for $($Name) does not exist."
             return $nullReturn
         }
+
+        $result = @{
+            ArchiveAccessEnabled       = $OrganizationRelationship.ArchiveAccessEnabled
+            DeliveryReportEnabled      = $OrganizationRelationship.DeliveryReportEnabled
+            DomainNames                = $OrganizationRelationship.DomainNames
+            Enabled                    = $OrganizationRelationship.Enabled
+            FreeBusyAccessEnabled      = $OrganizationRelationship.FreeBusyAccessEnabled
+            FreeBusyAccessLevel        = $OrganizationRelationship.FreeBusyAccessLevel
+            FreeBusyAccessScope        = $OrganizationRelationship.FreeBusyAccessScope
+            MailboxMoveEnabled         = $OrganizationRelationship.MailboxMoveEnabled
+            MailboxMoveCapability      = $OrganizationRelationship.MailboxMoveCapability
+            MailboxMovePublishedScopes = $OrganizationRelationship.MailboxMovePublishedScopes
+            MailTipsAccessEnabled      = $OrganizationRelationship.MailTipsAccessEnabled
+            MailTipsAccessLevel        = $OrganizationRelationship.MailTipsAccessLevel
+            MailTipsAccessScope        = $OrganizationRelationship.MailTipsAccessScope
+            Name                       = $OrganizationRelationship.Name
+            OauthApplicationId         = $OrganizationRelationship.OauthApplicationId
+            OrganizationContact        = $OrganizationRelationship.OrganizationContact
+            PhotosEnabled              = $OrganizationRelationship.PhotosEnabled
+            Ensure                     = 'Present'
+            Credential                 = $Credential
+            ApplicationId              = $ApplicationId
+            CertificateThumbprint      = $CertificateThumbprint
+            CertificatePath            = $CertificatePath
+            CertificatePassword        = $CertificatePassword
+            ManagedIdentity            = $ManagedIdentity.IsPresent
+            TenantId                   = $TenantId
+            AccessTokens               = $AccessTokens
+        }
+
+        if ($OrganizationRelationship.TargetApplicationUri)
+        {
+            $result.Add('TargetApplicationUri', $($OrganizationRelationship.TargetApplicationUri.ToString()))
+        }
         else
         {
-            $result = @{
-                ArchiveAccessEnabled       = $OrganizationRelationship.ArchiveAccessEnabled
-                DeliveryReportEnabled      = $OrganizationRelationship.DeliveryReportEnabled
-                DomainNames                = $OrganizationRelationship.DomainNames
-                Enabled                    = $OrganizationRelationship.Enabled
-                FreeBusyAccessEnabled      = $OrganizationRelationship.FreeBusyAccessEnabled
-                FreeBusyAccessLevel        = $OrganizationRelationship.FreeBusyAccessLevel
-                FreeBusyAccessScope        = $OrganizationRelationship.FreeBusyAccessScope
-                MailboxMoveEnabled         = $OrganizationRelationship.MailboxMoveEnabled
-                MailboxMoveCapability      = $OrganizationRelationship.MailboxMoveCapability
-                MailboxMovePublishedScopes = $OrganizationRelationship.MailboxMovePublishedScopes
-                MailTipsAccessEnabled      = $OrganizationRelationship.MailTipsAccessEnabled
-                MailTipsAccessLevel        = $OrganizationRelationship.MailTipsAccessLevel
-                MailTipsAccessScope        = $OrganizationRelationship.MailTipsAccessScope
-                Name                       = $OrganizationRelationship.Name
-                OauthApplicationId         = $OrganizationRelationship.OauthApplicationId
-                OrganizationContact        = $OrganizationRelationship.OrganizationContact
-                PhotosEnabled              = $OrganizationRelationship.PhotosEnabled
-                Ensure                     = 'Present'
-                Credential                 = $Credential
-                ApplicationId              = $ApplicationId
-                CertificateThumbprint      = $CertificateThumbprint
-                CertificatePath            = $CertificatePath
-                CertificatePassword        = $CertificatePassword
-                ManagedIdentity            = $ManagedIdentity.IsPresent
-                TenantId                   = $TenantId
-                AccessTokens               = $AccessTokens
-            }
-
-            if ($OrganizationRelationship.TargetApplicationUri)
-            {
-                $result.Add('TargetApplicationUri', $($OrganizationRelationship.TargetApplicationUri.ToString()))
-            }
-            else
-            {
-                $result.Add('TargetApplicationUri', '')
-            }
-
-            if ($OrganizationRelationship.TargetAutodiscoverEpr)
-            {
-                $result.Add('TargetAutodiscoverEpr', $($OrganizationRelationship.TargetAutodiscoverEpr.ToString()))
-            }
-            else
-            {
-                $result.Add('TargetAutodiscoverEpr', '')
-            }
-
-            if ($OrganizationRelationship.TargetSharingEpr)
-            {
-                $result.Add('TargetSharingEpr', $($OrganizationRelationship.TargetSharingEpr.ToString()))
-            }
-            else
-            {
-                $result.Add('TargetSharingEpr', '')
-            }
-
-            if ($OrganizationRelationship.TargetOwaURL)
-            {
-                $result.Add('TargetOwaURL', $($OrganizationRelationship.TargetOwaURL.ToString()))
-            }
-            else
-            {
-                $result.Add('TargetOwaURL', '')
-            }
-
-            Write-Verbose -Message "Found Organization Relationship configuration for $($Name)"
-            return $result
+            $result.Add('TargetApplicationUri', '')
         }
+
+        if ($OrganizationRelationship.TargetAutodiscoverEpr)
+        {
+            $result.Add('TargetAutodiscoverEpr', $($OrganizationRelationship.TargetAutodiscoverEpr.ToString()))
+        }
+        else
+        {
+            $result.Add('TargetAutodiscoverEpr', '')
+        }
+
+        if ($OrganizationRelationship.TargetSharingEpr)
+        {
+            $result.Add('TargetSharingEpr', $($OrganizationRelationship.TargetSharingEpr.ToString()))
+        }
+        else
+        {
+            $result.Add('TargetSharingEpr', '')
+        }
+
+        if ($OrganizationRelationship.TargetOwaURL)
+        {
+            $result.Add('TargetOwaURL', $($OrganizationRelationship.TargetOwaURL.ToString()))
+        }
+        else
+        {
+            $result.Add('TargetOwaURL', '')
+        }
+
+        Write-Verbose -Message "Found Organization Relationship configuration for $($Name)"
+        return $result
     }
     catch
     {

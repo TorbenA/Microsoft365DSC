@@ -24,8 +24,8 @@ Configuration Example
     {
         AADApplication 'AADApp1'
         {
-            DisplayName               = "AppDisplayName"
-            Ensure                    = "Absent"
+            DisplayName           = "AppDisplayName"
+            Ensure                = "Absent"
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint

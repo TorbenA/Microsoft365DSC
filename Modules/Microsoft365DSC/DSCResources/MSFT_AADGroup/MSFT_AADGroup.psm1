@@ -39,6 +39,10 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
+        [System.Boolean]
+        $GroupLifecyclePolicySelectedEnabled,
+
+        [Parameter()]
         [System.String[]]
         $GroupTypes,
 
@@ -195,6 +199,11 @@ function Get-TargetResource
                 method = 'GET'
                 url    = "/groups/$($Group.Id)/assignedLicenses"
             }
+            @{
+                id     = 'GroupLifecyclePolicies'
+                method = 'GET'
+                url    = "/groups/$($Group.Id)/groupLifecyclePolicies"
+            }
         )
         $batchResponse = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
 
@@ -221,7 +230,7 @@ function Get-TargetResource
             $MembersValues = [System.Collections.Generic.List[System.String]]::new()
             $GroupAsMembersValues = [System.Collections.Generic.List[System.String]]::new()
             $groupMembers = $Group.Members
-            if ($Group.Members.Count -eq 20)
+            if ($Group.Members.Count -eq 20 -or $Script:requireGroupMemberFetching -eq $true)
             {
                 # Fetch all group members
                 $uri = "/beta/groups/$($Group.Id)/members?`$top=999"
@@ -334,32 +343,42 @@ function Get-TargetResource
             [Array]$assignedLicensesValues = Get-M365DSCAzureADGroupLicenses -AssignedLicenses $assignedLicensesRequest.value
         }
 
+        # GroupLifecyclePolicies
+        $groupLifecyclePoliciesRequest = ($batchResponse | Where-Object -FilterScript { $_.id -eq 'GroupLifecyclePolicies' }).body.value
+        $isGroupLifecyclePoliciesEnabled = $null -ne $groupLifecyclePoliciesRequest -and `
+                                               $groupLifecyclePoliciesRequest.managedGroupTypes -eq 'selected'
+
         $policySettings = @{
-            DisplayName                   = $Group.DisplayName
-            Id                            = $Group.Id
-            Owners                        = $OwnersValues
-            MemberOf                      = $MemberOfValues
-            Description                   = $Group.Description
-            GroupTypes                    = [System.String[]]$Group.GroupTypes
-            MembershipRule                = $Group.MembershipRule
-            MembershipRuleProcessingState = $Group.MembershipRuleProcessingState
-            SecurityEnabled               = $Group.SecurityEnabled
-            MailEnabled                   = $Group.MailEnabled
-            IsAssignableToRole            = $false -or $Group.IsAssignableToRole
-            AssignedToRole                = $AssignedToRoleValues
-            MailNickname                  = $Group.MailNickname
-            Visibility                    = $Group.Visibility
-            AssignedLicenses              = $assignedLicensesValues
-            Ensure                        = 'Present'
-            ApplicationId                 = $ApplicationId
-            TenantId                      = $TenantId
-            CertificateThumbprint         = $CertificateThumbprint
-            ApplicationSecret             = $ApplicationSecret
-            Credential                    = $Credential
-            ManagedIdentity               = $ManagedIdentity.IsPresent
-            AccessTokens                  = $AccessTokens
+            DisplayName                         = $Group.DisplayName
+            Id                                  = $Group.Id
+            Owners                              = $OwnersValues
+            MemberOf                            = $MemberOfValues
+            Description                         = $Group.Description
+            GroupTypes                          = [System.String[]]$Group.GroupTypes
+            MembershipRule                      = $Group.MembershipRule
+            MembershipRuleProcessingState       = $Group.MembershipRuleProcessingState
+            SecurityEnabled                     = $Group.SecurityEnabled
+            MailEnabled                         = $Group.MailEnabled
+            IsAssignableToRole                  = $false -or $Group.IsAssignableToRole
+            AssignedToRole                      = $AssignedToRoleValues
+            MailNickname                        = $Group.MailNickname
+            Visibility                          = $Group.Visibility
+            AssignedLicenses                    = $assignedLicensesValues
+            Ensure                              = 'Present'
+            ApplicationId                       = $ApplicationId
+            TenantId                            = $TenantId
+            CertificateThumbprint               = $CertificateThumbprint
+            ApplicationSecret                   = $ApplicationSecret
+            Credential                          = $Credential
+            ManagedIdentity                     = $ManagedIdentity.IsPresent
+            AccessTokens                        = $AccessTokens
         }
+
         $result += $policySettings
+        if ($result.MailEnabled)
+        {
+            $result.Add("GroupLifecyclePolicySelectedEnabled", $isGroupLifecyclePoliciesEnabled)
+        }
 
         return $result
     }
@@ -411,6 +430,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.Boolean]
+        $GroupLifecyclePolicySelectedEnabled,
 
         [Parameter()]
         [System.String[]]
@@ -993,6 +1016,38 @@ function Set-TargetResource
                 }
             }
         }
+
+        # GroupLifecyclePolicies
+        if ($PSBoundParameters.ContainsKey('GroupLifecyclePolicySelectedEnabled'))
+        {
+            if ($null -eq $Script:GroupLifecyclePolicy)
+            {
+                $Script:GroupLifecyclePolicy = Get-MgBetaGroupLifecyclePolicy
+            }
+
+            if ($Script:GroupLifecyclePolicy.ManagedGroupTypes -ne 'selected')
+            {
+                Write-Warning -Message "Cannot assign or remove group from lifecycle policy because the current mode is not 'Selected'."
+                return
+            }
+
+            if (-not $currentGroup.MailEnabled)
+            {
+                Write-Warning -Message "Cannot assign or remove group from lifecycle policy because it is not a Microsoft 365 Group."
+                return
+            }
+
+            if ($GroupLifecyclePolicySelectedEnabled -and -not $currentGroup.GroupLifecyclePolicySelectedEnabled)
+            {
+                Write-Verbose -Message "Enabling Group Lifecycle Policy for AAD group {$($currentGroup.DisplayName)}"
+                Add-MgBetaGroupToLifecyclePolicy -GroupLifecyclePolicyId $Script:GroupLifecyclePolicy.Id -GroupId $currentGroup.Id
+            }
+            elseif (-not $GroupLifecyclePolicySelectedEnabled -and $currentGroup.GroupLifecyclePolicySelectedEnabled)
+            {
+                Write-Verbose -Message "Removing AAD group {$($currentGroup.DisplayName)} from Group Lifecycle Policy"
+                Remove-MgBetaGroupFromLifecyclePolicy -GroupLifecyclePolicyId $Script:GroupLifecyclePolicy.Id -GroupId $currentGroup.Id
+            }
+        }
     }
 }
 
@@ -1033,6 +1088,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.Boolean]
+        $GroupLifecyclePolicySelectedEnabled,
 
         [Parameter()]
         [System.String[]]
@@ -1115,8 +1174,19 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
+    $postProcessingScript = {
+        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
+        if ($DesiredValues.ContainsKey('GroupLifecyclePolicySelectedEnabled') -and -not $CurrentValues.MailEnabled)
+        {
+            Write-Verbose -Message "Removing 'GroupLifecyclePolicySelectedEnabled' from comparison because group is not a Microsoft 365 Group."
+            $ValuesToCheck.Remove('GroupLifecyclePolicySelectedEnabled') | Out-Null
+        }
+        return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
+    }
+
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -PostProcessing $postProcessingScript
     return $result
 }
 
@@ -1214,6 +1284,8 @@ function Export-TargetResource
         {
             $ExportParameters.Add('CountVariable', 'count')
             $ExportParameters.Add('ConsistencyLevel', 'eventual')
+            $ExportParameters.Remove('ExpandProperty') | Out-Null
+            $Script:requireGroupMemberFetching = $true
         }
 
         [array] $Script:exportedGroups = Get-MgBetaGroup @ExportParameters

@@ -145,56 +145,52 @@ function Get-TargetResource
     $nullReturn.Ensure = 'Absent'
     try
     {
-        $OutBoundConnectors = Get-OutBoundConnector -IncludeTestModeConnectors:$true -ErrorAction Stop
-
-        $OutBoundConnector = $OutBoundConnectors | Where-Object -FilterScript { $_.Identity -eq $Identity }
+        $OutBoundConnector = Get-OutBoundConnector -Identity $Identity -IncludeTestModeConnectors:$true -ErrorAction SilentlyContinue
         if ($null -eq $OutBoundConnector)
         {
             Write-Verbose -Message "OutBoundConnector $($Identity) does not exist."
             return $nullReturn
         }
-        else
+
+        $ConnectorSourceValue = $OutBoundConnector.ConnectorSource
+        if ($ConnectorSourceValue -eq 'AdminUI' -or `
+                [System.String]::IsNullOrEmpty($ConnectorSourceValue))
         {
-            $ConnectorSourceValue = $OutBoundConnector.ConnectorSource
-            if ($ConnectorSourceValue -eq 'AdminUI' -or `
-                    [System.String]::IsNullOrEmpty($ConnectorSourceValue))
-            {
-                $ConnectorSourceValue = 'Default'
-            }
-
-            $result = @{
-                Identity                      = $Identity
-                AllAcceptedDomains            = $OutBoundConnector.AllAcceptedDomains
-                CloudServicesMailEnabled      = $OutBoundConnector.CloudServicesMailEnabled
-                Comment                       = $OutBoundConnector.Comment
-                ConnectorSource               = $ConnectorSourceValue
-                ConnectorType                 = $OutBoundConnector.ConnectorType
-                Enabled                       = $OutBoundConnector.Enabled
-                IsTransportRuleScoped         = $OutBoundConnector.IsTransportRuleScoped
-                RecipientDomains              = $OutBoundConnector.RecipientDomains
-                RouteAllMessagesViaOnPremises = $OutBoundConnector.RouteAllMessagesViaOnPremises
-                SenderRewritingEnabled        = $OutBoundConnector.SenderRewritingEnabled
-                SmartHosts                    = $OutBoundConnector.SmartHosts
-                TestMode                      = $OutBoundConnector.TestMode
-                TlsDomain                     = $OutBoundConnector.TlsDomain
-                TlsSettings                   = $OutBoundConnector.TlsSettings
-                UseMxRecord                   = $OutBoundConnector.UseMxRecord
-                ValidationRecipients          = $OutBoundConnector.ValidationRecipients
-                Credential                    = $Credential
-                Ensure                        = 'Present'
-                ApplicationId                 = $ApplicationId
-                CertificateThumbprint         = $CertificateThumbprint
-                CertificatePath               = $CertificatePath
-                CertificatePassword           = $CertificatePassword
-                ManagedIdentity               = $ManagedIdentity.IsPresent
-                TenantId                      = $TenantId
-                AccessTokens                  = $AccessTokens
-            }
-
-            Write-Verbose -Message "Found OutBoundConnector $($Identity)"
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
-            return $result
+            $ConnectorSourceValue = 'Default'
         }
+
+        $result = @{
+            Identity                      = $Identity
+            AllAcceptedDomains            = $OutBoundConnector.AllAcceptedDomains
+            CloudServicesMailEnabled      = $OutBoundConnector.CloudServicesMailEnabled
+            Comment                       = $OutBoundConnector.Comment
+            ConnectorSource               = $ConnectorSourceValue
+            ConnectorType                 = $OutBoundConnector.ConnectorType
+            Enabled                       = $OutBoundConnector.Enabled
+            IsTransportRuleScoped         = $OutBoundConnector.IsTransportRuleScoped
+            RecipientDomains              = $OutBoundConnector.RecipientDomains
+            RouteAllMessagesViaOnPremises = $OutBoundConnector.RouteAllMessagesViaOnPremises
+            SenderRewritingEnabled        = $OutBoundConnector.SenderRewritingEnabled
+            SmartHosts                    = $OutBoundConnector.SmartHosts
+            TestMode                      = $OutBoundConnector.TestMode
+            TlsDomain                     = $OutBoundConnector.TlsDomain
+            TlsSettings                   = $OutBoundConnector.TlsSettings
+            UseMxRecord                   = $OutBoundConnector.UseMxRecord
+            ValidationRecipients          = $OutBoundConnector.ValidationRecipients
+            Credential                    = $Credential
+            Ensure                        = 'Present'
+            ApplicationId                 = $ApplicationId
+            CertificateThumbprint         = $CertificateThumbprint
+            CertificatePath               = $CertificatePath
+            CertificatePassword           = $CertificatePassword
+            ManagedIdentity               = $ManagedIdentity.IsPresent
+            TenantId                      = $TenantId
+            AccessTokens                  = $AccessTokens
+        }
+
+        Write-Verbose -Message "Found OutBoundConnector $($Identity)"
+        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
+        return $result
     }
     catch
     {
@@ -357,7 +353,7 @@ function Set-TargetResource
             Set-OutboundConnector -Identity $Identity -ValidationRecipients $ValidationRecipients -Confirm:$false
         }
     }
-    elseif (('Present' -eq $Ensure ) -and ($Null -ne $OutBoundConnector))
+    elseif (('Present' -eq $Ensure ) -and ($null -ne $OutBoundConnector))
     {
         Write-Verbose -Message "Setting OutBoundConnector $($Identity) with values: $(Convert-M365DscHashtableToString -Hashtable $OutBoundConnectorParams)"
         Set-OutBoundConnector @OutBoundConnectorParams -Confirm:$false

@@ -92,7 +92,7 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            $DataClassification = Get-DataClassification -Identity $Identity -ErrorAction Stop
+            $DataClassification = Get-DataClassification -Identity $Identity -ErrorAction SilentlyContinue
             if ($null -eq $DataClassification)
             {
                 if (-not [System.String]::IsNullOrEmpty($Name))
@@ -236,16 +236,14 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $DataClassifications = Get-DataClassification -ErrorAction Stop
-    $DataClassification = $DataClassifications | Where-Object `
-        -FilterScript { $_.Identity -eq $Identity }
+    $DataClassification = Get-DataClassification -Identity $Identity -ErrorAction SilentlyContinue
     $DataClassificationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if (('Present' -eq $Ensure ) -and ($null -eq $DataClassification))
     {
         Write-Verbose -Message 'Data Classification in Exchange Online are now deprecated in favor of Sensitive Information Types in Purview.'
     }
-    elseif (('Present' -eq $Ensure ) -and ($Null -ne $DataClassification))
+    elseif (('Present' -eq $Ensure ) -and ($null -ne $DataClassification))
     {
         $verboseMessage = "Setting Data classification policy $($Identity) with values:" + `
             " $(Convert-M365DscHashtableToString -Hashtable $DataClassificationParams)"

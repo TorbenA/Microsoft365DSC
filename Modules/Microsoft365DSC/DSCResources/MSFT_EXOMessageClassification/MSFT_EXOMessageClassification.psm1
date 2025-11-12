@@ -105,7 +105,7 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            $MessageClassification = Get-MessageClassification -Identity $Identity -ErrorAction Stop
+            $MessageClassification = Get-MessageClassification -Identity $Identity -ErrorAction SilentlyContinue
 
             if ($null -eq $MessageClassification)
             {
@@ -265,7 +265,7 @@ function Set-TargetResource
         Write-Verbose -Message "Creating Message Classification policy  $($Identity)."
         New-MessageClassification @messageClassificationParams
     }
-    elseif (('Present' -eq $Ensure) -and ($Null -ne $MessageClassification))
+    elseif (('Present' -eq $Ensure) -and ($null -ne $MessageClassification))
     {
         Write-Verbose -Message "Setting Message Classification policy $($Identity) with values: $(Convert-M365DscHashtableToString -Hashtable $messageClassificationParams)"
         Set-MessageClassification @messageClassificationParams -Confirm:$false

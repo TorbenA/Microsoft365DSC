@@ -81,10 +81,7 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            $AllManagementRoles = Get-ManagementRole -ErrorAction Stop
-
-            $ManagementRole = $AllManagementRoles | Where-Object -FilterScript { $_.Name -eq $Name }
-
+            $ManagementRole = Get-ManagementRole -Identity $Name -ErrorAction SilentlyContinue
             if ($null -eq $ManagementRole)
             {
                 Write-Verbose -Message "Management Role $($Name) does not exist."

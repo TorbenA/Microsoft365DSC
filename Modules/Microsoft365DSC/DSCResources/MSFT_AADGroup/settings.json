@@ -10,6 +10,15 @@
       "delegated": {
         "read": [
           {
+            "name": "Application.Read.All"
+          },
+          {
+            "name": "Device.Read.All"
+          },
+          {
+            "name": "Directory.Read.All"
+          },
+          {
             "name": "Group.Read.All"
           },
           {
@@ -17,6 +26,15 @@
           }
         ],
         "update": [
+          {
+            "name": "Application.Read.All"
+          },
+          {
+            "name": "Device.Read.All"
+          },
+          {
+            "name": "Directory.ReadWrite.All"
+          },
           {
             "name": "Group.ReadWrite.All"
           },
@@ -37,6 +55,15 @@
       "application": {
         "read": [
           {
+            "name": "Application.Read.All"
+          },
+          {
+            "name": "Device.Read.All"
+          },
+          {
+            "name": "Directory.Read.All"
+          },
+          {
             "name": "Group.Read.All"
           },
           {
@@ -44,6 +71,15 @@
           }
         ],
         "update": [
+          {
+            "name": "Application.Read.All"
+          },
+          {
+            "name": "Device.Read.All"
+          },
+          {
+            "name": "Directory.ReadWrite.All"
+          },
           {
             "name": "Group.ReadWrite.All"
           },
@@ -88,9 +124,19 @@
       ]
     },
     {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
       "module": "Microsoft.Graph.Beta.Groups",
       "cmdlets": [
+        "Add-MgBetaGroupToLifecyclePolicy",
+        "Get-MgBetaGroup",
+        "Get-MgBetaGroupLifecyclePolicy",
         "New-MgBetaGroupMemberByRef",
+        "Remove-MgBetaGroupFromLifecyclePolicy",
         "Remove-MgBetaGroupMemberDirectoryObjectByRef"
       ]
     },
@@ -114,7 +160,6 @@
     {
       "module": "Microsoft.Graph.Groups",
       "cmdlets": [
-        "Get-MgGroup",
         "New-MgGroup",
         "New-MgGroupMember",
         "New-MgGroupMemberByRef",

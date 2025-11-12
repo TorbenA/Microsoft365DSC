@@ -79,12 +79,11 @@ function Get-TargetResource
 
     try
     {
-        $AvailabilityConfigs = Get-AvailabilityConfig -ErrorAction Stop
-
+        $AvailabilityConfigs = Get-AvailabilityConfig -ErrorAction SilentlyContinue
         if ($null -ne $AvailabilityConfigs -and $null -ne $AvailabilityConfigs.OrgWideAccount)
         {
-            $user = Get-User -Identity $OrgWideAccount -ErrorAction Stop
-            $AvailabilityConfig = ($AvailabilityConfigs | Where-Object -FilterScript { $_.OrgWideAccount -IMatch $user.Id })
+            $user = Get-User -Identity $OrgWideAccount -ErrorAction SilentlyContinue
+            $AvailabilityConfig = ($AvailabilityConfigs | Where-Object -FilterScript { $_.OrgWideAccount -match $user.Id })
         }
         if ($null -eq $AvailabilityConfig)
         {
