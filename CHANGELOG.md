@@ -63,6 +63,10 @@
   * Fixed an issue where removing a policy required PSTN usages to exist.
     FIXES [#6449](https://github.com/microsoft/Microsoft365DSC/issues/6649)
 * VivaEngagementRoleMember
+  * Fixed issue loading the required modules to export this resource.
+* M365DSCDRGUtil
+  * Added drift event message to Verbose output.
+    FIXES [#6666](https://github.com/microsoft/Microsoft365DSC/issues/6666).
   * Fixed issue loading the required modules to export this resource
 * M365DSCReverse
   * Fixed an issue where having resources specified in both include and exclude
@@ -70,6 +74,7 @@
     FIXES [#6630](https://github.com/microsoft/Microsoft365DSC/issues/6630)
 * M365DSCUtil
   * Added custom post processing to `Test-M365DSCTargetResource`.
+  * Improved logging output of `Test-M365DSCTargetResource`.
   * Added new function `Split-M365DSCConfiguration`.
   * Moved resource initialization into dedicated function.
   * Removed groupId requirement in `ConvertTo-IntuneMobileAppAssignment`.

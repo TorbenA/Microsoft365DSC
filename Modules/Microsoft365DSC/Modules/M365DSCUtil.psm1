@@ -1243,7 +1243,13 @@ function Test-M365DSCTargetResource
     }
     $finalString = $keyStrings -join ' and '
 
-    Write-Verbose -Message "Testing configuration of the $ResourceName with $finalString"
+    $Verbose = $false
+    if ($DesiredValues.Verbose -eq $true)
+    {
+        $Verbose = $true
+    }
+
+    Write-Verbose -Message "Testing configuration of the $ResourceName with $finalString" -Verbose:$Verbose
 
     $CurrentValues = & MSFT_$ResourceName\Get-TargetResource @DesiredValues
     $ValuesToCheck = ([Hashtable]$DesiredValues).Clone()
@@ -1251,7 +1257,7 @@ function Test-M365DSCTargetResource
     # Apply custom post-processing to CurrentValues and ValuesToCheck if specified
     if ($null -ne $PostProcessing)
     {
-        Write-Verbose -Message "Applying custom post-processing to CurrentValues and ValuesToCheck for resource $ResourceName"
+        Write-Verbose -Message "Applying custom post-processing to CurrentValues and ValuesToCheck for resource $ResourceName" -Verbose:$Verbose
         try
         {
             $result = $PostProcessing.Invoke($DesiredValues, $CurrentValues, $ValuesToCheck, $PostProcessingArgs)
@@ -1306,7 +1312,7 @@ function Test-M365DSCTargetResource
     $testTargetResource = $true
     if ($DesiredValues.Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "The resource $ResourceName with $finalString was not found in the tenant."
+        Write-Verbose -Message "The resource $ResourceName with $finalString was not found in the tenant." -Verbose:$Verbose
         $Global:AllDrifts.DriftInfo += @{
             PropertyName = 'Ensure'
             CurrentValue = 'Absent'
@@ -1316,7 +1322,7 @@ function Test-M365DSCTargetResource
     }
     elseif ($DesiredValues.Ensure -eq 'Absent' -and $CurrentValues.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "The resource $ResourceName with $finalString should not exist in the tenant."
+        Write-Verbose -Message "The resource $ResourceName with $finalString should not exist in the tenant." -Verbose:$Verbose
         $Global:AllDrifts.DriftInfo += @{
             PropertyName = 'Ensure'
             CurrentValue = 'Present'
@@ -1385,8 +1391,8 @@ function Test-M365DSCTargetResource
         }
     }
 
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
+    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)" -Verbose:$Verbose
+    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)" -Verbose:$Verbose
 
     if ($testResult)
     {
@@ -1413,7 +1419,7 @@ function Test-M365DSCTargetResource
                                       -DesiredValues $DesiredValues
     }
 
-    Write-Verbose -Message "Test-M365DSCTargetResource returned $testTargetResource"
+    Write-Verbose -Message "Test-M365DSCTargetResource returned $testTargetResource" -Verbose:$Verbose
 
     if ($PassThru)
     {
