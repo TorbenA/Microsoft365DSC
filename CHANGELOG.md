@@ -6,6 +6,8 @@
   * Added support for `TokenLifetimePolicies`.
   * Fixing issue where Set-TargetResource threw an error trying to recreate
     an existing permissions scope when id was not provided.
+* AADFeatureRolloutPolicy
+  * Added support for `AppliesTo`.
 * AADFilteringPolicyRule
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
 * AADGroup
