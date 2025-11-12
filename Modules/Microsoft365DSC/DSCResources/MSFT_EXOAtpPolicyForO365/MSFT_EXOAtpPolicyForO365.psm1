@@ -92,35 +92,31 @@ function Get-TargetResource
 
     try
     {
-        $AtpPolicies = Get-AtpPolicyForO365 -ErrorAction Stop
-
-        $AtpPolicyForO365 = $AtpPolicies | Where-Object -FilterScript { $_.Identity -eq $Identity }
+        $AtpPolicyForO365 = Get-AtpPolicyForO365 -Identity $Identity -ErrorAction SilentlyContinue
         if (-not $AtpPolicyForO365)
         {
             Write-Verbose -Message "AtpPolicyForO365 $($Identity) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $result = @{
-                IsSingleInstance        = 'Yes'
-                Identity                = $AtpPolicyForO365.Identity
-                AllowSafeDocsOpen       = $AtpPolicyForO365.AllowSafeDocsOpen
-                EnableATPForSPOTeamsODB = $AtpPolicyForO365.EnableATPForSPOTeamsODB
-                EnableSafeDocs          = $AtpPolicyForO365.EnableSafeDocs
-                ApplicationId           = $ApplicationId
-                CertificateThumbprint   = $CertificateThumbprint
-                CertificatePath         = $CertificatePath
-                CertificatePassword     = $CertificatePassword
-                ManagedIdentity         = $ManagedIdentity.IsPresent
-                TenantId                = $TenantId
-                AccessTokens            = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found AtpPolicyForO365 $($Identity)"
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
-            return $result
+        $result = @{
+            IsSingleInstance        = 'Yes'
+            Identity                = $AtpPolicyForO365.Identity
+            AllowSafeDocsOpen       = $AtpPolicyForO365.AllowSafeDocsOpen
+            EnableATPForSPOTeamsODB = $AtpPolicyForO365.EnableATPForSPOTeamsODB
+            EnableSafeDocs          = $AtpPolicyForO365.EnableSafeDocs
+            ApplicationId           = $ApplicationId
+            CertificateThumbprint   = $CertificateThumbprint
+            CertificatePath         = $CertificatePath
+            CertificatePassword     = $CertificatePassword
+            ManagedIdentity         = $ManagedIdentity.IsPresent
+            TenantId                = $TenantId
+            AccessTokens            = $AccessTokens
         }
+
+        Write-Verbose -Message "Found AtpPolicyForO365 $($Identity)"
+        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
+        return $result
     }
     catch
     {

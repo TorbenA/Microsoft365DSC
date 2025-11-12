@@ -100,38 +100,33 @@ function Get-TargetResource
 
     try
     {
-        $AllPartnerApplications = Get-PartnerApplication -ErrorAction Stop
-
-        $PartnerApplication = $AllPartnerApplications | Where-Object -FilterScript { $_.Name -eq $Name }
-
+        $PartnerApplication = Get-PartnerApplication -Identity $Name -ErrorAction SilentlyContinue
         if ($null -eq $PartnerApplication)
         {
             Write-Verbose -Message "Partner Application $($Name) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $result = @{
-                Name                                = $PartnerApplication.Name
-                ApplicationIdentifier               = $PartnerApplication.ApplicationIdentifier
-                AcceptSecurityIdentifierInformation = $PartnerApplication.AcceptSecurityIdentifierInformation
-                AccountType                         = $PartnerApplication.AccountType
-                Enabled                             = $PartnerApplication.Enabled
-                LinkedAccount                       = $PartnerApplication.LinkedAccount
-                Ensure                              = 'Present'
-                Credential                          = $Credential
-                ApplicationId                       = $ApplicationId
-                CertificateThumbprint               = $CertificateThumbprint
-                CertificatePath                     = $CertificatePath
-                CertificatePassword                 = $CertificatePassword
-                ManagedIdentity                     = $ManagedIdentity.IsPresent
-                TenantId                            = $TenantId
-                AccessTokens                        = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found Partner Application $($Name)"
-            return $result
+        $result = @{
+            Name                                = $PartnerApplication.Name
+            ApplicationIdentifier               = $PartnerApplication.ApplicationIdentifier
+            AcceptSecurityIdentifierInformation = $PartnerApplication.AcceptSecurityIdentifierInformation
+            AccountType                         = $PartnerApplication.AccountType
+            Enabled                             = $PartnerApplication.Enabled
+            LinkedAccount                       = $PartnerApplication.LinkedAccount
+            Ensure                              = 'Present'
+            Credential                          = $Credential
+            ApplicationId                       = $ApplicationId
+            CertificateThumbprint               = $CertificateThumbprint
+            CertificatePath                     = $CertificatePath
+            CertificatePassword                 = $CertificatePassword
+            ManagedIdentity                     = $ManagedIdentity.IsPresent
+            TenantId                            = $TenantId
+            AccessTokens                        = $AccessTokens
         }
+
+        Write-Verbose -Message "Found Partner Application $($Name)"
+        return $result
     }
     catch
     {

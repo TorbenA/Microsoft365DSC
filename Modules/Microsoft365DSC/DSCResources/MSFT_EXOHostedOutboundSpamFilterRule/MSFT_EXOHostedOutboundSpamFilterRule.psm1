@@ -118,63 +118,49 @@ function Get-TargetResource
     $nullReturn.Ensure = 'Absent'
     try
     {
-        try
-        {
-            $HostedOutboundSpamFilterRules = Get-HostedOutboundSpamFilterRule -ErrorAction Stop
-        }
-        catch
-        {
-            $Message = 'Error calling {Get-HostedOutboundSpamFilterRule}'
-            New-M365DSCLogEntry -Message $Message `
-                -Exception $_ `
-                -Source $MyInvocation.MyCommand.ModuleName
-        }
-
-        $HostedOutboundSpamFilterRule = $HostedOutboundSpamFilterRules | Where-Object -FilterScript { $_.Identity -eq $Identity }
+        $HostedOutboundSpamFilterRule = Get-HostedOutboundSpamFilterRule -Identity $Identity -ErrorAction SilentlyContinue
         if (-not $HostedOutboundSpamFilterRule)
         {
             Write-Verbose -Message "HostedOutboundSpamFilterRule $($Identity) does not exist."
             return $nullReturn
         }
+
+        $result = @{
+            Ensure                         = 'Present'
+            Identity                       = $Identity
+            HostedOutboundSpamFilterPolicy = $HostedOutboundSpamFilterRule.HostedOutboundSpamFilterPolicy
+            Comments                       = $HostedOutboundSpamFilterRule.Comments
+            Enabled                        = $false
+            ExceptIfSenderDomainIs         = $HostedOutboundSpamFilterRule.ExceptIfSenderDomainIs
+            ExceptIfFrom                   = $HostedOutboundSpamFilterRule.ExceptIfFrom
+            ExceptIfFromMemberOf           = $HostedOutboundSpamFilterRule.ExceptIfFromMemberOf
+            Priority                       = $HostedOutboundSpamFilterRule.Priority
+            SenderDomainIs                 = $HostedOutboundSpamFilterRule.SenderDomainIs
+            From                           = $HostedOutboundSpamFilterRule.From
+            FromMemberOf                   = $HostedOutboundSpamFilterRule.FromMemberOf
+            Credential                     = $Credential
+            ApplicationId                  = $ApplicationId
+            CertificateThumbprint          = $CertificateThumbprint
+            CertificatePath                = $CertificatePath
+            CertificatePassword            = $CertificatePassword
+            ManagedIdentity                = $ManagedIdentity.IsPresent
+            TenantId                       = $TenantId
+            AccessTokens                   = $AccessTokens
+        }
+
+        if ('Enabled' -eq $HostedOutboundSpamFilterRule.State)
+        {
+            # Accounts for Get-HostedOutboundSpamFilterRule returning 'State' instead of 'Enabled' used by New/Set
+            $result.Enabled = $true
+        }
         else
         {
-            $result = @{
-                Ensure                         = 'Present'
-                Identity                       = $Identity
-                HostedOutboundSpamFilterPolicy = $HostedOutboundSpamFilterRule.HostedOutboundSpamFilterPolicy
-                Comments                       = $HostedOutboundSpamFilterRule.Comments
-                Enabled                        = $false
-                ExceptIfSenderDomainIs         = $HostedOutboundSpamFilterRule.ExceptIfSenderDomainIs
-                ExceptIfFrom                   = $HostedOutboundSpamFilterRule.ExceptIfFrom
-                ExceptIfFromMemberOf           = $HostedOutboundSpamFilterRule.ExceptIfFromMemberOf
-                Priority                       = $HostedOutboundSpamFilterRule.Priority
-                SenderDomainIs                 = $HostedOutboundSpamFilterRule.SenderDomainIs
-                From                           = $HostedOutboundSpamFilterRule.From
-                FromMemberOf                   = $HostedOutboundSpamFilterRule.FromMemberOf
-                Credential                     = $Credential
-                ApplicationId                  = $ApplicationId
-                CertificateThumbprint          = $CertificateThumbprint
-                CertificatePath                = $CertificatePath
-                CertificatePassword            = $CertificatePassword
-                ManagedIdentity                = $ManagedIdentity.IsPresent
-                TenantId                       = $TenantId
-                AccessTokens                   = $AccessTokens
-            }
-
-            if ('Enabled' -eq $HostedOutboundSpamFilterRule.State)
-            {
-                # Accounts for Get-HostedOutboundSpamFilterRule returning 'State' instead of 'Enabled' used by New/Set
-                $result.Enabled = $true
-            }
-            else
-            {
-                $result.Enabled = $false
-            }
-
-            Write-Verbose -Message "Found HostedOutboundSpamFilterRule $($Identity)"
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
-            return $result
+            $result.Enabled = $false
         }
+
+        Write-Verbose -Message "Found HostedOutboundSpamFilterRule $($Identity)"
+        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
+        return $result
     }
     catch
     {

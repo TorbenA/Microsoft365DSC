@@ -85,10 +85,7 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            $AllRoleAssignmentPolicies = Get-RoleAssignmentPolicy -ErrorAction Stop
-
-            $RoleAssignmentPolicy = $AllRoleAssignmentPolicies | Where-Object -FilterScript { $_.Name -eq $Name }
-
+            $RoleAssignmentPolicy = Get-RoleAssignmentPolicy -Identity $Name -ErrorAction SilentlyContinue
             if ($null -eq $RoleAssignmentPolicy)
             {
                 Write-Verbose -Message "Role Assignment Policy $($Name) does not exist."

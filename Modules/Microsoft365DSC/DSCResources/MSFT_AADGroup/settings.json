@@ -10,6 +10,12 @@
       "delegated": {
         "read": [
           {
+            "name": "Application.Read.All"
+          },
+          {
+            "name": "Device.Read.All"
+          },
+          {
             "name": "Directory.Read.All"
           },
           {
@@ -20,6 +26,12 @@
           }
         ],
         "update": [
+          {
+            "name": "Application.Read.All"
+          },
+          {
+            "name": "Device.Read.All"
+          },
           {
             "name": "Directory.ReadWrite.All"
           },
@@ -43,6 +55,12 @@
       "application": {
         "read": [
           {
+            "name": "Application.Read.All"
+          },
+          {
+            "name": "Device.Read.All"
+          },
+          {
             "name": "Directory.Read.All"
           },
           {
@@ -53,6 +71,12 @@
           }
         ],
         "update": [
+          {
+            "name": "Application.Read.All"
+          },
+          {
+            "name": "Device.Read.All"
+          },
           {
             "name": "Directory.ReadWrite.All"
           },

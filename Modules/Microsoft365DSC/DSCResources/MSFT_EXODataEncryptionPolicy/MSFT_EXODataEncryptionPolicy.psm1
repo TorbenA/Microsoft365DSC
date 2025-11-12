@@ -103,7 +103,7 @@ function Get-TargetResource
 
     try
     {
-        $DataEncryptionPolicy = Get-DataEncryptionPolicy -Identity $Identity -ErrorAction Stop
+        $DataEncryptionPolicy = Get-DataEncryptionPolicy -Identity $Identity -ErrorAction SilentlyContinue
 
         if ($null -eq $DataEncryptionPolicy)
         {
@@ -111,31 +111,29 @@ function Get-TargetResource
             $nullReturn.Identity = $null
             return $nullReturn
         }
-        else
-        {
-            $result = @{
-                Identity                  = $Identity
-                AzureKeyIDs               = $DataEncryptionPolicy.AzureKeyIDs
-                Description               = $DataEncryptionPolicy.Description
-                Enabled                   = $DataEncryptionPolicy.Enabled
-                Name                      = $DataEncryptionPolicy.Name
-                PermanentDataPurgeContact = $DataEncryptionPolicy.PermanentDataPurgeContact
-                PermanentDataPurgeReason  = $DataEncryptionPolicy.PermanentDataPurgeReason
-                Credential                = $Credential
-                Ensure                    = 'Present'
-                ApplicationId             = $ApplicationId
-                CertificateThumbprint     = $CertificateThumbprint
-                CertificatePath           = $CertificatePath
-                CertificatePassword       = $CertificatePassword
-                ManagedIdentity           = $ManagedIdentity.IsPresent
-                TenantId                  = $TenantId
-                AccessTokens              = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found Data encryption policy $($Identity)"
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
-            return $result
+        $result = @{
+            Identity                  = $Identity
+            AzureKeyIDs               = $DataEncryptionPolicy.AzureKeyIDs
+            Description               = $DataEncryptionPolicy.Description
+            Enabled                   = $DataEncryptionPolicy.Enabled
+            Name                      = $DataEncryptionPolicy.Name
+            PermanentDataPurgeContact = $DataEncryptionPolicy.PermanentDataPurgeContact
+            PermanentDataPurgeReason  = $DataEncryptionPolicy.PermanentDataPurgeReason
+            Credential                = $Credential
+            Ensure                    = 'Present'
+            ApplicationId             = $ApplicationId
+            CertificateThumbprint     = $CertificateThumbprint
+            CertificatePath           = $CertificatePath
+            CertificatePassword       = $CertificatePassword
+            ManagedIdentity           = $ManagedIdentity.IsPresent
+            TenantId                  = $TenantId
+            AccessTokens              = $AccessTokens
         }
+
+        Write-Verbose -Message "Found Data encryption policy $($Identity)"
+        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
+        return $result
     }
     catch
     {
@@ -405,7 +403,6 @@ function Export-TargetResource
     try
     {
         [Array]$DataEncryptionPolicies = Get-DataEncryptionPolicy -ErrorAction Stop
-
         $dscContent = ''
 
         if ($DataEncryptionPolicies.Length -eq 0)

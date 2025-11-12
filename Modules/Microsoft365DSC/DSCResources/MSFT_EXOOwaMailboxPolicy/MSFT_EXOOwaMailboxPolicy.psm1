@@ -428,119 +428,114 @@ function Get-TargetResource
     $nullReturn.Ensure = 'Absent'
     try
     {
-        $AllOwaMailboxPolicies = Get-OwaMailboxPolicy -ErrorAction Stop
-
-        $OwaMailboxPolicy = $AllOwaMailboxPolicies | Where-Object -FilterScript { $_.Name -eq $Name }
-
+        $OwaMailboxPolicy = Get-OwaMailboxPolicy -Identity $Name -ErrorAction SilentlyContinue
         if ($null -eq $OwaMailboxPolicy)
         {
             Write-Verbose -Message "OWA Mailbox Policy $($Name) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $result = @{
-                Name                                                 = $OwaMailboxPolicy.Name
-                AccountTransferEnabled                               = $OwaMailboxPolicy.AccountTransferEnabled
-                ActionForUnknownFileAndMIMETypes                     = $OwaMailboxPolicy.ActionForUnknownFileAndMIMETypes
-                ActiveSyncIntegrationEnabled                         = $OwaMailboxPolicy.ActiveSyncIntegrationEnabled
-                AdditionalAccountsEnabled                            = $OwaMailboxPolicy.AdditionalAccountsEnabled
-                AdditionalStorageProvidersAvailable                  = $OwaMailboxPolicy.AdditionalStorageProvidersAvailable
-                AllAddressListsEnabled                               = $OwaMailboxPolicy.AllAddressListsEnabled
-                AllowCopyContactsToDeviceAddressBook                 = $OwaMailboxPolicy.AllowCopyContactsToDeviceAddressBook
-                AllowedFileTypes                                     = $OwaMailboxPolicy.AllowedFileTypes
-                AllowedMimeTypes                                     = $OwaMailboxPolicy.AllowedMimeTypes
-                BlockedFileTypes                                     = $OwaMailboxPolicy.BlockedFileTypes
-                BlockedMimeTypes                                     = $OwaMailboxPolicy.BlockedMimeTypes
-                BookingsMailboxCreationEnabled                       = $OwaMailboxPolicy.BookingsMailboxCreationEnabled
-                ChangeSettingsAccountEnabled                         = $OwaMailboxPolicy.ChangeSettingsAccountEnabled
-                ClassicAttachmentsEnabled                            = $OwaMailboxPolicy.ClassicAttachmentsEnabled
-                ConditionalAccessPolicy                              = $OwaMailboxPolicy.ConditionalAccessPolicy
-                DefaultTheme                                         = $OwaMailboxPolicy.DefaultTheme
-                DirectFileAccessOnPrivateComputersEnabled            = $OwaMailboxPolicy.DirectFileAccessOnPrivateComputersEnabled
-                DirectFileAccessOnPublicComputersEnabled             = $OwaMailboxPolicy.DirectFileAccessOnPublicComputersEnabled
-                DisableFacebook                                      = $OwaMailboxPolicy.DisableFacebook
-                DisplayPhotosEnabled                                 = $OwaMailboxPolicy.DisplayPhotosEnabled
-                ExplicitLogonEnabled                                 = $OwaMailboxPolicy.ExplicitLogonEnabled
-                ExternalImageProxyEnabled                            = $OwaMailboxPolicy.ExternalImageProxyEnabled
-                ExternalSPMySiteHostURL                              = $OwaMailboxPolicy.ExternalSPMySiteHostURL
-                FeedbackEnabled                                      = $OwaMailboxPolicy.FeedbackEnabled
-                ForceSaveAttachmentFilteringEnabled                  = $OwaMailboxPolicy.ForceSaveAttachmentFilteringEnabled
-                ForceSaveFileTypes                                   = $OwaMailboxPolicy.ForceSaveFileTypes
-                ForceSaveMimeTypes                                   = $OwaMailboxPolicy.ForceSaveMimeTypes
-                ForceWacViewingFirstOnPrivateComputers               = $OwaMailboxPolicy.ForceWacViewingFirstOnPrivateComputers
-                ForceWacViewingFirstOnPublicComputers                = $OwaMailboxPolicy.ForceWacViewingFirstOnPublicComputers
-                FreCardsEnabled                                      = $OwaMailboxPolicy.FreCardsEnabled
-                GlobalAddressListEnabled                             = $OwaMailboxPolicy.GlobalAddressListEnabled
-                GroupCreationEnabled                                 = $OwaMailboxPolicy.GroupCreationEnabled
-                InstantMessagingEnabled                              = $OwaMailboxPolicy.InstantMessagingEnabled
-                InstantMessagingType                                 = $OwaMailboxPolicy.InstantMessagingType
-                InterestingCalendarsEnabled                          = $OwaMailboxPolicy.InterestingCalendarsEnabled
-                InternalSPMySiteHostURL                              = $OwaMailboxPolicy.InternalSPMySiteHostURL
-                IRMEnabled                                           = $OwaMailboxPolicy.IRMEnabled
-                ItemsToOtherAccountsEnabled                          = $OwaMailboxPolicy.ItemsToOtherAccountsEnabled
-                IsDefault                                            = $OwaMailboxPolicy.IsDefault
-                JournalEnabled                                       = $OwaMailboxPolicy.JournalEnabled
-                LocalEventsEnabled                                   = $OwaMailboxPolicy.LocalEventsEnabled
-                LogonAndErrorLanguage                                = $OwaMailboxPolicy.LogonAndErrorLanguage
-                MessagePreviewsDisabled                              = $OwaMailboxPolicy.MessagePreviewsDisabled
-                NotesEnabled                                         = $OwaMailboxPolicy.NotesEnabled
-                NpsSurveysEnabled                                    = $OwaMailboxPolicy.NpsSurveysEnabled
-                OneWinNativeOutlookEnabled                           = $OwaMailboxPolicy.OneWinNativeOutlookEnabled
-                OrganizationEnabled                                  = $OwaMailboxPolicy.OrganizationEnabled
-                OnSendAddinsEnabled                                  = $OwaMailboxPolicy.OnSendAddinsEnabled
-                OutboundCharset                                      = $OwaMailboxPolicy.OutboundCharset
-                OutlookBetaToggleEnabled                             = $OwaMailboxPolicy.OutlookBetaToggleEnabled
-                OWALightEnabled                                      = $OwaMailboxPolicy.OWALightEnabled
-                PersonalAccountCalendarsEnabled                      = $OwaMailboxPolicy.PersonalAccountCalendarsEnabled
-                PersonalAccountsEnabled                              = $OwaMailboxPolicy.PersonalAccountsEnabled
-                PhoneticSupportEnabled                               = $OwaMailboxPolicy.PhoneticSupportEnabled
-                PlacesEnabled                                        = $OwaMailboxPolicy.PlacesEnabled
-                PremiumClientEnabled                                 = $OwaMailboxPolicy.PremiumClientEnabled
-                PrintWithoutDownloadEnabled                          = $OwaMailboxPolicy.PrintWithoutDownloadEnabled
-                ProjectMocaEnabled                                   = $OwaMailboxPolicy.ProjectMocaEnabled
-                PublicFoldersEnabled                                 = $OwaMailboxPolicy.PublicFoldersEnabled
-                RecoverDeletedItemsEnabled                           = $OwaMailboxPolicy.RecoverDeletedItemsEnabled
-                ReferenceAttachmentsEnabled                          = $OwaMailboxPolicy.ReferenceAttachmentsEnabled
-                RemindersAndNotificationsEnabled                     = $OwaMailboxPolicy.RemindersAndNotificationsEnabled
-                ReportJunkEmailEnabled                               = $OwaMailboxPolicy.ReportJunkEmailEnabled
-                RulesEnabled                                         = $OwaMailboxPolicy.RulesEnabled
-                SatisfactionEnabled                                  = $OwaMailboxPolicy.SatisfactionEnabled
-                SaveAttachmentsToCloudEnabled                        = $OwaMailboxPolicy.SaveAttachmentsToCloudEnabled
-                SearchFoldersEnabled                                 = $OwaMailboxPolicy.SearchFoldersEnabled
-                SetPhotoEnabled                                      = $OwaMailboxPolicy.SetPhotoEnabled
-                SetPhotoURL                                          = $OwaMailboxPolicy.SetPhotoURL
-                ShowOnlineArchiveEnabled                             = $OwaMailboxPolicy.ShowOnlineArchiveEnabled
-                SignaturesEnabled                                    = $OwaMailboxPolicy.SignaturesEnabled
-                SkipCreateUnifiedGroupCustomSharepointClassification = $OwaMailboxPolicy.SkipCreateUnifiedGroupCustomSharepointClassification
-                TeamSnapCalendarsEnabled                             = $OwaMailboxPolicy.TeamSnapCalendarsEnabled
-                TextMessagingEnabled                                 = $OwaMailboxPolicy.TextMessagingEnabled
-                ThemeSelectionEnabled                                = $OwaMailboxPolicy.ThemeSelectionEnabled
-                UMIntegrationEnabled                                 = $OwaMailboxPolicy.UMIntegrationEnabled
-                UseGB18030                                           = $OwaMailboxPolicy.UseGB18030
-                UseISO885915                                         = $OwaMailboxPolicy.UseISO885915
-                UserVoiceEnabled                                     = $OwaMailboxPolicy.UserVoiceEnabled
-                WacEditingEnabled                                    = $OwaMailboxPolicy.WacEditingEnabled
-                WacExternalServicesEnabled                           = $OwaMailboxPolicy.WacExternalServicesEnabled
-                WacOMEXEnabled                                       = $OwaMailboxPolicy.WacOMEXEnabled
-                WacViewingOnPrivateComputersEnabled                  = $OwaMailboxPolicy.WacViewingOnPrivateComputersEnabled
-                WacViewingOnPublicComputersEnabled                   = $OwaMailboxPolicy.WacViewingOnPublicComputersEnabled
-                WeatherEnabled                                       = $OwaMailboxPolicy.WeatherEnabled
-                WebPartsFrameOptionsType                             = $OwaMailboxPolicy.WebPartsFrameOptionsType
-                Ensure                                               = 'Present'
-                Credential                                           = $Credential
-                ApplicationId                                        = $ApplicationId
-                CertificateThumbprint                                = $CertificateThumbprint
-                CertificatePath                                      = $CertificatePath
-                CertificatePassword                                  = $CertificatePassword
-                ManagedIdentity                                      = $ManagedIdentity.IsPresent
-                TenantId                                             = $TenantId
-                AccessTokens                                         = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found OWA Mailbox Policy $($Name)"
-            return $result
+        $result = @{
+            Name                                                 = $OwaMailboxPolicy.Name
+            AccountTransferEnabled                               = $OwaMailboxPolicy.AccountTransferEnabled
+            ActionForUnknownFileAndMIMETypes                     = $OwaMailboxPolicy.ActionForUnknownFileAndMIMETypes
+            ActiveSyncIntegrationEnabled                         = $OwaMailboxPolicy.ActiveSyncIntegrationEnabled
+            AdditionalAccountsEnabled                            = $OwaMailboxPolicy.AdditionalAccountsEnabled
+            AdditionalStorageProvidersAvailable                  = $OwaMailboxPolicy.AdditionalStorageProvidersAvailable
+            AllAddressListsEnabled                               = $OwaMailboxPolicy.AllAddressListsEnabled
+            AllowCopyContactsToDeviceAddressBook                 = $OwaMailboxPolicy.AllowCopyContactsToDeviceAddressBook
+            AllowedFileTypes                                     = $OwaMailboxPolicy.AllowedFileTypes
+            AllowedMimeTypes                                     = $OwaMailboxPolicy.AllowedMimeTypes
+            BlockedFileTypes                                     = $OwaMailboxPolicy.BlockedFileTypes
+            BlockedMimeTypes                                     = $OwaMailboxPolicy.BlockedMimeTypes
+            BookingsMailboxCreationEnabled                       = $OwaMailboxPolicy.BookingsMailboxCreationEnabled
+            ChangeSettingsAccountEnabled                         = $OwaMailboxPolicy.ChangeSettingsAccountEnabled
+            ClassicAttachmentsEnabled                            = $OwaMailboxPolicy.ClassicAttachmentsEnabled
+            ConditionalAccessPolicy                              = $OwaMailboxPolicy.ConditionalAccessPolicy
+            DefaultTheme                                         = $OwaMailboxPolicy.DefaultTheme
+            DirectFileAccessOnPrivateComputersEnabled            = $OwaMailboxPolicy.DirectFileAccessOnPrivateComputersEnabled
+            DirectFileAccessOnPublicComputersEnabled             = $OwaMailboxPolicy.DirectFileAccessOnPublicComputersEnabled
+            DisableFacebook                                      = $OwaMailboxPolicy.DisableFacebook
+            DisplayPhotosEnabled                                 = $OwaMailboxPolicy.DisplayPhotosEnabled
+            ExplicitLogonEnabled                                 = $OwaMailboxPolicy.ExplicitLogonEnabled
+            ExternalImageProxyEnabled                            = $OwaMailboxPolicy.ExternalImageProxyEnabled
+            ExternalSPMySiteHostURL                              = $OwaMailboxPolicy.ExternalSPMySiteHostURL
+            FeedbackEnabled                                      = $OwaMailboxPolicy.FeedbackEnabled
+            ForceSaveAttachmentFilteringEnabled                  = $OwaMailboxPolicy.ForceSaveAttachmentFilteringEnabled
+            ForceSaveFileTypes                                   = $OwaMailboxPolicy.ForceSaveFileTypes
+            ForceSaveMimeTypes                                   = $OwaMailboxPolicy.ForceSaveMimeTypes
+            ForceWacViewingFirstOnPrivateComputers               = $OwaMailboxPolicy.ForceWacViewingFirstOnPrivateComputers
+            ForceWacViewingFirstOnPublicComputers                = $OwaMailboxPolicy.ForceWacViewingFirstOnPublicComputers
+            FreCardsEnabled                                      = $OwaMailboxPolicy.FreCardsEnabled
+            GlobalAddressListEnabled                             = $OwaMailboxPolicy.GlobalAddressListEnabled
+            GroupCreationEnabled                                 = $OwaMailboxPolicy.GroupCreationEnabled
+            InstantMessagingEnabled                              = $OwaMailboxPolicy.InstantMessagingEnabled
+            InstantMessagingType                                 = $OwaMailboxPolicy.InstantMessagingType
+            InterestingCalendarsEnabled                          = $OwaMailboxPolicy.InterestingCalendarsEnabled
+            InternalSPMySiteHostURL                              = $OwaMailboxPolicy.InternalSPMySiteHostURL
+            IRMEnabled                                           = $OwaMailboxPolicy.IRMEnabled
+            ItemsToOtherAccountsEnabled                          = $OwaMailboxPolicy.ItemsToOtherAccountsEnabled
+            IsDefault                                            = $OwaMailboxPolicy.IsDefault
+            JournalEnabled                                       = $OwaMailboxPolicy.JournalEnabled
+            LocalEventsEnabled                                   = $OwaMailboxPolicy.LocalEventsEnabled
+            LogonAndErrorLanguage                                = $OwaMailboxPolicy.LogonAndErrorLanguage
+            MessagePreviewsDisabled                              = $OwaMailboxPolicy.MessagePreviewsDisabled
+            NotesEnabled                                         = $OwaMailboxPolicy.NotesEnabled
+            NpsSurveysEnabled                                    = $OwaMailboxPolicy.NpsSurveysEnabled
+            OneWinNativeOutlookEnabled                           = $OwaMailboxPolicy.OneWinNativeOutlookEnabled
+            OrganizationEnabled                                  = $OwaMailboxPolicy.OrganizationEnabled
+            OnSendAddinsEnabled                                  = $OwaMailboxPolicy.OnSendAddinsEnabled
+            OutboundCharset                                      = $OwaMailboxPolicy.OutboundCharset
+            OutlookBetaToggleEnabled                             = $OwaMailboxPolicy.OutlookBetaToggleEnabled
+            OWALightEnabled                                      = $OwaMailboxPolicy.OWALightEnabled
+            PersonalAccountCalendarsEnabled                      = $OwaMailboxPolicy.PersonalAccountCalendarsEnabled
+            PersonalAccountsEnabled                              = $OwaMailboxPolicy.PersonalAccountsEnabled
+            PhoneticSupportEnabled                               = $OwaMailboxPolicy.PhoneticSupportEnabled
+            PlacesEnabled                                        = $OwaMailboxPolicy.PlacesEnabled
+            PremiumClientEnabled                                 = $OwaMailboxPolicy.PremiumClientEnabled
+            PrintWithoutDownloadEnabled                          = $OwaMailboxPolicy.PrintWithoutDownloadEnabled
+            ProjectMocaEnabled                                   = $OwaMailboxPolicy.ProjectMocaEnabled
+            PublicFoldersEnabled                                 = $OwaMailboxPolicy.PublicFoldersEnabled
+            RecoverDeletedItemsEnabled                           = $OwaMailboxPolicy.RecoverDeletedItemsEnabled
+            ReferenceAttachmentsEnabled                          = $OwaMailboxPolicy.ReferenceAttachmentsEnabled
+            RemindersAndNotificationsEnabled                     = $OwaMailboxPolicy.RemindersAndNotificationsEnabled
+            ReportJunkEmailEnabled                               = $OwaMailboxPolicy.ReportJunkEmailEnabled
+            RulesEnabled                                         = $OwaMailboxPolicy.RulesEnabled
+            SatisfactionEnabled                                  = $OwaMailboxPolicy.SatisfactionEnabled
+            SaveAttachmentsToCloudEnabled                        = $OwaMailboxPolicy.SaveAttachmentsToCloudEnabled
+            SearchFoldersEnabled                                 = $OwaMailboxPolicy.SearchFoldersEnabled
+            SetPhotoEnabled                                      = $OwaMailboxPolicy.SetPhotoEnabled
+            SetPhotoURL                                          = $OwaMailboxPolicy.SetPhotoURL
+            ShowOnlineArchiveEnabled                             = $OwaMailboxPolicy.ShowOnlineArchiveEnabled
+            SignaturesEnabled                                    = $OwaMailboxPolicy.SignaturesEnabled
+            SkipCreateUnifiedGroupCustomSharepointClassification = $OwaMailboxPolicy.SkipCreateUnifiedGroupCustomSharepointClassification
+            TeamSnapCalendarsEnabled                             = $OwaMailboxPolicy.TeamSnapCalendarsEnabled
+            TextMessagingEnabled                                 = $OwaMailboxPolicy.TextMessagingEnabled
+            ThemeSelectionEnabled                                = $OwaMailboxPolicy.ThemeSelectionEnabled
+            UMIntegrationEnabled                                 = $OwaMailboxPolicy.UMIntegrationEnabled
+            UseGB18030                                           = $OwaMailboxPolicy.UseGB18030
+            UseISO885915                                         = $OwaMailboxPolicy.UseISO885915
+            UserVoiceEnabled                                     = $OwaMailboxPolicy.UserVoiceEnabled
+            WacEditingEnabled                                    = $OwaMailboxPolicy.WacEditingEnabled
+            WacExternalServicesEnabled                           = $OwaMailboxPolicy.WacExternalServicesEnabled
+            WacOMEXEnabled                                       = $OwaMailboxPolicy.WacOMEXEnabled
+            WacViewingOnPrivateComputersEnabled                  = $OwaMailboxPolicy.WacViewingOnPrivateComputersEnabled
+            WacViewingOnPublicComputersEnabled                   = $OwaMailboxPolicy.WacViewingOnPublicComputersEnabled
+            WeatherEnabled                                       = $OwaMailboxPolicy.WeatherEnabled
+            WebPartsFrameOptionsType                             = $OwaMailboxPolicy.WebPartsFrameOptionsType
+            Ensure                                               = 'Present'
+            Credential                                           = $Credential
+            ApplicationId                                        = $ApplicationId
+            CertificateThumbprint                                = $CertificateThumbprint
+            CertificatePath                                      = $CertificatePath
+            CertificatePassword                                  = $CertificatePassword
+            ManagedIdentity                                      = $ManagedIdentity.IsPresent
+            TenantId                                             = $TenantId
+            AccessTokens                                         = $AccessTokens
         }
+
+        Write-Verbose -Message "Found OWA Mailbox Policy $($Name)"
+        return $result
     }
     catch
     {

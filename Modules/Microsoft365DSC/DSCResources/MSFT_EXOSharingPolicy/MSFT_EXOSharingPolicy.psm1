@@ -91,36 +91,30 @@ function Get-TargetResource
     $nullReturn.Ensure = 'Absent'
     try
     {
-        $AllSharingPolicies = Get-SharingPolicy -ErrorAction Stop
-
-        $SharingPolicy = $AllSharingPolicies | Where-Object -FilterScript { $_.Name -eq $Name }
-
+        $SharingPolicy = Get-SharingPolicy -Identity $Name -ErrorAction SilentlyContinue
         if ($null -eq $SharingPolicy)
         {
             Write-Verbose -Message "Sharing Policy $($Name) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $result = @{
-                Name                  = $SharingPolicy.Name
-                Default               = $SharingPolicy.Default
-                Domains               = $SharingPolicy.Domains
-                Enabled               = $SharingPolicy.Enabled
-                Ensure                = 'Present'
-                Credential            = $Credential
-                ApplicationId         = $ApplicationId
-                CertificateThumbprint = $CertificateThumbprint
-                CertificatePath       = $CertificatePath
-                CertificatePassword   = $CertificatePassword
-                ManagedIdentity       = $ManagedIdentity.IsPresent
-                TenantId              = $TenantId
-                AccessTokens          = $AccessTokens
-            }
-
-            Write-Verbose -Message "Found Sharing Policy $($Name)"
-            return $result
+        $result = @{
+            Name                  = $SharingPolicy.Name
+            Default               = $SharingPolicy.Default
+            Domains               = $SharingPolicy.Domains
+            Enabled               = $SharingPolicy.Enabled
+            Ensure                = 'Present'
+            Credential            = $Credential
+            ApplicationId         = $ApplicationId
+            CertificateThumbprint = $CertificateThumbprint
+            CertificatePath       = $CertificatePath
+            CertificatePassword   = $CertificatePassword
+            ManagedIdentity       = $ManagedIdentity.IsPresent
+            TenantId              = $TenantId
+            AccessTokens          = $AccessTokens
         }
+
+        Write-Verbose -Message "Found Sharing Policy $($Name)"
+        return $result
     }
     catch
     {
