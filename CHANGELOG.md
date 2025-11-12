@@ -7,6 +7,8 @@
     an existing permissions scope when id was not provided.
 * AADFilteringPolicyRule
   * Fixed issue retrieving existing rule where the Id parameter was incorrectly provided.
+* AADGroup
+  * Updated the required permissions to match the used cmdlets.
 * AADUser
   * Added new permission requirement `User.EnableDisableAccount.All` for enabling / disabling accounts.
 * EXOIRMConfiguration
@@ -42,6 +44,9 @@
   * Initial release.
 * TeamsAIPolicy
   * Initial release.
+* TeamsFederationConfiguration
+  * Fixed an issue where `AllowedDomains` could not be set.
+    FIXES [#6654](https://github.com/microsoft/Microsoft365DSC/issues/6654)
 * TeamsMeetingPolicy
   * Added support for new properties.
     FIXES [#6606](https://github.com/microsoft/Microsoft365DSC/issues/6606)

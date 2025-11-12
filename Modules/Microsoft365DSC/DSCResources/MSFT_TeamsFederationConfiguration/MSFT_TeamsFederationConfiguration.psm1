@@ -255,14 +255,18 @@ function Set-TargetResource
         -InboundParameters $PSBoundParameters
 
     $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    if ($allowedDomains.Length -gt 0)
+    if ($PSBoundParameters.ContainsKey('AllowedDomains'))
     {
-        $SetParams.Add('AllowedDomainsAsAList', $AllowedDomains)
-    }
-    else
-    {
-        $AllowAllKnownDomains = New-CsEdgeAllowAllKnownDomains
-        $SetParams.Add('AllowedDomains', $AllowAllKnownDomains)
+        if ($AllowedDomains.Count -gt 0)
+        {
+            $SetParams.Remove('AllowedDomains') | Out-Null
+            $SetParams.Add('AllowedDomainsAsAList', $AllowedDomains)
+        }
+        else
+        {
+            $AllowAllKnownDomains = New-CsEdgeAllowAllKnownDomains
+            $SetParams.AllowedDomains = $AllowAllKnownDomains
+        }
     }
 
     Write-Verbose -Message "SetParams: $(Convert-M365DscHashtableToString -Hashtable $SetParams)"
