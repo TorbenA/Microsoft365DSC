@@ -1,6 +1,12 @@
 # Change log for Microsoft365DSC
 
-# Release 1.25.1112.1
+# UNRELEASED
+
+* TeamsMeetingPolicy
+  * Fixed an issue where the schema had an incorrect type assigned.
+    FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
+
+# 1.25.1112.1
 
 * AADActivityBasedTimeoutPolicy
   * Fixed an issue where the `DisplayName` property was not used for create and update.
