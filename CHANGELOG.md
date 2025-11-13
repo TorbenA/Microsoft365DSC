@@ -3,8 +3,11 @@
 # UNRELEASED
 
 * ODSettings
-  * Fixed an issue where parameter definition was missing.
+  * Fixed an issue where the parameter definition was missing.
     FIXES [#6684](https://github.com/microsoft/Microsoft365DSC/issues/6684)
+* SPOTenantSettings
+  * Fixed an issue where the parameter definition was missing.
+    FIXES [#6686](https://github.com/microsoft/Microsoft365DSC/issues/6686)
 
 # 1.25.1112.1
 
