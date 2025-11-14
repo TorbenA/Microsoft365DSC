@@ -2249,7 +2249,7 @@ function Update-DeviceAppManagementPolicyAssignment
                 '@odata.type' = '#microsoft.graph.mobileAppAssignment'
                 intent = $assignment.intent
             }
-            if ($assigment.settings)
+            if ($assignment.settings)
             {
                 $formattedAssignment.Add('settings', $assignment.settings)
             }
@@ -2311,10 +2311,6 @@ function Update-DeviceAppManagementPolicyAssignment
                 $formattedTarget.Add('deviceAndAppManagementAssignmentFilterId',$target.deviceAndAppManagementAssignmentFilterId)
             }
             $formattedAssignment.Add('target', $formattedTarget)
-            if ($assignment.settings)
-            {
-                $formattedAssignment.Add('settings', $assignment.settings)
-            }
             $appManagementPolicyAssignments += $formattedAssignment
         }
 

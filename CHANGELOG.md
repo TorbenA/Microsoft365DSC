@@ -2,6 +2,11 @@
 
 # UNRELEASED
 
+* AADRoleAssignmentScheduleRequest
+  * Aligned functionality to work the same way as `AADRoleEligibilityScheduleRequest`.
+  * Deprecated parameters `Action`, `IsValidationOnly` and `TicketInfo`.
+* AADRoleEligibilityScheduleRequest
+  * Deprecated parameters `Action` and `IsValidationOnly`.
 * EXOMessageClassification
   * Fixed issue where the resource would fail during export if it could not
     find it by `DisplayName`, and it needed to be created, by silently
@@ -16,6 +21,9 @@
 * TeamsMeetingPolicy
   * Fixed an issue where the schema had an incorrect type assigned.
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
+* M365DSCDRGUtil
+  * Fixed an issue where a condition check contained a typo.
+    FIXES [#6674](https://github.com/microsoft/Microsoft365DSC/issues/6674)
 
 # 1.25.1112.1
 
