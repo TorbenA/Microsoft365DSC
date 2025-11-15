@@ -7,6 +7,10 @@
     find it by `DisplayName`, and it needed to be created, by silently
     continuing if that is the case
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
+* M365DSCDRGUtil
+  * Added new non-recursive comparison function `Compare-M365DSCComplexObjectV3`.
+* M365DSCUtil
+  * Replaced complex object comparison function V2 with V3.
 
 # Release 1.25.1112.1
 

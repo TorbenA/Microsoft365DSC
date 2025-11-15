@@ -1354,6 +1354,85 @@ function Compare-M365DSCComplexObjectV2
     return $returnValue
 }
 
+function Test-IsCimInstance
+{
+    [CmdletBinding()]
+    [OutputType([System.Boolean])]
+    param (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [AllowEmptyString()]
+        [AllowNull()]
+        [System.Object]
+        $Object
+    )
+
+    return $null -ne $Object -and $Object.GetType().FullName -like "*CimInstance*"
+}
+
+function Test-IsHashtable
+{
+    [CmdletBinding()]
+    [OutputType([System.Boolean])]
+    param (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [AllowEmptyString()]
+        [AllowNull()]
+        [System.Object]
+        $Object
+    )
+
+    return $null -ne $Object -and ($Object.GetType().FullName -like "*Hashtable" -or $Object.GetType().FullName -like "*OrderedDictionary")
+}
+
+function Test-IsObjectArray
+{
+    [CmdletBinding()]
+    [OutputType([System.Boolean])]
+    param (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [AllowEmptyString()]
+        [AllowNull()]
+        [System.Object]
+        $Object
+    )
+
+    return $null -ne $Object -and $Object.GetType().Name -eq 'Object[]'
+}
+
+function Test-IsComplexArrayCandidate
+{
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [AllowEmptyString()]
+        [AllowNull()]
+        [System.Object]
+        $Object
+    )
+
+    if ($null -eq $Object)
+    {
+        return $false
+    }
+
+    $typeName = $Object.GetType().FullName
+    if ($typeName -like '*CimInstance[[\]]' -or $typeName -like '*Hashtable[[\]]')
+    {
+        return $true
+    }
+
+    if ($typeName -like '*Object[[\]]' -and $Object.Count -gt 0)
+    {
+        return ($Object[0].GetType().FullName -like '*CimInstance*' -or $Object[0].GetType().FullName -like '*Hashtable*')
+    }
+
+    return $false
+}
+
 function Compare-M365DSCComplexObjectV3
 {
     [CmdletBinding()]
@@ -1378,29 +1457,29 @@ function Compare-M365DSCComplexObjectV3
         $NoDriftReport
     )
 
-    # Local helper: canonical type checks
-    function Is-CimInstance($o) { return $null -ne $o -and $o.GetType().FullName -like "*CimInstance*" }
-    function Is-Hashtable($o) { return $null -ne $o -and ($o.GetType().FullName -like "*Hashtable" -or $o.GetType().FullName -like "*OrderedDictionary") }
-    function Is-ObjectArray($o) { return $null -ne $o -and $o.GetType().Name -eq 'Object[]' }
-    function Is-ComplexArrayCandidate($o) {
-        if ($null -eq $o) { return $false }
-        $t = $o.GetType().FullName
-        if ($t -like '*CimInstance[[\]]' -or $t -like '*Hashtable[[\]]') { return $true }
-        if ($t -like '*Object[[\]]' -and $o.Count -gt 0) {
-            return ($o[0].GetType().FullName -like '*CimInstance*' -or $o[0].GetType().FullName -like '*Hashtable*')
-        }
-        return $false
-    }
-
     # Compare two arbitrary objects iteratively (no recursion). Returns $true if identical (no drift).
     # This function will append potential drifts to $Global:PotentialDrifts if $NoDriftReport is $true, otherwise will append to $Global:AllDrifts.DriftInfo on real drifts.
     function ComparePairIterative {
-        param($Left, $Right, [string]$PropName, [switch]$LocalNoDriftReport)
+        param(
+            [Parameter()]
+            $Left,
+
+            [Parameter()]
+            $Right,
+
+            [Parameter()]
+            [System.String]
+            $PropName,
+
+            [Parameter()]
+            [switch]
+            $LocalNoDriftReport
+        )
 
         # Use a stack of frames. Each frame describes a comparison that needs processing.
         # Frame fields:
         #   Left, Right, PropName, Stage, KeysEnumerator, TargetKeys, ArrayState
-        $workStack = New-Object System.Collections.Stack
+        $workStack = [System.Collections.Stack]::new()
 
         $workStack.Push(@{
             Left = $Left
@@ -1420,27 +1499,42 @@ function Compare-M365DSCComplexObjectV3
             $p = $frame.PropName
 
             # Both null => identical for this frame
-            if ($null -eq $l -and $null -eq $r) { continue }
+            if ($null -eq $l -and $null -eq $r)
+            {
+                continue
+            }
 
             # One null and the other not => drift
-            if (($null -eq $l) -xor ($null -eq $r)) {
+            if (($null -eq $l) -xor ($null -eq $r))
+            {
                 $sourceValue = if ($null -eq $l) { 'Desired value is null' } else { 'Desired value is NOT null' }
                 $targetValue = if ($null -eq $r) { 'Current value is null' } else { 'Current value is NOT null' }
+
                 Write-Verbose -Message "Configuration drift - Complex object: {$sourceValue$targetValue}"
                 $drift = @{
                     PropertyName = $p
                     CurrentValue = $targetValue
                     DesiredValue = $sourceValue
                 }
-                if (-not $LocalNoDriftReport) { $Global:AllDrifts.DriftInfo += $drift } else { $Global:PotentialDrifts += $drift }
+
+                if (-not $LocalNoDriftReport)
+                {
+                    $Global:AllDrifts.DriftInfo += $drift
+                }
+                else
+                {
+                    $Global:PotentialDrifts += $drift
+                }
+
                 $result = $false
                 break
             }
 
             # If left is an array of complex objects, handle array logic (order-insensitive)
-            if (Is-ComplexArrayCandidate $l) {
+            if (Test-IsComplexArrayCandidate -Object $l) {
                 # If counts differ, record drift (original did that)
-                if ($l.Count -ne $r.Count) {
+                if ($l.Count -ne $r.Count)
+                {
                     Write-Verbose -Message "Configuration drift - The complex array have different number of items: Source {$($l.Count)}, Target {$($r.Count)}"
                     $Global:AllDrifts.DriftInfo += @{
                         PropertyName = $p
@@ -1452,7 +1546,7 @@ function Compare-M365DSCComplexObjectV3
                 }
 
                 # Intune special-case: original did type-specific handling
-                if ((Is-CimInstance $l[0]) -and `
+                if ((Test-IsCimInstance $l[0]) -and `
                    ($l[0].CimClass.CimClassName -eq 'MSFT_DeviceManagementConfigurationPolicyAssignments' -or `
                     $l[0].CimClass.CimClassName -eq 'MSFT_DeviceManagementMobileAppAssignment' -or `
                     ($l[0].CimClass.CimClassName -like 'MSFT_Intune*Assignments' -and `
@@ -1474,38 +1568,56 @@ function Compare-M365DSCComplexObjectV3
                 # For arrays: we must find for each source element a matching distinct target element
                 # We'll keep a boolean array for consumed target elements
                 $consumed = [bool[]]::CreateInstance([bool], $r.Count)
-                for ($i = 0; $i -lt $l.Count; $i++) {
+                for ($i = 0; $i -lt $l.Count; $i++)
+                {
                     $srcItem = $l[$i]
                     $found = $false
                     $lastCompareResult = $null
 
-                    for ($j = 0; $j -lt $r.Count; $j++) {
-                        if ($consumed[$j]) { continue }
+                    for ($j = 0; $j -lt $r.Count; $j++)
+                    {
+                        if ($consumed[$j])
+                        {
+                            continue
+                        }
                         $tgtItem = $r[$j]
 
                         # snapshot potential drifts count so we can rollback/preserve them according to outcome
-                        $potentialStart = if ($null -eq $Global:PotentialDrifts) { 0 } else { $Global:PotentialDrifts.Count }
+                        if ($null -eq $Global:PotentialDrifts)
+                        {
+                            $potentialStart = 0
+                        }
+                        else
+                        {
+                            $potentialStart = $Global:PotentialDrifts.Count
+                        }
 
                         # Compare srcItem vs tgtItem using a *fresh* iterative compare that records potential drifts
                         $pairEqual = ComparePairIterativeInner -Left $srcItem -Right $tgtItem -PropName ("$p[$i]") -LocalNoDriftReport:$true
 
                         $lastCompareResult = $pairEqual
 
-                        if ($pairEqual) {
-                            # consume this target element
+                        if ($pairEqual)
+                        {
+                            # Consume this target element
                             $consumed[$j] = $true
-                            # remove any potential drifts produced during this successful attempt
-                            if ($Global:PotentialDrifts.Count -gt $potentialStart) {
-                                # delete the appended entries from potential drifts (they were false alarms)
+                            # Remove any potential drifts produced during this successful attempt
+                            if ($Global:PotentialDrifts.Count -gt $potentialStart)
+                            {
+                                # Delete the appended entries from potential drifts (they were false alarms)
                                 $Global:PotentialDrifts = $Global:PotentialDrifts[0..($potentialStart-1)]
                             }
                             $found = $true
                             break
-                        } else {
-                            # attempt failed: if there were potential drifts appended during attempt, promote last to AllDrifts (original logic)
-                            if ($Global:PotentialDrifts.Count -gt $potentialStart) {
+                        }
+                        else
+                        {
+                            # Attempt failed: if there were potential drifts appended during attempt, promote last to AllDrifts (original logic)
+                            if ($Global:PotentialDrifts.Count -gt $potentialStart)
+                            {
                                 $lastIndex = $Global:PotentialDrifts.Count - 1
-                                if ($null -ne $Global:PotentialDrifts[$lastIndex]) {
+                                if ($null -ne $Global:PotentialDrifts[$lastIndex])
+                                {
                                     $Global:AllDrifts.DriftInfo += $Global:PotentialDrifts[$lastIndex]
                                 }
                                 # reset potential drifts
@@ -1515,10 +1627,12 @@ function Compare-M365DSCComplexObjectV3
                         }
                     }
 
-                    if (-not $found) {
+                    if (-not $found)
+                    {
                         Write-Verbose -Message 'Configuration drift - The complex array items are not identical'
-                        # if no attempts happened (r was empty) or lastCompareResult is $null, record AllDrifts as original did
-                        if ($null -eq $lastCompareResult) {
+                        # If no attempts happened (r was empty) or lastCompareResult is $null, record AllDrifts as original did
+                        if ($null -eq $lastCompareResult)
+                        {
                             $Global:AllDrifts.DriftInfo += @{
                                 PropertyName = ("$p[$i]")
                                 CurrentValue = $r
@@ -1530,39 +1644,47 @@ function Compare-M365DSCComplexObjectV3
                     }
                 }
 
-                # after finishing array matching loop, continue to next frame
+                # After finishing array matching loop, continue to next frame
                 continue
             }
 
             # Now handle non-array (single) complex objects or simple objects
-
             # Build keys for Left (source)
-            if (Is-CimInstance $l) {
+            if (Test-IsCimInstance -Object $l)
+            {
                 $keys = @()
                 $l.CimInstanceProperties | ForEach-Object {
-                    if ($_.Name -notin @('PSComputerName', 'CimClass', 'CimInstanceProperties', 'CimSystemProperties') -and $_.IsValueModified) {
+                    if ($_.Name -notin @('PSComputerName', 'CimClass', 'CimInstanceProperties', 'CimSystemProperties') -and $_.IsValueModified)
+                    {
                         $keys += $_.Name
                     }
                 }
-            } else {
+            }
+            else
+            {
                 # hashtable or ordered dictionary
                 $keys = $l.Keys | Where-Object { $_ -ne 'PSComputerName' }
             }
 
             # Determine keys for Right (target)
-            if (Is-CimInstance $r) {
+            if (Test-IsCimInstance -Object $r)
+            {
                 $targetKeys = @()
                 $r.CimInstanceProperties | ForEach-Object {
-                    if ($_.Name -notin @('PSComputerName', 'CimClass', 'CimInstanceProperties', 'CimSystemProperties') -and $_.IsValueModified) {
+                    if ($_.Name -notin @('PSComputerName', 'CimClass', 'CimInstanceProperties', 'CimSystemProperties') -and $_.IsValueModified)
+                    {
                         $targetKeys += $_.Name
                     }
                 }
-            } elseif (Is-Hashtable $r) {
+            }
+            elseif (Test-IsHashtable -Object $r)
+            {
                 $targetKeys = $r.Keys | Where-Object { $_ -ne 'PSComputerName' }
-            } else {
-                # fallback, possibly Microsoft Graph model -> convert
-                $converted = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject $r
-                $r = $converted
+            }
+            else
+            {
+                # Fallback, possibly Microsoft Graph model -> convert
+                $r = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject $r
                 $targetKeys = $r.Keys | Where-Object { $_ -ne 'PSComputerName' }
             }
 
@@ -1574,16 +1696,23 @@ function Compare-M365DSCComplexObjectV3
                     ($r.GetType().Name -eq 'CIMInstance' -and $null -ne $r.$key)
                 )
 
-                if (-not $keyExistsInTarget) { continue }
+                if (-not $keyExistsInTarget)
+                {
+                    continue
+                }
 
                 $sourceValue = $l.$key
                 $targetValue = $null
-                if ($key -in $targetKeys) { $targetValue = $r.$key }
+                if ($key -in $targetKeys)
+                {
+                    $targetValue = $r.$key
+                }
 
                 # One null and the other not => drift
-                if (($null -eq $sourceValue) -xor ($null -eq $targetValue)) {
-                    $sv = if ($null -eq $sourceValue) { 'null' } else { $sourceValue }
-                    $tv = if ($null -eq $targetValue) { 'null' } else { $targetValue }
+                if (($null -eq $sourceValue) -xor ($null -eq $targetValue))
+                {
+                    if ($null -eq $sourceValue) { $sv = 'null' } else { $sv = $sourceValue }
+                    if ($null -eq $targetValue) { $tv = 'null' } else { $tv = $targetValue }
                     Write-Verbose -Message "Configuration drift - key: $key"
                     Write-Verbose -Message "Source {$sv}"
                     Write-Verbose -Message "Target {$tv}"
@@ -1592,22 +1721,30 @@ function Compare-M365DSCComplexObjectV3
                         CurrentValue = $targetValue
                         DesiredValue = $sourceValue
                     }
-                    if (-not $LocalNoDriftReport) { $Global:AllDrifts.DriftInfo += $drift } else { $Global:PotentialDrifts += $drift }
+                    if (-not $LocalNoDriftReport)
+                    {
+                        $Global:AllDrifts.DriftInfo += $drift
+                    }
+                    else
+                    {
+                        $Global:PotentialDrifts += $drift
+                    }
                     $result = $false
                     break
                 }
 
-                if (($null -ne $sourceValue) -and ($null -ne $targetValue)) {
+                if ($null -ne $sourceValue -and $null -ne $targetValue) {
                     # complex nested types
-                    if ((Is-CimInstance $sourceValue) -or (Is-Hashtable $sourceValue) -or $sourceValue.GetType().FullName -like "*OrderedDictionary*" -or (Is-ObjectArray $sourceValue)) {
+                    if ((Test-IsCimInstance -Object $sourceValue) -or (Test-IsHashtable -Object $sourceValue) -or $sourceValue.GetType().FullName -like "*OrderedDictionary*" -or (Test-IsObjectArray -Object $sourceValue)) {
                         # Intune assignment special-case
-                        if ((Is-CimInstance $sourceValue) -and (
+                        if ((Test-IsCimInstance -Object $sourceValue) -and (
                                 $sourceValue.CimClass.CimClassName -eq 'MSFT_DeviceManagementConfigurationPolicyAssignments' -or
                                 $sourceValue.CimClass.CimClassName -eq 'MSFT_DeviceManagementMobileAppAssignment' -or
                                 $sourceValue.CimClass.CimClassName -like 'MSFT_Intune*Assignments'
                             )) {
                             $compareResult = Compare-M365DSCIntunePolicyAssignment -Source @($sourceValue) -Target @($targetValue)
-                            if (-not $compareResult) {
+                            if (-not $compareResult)
+                            {
                                 Write-Verbose -Message "Configuration drift - Intune Policy Assignment key: $key"
                                 $Global:AllDrifts.DriftInfo += @{
                                     PropertyName = ($p + "." + $key)
@@ -1616,10 +1753,14 @@ function Compare-M365DSCComplexObjectV3
                                 }
                                 $result = $false
                                 break
-                            } else {
+                            }
+                            else
+                            {
                                 continue
                             }
-                        } else {
+                        }
+                        else
+                        {
                             # push a new frame to compare nested complex objects
                             $workStack.Push(@{
                                 Left = $sourceValue
@@ -1632,7 +1773,6 @@ function Compare-M365DSCComplexObjectV3
                     }
 
                     # Simple types: do comparisons similar to original
-
                     $referenceObject = $targetValue
                     $differenceObject = $sourceValue
 
@@ -1641,31 +1781,39 @@ function Compare-M365DSCComplexObjectV3
 
                     $compareResult = $null
 
-                    if ($targetType -like '*Date*') {
-                        # The original code tried to detect date and compare
-                        try {
+                    if ($targetType -like '*Date*')
+                    {
+                        try
+                        {
                             $compareResult = ([DateTime]$sourceValue) -eq ([DateTime]$targetValue)
-                        } catch {
+                        }
+                        catch
+                        {
                             $compareResult = $null
                         }
                     }
-                    elseif ($targetType -eq 'String') {
-                        if (-not [System.String]::IsNullOrEmpty($referenceObject)) {
+                    elseif ($targetType -eq 'String')
+                    {
+                        if (-not [System.String]::IsNullOrEmpty($referenceObject))
+                        {
                             $referenceObject = $referenceObject.Replace("`r`n", "`n")
                         }
-                        if (-not [System.String]::IsNullOrEmpty($differenceObject) -and $sourceType -eq 'String') {
+                        if (-not [System.String]::IsNullOrEmpty($differenceObject) -and $sourceType -eq 'String')
+                        {
                             $differenceObject = $differenceObject.Replace("`r`n", "`n")
                         }
 
                         $ordinalComparison = [System.String]::Equals($referenceObject, $differenceObject, [System.StringComparison]::OrdinalIgnoreCase)
                         if (-not $ordinalComparison) { $compareResult = $false } else { $compareResult = $true }
                     }
-                    else {
-                        $diff = Compare-Object -ReferenceObject ($referenceObject) -DifferenceObject ($differenceObject) -PassThru
-                        $compareResult = ($diff.Count -eq 0)
+                    else
+                    {
+                        $diff = Compare-Object -ReferenceObject $referenceObject -DifferenceObject $differenceObject -PassThru
+                        $compareResult = $diff.Count -eq 0
                     }
 
-                    if ($null -ne $compareResult -and -not $compareResult) {
+                    if ($null -ne $compareResult -and -not $compareResult)
+                    {
                         Write-Verbose -Message "Configuration drift - simple object key: $key"
                         Write-Verbose -Message "Source {$sourceValue}"
                         Write-Verbose -Message "Target {$targetValue}"
@@ -1674,7 +1822,14 @@ function Compare-M365DSCComplexObjectV3
                             CurrentValue = $targetValue
                             DesiredValue = $sourceValue
                         }
-                        if (-not $LocalNoDriftReport) { $Global:AllDrifts.DriftInfo += $drift } else { $Global:PotentialDrifts += $drift }
+                        if (-not $LocalNoDriftReport)
+                        {
+                            $Global:AllDrifts.DriftInfo += $drift
+                        }
+                        else
+                        {
+                            $Global:PotentialDrifts += $drift
+                        }
                         $result = $false
                         break
                     }
@@ -1691,7 +1846,22 @@ function Compare-M365DSCComplexObjectV3
     # Important: this is an inner isolated iterator that behaves exactly like ComparePairIterative but is referenced by name so we can call it repeatedly.
     #
     function ComparePairIterativeInner {
-        param($Left, $Right, [string]$PropName, [switch]$LocalNoDriftReport)
+        param(
+            [Parameter()]
+            $Left,
+
+            [Parameter()]
+            $Right,
+
+            [Parameter()]
+            [System.String]
+            $PropName,
+
+            [Parameter()]
+            [switch]
+            $LocalNoDriftReport
+        )
+
         return (ComparePairIterative -Left $Left -Right $Right -PropName $PropName -LocalNoDriftReport:$LocalNoDriftReport)
     }
 
