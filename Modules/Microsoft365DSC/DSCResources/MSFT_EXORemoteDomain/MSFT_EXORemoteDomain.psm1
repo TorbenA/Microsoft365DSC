@@ -179,46 +179,44 @@ function Get-TargetResource
             Write-Verbose -Message "RemoteDomain configuration for $($Identity) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $result = @{
-                Identity                             = $RemoteDomain.Identity
-                DomainName                           = $RemoteDomain.DomainName
-                AllowedOOFType                       = $RemoteDomain.AllowedOOFType
-                Ensure                               = 'Present'
-                AutoForwardEnabled                   = $RemoteDomain.AutoForwardEnabled
-                AutoReplyEnabled                     = $RemoteDomain.AutoReplyEnabled
-                ByteEncoderTypeFor7BitCharsets       = $RemoteDomain.ByteEncoderTypeFor7BitCharsets
-                CharacterSet                         = $RemoteDomain.CharacterSet
-                ContentType                          = $RemoteDomain.ContentType
-                DeliveryReportEnabled                = $RemoteDomain.DeliveryReportEnabled
-                DisplaySenderName                    = $RemoteDomain.DisplaySenderName
-                IsInternal                           = $RemoteDomain.IsInternal
-                LineWrapSize                         = $RemoteDomain.LineWrapSize
-                MeetingForwardNotificationEnabled    = $RemoteDomain.MeetingForwardNotificationEnabled
-                Name                                 = $RemoteDomain.Name
-                NDREnabled                           = $RemoteDomain.NDREnabled
-                NonMimeCharacterSet                  = $RemoteDomain.NonMimeCharacterSet
-                PreferredInternetCodePageForShiftJis = $RemoteDomain.PreferredInternetCodePageForShiftJis
-                RequiredCharsetCoverage              = $RemoteDomain.RequiredCharsetCoverage
-                TargetDeliveryDomain                 = $RemoteDomain.TargetDeliveryDomain
-                TNEFEnabled                          = $RemoteDomain.TNEFEnabled
-                TrustedMailInboundEnabled            = $RemoteDomain.TrustedMailInboundEnabled
-                TrustedMailOutboundEnabled           = $RemoteDomain.TrustedMailOutboundEnabled
-                UseSimpleDisplayName                 = $RemoteDomain.UseSimpleDisplayName
-                Credential                           = $Credential
-                ApplicationId                        = $ApplicationId
-                CertificateThumbprint                = $CertificateThumbprint
-                CertificatePath                      = $CertificatePath
-                CertificatePassword                  = $CertificatePassword
-                ManagedIdentity                      = $ManagedIdentity.IsPresent
-                TenantId                             = $TenantId
-                AccessTokens                         = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found RemoteDomain configuration for $Identity"
-            return $result
+        $result = @{
+            Identity                             = $RemoteDomain.Identity
+            DomainName                           = $RemoteDomain.DomainName
+            AllowedOOFType                       = $RemoteDomain.AllowedOOFType
+            Ensure                               = 'Present'
+            AutoForwardEnabled                   = $RemoteDomain.AutoForwardEnabled
+            AutoReplyEnabled                     = $RemoteDomain.AutoReplyEnabled
+            ByteEncoderTypeFor7BitCharsets       = $RemoteDomain.ByteEncoderTypeFor7BitCharsets
+            CharacterSet                         = $RemoteDomain.CharacterSet
+            ContentType                          = $RemoteDomain.ContentType
+            DeliveryReportEnabled                = $RemoteDomain.DeliveryReportEnabled
+            DisplaySenderName                    = $RemoteDomain.DisplaySenderName
+            IsInternal                           = $RemoteDomain.IsInternal
+            LineWrapSize                         = $RemoteDomain.LineWrapSize
+            MeetingForwardNotificationEnabled    = $RemoteDomain.MeetingForwardNotificationEnabled
+            Name                                 = $RemoteDomain.Name
+            NDREnabled                           = $RemoteDomain.NDREnabled
+            NonMimeCharacterSet                  = $RemoteDomain.NonMimeCharacterSet
+            PreferredInternetCodePageForShiftJis = $RemoteDomain.PreferredInternetCodePageForShiftJis
+            RequiredCharsetCoverage              = $RemoteDomain.RequiredCharsetCoverage
+            TargetDeliveryDomain                 = $RemoteDomain.TargetDeliveryDomain
+            TNEFEnabled                          = $RemoteDomain.TNEFEnabled
+            TrustedMailInboundEnabled            = $RemoteDomain.TrustedMailInboundEnabled
+            TrustedMailOutboundEnabled           = $RemoteDomain.TrustedMailOutboundEnabled
+            UseSimpleDisplayName                 = $RemoteDomain.UseSimpleDisplayName
+            Credential                           = $Credential
+            ApplicationId                        = $ApplicationId
+            CertificateThumbprint                = $CertificateThumbprint
+            CertificatePath                      = $CertificatePath
+            CertificatePassword                  = $CertificatePassword
+            ManagedIdentity                      = $ManagedIdentity.IsPresent
+            TenantId                             = $TenantId
+            AccessTokens                         = $AccessTokens
         }
+
+        Write-Verbose -Message "Found RemoteDomain configuration for $Identity"
+        return $result
     }
     catch
     {

@@ -185,7 +185,7 @@ function Get-TargetResource
         }
 
         $TagsValue = [Array] $place.Tags
-        if ($place.Tags -eq $null)
+        if ($null -eq $place.Tags)
         {
             $TagsValue = @()
         }

@@ -7,6 +7,8 @@
     find it by `DisplayName`, and it needed to be created, by silently
     continuing if that is the case
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
+* MISC
+  * Updated the `ErrorAction` to `SilentlyContinue` on multiple EXO resources.
 
 # Release 1.25.1112.1
 

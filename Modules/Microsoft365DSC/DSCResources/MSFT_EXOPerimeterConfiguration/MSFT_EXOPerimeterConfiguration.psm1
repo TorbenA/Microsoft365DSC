@@ -84,12 +84,7 @@ function Get-TargetResource
 
     try
     {
-        #Get-OMEConfiguration do NOT accept ErrorAction parameter
-        $PerimeterConfiguration = Get-PerimeterConfig 2>&1
-        if ($null -ne ($PerimeterConfiguration | Where-Object { $_.GetType().Name -like '*ErrorRecord*' }))
-        {
-            throw $PerimeterConfiguration
-        }
+        $PerimeterConfiguration = Get-PerimeterConfig -ErrorAction Stop
 
         $result = @{
             IsSingleInstance      = 'Yes'
@@ -326,11 +321,7 @@ function Export-TargetResource
             $Global:M365DSCExportResourceInstancesCount++
         }
 
-        $PerimeterConfiguration = Get-PerimeterConfig 2>&1
-        if ($null -ne ($PerimeterConfiguration | Where-Object { $_.GetType().Name -like '*ErrorRecord*' }))
-        {
-            throw $PerimeterConfiguration
-        }
+        $PerimeterConfiguration = Get-PerimeterConfig -ErrorAction Stop
 
         $dscContent = ''
         Write-M365DSCHost -Message "`r`n" -DeferWrite

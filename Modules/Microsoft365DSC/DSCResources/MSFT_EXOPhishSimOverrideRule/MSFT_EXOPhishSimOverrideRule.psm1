@@ -83,7 +83,7 @@ function Get-TargetResource
         }
         else
         {
-            $instance = Get-EXOPhishSimOverrideRule -Identity $Identity
+            $instance = Get-EXOPhishSimOverrideRule -Identity $Identity -ErrorAction SilentlyContinue
         }
         if ($null -eq $instance)
         {

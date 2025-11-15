@@ -75,7 +75,7 @@ function Get-TargetResource
         }
         else
         {
-            $instance = Get-EXOSecOpsOverrideRule -Identity $Identity
+            $instance = Get-EXOSecOpsOverrideRule -Identity $Identity -ErrorAction SilentlyContinue
         }
         if ($null -eq $instance)
         {

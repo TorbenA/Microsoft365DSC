@@ -133,56 +133,44 @@ function Get-TargetResource
     $nullReturn.Ensure = 'Absent'
     try
     {
-        try
-        {
-            $SafeLinksPolicy = Get-SafeLinksPolicy -Identity $Identity -ErrorAction Stop
-        }
-        catch
-        {
-            $Message = 'Error calling {Get-SafeLinksPolicy}'
-            New-M365DSCLogEntry -Message $Message `
-                -Exception $_ `
-                -Source $MyInvocation.MyCommand.ModuleName
-        }
+        $SafeLinksPolicy = Get-SafeLinksPolicy -Identity $Identity -ErrorAction SilentlyContinue
         if (-not $SafeLinksPolicy)
         {
             Write-Verbose -Message "SafeLinksPolicy $($Identity) does not exist."
             return $nullReturn
         }
-        else
-        {
-            $result = @{
-                Identity                   = $SafeLinksPolicy.Identity
-                AdminDisplayName           = $SafeLinksPolicy.AdminDisplayName
-                AllowClickThrough          = $SafeLinksPolicy.AllowClickThrough
-                CustomNotificationText     = $SafeLinksPolicy.CustomNotificationText
-                DeliverMessageAfterScan    = $SafeLinksPolicy.DeliverMessageAfterScan
-                DoNotRewriteUrls           = $SafeLinksPolicy.DoNotRewriteUrls
-                EnableForInternalSenders   = $SafeLinksPolicy.EnableForInternalSenders
-                EnableOrganizationBranding = $SafeLinksPolicy.EnableOrganizationBranding
-                EnableSafeLinksForTeams    = $SafeLinksPolicy.EnableSafeLinksForTeams
-                EnableSafeLinksForEmail    = $SafeLinksPolicy.EnableSafeLinksForEmail
-                EnableSafeLinksForOffice   = $SafeLinksPolicy.EnableSafeLinksForOffice
-                DisableUrlRewrite          = $SafeLinksPolicy.DisableUrlRewrite
-                ScanUrls                   = $SafeLinksPolicy.ScanUrls
-                TrackClicks                = $SafeLinksPolicy.TrackClicks
-                # The Get-SafeLinksPolicy no longer returns this property
-                # UseTranslatedNotificationText = $SafeLinksPolicy.UseTranslatedNotificationText
-                Ensure                     = 'Present'
-                Credential                 = $Credential
-                ApplicationId              = $ApplicationId
-                CertificateThumbprint      = $CertificateThumbprint
-                CertificatePath            = $CertificatePath
-                CertificatePassword        = $CertificatePassword
-                ManagedIdentity            = $ManagedIdentity.IsPresent
-                TenantId                   = $TenantId
-                AccessTokens               = $AccessTokens
-            }
 
-            Write-Verbose -Message "Found SafeLinksPolicy $($Identity)"
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
-            return $result
+        $result = @{
+            Identity                   = $SafeLinksPolicy.Identity
+            AdminDisplayName           = $SafeLinksPolicy.AdminDisplayName
+            AllowClickThrough          = $SafeLinksPolicy.AllowClickThrough
+            CustomNotificationText     = $SafeLinksPolicy.CustomNotificationText
+            DeliverMessageAfterScan    = $SafeLinksPolicy.DeliverMessageAfterScan
+            DoNotRewriteUrls           = $SafeLinksPolicy.DoNotRewriteUrls
+            EnableForInternalSenders   = $SafeLinksPolicy.EnableForInternalSenders
+            EnableOrganizationBranding = $SafeLinksPolicy.EnableOrganizationBranding
+            EnableSafeLinksForTeams    = $SafeLinksPolicy.EnableSafeLinksForTeams
+            EnableSafeLinksForEmail    = $SafeLinksPolicy.EnableSafeLinksForEmail
+            EnableSafeLinksForOffice   = $SafeLinksPolicy.EnableSafeLinksForOffice
+            DisableUrlRewrite          = $SafeLinksPolicy.DisableUrlRewrite
+            ScanUrls                   = $SafeLinksPolicy.ScanUrls
+            TrackClicks                = $SafeLinksPolicy.TrackClicks
+            # The Get-SafeLinksPolicy no longer returns this property
+            # UseTranslatedNotificationText = $SafeLinksPolicy.UseTranslatedNotificationText
+            Ensure                     = 'Present'
+            Credential                 = $Credential
+            ApplicationId              = $ApplicationId
+            CertificateThumbprint      = $CertificateThumbprint
+            CertificatePath            = $CertificatePath
+            CertificatePassword        = $CertificatePassword
+            ManagedIdentity            = $ManagedIdentity.IsPresent
+            TenantId                   = $TenantId
+            AccessTokens               = $AccessTokens
         }
+
+        Write-Verbose -Message "Found SafeLinksPolicy $($Identity)"
+        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
+        return $result
     }
     catch
     {
