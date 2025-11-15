@@ -1,5 +1,13 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* EXOMessageClassification
+  * Fixed issue where the resource would fail during export if it could not
+    find it by `DisplayName`, and it needed to be created, by silently
+    continuing if that is the case
+    FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
+
 # Release 1.25.1112.1
 
 * AADActivityBasedTimeoutPolicy
