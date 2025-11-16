@@ -112,7 +112,7 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            $AntiPhishRules = Get-AntiPhishRule -Identity $Identity -ErrorAction SilentlyContinue
+            $AntiPhishRule = Get-AntiPhishRule -Identity $Identity -ErrorAction SilentlyContinue
             if ($null -eq $AntiPhishRule)
             {
                 Write-Verbose -Message "AntiPhishRule $Identity does not exist."

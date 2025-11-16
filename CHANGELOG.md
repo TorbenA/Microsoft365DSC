@@ -7,6 +7,8 @@
     find it by `DisplayName`, and it needed to be created, by silently
     continuing if that is the case
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
+* EXOTenantAllowBlockListItems
+  * Deprecated `ApplicationSecret` parameter and added new authentication methods.
 * MISC
   * Refactor EXO resources to align with the default resource code layout.
 

@@ -81,6 +81,11 @@ function Get-TargetResource
         }
 
         $instance = Get-FocusedInbox -Identity $Identity
+        if ($null -eq $instance)
+        {
+            Write-Verbose -Message "FocusedInbox settings for Identity $Identity not found"
+            return $nullResult
+        }
 
         $results = @{
             Identity                     = $Identity

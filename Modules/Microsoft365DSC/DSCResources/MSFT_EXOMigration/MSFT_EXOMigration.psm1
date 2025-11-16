@@ -538,7 +538,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         [array]$migrationBatches = Get-MigrationBatch -ErrorAction Stop
 
         $i = 1
