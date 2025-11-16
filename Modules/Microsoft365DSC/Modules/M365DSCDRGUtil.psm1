@@ -2131,13 +2131,21 @@ function Update-DeviceConfigurationPolicyAssignment
 
         foreach ($target in $targets)
         {
+            $targetAssignment = @{}
+            $formattedTarget = @{"@odata.type" = $target.dataType}
+            if ($null -ne $target.runRemediationScript)
+            {
+                $targetAssignment.Add('runRemediationScript', $target.runRemediationScript)
+            }
+            if ($null -ne $target.runSchedule)
+            {
+                $targetAssignment.Add('runSchedule', $target.runSchedule)
+            }
             if ($target.target -is [hashtable])
             {
                 $target = $target.target
             }
-
-            $formattedTarget = @{"@odata.type" = $target.dataType}
-            if(-not $formattedTarget."@odata.type" -and $target."@odata.type")
+            if (-not $formattedTarget."@odata.type" -and $target."@odata.type")
             {
                 $formattedTarget."@odata.type" = $target."@odata.type"
             }
@@ -2191,7 +2199,8 @@ function Update-DeviceConfigurationPolicyAssignment
             {
                 $formattedTarget.Add('deviceAndAppManagementAssignmentFilterId',$target.deviceAndAppManagementAssignmentFilterId)
             }
-            $deviceManagementPolicyAssignments += @{'target' = $formattedTarget}
+            $targetAssignment.Add('target', $formattedTarget)
+            $deviceManagementPolicyAssignments += $targetAssignment
         }
 
         $body = @{$RootIdentifier = $deviceManagementPolicyAssignments} | ConvertTo-Json -Depth 20

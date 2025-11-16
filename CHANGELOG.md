@@ -7,6 +7,11 @@
     find it by `DisplayName`, and it needed to be created, by silently
     continuing if that is the case
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
+* IntuneDeviceRemediation
+  * Updated handling of the `RunRemediationScript` property.
+* M365DSCDRGUtil
+  * Fixed an issue where updating Intune assignments did not include all properties.
+    FIXES [#6697](https://github.com/microsoft/Microsoft365DSC/issues/6697)
 
 # Release 1.25.1112.1
 
