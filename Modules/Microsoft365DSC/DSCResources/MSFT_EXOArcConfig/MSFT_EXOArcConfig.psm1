@@ -71,7 +71,12 @@ function Get-TargetResource
 
             $nullResult = $PSBoundParameters
 
-            $ArcConfigSettings = Get-ArcConfig -ErrorAction Stop
+            $ArcConfigSettings = Get-ArcConfig -ErrorAction SilentlyContinue
+            if ($null -eq $ArcConfigSettings)
+            {
+                Write-Verbose -Message 'No Arc config settings found'
+                return $nullResult
+            }
         }
         else
         {
