@@ -8,7 +8,7 @@
     continuing if that is the case
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
 * MISC
-  * Updated the `ErrorAction` to `SilentlyContinue` on multiple EXO resources.
+  * Refactor EXO resources to align with the default resource code layout.
 
 # Release 1.25.1112.1
 
