@@ -284,6 +284,10 @@ function Set-TargetResource
         $GrooveBlockOption,
 
         [Parameter()]
+        [System.Boolean]
+        $DisplayNamesOfFileViewers,
+
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
@@ -500,6 +504,10 @@ function Test-TargetResource
         [System.String]
         [ValidateSet('OptOut', 'HardOptIn', 'SoftOptIn')]
         $GrooveBlockOption,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisplayNamesOfFileViewers,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]

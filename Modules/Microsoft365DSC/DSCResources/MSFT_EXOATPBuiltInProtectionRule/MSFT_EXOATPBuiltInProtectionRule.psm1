@@ -27,6 +27,11 @@ function Get-TargetResource
         $ExceptIfSentToMemberOf,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
+        [System.String]
+        $Ensure = 'Present',
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -83,6 +88,7 @@ function Get-TargetResource
             ExceptIfRecipientDomainIs = [Array]$instance.ExceptIfRecipientDomainIs
             ExceptIfSentTo            = [Array]$instance.ExceptIfSentTo
             ExceptIfSentToMemberOf    = [Array]$instance.ExceptIfSentToMemberOf
+            Ensure                    = 'Present'
             Credential                = $Credential
             ApplicationId             = $ApplicationId
             TenantId                  = $TenantId

@@ -7,6 +7,9 @@
     find it by `DisplayName`, and it needed to be created, by silently
     continuing if that is the case
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
+* MISC
+  * Added and removed mismatches between parameters and their schema.
+  * Added quality assurance checks for parameter and schema mismatches.
 
 # Release 1.25.1112.1
 
