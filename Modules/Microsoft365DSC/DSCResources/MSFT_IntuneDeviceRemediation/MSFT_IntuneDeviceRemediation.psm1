@@ -264,7 +264,7 @@ function Get-TargetResource
             }
 
             $assignmentResult += @{
-                RunRemediationScript = $true
+                RunRemediationScript = $assignment.runRemediationScript
                 RunSchedule          = @{
                     DataType = $assignment.RunSchedule.AdditionalProperties.'@odata.type'
                     Date     = $assignment.RunSchedule.AdditionalProperties.date
