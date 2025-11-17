@@ -2,6 +2,11 @@
 
 # UNRELEASED
 
+* EXOGroupSettings
+  * Added support for using display names with the following properties:
+    `AcceptMessagesOnlyFromSendersOrMembers`, `GrantSendOnBehalfTo`, `ModeratedBy`
+    and `RejectMessagesFromSendersOrMembers`.
+    FIXES [#6676](https://github.com/microsoft/Microsoft365DSC/issues/6676)
 * EXOMessageClassification
   * Fixed issue where the resource would fail during export if it could not
     find it by `DisplayName`, and it needed to be created, by silently
