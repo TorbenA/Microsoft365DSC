@@ -7,12 +7,21 @@
     find it by `DisplayName`, and it needed to be created, by silently
     continuing if that is the case
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
+* ODSettings
+  * Fixed an issue where the parameter definition was missing.
+    FIXES [#6684](https://github.com/microsoft/Microsoft365DSC/issues/6684)
+* SPOTenantSettings
+  * Fixed an issue where the parameter definition was missing.
+    FIXES [#6686](https://github.com/microsoft/Microsoft365DSC/issues/6686)
+* TeamsMeetingPolicy
+  * Fixed an issue where the schema had an incorrect type assigned.
+    FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
 * M365DSCDRGUtil
   * Added new non-recursive comparison function `Compare-M365DSCComplexObjectV3`.
 * M365DSCUtil
   * Replaced complex object comparison function V2 with V3.
 
-# Release 1.25.1112.1
+# 1.25.1112.1
 
 * AADActivityBasedTimeoutPolicy
   * Fixed an issue where the `DisplayName` property was not used for create and update.
