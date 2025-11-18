@@ -2,6 +2,17 @@
 
 # UNRELEASED
 
+* EXOMessageClassification
+  * Fixed issue where the resource would fail during export if it could not
+    find it by `DisplayName`, and it needed to be created, by silently
+    continuing if that is the case
+    FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
+* ODSettings
+  * Fixed an issue where the parameter definition was missing.
+    FIXES [#6684](https://github.com/microsoft/Microsoft365DSC/issues/6684)
+* SPOTenantSettings
+  * Fixed an issue where the parameter definition was missing.
+    FIXES [#6686](https://github.com/microsoft/Microsoft365DSC/issues/6686)
 * TeamsMeetingPolicy
   * Fixed an issue where the schema had an incorrect type assigned.
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
