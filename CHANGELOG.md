@@ -13,6 +13,9 @@
 * SPOTenantSettings
   * Fixed an issue where the parameter definition was missing.
     FIXES [#6686](https://github.com/microsoft/Microsoft365DSC/issues/6686)
+* TeamsMeetingPolicy
+  * Fixed an issue where the schema had an incorrect type assigned.
+    FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
 
 # 1.25.1112.1
 
