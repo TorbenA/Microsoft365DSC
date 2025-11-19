@@ -74,10 +74,16 @@ function Get-TargetResource
             return $nullResult
         }
 
+        # Convert GroupId toDisplayName if needed
+        if ($null -ne $instance.disabledForGroup)
+        {
+            $currdisabledForGroup = Get-MgGroup -GroupId $instance.disabledForGroup -Property DisplayName
+        }
+
         $results = @{
             IsSingleInstance        = 'Yes'
             isEnabledInOrganization = $instance.isEnabledInOrganization
-            disabledForGroup        = $instance.disabledForGroup
+            disabledForGroup        = if ($null -ne $currdisabledForGroup) { $currdisabledForGroup.displayName } else { $null }
             Credential              = $Credential
             ApplicationId           = $ApplicationId
             TenantId                = $TenantId
@@ -163,6 +169,24 @@ function Set-TargetResource
         -Parameters $PSBoundParameters
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
+
+    # Check if $disabledForGroup is a guid or display name and convert to guid if needed
+    if (-not [string]::IsNullOrEmpty($disabledForGroup))
+    {
+        $guid = [System.Guid]::Empty
+        if (-not ([System.Guid]::TryParse($disabledForGroup, [ref]$guid)))
+        {
+            $group = Get-MgGroup -Filter "displayName eq '$disabledForGroup'" -Property Id -Top 1
+            if ($null -ne $group)
+            {
+                $disabledForGroup = $group.Id
+            }
+            else
+            {
+                throw "Group with display name '$disabledForGroup' not found."
+            }
+        }
+    }
 
     Write-Verbose -Message "Updating the isEnabledInOrganization setting to {$($isEnabledInOrganization.ToString())}"
     $settings = @{
