@@ -38,6 +38,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return "Credentials"
             }
 
+            Mock -CommandName Get-MgGroup -MockWith {
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }
@@ -79,6 +82,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 Mock -CommandName Invoke-MgGraphRequest -MockWith {
                     return @{
                         isEnabledInOrganization = $false
+                    }
+                }
+
+                Mock -CommandName Get-MgGroup -MockWith {
+                    return @{
+                        Id = "some-group-id"
                     }
                 }
             }
