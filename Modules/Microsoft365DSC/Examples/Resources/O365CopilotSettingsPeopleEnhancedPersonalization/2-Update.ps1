@@ -21,7 +21,7 @@ Configuration Example
     Import-DscResource -ModuleName Microsoft365DSC
     node localhost
     {
-        AADCopilotSettingsPeopleEnhancedPersonalization "AADCopilotSettingsPeopleEnhancedPersonalization"
+        O365CopilotSettingsPeopleEnhancedPersonalization "O365CopilotSettingsPeopleEnhancedPersonalization"
         {
             ApplicationId           = $ApplicationId;
             CertificateThumbprint   = $CertificateThumbprint;

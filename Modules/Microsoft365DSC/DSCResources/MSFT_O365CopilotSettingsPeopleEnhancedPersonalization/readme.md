@@ -1,5 +1,5 @@
 
-# AADCopilotSettingsPeopleEnhancedPersonalization
+# O365CopilotSettingsPeopleEnhancedPersonalization
 
 ## Description
 

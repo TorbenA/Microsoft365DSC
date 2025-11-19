@@ -1,7 +1,7 @@
 # Change log for Microsoft365DSC
 
 # Unreleased
-* AADCopilotSettingsPeopleEnhancedPersonalization
+* O365CopilotSettingsPeopleEnhancedPersonalization
   * New resource
 
 # Release 1.25.1112.1

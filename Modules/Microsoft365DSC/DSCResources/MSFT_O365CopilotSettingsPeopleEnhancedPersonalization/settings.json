@@ -1,5 +1,5 @@
 {
-  "resourceName": "AADCopilotSettingsPeopleEnhancedPersonalization",
+  "resourceName": "O365CopilotSettingsPeopleEnhancedPersonalization",
   "description": "Represents a setting that controls whether Microsoft 365 Copilot can use features that enhance its personalization capabilities.",
   "roles": {
     "read": [],
