@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADNamedLocationPolicy
+  * Fixed an issue where not all properties were exported.
+    FIXES [#6704](https://github.com/microsoft/Microsoft365DSC/issues/6704)
 * EXOMessageClassification
   * Fixed issue where the resource would fail during export if it could not
     find it by `DisplayName`, and it needed to be created, by silently
