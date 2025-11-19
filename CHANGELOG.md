@@ -16,6 +16,9 @@
 * TeamsMeetingPolicy
   * Fixed an issue where the schema had an incorrect type assigned.
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
+* M365DSCUtil
+  * Fixed an issue where the test evaluation for `Absent` did not work as expected.
+    FIXES [#6701](https://github.com/microsoft/Microsoft365DSC/issues/6701)
 
 # 1.25.1112.1
 
