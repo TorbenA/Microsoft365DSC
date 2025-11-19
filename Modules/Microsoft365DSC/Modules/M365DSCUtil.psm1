@@ -1374,7 +1374,7 @@ function Test-M365DSCTargetResource
                     }
                 }
 
-                $testResult = Compare-M365DSCComplexObjectV3 `
+                $testResult = Compare-M365DSCComplexObject `
                     -Source ($source) `
                     -Target ($targetObjects) `
                     -PropertyName $key

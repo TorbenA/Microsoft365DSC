@@ -17,7 +17,7 @@
   * Fixed an issue where the schema had an incorrect type assigned.
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
 * M365DSCDRGUtil
-  * Added new non-recursive comparison function `Compare-M365DSCComplexObjectV3`.
+  * Updated comparison function `Compare-M365DSCComplexObject` to non-recursive.
 * M365DSCUtil
   * Replaced complex object comparison function V2 with V3.
 
