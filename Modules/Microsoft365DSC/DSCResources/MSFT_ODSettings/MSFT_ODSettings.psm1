@@ -64,6 +64,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $DisableAddToOneDrive,
+
+        [Parameter()]
+        [System.Boolean]
         $DisplayNamesOfFileViewers,
 
         [Parameter()]
@@ -282,6 +286,10 @@ function Set-TargetResource
         [System.String]
         [ValidateSet('OptOut', 'HardOptIn', 'SoftOptIn')]
         $GrooveBlockOption,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisableAddToOneDrive,
 
         [Parameter()]
         [System.Boolean]
@@ -504,6 +512,10 @@ function Test-TargetResource
         [System.String]
         [ValidateSet('OptOut', 'HardOptIn', 'SoftOptIn')]
         $GrooveBlockOption,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisableAddToOneDrive,
 
         [Parameter()]
         [System.Boolean]
