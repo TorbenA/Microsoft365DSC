@@ -10,8 +10,17 @@
 * IntuneDeviceEnrollmentStatusPageWindows10
   * Fixed an issue where priority was attempted to be set on a newly created policy
     where the priority already matched.
+* ODSettings
+  * Fixed an issue where the parameter definition was missing.
+    FIXES [#6684](https://github.com/microsoft/Microsoft365DSC/issues/6684)
+* SPOTenantSettings
+  * Fixed an issue where the parameter definition was missing.
+    FIXES [#6686](https://github.com/microsoft/Microsoft365DSC/issues/6686)
+* TeamsMeetingPolicy
+  * Fixed an issue where the schema had an incorrect type assigned.
+    FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
 
-# Release 1.25.1112.1
+# 1.25.1112.1
 
 * AADActivityBasedTimeoutPolicy
   * Fixed an issue where the `DisplayName` property was not used for create and update.
