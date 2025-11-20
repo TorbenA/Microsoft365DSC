@@ -27,5 +27,3 @@ This function does not generate any output.
 -------------------------- EXAMPLE 2 --------------------------
 
 `Update-M365DSCAllowedGraphScopes -All -Type 'Update' -Environment 'Global'`
-
-

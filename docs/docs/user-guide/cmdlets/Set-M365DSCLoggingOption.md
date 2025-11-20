@@ -14,4 +14,12 @@ This function does not generate any output.
 | --- | --- | --- | --- | --- | --- |
 | IncludeNonDrifted | False | Boolean |  |  | Determines whether or not we should log information about resource's instances that don't have drifts. |
 
+## Examples
 
+-------------------------- EXAMPLE 1 --------------------------
+
+`Set-M365DSCLoggingOption`
+
+-------------------------- EXAMPLE 2 --------------------------
+
+`Set-M365DSCLoggingOption -IncludeNonDrifted $true`

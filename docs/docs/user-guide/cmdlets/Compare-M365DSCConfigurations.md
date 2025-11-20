@@ -27,5 +27,3 @@ This function outputs information as the following type:
 -------------------------- EXAMPLE 1 --------------------------
 
 `Compare-M365DSCConfigurations -Source 'C:\DSC\source.ps1' -Destination 'C:\DSC\destination.ps1'`
-
-

@@ -27,5 +27,3 @@ This function outputs information as the following type:
 -------------------------- EXAMPLE 2 --------------------------
 
 `Get-M365DSCResourcesByExportMode -Mode 'Full'`
-
-

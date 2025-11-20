@@ -30,5 +30,3 @@ This function does not generate any output.
 -------------------------- EXAMPLE 3 --------------------------
 
 `Update-M365DSCDependencies -Scope CurrenUser`
-
-

@@ -13,3 +13,8 @@ This function outputs information as the following type:
 
 This function does not have any input parameters.
 
+## Examples
+
+-------------------------- EXAMPLE 1 --------------------------
+
+`Get-M365DSCLoggingOption`

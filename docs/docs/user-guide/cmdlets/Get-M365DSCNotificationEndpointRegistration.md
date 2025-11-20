@@ -1,4 +1,4 @@
-﻿# Get-M365DSCNotificationEndPointRegistration
+﻿# Get-M365DSCNotificationEndpointRegistration
 
 ## Description
 
@@ -15,4 +15,16 @@ This function does not generate any output.
 | Url | False | String |  |  | Represents the Url of the endpoint to be contacted when events are detected. |
 | EventType | False | String |  | Drift, Error, Warning, NonDrift, RuleEvaluation | Represents the type of events that need to be reported to the endpoint. |
 
+## Examples
 
+-------------------------- EXAMPLE 1 --------------------------
+
+`Get-M365DSCNotificationEndpointRegistration`
+
+-------------------------- EXAMPLE 2 --------------------------
+
+`Get-M365DSCNotificationEndpointRegistration -Url "https://url.com"`
+
+-------------------------- EXAMPLE 3 --------------------------
+
+`Get-M365DSCNotificationEndpointRegistration -Url "https://url.com" -EventType Drift`

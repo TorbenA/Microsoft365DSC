@@ -1,4 +1,4 @@
-﻿# New-M365DSCNotificationEndPointRegistration
+﻿# New-M365DSCNotificationEndpointRegistration
 
 ## Description
 
@@ -15,4 +15,8 @@ This function does not generate any output.
 | Url | True | String |  |  | Represents the Url of the endpoint to be contacted when events are detected. |
 | EventType | True | String |  | Drift, Error, Warning, NonDrift, RuleEvaluation | Represents the type of events that need to be reported to the endpoint. |
 
+## Examples
 
+-------------------------- EXAMPLE 1 --------------------------
+
+`New-M365DSCNotificationEndpointRegistration -Url "https://url.com" -EventType Drift`

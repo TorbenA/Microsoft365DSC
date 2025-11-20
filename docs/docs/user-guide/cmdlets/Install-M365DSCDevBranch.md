@@ -23,5 +23,3 @@ This function does not generate any output.
 -------------------------- EXAMPLE 2 --------------------------
 
 `Install-M365DSCDevBranch -Scope CurrentUser`
-
-

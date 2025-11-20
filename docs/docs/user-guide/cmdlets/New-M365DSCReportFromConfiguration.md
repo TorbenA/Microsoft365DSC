@@ -30,5 +30,3 @@ This function does not generate any output.
 -------------------------- EXAMPLE 3 --------------------------
 
 `New-M365DSCReportFromConfiguration -Type 'JSON' -ConfigurationPath 'C:\DSC\ConfigName.ps1' -OutputPath 'C:\Dsc\M365Report.json'`
-
-

@@ -37,5 +37,3 @@ This function outputs information as the following type:
 -------------------------- EXAMPLE 4 --------------------------
 
 `Get-M365DSCCompiledPermissionList -ResourceNameList (Get-M365DSCAllResources) -PermissionType 'Delegated' -AccessType 'Read'`
-
-

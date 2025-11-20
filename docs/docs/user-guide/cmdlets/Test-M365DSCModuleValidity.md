@@ -11,6 +11,7 @@ This function does not generate any output.
 ## Parameters
 
 This function does not have any input parameters.
+
 ## Examples
 
 -------------------------- EXAMPLE 1 --------------------------
@@ -20,5 +21,3 @@ This function does not have any input parameters.
 -------------------------- EXAMPLE 2 --------------------------
 
 `Test-M365DSCModuleValidity -Force`
-
-

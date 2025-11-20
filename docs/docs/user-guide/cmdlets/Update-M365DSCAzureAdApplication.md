@@ -23,7 +23,7 @@ the following command:
 Connect-MgGraph -Scopes 'Application.ReadWrite.All'
 ```
 
-NOTE:
+**NOTE:**
 If consent cannot be given for whatever reason, make sure all these permissions are
 given Admin Consent by browsing to the App Registration in Azure AD > API Permissions
 and clicking the "Grant admin consent for <orgname>" button.
@@ -87,5 +87,3 @@ This function does not generate any output.
 -------------------------- EXAMPLE 4 --------------------------
 
 `Update-M365DSCAzureAdApplication -ApplicationName $Microsoft365DSC -Permissions $((Get-M365DSCCompiledPermissionList -ResourceNameList (Get-M365DSCAllResources) -PermissionType Application -AccessType Read).Permissions) -Type Certificate -CreateSelfSignedCertificate -AdminConsent -MonthsValid 12 -Credential $creds -CertificatePath c:\Temp\M365DSC.cer`
-
-

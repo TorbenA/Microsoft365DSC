@@ -29,5 +29,3 @@ Either a single string, an array of strings or an object with 'Name' and 'Authen
 -------------------------- EXAMPLE 3 --------------------------
 
 `Get-M365DSCConnectedWorkloadList -ResourceNames @{Name = 'AADUser'; AuthenticationMethod = 'Credentials'}`
-
-

@@ -39,5 +39,3 @@ This function does not generate any output.
 -------------------------- EXAMPLE 3 --------------------------
 
 `Assert-M365DSCBlueprint -BluePrintUrl 'C:\DS\blueprint.m365' -OutputReportPath 'C:\DSC\BlueprintReport.html' -ApplicationId $clientid -TenantId $tenantId -CertificateThumbprint $certthumbprint -HeaderFilePath 'C:\DSC\ReportCustomHeader.html'`
-
-

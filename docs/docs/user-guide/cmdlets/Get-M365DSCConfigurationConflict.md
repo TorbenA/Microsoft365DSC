@@ -20,5 +20,3 @@ This function outputs information as the following type:
 -------------------------- EXAMPLE 1 --------------------------
 
 `Get-M365DSCConfigurationConflict -ConfigurationContent "content"`
-
-

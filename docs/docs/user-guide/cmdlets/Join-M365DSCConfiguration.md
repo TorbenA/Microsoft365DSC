@@ -22,5 +22,3 @@ This function does not generate any output.
 -------------------------- EXAMPLE 1 --------------------------
 
 `Join-M365DSCConfiguration -ConfigurationFile 'M365TenantConfig.ps1' -ConfigurationPath 'D:\testbed'`
-
-

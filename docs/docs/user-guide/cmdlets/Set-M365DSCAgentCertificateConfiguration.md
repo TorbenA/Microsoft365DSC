@@ -27,5 +27,3 @@ This function outputs information as the following type:
 -------------------------- EXAMPLE 2 --------------------------
 
 `Set-M365DSCAgentCertificateConfiguration -GeneratePFX -Password 'P@ssword123!'`
-
-

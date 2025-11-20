@@ -3,7 +3,52 @@
     max-width: initial;
     margin: 0 15%;
 }
+
 /* Hides the secondary sidebar, which is not used in this documentation site. */
 .md-sidebar--secondary:not([hidden]) {
     display: none;
+}
+
+/* Increase the sidebar width for longer menu titles. */
+:root {
+    --md-sidebar-width: 16rem;
+}
+.md-sidebar {
+    width: var(--md-sidebar-width);
+}
+.md-nav--primary {
+    width: calc(var(--md-sidebar-width) - 1rem);
+}
+@media screen and (max-width: 76.2344em) {
+    [dir=ltr] .md-sidebar--primary {
+        width: var(--md-sidebar-width);
+        left: calc(-1 * var(--md-sidebar-width));
+    }
+}
+@media screen and (max-width: 76.2344em) {
+    [data-md-toggle=drawer]:checked~.md-container .md-sidebar--primary {
+        transform: translateX(var(--md-sidebar-width));
+    }
+}
+.md-sidebar__scrollwrap {
+    margin: 0;
+}
+
+/* Increases the margin on left and right for wide screens. */
+@media screen and (min-width: 2800px) {
+    .md-grid {
+        margin: 0 25%;
+    }
+}
+
+@media screen and (max-width: 1900px) and (min-width: 1300px) {
+    .md-grid {
+        margin: 0 10%;
+    }
+}
+
+@media screen and (max-width: 1300px) {
+    .md-grid {
+        margin: 0 5%;
+    }
 }

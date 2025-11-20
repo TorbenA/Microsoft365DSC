@@ -31,5 +31,3 @@ This function does not generate any output.
 -------------------------- EXAMPLE 2 --------------------------
 
 `Export-M365DSCDiagnosticData -ExportFilePath C:\Temp\DSCLogsExport.zip -Anonymize -Server spfe -Domain contoso.com -Url sharepoint.contoso.com`
-
-

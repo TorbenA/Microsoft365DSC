@@ -30,4 +30,6 @@ This function does not generate any output.
 
 `Update-M365DSCModule -Scope AllUsers`
 
+-------------------------- EXAMPLE 4 --------------------------
 
+`Update-M365DSCModule -Scope AllUsers -NoUninstall`

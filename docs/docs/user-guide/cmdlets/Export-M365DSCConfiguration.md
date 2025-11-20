@@ -55,5 +55,3 @@ This function does not generate any output.
 -------------------------- EXAMPLE 5 --------------------------
 
 `Export-M365DSCConfiguration -Workloads @("SPO") -ExcludeComponents @("SPOPropertyBag") -Credential $Credential`
-
-
