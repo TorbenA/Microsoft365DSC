@@ -98,14 +98,14 @@ nav:
       - 'Teams': 'resources/teams'
   - About:
       - 'Why Microsoft365DSC': 'about/why.md'
-      - 'Changelog': https://github.com/microsoft/Microsoft365DSC/blob/master/CHANGELOG.md" target="_blank
+      - 'Changelog': https://github.com/microsoft/Microsoft365DSC/blob/Master/CHANGELOG.md" target="_blank
       - 'License': 'about/license.md'
       - 'Community Resources': 'about/community-resources.md'
 plugins:
   - search
   - include_dir_to_nav
 theme:
-  name: 'material'
+  name: material
   custom_dir: docs/overrides
   logo: Images/SmallLogo.png
   favicon: Images/favicon.ico
@@ -114,25 +114,32 @@ theme:
   palette:
     - scheme: default
       primary: blue
+      accent: indigo
       toggle:
         icon: material/toggle-switch-off-outline
         name: Switch to dark mode
     - scheme: slate
       primary: blue
+      accent: indigo
       toggle:
         icon: material/toggle-switch
         name: Switch to light mode
   features:
     - navigation.tabs
+    - navigation.top
+    - navigation.tracking
     - navigation.instant
+    - toc.follow
+    - search.highlight
     - search.share
+    - content.code.copy
 markdown_extensions:
   - admonition
   - codehilite:
       guess_lang: false
   - toc:
       permalink: true
-      toc_depth: 0
+      toc_depth: 3
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.snippets
@@ -140,6 +147,10 @@ markdown_extensions:
   - attr_list
   - md_in_html
 extra:
+  analytics:
+    provider: google
+    property: UA-246073771-1
+  generator: false
   social:
     - icon: fontawesome/brands/twitter
       link: 'https://twitter.com/Microsoft365DSC'
@@ -147,10 +158,6 @@ extra:
       link: 'https://www.youtube.com/channel/UCveScabVT6pxzqYgGRu17iw'
     - icon: fontawesome/solid/link
       link: 'https://www.powershellgallery.com/packages/Microsoft365DSC/'
-  generator: false
-  analytics:
-    provider: google
-    property: UA-246073771-1
 extra_css:
   - stylesheets/extra.css
 repo_url: https://github.com/microsoft/Microsoft365DSC
