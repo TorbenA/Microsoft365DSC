@@ -41,7 +41,7 @@ function Get-TargetResource
         $DeferForceAtUserLoginMaxBypassAttempts,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
+        [ValidateSet('On', 'Off')]
         [System.String]
         $Enable,
 
@@ -140,10 +140,7 @@ function Get-TargetResource
                 {
                     $getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
                         -Filter "Name eq '$($DisplayName -replace "'", "''")'" `
-                        -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq "#microsoft.graph.DeviceManagementConfigurationPolicy"
-                        }
+                        -ErrorAction SilentlyContinue
                 }
             }
             #endregion
@@ -158,6 +155,7 @@ function Get-TargetResource
             $getValue = $Script:exportedInstance
         }
         $Id = $getValue.Id
+        $Script:currentCreationSource = $getValue.CreationSource
         Write-Verbose -Message "An Intune Disk Encryption File Vault Policy for macOS with Id {$Id} and Name {$DisplayName} was found"
 
         # Retrieve policy specific settings
@@ -174,7 +172,7 @@ function Get-TargetResource
             #region resource generator code
             Description                       = $getValue.Description
             DisableEntraGroupPolicyAssignment = $getValue.DisableEntraGroupPolicyAssignment
-            Name                              = $getValue.Name
+            DisplayName                       = $getValue.Name
             RoleScopeTagIds                   = $getValue.RoleScopeTagIds
             Id                                = $getValue.Id
             Ensure                            = 'Present'
@@ -252,7 +250,7 @@ function Set-TargetResource
         $DeferForceAtUserLoginMaxBypassAttempts,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
+        [ValidateSet('On', 'Off')]
         [System.String]
         $Enable,
 
@@ -324,7 +322,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     $templateReferenceId = 'e688156f-6564-4c03-b34f-83b90fe6bb82_1'
@@ -378,7 +375,9 @@ function Set-TargetResource
             -TemplateReferenceId $templateReferenceId `
             -Platforms $platforms `
             -Technologies $technologies `
-            -Settings $settings
+            -Settings $settings `
+            -RoleScopeTagIds $RoleScopeTagIds `
+            -CreationSource $Script:currentCreationSource # Might have been migrated from another policy automatically
 
         #region resource generator code
 
@@ -441,7 +440,7 @@ function Test-TargetResource
         $DeferForceAtUserLoginMaxBypassAttempts,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
+        [ValidateSet('On', 'Off')]
         [System.String]
         $Enable,
 

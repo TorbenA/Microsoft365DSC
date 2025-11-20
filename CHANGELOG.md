@@ -7,8 +7,12 @@
     find it by `DisplayName`, and it needed to be created, by silently
     continuing if that is the case
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
+* IntuneApplicationControlPolicyWindows10
+  * Deprecated resource. Replaced with `IntuneDeviceConfigurationEndpointProtectionPolicyWindows10`.
 * IntuneDiskEncryptionFileVaultPolicyMacOS
   * Initial release.
+* IntuneDiskEncryptionMacOS
+  * Deprecated resource. Replaced with `IntuneDiskEncryptionFileVaultPolicyMacOS`.
 * ODSettings
   * Fixed an issue where the parameter definition was missing.
     FIXES [#6684](https://github.com/microsoft/Microsoft365DSC/issues/6684)
