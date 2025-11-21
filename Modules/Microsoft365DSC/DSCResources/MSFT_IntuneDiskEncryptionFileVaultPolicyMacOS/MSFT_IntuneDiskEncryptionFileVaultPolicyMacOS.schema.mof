@@ -14,7 +14,6 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 class MSFT_IntuneDiskEncryptionFileVaultPolicyMacOS : OMI_BaseResource
 {
     [Write, Description("Policy description")] String Description;
-    [Write, Description("Indicates whether Entra Group policy assignment is disabled")] Boolean DisableEntraGroupPolicyAssignment;
     [Key, Description("Policy name")] String DisplayName;
     [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];
     [Write, Description("The unique identifier for an entity. Read-only.")] String Id;

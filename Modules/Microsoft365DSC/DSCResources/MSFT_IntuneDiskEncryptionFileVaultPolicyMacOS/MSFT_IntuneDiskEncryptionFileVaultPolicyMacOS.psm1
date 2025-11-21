@@ -9,10 +9,6 @@ function Get-TargetResource
         [System.String]
         $Description,
 
-        [Parameter()]
-        [System.Boolean]
-        $DisableEntraGroupPolicyAssignment,
-
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
@@ -171,7 +167,6 @@ function Get-TargetResource
         $results = @{
             #region resource generator code
             Description                       = $getValue.Description
-            DisableEntraGroupPolicyAssignment = $getValue.DisableEntraGroupPolicyAssignment
             DisplayName                       = $getValue.Name
             RoleScopeTagIds                   = $getValue.RoleScopeTagIds
             Id                                = $getValue.Id
@@ -217,10 +212,6 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $Description,
-
-        [Parameter()]
-        [System.Boolean]
-        $DisableEntraGroupPolicyAssignment,
 
         [Parameter(Mandatory = $true)]
         [System.String]
@@ -407,10 +398,6 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
-
-        [Parameter()]
-        [System.Boolean]
-        $DisableEntraGroupPolicyAssignment,
 
         [Parameter(Mandatory = $true)]
         [System.String]
