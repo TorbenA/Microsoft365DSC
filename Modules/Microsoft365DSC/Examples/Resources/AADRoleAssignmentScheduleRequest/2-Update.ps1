@@ -23,13 +23,11 @@ Configuration Example
     {
         AADRoleAssignmentScheduleRequest "MyRequest"
         {
-            Action               = "AdminUpdate";
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint
             DirectoryScopeId     = "/";
             Ensure               = "Present";
-            IsValidationOnly     = $False;
             Principal            = "AdeleV@$TenantId";
             RoleDefinition       = "Teams Communications Administrator";
             ScheduleInfo         = MSFT_AADRoleAssignmentScheduleRequestSchedule {
