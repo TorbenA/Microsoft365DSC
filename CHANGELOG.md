@@ -16,6 +16,10 @@
 * TeamsMeetingPolicy
   * Fixed an issue where the schema had an incorrect type assigned.
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
+* M365DSCUtil
+  * Added the parameter `TokenReplacement` to the `Export-M365DSCConfiguration` function.
+* M365DSCReverse
+  * Added handling of custom token replacements.
 
 # 1.25.1112.1
 

@@ -30,9 +30,10 @@ This function does not generate any output.
 | CertificatePassword | False | PSCredential |  |  | Specifies the password of the PFX file which is used for authentication. |
 | CertificatePath | False | String |  |  | Specifies the path of the PFX file which is used for authentication. |
 | ManagedIdentity | False | SwitchParameter |  |  | Specifies use of managed identity for authentication. |
-| AccessTokens | False | String[] |  |  |  |
+| AccessTokens | False | String[] |  |  | Specifies the access token to use for authentication. |
 | Validate | False | SwitchParameter |  |  | Specifies that the configuration needs to be validated for conflicts or issues after its extraction is completed. |
-| Parallel | False | SwitchParameter |  |  |  |
+| Parallel | False | SwitchParameter |  |  | Specifies that the export is executed in parallel. |
+| TokenReplacement | False | Hashtable |  |  | Specifies the hashtable to use for token replacement. Key is the value to replace, and the value is the variable to use for replacement without the '$' sign. |
 
 ## Examples
 
@@ -50,7 +51,7 @@ This function does not generate any output.
 
 -------------------------- EXAMPLE 4 --------------------------
 
-`Export-M365DSCConfiguration -Credential $Credential -Filters @{AADApplication = "DisplayName eq 'MyApp'"}`
+`Export-M365DSCConfiguration -Credential $Credential -Filters @{AADApplication = "DisplayName eq 'MyApp'"} -TokenReplacement @{ 'alternate-email.onmicrosoft.com' = 'AlternateEmail' }`
 
 -------------------------- EXAMPLE 5 --------------------------
 
