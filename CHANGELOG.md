@@ -16,6 +16,11 @@
 * TeamsMeetingPolicy
   * Fixed an issue where the schema had an incorrect type assigned.
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
+* MISC
+  * Remove unused internal functions `Remove-M365DSCCimInstanceTrailingCharacterFromExport`,
+    `Update-M365DSCExchangeResourcesSettingsJSON`, `Update-M365DSCSharePointResourcesSettingsJSON`,
+    `Split-ArrayByParts`, `Get-SPOUserProfilePropertyInstance` and `Remove-M365DSCEmptyValue`.
+  * Removed internal module `M365DSCExoResourceUtils`.
 
 # 1.25.1112.1
 

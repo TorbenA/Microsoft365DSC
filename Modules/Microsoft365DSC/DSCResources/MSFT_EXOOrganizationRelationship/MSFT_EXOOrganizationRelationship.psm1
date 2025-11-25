@@ -425,7 +425,7 @@ function Set-TargetResource
         Confirm                    = $false
     }
     # Removes empty properties from Splat to prevent function throwing errors if parameter is null or empty
-    Remove-M365DSCEmptyValue -Splat $NewOrganizationRelationshipParams
+    Remove-NullEntriesFromHashtable -Hash $NewOrganizationRelationshipParams
 
     $SetOrganizationRelationshipParams = @{
         ArchiveAccessEnabled       = $ArchiveAccessEnabled
@@ -452,7 +452,7 @@ function Set-TargetResource
         Confirm                    = $false
     }
     # Removes empty properties from Splat to prevent function throwing errors if parameter is null or empty
-    Remove-M365DSCEmptyValue -Splat $SetOrganizationRelationshipParams
+    Remove-NullEntriesFromHashtable -Hash $SetOrganizationRelationshipParams
 
     # CASE: Organization Relationship doesn't exist but should;
     if ($Ensure -eq 'Present' -and $currentOrgRelationshipConfig.Ensure -eq 'Absent')

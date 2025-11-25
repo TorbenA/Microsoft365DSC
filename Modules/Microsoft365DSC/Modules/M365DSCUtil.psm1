@@ -3027,81 +3027,6 @@ function Get-M365TenantName
 
 <#
 .Description
-This function splits the provided array in the specified number of arrays
-
-.Functionality
-Internal
-#>
-function Split-ArrayByParts
-{
-    [OutputType([System.Object[]])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [System.Object[]]
-        $Array,
-
-        [Parameter(Mandatory = $true)]
-        [System.Uint32]
-        $Parts
-    )
-
-    if ($Parts)
-    {
-        $PartSize = [Math]::Ceiling($Array.Count / $Parts)
-    }
-    $outArray = New-Object -TypeName 'System.Collections.Generic.List[PSObject]'
-
-    for ($i = 0; $i -lt $Parts; $i++)
-    {
-        $start = ($i * $PartSize)
-
-        if ($start -lt $Array.Count)
-        {
-            $end = (($i + 1) * $PartSize) - 1
-            if ($end -ge $Array.Count)
-            {
-                $end = $Array.Count - 1
-            }
-            $outArray.Add(@($Array[$start..$end]))
-        }
-    }
-
-    return , $outArray
-}
-
-<#
-.Description
-This function creates a PSCustomObject of the provided input values
-
-.Functionality
-Internal
-#>
-function Get-SPOUserProfilePropertyInstance
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        $Key,
-
-        [Parameter()]
-        [System.String]
-        $Value
-    )
-
-    $result = [PSCustomObject]@{
-        Key   = $Key
-        Value = $Value
-    }
-
-    return $result
-}
-
-<#
-.Description
 This function downloads and installs the Dev branch of Microsoft365DSC on the local machine
 
 .Parameter Scope
@@ -3888,69 +3813,6 @@ function Uninstall-M365DSCOutdatedDependencies
         Write-Error -Message "Could not uninstall {$($dependency.ModuleName)}" -ErrorAction Continue
     }
 }
-
-<#
-.Description
-This function removes all empty values from a dictionary object
-
-.Functionality
-Internal
-#>
-function Remove-M365DSCEmptyValue
-{
-    [Alias('Remove-M365DSCEmptyValues')]
-    [CmdletBinding()]
-    param
-    (
-        [Alias('Splat', 'IDictionary')][Parameter(Mandatory)][System.Collections.IDictionary] $Hashtable,
-        [string[]] $ExcludeParameter,
-        [switch] $Recursive,
-        [int] $Rerun
-    )
-
-    foreach ($Key in [string[]] $Hashtable.Keys)
-    {
-        if ($Key -notin $ExcludeParameter)
-        {
-            if ($Recursive)
-            {
-                if ($Hashtable[$Key] -is [System.Collections.IDictionary])
-                {
-                    if ($Hashtable[$Key].Count -eq 0)
-                    {
-                        $Hashtable.Remove($Key)
-                    }
-                    else
-                    {
-                        Remove-M365DSCEmptyValue -Hashtable $Hashtable[$Key] -Recursive:$Recursive
-                    }
-                }
-                else
-                {
-                    if ($null -eq $Hashtable[$Key] -or ($Hashtable[$Key] -is [string] -and $Hashtable[$Key] -eq '') -or ($Hashtable[$Key] -is [System.Collections.IList] -and $Hashtable[$Key].Count -eq 0))
-                    {
-                        $Hashtable.Remove($Key)
-                    }
-                }
-            }
-            else
-            {
-                if ($null -eq $Hashtable[$Key] -or ($Hashtable[$Key] -is [string] -and $Hashtable[$Key] -eq '') -or ($Hashtable[$Key] -is [System.Collections.IList] -and $Hashtable[$Key].Count -eq 0))
-                {
-                    $Hashtable.Remove($Key)
-                }
-            }
-        }
-    }
-    if ($Rerun)
-    {
-        for ($i = 0; $i -lt $Rerun; $i++)
-        {
-            Remove-M365DSCEmptyValue -Hashtable $Hashtable -Recursive:$Recursive
-        }
-    }
-}
-
 
 <#
 .Description
@@ -5885,7 +5747,6 @@ Export-ModuleMember -Function @(
     'Get-M365DSCWorkloadForResource',
     'Get-M365TenantName',
     'Get-SPOAdministrationUrl',
-    'Get-SPOUserProfilePropertyInstance',
     'Get-TeamByName',
     'Initialize-M365DSCAllResourcesDictionary',
     'Install-M365DSCDevBranch',
@@ -5895,10 +5756,8 @@ Export-ModuleMember -Function @(
     'New-M365DSCCmdletDocumentation',
     'New-M365DSCConnection',
     'New-M365DSCMissingResourcesExample',
-    'Remove-M365DSCEmptyValue',
     'Remove-M365DSCAuthenticationParameter',
     'Remove-NullEntriesFromHashtable',
-    'Split-ArrayByParts',
     'Set-M365DSCAllResourcesDictionary',
     'Split-M365DSCConfiguration',
     'Sync-M365DSCParameter',
