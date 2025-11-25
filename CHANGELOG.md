@@ -16,6 +16,8 @@
 * TeamsMeetingPolicy
   * Fixed an issue where the schema had an incorrect type assigned.
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
+* MISC
+  * Moved the `Examples` folder to the top of the repository to reduce core module size.
 
 # 1.25.1112.1
 

@@ -856,7 +856,7 @@ function New-DscMofResourceWikiPage
             $null = $output.AppendLine($permissionsContent)
 
             # Adding examples
-            $examplesPath = Join-Path -Path $SourcePath -ChildPath ('Examples\Resources\{0}' -f $resourceSchema.FriendlyName)
+            $examplesPath = Join-Path -Path $SourcePath -ChildPath ('..\..\Examples\Resources\{0}' -f $resourceSchema.FriendlyName)
 
             $examplesOutput = Get-ResourceExampleAsMarkdown -Path $examplesPath
 
