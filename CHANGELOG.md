@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* AADRoleManagementPolicyRule
+  * Reduced export time by 95%.
 * EXOMessageClassification
   * Fixed issue where the resource would fail during export if it could not
     find it by `DisplayName`, and it needed to be created, by silently
