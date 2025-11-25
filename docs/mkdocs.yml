@@ -82,6 +82,7 @@ nav:
       - 'Azure': 'resources/azure'
       - 'Azure AD': 'resources/azure-ad'
       - 'Azure DevOps': 'resources/azure-devops'
+      - 'Commerce': 'resources/commerce'
       - 'Defender': 'resources/defender'
       - 'Exchange': 'resources/exchange'
       - 'Fabric': 'resources/fabric'
@@ -96,6 +97,7 @@ nav:
       - 'Services Hub': 'resources/services-hub'
       - 'SharePoint': 'resources/sharepoint'
       - 'Teams': 'resources/teams'
+      - 'Viva': 'resources/viva'
   - About:
       - 'Why Microsoft365DSC': 'about/why.md'
       - 'Changelog': https://github.com/microsoft/Microsoft365DSC/blob/Master/CHANGELOG.md" target="_blank
