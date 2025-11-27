@@ -9,6 +9,11 @@
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
 * EXOTenantAllowBlockListItems
   * Deprecated `ApplicationSecret` parameter and added new authentication methods.
+* IntuneDeviceEnrollmentStatusPageWindows10
+  * Fixed an issue where priority was attempted to be set on a newly created policy
+    where the priority already matched.
+* O365CopilotSettingsPeopleEnhancedPersonalization
+  * New resource
 * ODSettings
   * Fixed an issue where the parameter definition was missing.
     FIXES [#6684](https://github.com/microsoft/Microsoft365DSC/issues/6684)
@@ -20,6 +25,10 @@
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
 * MISC
   * Refactor EXO resources to align with the default resource code layout.
+* M365DSCDRGUtil
+  * Updated comparison function `Compare-M365DSCComplexObject` to non-recursive.
+* M365DSCUtil
+  * Replaced complex object comparison function V2 with V3.
 
 # 1.25.1112.1
 
