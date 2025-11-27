@@ -7,6 +7,9 @@
     find it by `DisplayName`, and it needed to be created, by silently
     continuing if that is the case
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
+* IntuneDeviceEnrollmentStatusPageWindows10
+  * Fixed an issue where priority was attempted to be set on a newly created policy
+    where the priority already matched.
 * O365CopilotSettingsPeopleEnhancedPersonalization
   * New resource
 * ODSettings
