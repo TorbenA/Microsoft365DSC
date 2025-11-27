@@ -33,6 +33,9 @@
   * Updated comparison function `Compare-M365DSCComplexObject` to non-recursive.
 * M365DSCUtil
   * Replaced complex object comparison function V2 with V3.
+* MISC
+  * Added and removed mismatches between parameters and their schema.
+  * Added quality assurance checks for parameter and schema mismatches.
 
 # 1.25.1112.1
 
