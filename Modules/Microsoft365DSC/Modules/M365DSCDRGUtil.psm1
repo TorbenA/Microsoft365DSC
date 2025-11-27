@@ -1112,7 +1112,6 @@ function Compare-M365DSCComplexObject
                     }
                 } # end both non-null branch
             } # end foreach key
-
         } # end while stack
 
         return $result

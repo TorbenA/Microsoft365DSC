@@ -1601,7 +1601,7 @@ function New-M365DSCDeltaReport
     if ($OutputPath -and (Test-Path -Path $OutputPath) -eq $true)
     {
         Write-Warning "File specified in parameter OutputPath already exists and will be overwritten: $OutputPath"
-        Write-Warning "Make sure you specify a file that not exists, if you don't want the file to be overwritten!"
+        Write-Warning "Make sure you specify a file that does not exist if you don't want the file to be overwritten!"
     }
 
     if ($PSBoundParameters.ContainsKey('HeaderFilePath') -and -not [System.String]::IsNullOrEmpty($HeaderFilePath) -and `
@@ -1614,6 +1614,11 @@ function New-M365DSCDeltaReport
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
+    if ($null -eq (Get-Module -Name 'M365DSCCompare'))
+    {
+        Import-Module -Name "$PSScriptRoot\M365DSCCompare.psm1" -Force
+    }
+
     #region Telemetry
     $data = [System.Collections.Generic.Dictionary[[String], [String]]]::new()
     $data.Add('Event', 'DeltaReport')
@@ -1625,28 +1630,115 @@ function New-M365DSCDeltaReport
     $ExcludedProperties += "ResourceInstanceName"
     $ExcludedProperties = $ExcludedProperties + $authParameters | Select-Object -Unique
 
+    $isPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
+    if ($isPowerShellCore)
+    {
+        $dscResourceInfo = Get-PwshDSCResource -Module 'Microsoft365DSC'
+    }
+    else
+    {
+        $dscResourceInfo = Get-DSCResource -Module 'Microsoft365DSC'
+    }
+
     Write-Verbose -Message 'Obtaining Delta between the source and destination configurations'
     if (-not $Delta)
     {
         if ($IsBlueprintAssessment)
         {
-            # Parse the blueprint file, pass to Compare-M365DSCConfigurations as object (including comments aka metadata)
-            [Array] $ParsedBlueprintWithMetadata = Initialize-M365DSCReporting -ConfigurationPath $Destination -IncludeComments:$true
-            $Delta = Compare-M365DSCConfigurations -Source $Source `
-                -DestinationObject $ParsedBlueprintWithMetadata `
-                -CaptureTelemetry $false `
-                -ExcludedProperties $ExcludedProperties `
-                -ExcludedResources $ExcludedResources `
-                -IsBluePrintAssessment $true
+            $desiredSplat = @{
+                ConfigurationPath   = $Destination
+                IncludeComments     = $true
+            }
         }
         else
         {
-            $Delta = Compare-M365DSCConfigurations `
-                -Source $Source `
-                -Destination $Destination `
-                -CaptureTelemetry $false `
-                -ExcludedProperties $ExcludedProperties `
-                -ExcludedResources $ExcludedResources
+            $desiredSplat = @{
+                ConfigurationPath   = $Destination
+                IncludeComments     = $false
+            }
+        }
+        # Parse the blueprint file, pass to Compare-M365DSCConfigurations as object (including comments aka metadata)
+        [Array] $desiredConfiguration = Initialize-M365DSCReporting @desiredSplat
+        $sourceReporting = Initialize-M365DSCReporting -ConfigurationPath $Source
+        $Delta = @()
+        foreach ($resource in $sourceReporting)
+        {
+            [array]$key = Get-M365DSCResourceKey -Resource $resource -DSCResourceInfo $dscResourceInfo
+            #Write-Progress -Activity "Scanning Source $Source...[$i/$($SourceObject.Count)]" -PercentComplete ($i / ($SourceObject.Count) * 100)
+            [array]$destinationResource = $desiredConfiguration | Where-Object -FilterScript { $_.ResourceName -eq $resource.ResourceName -and $_.($key[0]) -eq $resource.($key[0]) }
+
+            $keyName = $key[0..1] -join '\'
+            $sourceKeyValue = $resource.($key[0])
+            # Filter on the second key
+            if ($key.Count -gt 1)
+            {
+                [array]$destinationResource = $destinationResource | Where-Object -FilterScript { $_.($key[1]) -eq $resource.($key[1]) }
+                $sourceKeyValue = $resource.($key[0]), $resource.($key[1]) -join '\'
+            }
+            if ($null -eq $destinationResource -or $destinationResource.Count -eq 0)
+            {
+                $Delta += @{
+                    ResourceName         = $resource.ResourceName
+                    ResourceInstanceName = $resource.ResourceInstanceName
+                    Key                  = $keyName
+                    KeyValue             = $sourceKeyValue
+                    Properties           = @(@{
+                        ParameterName      = '_IsInConfiguration_'
+                        ValueInSource      = 'Present'
+                        ValueInDestination = 'Absent'
+                    })
+                }
+                continue
+            }
+            $compareResult = Compare-M365DSCResourceState -ResourceName $resource.ResourceName -DesiredValues $destinationResource[0] -CurrentValues $resource -ExcludedProperties $ExcludedProperties
+            if (-not $compareResult -and $null -ne $Global:AllDrifts.DriftInfo -and $Global:AllDrifts.DriftInfo.Count -gt 0)
+            {
+                foreach ($driftInfo in $Global:AllDrifts.DriftInfo)
+                {
+                    $Delta += @{
+                        ResourceName         = $resource.ResourceName
+                        ResourceInstanceName = $resource.ResourceInstanceName
+                        Key                  = $keyName
+                        KeyValue             = $sourceKeyValue
+                        Properties           = @(@{
+                            ParameterName      = $driftInfo.PropertyName
+                            ValueInSource      = $driftInfo.CurrentValue
+                            ValueInDestination = $driftInfo.DesiredValue
+                        })
+                    }
+                }
+                $Global:AllDrifts.DriftInfo = @()
+            }
+        }
+
+        foreach ($resource in $desiredConfiguration)
+        {
+            [array]$key = Get-M365DSCResourceKey -Resource $resource -DSCResourceInfo $dscResourceInfo
+            $keyName = $key[0..1] -join '\'
+            $destinationKeyValue = $resource.($key[0])
+            $sourceResource = $sourceReporting | Where-Object { $_.ResourceName -eq $resource.ResourceName -and $_.($key[0]) -eq $resource.($key[0]) }
+
+            # Filter on the second key
+            if ($key.Count -gt 1)
+            {
+                [array]$sourceResource = $sourceReporting | Where-Object -FilterScript { $_.ResourceName -eq $resource.ResourceName -and $_.($key[1]) -eq $resource.($key[1]) }
+                $destinationKeyValue = $resource.($key[0]), $resource.($key[1]) -join '\'
+            }
+
+            if ($null -eq $sourceResource -or $sourceResource.Count -eq 0)
+            {
+                $Delta += @{
+                    ResourceName         = $resource.ResourceName
+                    ResourceInstanceName = $resource.ResourceInstanceName
+                    Key                  = $keyName
+                    KeyValue             = $destinationKeyValue
+                    Properties           = @(@{
+                        ParameterName      = '_IsInConfiguration_'
+                        ValueInSource      = 'Absent'
+                        ValueInDestination = 'Present'
+                    })
+                }
+            }
         }
     }
 
@@ -1766,7 +1858,7 @@ function New-M365DSCDeltaReport
         if ($resourcesInDrift.Count -gt 0)
         {
             # Combine resources instances together to make sure multiple drifts within the same resource don't appear as separate entries
-            $combinedResourcesInDrift = [System.Collections.ArrayList]::New()
+            $combinedResourcesInDrift = [System.Collections.ArrayList]::new()
             foreach ($resource in $resourcesInDrift)
             {
                 $existingInstance = $combinedResourcesInDrift | `
@@ -1853,16 +1945,7 @@ function New-M365DSCDeltaReport
                         $sourceValue = $drift.ValueInSource
                         $destinationValue = $drift.ValueInDestination
 
-                        if ($null -ne $drift.ValueInSource)
-                        {
-                            $CIMType = $drift.ValueInSource[0].CimInstance
-                        }
-                        else
-                        {
-                            $CIMType = $null
-                        }
-
-                        if ($null -ne $sourceValue -and $sourceValue.GetType().Name -eq 'Object[]' -and -not [System.String]::IsNullOrEmpty($CIMType))
+                        if ($null -ne $sourceValue -and $sourceValue.GetType().Name -eq 'Object[]')
                         {
                             $sourceValue = ''
                             foreach ($instance in $drift.ValueInSource)
@@ -1881,115 +1964,10 @@ function New-M365DSCDeltaReport
                             $cellStyle = 'vertical-align:top;'
                         }
 
-                        if (-not [System.String]::IsNullOrEmpty($destinationValue) `
-                                -and $destinationValue.GetType().Name -eq 'Object[]' `
-                                -and -not [System.String]::IsNullOrEmpty($CIMType))
-                        {
-                            $destinationValue = ''
-                            $orderedKeys = $drift.ValueInDestination.Keys | Sort-Object
-                            $CIMType = $drift.ValueInDestination[0].CimInstance
-
-                            foreach ($instance in $drift.ValueInDestination)
-                            {
-                                $orderedKeys = $instance.Keys | Sort-Object
-                                $destinationValue += "<table width='100%'>"
-                                $destinationValue += "<tr><th colspan='2' width='100%' style='border:1px solid black; text-align:middle;background-color:#CCC'>$CIMType</th></tr>"
-                                foreach ($key in $orderedKeys)
-                                {
-                                    $currentValue = $instance.$key
-                                    $destinationValue += "<tr><td width='100%' style='border:1px solid black; text-align:right;'><strong>$key</strong> = $currentValue</td></tr>"
-                                }
-                                $destinationValue += '</table><br/>'
-                            }
-                            $destinationValue = $destinationValue.Substring(0, $destinationValue.Length - 5)
-                            $cellDestinationStyle = 'vertical-align:top;'
-                        }
-
-                        # We have detected the drift in a CIMInstance
-                        if ($drift.ContainsKey("CIMInstanceKey"))
-                        {
-                            if ($null -ne $drift.ValueInSource -and $null -ne $drift.ValueInDestination)
-                            {
-                                $sourceValue = "<table width = '100%'>"
-                                $sourceValue += "<tr><th colspan='2' width='100%' style='border:1px solid black; text-align:middle;background-color:#CCC'>$($drift.CimInstanceKey) = '$($drift.CIMInstanceValue)'</th></tr>"
-                                $valueForSource = $drift.ValueInSource
-                                $sourceValue += "<tr><td style='border:1px solid black; text-align:right;'>$($drift.ParameterName)</td><td style='border:1px solid black;'>$valueForSource</td>"
-                                $sourceValue += "</table>"
-                            }
-                            elseif ($null -ne $drift.ValueInSource -and $null -eq $drift.ValueInDestination)
-                            {
-                                $sourceValue = "<table width = '100%'>"
-                                $sourceValue += "<tr><th colspan='2' width='100%' style='border:1px solid black; text-align:middle;background-color:#CCC'>$($drift.CimInstanceKey) = '$($drift.CIMInstanceValue)'</th></tr>"
-
-                                if ($drift.ValueInSource.GetType().Name -ne 'Hashtable')
-                                {
-                                    $valueForSource = $drift.ValueInSource
-                                    $sourceValue += "<tr><td style='border:1px solid black; text-align:right;'>$($drift.ParameterName)</td><td style='border:1px solid black;'>$valueForSource</td>"
-                                }
-                                else
-                                {
-                                    foreach ($key in $drift.ValueInSource.Keys)
-                                    {
-                                        if ($key -ne 'CIMInstance')
-                                        {
-                                            $valueForSource = $drift.ValueInSource.$key
-                                            $sourceValue += "<tr><td style='border:1px solid black; text-align:right;'>$key</td><td style='border:1px solid black;'>$valueForSource</td>"
-                                        }
-                                    }
-                                }
-                                $sourceValue += "</table>"
-                            }
-                            else
-                            {
-                                $sourceValue += "&nbsp"
-                            }
-
-                            if ($null -ne $drift.ValueInDestination -and $null -ne $drift.ValueInSource)
-                            {
-                                $destinationValue = "<table width = '100%'>"
-                                $destinationValue += "<tr><th colspan='2' width='100%' style='border:1px solid black; text-align:middle;background-color:#CCC'>$($drift.CimInstanceKey) = '$($drift.CIMInstanceValue)'</th></tr>"
-                                $valueForDestination = $drift.ValueInDestination
-                                $destinationValue += "<tr><td style='border:1px solid black; text-align:right;'>$($drift.ParameterName)</td><td style='border:1px solid black;'>$valueForDestination</td>"
-                                $destinationValue += "</table>"
-                            }
-                            elseif ($null -ne $drift.ValueInDestination -and $null -eq $drift.ValueInSource)
-                            {
-                                $destinationValue = "<table width = '100%'>"
-                                $destinationValue += "<tr><th colspan='2' width='100%' style='border:1px solid black; text-align:middle;background-color:#CCC'>$($drift.CimInstanceKey) = '$($drift.CIMInstanceValue)'</th></tr>"
-
-                                if ($drift.ValueInDestination.GetType().Name -ne 'OrderedDictionary')
-                                {
-                                    $valueForDestination = $drift.ValueInSource
-                                    $destinationValue += "<tr><td style='border:1px solid black; text-align:right;'>$($drift.ParameterName)</td><td style='border:1px solid black;'>$valueForDestination</td>"
-                                }
-                                else
-                                {
-                                    foreach ($key in $drift.ValueInDestination.Keys)
-                                    {
-                                        if ($key -ne 'CIMInstance')
-                                        {
-                                            $valueForDestination = $drift.ValueInDestination.$key
-                                            $destinationValue += "<tr><td style='border:1px solid black; text-align:right;'>$key</td><td style='border:1px solid black;'>$valueForDestination</td>"
-                                        }
-                                    }
-                                }
-                                $destinationValue += "</table>"
-                            }
-                            else
-                            {
-                                $destinationValue += "&nbsp"
-                            }
-                            $parameterName = $Resource.Key
-                        }
-                        else
-                        {
-                            $parameterName = $drift.ParameterName
-                        }
-
                         [void]$reportSB.AppendLine($sourceContent)
                         [void]$reportSB.AppendLine('<tr>')
                         [void]$reportSB.AppendLine("<td style='border:1px solid black;text-align:right;' width='45%'>")
-                        [void]$reportSB.AppendLine("$parameterName</td>")
+                        [void]$reportSB.AppendLine("$($drift.ParameterName)</td>")
                         [void]$reportSB.AppendLine("<td style='border:1px solid black;$cellStyle' width='15%'>")
                         [void]$reportSB.AppendLine("$($sourceValue)</td>")
                         [void]$reportSB.AppendLine("<td style='border:1px solid black;$cellDestinationStyle' width='15%'>")
