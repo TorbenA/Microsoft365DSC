@@ -18,6 +18,10 @@
 * TeamsMeetingPolicy
   * Fixed an issue where the schema had an incorrect type assigned.
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
+* M365DSCDRGUtil
+  * Updated comparison function `Compare-M365DSCComplexObject` to non-recursive.
+* M365DSCUtil
+  * Replaced complex object comparison function V2 with V3.
 
 # 1.25.1112.1
 
