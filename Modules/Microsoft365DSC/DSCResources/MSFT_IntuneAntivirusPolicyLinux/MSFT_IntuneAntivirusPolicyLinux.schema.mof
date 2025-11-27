@@ -1,4 +1,4 @@
-[ClassVersion("1.0.0.2")]
+[ClassVersion("1.0.0.3")]
 class MSFT_DeviceManagementConfigurationPolicyAssignments
 {
     [Write, Description("The type of the target assignment."), ValueMap{"#microsoft.graph.cloudPcManagementGroupAssignmentTarget","#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}, Values{"#microsoft.graph.cloudPcManagementGroupAssignmentTarget","#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}] String dataType;
@@ -6,24 +6,24 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
     [Write, Description("The Id of the filter for the target assignment.")] String deviceAndAppManagementAssignmentFilterId;
     [Write, Description("The display name of the filter for the target assignment.")] String deviceAndAppManagementAssignmentFilterDisplayName;
     [Write, Description("The group Id that is the target of the assignment.")] String groupId;
-    [Write, Description("The group Display Name that is the target of the assignment.")] String groupDisplayName;
+    [Key, Description("The group Display Name that is the target of the assignment.")] String groupDisplayName;
     [Write, Description("The collection Id that is the target of the assignment.(ConfigMgr)")] String collectionId;
 };
 
-[ClassVersion("1.0.0.1")]
+[ClassVersion("1.0.0.2")]
 class MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions
 {
-    [Write, Description("Type - Depends on exclusions (excludedPath: Path, excludedFileExtension: File extension, excludedFileName: Process name)"), ValueMap{"excludedPath", "excludedFileExtension", "excludedFileName"}, Values{"excludedPath", "excludedFileExtension", "excludedFileName"}] String exclusions_item_type;
+    [Key, Description("Type - Depends on exclusions (excludedPath: Path, excludedFileExtension: File extension, excludedFileName: Process name)"), ValueMap{"excludedPath", "excludedFileExtension", "excludedFileName"}, Values{"excludedPath", "excludedFileExtension", "excludedFileName"}] String exclusions_item_type;
     [Write, Description("File extension - Depends on exclusions_item_type=excludedFileExtension")] String exclusions_item_extension;
     [Write, Description("File name - exclusions_item_type=excludedFileName")] String exclusions_item_name;
     [Write, Description("Path - exclusions_item_type=excludedPath")] String exclusions_item_path;
     [Write, Description("Is directory (false: Disabled, true: Enabled) - Depends on exclusions_item_type=excludedPath"), ValueMap{"false", "true"}, Values{"false", "true"}] String exclusions_item_isDirectory;
 };
 
-[ClassVersion("1.0.0.1")]
+[ClassVersion("1.0.0.2")]
 class MSFT_MicrosoftGraphIntuneSettingsCatalogthreatTypeSettings
 {
-    [Write, Description("Threat type - Depends on threatTypeSettings (potentially_unwanted_application, archive_bomb)"), ValueMap{"potentially_unwanted_application", "archive_bomb"}, Values{"potentially_unwanted_application", "archive_bomb"}] String threatTypeSettings_item_key;
+    [Key, Description("Threat type - Depends on threatTypeSettings (potentially_unwanted_application, archive_bomb)"), ValueMap{"potentially_unwanted_application", "archive_bomb"}, Values{"potentially_unwanted_application", "archive_bomb"}] String threatTypeSettings_item_key;
     [Write, Description("Action to take - Depends on threatTypeSettings (audit, block, off)"), ValueMap{"audit", "block", "off"}, Values{"audit", "block", "off"}] String threatTypeSettings_item_value;
 };
 

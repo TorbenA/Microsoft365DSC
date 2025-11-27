@@ -1,4 +1,4 @@
-[ClassVersion("1.0.0.2")]
+[ClassVersion("1.0.0.3")]
 class MSFT_DeviceManagementConfigurationPolicyAssignments
 {
     [Write, Description("The type of the target assignment."), ValueMap{"#microsoft.graph.cloudPcManagementGroupAssignmentTarget","#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}, Values{"#microsoft.graph.cloudPcManagementGroupAssignmentTarget","#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}] String dataType;
@@ -6,9 +6,10 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
     [Write, Description("The Id of the filter for the target assignment.")] String deviceAndAppManagementAssignmentFilterId;
     [Write, Description("The display name of the filter for the target assignment.")] String deviceAndAppManagementAssignmentFilterDisplayName;
     [Write, Description("The group Id that is the target of the assignment.")] String groupId;
-    [Write, Description("The group Display Name that is the target of the assignment.")] String groupDisplayName;
+    [Key, Description("The group Display Name that is the target of the assignment.")] String groupDisplayName;
     [Write, Description("The collection Id that is the target of the assignment.(ConfigMgr)")] String collectionId;
 };
+
 [ClassVersion("1.0.0")]
 class MSFT_MicrosoftGraphWindowsNetworkIsolationPolicy
 {
@@ -21,19 +22,20 @@ class MSFT_MicrosoftGraphWindowsNetworkIsolationPolicy
     [Write, Description("Boolean value that tells the client to accept the configured list of proxies and not try to detect other work proxies. Default is false")] Boolean EnterpriseProxyServersAreAuthoritative;
     [Write, Description("List of domain names that can used for work or personal resource.")] String NeutralDomainResources[];
 };
-[ClassVersion("1.0.0")]
+
+[ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphProxiedDomain1
 {
-    [Write, Description("The IP address or FQDN")] String IpAddressOrFQDN;
+    [Key, Description("The IP address or FQDN")] String IpAddressOrFQDN;
     [Write, Description("Proxy IP or FQDN")] String Proxy;
 };
-[ClassVersion("1.0.0")]
+
+[ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphIpRange1
 {
-    [Write, Description("IPv4 address in CIDR notation. Not nullable.")] String CidrAddress;
-    [Write, Description("Lower address.")] String LowerAddress;
-    [Write, Description("Upper address.")] String UpperAddress;
-    [Write, Description("The type of the entity."), ValueMap{"#microsoft.graph.iPv4CidrRange","#microsoft.graph.iPv6CidrRange","#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}, Values{"#microsoft.graph.iPv4CidrRange","#microsoft.graph.iPv6CidrRange","#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}] String odataType;
+    [Key, Description("Lower address.")] String LowerAddress;
+    [Key, Description("Upper address.")] String UpperAddress;
+    [Key, Description("The type of the entity."), ValueMap{"#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}, Values{"#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}] String odataType;
 };
 
 [ClassVersion("1.0.0.0"), FriendlyName("IntuneDeviceConfigurationNetworkBoundaryPolicyWindows10")]

@@ -287,7 +287,6 @@ function Get-TargetResource
                 $complexAppConfiguration = $null
             }
             $mykioskProfiles.Add('AppConfiguration', $complexAppConfiguration)
-            $mykioskProfiles.Add('ProfileId', $currentkioskProfiles.profileId)
             $mykioskProfiles.Add('ProfileName', $currentkioskProfiles.profileName)
             $complexUserAccountsConfiguration = @()
             foreach ($currentUserAccountsConfiguration in $currentkioskProfiles.userAccountsConfiguration)

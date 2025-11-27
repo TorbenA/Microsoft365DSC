@@ -42,10 +42,10 @@ class MSFT_DeviceManagementMobileAppCategory
     [Write, Description("The unique identifier for an entity. Read-only.")] String Id;
 };
 
-[ClassVersion("1.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_DeviceManagementMobileAppChildApp
 {
-    [Write, Description("The bundleId of the app.")] String BundleId;
+    [Key, Description("The bundleId of the app.")] String BundleId;
     [Write, Description("The build number of the app.")] String BuildNumber;
     [Write, Description("The version number of the app.")] String VersionNumber;
 };

@@ -1,4 +1,4 @@
-[ClassVersion("1.0.0.2")]
+[ClassVersion("1.0.0.3")]
 class MSFT_DeviceManagementConfigurationPolicyAssignments
 {
     [Write, Description("The type of the target assignment."), ValueMap{"#microsoft.graph.cloudPcManagementGroupAssignmentTarget","#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}, Values{"#microsoft.graph.cloudPcManagementGroupAssignmentTarget","#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}] String dataType;
@@ -6,20 +6,22 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
     [Write, Description("The Id of the filter for the target assignment.")] String deviceAndAppManagementAssignmentFilterId;
     [Write, Description("The display name of the filter for the target assignment.")] String deviceAndAppManagementAssignmentFilterDisplayName;
     [Write, Description("The group Id that is the target of the assignment.")] String groupId;
-    [Write, Description("The group Display Name that is the target of the assignment.")] String groupDisplayName;
+    [Key, Description("The group Display Name that is the target of the assignment.")] String groupDisplayName;
     [Write, Description("The collection Id that is the target of the assignment.(ConfigMgr)")] String collectionId;
 };
-[ClassVersion("1.0.0")]
+
+[ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphAndroidPermissionAction
 {
     [Write, Description("Type of Android permission action. Possible values are: prompt, autoGrant, autoDeny."), ValueMap{"prompt","autoGrant","autoDeny"}, Values{"prompt","autoGrant","autoDeny"}] String Action;
-    [Write, Description("Android permission string, defined in the official Android documentation.  Example 'android.permission.READ_CONTACTS'.")] String Permission;
+    [Key, Description("Android permission string, defined in the official Android documentation.  Example 'android.permission.READ_CONTACTS'.")] String Permission;
 };
-[ClassVersion("1.0.0")]
+
+[ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphAppConfigurationSettingItem
 {
-    [Write, Description("app configuration key.")] String AppConfigKey;
-    [Write, Description("app configuration key type. Possible values are: stringType, integerType, realType, booleanType, tokenType."), ValueMap{"stringType","integerType","realType","booleanType","tokenType"}, Values{"stringType","integerType","realType","booleanType","tokenType"}] String AppConfigKeyType;
+    [Key, Description("app configuration key.")] String AppConfigKey;
+    [Key, Description("app configuration key type. Possible values are: stringType, integerType, realType, booleanType, tokenType."), ValueMap{"stringType","integerType","realType","booleanType","tokenType"}, Values{"stringType","integerType","realType","booleanType","tokenType"}] String AppConfigKeyType;
     [Write, Description("app configuration key value.")] String AppConfigKeyValue;
 };
 

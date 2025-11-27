@@ -905,7 +905,7 @@ $($userDefinitionSettings.MOF -join "`r`n")
             $AssignmentsUpdate += "            -Repository '$repository'"
 
             $AssignmentsCIM = @'
-[ClassVersion("1.0.0.2")]
+[ClassVersion("1.0.0.3")]
 class MSFT_DeviceManagementConfigurationPolicyAssignments
 {
     [Write, Description("The type of the target assignment."), ValueMap{"#microsoft.graph.cloudPcManagementGroupAssignmentTarget","#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}, Values{"#microsoft.graph.cloudPcManagementGroupAssignmentTarget","#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}] String dataType;
@@ -913,7 +913,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
     [Write, Description("The Id of the filter for the target assignment.")] String deviceAndAppManagementAssignmentFilterId;
     [Write, Description("The display name of the filter for the target assignment.")] String deviceAndAppManagementAssignmentFilterDisplayName;
     [Write, Description("The group Id that is the target of the assignment.")] String groupId;
-    [Write, Description("The group Display Name that is the target of the assignment.")] String groupDisplayName;
+    [Key, Description("The group Display Name that is the target of the assignment.")] String groupDisplayName;
     [Write, Description("The collection Id that is the target of the assignment.(ConfigMgr)")] String collectionId;
 };
 

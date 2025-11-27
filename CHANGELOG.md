@@ -4,6 +4,8 @@
 
 * EXOPlace
   * Fixes an issue with the export where it was trying to export RoomList.
+* MISC
+  * Added CIM information about required properties to all resources where applicable.
 
 # 1.25.1203.2
 

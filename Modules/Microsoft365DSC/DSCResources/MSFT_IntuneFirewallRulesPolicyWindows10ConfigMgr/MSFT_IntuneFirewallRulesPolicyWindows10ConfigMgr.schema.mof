@@ -1,4 +1,4 @@
-[ClassVersion("1.0.0.2")]
+[ClassVersion("1.0.0.3")]
 class MSFT_DeviceManagementConfigurationPolicyAssignments
 {
     [Write, Description("The type of the target assignment."), ValueMap{"#microsoft.graph.cloudPcManagementGroupAssignmentTarget","#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}, Values{"#microsoft.graph.cloudPcManagementGroupAssignmentTarget","#microsoft.graph.groupAssignmentTarget","#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget","#microsoft.graph.exclusionGroupAssignmentTarget","#microsoft.graph.configurationManagerCollectionAssignmentTarget"}] String dataType;
@@ -6,15 +6,15 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
     [Write, Description("The Id of the filter for the target assignment.")] String deviceAndAppManagementAssignmentFilterId;
     [Write, Description("The display name of the filter for the target assignment.")] String deviceAndAppManagementAssignmentFilterDisplayName;
     [Write, Description("The group Id that is the target of the assignment.")] String groupId;
-    [Write, Description("The group Display Name that is the target of the assignment.")] String groupDisplayName;
+    [Key, Description("The group Display Name that is the target of the assignment.")] String groupDisplayName;
     [Write, Description("The collection Id that is the target of the assignment.(ConfigMgr)")] String collectionId;
 };
 
-[ClassVersion("1.0.0.1")]
+[ClassVersion("1.0.0.2")]
 class MSFT_MicrosoftGraphIntuneSettingsCatalogFirewallRuleName_IntuneFirewallRulesPolicyWindows10ConfigMgr
 {
     [Write, Description("Enabled - Depends on FirewallRuleName (0: Disabled, 1: Enabled)"), ValueMap{"0", "1"}, Values{"0", "1"}] String Enabled;
-    [Write, Description("Name - Depends on FirewallRuleName")] String Name;
+    [Key, Description("Name - Depends on FirewallRuleName")] String Name;
     [Write, Description("Interface Types - Depends on FirewallRuleName (RemoteAccess, Wireless, Lan, MobileBroadband, MBB, All)"), ValueMap{"RemoteAccess", "Wireless", "Lan", "MobileBroadband", "MBB", "All"}, Values{"RemoteAccess", "Wireless", "Lan", "MobileBroadband", "MBB", "All"}] String InterfaceTypes[];
     [Write, Description("File Path - Depends on FirewallRuleName")] String FilePath;
     [Write, Description("Remote Port Ranges - Depends on FirewallRuleName")] String RemotePortRanges[];
