@@ -1374,7 +1374,7 @@ function Test-M365DSCTargetResource
                     }
                 }
 
-                $testResult = Compare-M365DSCComplexObjectV2 `
+                $testResult = Compare-M365DSCComplexObject `
                     -Source ($source) `
                     -Target ($targetObjects) `
                     -PropertyName $key
@@ -5514,7 +5514,11 @@ function Join-M365DSCConfiguration
     The parameters to pass to the function.
 
 .EXAMPLE
-    Invoke-PowerShellCoreResource -Path 'C:\Program Files\...\DSCResources\MSFT_Resource\MSFT_Resource.psm1' -FunctionName Test -Parameters @{ Name = 'Value' }
+    Invoke-PowerShellCoreResource -Path 'C:\Program Files\...\DSCResources\MSFT_Resource\MSFT_Resource.psm1' -FunctionName Test-TargetResource -Parameters @{ Name = 'Value' }
+
+.EXAMPLE
+    # From inside of a DSC resource
+    Invoke-PowerShellCoreResource -Path $PSCommandPath -FunctionName $MyInvocation.MyCommand.Name -Parameters $PSBoundParameters
 
 .FUNCTIONALITY
     Internal
@@ -5534,7 +5538,7 @@ function Invoke-PowerShellCoreResource
         [System.String]$Path,
 
         [Parameter(Mandatory = $true)]
-        [ValidateSet('Get', 'Set', 'Test', 'Export')]
+        [ValidateSet('Get-TargetResource', 'Set-TargetResource', 'Test-TargetResource', 'Export-TargetResource')]
         [System.String]$FunctionName,
 
         [Parameter(Mandatory = $true)]
@@ -5548,7 +5552,7 @@ function Invoke-PowerShellCoreResource
 
     $output = Invoke-Command -Session $PSCoreSession -ScriptBlock {
         Import-Module -Name $using:Path
-        & $using:FunctionName-TargetResource @using:Parameters
+        & $using:FunctionName @using:Parameters
     }
 
     return $output

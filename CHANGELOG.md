@@ -7,8 +7,13 @@
     find it by `DisplayName`, and it needed to be created, by silently
     continuing if that is the case
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
+* IntuneDeviceEnrollmentStatusPageWindows10
+  * Fixed an issue where priority was attempted to be set on a newly created policy
+    where the priority already matched.
 * IntuneDeviceRemediation
   * Updated handling of the `RunRemediationScript` property.
+* O365CopilotSettingsPeopleEnhancedPersonalization
+  * New resource
 * ODSettings
   * Fixed an issue where the parameter definition was missing.
     FIXES [#6684](https://github.com/microsoft/Microsoft365DSC/issues/6684)
@@ -21,6 +26,9 @@
 * M365DSCDRGUtil
   * Fixed an issue where updating Intune assignments did not include all properties.
     FIXES [#6697](https://github.com/microsoft/Microsoft365DSC/issues/6697)
+  * Updated comparison function `Compare-M365DSCComplexObject` to non-recursive.
+* M365DSCUtil
+  * Replaced complex object comparison function V2 with V3.
 
 # 1.25.1112.1
 
