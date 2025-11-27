@@ -7,6 +7,8 @@
     find it by `DisplayName`, and it needed to be created, by silently
     continuing if that is the case
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
+* EXOTenantAllowBlockListItems
+  * Deprecated `ApplicationSecret` parameter and added new authentication methods.
 * IntuneDeviceEnrollmentStatusPageWindows10
   * Fixed an issue where priority was attempted to be set on a newly created policy
     where the priority already matched.
@@ -21,6 +23,8 @@
 * TeamsMeetingPolicy
   * Fixed an issue where the schema had an incorrect type assigned.
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
+* MISC
+  * Refactor EXO resources to align with the default resource code layout.
 * M365DSCDRGUtil
   * Updated comparison function `Compare-M365DSCComplexObject` to non-recursive.
 * M365DSCUtil
