@@ -12,6 +12,8 @@
 * IntuneDeviceEnrollmentStatusPageWindows10
   * Fixed an issue where priority was attempted to be set on a newly created policy
     where the priority already matched.
+* IntuneDeviceRemediation
+  * Updated handling of the `RunRemediationScript` property.
 * O365CopilotSettingsPeopleEnhancedPersonalization
   * New resource
 * ODSettings
@@ -26,6 +28,8 @@
 * MISC
   * Refactor EXO resources to align with the default resource code layout.
 * M365DSCDRGUtil
+  * Fixed an issue where updating Intune assignments did not include all properties.
+    FIXES [#6697](https://github.com/microsoft/Microsoft365DSC/issues/6697)
   * Updated comparison function `Compare-M365DSCComplexObject` to non-recursive.
 * M365DSCUtil
   * Replaced complex object comparison function V2 with V3.
