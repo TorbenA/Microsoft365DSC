@@ -7,6 +7,8 @@
     find it by `DisplayName`, and it needed to be created, by silently
     continuing if that is the case
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
+* O365CopilotSettingsPeopleEnhancedPersonalization
+  * New resource
 * ODSettings
   * Fixed an issue where the parameter definition was missing.
     FIXES [#6684](https://github.com/microsoft/Microsoft365DSC/issues/6684)
@@ -16,6 +18,10 @@
 * TeamsMeetingPolicy
   * Fixed an issue where the schema had an incorrect type assigned.
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
+* M365DSCDRGUtil
+  * Updated comparison function `Compare-M365DSCComplexObject` to non-recursive.
+* M365DSCUtil
+  * Replaced complex object comparison function V2 with V3.
 * MISC
   * Moved the `Examples` folder to the top of the repository to reduce core module size.
 
