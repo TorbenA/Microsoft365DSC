@@ -32,6 +32,8 @@
     FIXES [#6697](https://github.com/microsoft/Microsoft365DSC/issues/6697)
   * Updated comparison function `Compare-M365DSCComplexObject` to non-recursive.
 * M365DSCUtil
+  * Fixed an issue where the test evaluation for `Absent` did not work as expected.
+    FIXES [#6701](https://github.com/microsoft/Microsoft365DSC/issues/6701)
   * Replaced complex object comparison function V2 with V3.
 * MISC
   * Added and removed mismatches between parameters and their schema.
