@@ -211,13 +211,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        # Necessary to rethrow caught exception regarding duplicate policies
-        if ($_.Exception.Message -like "Duplicate*")
-        {
-            throw $_
-        }
-
-        return $nullResult
+        throw
     }
 }
 

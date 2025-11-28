@@ -231,7 +231,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        return $nullReturn
+        throw
     }
 }
 
@@ -642,7 +642,8 @@ function Export-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.String])]
-    param (
+    param
+    (
         [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,

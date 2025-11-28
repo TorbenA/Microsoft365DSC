@@ -120,15 +120,13 @@ function Get-TargetResource
     }
     catch
     {
-        Write-Verbose -Message "The specified app doesn't already exist."
-
         New-M365DSCLogEntry -Message 'Error retrieving data:' `
             -Exception $_ `
             -Source $($MyInvocation.MyCommand.Source) `
             -TenantId $TenantId `
             -Credential $Credential
 
-        return $nullReturn
+        throw
     }
 }
 

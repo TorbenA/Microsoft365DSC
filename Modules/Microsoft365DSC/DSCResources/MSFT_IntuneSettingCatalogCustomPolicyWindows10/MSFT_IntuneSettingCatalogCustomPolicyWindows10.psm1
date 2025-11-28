@@ -210,12 +210,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        if ($_.Exception.Message -like 'Error: The displayName*')
-        {
-            throw $_
-        }
-
-        return $nullResult
+        throw
     }
 }
 
@@ -711,7 +706,8 @@ function Get-SettingValue
 {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable], [System.Collections.Hashtable[]])]
-    param (
+    param
+    (
         [Parameter()]
         $SettingValue,
         [Parameter()]
@@ -857,7 +853,8 @@ function Update-IntuneDeviceConfigurationPolicy
 {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
-    param (
+    param
+    (
         [Parameter(Mandatory = 'true')]
         [System.String]
         $DeviceManagementConfigurationPolicyId,

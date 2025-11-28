@@ -198,7 +198,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        return $nullResult
+        throw
     }
 }
 
@@ -615,7 +615,8 @@ function Export-TargetResource
 
 function Get-ItemsAmendmentsObject
 {
-    param (
+    param
+    (
         $currentObjectItems,
         $targetObjectItems
     )

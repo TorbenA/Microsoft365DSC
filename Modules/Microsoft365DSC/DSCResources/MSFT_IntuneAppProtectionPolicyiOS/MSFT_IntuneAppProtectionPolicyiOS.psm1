@@ -554,14 +554,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        if ($_.Exception.Message -eq "Multiple policies with display name {$DisplayName} were found. Please ensure only one instance exists.")
-        {
-            throw $_
-        }
-        else
-        {
-            return $nullResult
-        }
+        throw
     }
 }
 

@@ -119,14 +119,15 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        return $nullResult
+        throw
     }
 }
 
 # Function to compare and modify properties
 function ModifyPropertiesForSetCmdlet
 {
-    param (
+    param
+    (
         [Hashtable]$setParameters,
         [Hashtable]$currentInstance,
         [string]$propertyName

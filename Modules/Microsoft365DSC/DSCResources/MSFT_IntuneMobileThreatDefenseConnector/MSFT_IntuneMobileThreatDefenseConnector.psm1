@@ -207,14 +207,13 @@ function Get-TargetResource
     }
     catch
     {
-        Write-Verbose -Message $_
         New-M365DSCLogEntry -Message 'Error retrieving data:' `
             -Exception $_ `
             -Source $($MyInvocation.MyCommand.Source) `
             -TenantId $TenantId `
             -Credential $Credential
 
-        return $nullResult
+        throw
     }
 }
 
@@ -627,7 +626,8 @@ function Export-TargetResource
 
 function Get-MobileThreatDefenseConnectorIdOrDisplayName
 {
-    param (
+    param
+    (
         [Parameter(Mandatory = $false)]
         [string]$Id,
 

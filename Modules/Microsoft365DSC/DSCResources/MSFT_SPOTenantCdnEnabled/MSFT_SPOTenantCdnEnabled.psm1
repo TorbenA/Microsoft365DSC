@@ -110,13 +110,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        # This method is not implemented in some sovereign clouds (e.g. GCCHigh)
-        if ($_.Exception -like '*The method or operation is not implemented*')
-        {
-            throw $_
-        }
-
-        return $nullResult
+        throw
     }
 }
 

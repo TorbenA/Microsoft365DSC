@@ -552,20 +552,13 @@ function Get-TargetResource
     }
     catch
     {
-        if ($Script:ExportMode)
-        {
-            throw $_
-        }
-        else
-        {
-            New-M365DSCLogEntry -Message 'Error retrieving data:' `
-                -Exception $_ `
-                -Source $($MyInvocation.MyCommand.Source) `
-                -TenantId $TenantId `
-                -Credential $Credential
+        New-M365DSCLogEntry -Message 'Error retrieving data:' `
+            -Exception $_ `
+            -Source $($MyInvocation.MyCommand.Source) `
+            -TenantId $TenantId `
+            -Credential $Credential
 
-            throw $_
-        }
+        throw
     }
 }
 
@@ -826,7 +819,7 @@ function Set-TargetResource
             else
             {
                 Write-Verbose -Message "Retrieving Scope by Display Name {$($scope.value)}"
-                
+
                 $existingScope = $currentAADApp.Api.Oauth2PermissionScopes | Where-Object -FilterScript {$_.Value -eq $scope.value}
                 $existingScopeId = (New-Guid).ToString()
                 if ($null -ne $existingScope)

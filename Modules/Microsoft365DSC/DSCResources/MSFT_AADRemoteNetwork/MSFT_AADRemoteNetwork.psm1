@@ -147,7 +147,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        return $nullResult
+        throw
     }
 }
 
@@ -548,7 +548,8 @@ function Get-MicrosoftGraphRemoteNetworkDeviceLinksHashtable
 {
     [CmdletBinding()]
     [OutputType([System.Collections.ArrayList])]
-    param (
+    param
+    (
         [Parameter()]
         [System.Collections.ArrayList]
         $DeviceLinks

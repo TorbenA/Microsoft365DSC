@@ -114,11 +114,12 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of AzureAD Group with DisplayName {$DisplayName}"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            Write-Verbose -Message 'Getting configuration of AzureAD Group'
             $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
@@ -390,7 +391,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        throw $_
+        throw
     }
 }
 

@@ -335,7 +335,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        return $nullResult
+        throw
     }
 }
 
@@ -976,7 +976,8 @@ function Get-DeviceConfigurationPolicyRootCertificate
 {
     [CmdletBinding()]
     [OutputType([System.String])]
-    param (
+    param
+    (
         [Parameter(Mandatory = 'true')]
         [System.String]
         $DeviceConfigurationPolicyId
@@ -991,7 +992,8 @@ function Update-DeviceConfigurationPolicyRootCertificateId
 {
     [CmdletBinding()]
     [OutputType([System.String])]
-    param (
+    param
+    (
         [Parameter(Mandatory = 'true')]
         [System.String]
         $DeviceConfigurationPolicyId,

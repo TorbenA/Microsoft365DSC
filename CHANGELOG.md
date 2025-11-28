@@ -36,6 +36,7 @@
 * MISC
   * Added and removed mismatches between parameters and their schema.
   * Added quality assurance checks for parameter and schema mismatches.
+  * Updated the error behavior to always throw inside `Get-TargetResource`.
 
 # 1.25.1112.1
 

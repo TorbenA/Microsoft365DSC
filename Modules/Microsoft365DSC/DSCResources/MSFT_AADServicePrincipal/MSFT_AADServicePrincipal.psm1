@@ -404,14 +404,13 @@ function Get-TargetResource
     }
     catch
     {
-        Write-Verbose -Message $_
         New-M365DSCLogEntry -Message 'Error retrieving data:' `
             -Exception $_ `
             -Source $($MyInvocation.MyCommand.Source) `
             -TenantId $TenantId `
             -Credential $Credential
 
-        return $nullReturn
+        throw
     }
 }
 
@@ -1261,7 +1260,8 @@ function Get-M365DSCAADServicePrincipalCustomSecurityAttributesAsCmdletHashtable
 # Function to create MSFT_AttributeValue
 function New-AttributeValue
 {
-    param (
+    param
+    (
         [string]$AttributeName,
         [object]$Value
     )
@@ -1307,7 +1307,8 @@ function New-AttributeValue
 function Get-CustomSecurityAttributes
 {
     [OutputType([System.Array])]
-    param (
+    param
+    (
         $ServicePrincipal
     )
 

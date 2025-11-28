@@ -4,7 +4,8 @@ function Get-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
-    param (
+    param
+    (
 
         #region resource params
 
@@ -145,21 +146,21 @@ function Get-TargetResource
     }
     catch
     {
-        Write-Verbose -Message $_
         New-M365DSCLogEntry -Message 'Error retrieving data:' `
             -Exception $_ `
             -Source $($MyInvocation.MyCommand.Source) `
             -TenantId $TenantId `
             -Credential $Credential
 
-        return $nullResult
+        throw
     }
 }
 
 function Set-TargetResource
 {
     [CmdletBinding()]
-    param (
+    param
+    (
 
         #region resource params
 
@@ -263,7 +264,8 @@ function Test-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
-    param (
+    param
+    (
 
         #region resource params
 
@@ -347,7 +349,8 @@ function Export-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.String])]
-    param (
+    param
+    (
 
         #region resource params
 

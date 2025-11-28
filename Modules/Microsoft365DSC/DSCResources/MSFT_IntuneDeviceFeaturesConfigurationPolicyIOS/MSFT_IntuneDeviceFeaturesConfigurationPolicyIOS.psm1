@@ -237,7 +237,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        return $nullResult
+        throw
     }
 }
 
@@ -979,7 +979,8 @@ function Export-TargetResource
 }
 
 function Convert-ComplexObjectToHashtableArray {
-    param (
+    param
+    (
         [Parameter()]
         [Object]$InputObject
 
@@ -1016,7 +1017,8 @@ function Convert-ComplexObjectToHashtableArray {
 }
 
 function Convert-ComplexObjectToHashtableArray_ExportDataType {
-    param (
+    param
+    (
         [Parameter()]
         [Object]$InputObject
 
@@ -1072,7 +1074,8 @@ function Convert-StringToBooleans {
 }
 
 function Convert-DataTypeFormat {
-    param (
+    param
+    (
         [Parameter()]
         [Object]$InputObject
     )
