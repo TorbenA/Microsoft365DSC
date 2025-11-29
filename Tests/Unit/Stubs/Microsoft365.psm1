@@ -25821,7 +25821,15 @@ function Get-MgBetaDeviceManagementDerivedCredential {
         [Parameter()]
         [ValidateSet('none', 'email', 'companyPortal')]
         [System.String]
-        $NotificationType = 'none'
+        $NotificationType = 'none',
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $All,
+
+        [Parameter()]
+        [System.String]
+        $Filter
     )
 }
 
@@ -36446,7 +36454,15 @@ function Get-MgBetaDeviceAppManagementMobileAppCategory
 
         [Parameter()]
         [System.String]
-        $DisplayName
+        $DisplayName,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $All,
+
+        [Parameter()]
+        [System.String]
+        $Filter
     )
 }
 function Update-MgBetaDeviceAppManagementMobileAppCategory

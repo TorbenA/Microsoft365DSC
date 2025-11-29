@@ -6,9 +6,6 @@ function Get-TargetResource
     [OutputType([System.Collections.Hashtable])]
     param
     (
-
-        #region resource params
-
         [Parameter()]
         [System.String]
         $Id,
@@ -34,8 +31,6 @@ function Get-TargetResource
         [Parameter()]
         [System.Int32]
         $RenewalThresholdPercentage,
-
-        #endregion resource params
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]

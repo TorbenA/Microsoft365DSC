@@ -66,25 +66,26 @@ function Get-TargetResource
 
     Write-Verbose -Message "Getting configuration of Azure Billing Account Scheduled Action for Billing Account $BillingAccount with Display Name $DisplayName"
 
-    $null = New-M365DSCConnection -Workload 'Azure' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullResult = $PSBoundParameters
-    $nullResult.Ensure = 'Absent'
     try
     {
+        $null = New-M365DSCConnection -Workload 'Azure' `
+            -InboundParameters $PSBoundParameters
+
+        #Ensure the proper dependencies are installed in the current environment.
+        Confirm-M365DSCDependencies
+
+        #region Telemetry
+        $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+        $CommandName = $MyInvocation.MyCommand
+        $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+            -CommandName $CommandName `
+            -Parameters $PSBoundParameters
+        Add-M365DSCTelemetryEvent -Data $data
+        #endregion
+
+        $nullResult = $PSBoundParameters
+        $nullResult.Ensure = 'Absent'
+
         $uri = "https://management.azure.com/providers/Microsoft.Billing/billingAccounts/$($BillingAccount)/providers/Microsoft.CostManagement/scheduledActions?api-version=2023-11-01"
         $response = Invoke-AzRest -Uri $uri -Method GET
         $actions = (ConvertFrom-Json ($response.Content)).value
@@ -115,8 +116,8 @@ function Get-TargetResource
                 daysOfWeek   = [Array]($instance.properties.schedule.daysOfWeek)
                 weeksofMonth = [Array]($instance.properties.schedule.weeksofMonth)
                 dayOfMonth   = $instance.properties.schedule.dayOfMonth
-                startDate    = $instance.properties.schedule.startDate
-                endDate      = $instance.properties.schedule.endDate
+                startDate    = $instance.properties.schedule.startDate.ToString('yyy-MM-ddTHH:mm:ssZ')
+                endDate      = $instance.properties.schedule.endDate.ToString('yyy-MM-ddTHH:mm:ssZ')
             }
         }
 

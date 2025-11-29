@@ -67,28 +67,19 @@ function Get-TargetResource
 
             Write-Verbose -Message 'Checking the Teams Upgrade Policies'
 
-            $nullReturn = @{
-                IsSingleInstance = 'Yes'
-            }
-
             $policy = Get-CsTeamsUpgradePolicy -Identity $Identity `
                 -ErrorAction SilentlyContinue
+
+            if ($null -eq $policy)
+            {
+                throw  "No Teams Upgrade Policy with Identity {$Identity} was found"
+            }
         }
         else
         {
             $policy = $Script:exportedInstance
         }
 
-        if ($null -eq $policy)
-        {
-            throw "No Teams Upgrade Policy with Identity {$Identity} was found"
-        }
-
-        [array]$usersList = @()
-        foreach ($user in $users)
-        {
-            $usersList += $user.UserPrincipalName
-        }
         Write-Verbose -Message "Found Teams Upgrade Policy with Identity {$Identity}"
         return @{
             Identity               = $Identity

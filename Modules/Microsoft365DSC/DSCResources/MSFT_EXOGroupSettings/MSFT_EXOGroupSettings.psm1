@@ -276,30 +276,30 @@ function Get-TargetResource
             }
 
             Write-Verbose -Message "Retrieving group by id {$Id}"
-            [Array]$group = Get-UnifiedGroup -Identity $Id -IncludeAllProperties -ErrorAction SilentlyContinue
+            $group = Get-UnifiedGroup -Identity $Id -IncludeAllProperties -ErrorAction SilentlyContinue
 
-            if ($group.Length -eq 0)
-            {
-                Write-Verbose -Message "Couldn't retrieve group by ID. Trying by DisplayName {$DisplayName}"
-                [Array]$group = Get-UnifiedGroup -Identity $DisplayName -IncludeAllProperties -ErrorAction SilentlyContinue
-            }
-
-            if ($group.Count -gt 1)
-            {
-                Write-Warning -Message "Multiple instances of a group named {$DisplayName} was discovered which could result in inconsistencies retrieving its values."
-            }
-            $group = $group[0]
             if ($null -eq $group)
             {
-                Write-Verbose -Message "The specified group {$DisplayName} doesn't already exist."
+                Write-Verbose -Message "Couldn't retrieve group by ID. Trying by DisplayName {$DisplayName}"
+                $group = Get-UnifiedGroup -Identity $DisplayName -IncludeAllProperties -ErrorAction SilentlyContinue
+            }
+
+            if ($null -eq $group)
+            {
+                Write-Verbose -Message "The specified group {$DisplayName} doesn't exist."
                 return $nullReturn
+            }
+
+            if ($group -is [array] -and $group.Count -gt 1)
+            {
+                Write-Warning -Message "Multiple instances of a group named {$DisplayName} was discovered which could result in inconsistencies retrieving its values."
+                $group = $group[0]
             }
         }
         else
         {
             $group = $Script:exportedInstance
         }
-
 
         $ExtensionCustomAttribute1Value = $group.ExtensionCustomAttribute1
         if ($null -eq $group.ExtensionCustomAttribute1)
