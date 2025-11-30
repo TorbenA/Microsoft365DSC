@@ -136,6 +136,7 @@
             ModuleName      = 'PnP.PowerShell'
             RequiredVersion = '1.12.0'
             InstallLocation = 'WindowsPowerShell'
+            DependsOn       = @('Microsoft.Graph.Authentication')
         },
         @{
             ModuleName      = 'PSDesiredStateConfiguration'

@@ -25,19 +25,21 @@
 * TeamsMeetingPolicy
   * Fixed an issue where the schema had an incorrect type assigned.
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
-* MISC
-  * Refactor EXO resources to align with the default resource code layout.
 * M365DSCDRGUtil
   * Fixed an issue where updating Intune assignments did not include all properties.
     FIXES [#6697](https://github.com/microsoft/Microsoft365DSC/issues/6697)
   * Updated comparison function `Compare-M365DSCComplexObject` to non-recursive.
 * M365DSCUtil
+  * Fixed an issue where the connection to Graph in combination with PnP would fail.
+    FIXES [#6577](https://github.com/microsoft/Microsoft365DSC/issues/6577)
+    FIXES [#6721](https://github.com/microsoft/Microsoft365DSC/issues/6721)
   * Fixed an issue where the test evaluation for `Absent` did not work as expected.
     FIXES [#6701](https://github.com/microsoft/Microsoft365DSC/issues/6701)
   * Replaced complex object comparison function V2 with V3.
 * MISC
   * Added and removed mismatches between parameters and their schema.
   * Added quality assurance checks for parameter and schema mismatches.
+  * Refactor EXO resources to align with the default resource code layout.
 
 # 1.25.1112.1
 
