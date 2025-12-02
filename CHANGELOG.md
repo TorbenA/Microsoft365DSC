@@ -5,6 +5,11 @@
 * AADNamedLocationPolicy
   * Fixed an issue where not all properties were exported.
     FIXES [#6704](https://github.com/microsoft/Microsoft365DSC/issues/6704)
+* AADRoleAssignmentScheduleRequest
+  * Aligned functionality to work the same way as `AADRoleEligibilityScheduleRequest`.
+  * Deprecated parameters `Action`, `IsValidationOnly` and `TicketInfo`.
+* AADRoleEligibilityScheduleRequest
+  * Deprecated parameters `Action` and `IsValidationOnly`.
 * EXOMessageClassification
   * Fixed issue where the resource would fail during export if it could not
     find it by `DisplayName`, and it needed to be created, by silently
@@ -39,6 +44,8 @@
 * TeamsOrgWideAppSettings
   * Added SPN support for read-only (monitoring only).
 * M365DSCDRGUtil
+  * Fixed an issue where a condition check contained a typo.
+    FIXES [#6674](https://github.com/microsoft/Microsoft365DSC/issues/6674)
   * Fixed an issue where updating Intune assignments did not include all properties.
     FIXES [#6697](https://github.com/microsoft/Microsoft365DSC/issues/6697)
   * Updated comparison function `Compare-M365DSCComplexObject` to non-recursive.
@@ -56,6 +63,10 @@
   * Added and removed mismatches between parameters and their schema.
   * Added quality assurance checks for parameter and schema mismatches.
   * Refactor EXO resources to align with the default resource code layout.
+  * Removed internal module `M365DSCExoResourceUtils`.
+  * Removed unused internal functions `Remove-M365DSCCimInstanceTrailingCharacterFromExport`,
+    `Update-M365DSCExchangeResourcesSettingsJSON`, `Update-M365DSCSharePointResourcesSettingsJSON`,
+    `Split-ArrayByParts`, `Get-SPOUserProfilePropertyInstance` and `Remove-M365DSCEmptyValue`.
 
 # 1.25.1112.1
 
