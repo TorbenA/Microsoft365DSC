@@ -12,11 +12,17 @@
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
 * EXOTenantAllowBlockListItems
   * Deprecated `ApplicationSecret` parameter and added new authentication methods.
+* IntuneApplicationControlPolicyWindows10
+  * Deprecated resource. Replaced with `IntuneDeviceConfigurationEndpointProtectionPolicyWindows10`.
 * IntuneDeviceEnrollmentStatusPageWindows10
   * Fixed an issue where priority was attempted to be set on a newly created policy
     where the priority already matched.
 * IntuneDeviceRemediation
   * Updated handling of the `RunRemediationScript` property.
+* IntuneDiskEncryptionFileVaultPolicyMacOS
+  * Initial release.
+* IntuneDiskEncryptionMacOS
+  * Deprecated resource. Replaced with `IntuneDiskEncryptionFileVaultPolicyMacOS`.
 * O365CopilotSettingsPeopleEnhancedPersonalization
   * New resource
 * ODSettings

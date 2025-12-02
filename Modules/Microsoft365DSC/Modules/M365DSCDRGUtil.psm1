@@ -3355,6 +3355,7 @@ function Update-IntuneDeviceConfigurationPolicy
         $TemplateReferenceId,
 
         [Parameter()]
+        [AllowNull()]
         [System.String]
         $CreationSource,
 
@@ -3385,7 +3386,7 @@ function Update-IntuneDeviceConfigurationPolicy
             $policy.Add('templateReference', @{ 'templateId' = $TemplateReferenceId })
         }
 
-        if ($PSBoundParameters.ContainsKey('CreationSource'))
+        if ($PSBoundParameters.ContainsKey('CreationSource') -and -not [System.String]::IsNullOrEmpty($CreationSource))
         {
             $policy.Add('creationSource', $CreationSource)
         }
