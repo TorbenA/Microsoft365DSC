@@ -75,6 +75,10 @@
   * Removed unused internal functions `Remove-M365DSCCimInstanceTrailingCharacterFromExport`,
     `Update-M365DSCExchangeResourcesSettingsJSON`, `Update-M365DSCSharePointResourcesSettingsJSON`,
     `Split-ArrayByParts`, `Get-SPOUserProfilePropertyInstance` and `Remove-M365DSCEmptyValue`.
+* DEPENDENCIES
+  * Updated DSCParser to version 2.0.0.21.
+  * Updated MSCloudLoginAssistant to version 1.1.55.
+    FIXES [#6728](https://github.com/microsoft/Microsoft365DSC/issues/6728)
   * Streamlined the report generation and added new visual styles.
 
 # 1.25.1112.1
