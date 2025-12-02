@@ -169,7 +169,10 @@ function Compare-M365DSCResourceState
                     $match = $true
                     foreach ($primaryKey in $CIMPrimaryKeys.Name)
                     {
-                        if ($source.$primaryKey -ne $_.$primaryKey)
+                        # Because $source can be an array, we need to check if the
+                        # primary key value exists in any of the source objects
+                        $sourceValue = $source.$primaryKey | Select-Object -Unique
+                        if ($_.$primaryKey -notin @($sourceValue))
                         {
                             $match = $false
                         }
@@ -200,7 +203,7 @@ function Compare-M365DSCResourceState
                 $testResult = Compare-M365DSCComplexObject `
                     -Source ($source) `
                     -Target ($targetObjects) `
-                    -PropertyName $key -Verbose
+                    -PropertyName $key
 
                 if (-not $testResult)
                 {
