@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADNamedLocationPolicy
+  * Fixed an issue where not all properties were exported.
+    FIXES [#6704](https://github.com/microsoft/Microsoft365DSC/issues/6704)
 * EXOMessageClassification
   * Fixed issue where the resource would fail during export if it could not
     find it by `DisplayName`, and it needed to be created, by silently
@@ -9,6 +12,8 @@
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
 * EXOTenantAllowBlockListItems
   * Deprecated `ApplicationSecret` parameter and added new authentication methods.
+* IntuneApplicationControlPolicyWindows10
+  * Deprecated resource. Replaced with `IntuneDeviceConfigurationEndpointProtectionPolicyWindows10`.
 * IntuneDeviceConfigurationPlatformScriptLinux
   * Initial release.
 * IntuneDeviceEnrollmentStatusPageWindows10
@@ -16,6 +21,10 @@
     where the priority already matched.
 * IntuneDeviceRemediation
   * Updated handling of the `RunRemediationScript` property.
+* IntuneDiskEncryptionFileVaultPolicyMacOS
+  * Initial release.
+* IntuneDiskEncryptionMacOS
+  * Deprecated resource. Replaced with `IntuneDiskEncryptionFileVaultPolicyMacOS`.
 * O365CopilotSettingsPeopleEnhancedPersonalization
   * New resource
 * ODSettings
@@ -27,6 +36,8 @@
 * TeamsMeetingPolicy
   * Fixed an issue where the schema had an incorrect type assigned.
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
+* TeamsOrgWideAppSettings
+  * Added SPN support for read-only (monitoring only).
 * MISC
   * Refactor EXO resources to align with the default resource code layout.
 * M365DSCDRGUtil
@@ -34,6 +45,8 @@
     FIXES [#6697](https://github.com/microsoft/Microsoft365DSC/issues/6697)
   * Updated comparison function `Compare-M365DSCComplexObject` to non-recursive.
 * M365DSCUtil
+  * Fixed an issue where the test evaluation for `Absent` did not work as expected.
+    FIXES [#6701](https://github.com/microsoft/Microsoft365DSC/issues/6701)
   * Replaced complex object comparison function V2 with V3.
 * MISC
   * Added and removed mismatches between parameters and their schema.

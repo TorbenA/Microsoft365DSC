@@ -835,7 +835,8 @@ $($userDefinitionSettings.MOF -join "`r`n")
             -TemplateReferenceId `$templateReferenceId ``
             -Platforms `$platforms ``
             -Technologies `$technologies ``
-            -Settings `$settings`r`n
+            -Settings `$settings`r`n ``
+            -RoleScopeTagIds `$RoleScopeTagIds`r`n
 "@
         }
         Write-TokenReplacement -Token '<#DefaultUpdateParameters#>' -Value $defaultUpdateParameters -FilePath $moduleFilePath
