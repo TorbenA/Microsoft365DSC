@@ -61,6 +61,10 @@
 * MISC
   * Added and removed mismatches between parameters and their schema.
   * Added quality assurance checks for parameter and schema mismatches.
+  * Removed internal module `M365DSCExoResourceUtils`.
+  * Removed unused internal functions `Remove-M365DSCCimInstanceTrailingCharacterFromExport`,
+    `Update-M365DSCExchangeResourcesSettingsJSON`, `Update-M365DSCSharePointResourcesSettingsJSON`,
+    `Split-ArrayByParts`, `Get-SPOUserProfilePropertyInstance` and `Remove-M365DSCEmptyValue`.
 
 # 1.25.1112.1
 
