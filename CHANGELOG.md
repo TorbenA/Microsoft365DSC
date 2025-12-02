@@ -49,6 +49,10 @@
 * MISC
   * Added and removed mismatches between parameters and their schema.
   * Added quality assurance checks for parameter and schema mismatches.
+* DEPENDENCIES
+  * Updated DSCParser to version 2.0.0.21.
+  * Updated MSCloudLoginAssistant to version 1.1.55.
+    FIXES [#6728](https://github.com/microsoft/Microsoft365DSC/issues/6728)
 
 # 1.25.1112.1
 
