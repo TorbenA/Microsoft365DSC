@@ -4986,7 +4986,7 @@ function New-M365DSCMissingResourcesExample
         $m365Resources = Get-DscResource -Module Microsoft365DSC | Select-Object -ExpandProperty Name
     }
 
-    $examplesPath = Join-Path $location -ChildPath '..\Examples\Resources'
+    $examplesPath = Join-Path $location -ChildPath '..\..\..\Examples\Resources'
     $examples = Get-ChildItem -Path $examplesPath | Where-Object { $_.PsIsContainer } | Select-Object -ExpandProperty Name
 
     [array]$differences = Compare-Object -ReferenceObject $m365Resources -DifferenceObject $examples
@@ -4997,7 +4997,7 @@ function New-M365DSCMissingResourcesExample
     foreach ($difference in $differences)
     {
         Write-Host "[$count/$total] Processing $($difference.InputObject)"
-        $path = Join-Path -Path '.\Modules\Microsoft365DSC\Examples\Resources' -ChildPath $difference.InputObject
+        $path = Join-Path -Path '.\Examples\Resources' -ChildPath $difference.InputObject
         switch ($difference.SideIndicator)
         {
             '<='
