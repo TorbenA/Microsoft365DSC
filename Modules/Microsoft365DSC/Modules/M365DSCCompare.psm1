@@ -228,7 +228,12 @@ function Compare-M365DSCResourceState
             -NoDriftReset
     }
 
-    if (-not $testResult -or ($testResult -and -not $testResult2))
+    if ($testResult -and -not $testResult2)
+    {
+        $testResult = $false
+    }
+
+    if (-not $testResult)
     {
         $testTargetResource = $false
     }

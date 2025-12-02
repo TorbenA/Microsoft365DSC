@@ -38,6 +38,7 @@
 * MISC
   * Added and removed mismatches between parameters and their schema.
   * Added quality assurance checks for parameter and schema mismatches.
+  * Streamlined the report generation and added new visual styles.
 
 # 1.25.1112.1
 

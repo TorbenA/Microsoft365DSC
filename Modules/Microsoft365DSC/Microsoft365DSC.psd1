@@ -69,6 +69,7 @@
   # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
   NestedModules     = @(
     'Modules/M365DSCAgent.psm1',
+    'Modules/M365DSCCompare.psm1',
     'Modules/M365DSCDocGenerator.psm1',
     'Modules/M365DSCErrorHandler.psm1',
     'Modules/M365DSCLogEngine.psm1',
