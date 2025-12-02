@@ -20,8 +20,8 @@
 | **WindowsHelloForBusinessBlocked** | Write | Boolean | Boolean value that blocks Windows Hello for Business as a method for signing into Windows. | |
 | **Description** | Write | String | Admin provided description of the Device Configuration. | |
 | **DisplayName** | Key | String | Admin provided name of the device configuration. | |
-| **SupportsScopeTags** | Write | Boolean | Indicates whether or not the underlying Device Configuration supports the assignment of scope tags. Assigning to the ScopeTags property is not allowed when this value is false and entities will not be visible to scoped users. This occurs for Legacy policies created in Silverlight and can be resolved by deleting and recreating the policy in the Azure Portal. This property is read-only. | |
 | **Id** | Write | String | The unique identifier for an entity. Read-only. | |
+| **RoleScopeTagIds** | Write | StringArray[] | List of Scope Tags for this Entity instance. | |
 | **Assignments** | Write | MSFT_DeviceManagementConfigurationPolicyAssignments[] | Represents the assignment to the Intune policy. | |
 | **Ensure** | Write | String | Present ensures the policy exists, absent ensures it is removed. | `Present`, `Absent` |
 | **Credential** | Write | PSCredential | Credentials of the Admin | |
@@ -38,9 +38,10 @@
 
 | Parameter | Attribute | DataType | Description | Allowed Values |
 | --- | --- | --- | --- | --- |
-| **dataType** | Write | String | The type of the target assignment. | `#microsoft.graph.groupAssignmentTarget`, `#microsoft.graph.allLicensedUsersAssignmentTarget`, `#microsoft.graph.allDevicesAssignmentTarget`, `#microsoft.graph.exclusionGroupAssignmentTarget`, `#microsoft.graph.configurationManagerCollectionAssignmentTarget` |
+| **dataType** | Write | String | The type of the target assignment. | `#microsoft.graph.cloudPcManagementGroupAssignmentTarget`, `#microsoft.graph.groupAssignmentTarget`, `#microsoft.graph.allLicensedUsersAssignmentTarget`, `#microsoft.graph.allDevicesAssignmentTarget`, `#microsoft.graph.exclusionGroupAssignmentTarget`, `#microsoft.graph.configurationManagerCollectionAssignmentTarget` |
 | **deviceAndAppManagementAssignmentFilterType** | Write | String | The type of filter of the target assignment i.e. Exclude or Include. Possible values are:none, include, exclude. | `none`, `include`, `exclude` |
 | **deviceAndAppManagementAssignmentFilterId** | Write | String | The Id of the filter for the target assignment. | |
+| **deviceAndAppManagementAssignmentFilterDisplayName** | Write | String | The display name of the filter for the target assignment. | |
 | **groupId** | Write | String | The group Id that is the target of the assignment. | |
 | **groupDisplayName** | Write | String | The group Display Name that is the target of the assignment. | |
 | **collectionId** | Write | String | The collection Id that is the target of the assignment.(ConfigMgr) | |
@@ -123,7 +124,6 @@ Configuration Example
             PinSpecialCharactersUsage                    = "allowed";
             PinUppercaseCharactersUsage                  = "allowed";
             SecurityDeviceRequired                       = $True;
-            SupportsScopeTags                            = $True;
             UnlockWithBiometricsEnabled                  = $True;
             UseCertificatesForOnPremisesAuthEnabled      = $True;
             UseSecurityKeyForSignin                      = $True;
@@ -181,7 +181,6 @@ Configuration Example
             PinSpecialCharactersUsage                    = "allowed";
             PinUppercaseCharactersUsage                  = "allowed";
             SecurityDeviceRequired                       = $True;
-            SupportsScopeTags                            = $True;
             UnlockWithBiometricsEnabled                  = $True;
             UseCertificatesForOnPremisesAuthEnabled      = $True;
             UseSecurityKeyForSignin                      = $True;

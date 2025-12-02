@@ -8,8 +8,16 @@
   "permissions": {
     "graph": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "NetworkAccess.Read.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "NetworkAccess.ReadWrite.All"
+          }
+        ]
       },
       "application": {
         "read": [
@@ -28,5 +36,19 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.NetworkAccess"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.NetworkAccess",
+      "cmdlets": [
+        "Get-MgBetaNetworkAccessSettingCrossTenantAccess",
+        "Update-MgBetaNetworkAccessSettingCrossTenantAccess"
+      ]
+    }
   ]
 }

@@ -278,7 +278,7 @@ function Get-TargetResource
 
     if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
         #Ensure the proper dependencies are installed in the current environment.
@@ -299,14 +299,14 @@ function Get-TargetResource
             try
             {
                 $Policy = Get-MgBetaIdentityConditionalAccessPolicy -ConditionalAccessPolicyId $Id -ErrorAction Stop
-                $jsonPolicy = ConvertTo-Json $Policy -ErrorAction SilentlyContinue
+                $jsonPolicy = ConvertTo-Json $Policy -Depth 10 -ErrorAction SilentlyContinue
                 Write-Verbose -Message "Retrieved policy:`r`n$($jsonPolicy)"
             }
             catch
             {
                 Write-Verbose -Message "Couldn't find existing policy by ID {$Id}"
                 $Policy = Get-MgBetaIdentityConditionalAccessPolicy -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
-                $jsonPolicy = ConvertTo-Json $Policy -ErrorAction SilentlyContinue
+                $jsonPolicy = ConvertTo-Json -Depth 10 $Policy -ErrorAction SilentlyContinue
                 Write-Verbose -Message "Retrieved policy:`r`n$($jsonPolicy)"
 
                 if ($Policy.Length -gt 1)
@@ -320,7 +320,7 @@ function Get-TargetResource
             Write-Verbose -Message 'Id was NOT specified'
             ## Can retreive multiple CA Policies since displayname is not unique
             $Policy = Get-MgBetaIdentityConditionalAccessPolicy -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
-            $jsonPolicy = ConvertTo-Json $Policy -ErrorAction SilentlyContinue
+            $jsonPolicy = ConvertTo-Json -Depth 10 $Policy -ErrorAction SilentlyContinue
             Write-Verbose -Message "Retrieved policy:`r`n$($jsonPolicy)"
 
             if ($Policy.Length -gt 1)
@@ -634,7 +634,7 @@ function Get-TargetResource
         [Array]$ExcludeGuestOrExternalUserTypes = ($Policy.Conditions.Users.ExcludeGuestsOrExternalUsers.GuestOrExternalUserTypes).Split(',')
     }
 
-    $termsOfUseName = $null
+    $termOfUseName = $null
     if ($Policy.GrantControls.TermsOfUse)
     {
         $termofUse = Get-MgBetaAgreement | Where-Object -FilterScript { $_.Id -eq $Policy.GrantControls.TermsOfUse }
@@ -776,7 +776,7 @@ function Get-TargetResource
         ApplicationId                            = $ApplicationId
         TenantId                                 = $TenantId
         CertificateThumbprint                    = $CertificateThumbprint
-        Managedidentity                          = $ManagedIdentity.IsPresent
+        ManagedIdentity                          = $ManagedIdentity.IsPresent
         AccessTokens                             = $AccessTokens
     }
 
@@ -1071,18 +1071,8 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Set-Targetresource: Running Get-TargetResource'
     $currentPolicy = Get-TargetResource @PSBoundParameters
-    Write-Verbose -Message 'Set-Targetresource: Cleaning up parameters'
-    $currentParameters = $PSBoundParameters
-    $currentParameters.Remove('ApplicationId') | Out-Null
-    $currentParameters.Remove('TenantId') | Out-Null
-    $currentParameters.Remove('CertificateThumbprint') | Out-Null
-    $currentParameters.Remove('ApplicationSecret') | Out-Null
-    $currentParameters.Remove('Ensure') | Out-Null
-    $currentParameters.Remove('Credential') | Out-Null
-    $currentParameters.Remove('ManagedIdentity') | Out-Null
-    $currentParameters.Remove('AccessTokens') | Out-Null
+    $currentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present')#create policy attribute objects
     {
@@ -1091,7 +1081,6 @@ function Set-TargetResource
         $NewParameters.Add('displayName', $DisplayName)
         $NewParameters.Add('state', $State)
         #create Conditions object
-        Write-Verbose -Message 'Set-Targetresource: create Conditions object'
         $conditions = @{
             applications = @{}
         }
@@ -1123,7 +1112,7 @@ function Set-TargetResource
 
             $conditions.Applications.Add('includeApplications', $IncludeApplicationsValue)
         }
-        if ($currentParameters.ContainsKey('excludeApplications'))
+        if ($currentParameters.ContainsKey('ExcludeApplications'))
         {
             $ExcludeApplicationsValue = @()
             foreach ($app in $ExcludeApplications)
@@ -1821,15 +1810,15 @@ function Set-TargetResource
                 operator = $GrantControlOperator
             }
 
-            if ($currentParameters.ContainsKey('builtInControls'))
+            if ($currentParameters.ContainsKey('BuiltInControls'))
             {
                 $GrantControls.Add('builtInControls', $BuiltInControls)
             }
-            if ($currentParameters.ContainsKey('customAuthenticationFactors'))
+            if ($currentParameters.ContainsKey('CustomAuthenticationFactors'))
             {
                 $GrantControls.Add('customAuthenticationFactors', $CustomAuthenticationFactors)
             }
-            if ($currentParameters.ContainsKey('authenticationStrength'))
+            if ($currentParameters.ContainsKey('AuthenticationStrength'))
             {
                 $strengthPolicy = Get-MgBetaPolicyAuthenticationStrengthPolicy | Where-Object -FilterScript { $_.DisplayName -eq $AuthenticationStrength } -ErrorAction SilentlyContinue
                 if ($null -ne $strengthPolicy)
@@ -1842,7 +1831,7 @@ function Set-TargetResource
                 }
             }
 
-           if ($currentParameters.ContainsKey('termsOfUse'))
+           if ($currentParameters.ContainsKey('TermsOfUse'))
            {
                Write-Verbose -Message "Getting Terms of Use {$TermsOfUse}"
                $TermsOfUseObj = Get-MgBetaAgreement | Where-Object -FilterScript { $_.DisplayName -eq $TermsOfUse }
@@ -1961,7 +1950,7 @@ function Set-TargetResource
         Write-Verbose -Message 'Create Parameters:'
         Write-Verbose -Message (Convert-M365DscHashtableToString $NewParameters)
 
-        if ($newparameters.Conditions.applications.count -gt 0 -and ($newparameters.Conditions.Users.count -gt 0 -or $newparameters.Conditions.ClientApplications.count -gt 0) -and ($newparameters.GrantControls.count -gt 0 -or $newparameters.SessionControls.count -gt 0))
+        if ($newparameters.Conditions.applications.Count -gt 0 -and ($newparameters.Conditions.Users.Count -gt 0 -or $newparameters.Conditions.ClientApplications.Count -gt 0) -and ($newparameters.GrantControls.Count -gt 0 -or $newparameters.SessionControls.Count -gt 0))
         {
             try
             {
@@ -2381,7 +2370,7 @@ function Export-TargetResource
                     ApplicationSecret     = $ApplicationSecret
                     CertificateThumbprint = $CertificateThumbprint
                     Credential            = $Credential
-                    Managedidentity       = $ManagedIdentity.IsPresent
+                    ManagedIdentity       = $ManagedIdentity.IsPresent
                     AccessTokens          = $AccessTokens
                 }
                 $Script:exportedInstance = $Policy
@@ -2422,4 +2411,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

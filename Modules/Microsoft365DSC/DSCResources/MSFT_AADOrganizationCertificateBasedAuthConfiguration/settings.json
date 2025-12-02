@@ -9,7 +9,11 @@
             "name": "Organization.Read.All"
           }
         ],
-        "update": []
+        "update": [
+          {
+            "name": "Organization.ReadWrite.All"
+          }
+        ]
       },
       "application": {
         "read": [
@@ -17,7 +21,11 @@
             "name": "Organization.Read.All"
           }
         ],
-        "update": []
+        "update": [
+          {
+            "name": "Organization.ReadWrite.All"
+          }
+        ]
       }
     }
   },
@@ -26,5 +34,30 @@
     "Microsoft.Graph.Beta.Identity.DirectoryManagement",
     "Microsoft.Graph.Beta.Identity.SignIns",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.Identity.DirectoryManagement",
+      "cmdlets": [
+        "Get-MgBetaOrganization"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.Identity.SignIns",
+      "cmdlets": [
+        "Get-MgBetaOrganizationCertificateBasedAuthConfiguration"
+      ]
+    }
   ]
 }

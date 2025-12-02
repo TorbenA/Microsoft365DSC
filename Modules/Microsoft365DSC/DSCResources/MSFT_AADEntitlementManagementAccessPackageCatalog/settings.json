@@ -40,5 +40,22 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.Governance"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.Identity.Governance",
+      "cmdlets": [
+        "Get-MgBetaEntitlementManagementAccessPackage",
+        "Get-MgBetaEntitlementManagementAccessPackageCatalog",
+        "New-MgBetaEntitlementManagementAccessPackageCatalog",
+        "Remove-MgBetaEntitlementManagementAccessPackageCatalog",
+        "Update-MgBetaEntitlementManagementAccessPackageCatalog"
+      ]
+    }
   ]
 }

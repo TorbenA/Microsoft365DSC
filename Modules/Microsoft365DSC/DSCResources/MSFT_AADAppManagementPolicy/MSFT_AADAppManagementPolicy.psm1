@@ -58,8 +58,8 @@ function Get-TargetResource
 
     Write-Verbose -Message "Getting configuration of App Management Policy '$DisplayName'"
 
-    New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -107,7 +107,7 @@ function Get-TargetResource
         foreach ($passwordCred in $instance.Restrictions.PasswordCredentials)
         {
             $newItem = @{
-                restrictForAppsCreatedAfterDateTime = $passwordCred.RestrictForAppsCreatedAfterDateTime.ToString()
+                restrictForAppsCreatedAfterDateTime = $passwordCred.RestrictForAppsCreatedAfterDateTime.ToString("o")
                 restrictionType                     = $passwordCred.RestrictionType
                 state                               = $passwordCred.State
             }
@@ -122,7 +122,7 @@ function Get-TargetResource
         foreach ($keyCred in $instance.Restrictions.KeyCredentials)
         {
             $newItem = @{
-                restrictForAppsCreatedAfterDateTime = $keyCred.RestrictForAppsCreatedAfterDateTime.ToString()
+                restrictForAppsCreatedAfterDateTime = $keyCred.RestrictForAppsCreatedAfterDateTime.ToString("o")
                 restrictionType                     = $keyCred.RestrictionType
                 state                               = $keyCred.State
             }
@@ -148,7 +148,7 @@ function Get-TargetResource
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -510,4 +510,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

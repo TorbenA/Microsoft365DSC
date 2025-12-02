@@ -6,16 +6,6 @@
     "update": []
   },
   "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
-    },
     "Azure DevOps": {
       "delegated": {
         "read": [
@@ -46,5 +36,6 @@
       }
     }
   },
-  "requiredModules": []
+  "requiredModules": [],
+  "mode": "Configuration"
 }

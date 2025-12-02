@@ -58,5 +58,10 @@
   "requiredModules": [
     "MSCloudLoginAssistant",
     "PnP.PowerShell"
-  ]
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration"
 }

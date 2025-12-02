@@ -47,8 +47,8 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-                -InboundParameters $PSBoundParameters | Out-Null
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
             Confirm-M365DSCDependencies
@@ -88,7 +88,7 @@ function Get-TargetResource
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -144,6 +144,11 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting the AAD Network Access Forwarding Policy with Name {$Name}"
+
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -204,7 +209,9 @@ function Set-TargetResource
                 $currentRuleHashtable.Remove('ActionValue')
                 $testResult = Compare-M365DSCComplexObject `
                     -Source ($currentRuleHashtable) `
-                    -Target ($desiredRuleHashtable)
+                    -Target ($desiredRuleHashtable) `
+                    -PropertyName 'PolicyRules' `
+                    -NoDriftReport
                 if ($testResult)
                 {
                     Write-Verbose "Updating: $($currentRule.Name), $($currentRule.Id)"
@@ -462,4 +469,3 @@ function Get-MicrosoftGraphNetworkAccessForwardingPolicyRules
 
 
 Export-ModuleMember -Function *-TargetResource
-

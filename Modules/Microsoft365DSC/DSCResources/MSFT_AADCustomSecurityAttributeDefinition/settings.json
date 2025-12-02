@@ -40,5 +40,22 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.DirectoryManagement"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.Identity.DirectoryManagement",
+      "cmdlets": [
+        "Get-MgBetaDirectoryCustomSecurityAttributeDefinition",
+        "New-MgBetaDirectoryCustomSecurityAttributeDefinition",
+        "Update-MgBetaDirectoryCustomSecurityAttributeDefinition",
+        "New-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue",
+        "Update-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue"
+      ]
+    }
   ]
 }

@@ -6,10 +6,18 @@
     "update": []
   },
   "permissions": {
-    "graph": {
+    "Azure DevOps": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "user_impersonation"
+          }
+        ],
+        "update": [
+          {
+            "name": "user_impersonation"
+          }
+        ]
       },
       "application": {
         "read": [],
@@ -17,5 +25,6 @@
       }
     }
   },
-  "requiredModules": []
+  "requiredModules": [],
+  "mode": "Data"
 }

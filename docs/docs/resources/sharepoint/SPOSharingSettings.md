@@ -25,7 +25,6 @@
 | **FolderAnonymousLinkType** | Write | String | Configures anonymous link types for folders | `View`, `Edit` |
 | **NotifyOwnersWhenItemsReshared** | Write | Boolean | When this parameter is set to $true and another user re-shares a document from a userâs OneDrive for Business, the OneDrive for Business owner is notified by e-mail. | |
 | **DefaultLinkPermission** | Write | String | Specifies the link permission on the tenant level. Valid values to set are View and Edit. A value of None will be set to Edit as its the default value. | `None`, `View`, `Edit` |
-| **RequireAcceptingAccountMatchInvitedAccount** | Write | Boolean | DEPRECATED | |
 | **Ensure** | Write | String | Only accepted value is 'Present'. | `Present`, `Absent` |
 | **Credential** | Write | PSCredential | Credentials of the account to authenticate with. | |
 | **ApplicationId** | Write | String | Id of the Azure Active Directory application to authenticate with. | |
@@ -136,7 +135,6 @@ Configuration Example
             FolderAnonymousLinkType                    = "Edit"
             NotifyOwnersWhenItemsReshared              = $true
             DefaultLinkPermission                      = "View"
-            RequireAcceptingAccountMatchInvitedAccount = $false
             Ensure                                     = "Present"
             Credential                                 = $Credscredential
         }

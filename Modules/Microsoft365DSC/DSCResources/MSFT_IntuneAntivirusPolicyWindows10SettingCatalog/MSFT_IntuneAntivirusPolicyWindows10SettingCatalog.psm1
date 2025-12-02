@@ -208,12 +208,12 @@ function Get-TargetResource
 
         [Parameter()]
         [ValidateSet('0', '1')]
-        [System.String]
+        [System.String[]]
         $DisableCoreServiceECSIntegration,
 
         [Parameter()]
         [ValidateSet('0', '1')]
-        [System.String]
+        [System.String[]]
         $DisableCoreServiceTelemetry,
 
         [Parameter()]
@@ -349,7 +349,7 @@ function Get-TargetResource
         $SubmitSamplesConsent,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
+        [ValidateSet('Onboarding', 'Offboarding')]
         [System.String]
         $TamperProtection,
 
@@ -431,7 +431,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters `
                 -ErrorAction Stop
 
@@ -778,12 +778,12 @@ function Set-TargetResource
 
         [Parameter()]
         [ValidateSet('0', '1')]
-        [System.String]
+        [System.String[]]
         $DisableCoreServiceECSIntegration,
 
         [Parameter()]
         [ValidateSet('0', '1')]
-        [System.String]
+        [System.String[]]
         $DisableCoreServiceTelemetry,
 
         [Parameter()]
@@ -919,7 +919,7 @@ function Set-TargetResource
         $SubmitSamplesConsent,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
+        [ValidateSet('Onboarding', 'Offboarding')]
         [System.String]
         $TamperProtection,
 
@@ -995,8 +995,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
+    Write-Verbose -Message "Setting configuration of the Intune Antivirus Policy for Windows10 Setting Catalog with Id {$Identity} and DisplayName {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -1055,6 +1054,7 @@ function Set-TargetResource
             Platforms         = $platforms
             Technologies      = $technologies
             Settings          = $settings
+            RoleScopeTagIds   = $RoleScopeTagIds
         }
 
         $policy = New-MgBetaDeviceManagementConfigurationPolicy -BodyParameter $createParameters
@@ -1085,7 +1085,8 @@ function Set-TargetResource
             -TemplateReferenceId $templateReferenceId `
             -Platforms $platforms `
             -Technologies $technologies `
-            -Settings $settings
+            -Settings $settings `
+            -RoleScopeTagIds $RoleScopeTagIds
 
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
         Update-DeviceConfigurationPolicyAssignment `
@@ -1308,12 +1309,12 @@ function Test-TargetResource
 
         [Parameter()]
         [ValidateSet('0', '1')]
-        [System.String]
+        [System.String[]]
         $DisableCoreServiceECSIntegration,
 
         [Parameter()]
         [ValidateSet('0', '1')]
-        [System.String]
+        [System.String[]]
         $DisableCoreServiceTelemetry,
 
         [Parameter()]
@@ -1449,7 +1450,7 @@ function Test-TargetResource
         $SubmitSamplesConsent,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
+        [ValidateSet('Onboarding', 'Offboarding')]
         [System.String]
         $TamperProtection,
 
@@ -1525,73 +1526,39 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
         -Parameters $PSBoundParameters
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
-    Write-Verbose -Message "Testing configuration of Endpoint Protection Policy {$DisplayName}"
 
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    [Hashtable]$ValuesToCheck = @{}
-    $MyInvocation.MyCommand.Parameters.GetEnumerator() | ForEach-Object {
-        if ($_.Key -notlike '*Variable' -or $_.Key -notin @('Verbose', 'Debug', 'ErrorAction', 'WarningAction', 'InformationAction'))
-        {
-            if ($null -ne $CurrentValues[$_.Key] -or $null -ne $PSBoundParameters[$_.Key])
+    $postProcessingScript = {
+        param($DesiredValues, $CurrentValues, $ValuesToCheck, $PostProcessingArgs)
+        $PostProcessingArgs[0] | ForEach-Object {
+            if ($_.Key -notlike '*Variable' -or $_.Key -notin @('Verbose', 'Debug', 'ErrorAction', 'WarningAction', 'InformationAction'))
             {
-                $ValuesToCheck.Add($_.Key, $null)
-                if (-not $PSBoundParameters.ContainsKey($_.Key))
+                if ($null -ne $CurrentValues[$_.Key] -or $null -ne $DesiredValues[$_.Key])
                 {
-                    $PSBoundParameters.Add($_.Key, $null)
+                    $ValuesToCheck[$_.Key] = $null
+                    if (-not $DesiredValues.ContainsKey($_.Key))
+                    {
+                        $DesiredValues.Add($_.Key, $null)
+                    }
                 }
             }
         }
-    }
-    $testResult = $true
 
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-not $testResult)
-            {
-                break
-            }
-
-            $ValuesToCheck.Remove($key) | Out-Null
-        }
+        return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
     }
 
-    $ValuesToCheck.Remove('Identity') | Out-Null
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    if ($testResult)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -PostProcessing $postProcessingScript `
+                                         -PostProcessingArgs $MyInvocation.MyCommand.Parameters.GetEnumerator()
+    return $result
 }
 
 function Export-TargetResource
@@ -1748,4 +1715,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

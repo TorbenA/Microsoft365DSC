@@ -29,19 +29,10 @@
             "name": "Organization.Read.All"
           },
           {
-            "name": "RoleManagement.Read.Directory"
-          },
-          {
             "name": "RoleManagement.ReadWrite.Directory"
           },
           {
-            "name": "User.Read.All"
-          },
-          {
-            "name": "Group.Read.All"
-          },
-          {
-            "name": "GroupMember.Read.All"
+            "name": "User.EnableDisableAccount.All"
           },
           {
             "name": "User.ReadWrite.All"
@@ -68,16 +59,19 @@
             "name": "Organization.Read.All"
           },
           {
-            "name": "RoleManagement.Read.Directory"
-          },
-          {
             "name": "RoleManagement.ReadWrite.Directory"
           },
           {
-            "name": "User.Read.All"
+            "name": "User.EnableDisableAccount.All"
           },
           {
             "name": "User.ReadWrite.All"
+          },
+          {
+            "name": "Group.ReadWrite.All"
+          },
+          {
+            "name": "GroupMember.ReadWrite.All"
           }
         ]
       }
@@ -90,5 +84,50 @@
     "Microsoft.Graph.Groups",
     "Microsoft.Graph.Users",
     "Microsoft.Graph.Users.Actions"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Data",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.Identity.DirectoryManagement",
+      "cmdlets": [
+        "Get-MgBetaSubscribedSku"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.Identity.Governance",
+      "cmdlets": [
+        "Get-MgBetaRoleManagementDirectoryRoleAssignment",
+        "Get-MgBetaRoleManagementDirectoryRoleDefinition",
+        "New-MgBetaRoleManagementDirectoryRoleAssignment",
+        "Remove-MgBetaRoleManagementDirectoryRoleAssignment"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup",
+        "New-MgGroupMember",
+        "Remove-MgGroupMemberDirectoryObjectByRef"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Users",
+      "cmdlets": [
+        "Get-MgUser",
+        "New-MgUser",
+        "Remove-MgUser",
+        "Update-MgUser"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Users.Actions",
+      "cmdlets": [
+        "Set-MgUserLicense"
+      ]
+    }
   ]
 }

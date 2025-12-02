@@ -32,5 +32,14 @@
   "requiredModules": [
     "Microsoft.Graph.Groups",
     "MSCloudLoginAssistant"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
+      ]
+    }
   ]
 }

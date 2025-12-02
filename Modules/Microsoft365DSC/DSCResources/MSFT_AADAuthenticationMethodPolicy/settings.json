@@ -14,7 +14,7 @@
       "delegated": {
         "read": [
           {
-            "name": "Policy.ReadWrite.AuthenticationMethod"
+            "name": "Policy.Read.AuthenticationMethod"
           }
         ],
         "update": [
@@ -26,7 +26,7 @@
       "application": {
         "read": [
           {
-            "name": "Policy.ReadWrite.AuthenticationMethod"
+            "name": "Policy.Read.AuthenticationMethod"
           }
         ],
         "update": [
@@ -40,5 +40,19 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.SignIns"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.Identity.SignIns",
+      "cmdlets": [
+        "Get-MgBetaPolicyAuthenticationMethodPolicy",
+        "Update-MgBetaPolicyAuthenticationMethodPolicy"
+      ]
+    }
   ]
 }

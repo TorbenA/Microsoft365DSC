@@ -25,10 +25,11 @@ Configuration Example
         AADFeatureRolloutPolicy "AADFeatureRolloutPolicy-CertificateBasedAuthentication rollout policy"
         {
             ApplicationId           = $ApplicationId
+            AppliesTo               = @("AADGroup_1")
             TenantId                = $TenantId
             CertificateThumbprint   = $CertificateThumbprint
             Description             = "CertificateBasedAuthentication rollout policy";
-            DisplayName             = "CertificateBasedAuthentication rollout policy";
+            DisplayName             = "certificateBasedAuthentication rollout policy";
             Ensure                  = "Present";
             Feature                 = "certificateBasedAuthentication";
             IsAppliedToOrganization = $False;

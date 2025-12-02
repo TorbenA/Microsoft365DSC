@@ -71,7 +71,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Id -ne $Id)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -119,7 +119,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Azure AD Identity API Connector with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
-        $complexAuthenticationConfiguration = @{}
+        $complexAuthenticationConfiguration = [ordered]@{}
         if ($null -ne $getValue.AuthenticationConfiguration.AdditionalProperties.password)
         {
             $securePassword = ConvertTo-SecureString $getValue.AuthenticationConfiguration.AdditionalProperties.password -AsPlainText -Force
@@ -131,7 +131,7 @@ function Get-TargetResource
         $complexCertificates = @()
         foreach ($currentCertificate in $getValue.AuthenticationConfiguration.AdditionalProperties.certificateList)
         {
-            $myCertificate = @{}
+            $myCertificate = [ordered]@{}
             $myCertificate.Add('Pkcs12Value', "New-Object System.Management.Automation.PSCredential('Password', (ConvertTo-SecureString ('Please insert a valid Pkcs12Value') -AsPlainText -Force))")
             $myCertificate.Add('Thumbprint', $currentCertificate.thumbprint)
             $myCertificate.Add('Password', "New-Object System.Management.Automation.PSCredential('Password', (ConvertTo-SecureString ('Please insert a valid Password for the certificate') -AsPlainText -Force))")
@@ -162,7 +162,7 @@ function Get-TargetResource
             #endregion
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -258,8 +258,7 @@ function Set-TargetResource
 
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-    # If the certificates array is not empty, then we need to create a new instance of New-MgBetaAADIdentityAPIConnector
-
+    # If the certificates array is not empty, then we need to create a new instance
     $needToUpdateCertificates = $false
     if ($null -ne $Certificates -and $Certificates.Count -gt 0)
     {
@@ -279,7 +278,7 @@ function Set-TargetResource
             $createParameters.Remove('Password') | Out-Null
             $createParameters.Remove('Pkcs12Value') | Out-Null
 
-            if ($username -ne $null)
+            if ($null -ne $username)
             {
                 $createParameters.Add('AuthenticationConfiguration', @{
                         '@odata.type' = 'microsoft.graph.basicAuthentication'
@@ -322,7 +321,6 @@ function Set-TargetResource
     }
     else
     {
-
         # Remove the existing instance if already present
         if ($currentInstance.Ensure -ne 'Absent')
         {
@@ -345,7 +343,7 @@ function Set-TargetResource
         $inactiveCertificates = @()
         foreach ($currentCertificate in $Certificates)
         {
-            $myCertificate = @{}
+            $myCertificate = [ordered]@{}
             $myCertificate.Add('Pkcs12Value', ($currentCertificate.Pkcs12Value).Password)
             $myCertificate.Add('Password', ($currentCertificate.Password).Password)
 
@@ -658,4 +656,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

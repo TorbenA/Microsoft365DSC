@@ -104,8 +104,10 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'Azure' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting Sentinel Threat Intelligence Indicator configuration for $DisplayName"
+
+    $null = New-M365DSCConnection -Workload 'Azure' `
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -177,7 +179,7 @@ function Get-TargetResource
             ManagedIdentity        = $ManagedIdentity.IsPresent
             AccessTokens           = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -294,6 +296,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting Sentinel Threat Intelligence Indicator configuration for $DisplayName"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -483,9 +487,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -495,20 +496,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -744,7 +734,7 @@ function New-M365DSCSentinelThreatIntelligenceIndicator
 
         $uri += "providers/Microsoft.OperationalInsights/workspaces/$($WorkspaceName)/providers/Microsoft.SecurityInsights/threatIntelligence/main/createIndicator?api-version=2024-03-01"
         $payload = ConvertTo-Json $Body -Depth 10 -Compress
-        $response = Invoke-AzRest -Uri $uri -Method 'POST' -Payload $payload
+        $null = Invoke-AzRest -Uri $uri -Method 'POST' -Payload $payload
     }
     catch
     {
@@ -793,7 +783,7 @@ function Set-M365DSCSentinelThreatIntelligenceIndicator
 
         $uri += "providers/Microsoft.OperationalInsights/workspaces/$($WorkspaceName)/providers/Microsoft.SecurityInsights/threatIntelligence/main/indicators/$($Id)?api-version=2024-03-01"
         $payload = ConvertTo-Json $Body -Depth 10 -Compress
-        $response = Invoke-AzRest -Uri $uri -Method 'PUT' -Payload $payload
+        $null = Invoke-AzRest -Uri $uri -Method 'PUT' -Payload $payload
     }
     catch
     {
@@ -837,7 +827,7 @@ function Remove-M365DSCSentinelThreatIntelligenceIndicator
         $uri = $hostUrl.AzureManagement + "/subscriptions/$($SubscriptionId)/resourceGroups/$($ResourceGroupName)/"
 
         $uri += "providers/Microsoft.OperationalInsights/workspaces/$($WorkspaceName)/providers/Microsoft.SecurityInsights/threatIntelligence/main/indicators/$($Id)?api-version=2024-03-01"
-        $response = Invoke-AzRest -Uri $uri -Method 'DELETE'
+        $null = Invoke-AzRest -Uri $uri -Method 'DELETE'
     }
     catch
     {
@@ -851,4 +841,3 @@ function Remove-M365DSCSentinelThreatIntelligenceIndicator
 }
 
 Export-ModuleMember -Function *-TargetResource
-

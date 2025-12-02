@@ -44,5 +44,19 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.DeviceManagement.Enrollment"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.DeviceManagement.Enrollment",
+      "cmdlets": [
+        "Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration",
+        "Update-MgBetaDeviceManagementDeviceEnrollmentConfiguration"
+      ]
+    }
   ]
 }

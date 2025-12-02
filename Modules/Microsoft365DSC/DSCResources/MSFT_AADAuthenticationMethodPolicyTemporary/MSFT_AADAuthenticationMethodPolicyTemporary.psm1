@@ -85,7 +85,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Id -ne $Id)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -127,7 +127,7 @@ function Get-TargetResource
         foreach ($currentExcludeTargets in $getValue.excludeTargets)
         {
             Write-Verbose -Message "Retrieving ExcludeTarget {$currentExcludeTargets}"
-            $myExcludeTargets = @{}
+            $myExcludeTargets = [ordered]@{}
             if ($currentExcludeTargets.id -ne 'all_users')
             {
                 try
@@ -153,10 +153,10 @@ function Get-TargetResource
 
             if ($null -ne $currentExcludeTargets.targetType)
             {
-                $myExcludeTargets.Add('TargetType', $currentExcludeTargets.targetType.toString())
+                $myExcludeTargets.Add('TargetType', $currentExcludeTargets.targetType.ToString())
             }
 
-            if ($myExcludeTargets.values.Where({ $null -ne $_ }).count -gt 0)
+            if ($myExcludeTargets.values.Where({ $null -ne $_ }).Count -gt 0)
             {
                 $complexExcludeTargets += $myExcludeTargets
             }
@@ -168,7 +168,7 @@ function Get-TargetResource
         foreach ($currentincludeTargets in $getValue.AdditionalProperties.includeTargets)
         {
             Write-Verbose -Message "Retrieving IncludeTarget {$($currentincludeTargets.id)}"
-            $myincludeTargets = @{}
+            $myincludeTargets = [ordered]@{}
             if ($currentIncludeTargets.id -ne 'all_users')
             {
                 try
@@ -194,10 +194,10 @@ function Get-TargetResource
 
             if ($null -ne $currentincludeTargets.targetType)
             {
-                $myincludeTargets.Add('TargetType', $currentincludeTargets.targetType.toString())
+                $myincludeTargets.Add('TargetType', $currentincludeTargets.targetType.ToString())
             }
 
-            if ($myincludeTargets.values.Where({ $null -ne $_ }).count -gt 0)
+            if ($myincludeTargets.values.Where({ $null -ne $_ }).Count -gt 0)
             {
                 $complexincludeTargets += $myincludeTargets
             }
@@ -229,12 +229,12 @@ function Get-TargetResource
             TenantId                 = $TenantId
             ApplicationSecret        = $ApplicationSecret
             CertificateThumbprint    = $CertificateThumbprint
-            Managedidentity          = $ManagedIdentity.IsPresent
+            ManagedIdentity          = $ManagedIdentity.IsPresent
             AccessTokens             = $AccessTokens
             #endregion
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -348,15 +348,15 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating the Azure AD Authentication Method Policy Temporary with Id {$($currentInstance.Id)}"
 
-        $UpdateParameters = ([Hashtable]$BoundParameters).clone()
+        $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
+            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.GetType().Name -like '*cimInstance*')
             {
                 $UpdateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
             }
@@ -585,7 +585,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
@@ -651,4 +651,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

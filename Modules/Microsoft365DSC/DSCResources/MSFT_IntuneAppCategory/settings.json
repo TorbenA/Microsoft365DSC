@@ -32,5 +32,21 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Devices.CorporateManagement"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.Devices.CorporateManagement",
+      "cmdlets": [
+        "Get-MgBetaDeviceAppManagementMobileAppCategory",
+        "New-MgBetaDeviceAppManagementMobileAppCategory",
+        "Remove-MgBetaDeviceAppManagementMobileAppCategory",
+        "Update-MgBetaDeviceAppManagementMobileAppCategory"
+      ]
+    }
   ]
 }

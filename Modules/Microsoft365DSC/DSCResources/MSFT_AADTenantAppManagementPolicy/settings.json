@@ -8,8 +8,16 @@
   "permissions": {
     "graph": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "Policy.Read.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "Policy.ReadWrite.ApplicationConfiguration"
+          }
+        ]
       },
       "application": {
         "read": [
@@ -19,7 +27,7 @@
         ],
         "update": [
           {
-            "name": "Policy.Read.ApplicationConfiguration"
+            "name": "Policy.ReadWrite.ApplicationConfiguration"
           }
         ]
       }
@@ -28,5 +36,19 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.SignIns"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.Identity.SignIns",
+      "cmdlets": [
+        "Get-MgBetaPolicyDefaultAppManagementPolicy",
+        "Update-MgBetaPolicyDefaultAppManagementPolicy"
+      ]
+    }
   ]
 }

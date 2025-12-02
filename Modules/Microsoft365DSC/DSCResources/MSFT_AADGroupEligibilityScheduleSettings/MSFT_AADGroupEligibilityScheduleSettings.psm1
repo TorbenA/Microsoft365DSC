@@ -77,7 +77,7 @@ function Get-TargetResource
         if ($null -eq $Script:exportedInstance)
         {
 
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -154,7 +154,7 @@ function Get-TargetResource
             ManagedIdentity           = $ManagedIdentity.IsPresent
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -237,8 +237,9 @@ function Set-TargetResource
         [Parameter()]
         [System.String[]]
         $AccessTokens
-
     )
+
+    Write-Verbose -Message "Setting configuration of the AAD Group Eligibility Schedule Settings with Id {$Id} and GroupDisplayName {$GroupDisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -253,8 +254,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
-    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     Write-Verbose -Message "Updating the Azure AD PIM Group Management Policy Rule with Id {$($currentInstance.Id)}"
     $body = @{
@@ -408,11 +407,7 @@ function Test-TargetResource
         [Parameter()]
         [System.String[]]
         $AccessTokens
-
     )
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
@@ -423,49 +418,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Azure AD PIM Group Management Policy Rule with Id {$Id} and DisplayName {$groupDisplayName}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-    $testResult = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-not $testResult)
-            {
-                break
-            }
-
-            $ValuesToCheck.Remove($key) | Out-Null
-        }
-    }
-
-    $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    if ($testResult)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -526,7 +481,7 @@ function Export-TargetResource
     {
         $Script:ExportMode = $true
         $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/privilegedAccess/aadGroups/resources"
-        [array]$groups = (Invoke-GraphRequest -Method GET -Uri $uri -ErrorAction SilentlyContinue).value
+        [array]$groups = (Invoke-MgGraphRequest -Method GET -Uri $uri -ErrorAction SilentlyContinue).value
 
         $dscContent = [System.Text.StringBuilder]::new()
         Write-M365DSCHost -Message "`r`n" -DeferWrite
@@ -543,12 +498,7 @@ function Export-TargetResource
             }
         }
 
-        $batchResponses = @()
-        for ($i = 0; $i -lt $batchRequests.Count; $i += 20)
-        {
-            $batchRequestSized = $batchRequests[$i..([Math]::Min($i + 19, $batchRequests.Count - 1))]
-            $batchResponses += Invoke-M365DSCGraphBatchRequest -Requests $batchRequestSized
-        }
+        $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
 
         foreach ($group in $groups)
         {
@@ -576,7 +526,7 @@ function Export-TargetResource
                         CertificateThumbprint = $CertificateThumbprint
                         ApplicationSecret     = $ApplicationSecret
                         Credential            = $Credential
-                        Managedidentity       = $ManagedIdentity.IsPresent
+                        ManagedIdentity       = $ManagedIdentity.IsPresent
                         AccessTokens          = $AccessTokens
                     }
 
@@ -939,4 +889,3 @@ function Get-M365DSCRoleManagementPolicyRuleObject
 }
 
 Export-ModuleMember -Function *-TargetResource
-

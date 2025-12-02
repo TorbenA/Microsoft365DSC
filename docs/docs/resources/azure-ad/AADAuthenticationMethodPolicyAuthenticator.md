@@ -28,7 +28,6 @@
 | **CompanionAppAllowedState** | Write | MSFT_MicrosoftGraphAuthenticationMethodFeatureConfiguration | Determines whether users will be able to approve push notifications on other Microsoft applications such as Outlook Mobile. | |
 | **DisplayAppInformationRequiredState** | Write | MSFT_MicrosoftGraphAuthenticationMethodFeatureConfiguration | Determines whether the user's Authenticator app will show them the client app they are signing into. | |
 | **DisplayLocationInformationRequiredState** | Write | MSFT_MicrosoftGraphAuthenticationMethodFeatureConfiguration | Determines whether the user's Authenticator app will show them the geographic location of where the authentication request originated from. | |
-| **NumberMatchingRequiredState** | Write | MSFT_MicrosoftGraphAuthenticationMethodFeatureConfiguration | Specifies whether the user needs to enter a number in the Authenticator app from the login screen to complete their login. Value is ignored for phone sign-in notifications. | |
 
 ### MSFT_MicrosoftGraphAuthenticationMethodFeatureConfiguration
 
@@ -82,21 +81,21 @@ To authenticate with the Microsoft Graph API, this resource required the followi
 
 - **Read**
 
-    - Policy.ReadWrite.AuthenticationMethod, Policy.Read.All
+    - Policy.Read.AuthenticationMethod, Group.Read.All
 
 - **Update**
 
-    - Policy.ReadWrite.AuthenticationMethod, Policy.Read.All
+    - Policy.ReadWrite.AuthenticationMethod, Group.Read.All
 
 #### Application permissions
 
 - **Read**
 
-    - Policy.ReadWrite.AuthenticationMethod, Policy.Read.All
+    - Policy.Read.AuthenticationMethod, Group.Read.All
 
 - **Update**
 
-    - Policy.ReadWrite.AuthenticationMethod, Policy.Read.All
+    - Policy.ReadWrite.AuthenticationMethod, Group.Read.All
 
 ## Examples
 

@@ -57,12 +57,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting Management Role configuration for $Name"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            Write-Verbose -Message "Getting Management Role configuration for $Name"
-            $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+            $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -80,10 +81,7 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            $AllManagementRoles = Get-ManagementRole -ErrorAction Stop
-
-            $ManagementRole = $AllManagementRoles | Where-Object -FilterScript { $_.Name -eq $Name }
-
+            $ManagementRole = Get-ManagementRole -Identity $Name -ErrorAction SilentlyContinue
             if ($null -eq $ManagementRole)
             {
                 Write-Verbose -Message "Management Role $($Name) does not exist."
@@ -105,7 +103,7 @@ function Get-TargetResource
             CertificateThumbprint = $CertificateThumbprint
             CertificatePath       = $CertificatePath
             CertificatePassword   = $CertificatePassword
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             TenantId              = $TenantId
             AccessTokens          = $AccessTokens
         }
@@ -197,10 +195,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters
-
-    $NewManagementRoleParams = @{
+    $newManagementRoleParams = @{
         Name        = $Name
         Parent      = $Parent
         Description = $Description
@@ -212,7 +207,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Management Role '$($Name)' does not exist but it should. Create and configure it."
         # Create Management Role
-        New-ManagementRole @NewManagementRoleParams
+        New-ManagementRole @newManagementRoleParams
 
     }
     # CASE: Management Role exists but it shouldn't;
@@ -225,10 +220,10 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentManagementRoleConfig.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Management Role '$($Name)' already exists, but needs updating. Re-create management role."
-        Write-Verbose -Message "Setting Management Role $($Name) with values: $(Convert-M365DscHashtableToString -Hashtable $NewManagementRoleParams)"
+        Write-Verbose -Message "Setting Management Role $($Name) with values: $(Convert-M365DscHashtableToString -Hashtable $newManagementRoleParams)"
         # Since there is no Set-ManagementRole cmdlet available, remove management role and re-create it
         Remove-ManagementRole -Identity $Name -Confirm:$false -Force
-        New-ManagementRole @NewManagementRoleParams
+        New-ManagementRole @newManagementRoleParams
     }
 }
 
@@ -288,11 +283,9 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -300,23 +293,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing Management Role configuration for $Name"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    $ValuesToCheck = $PSBoundParameters
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -357,6 +336,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true
@@ -376,9 +356,9 @@ function Export-TargetResource
     try
     {
         $Script:ExportMode = $true
-        [array] $Script:exportedInstances = Get-ManagementRole | Where-Object -FilterScript { $_.Parent -ne $null }
+        [array] $Script:exportedInstances = Get-ManagementRole | Where-Object -FilterScript { $null -ne $_.Parent }
 
-        $dscContent = [System.Text.StringBuilder]::New()
+        $dscContent = [System.Text.StringBuilder]::new()
 
         if ($Script:exportedInstances.Length -eq 0)
         {
@@ -405,7 +385,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 Parent                = $ManagementRole.Parent
                 AccessTokens          = $AccessTokens
@@ -440,5 +420,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
-

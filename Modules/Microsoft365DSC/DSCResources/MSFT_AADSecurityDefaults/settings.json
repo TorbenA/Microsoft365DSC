@@ -17,7 +17,7 @@
         ],
         "update": [
           {
-            "name": "Policy.ReadWrite.ConditionalAccess"
+            "name": "Policy.ReadWrite.SecurityDefaults"
           }
         ]
       },
@@ -29,7 +29,7 @@
         ],
         "update": [
           {
-            "name": "Policy.ReadWrite.ConditionalAccess"
+            "name": "Policy.ReadWrite.SecurityDefaults"
           }
         ]
       }
@@ -38,5 +38,19 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.SignIns"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.Identity.SignIns",
+      "cmdlets": [
+        "Get-MgBetaPolicyIdentitySecurityDefaultEnforcementPolicy",
+        "Update-MgBetaPolicyIdentitySecurityDefaultEnforcementPolicy"
+      ]
+    }
   ]
 }

@@ -58,7 +58,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Identity -ne $Identity)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -106,8 +106,16 @@ function Get-TargetResource
 
         if ($policy.EmergencyNumbers.Count -gt 0)
         {
-            $numbers = Get-TeamsEmergencyNumbers -Numbers $policy.EmergencyNumbers
-            $results.Add('EmergencyNumbers', [Array]$numbers)
+            $numbers = @()
+            foreach ($number in $policy.EmergencyNumbers)
+            {
+                $numbers += @{
+                    EmergencyDialString = $number.EmergencyDialString
+                    EmergencyDialMask   = $number.EmergencyDialMask
+                    OnlinePSTNUsage     = $number.OnlinePSTNUsage
+                }
+            }
+            $results.Add('EmergencyNumbers', $numbers)
         }
 
         return $results
@@ -206,24 +214,12 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
-        -InboundParameters $PSBoundParameters
-
     $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    $SetParameters = $PSBoundParameters
-    $SetParameters.Remove('Ensure') | Out-Null
-    $SetParameters.Remove('Credential') | Out-Null
-    $SetParameters.Remove('ApplicationId') | Out-Null
-    $SetParameters.Remove('TenantId') | Out-Null
-    $SetParameters.Remove('CertificateThumbprint') | Out-Null
-    $SetParameters.Remove('ManagedIdentity') | Out-Null
-    $SetParameters.Remove('AccessTokens') | Out-Null
+    $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($PSBoundParameters.ContainsKey('EmergencyNumbers'))
     {
-        $values = Convert-CIMToTeamsEmergencyNumbers $EmergencyNumbers
-        $SetParameters['EmergencyNumbers'] = $values
+        $SetParameters.EmergencyNumbers = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $SetParameters.EmergencyNumbers
     }
 
     if ($Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
@@ -316,11 +312,9 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -328,30 +322,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of Team EmergencyCall Routing Policy {$Identity}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    $DesiredValues = $PSBoundParameters
-    if ($null -ne $DesiredValues.EmergencyNumbers -and $DesiredValues.EmergencyNumbers.Count -gt 0)
-    {
-        $numbers = Convert-CIMToTeamsEmergencyNumbers -Numbers $DesiredValues.EmergencyNumbers
-        $DesiredValues['EmergencyNumbers'] = $numbers
-    }
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $DesiredValues)"
-
-    $ValuesToCheck = $DesiredValues
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $DesiredValues `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -479,59 +452,4 @@ function Export-TargetResource
     }
 }
 
-function Get-TeamsEmergencyNumbers
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable[]])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [System.Object[]]
-        $Numbers
-    )
-
-    if ($null -eq $Numbers)
-    {
-        return $null
-    }
-
-    $result = @()
-    foreach ($number in $numbers)
-    {
-        $result += @{
-            EmergencyDialString = $number.EmergencyDialString
-            EmergencyDialMask   = $number.EmergencyDialMask
-            OnlinePSTNUsage     = $number.OnlinePSTNUsage
-        }
-    }
-
-    return $result
-}
-
-function Convert-CIMToTeamsEmergencyNumbers
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.ArrayList])]
-    param
-    (
-        [parameter(Mandatory = $true)]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
-        $Numbers
-    )
-
-    $values = [System.Collections.ArrayList]@()
-    foreach ($number in $Numbers)
-    {
-        $current = @{
-            EmergencyDialString = $number.EmergencyDialString
-            EmergencyDialMask   = $number.EmergencyDialMask
-            OnlinePSTNUsage     = $number.OnlinePSTNUsage
-        }
-        $values += $current
-    }
-
-    return $values
-}
-
 Export-ModuleMember -Function *-TargetResource
-

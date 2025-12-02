@@ -61,7 +61,7 @@ function Get-TargetResource
         [System.String]
         $RunAsAccount,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -108,7 +108,7 @@ function Get-TargetResource
 
     try
     {
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
         #Ensure the proper dependencies are installed in the current environment.
@@ -128,24 +128,35 @@ function Get-TargetResource
 
         $getValue = $null
         #region resource generator code
-        $getValue = Get-MgBetaDeviceManagementDeviceHealthScript -DeviceHealthScriptId $Id -ErrorAction SilentlyContinue
+        if (-not [string]::IsNullOrEmpty($Id))
+        {
+            $getValue = Get-MgBetaDeviceManagementDeviceHealthScript -DeviceHealthScriptId $Id -ErrorAction SilentlyContinue
+        }
 
         if ($null -eq $getValue)
         {
-            Write-Verbose -Message "Could not find an Intune Device Remediation with Id {$Id}"
-
-            if (-Not [string]::IsNullOrEmpty($DisplayName))
+            if (-not [string]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceHealthScript `
+                Write-Verbose -Message "Could not find an Intune Device Remediation with Id {$Id}"
+            }
+
+            if (-not [string]::IsNullOrEmpty($DisplayName))
+            {
+                $matchingScripts = Get-MgBetaDeviceManagementDeviceHealthScript `
                     -All `
                     -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                     -ErrorAction SilentlyContinue | Where-Object `
                     -FilterScript { `
                         $_.DeviceHealthScriptType -eq 'deviceHealthScript' `
                 }
-                if ($null -ne $getValue)
+
+                if ($null -ne $matchingScripts)
                 {
-                    $getValue = Get-MgBetaDeviceManagementDeviceHealthScript -DeviceHealthScriptId $getValue.Id
+                    if ($matchingScripts -is [array] -and $matchingScripts.Count -gt 1)
+                    {
+                        throw "Multiple Intune Device Remediation scripts found with DisplayName '$DisplayName'. Please specify the Id parameter to identify which script to manage. Found scripts: $($matchingScripts.Id -join ', ')"
+                    }
+                    $getValue = Get-MgBetaDeviceManagementDeviceHealthScript -DeviceHealthScriptId $matchingScripts.Id
                 }
             }
         }
@@ -162,7 +173,7 @@ function Get-TargetResource
         $complexDetectionScriptParameters = @()
         foreach ($currentDetectionScriptParameters in $getValue.detectionScriptParameters)
         {
-            $myDetectionScriptParameters = @{}
+            $myDetectionScriptParameters = [ordered]@{}
             $myDetectionScriptParameters.Add('ApplyDefaultValueWhenNotAssigned', $currentDetectionScriptParameters.applyDefaultValueWhenNotAssigned)
             $myDetectionScriptParameters.Add('Description', $currentDetectionScriptParameters.description)
             $myDetectionScriptParameters.Add('IsRequired', $currentDetectionScriptParameters.isRequired)
@@ -170,9 +181,9 @@ function Get-TargetResource
             $myDetectionScriptParameters.Add('DefaultValue', $currentDetectionScriptParameters.defaultValue)
             if ($null -ne $currentDetectionScriptParameters.'@odata.type')
             {
-                $myDetectionScriptParameters.Add('odataType', $currentDetectionScriptParameters.'@odata.type'.toString())
+                $myDetectionScriptParameters.Add('odataType', $currentDetectionScriptParameters.'@odata.type'.ToString())
             }
-            if ($myDetectionScriptParameters.values.Where({ $null -ne $_ }).count -gt 0)
+            if ($myDetectionScriptParameters.values.Where({ $null -ne $_ }).Count -gt 0)
             {
                 $complexDetectionScriptParameters += $myDetectionScriptParameters
             }
@@ -181,7 +192,7 @@ function Get-TargetResource
         $complexRemediationScriptParameters = @()
         foreach ($currentRemediationScriptParameters in $getValue.remediationScriptParameters)
         {
-            $myRemediationScriptParameters = @{}
+            $myRemediationScriptParameters = [ordered]@{}
             $myRemediationScriptParameters.Add('ApplyDefaultValueWhenNotAssigned', $currentRemediationScriptParameters.applyDefaultValueWhenNotAssigned)
             $myRemediationScriptParameters.Add('Description', $currentRemediationScriptParameters.description)
             $myRemediationScriptParameters.Add('IsRequired', $currentRemediationScriptParameters.isRequired)
@@ -189,9 +200,9 @@ function Get-TargetResource
             $myRemediationScriptParameters.Add('DefaultValue', $currentRemediationScriptParameters.defaultValue)
             if ($null -ne $currentRemediationScriptParameters.'@odata.type')
             {
-                $myRemediationScriptParameters.Add('odataType', $currentRemediationScriptParameters.'@odata.type'.toString())
+                $myRemediationScriptParameters.Add('odataType', $currentRemediationScriptParameters.'@odata.type'.ToString())
             }
-            if ($myRemediationScriptParameters.values.Where({ $null -ne $_ }).count -gt 0)
+            if ($myRemediationScriptParameters.values.Where({ $null -ne $_ }).Count -gt 0)
             {
                 $complexRemediationScriptParameters += $myRemediationScriptParameters
             }
@@ -253,7 +264,7 @@ function Get-TargetResource
             }
 
             $assignmentResult += @{
-                RunRemediationScript = $assignment.RunRemediationScript
+                RunRemediationScript = $assignment.runRemediationScript
                 RunSchedule          = @{
                     DataType = $assignment.RunSchedule.AdditionalProperties.'@odata.type'
                     Date     = $assignment.RunSchedule.AdditionalProperties.date
@@ -268,7 +279,7 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -342,7 +353,7 @@ function Set-TargetResource
         [System.String]
         $RunAsAccount,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -415,7 +426,7 @@ function Set-TargetResource
         $keys = (([Hashtable]$CreateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
+            if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.GetType().Name -like '*cimInstance*')
             {
                 $CreateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters.$key
             }
@@ -450,7 +461,7 @@ function Set-TargetResource
                 }
             }
             $assignmentsHash += @{
-                runRemediationScript = $assignment.RunRemediationScript
+                runRemediationScript = $true
                 runSchedule          = $runSchedule
                 target               = $assignmentTarget.target
             }
@@ -491,7 +502,7 @@ function Set-TargetResource
         $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
+            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.GetType().Name -like '*cimInstance*')
             {
                 $UpdateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
             }
@@ -529,7 +540,7 @@ function Set-TargetResource
                 }
             }
             $assignmentsHash += @{
-                runRemediationScript = $assignment.RunRemediationScript
+                runRemediationScript = $true
                 runSchedule          = $runSchedule
                 target               = $assignmentTarget.target
             }
@@ -614,7 +625,7 @@ function Test-TargetResource
         [System.String]
         $RunAsAccount,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -657,9 +668,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -669,64 +677,30 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune Device Remediation with Id {$Id} and DisplayName {$DisplayName}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-    $testResult = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
+    $postProcessingScript = {
+        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
+        if ($CurrentValues.IsGlobalScript)
         {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-not $testResult)
-            {
-                break
-            }
-
-            $ValuesToCheck.Remove($key) | Out-Null
+            Write-Verbose -Message 'Detected a global script, removing read-only properties from the comparison'
+            $ValuesToCheck.Remove('DetectionScriptContent') | Out-Null
+            $ValuesToCheck.Remove('RemediationScriptContent') | Out-Null
+            $ValuesToCheck.Remove('DetectionScriptParameters') | Out-Null
+            $ValuesToCheck.Remove('RemediationScriptParameters') | Out-Null
+            $ValuesToCheck.Remove('DeviceHealthScriptType') | Out-Null
+            $ValuesToCheck.Remove('Publisher') | Out-Null
+            $ValuesToCheck.Remove('EnforceSignatureCheck') | Out-Null
+            $ValuesToCheck.Remove('DisplayName') | Out-Null
+            $ValuesToCheck.Remove('Description') | Out-Null
         }
+
+        return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
     }
 
-    $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck.Remove('IsGlobalScript') | Out-Null
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
-
-    if ($CurrentValues.IsGlobalScript)
-    {
-        Write-Verbose -Message 'Detected a global script, removing read-only properties from the comparison'
-        $ValuesToCheck.Remove('DetectionScriptContent') | Out-Null
-        $ValuesToCheck.Remove('RemediationScriptContent') | Out-Null
-        $ValuesToCheck.Remove('DetectionScriptParameters') | Out-Null
-        $ValuesToCheck.Remove('RemediationScriptParameters') | Out-Null
-        $ValuesToCheck.Remove('DeviceHealthScriptType') | Out-Null
-        $ValuesToCheck.Remove('Publisher') | Out-Null
-        $ValuesToCheck.Remove('EnforceSignatureCheck') | Out-Null
-        $ValuesToCheck.Remove('DisplayName') | Out-Null
-        $ValuesToCheck.Remove('Description') | Out-Null
-    }
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    if ($testResult)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties @('IsGlobalScript') `
+                                         -PostProcessing $postProcessingScript
+    return $result
 }
 
 function Export-TargetResource
@@ -916,4 +890,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

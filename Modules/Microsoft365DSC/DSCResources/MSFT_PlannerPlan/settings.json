@@ -9,7 +9,7 @@
             "name": "Group.Read.All"
           },
           {
-            "name": "Tasks.Read"
+            "name": "Tasks.Read.All"
           }
         ],
         "update": [
@@ -17,10 +17,7 @@
             "name": "Group.Read.All"
           },
           {
-            "name": "Tasks.Read"
-          },
-          {
-            "name": "Tasks.ReadWrite"
+            "name": "Tasks.ReadWrite.All"
           }
         ]
       },
@@ -38,9 +35,6 @@
             "name": "Group.Read.All"
           },
           {
-            "name": "Tasks.Read.All"
-          },
-          {
             "name": "Tasks.ReadWrite.All"
           }
         ]
@@ -51,5 +45,22 @@
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Groups",
     "Microsoft.Graph.Planner"
+  ],
+  "mode": "Data",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Planner",
+      "cmdlets": [
+        "Get-MgGroupPlannerPlan",
+        "New-MgPlannerPlan",
+        "Update-MgPlannerPlan"
+      ]
+    }
   ]
 }

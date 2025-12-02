@@ -71,5 +71,19 @@
     "Microsoft.Graph.Sites",
     "MSCloudLoginAssistant",
     "PnP.PowerShell"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Sites",
+      "cmdlets": [
+        "Get-MgAdminSharepointSetting",
+        "Update-MgAdminSharepointSetting"
+      ]
+    }
   ]
 }

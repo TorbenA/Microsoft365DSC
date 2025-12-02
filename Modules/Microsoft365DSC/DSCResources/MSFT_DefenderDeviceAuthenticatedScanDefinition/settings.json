@@ -6,20 +6,14 @@
     "update": []
   },
   "permissions": {
-    "graph": {
-      "delegated": {
-        "read": [],
-        "update": []
-      },
-      "application": {
-        "read": [],
-        "update": []
-      }
-    },
     "WindowsDefenderATP": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          "Machine.Read.All"
+        ],
+        "update": [
+          "Machine.ReadWrite.All"
+        ]
       },
       "application": {
         "read": [
@@ -31,5 +25,6 @@
       }
     }
   },
-  "requiredModules": []
+  "requiredModules": [],
+  "mode": "Configuration"
 }

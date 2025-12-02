@@ -19,9 +19,6 @@
         ],
         "update": [
           {
-            "name": "EntitlementManagement.Read.All"
-          },
-          {
             "name": "EntitlementManagement.ReadWrite.All"
           }
         ]
@@ -34,13 +31,7 @@
         ],
         "update": [
           {
-            "name": "EntitlementManagement.Read.All"
-          },
-          {
             "name": "EntitlementManagement.ReadWrite.All"
-          },
-          {
-            "name": "RoleManagement.ReadWrite.Directory"
           }
         ]
       }
@@ -49,5 +40,19 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.Governance"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.Identity.Governance",
+      "cmdlets": [
+        "Get-MgBetaEntitlementManagementSetting",
+        "Update-MgBetaEntitlementManagementSetting"
+      ]
+    }
   ]
 }

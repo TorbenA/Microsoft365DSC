@@ -22,27 +22,27 @@ function Get-TargetResource
         $MySiteSharingCapability,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowEveryoneClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowAllUsersClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowEveryoneExceptExternalUsersClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ProvisionSharedWithEveryoneFolder,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $EnableGuestSignInAcceleration,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $BccExternalSharingInvitations,
 
         [Parameter()]
@@ -76,15 +76,15 @@ function Get-TargetResource
         $DefaultSharingLinkType,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $PreventExternalUsersFromResharing,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ExternalUserExpirationRequired,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowPeoplePickerSuggestionsForGuestUsers,
 
         [Parameter()]
@@ -98,17 +98,13 @@ function Get-TargetResource
         $FolderAnonymousLinkType,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $NotifyOwnersWhenItemsReshared,
 
         [Parameter()]
         [System.String]
         [ValidateSet('None', 'View', 'Edit')]
         $DefaultLinkPermission,
-
-        [Parameter()]
-        [System.boolean]
-        $RequireAcceptingAccountMatchInvitedAccount,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -154,27 +150,35 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting configuration for SPO Sharing settings'
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = $PSBoundParameters
-    $nullReturn.Ensure = 'Absent'
-
     try
     {
-        $SPOSharingSettings = Get-PnPTenant -ErrorAction Stop
+        if (-not $Script:ExportMode)
+        {
+            $null = New-M365DSCConnection -Workload 'PnP' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullReturn = $PSBoundParameters
+            $nullReturn.Ensure = 'Absent'
+        }
+
+        if ($null -eq $Script:SPOSharingSettings)
+        {
+            $Script:SPOSharingSettings = Get-PnPTenant -ErrorAction Stop
+        }
+
+        # Local filtering because server side filtering intermittently fails
         $MySite = Get-PnPTenantSite -Filter "Url -like '-my.sharepoint.'" | Where-Object -FilterScript { $_.Template -notmatch '^RedirectSite#' }
 
         if ($null -ne $MySite)
@@ -184,12 +188,12 @@ function Get-TargetResource
 
         if ($null -ne $SPOSharingSettings.SharingAllowedDomainList)
         {
-            $allowDomains = $SPOSharingSettings.SharingAllowedDomainList.split(' ')
+            $allowDomains = $SPOSharingSettings.SharingAllowedDomainList.Split(' ')
         }
 
         if ($null -ne $SPOSharingSettings.SharingBlockedDomainList)
         {
-            $blockDomains = $SPOSharingSettings.SharingBlockedDomainList.split(' ')
+            $blockDomains = $SPOSharingSettings.SharingBlockedDomainList.Split(' ')
         }
 
         if ($SPOSharingSettings.DefaultLinkPermission -eq 'None')
@@ -223,9 +227,6 @@ function Get-TargetResource
             FolderAnonymousLinkType                  = $SPOSharingSettings.FolderAnonymousLinkType.ToString()
             NotifyOwnersWhenItemsReshared            = $SPOSharingSettings.NotifyOwnersWhenItemsReshared
             DefaultLinkPermission                    = $DefaultLinkPermission
-
-            #DEPRECATED
-            #RequireAcceptingAccountMatchInvitedAccount = $SPOSharingSettings.RequireAcceptingAccountMatchInvitedAccount
             Credential                               = $Credential
             ApplicationId                            = $ApplicationId
             TenantId                                 = $TenantId
@@ -233,7 +234,7 @@ function Get-TargetResource
             CertificatePassword                      = $CertificatePassword
             CertificatePath                          = $CertificatePath
             CertificateThumbprint                    = $CertificateThumbprint
-            Managedidentity                          = $ManagedIdentity.IsPresent
+            ManagedIdentity                          = $ManagedIdentity.IsPresent
             Ensure                                   = 'Present'
             AccessTokens                             = $AccessTokens
         }
@@ -282,27 +283,27 @@ function Set-TargetResource
         $MySiteSharingCapability,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowEveryoneClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowAllUsersClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowEveryoneExceptExternalUsersClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ProvisionSharedWithEveryoneFolder,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $EnableGuestSignInAcceleration,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $BccExternalSharingInvitations,
 
         [Parameter()]
@@ -336,15 +337,15 @@ function Set-TargetResource
         $DefaultSharingLinkType,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $PreventExternalUsersFromResharing,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ExternalUserExpirationRequired,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowPeoplePickerSuggestionsForGuestUsers,
 
         [Parameter()]
@@ -358,17 +359,13 @@ function Set-TargetResource
         $FolderAnonymousLinkType,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $NotifyOwnersWhenItemsReshared,
 
         [Parameter()]
         [System.String]
         [ValidateSet('None', 'View', 'Edit')]
         $DefaultLinkPermission,
-
-        [Parameter()]
-        [System.boolean]
-        $RequireAcceptingAccountMatchInvitedAccount,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -426,25 +423,11 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+    $null = New-M365DSCConnection -Workload 'PnP' `
         -InboundParameters $PSBoundParameters
 
-    $CurrentParameters = $PSBoundParameters
-    $CurrentParameters.Remove('Credential') | Out-Null
-    $CurrentParameters.Remove('Ensure') | Out-Null
-    $CurrentParameters.Remove('Verbose') | Out-Null
+    $CurrentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $CurrentParameters.Remove('IsSingleInstance') | Out-Null
-    $CurrentParameters.Remove('ApplicationId') | Out-Null
-    $CurrentParameters.Remove('TenantId') | Out-Null
-    $CurrentParameters.Remove('CertificatePath') | Out-Null
-    $CurrentParameters.Remove('CertificatePassword') | Out-Null
-    $CurrentParameters.Remove('CertificateThumbprint') | Out-Null
-    $CurrentParameters.Remove('ManagedIdentity') | Out-Null
-    $CurrentParameters.Remove('ApplicationSecret') | Out-Null
-    $CurrentParameters.Remove('AccessTokens') | Out-Null
-
-    # DEPRECATED
-    $CurrentParameters.Remove('RequireAcceptingAccountMatchInvitedAccount') | Out-Null
 
     [bool]$SetMySharingCapability = $false
     if ($null -ne $CurrentParameters['MySiteSharingCapability'])
@@ -525,6 +508,7 @@ function Set-TargetResource
         Set-PnPTenantSite -Identity $mysite.Url -SharingCapability $MySiteSharingCapability
     }
 }
+
 function Test-TargetResource
 {
     [CmdletBinding()]
@@ -547,27 +531,27 @@ function Test-TargetResource
         $MySiteSharingCapability,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowEveryoneClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowAllUsersClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowEveryoneExceptExternalUsersClaim,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ProvisionSharedWithEveryoneFolder,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $EnableGuestSignInAcceleration,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $BccExternalSharingInvitations,
 
         [Parameter()]
@@ -601,15 +585,15 @@ function Test-TargetResource
         $DefaultSharingLinkType,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $PreventExternalUsersFromResharing,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ExternalUserExpirationRequired,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ShowPeoplePickerSuggestionsForGuestUsers,
 
         [Parameter()]
@@ -623,17 +607,13 @@ function Test-TargetResource
         $FolderAnonymousLinkType,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $NotifyOwnersWhenItemsReshared,
 
         [Parameter()]
         [System.String]
         [ValidateSet('None', 'View', 'Edit')]
         $DefaultLinkPermission,
-
-        [Parameter()]
-        [System.boolean]
-        $RequireAcceptingAccountMatchInvitedAccount,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -677,11 +657,8 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -689,80 +666,57 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Testing configuration for SPO Sharing settings'
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    $ValuesToCheck = $PSBoundParameters
-    $ValuesToCheck.Remove('Credential') | Out-Null
-    $ValuesToCheck.Remove('ApplicationId') | Out-Null
-    $ValuesToCheck.Remove('TenantId') | Out-Null
-    $ValuesToCheck.Remove('ApplicationSecret') | Out-Null
-    $ValuesToCheck.Remove('CertificatePath') | Out-Null
-    $ValuesToCheck.Remove('CertificatePassword') | Out-Null
-    $ValuesToCheck.Remove('CertificateThumbprint') | Out-Null
-    $ValuesToCheck.Remove('ManagedIdentity') | Out-Null
-    $ValuesToCheck.Remove('AccessTokens') | Out-Null
-
-    # DEPRECATED
-    $ValuesToCheck.Remove('RequireAcceptingAccountMatchInvitedAccount') | Out-Null
-
     if ($DefaultLinkPermission -eq 'None')
     {
         Write-Verbose -Message 'Valid values to set are View and Edit. A value of None will be set to Edit as its the default value.'
-        $ValuesToCheck['DefaultLinkPermission'] = 'Edit'
+        $PSBoundParameters.DefaultLinkPermission = 'Edit'
     }
 
     if ($null -eq $SignInAccelerationDomain)
     {
-        $ValuesToCheck.Remove('SignInAccelerationDomain') | Out-Null
-        $ValuesToCheck.Remove('EnableGuestSignInAcceleration') | Out-Null #removing EnableGuestSignInAcceleration since it can only be configured with a configured SignINAccerlation domain
+        $PSBoundParameters.Remove('SignInAccelerationDomain') | Out-Null
+        $PSBoundParameters.Remove('EnableGuestSignInAcceleration') | Out-Null #removing EnableGuestSignInAcceleration since it can only be configured with a configured SignINAccerlation domain
     }
+
     if ($SharingCapability -ne 'ExternalUserAndGuestSharing')
     {
         Write-Warning -Message 'The sharing capabilities for the tenant are not configured to be ExternalUserAndGuestSharing for that the RequireAnonymousLinksExpireInDays property cannot be configured'
-        $ValuesToCheck.Remove('RequireAnonymousLinksExpireInDays') | Out-Null
+        $PSBoundParameters.Remove('RequireAnonymousLinksExpireInDays') | Out-Null
     }
+
     if ($ExternalUserExpireInDays -and $ExternalUserExpirationRequired -eq $false)
     {
         Write-Warning -Message 'ExternalUserExpirationRequired is set to be false. For that the ExternalUserExpireInDays property cannot be configured'
-        $ValuesToCheck.Remove('ExternalUserExpireInDays') | Out-Null
+        $PSBoundParameters.Remove('ExternalUserExpireInDays') | Out-Null
     }
+
     if ($SharingCapability -ne 'ExternalUserAndGuestSharing' -and ($null -ne $FileAnonymousLinkType -or $null -ne $FolderAnonymousLinkType))
     {
         Write-Warning -Message 'If anonymous file or folder links are set, SharingCapability must be set to ExternalUserAndGuestSharing '
-        $ValuesToCheck.Remove('FolderAnonymousLinkType') | Out-Null
-        $ValuesToCheck.Remove('FileAnonymousLinkType') | Out-Null
+        $PSBoundParameters.Remove('FolderAnonymousLinkType') | Out-Null
+        $PSBoundParameters.Remove('FileAnonymousLinkType') | Out-Null
     }
 
     if ($SharingDomainRestrictionMode -eq 'None')
     {
         Write-Warning -Message 'SharingDomainRestrictionMode is set to None. For that SharingAllowedDomainList / SharingBlockedDomainList cannot be configured'
-        $ValuesToCheck.Remove('SharingAllowedDomainList') | Out-Null
-        $ValuesToCheck.Remove('SharingBlockedDomainList') | Out-Null
+        $PSBoundParameters.Remove('SharingAllowedDomainList') | Out-Null
+        $PSBoundParameters.Remove('SharingBlockedDomainList') | Out-Null
     }
     elseif ($SharingDomainRestrictionMode -eq 'AllowList')
     {
         Write-Verbose -Message 'SharingDomainRestrictionMode is set to AllowList. For that SharingBlockedDomainList cannot be configured'
-        $ValuesToCheck.Remove('SharingBlockedDomainList') | Out-Null
+        $PSBoundParameters.Remove('SharingBlockedDomainList') | Out-Null
     }
     elseif ($SharingDomainRestrictionMode -eq 'BlockList')
     {
         Write-Warning -Message 'SharingDomainRestrictionMode is set to BlockList. For that SharingAllowedDomainList cannot be configured'
-        $ValuesToCheck.Remove('SharingAllowedDomainList') | Out-Null
+        $PSBoundParameters.Remove('SharingAllowedDomainList') | Out-Null
     }
 
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -830,6 +784,7 @@ function Export-TargetResource
             $Global:M365DSCExportResourceInstancesCount++
         }
 
+        $Script:ExportMode = $true
         $Params = @{
             IsSingleInstance      = 'Yes'
             ApplicationId         = $ApplicationId
@@ -838,7 +793,7 @@ function Export-TargetResource
             CertificatePassword   = $CertificatePassword
             CertificatePath       = $CertificatePath
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             Credential            = $Credential
             AccessTokens          = $AccessTokens
         }
@@ -874,4 +829,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

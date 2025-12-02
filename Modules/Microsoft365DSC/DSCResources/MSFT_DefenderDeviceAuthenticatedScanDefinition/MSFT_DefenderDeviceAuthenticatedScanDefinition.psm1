@@ -68,12 +68,14 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration for Defender Device Authenticated Scan Definition with Name $Name"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Id -ne $Id)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'DefenderForEndpoint' `
-                -InboundParameters $PSBoundParameters | Out-Null
+            $null = New-M365DSCConnection -Workload 'DefenderForEndpoint' `
+                -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
             Confirm-M365DSCDependencies
@@ -165,7 +167,7 @@ function Get-TargetResource
             ManagedIdentity          = $ManagedIdentity.IsPresent
             AccessTokens             = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -246,6 +248,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting configuration for Defender Device Authenticated Scan Definition with Name $Name"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -578,4 +582,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

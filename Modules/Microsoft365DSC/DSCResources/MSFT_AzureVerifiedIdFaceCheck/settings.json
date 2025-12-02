@@ -21,5 +21,6 @@
     "Az.Accounts",
     "Az.Resources",
     "MSCloudLoginAssistant"
-  ]
+  ],
+  "mode": "Configuration"
 }

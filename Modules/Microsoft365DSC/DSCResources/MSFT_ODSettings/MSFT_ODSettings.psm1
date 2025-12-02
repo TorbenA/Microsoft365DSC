@@ -25,10 +25,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $NotifyOwnersWhenInvitationsAccepted,
-
-        [Parameter()]
-        [System.Boolean]
         $NotificationsInOneDriveForBusinessEnabled,
 
         [Parameter()]
@@ -65,6 +61,14 @@ function Get-TargetResource
         [System.String]
         [ValidateSet('OptOut', 'HardOptIn', 'SoftOptIn')]
         $GrooveBlockOption,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisableAddToOneDrive,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisplayNamesOfFileViewers,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -106,7 +110,7 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting configuration of OneDrive Settings'
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+    $null = New-M365DSCConnection -Workload 'PnP' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -169,7 +173,9 @@ function Get-TargetResource
             $FixedExcludedFileExtensions = @()
         }
 
-        $FixedAllowedDomainList = $tenantRestrictions.AllowedDomainList
+        $FixedAllowedDomainList = @($tenantRestrictions.AllowedDomainList | Foreach-Object {
+            $_.ToString()
+        })
         if ($FixedAllowedDomainList.Count -eq 0 -or
             ($FixedAllowedDomainList.Count -eq 1 -and $FixedAllowedDomainList[0] -eq ''))
         {
@@ -189,13 +195,13 @@ function Get-TargetResource
             DomainGuids                               = $FixedAllowedDomainList
             ExcludedFileExtensions                    = $FixedExcludedFileExtensions
             GrooveBlockOption                         = $GrooveOption
+            DisableAddToOneDrive                      = $tenant.DisableAddToOneDrive
+            DisplayNamesOfFileViewers                 = $tenant.DisplayNamesOfFileViewers
             OneDriveStorageQuota                      = $tenant.OneDriveStorageQuota
             OrphanedPersonalSitesRetentionPeriod      = $tenant.OrphanedPersonalSitesRetentionPeriod
             OneDriveForGuestsEnabled                  = $tenant.OneDriveForGuestsEnabled
             ODBAccessRequests                         = $tenant.ODBAccessRequests
             ODBMembersCanShare                        = $ODBMembersCanShareValue
-            #DEPRECATED
-            #NotifyOwnersWhenInvitationsAccepted       = $tenant.NotifyOwnersWhenInvitationsAccepted
             NotificationsInOneDriveForBusinessEnabled = $tenant.NotificationsInOneDriveForBusinessEnabled
             Ensure                                    = 'Present'
             ApplicationId                             = $ApplicationId
@@ -204,7 +210,7 @@ function Get-TargetResource
             CertificatePath                           = $CertificatePath
             CertificateThumbprint                     = $CertificateThumbprint
             Credential                                = $Credential
-            Managedidentity                           = $ManagedIdentity.IsPresent
+            ManagedIdentity                           = $ManagedIdentity.IsPresent
             AccessTokens                              = $AccessTokens
         }
     }
@@ -241,11 +247,6 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $OneDriveForGuestsEnabled,
-
-        # DEPRECATED
-        [Parameter()]
-        [System.Boolean]
-        $NotifyOwnersWhenInvitationsAccepted,
 
         [Parameter()]
         [System.Boolean]
@@ -287,6 +288,14 @@ function Set-TargetResource
         $GrooveBlockOption,
 
         [Parameter()]
+        [System.Boolean]
+        $DisableAddToOneDrive,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisplayNamesOfFileViewers,
+
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
@@ -326,6 +335,9 @@ function Set-TargetResource
 
     Write-Verbose -Message 'Setting configuration of OneDrive Settings'
 
+    $null = New-M365DSCConnection -Workload 'PnP' `
+        -InboundParameters $PSBoundParameters
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -338,20 +350,15 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+    $null = New-M365DSCConnection -Workload 'PnP' `
         -InboundParameters $PSBoundParameters
 
     ## Configure OneDrive settings
     ## Parameters below are remove for the Set-SPOTenant cmdlet
     ## they are used in the Set-SPOTenantSyncClientRestriction cmdlet
-    $CurrentParameters = $PSBoundParameters
-    $CurrentParameters.Remove('Credential') | Out-Null
+    $CurrentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $Options = @{}
 
-    if ($CurrentParameters.ContainsKey('Ensure'))
-    {
-        $CurrentParameters.Remove('Ensure') | Out-Null
-    }
     if ($CurrentParameters.ContainsKey('BlockMacSync'))
     {
         $Options.Add('BlockMacSync', $CurrentParameters.BlockMacSync)
@@ -360,7 +367,7 @@ function Set-TargetResource
     # set the TenantRestrictionEnabled and DomainGuids values to avoid invalid configurations
     if ($TenantRestrictionEnabled -eq $true)
     {
-        if (!($CurrentParameters.ContainsKey('DomainGuids') -and ($CurrentParameters.DomainGuids.count -gt 0) -and ($CurrentParameters.DomainGuids[0] -ne '') ))
+        if (!($CurrentParameters.ContainsKey('DomainGuids') -and ($CurrentParameters.DomainGuids.Count -gt 0) -and ($CurrentParameters.DomainGuids[0] -ne '') ))
         {
             Write-Verbose -Message 'Invalid configuration specified: TenantRestrictionEnabled is True but No DomainGuids Specified, this option will not be enabled'
             $TenantRestrictionEnabled = $false
@@ -373,7 +380,7 @@ function Set-TargetResource
     {
         if ($CurrentParameters.ContainsKey('TenantRestrictionEnabled'))
         {
-            if ($CurrentParameters.ContainsKey('DomainGuids') -and ($CurrentParameters.DomainGuids.count -gt 0) -and ($CurrentParameters.DomainGuids[0] -ne '') )
+            if ($CurrentParameters.ContainsKey('DomainGuids') -and ($CurrentParameters.DomainGuids.Count -gt 0) -and ($CurrentParameters.DomainGuids[0] -ne '') )
             {
                 Write-Verbose -Message 'DomainGuids have been Specified but TenantRestrictionEnabled is set to False, DomainGuids value will be ignored'
                 $TenantRestrictionEnabled = $false
@@ -389,7 +396,7 @@ function Set-TargetResource
         }
         else
         {
-            if ($CurrentParameters.ContainsKey('DomainGuids') -and ($CurrentParameters.DomainGuids.count -gt 0) -and ($CurrentParameters.DomainGuids[0] -ne '') )
+            if ($CurrentParameters.ContainsKey('DomainGuids') -and ($CurrentParameters.DomainGuids.Count -gt 0) -and ($CurrentParameters.DomainGuids[0] -ne '') )
             {
                 Write-Verbose -Message 'TenantRestrictionEnabled value not specified but a valid DomainGuids value is present - TenantRestrictionEnabled will be set to true'
                 $TenantRestrictionEnabled = $true
@@ -432,14 +439,6 @@ function Set-TargetResource
         $CurrentParameters.Remove('IsSingleInstance') | Out-Null
     }
 
-    $CurrentParameters.Remove('ApplicationId') | Out-Null
-    $CurrentParameters.Remove('TenantId') | Out-Null
-    $CurrentParameters.Remove('CertificatePath') | Out-Null
-    $CurrentParameters.Remove('CertificatePassword') | Out-Null
-    $CurrentParameters.Remove('CertificateThumbprint') | Out-Null
-    $CurrentParameters.Remove('ManagedIdentity') | Out-Null
-    $CurrentParameters.Remove('AccessTokens') | Out-Null
-
     Write-Verbose -Message 'Configuring OneDrive settings.'
     Set-PnPTenant @CurrentParameters
 
@@ -474,10 +473,6 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $OneDriveForGuestsEnabled,
-
-        [Parameter()]
-        [System.Boolean]
-        $NotifyOwnersWhenInvitationsAccepted,
 
         [Parameter()]
         [System.Boolean]
@@ -517,6 +512,14 @@ function Test-TargetResource
         [System.String]
         [ValidateSet('OptOut', 'HardOptIn', 'SoftOptIn')]
         $GrooveBlockOption,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisableAddToOneDrive,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisplayNamesOfFileViewers,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -638,7 +641,7 @@ function Export-TargetResource
             CertificatePassword   = $CertificatePassword
             CertificatePath       = $CertificatePath
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             Credential            = $Credential
             AccessTokens          = $AccessTokens
         }
@@ -677,4 +680,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

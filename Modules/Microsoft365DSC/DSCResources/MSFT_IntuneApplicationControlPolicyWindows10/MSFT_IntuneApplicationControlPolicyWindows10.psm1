@@ -75,7 +75,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters -ErrorAction Stop
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -108,7 +108,7 @@ function Get-TargetResource
                 }
             }
 
-            if (([array]$policy).count -gt 1)
+            if (([array]$policy).Count -gt 1)
             {
                 throw "A policy with a duplicated displayName {'$DisplayName'} was found - Ensure displayName is unique"
             }
@@ -149,7 +149,7 @@ function Get-TargetResource
 
         $returnAssignments = @()
         $graphAssignments = Get-MgBetaDeviceManagementIntentAssignment -DeviceManagementIntentId $policy.Id
-        if ($graphAssignments.count -gt 0)
+        if ($graphAssignments.Count -gt 0)
         {
             $returnAssignments += ConvertFrom-IntunePolicyAssignment -Assignments $graphAssignments -IncludeDeviceFilter:$true
         }
@@ -236,8 +236,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
+    Write-Verbose -Message "Setting configuration of the Intune Application Control Policy for Windows10 with DisplayName {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -253,23 +252,17 @@ function Set-TargetResource
 
     $policyTemplateID = '63be6324-e3c9-4c97-948a-e7f4b96f0f20'
     $currentPolicy = Get-TargetResource @PSBoundParameters
-    $PSBoundParameters.Remove('Ensure') | Out-Null
-    $PSBoundParameters.Remove('Credential') | Out-Null
-    $PSBoundParameters.Remove('ApplicationId') | Out-Null
-    $PSBoundParameters.Remove('TenantId') | Out-Null
-    $PSBoundParameters.Remove('ApplicationSecret') | Out-Null
-    $PSBoundParameters.Remove('CertificateThumbprint') | Out-Null
-    $PSBoundParameters.Remove('ManagedIdentity') | Out-Null
-    $PSBoundParameters.Remove('AccessTokens') | Out-Null
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+
     if ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating new Endpoint Protection Application Control Policy {$DisplayName}"
-        $PSBoundParameters.Remove('DisplayName') | Out-Null
-        $PSBoundParameters.Remove('Description') | Out-Null
-        $PSBoundParameters.Remove('Assignments') | Out-Null
+        $boundParameters.Remove('DisplayName') | Out-Null
+        $boundParameters.Remove('Description') | Out-Null
+        $boundParameters.Remove('Assignments') | Out-Null
 
         $settings = Get-M365DSCIntuneDeviceConfigurationSettings `
-            -Properties ([System.Collections.Hashtable]$PSBoundParameters) `
+            -Properties ([System.Collections.Hashtable]$boundParameters) `
             -TemplateId $policyTemplateID
 
         $policy = New-MgBetaDeviceManagementIntent -DisplayName $DisplayName `
@@ -295,16 +288,16 @@ function Set-TargetResource
             -FilterScript { $_.TemplateId -eq $policyTemplateID -and `
                 $_.displayName -eq $($DisplayName) }
 
-        $PSBoundParameters.Remove('DisplayName') | Out-Null
-        $PSBoundParameters.Remove('Description') | Out-Null
-        $PSBoundParameters.Remove('Assignments') | Out-Null
+        $boundParameters.Remove('DisplayName') | Out-Null
+        $boundParameters.Remove('Description') | Out-Null
+        $boundParameters.Remove('Assignments') | Out-Null
 
         Update-MgBetaDeviceManagementIntent -ErrorAction Stop `
             -Description $Description `
             -DeviceManagementIntentId $appControlPolicy.Id
 
         $settings = Get-M365DSCIntuneDeviceConfigurationSettings `
-            -Properties ([System.Collections.Hashtable]$PSBoundParameters) `
+            -Properties ([System.Collections.Hashtable]$boundParameters) `
             -TemplateId $policyTemplateID
 
         $Uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceManagement/intents/$($appControlPolicy.Id)/updateSettings"
@@ -398,46 +391,19 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
         -Parameters $PSBoundParameters
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
-    Write-Verbose -Message "Testing configuration of Endpoint Protection Application Control Policy {$DisplayName}"
 
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
-    $testResult = $true
-    #region Assignments
-    if ($TestResult)
-    {
-        $source = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject $PSBoundParameters.Assignments
-        $target = $CurrentValues.Assignments
-        $testResult = Compare-M365DSCIntunePolicyAssignment -Source $source -Target $target
-        $ValuesToCheck.Remove('Assignments') | Out-Null
-    }
-    #endregion
-
-    if ($TestResult)
-    {
-        $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -527,7 +493,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
@@ -589,4 +555,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

@@ -6,18 +6,40 @@
     "update": []
   },
   "permissions": {
-    "graph": {
+    "powerAppsService": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "User"
+          }
+        ],
+        "update": [
+          {
+            "name": "User"
+          }
+        ]
       },
       "application": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "User"
+          }
+        ],
+        "update": [
+          {
+            "name": "User"
+          }
+        ]
       }
+    },
+    "powerPlatform": {
+      "requiredRoles": [
+        "System Administrator"
+      ]
     }
   },
   "requiredModules": [
     "MSCloudLoginAssistant"
-  ]
+  ],
+  "mode": "Configuration"
 }

@@ -6,10 +6,18 @@
     "update": []
   },
   "permissions": {
-    "graph": {
+    "Azure Service Management": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "user_impersonation"
+          }
+        ],
+        "update": [
+          {
+            "name": "user_impersonation"
+          }
+        ]
       },
       "application": {
         "read": [],
@@ -19,5 +27,6 @@
   },
   "requiredModules": [
     "Az.Accounts"
-  ]
+  ],
+  "mode": "Data"
 }

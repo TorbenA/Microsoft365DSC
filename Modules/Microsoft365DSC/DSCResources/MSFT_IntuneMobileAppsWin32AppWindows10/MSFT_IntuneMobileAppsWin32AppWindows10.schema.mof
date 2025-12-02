@@ -18,7 +18,7 @@ class MSFT_DeviceManagementWin32MobileAppAssignmentSettingsRestartSettings
     [Write, Description("The number of minutes to snooze the restart notification dialog when the snooze button is selected.")] SInt32 restartNotificationSnoozeDurationInMinutes;
 };
 
-[ClassVersion("1.0.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_DeviceManagementWin32MobileAppAssignmentSettingsAutoUpdateSettings
 {
     [Write, Description("The auto-update superseded apps setting for the app assignment. Possible values are notConfigured and enabled. Default value is notConfigured."), ValueMap{"enabled", "notConfigured"}, Values{"enabled", "notConfigured"}] String autoUpdateSupersededAppsState;
@@ -32,10 +32,10 @@ class MSFT_DeviceManagementWin32MobileAppAssignmentSettingsInstallTimeSettings
     [Write, Description("The time at which the app should be installed.")] String deadlineDateTime;
 };
 
-[ClassVersion("1.0.0.0")]
+[ClassVersion("1.0.0.2")]
 class MSFT_DeviceManagementMobileAppAssignmentSettings
 {
-    [Write, Description("The odata type of the assignment type."), ValueMap{"#microsoft.graph.win32LobAppAssignmentSettings"}, Values{"#microsoft.graph.win32LobAppAssignmentSettings"}] String odataType;
+    [Required, Description("The odata type of the assignment type."), ValueMap{"#microsoft.graph.iosStoreAppAssignmentSettings", "#microsoft.graph.win32LobAppAssignmentSettings", "#microsoft.graph.winGetAppAssignmentSettings", "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"}, Values{"#microsoft.graph.iosStoreAppAssignmentSettings", "#microsoft.graph.win32LobAppAssignmentSettings", "#microsoft.graph.winGetAppAssignmentSettings", "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"}] String odataType;
 };
 
 [ClassVersion("1.0.0.0")]
@@ -159,7 +159,7 @@ class MSFT_IntuneMobileAppsWin32AppWindows10 : OMI_BaseResource
     [Write, Description("Indicates the version displayed in the UX for this app. Used to set the version of the app. Example: 1.0.3.215.")] String DisplayVersion;
     [Write, Description("Indicates whether the uninstall is supported from the company portal for the Win32 app with an available assignment. When TRUE, indicates that uninstall is supported from the company portal for the Windows app (Win32) with an available assignment. When FALSE, indicates that uninstall is not supported for the Windows app (Win32) with an Available assignment.")] Boolean AllowAvailableUninstall;
 
-    [Write, Description("Represents the assignment to the Intune policy."), EmbeddedInstance("MSFT_DeviceManagementMobileAppAssignment")] String Assignments[];
+    [Write, Description("Represents the assignment to the Intune policy."), EmbeddedInstance("MSFT_DeviceManagementWin32MobileAppAssignment")] String Assignments[];
     [Write, Description("Present ensures the policy exists, absent ensures it is removed."), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] string Ensure;
     [Write, Description("Credentials of the Admin"), EmbeddedInstance("MSFT_Credential")] string Credential;
     [Write, Description("Id of the Azure Active Directory application to authenticate with.")] String ApplicationId;

@@ -50,10 +50,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UserVoiceForFeedbackEnabled,
-
-        [Parameter()]
-        [System.Boolean]
         $PublicCdnEnabled,
 
         [Parameter()]
@@ -83,6 +79,10 @@ function Get-TargetResource
         [Parameter()]
         [System.Boolean]
         $HideDefaultThemes,
+
+        [Parameter()]
+        [System.Boolean]
+        $HideSyncButtonOnODB,
 
         [Parameter()]
         [System.Boolean]
@@ -138,6 +138,67 @@ function Get-TargetResource
         $AllowSelectSecurityGroupsInSPSitesList,
 
         [Parameter()]
+        [System.Boolean]
+        $MobileFriendlyUrlEnabledInTenant,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowDownloadingNonWebViewableFiles,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowEditing,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisableCustomAppAuthentication,
+
+        [Parameter()]
+        [System.String[]]
+        $DisabledModernListTemplateIds,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisablePersonalListCreation,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisplayNamesOfFileViewersInSpo,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsLoopEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSharePointNewsfeedEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSiteCreationEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSiteCreationUiEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSitePagesCreationEnabled,
+
+        [Parameter()]
+        [System.String]
+        $NoAccessRedirectUrl,
+
+        [Parameter()]
+        [System.Boolean]
+        $RequireAcceptingAccountMatchInvitedAccount,
+
+        [Parameter()]
+        [ValidateSet('NoPreference', 'Allowed', 'Disallowed')]
+        [System.String]
+        $SpecialCharactersStateInFileFolderNames,
+
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
@@ -181,31 +242,34 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting configuration for SPO Tenant'
 
-    $ConnectionModeGraph = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
-
-    $ConnectionMode = New-M365DSCConnection -Workload 'PNP' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = $PSBoundParameters
-    $nullReturn.Ensure = 'Absent'
-
     try
     {
+        if (-not $Script:ExportMode)
+        {
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                -InboundParameters $PSBoundParameters
+
+            $null = New-M365DSCConnection -Workload 'PNP' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+        }
+
+        $nullReturn = $PSBoundParameters
+        $nullReturn.Ensure = 'Absent'
+
         $SPOTenantSettings = Get-PnPTenant -ErrorAction Stop
-        $SPOTenantGraphSettings = Get-MgAdminSharepointSetting -Property TenantDefaultTimeZone # get tenantDefaultTimezone
+        $SPOTenantGraphSettings = Get-MgAdminSharepointSetting -Property *
         $CompatibilityRange = $SPOTenantSettings.CompatibilityRange.Split(',')
         $MinCompat = $null
         $MaxCompat = $null
@@ -216,13 +280,16 @@ function Get-TargetResource
         }
 
         # Additional Properties via REST
-        $parametersToRetrieve = @('ExemptNativeUsersFromTenantLevelRestricedAccessControl',
+        $parametersToRetrieve = @(
+            'ExemptNativeUsersFromTenantLevelRestricedAccessControl',
             'AllowSelectSGsInODBListInTenant',
             'DenySelectSGsInODBListInTenant',
             'DenySelectSecurityGroupsInSPSitesList',
             'AllowSelectSecurityGroupsInSPSitesList',
             'EnableAzureADB2BIntegration',
-            'OneDriveSharingCapability')
+            'HideSyncButtonOnODB',
+            'MobileFriendlyUrlEnabledInTenant'
+        )
 
         $response = Invoke-PnPSPRestMethod -Method Get `
             -Url "$((Get-MSCloudLoginConnectionProfile -Workload PnP).AdminUrl)/_api/SPO.Tenant?`$select=$($parametersToRetrieve -join ',')"
@@ -236,28 +303,48 @@ function Get-TargetResource
             DenySelectSecurityGroupsInSPSitesList                  = $response.DenySelectSecurityGroupsInSPSitesList
             AllowSelectSecurityGroupsInSPSitesList                 = $response.AllowSelectSecurityGroupsInSPSitesList
             EnableAzureADB2BIntegration                            = $response.EnableAzureADB2BIntegration
-            OneDriveSharingCapability                              = $response.OneDriveSharingCapability
+            HideSyncButtonOnODB                                    = $response.HideSyncButtonOnODB
+            MobileFriendlyUrlEnabledInTenant                       = $response.MobileFriendlyUrlEnabledInTenant
+            #OneDriveSharingCapability                              = $response.ODBSharingCapability
             MinCompatibilityLevel                                  = $MinCompat
             MaxCompatibilityLevel                                  = $MaxCompat
-            SearchResolveExactEmailOrUPN                           = $SPOTenantSettings.SearchResolveExactEmailOrUPN
-            OfficeClientADALDisabled                               = $SPOTenantSettings.OfficeClientADALDisabled
-            LegacyAuthProtocolsEnabled                             = $SPOTenantSettings.LegacyAuthProtocolsEnabled
-            SignInAccelerationDomain                               = $SPOTenantSettings.SignInAccelerationDomain
-            UsePersistentCookiesForExplorerView                    = $SPOTenantSettings.UsePersistentCookiesForExplorerView
-            PublicCdnEnabled                                       = $SPOTenantSettings.PublicCdnEnabled
-            PublicCdnAllowedFileTypes                              = $SPOTenantSettings.PublicCdnAllowedFileTypes
-            UseFindPeopleInPeoplePicker                            = $SPOTenantSettings.UseFindPeopleInPeoplePicker
-            NotificationsInSharePointEnabled                       = $SPOTenantSettings.NotificationsInSharePointEnabled
-            OwnerAnonymousNotification                             = $SPOTenantSettings.OwnerAnonymousNotification
+            AllowDownloadingNonWebViewableFiles                    = $SPOTenantSettings.AllowDownloadingNonWebViewableFiles
+            AllowEditing                                           = $SPOTenantSettings.AllowEditing
             ApplyAppEnforcedRestrictionsToAdHocRecipients          = $SPOTenantSettings.ApplyAppEnforcedRestrictionsToAdHocRecipients
+            CommentsOnSitePagesDisabled                            = $SPOTenantSettings.CommentsOnSitePagesDisabled
+            DisableCustomAppAuthentication                         = $SPOTenantSettings.DisableCustomAppAuthentication
+            DisabledModernListTemplateIds                          = [System.String[]]$SPOTenantSettings.DisabledModernListTemplateIds
+            DisabledWebPartIds                                     = [System.String[]]$SPOTenantSettings.DisabledWebPartIds
+            DisablePersonalListCreation                            = $SPOTenantSettings.DisablePersonalListCreation
+            #DisableSpacesActivation                                = $SPOTenantSettings.DisableSpacesActivation
+            DisplayNamesOfFileViewersInSpo                         = $SPOTenantSettings.DisplayNamesOfFileViewersInSpo
+            EnableAIPIntegration                                   = $SPOTenantSettings.EnableAIPIntegration
             FilePickerExternalImageSearchEnabled                   = $SPOTenantSettings.FilePickerExternalImageSearchEnabled
             HideDefaultThemes                                      = $SPOTenantSettings.HideDefaultThemes
             HideSyncButtonOnTeamSite                               = $SPOTenantSettings.HideSyncButtonOnTeamSite
+            IsFluidEnabled                                         = $SPOTenantSettings.IsFluidEnabled
+            IsLoopEnabled                                          = $SPOTenantSettings.IsLoopEnabled
+            LegacyAuthProtocolsEnabled                             = $SPOTenantSettings.LegacyAuthProtocolsEnabled
             MarkNewFilesSensitiveByDefault                         = $SPOTenantSettings.MarkNewFilesSensitiveByDefault
-            DisabledWebPartIds                                     = [String[]]$SPOTenantSettings.DisabledWebPartIds
+            NoAccessRedirectUrl                                    = $SPOTenantSettings.NoAccessRedirectUrl
+            NotificationsInSharePointEnabled                       = $SPOTenantSettings.NotificationsInSharePointEnabled
+            OfficeClientADALDisabled                               = $SPOTenantSettings.OfficeClientADALDisabled
+            OwnerAnonymousNotification                             = $SPOTenantSettings.OwnerAnonymousNotification
+            #PermissiveBrowserFileHandlingOverride                  = $SPOTenantSettings.PermissiveBrowserFileHandlingOverride
+            PublicCdnAllowedFileTypes                              = $SPOTenantSettings.PublicCdnAllowedFileTypes
+            PublicCdnEnabled                                       = $SPOTenantSettings.PublicCdnEnabled
+            #PublicCdnOrigins                                       = $SPOTenantSettings.PublicCdnOrigins
+            RequireAcceptingAccountMatchInvitedAccount             = $SPOTenantSettings.RequireAcceptingAccountMatchInvitedAccount
+            SearchResolveExactEmailOrUPN                           = $SPOTenantSettings.SearchResolveExactEmailOrUPN
+            SignInAccelerationDomain                               = $SPOTenantSettings.SignInAccelerationDomain
             SocialBarOnSitePagesDisabled                           = $SPOTenantSettings.SocialBarOnSitePagesDisabled
-            CommentsOnSitePagesDisabled                            = $SPOTenantSettings.CommentsOnSitePagesDisabled
-            EnableAIPIntegration                                   = $SPOTenantSettings.EnableAIPIntegration
+            SpecialCharactersStateInFileFolderNames                = $SPOTenantSettings.SpecialCharactersStateInFileFolderNames
+            UseFindPeopleInPeoplePicker                            = $SPOTenantSettings.UseFindPeopleInPeoplePicker
+            UsePersistentCookiesForExplorerView                    = $SPOTenantSettings.UsePersistentCookiesForExplorerView
+            IsSharePointNewsfeedEnabled                            = $SPOTenantGraphSettings.IsSharePointNewsfeedEnabled
+            IsSiteCreationEnabled                                  = $SPOTenantGraphSettings.IsSiteCreationEnabled
+            IsSiteCreationUiEnabled                                = $SPOTenantGraphSettings.IsSiteCreationUiEnabled
+            IsSitePagesCreationEnabled                             = $SPOTenantGraphSettings.IsSitePagesCreationEnabled
             TenantDefaultTimezone                                  = $SPOTenantGraphSettings.TenantDefaultTimeZone
             Credential                                             = $Credential
             ApplicationId                                          = $ApplicationId
@@ -266,7 +353,7 @@ function Get-TargetResource
             CertificatePassword                                    = $CertificatePassword
             CertificatePath                                        = $CertificatePath
             CertificateThumbprint                                  = $CertificateThumbprint
-            Managedidentity                                        = $ManagedIdentity.IsPresent
+            ManagedIdentity                                        = $ManagedIdentity.IsPresent
             Ensure                                                 = 'Present'
             AccessTokens                                           = $AccessTokens
         }
@@ -337,10 +424,6 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UserVoiceForFeedbackEnabled,
-
-        [Parameter()]
-        [System.Boolean]
         $PublicCdnEnabled,
 
         [Parameter()]
@@ -373,6 +456,10 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $HideSyncButtonOnODB,
+
+        [Parameter()]
+        [System.Boolean]
         $HideSyncButtonOnTeamSite,
 
         [Parameter()]
@@ -383,6 +470,10 @@ function Set-TargetResource
         [Parameter()]
         [System.Guid[]]
         $DisabledWebPartIds,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsFluidEnabled,
 
         [Parameter()]
         [System.Boolean]
@@ -419,6 +510,67 @@ function Set-TargetResource
         [Parameter()]
         [System.String[]]
         $AllowSelectSecurityGroupsInSPSitesList,
+
+        [Parameter()]
+        [System.Boolean]
+        $MobileFriendlyUrlEnabledInTenant,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowDownloadingNonWebViewableFiles,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowEditing,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisableCustomAppAuthentication,
+
+        [Parameter()]
+        [System.String[]]
+        $DisabledModernListTemplateIds,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisablePersonalListCreation,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisplayNamesOfFileViewersInSpo,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsLoopEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSharePointNewsfeedEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSiteCreationEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSiteCreationUiEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSitePagesCreationEnabled,
+
+        [Parameter()]
+        [System.String]
+        $NoAccessRedirectUrl,
+
+        [Parameter()]
+        [System.Boolean]
+        $RequireAcceptingAccountMatchInvitedAccount,
+
+        [Parameter()]
+        [ValidateSet('NoPreference', 'Allowed', 'Disallowed')]
+        [System.String]
+        $SpecialCharactersStateInFileFolderNames,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -462,7 +614,12 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message 'Setting configuration for SPO Tenant'
+    if ($PSBoundParameters.ContainsKey('OneDriveSharingCapability'))
+    {
+        Write-Warning -Message "The property 'OneDriveSharingCapability' is deprecated and will be ignored. Please use 'MySiteSharingCapability' in the SPOSharingSettings resource."
+    }
+
+    Write-Verbose -Message 'Updating configuration for the SPO Tenant Settings'
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -478,36 +635,41 @@ function Set-TargetResource
 
     if (-not [string]::IsNullOrEmpty($TenantDefaultTimezone))
     {
-        $ConnectionModeGraph = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
     }
-    $ConnectionMode = New-M365DSCConnection -Workload 'PNP' -InboundParameters $PSBoundParameters
+    $null = New-M365DSCConnection -Workload 'PNP' -InboundParameters $PSBoundParameters
 
-    $CurrentParameters = $PSBoundParameters
-    $CurrentParameters.Remove('Credential') | Out-Null
+    $CurrentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $spoRestParameters = @(
+        'ExemptNativeUsersFromTenantLevelRestricedAccessControl',
+        'AllowSelectSGsInODBListInTenant',
+        'DenySelectSGsInODBListInTenant',
+        'DenySelectSecurityGroupsInSPSitesList',
+        'AllowSelectSecurityGroupsInSPSitesList',
+        'EnableAzureADB2BIntegration',
+        'HideSyncButtonOnODB',
+        'MobileFriendlyUrlEnabledInTenant'
+    )
+    $spoGraphParameters = @(
+        'IsSharePointNewsfeedEnabled',
+        'IsSiteCreationEnabled',
+        'IsSiteCreationUiEnabled',
+        'IsSitePagesCreationEnabled',
+        'TenantDefaultTimezone'
+    )
     $CurrentParameters.Remove('IsSingleInstance') | Out-Null
-    $CurrentParameters.Remove('Ensure') | Out-Null
-    $CurrentParameters.Remove('ApplicationId') | Out-Null
-    $CurrentParameters.Remove('TenantId') | Out-Null
-    $CurrentParameters.Remove('CertificatePath') | Out-Null
-    $CurrentParameters.Remove('CertificatePassword') | Out-Null
-    $CurrentParameters.Remove('CertificateThumbprint') | Out-Null
-    $CurrentParameters.Remove('ManagedIdentity') | Out-Null
-    $CurrentParameters.Remove('ApplicationSecret') | Out-Null
-    $CurrentParameters.Remove('AccessTokens') | Out-Null
-    $CurrentParameters.Remove('ExemptNativeUsersFromTenantLevelRestricedAccessControl') | Out-Null
-    $CurrentParameters.Remove('AllowSelectSGsInODBListInTenant') | Out-Null
-    $CurrentParameters.Remove('DenySelectSGsInODBListInTenant') | Out-Null
-    $CurrentParameters.Remove('DenySelectSecurityGroupsInSPSitesList') | Out-Null
-    $CurrentParameters.Remove('AllowSelectSecurityGroupsInSPSitesList') | Out-Null
-    $CurrentParameters.Remove('EnableAzureADB2BIntegration') | Out-Null
-    $CurrentParameters.Remove('OneDriveSharingCapability') | Out-Null
-
-    $CurrentParameters.Remove('TenantDefaultTimezone') | Out-Null # this one is updated separately using Graph
-    if ($CurrentParameters.Keys.Contains('UserVoiceForFeedbackEnabled'))
+    $spoRestParametersSplat = @{}
+    foreach ($param in $spoRestParameters)
     {
-        Write-Verbose -Message 'Property UserVoiceForFeedbackEnabled is deprecated, removing it'
-        $CurrentParameters.Remove('UserVoiceForFeedbackEnabled') | Out-Null
+        $spoRestParametersSplat.Add($param, $CurrentParameters[$param])
+        $CurrentParameters.Remove($param) | Out-Null
+    }
+    $spoGraphParametersSplat = @{}
+    foreach ($param in $spoGraphParameters)
+    {
+        $spoGraphParametersSplat.Add($param, $CurrentParameters[$param])
+        $CurrentParameters.Remove($param) | Out-Null
     }
 
     if ($PublicCdnEnabled -eq $false)
@@ -515,68 +677,20 @@ function Set-TargetResource
         Write-Verbose -Message 'The use of the public CDN is not enabled, for that the PublicCdnAllowedFileTypes parameter can not be configured and will be removed'
         $CurrentParameters.Remove('PublicCdnAllowedFileTypes') | Out-Null
     }
-    $tenant = Set-PnPTenant @CurrentParameters
+    $null = Set-PnPTenant @CurrentParameters
 
-    if (-not [string]::IsNullOrEmpty($TenantDefaultTimezone))
+    if ($spoGraphParametersSplat.Keys.Count -gt 0)
     {
-        $tenantGraph = Update-MgAdminSharepointSetting -TenantDefaultTimezone $TenantDefaultTimezone -ErrorAction Stop
+        $null = Update-MgAdminSharepointSetting @spoGraphParametersSplat -ErrorAction Stop
     }
 
     # Updating via REST
     try
     {
-        $paramsToUpdate = @{}
-        $needToUpdate = $false
-
-        if ($null -ne $ExemptNativeUsersFromTenantLevelRestricedAccessControl)
-        {
-            $needToUpdate = $true
-            $paramsToUpdate.Add('ExemptNativeUsersFromTenantLevelRestricedAccessControl', $ExemptNativeUsersFromTenantLevelRestricedAccessControl)
-        }
-
-        if ($null -ne $AllowSelectSGsInODBListInTenant)
-        {
-            $needToUpdate = $true
-            $paramsToUpdate.Add('AllowSelectSGsInODBListInTenant', $AllowSelectSGsInODBListInTenant)
-        }
-
-        if ($null -ne $DenySelectSGsInODBListInTenant)
-        {
-            $needToUpdate = $true
-            $paramsToUpdate.Add('DenySelectSGsInODBListInTenant', $DenySelectSGsInODBListInTenant)
-        }
-
-        if ($null -ne $DenySelectSecurityGroupsInSPSitesList)
-        {
-            $needToUpdate = $true
-            $paramsToUpdate.Add('DenySelectSecurityGroupsInSPSitesList', $DenySelectSecurityGroupsInSPSitesList)
-        }
-
-        if ($null -ne $AllowSelectSecurityGroupsInSPSitesList)
-        {
-            $needToUpdate = $true
-            $paramsToUpdate.Add('AllowSelectSecurityGroupsInSPSitesList', $AllowSelectSecurityGroupsInSPSitesList)
-        }
-
-        if ($null -ne $EnableAzureADB2BIntegration)
-        {
-            $needToUpdate = $true
-            $paramsToUpdate.Add('EnableAzureADB2BIntegration', $EnableAzureADB2BIntegration)
-        }
-
-        if ($null -ne $OneDriveSharingCapability)
-        {
-            $needToUpdate = $true
-            $paramsToUpdate.Add('OneDriveSharingCapability', $OneDriveSharingCapability)
-        }
-
-        if ($needToUpdate)
-        {
-            Write-Verbose -Message 'Updating properties via REST PATCH call.'
-            Invoke-PnPSPRestMethod -Method PATCH `
-                -Url "$((Get-MSCloudLoginConnectionProfile -Workload PnP).AdminUrl)/_api/SPO.Tenant" `
-                -Content $paramsToUpdate
-        }
+        Write-Verbose -Message 'Updating properties via REST PATCH call.'
+        Invoke-PnPSPRestMethod -Method PATCH `
+            -Url "$((Get-MSCloudLoginConnectionProfile -Workload PnP).AdminUrl)/_api/SPO.Tenant" `
+            -Content $spoRestParametersSplat
     }
     catch
     {
@@ -641,10 +755,6 @@ function Test-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $UserVoiceForFeedbackEnabled,
-
-        [Parameter()]
-        [System.Boolean]
         $PublicCdnEnabled,
 
         [Parameter()]
@@ -677,6 +787,10 @@ function Test-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $HideSyncButtonOnODB,
+
+        [Parameter()]
+        [System.Boolean]
         $HideSyncButtonOnTeamSite,
 
         [Parameter()]
@@ -687,6 +801,10 @@ function Test-TargetResource
         [Parameter()]
         [System.Guid[]]
         $DisabledWebPartIds,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsFluidEnabled,
 
         [Parameter()]
         [System.Boolean]
@@ -723,6 +841,67 @@ function Test-TargetResource
         [Parameter()]
         [System.String[]]
         $AllowSelectSecurityGroupsInSPSitesList,
+
+        [Parameter()]
+        [System.Boolean]
+        $MobileFriendlyUrlEnabledInTenant,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowDownloadingNonWebViewableFiles,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowEditing,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisableCustomAppAuthentication,
+
+        [Parameter()]
+        [System.String[]]
+        $DisabledModernListTemplateIds,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisablePersonalListCreation,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisplayNamesOfFileViewersInSpo,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsLoopEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSharePointNewsfeedEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSiteCreationEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSiteCreationUiEnabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $IsSitePagesCreationEnabled,
+
+        [Parameter()]
+        [System.String]
+        $NoAccessRedirectUrl,
+
+        [Parameter()]
+        [System.Boolean]
+        $RequireAcceptingAccountMatchInvitedAccount,
+
+        [Parameter()]
+        [ValidateSet('NoPreference', 'Allowed', 'Disallowed')]
+        [System.String]
+        $SpecialCharactersStateInFileFolderNames,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -765,11 +944,14 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
+
+    if ($PSBoundParameters.ContainsKey('OneDriveSharingCapability'))
+    {
+        Write-Warning -Message "The property 'OneDriveSharingCapability' is deprecated and will be ignored. Please use 'MySiteSharingCapability' in the SPOSharingSettings resource."
+    }
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -777,42 +959,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Testing configuration for SPO Tenant'
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck @('IsSingleInstance', `
-            'MaxCompatibilityLevel', `
-            'SearchResolveExactEmailOrUPN', `
-            'OfficeClientADALDisabled', `
-            'LegacyAuthProtocolsEnabled', `
-            'SignInAccelerationDomain', `
-            'UsePersistentCookiesForExplorerView', `
-            'UserVoiceForFeedbackEnabled', `
-            'PublicCdnEnabled', `
-            'PublicCdnAllowedFileTypes', `
-            'UseFindPeopleInPeoplePicker', `
-            'NotificationsInSharePointEnabled', `
-            'OwnerAnonymousNotification', `
-            'ApplyAppEnforcedRestrictionsToAdHocRecipients', `
-            'FilePickerExternalImageSearchEnabled', `
-            'HideDefaultThemes', `
-            'HideSyncButtonOnTeamSite', `
-            'MarkNewFilesSensitiveByDefault', `
-            'DisabledWebPartIds', `
-            'SocialBarOnSitePagesDisabled', `
-            'CommentsOnSitePagesDisabled', `
-            'EnableAIPIntegration', `
-            'TenantDefaultTimezone'
-    )
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties @('OneDriveSharingCapability')
+    return $result
 }
 
 function Export-TargetResource
@@ -883,6 +1033,8 @@ function Export-TargetResource
             $Global:M365DSCExportResourceInstancesCount++
         }
 
+        $Script:ExportMode = $true
+
         $Params = @{
             IsSingleInstance      = 'Yes'
             ApplicationId         = $ApplicationId
@@ -891,7 +1043,7 @@ function Export-TargetResource
             CertificatePassword   = $CertificatePassword
             CertificatePath       = $CertificatePath
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             Credential            = $Credential
             AccessTokens          = $AccessTokens
         }
@@ -931,4 +1083,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

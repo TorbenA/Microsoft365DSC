@@ -6,7 +6,6 @@
 | --- | --- | --- | --- | --- |
 | **IsSingleInstance** | Key | String | Specifies the resource is a single instance, the value must be 'Yes' | `Yes` |
 | **Identity** | Write | String | The Identity parameter specifies the ATP policy that you want to modify. There's only one policy named Default. | |
-| **Ensure** | Write | String | Since there is only one policy, the default policy, this must be set to 'Present' | `Present` |
 | **AllowSafeDocsOpen** | Write | Boolean | The AllowSafeDocsOpen parameter specifies whether users can click through and bypass the Protected View container even when Safe Documents identifies a file as malicious. | |
 | **EnableATPForSPOTeamsODB** | Write | Boolean | The EnableATPForSPOTeamsODB parameter specifies whether ATP is enabled for SharePoint Online, OneDrive for Business and Microsoft Teams. Default is $false. | |
 | **EnableSafeDocs** | Write | Boolean | The EnableSafeDocs parameter specifies whether to enable the Safe Documents feature in the organization. Default is $false. | |
@@ -69,7 +68,6 @@ Configuration Example
         {
             IsSingleInstance        = "Yes"
             EnableATPForSPOTeamsODB = $true
-            Ensure                  = "Present"
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint

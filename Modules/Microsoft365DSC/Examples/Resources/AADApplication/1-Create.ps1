@@ -24,7 +24,6 @@ Configuration Example
         AADApplication 'AADApp1'
         {
             DisplayName               = "AppDisplayName"
-            AvailableToOtherTenants   = $false
             Description               = "Application Description"
             GroupMembershipClaims     = "None"
             Homepage                  = "https://$TenantId"
@@ -56,7 +55,8 @@ Configuration Example
                     AdminConsentGranted = $True
                 }
             )
-            Ensure                    = "Present"
+            TokenLifetimePolicy   = 'AADTokenLifetimePolicy_1'
+            Ensure                = "Present"
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint

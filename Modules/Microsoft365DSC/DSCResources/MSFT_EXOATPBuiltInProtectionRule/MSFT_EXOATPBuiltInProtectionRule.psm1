@@ -27,6 +27,11 @@ function Get-TargetResource
         $ExceptIfSentToMemberOf,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
+        [System.String]
+        $Ensure = 'Present',
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -51,36 +56,48 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting ATP Built-In Protection Rule with Identity $Identity"
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullResult = $PSBoundParameters
-    $nullResult.Ensure = 'Absent'
     try
     {
-        $instance = Get-ATPBuiltInProtectionRule -Identity $Id -ErrorAction SilentlyContinue
-        if ($null -eq $instance)
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Identity -ne $Identity)
         {
-            return $nullResult
+            $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullResult = $PSBoundParameters
+            $nullResult.Ensure = 'Absent'
+
+            $instance = Get-ATPBuiltInProtectionRule -Identity $Identity -ErrorAction SilentlyContinue
+            if ($null -eq $instance)
+            {
+                return $nullResult
+            }
+        }
+        else
+        {
+            $instance = $Script:exportedInstance
         }
 
+        Write-Verbose -Message "Found ATP Built-In Protection Rule with Identity $($instance.Identity)"
         $results = @{
             Identity                  = $instance.Identity
             ExceptIfRecipientDomainIs = [Array]$instance.ExceptIfRecipientDomainIs
             ExceptIfSentTo            = [Array]$instance.ExceptIfSentTo
             ExceptIfSentToMemberOf    = [Array]$instance.ExceptIfSentToMemberOf
+            Ensure                    = 'Present'
             Credential                = $Credential
             ApplicationId             = $ApplicationId
             TenantId                  = $TenantId
@@ -88,7 +105,7 @@ function Get-TargetResource
             ManagedIdentity           = $ManagedIdentity.IsPresent
             AccessTokens              = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -157,6 +174,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting ATP Built-In Protection Rule with Identity $Identity"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -233,9 +252,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -245,35 +261,29 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    foreach ($key in $ValuesToCheck.Keys)
-    {
-        if ($null -eq $CurrentValues[$key])
+    $postProcessingScript = {
+        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
+        foreach ($key in $ValuesToCheck.Keys)
         {
-            switch -regex ($key)
+            if ($null -eq $CurrentValues[$key])
             {
-                '^ExceptIf\w+$'
+                switch -regex ($key)
                 {
-                    $CurrentValues[$key] = @()
-                    break
+                    '^ExceptIf\w+$'
+                    {
+                        $CurrentValues[$key] = @()
+                        break
+                    }
                 }
             }
         }
+        return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
     }
 
-    $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -PostProcessing $postProcessingScript
+    return $result
 }
 
 function Export-TargetResource
@@ -329,12 +339,11 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
-        [array] $Script:exportedInstances = Get-ATPBuiltInProtectionRule -ErrorAction Stop
+        [array]$rules = Get-ATPBuiltInProtectionRule -ErrorAction Stop
 
         $i = 1
         $dscContent = ''
-        if ($Script:exportedInstances.Length -eq 0)
+        if ($rules.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
@@ -342,7 +351,7 @@ function Export-TargetResource
         {
             Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
-        foreach ($config in $Script:exportedInstances)
+        foreach ($config in $rules)
         {
             if ($null -ne $Global:M365DSCExportResourceInstancesCount)
             {
@@ -350,7 +359,7 @@ function Export-TargetResource
             }
 
             $displayedKey = $config.Id
-            Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Count)] $displayedKey" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$i/$($rules.Count)] $displayedKey" -DeferWrite
             $params = @{
                 Identity              = $config.Identity
                 Credential            = $Credential
@@ -360,7 +369,7 @@ function Export-TargetResource
                 ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
-
+            $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
 
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
@@ -391,4 +400,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

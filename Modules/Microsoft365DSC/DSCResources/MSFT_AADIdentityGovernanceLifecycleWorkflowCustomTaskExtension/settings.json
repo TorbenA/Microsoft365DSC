@@ -8,8 +8,16 @@
   "permissions": {
     "graph": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "LifecycleWorkflows.Read.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "LifecycleWorkflows.ReadWrite.All"
+          }
+        ]
       },
       "application": {
         "read": [
@@ -29,5 +37,26 @@
     "Microsoft.Graph.Applications",
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.Governance"
+  ],
+  "supportedEnvironments": [
+    "Global"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Applications",
+      "cmdlets": [
+        "Get-MgApplication"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.Identity.Governance",
+      "cmdlets": [
+        "Get-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension",
+        "New-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension",
+        "Remove-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension",
+        "Update-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension"
+      ]
+    }
   ]
 }

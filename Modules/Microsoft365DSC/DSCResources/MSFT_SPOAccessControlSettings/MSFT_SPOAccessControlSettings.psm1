@@ -36,7 +36,7 @@ function Get-TargetResource
         $DisallowInfectedFileDownload,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ExternalServicesEnabled,
 
         [Parameter()]
@@ -50,6 +50,11 @@ function Get-TargetResource
         [Parameter()]
         [System.Boolean]
         $EnableRestrictedAccessControl,
+
+        [Parameter()]
+        [ValidateSet('AllowFullAccess', 'AllowLimitedAccess', 'BlockAccess', 'ProtectionLevel')]
+        [System.String]
+        $ConditionalAccessPolicy,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -89,41 +94,44 @@ function Get-TargetResource
         $ManagedIdentity,
 
         [Parameter()]
-        [ValidateSet('AllowFullAccess', 'AllowLimitedAccess', 'BlockAccess', 'ProtectionLevel')]
-        [System.String]
-        $ConditionalAccessPolicy,
-
-        [Parameter()]
         [System.String[]]
         $AccessTokens
     )
 
     Write-Verbose -Message 'Getting configuration of SharePoint Online Access Control Settings'
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = $PSBoundParameters
-    $nullReturn.Ensure = 'Absent'
-
     try
     {
-        $SPOAccessControlSettings = Get-PnPTenant -ErrorAction Stop
+        if ($null -eq $Script:exportedInstance)
+        {
+            $null = New-M365DSCConnection -Workload 'PnP' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullReturn = $PSBoundParameters
+            $nullReturn.Ensure = 'Absent'
+
+            $SPOAccessControlSettings = Get-PnPTenant -ErrorAction Stop
+        }
+        else
+        {
+            $SPOAccessControlSettings = $Script:exportedInstance
+        }
 
         return @{
             IsSingleInstance              = 'Yes'
+            ConditionalAccessPolicy       = $SPOAccessControlSettings.ConditionalAccessPolicy
             DisplayStartASiteOption       = $SPOAccessControlSettings.DisplayStartASiteOption
             StartASiteFormUrl             = $SPOAccessControlSettings.StartASiteFormUrl
             IPAddressEnforcement          = $SPOAccessControlSettings.IPAddressEnforcement
@@ -141,9 +149,8 @@ function Get-TargetResource
             CertificatePassword           = $CertificatePassword
             CertificatePath               = $CertificatePath
             CertificateThumbprint         = $CertificateThumbprint
-            Managedidentity               = $ManagedIdentity.IsPresent
+            ManagedIdentity               = $ManagedIdentity.IsPresent
             Ensure                        = 'Present'
-            ConditionalAccessPolicy       = $SPOAccessControlSettings.ConditionalAccessPolicy
             AccessTokens                  = $AccessTokens
         }
     }
@@ -199,7 +206,7 @@ function Set-TargetResource
         $DisallowInfectedFileDownload,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ExternalServicesEnabled,
 
         [Parameter()]
@@ -213,6 +220,11 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $EnableRestrictedAccessControl,
+
+        [Parameter()]
+        [ValidateSet('AllowFullAccess', 'AllowLimitedAccess', 'BlockAccess', 'ProtectionLevel')]
+        [System.String]
+        $ConditionalAccessPolicy,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -252,11 +264,6 @@ function Set-TargetResource
         $ManagedIdentity,
 
         [Parameter()]
-        [ValidateSet('AllowFullAccess', 'AllowLimitedAccess', 'BlockAccess', 'ProtectionLevel')]
-        [System.String]
-        $ConditionalAccessPolicy,
-
-        [Parameter()]
         [System.String[]]
         $AccessTokens
     )
@@ -275,21 +282,11 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+    $null = New-M365DSCConnection -Workload 'PnP' `
         -InboundParameters $PSBoundParameters
 
-    $CurrentParameters = $PSBoundParameters
-    $CurrentParameters.Remove('Ensure') | Out-Null
-    $CurrentParameters.Remove('Credential') | Out-Null
+    $CurrentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $CurrentParameters.Remove('IsSingleInstance') | Out-Null
-    $CurrentParameters.Remove('ApplicationId') | Out-Null
-    $CurrentParameters.Remove('TenantId') | Out-Null
-    $CurrentParameters.Remove('CertificatePath') | Out-Null
-    $CurrentParameters.Remove('CertificatePassword') | Out-Null
-    $CurrentParameters.Remove('CertificateThumbprint') | Out-Null
-    $CurrentParameters.Remove('ManagedIdentity') | Out-Null
-    $CurrentParameters.Remove('ApplicationSecret') | Out-Null
-    $CurrentParameters.Remove('AccessTokens') | Out-Null
 
     if ($IPAddressAllowList -eq '')
     {
@@ -360,7 +357,7 @@ function Test-TargetResource
         $DisallowInfectedFileDownload,
 
         [Parameter()]
-        [System.boolean]
+        [System.Boolean]
         $ExternalServicesEnabled,
 
         [Parameter()]
@@ -374,6 +371,11 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $EnableRestrictedAccessControl,
+
+        [Parameter()]
+        [ValidateSet('AllowFullAccess', 'AllowLimitedAccess', 'BlockAccess', 'ProtectionLevel')]
+        [System.String]
+        $ConditionalAccessPolicy,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -413,19 +415,12 @@ function Test-TargetResource
         $ManagedIdentity,
 
         [Parameter()]
-        [ValidateSet('AllowFullAccess', 'AllowLimitedAccess', 'BlockAccess', 'ProtectionLevel')]
-        [System.String]
-        $ConditionalAccessPolicy,
-
-        [Parameter()]
         [System.String[]]
         $AccessTokens
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -433,32 +428,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Testing configuration of SharePoint Online Access Control Settings'
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck @('IsSingleInstance', `
-            'DisplayStartASiteOption', `
-            'StartASiteFormUrl', `
-            'IPAddressEnforcement', `
-            'IPAddressAllowList', `
-            'IPAddressWACTokenLifetime', `
-            'DisallowInfectedFileDownload', `
-            'ExternalServicesEnabled', `
-            'EmailAttestationRequired', `
-            'EmailAttestationReAuthDays',
-        'ConditionalAccessPolicy', `
-            'EnableRestrictedAccessControl')
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -526,6 +498,8 @@ function Export-TargetResource
             $Global:M365DSCExportResourceInstancesCount++
         }
 
+        $Script:exportedInstance = Get-PnPTenant -ErrorAction Stop
+
         $Params = @{
             IsSingleInstance      = 'Yes'
             ApplicationId         = $ApplicationId
@@ -533,7 +507,7 @@ function Export-TargetResource
             CertificatePassword   = $CertificatePassword
             CertificatePath       = $CertificatePath
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             Credential            = $Credential
             ApplicationSecret     = $ApplicationSecret
             AccessTokens          = $AccessTokens
@@ -567,4 +541,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

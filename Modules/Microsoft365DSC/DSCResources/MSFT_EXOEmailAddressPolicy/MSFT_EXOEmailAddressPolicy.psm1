@@ -66,66 +66,61 @@ function Get-TargetResource
     )
 
     Write-Verbose -Message "Getting Email Address Policy configuration for $Name"
-    if ($Global:CurrentModeIsExport)
-    {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
-            -InboundParameters $PSBoundParameters `
-            -SkipModuleReload $true
-    }
-    else
-    {
-        $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
-            -InboundParameters $PSBoundParameters
-    }
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = $PSBoundParameters
-    $nullReturn.Ensure = 'Absent'
 
     try
     {
-        $AllEmailAddressPolicies = Get-EmailAddressPolicy -ErrorAction Stop
-
-        $EmailAddressPolicy = $AllEmailAddressPolicies | Where-Object -FilterScript { $_.Name -eq $Name }
-
-        if ($null -eq $EmailAddressPolicy)
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            Write-Verbose -Message "Email Address Policy $($Name) does not exist."
-            return $nullReturn
+            $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullReturn = $PSBoundParameters
+            $nullReturn.Ensure = 'Absent'
+
+            $EmailAddressPolicy = Get-EmailAddressPolicy -Identity $Name -ErrorAction SilentlyContinue
+            if ($null -eq $EmailAddressPolicy)
+            {
+                Write-Verbose -Message "Email Address Policy $($Name) does not exist."
+                return $nullReturn
+            }
         }
         else
         {
-            $result = @{
-                Name                              = $EmailAddressPolicy.Name
-                Priority                          = $EmailAddressPolicy.Priority
-                EnabledEmailAddressTemplates      = $EmailAddressPolicy.EnabledEmailAddressTemplates
-                EnabledPrimarySMTPAddressTemplate = $EmailAddressPolicy.EnabledPrimarySMTPAddressTemplate
-                ManagedByFilter                   = $EmailAddressPolicy.ManagedByFilter
-                Ensure                            = 'Present'
-                Credential                        = $Credential
-                ApplicationId                     = $ApplicationId
-                CertificateThumbprint             = $CertificateThumbprint
-                CertificatePath                   = $CertificatePath
-                CertificatePassword               = $CertificatePassword
-                Managedidentity                   = $ManagedIdentity.IsPresent
-                TenantId                          = $TenantId
-                AccessTokens                      = $AccessTokens
-            }
-
-            Write-Verbose -Message "Found Email Address Policy $($Name)"
-            return $result
+            $EmailAddressPolicy = $Script:exportedInstance
         }
+
+        Write-Verbose -Message "Found Email Address Policy $($Name)"
+
+        $result = @{
+            Name                              = $EmailAddressPolicy.Name
+            Priority                          = $EmailAddressPolicy.Priority
+            EnabledEmailAddressTemplates      = $EmailAddressPolicy.EnabledEmailAddressTemplates
+            EnabledPrimarySMTPAddressTemplate = $EmailAddressPolicy.EnabledPrimarySMTPAddressTemplate
+            ManagedByFilter                   = $EmailAddressPolicy.ManagedByFilter
+            Ensure                            = 'Present'
+            Credential                        = $Credential
+            ApplicationId                     = $ApplicationId
+            CertificateThumbprint             = $CertificateThumbprint
+            CertificatePath                   = $CertificatePath
+            CertificatePassword               = $CertificatePassword
+            ManagedIdentity                   = $ManagedIdentity.IsPresent
+            TenantId                          = $TenantId
+            AccessTokens                      = $AccessTokens
+        }
+
+        return $result
     }
     catch
     {
@@ -219,7 +214,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     $NewEmailAddressPolicyParams = @{
@@ -343,11 +338,9 @@ function Test-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
 
     #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
     $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
         -CommandName $CommandName `
@@ -355,23 +348,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing Email Address Policy configuration for $Name"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
-    $ValuesToCheck = $PSBoundParameters
-
-    $TestResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $TestResult"
-
-    return $TestResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -412,6 +391,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters `
         -SkipModuleReload $true
@@ -439,7 +419,7 @@ function Export-TargetResource
         [array]$AllEmailAddressPolicies = Get-EmailAddressPolicy -ErrorAction Stop
 
         $dscContent = ''
-        if ($AllEmailAddressPolicies.Length -eq 0)
+        if ($AllEmailAddressPolicies.Count -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
@@ -464,10 +444,11 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 CertificatePath       = $CertificatePath
                 AccessTokens          = $AccessTokens
             }
+            $Script:exportedInstance = $EmailAddressPolicy
             $Results = Get-TargetResource @Params
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
@@ -497,5 +478,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
-

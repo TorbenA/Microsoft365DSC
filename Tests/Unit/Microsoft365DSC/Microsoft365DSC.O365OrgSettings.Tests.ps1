@@ -93,7 +93,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     InstallationOptionsAppsForMac              = @('isSkypeForBusinessEnabled', 'isMicrosoft365AppsEnabled')
                     InstallationOptionsAppsForWindows          = @('isVisioEnabled', 'isMicrosoft365AppsEnabled', 'isProjectEnabled')
                     InstallationOptionsUpdateChannel           = 'current'
-                    MicrosoftVivaBriefingEmail                   = $True
                     VivaInsightsWebExperience                    = $true
                     VivaInsightsDigestEmail                      = $true
                     VivaInsightsOutlookAddInAndInlineSuggestions = $true
@@ -140,12 +139,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     IsSingleInstance                             = 'Yes'
                     AdminCenterReportDisplayConcealedNames       = $True;
                     M365WebEnableUsersToOpenFilesFrom3PStorage   = $True
-                    MicrosoftVivaBriefingEmail                   = $True
                     VivaInsightsWebExperience                    = $true
                     VivaInsightsDigestEmail                      = $true
                     VivaInsightsOutlookAddInAndInlineSuggestions = $true
                     VivaInsightsScheduleSendSuggestions          = $true
-                    Ensure                                       = 'Present'
                     Credential                                   = $Credential
                 }
 

@@ -32,5 +32,21 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.SignIns"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.Identity.SignIns",
+      "cmdlets": [
+        "Get-MgBetaPolicyClaimMappingPolicy",
+        "New-MgBetaPolicyClaimMappingPolicy",
+        "Remove-MgBetaPolicyClaimMappingPolicy",
+        "Update-MgBetaPolicyClaimMappingPolicy"
+      ]
+    }
   ]
 }

@@ -46,5 +46,32 @@
     "Microsoft.Graph.Groups",
     "Microsoft.Graph.Users",
     "MSCloudLoginAssistant"
+  ],
+  "mode": "Data",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup",
+        "Get-MgGroupMember",
+        "Get-MgGroupOwner",
+        "New-MgGroup",
+        "New-MgGroupMember",
+        "New-MgGroupOwnerByRef",
+        "Remove-MgGroup"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Users",
+      "cmdlets": [
+        "Get-MgUser"
+      ]
+    }
   ]
 }

@@ -44,6 +44,43 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Devices.CorporateManagement",
+    "Microsoft.Graph.Groups",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Data",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.DeviceManagement",
+      "cmdlets": [
+        "Get-MgBetaDeviceManagementAssignmentFilter"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.Devices.CorporateManagement",
+      "cmdlets": [
+        "Get-MgBetaDeviceAppManagementMobileApp",
+        "Get-MgBetaDeviceAppManagementMobileAppAssignment",
+        "Get-MgBetaDeviceAppManagementMobileAppCategory",
+        "New-MgBetaDeviceAppManagementMobileApp",
+        "Remove-MgBetaDeviceAppManagementMobileApp",
+        "Update-MgBetaDeviceAppManagementMobileApp"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
+      ]
+    }
   ]
 }

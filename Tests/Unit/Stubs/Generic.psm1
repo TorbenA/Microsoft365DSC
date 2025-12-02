@@ -702,97 +702,7 @@ function Get-AllSPOPackages
     )
 }
 
-# EXOAddressBookPolicy cmdlets
-function Get-AddressBookPolicy
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-
-    )
-}
-
 # EXOOfflineAddressBook cmdlets
-function Get-OfflineAddressBook
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-
-    )
-}
-
-function Set-OfflineAddressBook
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        $Identity,
-
-        [Parameter()]
-        [ValidateLength(1, 64)]
-        [System.String]
-        $Name,
-
-        [Parameter()]
-        [System.String[]]
-        $AddressLists = @(),
-
-        [Parameter()]
-        [System.String[]]
-        $ConfiguredAttributes = @(),
-
-        [Parameter()]
-        [System.String]
-        $DiffRetentionPeriod,
-
-        [Parameter()]
-        [System.Boolean]
-        $IsDefault,
-
-        [Parameter()]
-        [System.Boolean]
-        $Confirm
-    )
-}
-
-function New-OfflineAddressBook
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-        [Parameter(Mandatory = $true)]
-        [ValidateLength(1, 64)]
-        [System.String]
-        $Name,
-
-        [Parameter()]
-        [System.String[]]
-        $AddressLists = @(),
-
-        [Parameter()]
-        [System.String[]]
-        $ConfiguredAttributes = @(),
-
-        [Parameter()]
-        [System.String]
-        $DiffRetentionPeriod,
-
-        [Parameter()]
-        [System.Boolean]
-        $IsDefault,
-
-        [Parameter()]
-        [System.Boolean]
-        $Confirm
-    )
-}
 function Set-AddressBookPolicy
 {
     [CmdletBinding()]
@@ -1071,16 +981,6 @@ function New-GlobalAddressList
         [Parameter()]
         [System.Boolean]
         $Confirm
-    )
-}
-# EXOAddressList cmdlets
-function Get-AddressList
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-
     )
 }
 

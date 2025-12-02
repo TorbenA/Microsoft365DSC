@@ -4,10 +4,12 @@
 
 | Parameter | Attribute | DataType | Description | Allowed Values |
 | --- | --- | --- | --- | --- |
-| **Id** | Key | String | The unique identifier for an entity. Read-only. | |
-| **DisplayName** | Required | String | Name of the access review series. Supports $select and $orderby. Required on create. | |
+| **DisplayName** | Key | String | Name of the access review series. Supports $select and $orderby. Required on create. | |
+| **Id** | Write | String | The unique identifier for an entity. Read-only. | |
 | **DescriptionForAdmins** | Write | String | Description provided by review creators to provide more context of the review to admins. Supports $select. | |
 | **DescriptionForReviewers** | Write | String | Description provided  by review creators to provide more context of the review to reviewers. Reviewers see this description in the email sent to them requesting their review. Email notifications support up to 256 characters. Supports $select. | |
+| **FallbackReviewers** | Write | MSFT_AADAccessReviewDefinitionReviewer[] | The fallback reviewers of the access review. | |
+| **Reviewers** | Write | MSFT_AADAccessReviewDefinitionReviewer[] | The reviewers of the access review. | |
 | **ScopeValue** | Write | MSFT_MicrosoftGraphaccessReviewScope | Defines the entities whose access is reviewed. For supported scopes, see accessReviewScope. Required on create. Supports $select and $filter (contains only). For examples of options for configuring scope, see Configure the scope of your access review definition using the Microsoft Graph API. | |
 | **SettingsValue** | Write | MSFT_MicrosoftGraphaccessReviewScheduleSettings | The settings for an access review series, see type definition below. Supports $select. Required on create. | |
 | **StageSettings** | Write | MSFT_MicrosoftGraphaccessReviewStageSettings[] | Required only for a multi-stage access review to define the stages and their settings. You can break down each review instance into up to three sequential stages, where each stage can have a different set of reviewers, fallback reviewers, and settings. Stages are created sequentially based on the dependsOn property. Optional.  When this property is defined, its settings are used instead of the corresponding settings in the accessReviewScheduleDefinition object and its settings, reviewers, and fallbackReviewers properties. | |
@@ -117,8 +119,17 @@
 | **DurationInDays** | Write | UInt32 | The duration of the stage. Required.  NOTE: The cumulative value of this property across all stages  1. Will override the instanceDurationInDays setting on the accessReviewScheduleDefinition object. 2. Can't exceed the length of one recurrence. That is, if the review recurs weekly, the cumulative durationInDays can't exceed 7. | |
 | **RecommendationInsightSettings** | Write | MSFT_MicrosoftGraphAccessReviewRecommendationInsightSetting[] | Recommendation Insights Settings | |
 | **RecommendationLookBackDuration** | Write | String | Optional field. Indicates the time period of inactivity (with respect to the start date of the review instance) from which that recommendations will be configured. The recommendation is to deny if the user is inactive during the look back duration. For reviews of groups and Microsoft Entra roles, any duration is accepted. For reviews of applications, 30 days is the maximum duration. If not specified, the duration is 30 days. NOTE: The value of this property overrides the corresponding setting on the accessReviewScheduleDefinition object. | |
-| **RecommendationsEnabled** | Write | Boolean | Indicates whether showing recommendations to reviewers is enabled. Required. NOTE: The value of this property overrides the corresponding setting on the accessReviewScheduleDefinition object. | |
+| **RecommendationsEnabled** | Required | Boolean | Indicates whether showing recommendations to reviewers is enabled. Required. NOTE: The value of this property overrides the corresponding setting on the accessReviewScheduleDefinition object. | |
 | **StageId** | Write | String | Unique identifier of the accessReviewStageSettings. The stageId is used in dependsOn property to indicate the stage relationship. Required. | |
+
+### MSFT_AADAccessReviewDefinitionReviewer
+
+#### Parameters
+
+| Parameter | Attribute | DataType | Description | Allowed Values |
+| --- | --- | --- | --- | --- |
+| **DisplayName** | Write | String | Indicates the display name of the current reviewer, either of a group or of a user. | |
+| **Type** | Write | String | Indicates the type of reviewer. Possible values: Manager, Owner, User, Group | `Manager`, `Owner`, `User`, `Group` |
 
 
 ## Description
@@ -139,7 +150,7 @@ To authenticate with the Microsoft Graph API, this resource required the followi
 
 - **Update**
 
-    - None
+    - AccessReview.ReadWrite.All
 
 #### Application permissions
 
@@ -149,7 +160,7 @@ To authenticate with the Microsoft Graph API, this resource required the followi
 
 - **Update**
 
-    - None
+    - AccessReview.ReadWrite.All
 
 ## Examples
 
@@ -181,91 +192,66 @@ Configuration Example
 
         AADAccessReviewDefinition "AADAccessReviewDefinition-Example"
         {
-            DescriptionForAdmins    = "description for admins";
-            DescriptionForReviewers = "description for reviewers";
-            DisplayName             = "Test Access Review Definition";
+            DescriptionForAdmins    = "";
+            DescriptionForReviewers = "";
+            DisplayName             = "Review guest access across Microsoft 365 groups";
             Ensure                  = "Present";
-            Id                      = "613854e6-c458-4a2c-83fc-e0f4b8b17d60";
+            FallbackReviewers       = @(
+                MSFT_AADAccessReviewDefinitionReviewer{
+                    DisplayName = "Adele Vance"
+                    Type = "User"
+                }
+            );
+            Reviewers               = @(
+                MSFT_AADAccessReviewDefinitionReviewer{
+                    Type = "Owner"
+                }
+            );
             ScopeValue              = MSFT_MicrosoftGraphaccessReviewScope{
-                PrincipalScopes = @(
-                    MSFT_MicrosoftGraphAccessReviewScope{
-                        Query = '/v1.0/users?$filter=userType eq ''Guest'''
-                        odataType = '#microsoft.graph.accessReviewQueryScope'
-                        QueryType = 'MicrosoftGraph'
-                    }
-                )
-                ResourceScopes = @(
-                    MSFT_MicrosoftGraphAccessReviewScope{
-                        Query = '/v1.0/groups/a8ab05ba-6680-4f93-88ae-71099eedfda1/transitiveMembers/microsoft.graph.user/?$count=true&$filter=(userType eq ''Guest'')'
-                        odataType = '#microsoft.graph.accessReviewQueryScope'
-                        QueryType = 'MicrosoftGraph'
-                    }
-                    MSFT_MicrosoftGraphAccessReviewScope{
-                        Query = '/beta/teams/a8ab05ba-6680-4f93-88ae-71099eedfda1/channels?$filter=membershipType eq ''shared'''
-                        odataType = '#microsoft.graph.accessReviewQueryScope'
-                        QueryType = 'MicrosoftGraph'
-                    }
-                )
-                odataType = '#microsoft.graph.principalResourceMembershipsScope'
+                Query = "./members/microsoft.graph.user/?`$count=true&`$filter=(userType eq 'Guest')"
+                QueryType = "MicrosoftGraph"
+                odataType = "#microsoft.graph.accessReviewQueryScope"
             };
             SettingsValue           = MSFT_MicrosoftGraphaccessReviewScheduleSettings{
                 ApplyActions = @(
                     MSFT_MicrosoftGraphAccessReviewApplyAction{
-                        odataType = '#microsoft.graph.removeAccessApplyAction'
+                        odataType = "#microsoft.graph.removeAccessApplyAction"
                     }
                 )
-                InstanceDurationInDays = 4
-                RecommendationsEnabled = $False
+                AutoApplyDecisionsEnabled = $True
                 DecisionHistoriesForReviewersEnabled = $False
+                DefaultDecision = "None"
                 DefaultDecisionEnabled = $False
+                InstanceDurationInDays = 3
                 JustificationRequiredOnApproval = $True
+                MailNotificationsEnabled = $True
                 RecommendationInsightSettings = @(
                     MSFT_MicrosoftGraphAccessReviewRecommendationInsightSetting{
-                        SignInScope = 'tenant'
-                        RecommendationLookBackDuration = 'P15D'
-                        odataType = '#microsoft.graph.userLastSignInRecommendationInsightSetting'
+                        RecommendationLookBackDuration = "P30D"
+                        SignInScope = "tenant"
+                        odataType = "#microsoft.graph.userLastSignInRecommendationInsightSetting"
                     }
                 )
-                AutoApplyDecisionsEnabled = $False
-                ReminderNotificationsEnabled = $True
+                RecommendationLookBackDuration = "30.00:00:00"
+                RecommendationsEnabled = $True
                 Recurrence = MSFT_MicrosoftGraphPatternedRecurrence{
-                    Range = MSFT_MicrosoftGraphRecurrenceRange{
-                        NumberOfOccurrences = 0
-                        Type = 'noEnd'
-                        StartDate = '10/18/2024 12:00:00 AM'
-                        EndDate = '12/31/9999 12:00:00 AM'
-                    }
                     Pattern = MSFT_MicrosoftGraphRecurrencePattern{
-                        DaysOfWeek = @()
-                        Type = 'weekly'
+                        DayOfMonth = 0
+                        FirstDayOfWeek = "sunday"
+                        Index = "first"
                         Interval = 1
                         Month = 0
-                        Index = 'first'
-                        FirstDayOfWeek = 'sunday'
-                        DayOfMonth = 0
+                        Type = "absoluteMonthly"
                     }
-
+                    Range = MSFT_MicrosoftGraphRecurrenceRange{
+                        EndDate = "12/31/9999 12:00:00 AM"
+                        NumberOfOccurrences = 0
+                        StartDate = "9/30/2025 12:00:00 AM"
+                        Type = "noEnd"
+                    }
                 }
-                DefaultDecision = 'None'
-                RecommendationLookBackDuration = '15.00:00:00'
-                MailNotificationsEnabled = $False
-            };
-            StageSettings           = @(
-                MSFT_MicrosoftGraphaccessReviewStageSettings{
-                    StageId = '1'
-                    RecommendationsEnabled = $True
-                    DependsOnValue = @()
-                    DecisionsThatWillMoveToNextStage = @('Approve')
-                    DurationInDays = 3
-                }
-                MSFT_MicrosoftGraphaccessReviewStageSettings{
-                    StageId = '2'
-                    RecommendationsEnabled = $True
-                    DependsOnValue = @('1')
-                    DecisionsThatWillMoveToNextStage = @('Approve')
-                    DurationInDays = 3
-                }
-            );
+                ReminderNotificationsEnabled = $True
+            }
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint
@@ -299,93 +285,69 @@ Configuration Example
     Import-DscResource -ModuleName Microsoft365DSC
     node localhost
     {
+
         AADAccessReviewDefinition "AADAccessReviewDefinition-Example"
         {
-            DescriptionForAdmins    = "description for admins";
-            DescriptionForReviewers = "description for reviewers updated"; # drifted properties
-            DisplayName             = "Test Access Review Definition";
+            DescriptionForAdmins    = "Drift";
+            DescriptionForReviewers = "";
+            DisplayName             = "Review guest access across Microsoft 365 groups";
             Ensure                  = "Present";
-            Id                      = "613854e6-c458-4a2c-83fc-e0f4b8b17d60";
+            FallbackReviewers       = @(
+                MSFT_AADAccessReviewDefinitionReviewer{
+                    DisplayName = "Adele Vance"
+                    Type = "User"
+                }
+            );
+            Reviewers               = @(
+                MSFT_AADAccessReviewDefinitionReviewer{
+                    Type = "Owner"
+                }
+            );
             ScopeValue              = MSFT_MicrosoftGraphaccessReviewScope{
-                PrincipalScopes = @(
-                    MSFT_MicrosoftGraphAccessReviewScope{
-                        Query = '/v1.0/users?$filter=userType eq ''Guest'''
-                        odataType = '#microsoft.graph.accessReviewQueryScope'
-                        QueryType = 'MicrosoftGraph'
-                    }
-                )
-                ResourceScopes = @(
-                    MSFT_MicrosoftGraphAccessReviewScope{
-                        Query = '/v1.0/groups/a8ab05ba-6680-4f93-88ae-71099eedfda1/transitiveMembers/microsoft.graph.user/?$count=true&$filter=(userType eq ''Guest'')'
-                        odataType = '#microsoft.graph.accessReviewQueryScope'
-                        QueryType = 'MicrosoftGraph'
-                    }
-                    MSFT_MicrosoftGraphAccessReviewScope{
-                        Query = '/beta/teams/a8ab05ba-6680-4f93-88ae-71099eedfda1/channels?$filter=membershipType eq ''shared'''
-                        odataType = '#microsoft.graph.accessReviewQueryScope'
-                        QueryType = 'MicrosoftGraph'
-                    }
-                )
-                odataType = '#microsoft.graph.principalResourceMembershipsScope'
+                Query = "./members/microsoft.graph.user/?`$count=true&`$filter=(userType eq 'Guest')"
+                QueryType = "MicrosoftGraph"
+                odataType = "#microsoft.graph.accessReviewQueryScope"
             };
             SettingsValue           = MSFT_MicrosoftGraphaccessReviewScheduleSettings{
                 ApplyActions = @(
                     MSFT_MicrosoftGraphAccessReviewApplyAction{
-                        odataType = '#microsoft.graph.removeAccessApplyAction'
+                        odataType = "#microsoft.graph.removeAccessApplyAction"
                     }
                 )
-                InstanceDurationInDays = 4
-                RecommendationsEnabled = $False
+                AutoApplyDecisionsEnabled = $True
                 DecisionHistoriesForReviewersEnabled = $False
+                DefaultDecision = "None"
                 DefaultDecisionEnabled = $False
+                InstanceDurationInDays = 3
                 JustificationRequiredOnApproval = $True
+                MailNotificationsEnabled = $True
                 RecommendationInsightSettings = @(
                     MSFT_MicrosoftGraphAccessReviewRecommendationInsightSetting{
-                        SignInScope = 'tenant'
-                        RecommendationLookBackDuration = 'P15D'
-                        odataType = '#microsoft.graph.userLastSignInRecommendationInsightSetting'
+                        RecommendationLookBackDuration = "P30D"
+                        SignInScope = "tenant"
+                        odataType = "#microsoft.graph.userLastSignInRecommendationInsightSetting"
                     }
                 )
-                AutoApplyDecisionsEnabled = $False
-                ReminderNotificationsEnabled = $True
+                RecommendationLookBackDuration = "30.00:00:00"
+                RecommendationsEnabled = $True
                 Recurrence = MSFT_MicrosoftGraphPatternedRecurrence{
-                    Range = MSFT_MicrosoftGraphRecurrenceRange{
-                        NumberOfOccurrences = 0
-                        Type = 'noEnd'
-                        StartDate = '10/18/2024 12:00:00 AM'
-                        EndDate = '12/31/9999 12:00:00 AM'
-                    }
                     Pattern = MSFT_MicrosoftGraphRecurrencePattern{
-                        DaysOfWeek = @()
-                        Type = 'weekly'
+                        DayOfMonth = 0
+                        FirstDayOfWeek = "sunday"
+                        Index = "first"
                         Interval = 1
                         Month = 0
-                        Index = 'first'
-                        FirstDayOfWeek = 'sunday'
-                        DayOfMonth = 0
+                        Type = "absoluteMonthly"
                     }
-
+                    Range = MSFT_MicrosoftGraphRecurrenceRange{
+                        EndDate = "12/31/9999 12:00:00 AM"
+                        NumberOfOccurrences = 0
+                        StartDate = "9/30/2025 12:00:00 AM"
+                        Type = "noEnd"
+                    }
                 }
-                DefaultDecision = 'None'
-                RecommendationLookBackDuration = '15.00:00:00'
-                MailNotificationsEnabled = $False
-            };
-            StageSettings           = @(
-                MSFT_MicrosoftGraphaccessReviewStageSettings{
-                    StageId = '1'
-                    RecommendationsEnabled = $True
-                    DependsOnValue = @()
-                    DecisionsThatWillMoveToNextStage = @('Approve')
-                    DurationInDays = 3
-                }
-                MSFT_MicrosoftGraphaccessReviewStageSettings{
-                    StageId = '2'
-                    RecommendationsEnabled = $True
-                    DependsOnValue = @('1')
-                    DecisionsThatWillMoveToNextStage = @('Approve')
-                    DurationInDays = 3
-                }
-            );
+                ReminderNotificationsEnabled = $True
+            }
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint
@@ -425,7 +387,6 @@ Configuration Example
             DescriptionForReviewers = "description for reviewers";
             DisplayName             = "Test Access Review Definition";
             Ensure                  = "Absent";
-            Id                      = "613854e6-c458-4a2c-83fc-e0f4b8b17d60";
             ApplicationId           = $ApplicationId
             TenantId                = $TenantId
             CertificateThumbprint   = $CertificateThumbprint

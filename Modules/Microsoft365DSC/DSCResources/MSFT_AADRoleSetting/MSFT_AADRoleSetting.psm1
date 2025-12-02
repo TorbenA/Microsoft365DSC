@@ -212,10 +212,11 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of the AAD Role Setting with Id {$Id} and DisplayName {$DisplayName}"
+
     if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
     {
-        Write-Verbose -Message "Getting configuration of Role: $DisplayName"
-        $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
         Write-Verbose -Message 'Getting configuration of Role'
@@ -990,7 +991,7 @@ function Set-TargetResource
             {
                 Write-Verbose -Message 'Handle Activation: Require approval to activate / Approvers'
                 $isApprovalRequired = $ApprovaltoActivate
-                if ($ActivateApprover.count -gt 0)
+                if ($ActivateApprover.Count -gt 0)
                 {
                     $primaryApprovers = @()
                     foreach ($item in $ActivateApprover)
@@ -1497,7 +1498,7 @@ function Export-TargetResource
                 ApplicationId         = $ApplicationId
                 TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 ApplicationSecret     = $ApplicationSecret
                 Credential            = $Credential
                 AccessTokens          = $AccessTokens
@@ -1537,4 +1538,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

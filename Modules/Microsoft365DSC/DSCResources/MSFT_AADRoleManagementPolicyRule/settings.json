@@ -10,9 +10,6 @@
           },
           {
             "name": "RoleManagement.Read.Directory"
-          },
-          {
-            "name": "RoleManagement.Read.All"
           }
         ],
         "update": [
@@ -20,7 +17,7 @@
             "name": "RoleManagementPolicy.ReadWrite.Directory"
           },
           {
-            "name": "RoleManagement.ReadWrite.Directory"
+            "name": "RoleManagement.Read.Directory"
           }
         ]
       },
@@ -31,9 +28,6 @@
           },
           {
             "name": "RoleManagement.Read.Directory"
-          },
-          {
-            "name": "RoleManagement.Read.All"
           }
         ],
         "update": [
@@ -41,7 +35,7 @@
             "name": "RoleManagementPolicy.ReadWrite.Directory"
           },
           {
-            "name": "RoleManagement.ReadWrite.Directory"
+            "name": "RoleManagement.Read.Directory"
           }
         ]
       }
@@ -51,5 +45,26 @@
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.Governance",
     "Microsoft.Graph.Beta.Identity.SignIns"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Data",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.Identity.Governance",
+      "cmdlets": [
+        "Get-MgBetaRoleManagementDirectoryRoleDefinition"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.Identity.SignIns",
+      "cmdlets": [
+        "Get-MgBetaPolicyRoleManagementPolicyAssignment",
+        "Get-MgBetaPolicyRoleManagementPolicyRule",
+        "Update-MgBetaPolicyRoleManagementPolicyRule"
+      ]
+    }
   ]
 }

@@ -27,11 +27,22 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             $Global:PartialExportFileName = 'c:\TestPath'
 
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
+            }
+
             Mock -CommandName Save-M365DSCPartialExport -MockWith {
             }
 
             Mock -CommandName New-M365DSCConnection -MockWith {
                 return 'Credentials'
+            }
+
+            Mock -CommandName Get-CsTeamsUpgradePolicy -MockWith {
+                return @{
+                    Identity       = 'Islands'
+                    Description    = 'This is a test policy'
+                    NotifySfBUsers = $false
+                }
             }
 
             Mock -CommandName Grant-CsTeamsUpgradePolicy -MockWith {
@@ -48,7 +59,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "When the policy doesn't already exist" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    Identity               = 'Test Policy'
+                    Identity               = 'Islands'
                     MigrateMeetingsToTeams = $false
                     Credential             = $Credential
                 }
@@ -70,14 +81,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     MigrateMeetingsToTeams = $false
                     Credential             = $Credential
                 }
-
-                Mock -CommandName Get-CsTeamsUpgradePolicy -MockWith {
-                    return @{
-                        Identity       = 'Islands'
-                        Description    = 'This is a test policy'
-                        NotifySfBUsers = $false
-                    }
-                }
             }
 
             It 'Should return true from the Test method' {
@@ -91,14 +94,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $Global:PartialExportFileName = "$(New-Guid).partial.ps1"
                 $testParams = @{
                     Credential = $Credential
-                }
-
-                Mock -CommandName Get-CsTeamsUpgradePolicy -MockWith {
-                    return @{
-                        Identity       = 'Islands'
-                        Description    = 'Test Description'
-                        NotifySfBUsers = $false
-                    }
                 }
             }
 

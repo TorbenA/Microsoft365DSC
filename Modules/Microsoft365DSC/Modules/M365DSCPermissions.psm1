@@ -348,14 +348,14 @@ function Update-M365DSCPermissionsMatrix
     {
         if ($permission.Name -ne 'NotSupported')
         {
-            $matrixPermission = $results.$AccessType | Where-Object -FilterScript {
+            $matrixPermission = $Matrix.$AccessType | Where-Object -FilterScript {
                 $_.API -eq $Source -and $_.Permission.Name -eq $permission.name -and $_.Permission.Type -eq $PermissionType
             }
 
             if ($null -eq $matrixPermission)
             {
                 Write-Verbose -Message "    Found new $AccessType permission {$($permission.name)} for API {$Source}"
-                $results.$AccessType += @{
+                $Matrix.$AccessType += @{
                     API        = $Source
                     Permission = @{
                         Type = $PermissionType
@@ -600,19 +600,6 @@ function Update-M365DSCResourcesSettingsJSON
                 Write-Verbose '  Updating existing settings.json file'
                 $settingsJson = Get-Content -Path $settingsFile -Raw
                 $settings = ConvertFrom-Json $settingsJson
-
-                $newPermissions = @{
-                    graph = @{
-                        delegated   = @{
-                            read   = @()
-                            update = @()
-                        }
-                        application = @{
-                            read   = @()
-                            update = @()
-                        }
-                    }
-                }
 
                 if ($delegatedReadPermissions.Count -eq 0 -and $settings.permissions.graph.delegated.read.Count -ne 0)
                 {
@@ -1295,7 +1282,7 @@ function Update-M365DSCAzureAdApplication
         Write-Host @params
     }
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
     $requireWait = $false
@@ -1482,7 +1469,7 @@ function Update-M365DSCAzureAdApplication
             }
             else
             {
-                $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                     -InboundParameters $PSBoundParameters
                 if ($requireWait)
                 {

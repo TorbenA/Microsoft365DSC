@@ -22,7 +22,6 @@
 | **ApplyHtmlDisclaimerFallbackAction** | Write | String | The ApplyHtmlDisclaimerFallbackAction parameter specifies what to do if the HTML disclaimer can't be added to a message. | `Wrap`, `Ignore`, `Reject` |
 | **ApplyHtmlDisclaimerLocation** | Write | String | The ApplyHtmlDisclaimerLocation parameter specifies where to insert the HTML disclaimer text in the body of messages. | `Append`, `Prepend` |
 | **ApplyHtmlDisclaimerText** | Write | String | The ApplyHtmlDisclaimerText parameter specifies an action that adds the disclaimer text to messages. | |
-| **ApplyOME** | Write | Boolean | The ApplyOME parameter specifies an action that encrypts messages and their attachments by using Office 365 Message Encryption. | |
 | **ApplyRightsProtectionCustomizationTemplate** | Write | String | The ApplyRightsProtectionCustomizationTemplate parameter specifies an action that applies a custom branding template for OME encrypted messages. | |
 | **ApplyRightsProtectionTemplate** | Write | String | The ApplyRightsProtectionTemplate parameter specifies an action that applies rights management service (RMS) templates to messages.  | |
 | **AttachmentContainsWords** | Write | StringArray[] | The AttachmentContainsWords parameter specifies a condition that looks for words in message attachments.  | |
@@ -74,7 +73,6 @@
 | **ExceptIfFromScope** | Write | String | The ExceptIfFromScope parameter specifies an exception that looks for the location of message senders. | `InOrganization`, `NotInOrganization` |
 | **ExceptIfHasClassification** | Write | String | The ExceptIfHasClassification parameter specifies an exception that looks for messages with the specified message classification. | |
 | **ExceptIfHasNoClassification** | Write | Boolean | The ExceptIfHasNoClassification parameter specifies an exception that looks for messages with or without any message classifications. | |
-| **ExceptIfHasSenderOverride** | Write | Boolean | DEPRECATED | |
 | **ExceptIfHeaderContainsMessageHeader** | Write | String | The ExceptIfHeaderContainsMessageHeader parameter specifies the name of header field in the message header when searching for the words specified by the ExceptIfHeaderContainsWords parameter. | |
 | **ExceptIfHeaderContainsWords** | Write | StringArray[] | The ExceptIfHeaderContainsWords parameter specifies an exception that looks for words in a header field. | |
 | **ExceptIfHeaderMatchesMessageHeader** | Write | String | The ExceptIfHeaderMatchesMessageHeader parameter specifies the name of header field in the message header when searching for the text patterns specified by the ExceptIfHeaderMatchesPatterns parameter. | |
@@ -82,7 +80,6 @@
 | **ExceptIfManagerAddresses** | Write | StringArray[] | The ExceptIfManagerAddresses parameter specifies the users (managers) for the ExceptIfManagerForEvaluatedUser parameter. | |
 | **ExceptIfManagerForEvaluatedUser** | Write | String | The ExceptIfManagerForEvaluatedUser parameter specifies an exception that looks for users in the Manager attribute of senders or recipients. | |
 | **ExceptIfMessageTypeMatches** | Write | String | The ExceptIfMessageTypeMatches parameter specifies an exception that looks for messages of the specified type. | `OOF`, `AutoForward`, `Encrypted`, `Calendaring`, `PermissionControlled`, `Voicemail`, `Signed`, `ApprovalRequest`, `ReadReceipt` |
-| **ExceptIfMessageContainsDataClassifications** | Write | StringArray[] | DEPRECATED | |
 | **ExceptIfMessageSizeOver** | Write | String | The ExceptIfMessageSizeOver parameter specifies an exception that looks for messages larger than the specified size.  | |
 | **ExceptIfRecipientADAttributeContainsWords** | Write | StringArray[] | The ExceptIfRecipientADAttributeContainsWords parameter specifies an exception that looks for words in the Active Directory attributes of recipients. | |
 | **ExceptIfRecipientADAttributeMatchesPatterns** | Write | StringArray[] | The ExceptIfRecipientADAttributeMatchesPatterns parameter specifies an exception that looks for text patterns in the Active Directory attributes of recipients by using regular expressions. | |
@@ -115,7 +112,6 @@
 | **GenerateNotification** | Write | String | The GenerateNotification parameter specifies an action that sends a notification message to recipients. | |
 | **HasClassification** | Write | String | The HasClassification parameter specifies a condition that looks for messages with the specified message classification. | |
 | **HasNoClassification** | Write | Boolean | The HasNoClassification parameter specifies a condition that looks for messages with or without any message classifications. | |
-| **HasSenderOverride** | Write | Boolean | DEPRECATED | |
 | **HeaderContainsMessageHeader** | Write | String | The HeaderContainsMessageHeader parameter specifies the name of header field in the message header when searching for the words specified by the HeaderContainsWords parameter. | |
 | **HeaderContainsWords** | Write | StringArray[] | The HeaderContainsWords parameter specifies a condition that looks for words in a header field. | |
 | **HeaderMatchesMessageHeader** | Write | String | The HeaderMatchesMessageHeader parameter specifies the name of header field in the message header when searching for the text patterns specified by the HeaderMatchesPatterns parameter. | |
@@ -123,13 +119,11 @@
 | **IncidentReportContent** | Write | StringArray[] | The IncidentReportContent parameter specifies the message properties that are included in the incident report that's generated when a message violates a DLP policy.  | |
 | **ManagerAddresses** | Write | StringArray[] | The ManagerAddresses parameter specifies the users (managers) for the ExceptIfManagerForEvaluatedUser parameter. | |
 | **ManagerForEvaluatedUser** | Write | String | The ManagerForEvaluatedUser parameter specifies a condition that looks for users in the Manager attribute of senders or recipients. | `Recipient`, `Sender` |
-| **MessageContainsDataClassifications** | Write | StringArray[] | DEPRECATED | |
 | **MessageSizeOver** | Write | String | The MessageSizeOver parameter specifies a condition that looks for messages larger than the specified size. The size includes the message and all attachments. | |
 | **MessageTypeMatches** | Write | String | The MessageTypeMatches parameter specifies a condition that looks for messages of the specified type. | `OOF`, `AutoForward`, `Encrypted`, `Calendaring`, `PermissionControlled`, `Voicemail`, `Signed`, `ApprovalRequest`, `ReadReceipt` |
 | **Mode** | Write | String | The Mode parameter specifies how the rule operates. | `Audit`, `AuditAndNotify`, `Enforce` |
 | **ModerateMessageByManager** | Write | Boolean | The ModerateMessageByManager parameter specifies an action that forwards messages for approval to the user that's specified in the sender's Manager attribute. | |
 | **ModerateMessageByUser** | Write | StringArray[] | The ModerateMessageByUser parameter specifies an action that forwards messages for approval to the specified users. | |
-| **NotifySender** | Write | String | DEPRECATED | `NotifyOnly`, `RejectMessage`, `RejectUnlessFalsePositiveOverride`, `RejectUnlessSilentOverride`, `RejectUnlessExplicitOverride` |
 | **PrependSubject** | Write | String | The PrependSubject parameter specifies an action that adds text to add to the beginning of the Subject field of messages. | |
 | **Priority** | Write | UInt32 | The Priority parameter specifies a priority value for the rule that determines the order of rule processing. | |
 | **Quarantine** | Write | Boolean | The Quarantine parameter specifies an action that quarantines messages. | |
@@ -144,7 +138,6 @@
 | **RejectMessageEnhancedStatusCode** | Write | String | The RejectMessageEnhancedStatusCode parameter specifies the enhanced status code that's used when the rule rejects messages. | |
 | **RejectMessageReasonText** | Write | String | The RejectMessageReasonText parameter specifies the explanation text that's used when the rule rejects messages. | |
 | **RemoveHeader** | Write | String | The RemoveHeader parameter specifies an action that removes a header field from the message header. | |
-| **RemoveOME** | Write | Boolean | The RemoveOME parameter specifies an action that removes the previous version of Office 365 Message Encryption from messages and their attachments. | |
 | **RemoveOMEv2** | Write | Boolean | The RemoveOMEv2 parameter specifies an action that removes Office 365 Message Encryption from messages and their attachments. | |
 | **RemoveRMSAttachmentEncryption** | Write | Boolean | This parameter specifies an action or part of an action for the rule. | |
 | **RouteMessageOutboundConnector** | Write | String | The RouteMessageOutboundConnector parameter specifies an action that routes messages through the specified Outbound connector in Office 365. | |
@@ -208,7 +201,7 @@ This example is used to test new resources and showcase the usage of new resourc
 It is not meant to use as a production baseline.
 
 ```powershell
-Configuration Example
+configuration Example
 {
     param(
         [Parameter()]
@@ -229,17 +222,17 @@ Configuration Example
     {
         EXOTransportRule 'ConfigureTransportRule'
         {
-            Name                                          = "Ethical Wall - Sales and Executives Departments"
-            BetweenMemberOf1                              = "SalesTeam@$TenantId"
-            BetweenMemberOf2                              = "Executives@$TenantId"
-            ExceptIfFrom                                  = "AdeleV@$TenantId"
-            ExceptIfSubjectContainsWords                  = "Press Release","Corporate Communication"
-            RejectMessageReasonText                       = "Messages sent between the Sales and Brokerage departments are strictly prohibited."
-            Enabled                                       = $True
-            Ensure                                        = "Present"
-            ApplicationId         = $ApplicationId
-            TenantId              = $TenantId
-            CertificateThumbprint = $CertificateThumbprint
+            Name                         = 'Ethical Wall - Sales and Executives Departments'
+            BetweenMemberOf1             = "SalesTeam@$TenantId"
+            BetweenMemberOf2             = "Executives@$TenantId"
+            ExceptIfFrom                 = "AdeleV@$TenantId"
+            ExceptIfSubjectContainsWords = 'Press Release', 'Corporate Communication'
+            RejectMessageReasonText      = 'Messages sent between the Sales and Brokerage departments are strictly prohibited.'
+            Enabled                      = $True
+            Ensure                       = 'Present'
+            ApplicationId                = $ApplicationId
+            TenantId                     = $TenantId
+            CertificateThumbprint        = $CertificateThumbprint
         }
     }
 }
@@ -251,7 +244,7 @@ This example is used to test new resources and showcase the usage of new resourc
 It is not meant to use as a production baseline.
 
 ```powershell
-Configuration Example
+configuration Example
 {
     param(
         [Parameter()]
@@ -272,17 +265,17 @@ Configuration Example
     {
         EXOTransportRule 'ConfigureTransportRule'
         {
-            Name                                          = "Ethical Wall - Sales and Executives Departments"
-            BetweenMemberOf1                              = "SalesTeam@$TenantId"
-            BetweenMemberOf2                              = "Executives@$TenantId"
-            ExceptIfFrom                                  = "AdeleV@$TenantId"
-            ExceptIfSubjectContainsWords                  = "Press Release","Corporate Communication"
-            RejectMessageReasonText                       = "Messages sent between the Sales and Brokerage departments are strictly prohibited."
-            Enabled                                       = $False # Updated Property
-            Ensure                                        = "Present"
-            ApplicationId         = $ApplicationId
-            TenantId              = $TenantId
-            CertificateThumbprint = $CertificateThumbprint
+            Name                         = 'Ethical Wall - Sales and Executives Departments'
+            BetweenMemberOf1             = "SalesTeam@$TenantId"
+            BetweenMemberOf2             = "Executives@$TenantId"
+            ExceptIfFrom                 = "AdeleV@$TenantId"
+            ExceptIfSubjectContainsWords = 'Press Release', 'Corporate Communication'
+            RejectMessageReasonText      = 'Messages sent between the Sales and Brokerage departments are strictly prohibited.'
+            Enabled                      = $False # Updated Property
+            Ensure                       = 'Present'
+            ApplicationId                = $ApplicationId
+            TenantId                     = $TenantId
+            CertificateThumbprint        = $CertificateThumbprint
         }
     }
 }

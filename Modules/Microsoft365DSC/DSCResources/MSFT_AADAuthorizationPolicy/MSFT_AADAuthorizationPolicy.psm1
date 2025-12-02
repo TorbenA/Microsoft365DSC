@@ -38,6 +38,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $AllowUserConsentForRiskyApps,
+
+        [Parameter()]
+        [System.Boolean]
         $BlockMsolPowerShell,
 
         [Parameter()]
@@ -106,7 +110,7 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting configuration of AzureAD Authorization Policy'
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -165,6 +169,7 @@ function Get-TargetResource
             AllowedToUseSSPR                                        = $Policy.AllowedToUseSSPR
             AllowEmailVerifiedUsersToJoinOrganization               = $Policy.AllowEmailVerifiedUsersToJoinOrganization
             AllowInvitesFrom                                        = $Policy.AllowInvitesFrom
+            AllowUserConsentForRiskyApps                            = $Policy.AllowUserConsentForRiskyApps
             BlockMsolPowerShell                                     = $Policy.BlockMsolPowerShell
             DefaultUserRoleAllowedToCreateApps                      = $Policy.DefaultUserRolePermissions.AllowedToCreateApps
             DefaultUserRoleAllowedToCreateSecurityGroups            = $Policy.DefaultUserRolePermissions.AllowedToCreateSecurityGroups
@@ -179,7 +184,7 @@ function Get-TargetResource
             ApplicationId                                           = $ApplicationId
             TenantId                                                = $TenantId
             CertificateThumbprint                                   = $CertificateThumbprint
-            Managedidentity                                         = $ManagedIdentity.IsPresent
+            ManagedIdentity                                         = $ManagedIdentity.IsPresent
             AccessTokens                                            = $AccessTokens
         }
 
@@ -222,6 +227,10 @@ function Set-TargetResource
         [System.String]
         [validateset('None', 'AdminsAndGuestInviters', 'AdminsGuestInvitersAndAllMembers', 'Everyone')]
         $AllowInvitesFrom,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowUserConsentForRiskyApps,
 
         [Parameter()]
         [System.Boolean]
@@ -309,16 +318,8 @@ function Set-TargetResource
     $currentPolicy = Get-TargetResource @PSBoundParameters
 
     Write-Verbose -Message 'Set-Targetresource: Cleaning up parameters'
-    $desiredParameters = ([hashtable]$PSBoundParameters).Clone()
+    $desiredParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $desiredParameters.Remove('IsSingleInstance') | Out-Null
-    $desiredParameters.Remove('ApplicationId') | Out-Null
-    $desiredParameters.Remove('TenantId') | Out-Null
-    $desiredParameters.Remove('CertificateThumbprint') | Out-Null
-    $desiredParameters.Remove('ApplicationSecret') | Out-Null
-    $desiredParameters.Remove('Ensure') | Out-Null
-    $desiredParameters.Remove('Credential') | Out-Null
-    $desiredParameters.Remove('ManagedIdentity') | Out-Null
-    $desiredParameters.Remove('AccessTokens') | Out-Null
 
     Write-Verbose -Message 'Set-Targetresource: Authorization Policy Ensure Present'
     $UpdateParameters = @{
@@ -384,7 +385,7 @@ function Set-TargetResource
     try
     {
         Write-Verbose -Message "Updating existing authorization policy with values: $(Convert-M365DscHashtableToString -Hashtable $UpdateParameters)"
-        $response = Update-MgBetaPolicyAuthorizationPolicy @updateParameters -ErrorAction Stop
+        $null = Update-MgBetaPolicyAuthorizationPolicy @updateParameters -ErrorAction Stop
     }
     catch
     {
@@ -435,6 +436,10 @@ function Test-TargetResource
         [System.String]
         [validateset('None', 'AdminsAndGuestInviters', 'AdminsGuestInvitersAndAllMembers', 'Everyone')]
         $AllowInvitesFrom,
+
+        [Parameter()]
+        [System.Boolean]
+        $AllowUserConsentForRiskyApps,
 
         [Parameter()]
         [System.Boolean]
@@ -728,4 +733,3 @@ function Get-GuestUserRoleNameFromId
 }
 
 Export-ModuleMember -Function *-TargetResource
-

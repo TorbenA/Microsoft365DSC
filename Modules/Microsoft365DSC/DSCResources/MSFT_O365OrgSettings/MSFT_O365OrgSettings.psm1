@@ -77,10 +77,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $MicrosoftVivaBriefingEmail,
-
-        [Parameter()]
-        [System.Boolean]
         $ToDoIsPushNotificationEnabled,
 
         [Parameter()]
@@ -127,11 +123,6 @@ function Get-TargetResource
         $InstallationOptionsAppsForMac,
 
         [Parameter()]
-        [ValidateSet('Present', 'Absent')]
-        [System.String]
-        $Ensure = 'Present',
-
-        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -160,7 +151,9 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    Write-Verbose -Message "Setting configuration of Office 365 Group $DisplayName"
+
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
     $ConnectionModeTasks = New-M365DSCConnection -Workload 'Tasks' `
@@ -173,7 +166,7 @@ function Get-TargetResource
     {
         Reset-MSCloudLoginConnectionProfileContext -Workload ExchangeOnline
     }
-    $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
+    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -200,7 +193,7 @@ function Get-TargetResource
         TenantId              = $TenantId
         ApplicationSecret     = $ApplicationSecret
         CertificateThumbprint = $CertificateThumbprint
-        Managedidentity       = $ManagedIdentity.IsPresent
+        ManagedIdentity       = $ManagedIdentity.IsPresent
         AccessTokens          = $AccessTokens
     }
     try
@@ -442,10 +435,6 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $MicrosoftVivaBriefingEmail,
-
-        [Parameter()]
-        [System.Boolean]
         $ToDoIsPushNotificationEnabled,
 
         [Parameter()]
@@ -492,11 +481,6 @@ function Set-TargetResource
         $InstallationOptionsAppsForMac,
 
         [Parameter()]
-        [ValidateSet('Present', 'Absent')]
-        [System.String]
-        $Ensure = 'Present',
-
-        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -525,10 +509,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    if ($PSBoundParameters.ContainsKey('Ensure') -and $Ensure -eq 'Absent')
-    {
-        throw 'This resource is not able to remove the Org settings and therefore only accepts Ensure=Present.'
-    }
+    Write-Verbose -Message "Setting configuration of Office 365 Org Settings"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -542,7 +523,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
     $currentValues = Get-TargetResource @PSBoundParameters
 
@@ -578,20 +559,6 @@ function Set-TargetResource
                 -AccountEnabled:$CortanaEnabled
         }
     }
-
-    # Microsoft Viva Briefing Email
-    if ($null -ne $MicrosoftVivaBriefingEmail)
-    {
-        Write-Verbose -Message 'DEPRECATED - The MicrosoftVivaBriefingEmail parameter is deprecated and will be ignored.'
-    }
-    #$briefingValue = 'opt-out'
-
-    <# DEPRECATED
-    if ($currentValues.MicrosoftVivaBriefingEmail -and $MicrosoftVivaBriefingEmail -ne $currentValues.MicrosoftVivaBriefingEmail)
-    {
-        Write-Verbose -Message "Updating Microsoft Viva Briefing Email settings."
-        Set-DefaultTenantBriefingConfig -IsEnabledByDefault $briefingValue | Out-Null
-    }#>
 
     # Viva Insights
     if ($PSBoundParameters.ContainsKey('VivaInsightsWebExperience') -and `
@@ -881,10 +848,6 @@ function Test-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $MicrosoftVivaBriefingEmail,
-
-        [Parameter()]
-        [System.Boolean]
         $ToDoIsPushNotificationEnabled,
 
         [Parameter()]
@@ -931,11 +894,6 @@ function Test-TargetResource
         $InstallationOptionsAppsForMac,
 
         [Parameter()]
-        [ValidateSet('Present', 'Absent')]
-        [System.String]
-        $Ensure = 'Present',
-
-        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -974,8 +932,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludedProperties @('MicrosoftVivaBriefingEmail') # Deprecated parameter
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -1013,6 +970,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
@@ -1042,7 +1000,7 @@ function Export-TargetResource
             TenantId              = $TenantId
             ApplicationSecret     = $ApplicationSecret
             CertificateThumbprint = $CertificateThumbprint
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
 
@@ -1419,4 +1377,3 @@ function Update-M365DSCOrgSettingsAdminCenterReport
 }
 
 Export-ModuleMember -Function *-TargetResource
-

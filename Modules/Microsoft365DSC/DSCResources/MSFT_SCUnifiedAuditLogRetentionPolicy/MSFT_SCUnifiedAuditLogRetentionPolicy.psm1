@@ -61,12 +61,14 @@ function Get-TargetResource
         $ApplicationSecret
     )
 
+    Write-Verbose -Message "Getting configuration of SC Unified Audit Log Retention Policy for $Name"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-                -InboundParameters $PSBoundParameters | Out-Null
+            $null = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+                -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
             Confirm-M365DSCDependencies
@@ -118,7 +120,7 @@ function Get-TargetResource
             CertificateThumbprint = $CertificateThumbprint
             ApplicationSecret     = $ApplicationSecret
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -192,8 +194,7 @@ function Set-TargetResource
         $ApplicationSecret
     )
 
-    New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Setting configuration of SC Unified Audit Log Retention Policy for $Name"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -208,60 +209,32 @@ function Set-TargetResource
     #endregion
 
     $GetParameters = ([Hashtable]$PSBoundParameters).Clone()
-
     $GetParameters.Remove('Description') | Out-Null
     $GetParameters.Remove('Operations') | Out-Null
     $GetParameters.Remove('RecordTypes') | Out-Null
     $GetParameters.Remove('UserIds') | Out-Null
 
     $currentInstance = Get-TargetResource @GetParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         $CreateParameters = ([Hashtable]$BoundParameters).Clone()
-
-        $CreateParameters.Remove('Verbose') | Out-Null
-
-        $keys = $CreateParameters.Keys
-        foreach ($key in $keys)
-        {
-            if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.GetType().Name -like '*cimInstance*')
-            {
-                $keyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters.$key
-                $CreateParameters.Remove($key) | Out-Null
-                $CreateParameters.Add($keyName, $keyValue)
-            }
-        }
-        Write-Verbose -Message "Creating {$Name} with Parameters:`r`n$(Convert-M365DscHashtableToString -Hashtable $CreateParameters)"
+        Write-Verbose -Message "Creating a Unified Audit Log Retention Policy with Name {$Name}"
         New-UnifiedAuditLogRetentionPolicy @CreateParameters | Out-Null
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating {$Name}"
+        Write-Verbose -Message "Updating the Unified Audit Log Retention Policy with Name {$Name}"
 
         $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
-        $UpdateParameters.Remove('Verbose') | Out-Null
         $UpdateParameters.Remove('Name') | Out-Null
         $UpdateParameters.Add('Identity', $currentInstance.Identity) | Out-Null
-
-        $keys = $UpdateParameters.Keys
-        foreach ($key in $keys)
-        {
-            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.GetType().Name -like '*cimInstance*')
-            {
-                $keyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
-                $UpdateParameters.Remove($key) | Out-Null
-                $UpdateParameters.Add($keyName, $keyValue)
-            }
-        }
-
         Set-UnifiedAuditLogRetentionPolicy @UpdateParameters | Out-Null
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removing {$Name}"
+        Write-Verbose -Message "Removing the Unified Audit Log Retention Policy with Name {$Name}"
         Remove-UnifiedAuditLogRetentionPolicy -Identity $currentInstance.Identity
     }
 }
@@ -327,9 +300,6 @@ function Test-TargetResource
         $ApplicationSecret
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -339,33 +309,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of {$Name}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).Clone()
-    $ValuesToCheck.Remove('Name') | Out-Null
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    #Convert any DateTime to String
-    foreach ($key in $ValuesToCheck.Keys)
-    {
-        if (($null -ne $CurrentValues[$key]) `
-                -and ($CurrentValues[$key].GetType().Name -eq 'DateTime'))
-        {
-            $CurrentValues[$key] = $CurrentValues[$key].toString()
-        }
-    }
-
-    $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties @('Name')
+    return $result
 }
 
 function Export-TargetResource
@@ -485,4 +432,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

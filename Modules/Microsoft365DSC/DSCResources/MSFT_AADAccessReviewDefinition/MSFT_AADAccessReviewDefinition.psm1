@@ -19,6 +19,14 @@ function Get-TargetResource
         $DisplayName,
 
         [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $FallbackReviewers,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $Reviewers,
+
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance]
         $ScopeValue,
 
@@ -30,7 +38,7 @@ function Get-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $StageSettings,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -74,7 +82,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -94,8 +102,11 @@ function Get-TargetResource
 
             $getValue = $null
             #region resource generator code
-            $getValue = Get-MgBetaIdentityGovernanceAccessReviewDefinition -AccessReviewScheduleDefinitionId $Id -ErrorAction SilentlyContinue
-
+            if (-not [System.String]::IsNullOrEmpty($Id))
+            {
+                $getValue = Get-MgBetaIdentityGovernanceAccessReviewDefinition -AccessReviewScheduleDefinitionId $Id `
+                    -ErrorAction SilentlyContinue
+            }
             if ($null -eq $getValue)
             {
                 Write-Verbose -Message "Could not find an Azure AD Access Review Definition with Id {$Id}"
@@ -125,7 +136,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Azure AD Access Review Definition with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
-        $complexScope = @{}
+        $complexScope = [ordered]@{}
         $complexScope.Add('Query', $getValue.Scope.AdditionalProperties.query)
         $complexScope.Add('QueryRoot', $getValue.Scope.AdditionalProperties.queryRoot)
         $complexScope.Add('QueryType', $getValue.Scope.AdditionalProperties.queryType)
@@ -133,7 +144,7 @@ function Get-TargetResource
         $complexPrincipalScopes = @()
         foreach ($currentPrincipalScopes in $getValue.Scope.AdditionalProperties.principalScopes)
         {
-            $myPrincipalScopes = @{}
+            $myPrincipalScopes = [ordered]@{}
             $myPrincipalScopes.Add('Query', $currentPrincipalScopes.query)
             $myPrincipalScopes.Add('QueryRoot', $currentPrincipalScopes.queryRoot)
             $myPrincipalScopes.Add('QueryType', $currentPrincipalScopes.queryType)
@@ -150,7 +161,7 @@ function Get-TargetResource
         $complexResourceScopes = @()
         foreach ($currentResourceScopes in $getValue.Scope.AdditionalProperties.resourceScopes)
         {
-            $myResourceScopes = @{}
+            $myResourceScopes = [ordered]@{}
             $myResourceScopes.Add('Query', $currentResourceScopes.query)
             $myResourceScopes.Add('QueryRoot', $currentResourceScopes.queryRoot)
             $myResourceScopes.Add('QueryType', $currentResourceScopes.queryType)
@@ -175,11 +186,11 @@ function Get-TargetResource
             $complexScope = $null
         }
 
-        $complexSettings = @{}
+        $complexSettings = [ordered]@{}
         $complexApplyActions = @()
         foreach ($currentApplyActions in $getValue.Settings.applyActions)
         {
-            $myApplyActions = @{}
+            $myApplyActions = [ordered]@{}
             if ($null -ne $currentApplyActions.AdditionalProperties.'@odata.type')
             {
                 $myApplyActions.Add('odataType', $currentApplyActions.AdditionalProperties.'@odata.type'.ToString())
@@ -200,7 +211,7 @@ function Get-TargetResource
         $complexRecommendationInsightSettings = @()
         foreach ($currentRecommendationInsightSettings in $getValue.Settings.recommendationInsightSettings)
         {
-            $myRecommendationInsightSettings = @{}
+            $myRecommendationInsightSettings = [ordered]@{}
             $myRecommendationInsightSettings.Add('RecommendationLookBackDuration', $currentRecommendationInsightSettings.AdditionalProperties.recommendationLookBackDuration)
             if ($null -ne $currentRecommendationInsightSettings.AdditionalProperties.signInScope)
             {
@@ -222,8 +233,8 @@ function Get-TargetResource
             $complexSettings.Add('RecommendationLookBackDuration', $getValue.Settings.recommendationLookBackDuration.ToString())
         }
         $complexSettings.Add('RecommendationsEnabled', $getValue.Settings.recommendationsEnabled)
-        $complexRecurrence = @{}
-        $complexPattern = @{}
+        $complexRecurrence = [ordered]@{}
+        $complexPattern = [ordered]@{}
         $complexPattern.Add('DayOfMonth', $getValue.settings.recurrence.pattern.dayOfMonth)
         if ($null -ne $getValue.settings.recurrence.pattern.daysOfWeek)
         {
@@ -249,7 +260,7 @@ function Get-TargetResource
             $complexPattern = $null
         }
         $complexRecurrence.Add('Pattern', $complexPattern)
-        $complexRange = @{}
+        $complexRange = [ordered]@{}
         if ($null -ne $getValue.settings.recurrence.range.endDate)
         {
             $complexRange.Add('EndDate', ([DateTime]$getValue.settings.recurrence.range.endDate).ToString(''))
@@ -283,14 +294,14 @@ function Get-TargetResource
         $complexStageSettings = @()
         foreach ($currentStageSettings in $getValue.stageSettings)
         {
-            $myStageSettings = @{}
+            $myStageSettings = [ordered]@{}
             $myStageSettings.Add('DecisionsThatWillMoveToNextStage', $currentStageSettings.decisionsThatWillMoveToNextStage)
             $myStageSettings.Add('DependsOnValue', $currentStageSettings.dependsOn)
             $myStageSettings.Add('DurationInDays', $currentStageSettings.durationInDays)
             $complexRecommendationInsightSettings = @()
             foreach ($currentRecommendationInsightSettings in $currentStageSettings.recommendationInsightSettings)
             {
-                $myRecommendationInsightSettings = @{}
+                $myRecommendationInsightSettings = [ordered]@{}
 
                 if ($null -ne $currentRecommendationInsightSettings.recommendationLookBackDuration)
                 {
@@ -319,12 +330,103 @@ function Get-TargetResource
                 $complexStageSettings += $myStageSettings
             }
         }
+
+        $complexFallbackReviewers = @()
+        if ($getValue.FallbackReviewers.Count -gt 0)
+        {
+            $allQueries = $getValue.FallbackReviewers.Query
+            if ($allQueries.Count -gt 0)
+            {
+                $batchRequests = @()
+                foreach ($query in $allQueries)
+                {
+                    $batchRequests += @{
+                        id     = $query
+                        method = 'GET'
+                        url    = $query.Replace('/v1.0', '').Replace('transitiveMembers/microsoft.graph.user', '')
+                    }
+                }
+                Write-Verbose -Message "Invoking BATCH request to resolve Fallback Reviewers from Get-TargetResource: $(ConvertTo-Json $batchRequests -Depth 10)"
+                $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
+            }
+
+            foreach ($currentFallbackReviewer in $getValue.FallbackReviewers)
+            {
+                $currentQuery = $batchResponses | Where-Object { $_.id -eq $currentFallbackReviewer.Query }
+                switch ($currentFallbackReviewer.Query)
+                {
+                    { $_ -like "*users*" }
+                    {
+                        $reviewerType = 'User'
+                    }
+                    { $_ -like "*groups*" }
+                    {
+                        $reviewerType = 'Group'
+                    }
+                }
+                $myFallbackReviewer = [ordered]@{}
+                $myFallbackReviewer.Add('DisplayName', $currentQuery.body.displayName)
+                $myFallbackReviewer.Add('Type', $reviewerType)
+                $complexFallbackReviewers += $myFallbackReviewer
+            }
+        }
+
+        $complexReviewers = @()
+        $allQueries = $getValue.Reviewers.Query
+        $batchRequests = @()
+        foreach ($query in $allQueries)
+        {
+            if ($query -like "*manager*")
+            {
+                continue
+            }
+            $batchRequests += @{
+                id     = $query
+                method = 'GET'
+                url    = $query.Replace('/v1.0', '').Replace('transitiveMembers/microsoft.graph.user', '').Replace('owners', '')
+            }
+        }
+        if ($batchRequests.Count -gt 0)
+        {
+            Write-Verbose -Message "Invoking BATCH request to resolve Reviewers from Get-TargetResource: $(ConvertTo-Json $batchRequests -Depth 10)"
+            $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
+        }
+
+        foreach ($currentReviewer in $getValue.Reviewers)
+        {
+            $currentQuery = $batchResponses | Where-Object { $_.id -eq $currentReviewer.Query }
+            switch ($currentReviewer.Query)
+            {
+                { $_ -like "*manager*" }
+                {
+                    $reviewerType = 'Manager'
+                }
+                { $_ -like "*users*" }
+                {
+                    $reviewerType = 'User'
+                }
+                { $_ -like "*groups*" }
+                {
+                    $reviewerType = 'Group'
+                }
+                { $_ -like "*/owners"}
+                {
+                    $reviewerType = 'Owner'
+                }
+            }
+            $myReviewer = [ordered]@{}
+            $myReviewer.Add('DisplayName', $currentQuery.body.displayName)
+            $myReviewer.Add('Type', $reviewerType)
+            $complexReviewers += $myReviewer
+        }
         #endregion
 
         $results = @{
             DescriptionForAdmins    = $getValue.DescriptionForAdmins
             DescriptionForReviewers = $getValue.DescriptionForReviewers
             DisplayName             = $getValue.DisplayName
+            FallbackReviewers       = $complexFallbackReviewers
+            Reviewers               = $complexReviewers
             ScopeValue              = $complexScope
             SettingsValue           = $complexSettings
             StageSettings           = $complexStageSettings
@@ -338,7 +440,7 @@ function Get-TargetResource
             ManagedIdentity         = $ManagedIdentity.IsPresent
         }
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -370,6 +472,14 @@ function Set-TargetResource
         $DisplayName,
 
         [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $FallbackReviewers,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $Reviewers,
+
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance]
         $ScopeValue,
 
@@ -381,7 +491,7 @@ function Set-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $StageSettings,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -434,10 +544,145 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-    if ($StageSettings -ne $null)
+    if ($BoundParameters.ContainsKey('FallbackReviewers'))
+    {
+        $batchRequests = @()
+        foreach ($currentFallbackReviewer in $FallbackReviewers)
+        {
+            if ($currentFallbackReviewer.Type -eq 'User')
+            {
+                $reviewerType = 'users'
+            }
+            elseif ($currentFallbackReviewer.Type -eq 'Group')
+            {
+                $reviewerType = 'groups'
+            }
+            $filter = "displayName eq '$($currentFallbackReviewer.DisplayName -replace "'", "''")'"
+            $batchRequests += @{
+                id = $currentFallbackReviewer.DisplayName
+                method = 'GET'
+                url = "/$($reviewerType)?`$filter=$filter"
+            }
+        }
+        if ($batchRequests.Count -gt 0)
+        {
+            Write-Verbose -Message "Invoking BATCH request to resolve FallbackReviewers: $(ConvertTo-Json $batchRequests -Depth 10)"
+            $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
+        }
+        $newFallbackReviewers = @()
+        foreach ($currentFallbackReviewer in $FallbackReviewers)
+        {
+            $currentQuery = $batchResponses | Where-Object { $_.id -eq $currentFallbackReviewer.DisplayName }
+            if ($currentFallbackReviewer.Type -eq 'User')
+            {
+                $reviewerType = 'users'
+            }
+            elseif ($currentFallbackReviewer.Type -eq 'Group')
+            {
+                $reviewerType = 'groups'
+            }
+            if ($null -ne $currentQuery)
+            {
+                $append = $null
+                if ($reviewerType -eq 'groups')
+                {
+                    $append = '/transitiveMembers/microsoft.graph.user'
+                }
+                $myFallbackReviewer = @{
+                    query = "/v1.0/$reviewerType/$($currentQuery.body.value.id)$append"
+                    queryType = "MicrosoftGraph"
+                }
+                $newFallbackReviewers += $myFallbackReviewer
+            }
+        }
+        $BoundParameters.Remove('FallbackReviewers') | Out-Null
+        $BoundParameters.Add('FallbackReviewers', $newFallbackReviewers)
+    }
+
+    if ($BoundParameters.ContainsKey('Reviewers'))
+    {
+        $batchRequests = @()
+        foreach ($currentReviewer in $Reviewers)
+        {
+            if ($currentReviewer.Type -eq 'Manager')
+            {
+                continue
+            }
+
+            switch ($currentReviewer.Type)
+            {
+                'User' {
+                    $reviewerType = 'users'
+                }
+                'Group' {
+                    $reviewerType = 'groups'
+                }
+                'Owner' {
+                    $reviewerType = 'groups'
+                }
+            }
+            if (-not [System.String]::IsNullOrEmpty($currentReviewer.DisplayName))
+            {
+                $filter = "displayName eq '$($currentReviewer.DisplayName -replace "'", "''")'"
+                $batchRequests += @{
+                    id = $currentReviewer.DisplayName
+                    method = 'GET'
+                    url = "/$($reviewerType)?`$filter=$filter"
+                }
+            }
+        }
+        if ($batchRequests.Count -gt 0)
+        {
+            Write-Verbose -Message "Invoking BATCH request to resolve Reviewers: $(ConvertTo-Json $batchRequests -Depth 10)"
+            $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
+        }
+        $newReviewers = @()
+        foreach ($currentReviewer in $Reviewers)
+        {
+            $currentQuery = $batchResponses | Where-Object { $_.id -eq $currentReviewer.DisplayName }
+            switch ($currentReviewer.Type)
+            {
+                'User' {
+                    $reviewerType = 'users'
+                }
+                'Group' {
+                    $reviewerType = 'groups'
+                }
+                'Owner' {
+                    $reviewerType = 'groups'
+                }
+            }
+            if ($null -ne $currentQuery)
+            {
+                $append = $null
+                if ($reviewerType -eq 'groups')
+                {
+                    $append = '/transitiveMembers/microsoft.graph.user'
+                }
+                elseif ($currentReviewer.Type -eq 'Owner')
+                {
+                    $append = '/owners'
+                }
+                $myReviewer = @{
+                    query = "/v1.0/$reviewerType/$($currentQuery.body.value.id)$append"
+                    queryType = "MicrosoftGraph"
+                }
+
+                if ($currentReviewer.Type -eq 'Manager')
+                {
+                    $myReviewer.query = "./manager"
+                    $myReviewer.queryRoot = "decisions"
+                }
+                $newReviewers += $myReviewer
+            }
+        }
+        $BoundParameters.Remove('Reviewers') | Out-Null
+        $BoundParameters.Add('Reviewers', $newReviewers)
+    }
+
+    if ($null -ne $StageSettings)
     {
         Write-Verbose -Message 'StageSettings cannot be updated after creation of access review definition.'
 
@@ -497,6 +742,7 @@ function Set-TargetResource
             }
         }
         $createParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
+        Write-Verbose -Message "Creating an Azure AD Access Review Definition with: $(ConvertTo-Json $createParameters -Depth 10)"
         $policy = New-MgBetaIdentityGovernanceAccessReviewDefinition -BodyParameter $createParameters
         return
     }
@@ -555,6 +801,7 @@ function Set-TargetResource
         }
         #region resource generator code
         $createParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
+        Write-Verbose -Message "Creating an Azure AD Access Review Definition with: $(ConvertTo-Json $createParameters -Depth 10)"
         $policy = New-MgBetaIdentityGovernanceAccessReviewDefinition -BodyParameter $createParameters
         #endregion
     }
@@ -585,6 +832,7 @@ function Set-TargetResource
 
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
+        Write-Verbose -Message "Updating Azure AD Access Review Definition {$($currentInstance.Id)} with: $(ConvertTo-Json $UpdateParameters -Depth 10)"
         Set-MgBetaIdentityGovernanceAccessReviewDefinition `
             -AccessReviewScheduleDefinitionId $currentInstance.Id `
             -BodyParameter $UpdateParameters
@@ -618,6 +866,14 @@ function Test-TargetResource
         $DisplayName,
 
         [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $FallbackReviewers,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $Reviewers,
+
+        [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance]
         $ScopeValue,
 
@@ -629,7 +885,7 @@ function Test-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $StageSettings,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -915,13 +1171,43 @@ function Export-TargetResource
                     $Results.Remove('StageSettings') | Out-Null
                 }
             }
+            if ($null -ne $Results.FallbackReviewers)
+            {
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.FallbackReviewers `
+                    -CIMInstanceName 'AADAccessReviewDefinitionReviewer'
+
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                {
+                    $Results.FallbackReviewers = $complexTypeStringResult
+                }
+                else
+                {
+                    $Results.Remove('FallbackReviewers') | Out-Null
+                }
+            }
+            if ($null -ne $Results.Reviewers)
+            {
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.Reviewers `
+                    -CIMInstanceName 'AADAccessReviewDefinitionReviewer'
+
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                {
+                    $Results.Reviewers = $complexTypeStringResult
+                }
+                else
+                {
+                    $Results.Remove('Reviewers') | Out-Null
+                }
+            }
 
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
                 -ModulePath $PSScriptRoot `
                 -Results $Results `
                 -Credential $Credential `
-                -NoEscape @('ScopeValue', 'SettingsValue', 'StageSettings')
+                -NoEscape @('ScopeValue', 'SettingsValue', 'StageSettings', 'FallbackReviewers', 'Reviewers')
 
             $dscContent += $currentDSCBlock
             Save-M365DSCPartialExport -Content $currentDSCBlock `
@@ -946,4 +1232,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

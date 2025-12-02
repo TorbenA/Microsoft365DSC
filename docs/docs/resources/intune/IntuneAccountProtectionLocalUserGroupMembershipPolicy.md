@@ -7,8 +7,9 @@
 | **Identity** | Write | String | Identity of the account protection policy. | |
 | **DisplayName** | Key | String | Display name of the account protection rules policy. | |
 | **Description** | Write | String | Description of the account protection rules policy. | |
+| **RoleScopeTagIds** | Write | StringArray[] | List of Scope Tags for this Entity instance. | |
 | **Assignments** | Write | MSFT_IntuneAccountProtectionLocalUserGroupMembershipPolicyAssignments[] | Assignments of the Intune Policy. | |
-| **LocalUserGroupCollection** | Write | MSFT_IntuneAccountProtectionLocalUserGroupCollection[] | Local User Group Collections of the Intune Policy. | |
+| **AccessGroup** | Write | MSFT_MicrosoftGraphIntuneSettingsCatalogAccessGroup[] | Local User Group Collections of the Intune Policy. | |
 | **Ensure** | Write | String | Present ensures the site collection exists, absent ensures it is removed | `Present`, `Absent` |
 | **Credential** | Write | PSCredential | Credentials of the Intune Admin | |
 | **ApplicationId** | Write | String | Id of the Azure Active Directory application to authenticate with. | |
@@ -27,20 +28,21 @@
 | **dataType** | Write | String | The type of the target assignment. | `#microsoft.graph.groupAssignmentTarget`, `#microsoft.graph.allLicensedUsersAssignmentTarget`, `#microsoft.graph.allDevicesAssignmentTarget`, `#microsoft.graph.exclusionGroupAssignmentTarget`, `#microsoft.graph.configurationManagerCollectionAssignmentTarget` |
 | **deviceAndAppManagementAssignmentFilterType** | Write | String | The type of filter of the target assignment i.e. Exclude or Include. Possible values are:none, include, exclude. | `none`, `include`, `exclude` |
 | **deviceAndAppManagementAssignmentFilterId** | Write | String | The Id of the filter for the target assignment. | |
+| **deviceAndAppManagementAssignmentFilterDisplayName** | Write | String | The display name of the filter for the target assignment. | |
 | **groupId** | Write | String | The group Id that is the target of the assignment. | |
 | **groupDisplayName** | Write | String | The group Display Name that is the target of the assignment. | |
 | **collectionId** | Write | String | The collection Id that is the target of the assignment.(ConfigMgr) | |
 
-### MSFT_IntuneAccountProtectionLocalUserGroupCollection
+### MSFT_MicrosoftGraphIntuneSettingsCatalogAccessGroup
 
 #### Parameters
 
 | Parameter | Attribute | DataType | Description | Allowed Values |
 | --- | --- | --- | --- | --- |
-| **Action** | Write | String | The action to use for adding / removing members. | `add_update`, `remove_update`, `add_restrict` |
-| **LocalGroups** | Write | StringArray[] | The local groups to add / remove the members to / from. List of the following values: `administrators`, `users`, `guests`, `powerusers`, `remotedesktopusers`, `remotemanagementusers` | |
-| **Members** | Write | StringArray[] | The members to add / remove to / from the group. For AzureAD Users, use the format `AzureAD\&lt;UserPrincipalName&gt;`. For groups, use the security identifier (SID). | |
-| **UserSelectionType** | Write | String | The type of the selection. Either users / groups from AzureAD, or by manual identifier. | `users`, `manual` |
+| **action** | Write | String | The action to use for adding / removing members. Possible values: Add (AddUpdate), Remove (RemoveUpdate), Replace (AddRestrict). Add and Remove do not update unspecified members, whereas Replace will replace all members with the ones specified. | `AddUpdate`, `RemoveUpdate`, `AddRestrict` |
+| **desc** | Write | StringArray[] | The local groups to add / remove the members to / from. List of the following values: `administrators`, `users`, `guests`, `powerusers`, `remotedesktopusers`, `remotemanagementusers` | `administrators`, `users`, `guests`, `powerusers`, `remotedesktopusers`, `remotemanagementusers` |
+| **member** | Write | StringArray[] | The members to add / remove to / from the group. For AzureAD Users, use the format `AzureAD\&lt;UserPrincipalName&gt;`. For groups, use the security identifier (SID). | |
+| **userselectiontype** | Write | String | The type of the selection. Either users / groups from AzureAD, or by manual identifier. | `users`, `manual` |
 
 
 ## Description
@@ -112,12 +114,12 @@ Configuration Example
                     dataType = '#microsoft.graph.allLicensedUsersAssignmentTarget'
                 }
             );
-            LocalUserGroupCollection = @(
-                MSFT_IntuneAccountProtectionLocalUserGroupCollection{
-                    LocalGroups = @('administrators', 'users')
-                    Members = @('S-1-12-1-1167842105-1150511762-402702254-1917434032')
-                    Action = 'add_update'
-                    UserSelectionType = 'users'
+            AccessGroup = @(
+                MSFT_MicrosoftGraphIntuneSettingsCatalogAccessGroup{
+                    desc = @('administrators', 'users')
+                    member = @('S-1-12-1-1167842105-1150511762-402702254-1917434032')
+                    action = 'AddUpdate'
+                    userselectiontype = 'users'
                 }
             );
             ApplicationId         = $ApplicationId;
@@ -159,12 +161,12 @@ Configuration Example
             Description              = "My revised description";
             Ensure                   = "Present";
             Assignments              = @(); # Updated Property
-            LocalUserGroupCollection = @(
-                MSFT_IntuneAccountProtectionLocalUserGroupCollection{
-                    LocalGroups = @('administrators', 'users')
-                    Members = @('S-1-12-1-1167842105-1150511762-402702254-1917434032')
-                    Action = 'add_update'
-                    UserSelectionType = 'users'
+            AccessGroup = @(
+                MSFT_MicrosoftGraphIntuneSettingsCatalogAccessGroup{
+                    desc = @('administrators', 'users')
+                    member = @('S-1-12-1-1167842105-1150511762-402702254-1917434032')
+                    action = 'AddUpdate'
+                    userselectiontype = 'users'
                 }
             );
             ApplicationId         = $ApplicationId;

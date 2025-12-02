@@ -36,6 +36,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Get-PSSession -MockWith {
             }
 
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
+            }
+
             Mock -CommandName Remove-PSSession -MockWith {
             }
 

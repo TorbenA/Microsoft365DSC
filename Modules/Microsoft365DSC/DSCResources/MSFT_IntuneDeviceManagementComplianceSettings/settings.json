@@ -39,5 +39,24 @@
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.DeviceManagement",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.DeviceManagement",
+      "cmdlets": [
+        "Update-MgBetaDeviceManagement"
+      ]
+    }
   ]
 }

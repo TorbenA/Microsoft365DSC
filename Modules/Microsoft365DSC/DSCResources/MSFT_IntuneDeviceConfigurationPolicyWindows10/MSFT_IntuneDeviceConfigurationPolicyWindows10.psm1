@@ -1195,10 +1195,6 @@ function Get-TargetResource
         $DisplayName,
 
         [Parameter()]
-        [System.Boolean]
-        $SupportsScopeTags,
-
-        [Parameter()]
         [System.String]
         $Id,
 
@@ -1251,7 +1247,7 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -1306,74 +1302,74 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune Device Configuration Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found."
 
         #region resource generator code
-        $complexDefenderDetectedMalwareActions = @{}
+        $complexDefenderDetectedMalwareActions = [ordered]@{}
         if ($null -ne $getValue.AdditionalProperties.defenderDetectedMalwareActions.highSeverity)
         {
-            $complexDefenderDetectedMalwareActions.Add('HighSeverity', $getValue.AdditionalProperties.defenderDetectedMalwareActions.highSeverity.toString())
+            $complexDefenderDetectedMalwareActions.Add('HighSeverity', $getValue.AdditionalProperties.defenderDetectedMalwareActions.highSeverity.ToString())
         }
         if ($null -ne $getValue.AdditionalProperties.defenderDetectedMalwareActions.lowSeverity)
         {
-            $complexDefenderDetectedMalwareActions.Add('LowSeverity', $getValue.AdditionalProperties.defenderDetectedMalwareActions.lowSeverity.toString())
+            $complexDefenderDetectedMalwareActions.Add('LowSeverity', $getValue.AdditionalProperties.defenderDetectedMalwareActions.lowSeverity.ToString())
         }
         if ($null -ne $getValue.AdditionalProperties.defenderDetectedMalwareActions.moderateSeverity)
         {
-            $complexDefenderDetectedMalwareActions.Add('ModerateSeverity', $getValue.AdditionalProperties.defenderDetectedMalwareActions.moderateSeverity.toString())
+            $complexDefenderDetectedMalwareActions.Add('ModerateSeverity', $getValue.AdditionalProperties.defenderDetectedMalwareActions.moderateSeverity.ToString())
         }
         if ($null -ne $getValue.AdditionalProperties.defenderDetectedMalwareActions.severeSeverity)
         {
-            $complexDefenderDetectedMalwareActions.Add('SevereSeverity', $getValue.AdditionalProperties.defenderDetectedMalwareActions.severeSeverity.toString())
+            $complexDefenderDetectedMalwareActions.Add('SevereSeverity', $getValue.AdditionalProperties.defenderDetectedMalwareActions.severeSeverity.ToString())
         }
-        if ($complexDefenderDetectedMalwareActions.values.Where({ $null -ne $_ }).count -eq 0)
+        if ($complexDefenderDetectedMalwareActions.values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexDefenderDetectedMalwareActions = $null
         }
 
-        $complexEdgeHomeButtonConfiguration = @{}
+        $complexEdgeHomeButtonConfiguration = [ordered]@{}
         $complexEdgeHomeButtonConfiguration.Add('HomeButtonCustomURL', $getValue.AdditionalProperties.edgeHomeButtonConfiguration.homeButtonCustomURL)
         if ($null -ne $getValue.AdditionalProperties.edgeHomeButtonConfiguration.'@odata.type')
         {
-            $complexEdgeHomeButtonConfiguration.Add('odataType', $getValue.AdditionalProperties.edgeHomeButtonConfiguration.'@odata.type'.toString())
+            $complexEdgeHomeButtonConfiguration.Add('odataType', $getValue.AdditionalProperties.edgeHomeButtonConfiguration.'@odata.type'.ToString())
         }
-        if ($complexEdgeHomeButtonConfiguration.values.Where({ $null -ne $_ }).count -eq 0)
+        if ($complexEdgeHomeButtonConfiguration.values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexEdgeHomeButtonConfiguration = $null
         }
 
-        $complexEdgeSearchEngine = @{}
+        $complexEdgeSearchEngine = [ordered]@{}
         if ($null -ne $getValue.AdditionalProperties.edgeSearchEngine.edgeSearchEngineType)
         {
-            $complexEdgeSearchEngine.Add('EdgeSearchEngineType', $getValue.AdditionalProperties.edgeSearchEngine.edgeSearchEngineType.toString())
+            $complexEdgeSearchEngine.Add('EdgeSearchEngineType', $getValue.AdditionalProperties.edgeSearchEngine.edgeSearchEngineType.ToString())
         }
         $complexEdgeSearchEngine.Add('EdgeSearchEngineOpenSearchXmlUrl', $getValue.AdditionalProperties.edgeSearchEngine.edgeSearchEngineOpenSearchXmlUrl)
         if ($null -ne $getValue.AdditionalProperties.edgeSearchEngine.'@odata.type')
         {
-            $complexEdgeSearchEngine.Add('odataType', $getValue.AdditionalProperties.edgeSearchEngine.'@odata.type'.toString())
+            $complexEdgeSearchEngine.Add('odataType', $getValue.AdditionalProperties.edgeSearchEngine.'@odata.type'.ToString())
         }
-        if ($complexEdgeSearchEngine.values.Where({ $null -ne $_ }).count -eq 0)
+        if ($complexEdgeSearchEngine.values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexEdgeSearchEngine = $null
         }
 
-        $complexNetworkProxyServer = @{}
+        $complexNetworkProxyServer = [ordered]@{}
         $complexNetworkProxyServer.Add('Address', $getValue.AdditionalProperties.networkProxyServer.address)
         $complexNetworkProxyServer.Add('Exceptions', $getValue.AdditionalProperties.networkProxyServer.exceptions)
         $complexNetworkProxyServer.Add('UseForLocalAddresses', $getValue.AdditionalProperties.networkProxyServer.useForLocalAddresses)
-        if ($complexNetworkProxyServer.values.Where({ $null -ne $_ }).count -eq 0)
+        if ($complexNetworkProxyServer.values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexNetworkProxyServer = $null
         }
 
-        $complexWindows10AppsForceUpdateSchedule = @{}
+        $complexWindows10AppsForceUpdateSchedule = [ordered]@{}
         if ($null -ne $getValue.AdditionalProperties.windows10AppsForceUpdateSchedule.recurrence)
         {
-            $complexWindows10AppsForceUpdateSchedule.Add('Recurrence', $getValue.AdditionalProperties.windows10AppsForceUpdateSchedule.recurrence.toString())
+            $complexWindows10AppsForceUpdateSchedule.Add('Recurrence', $getValue.AdditionalProperties.windows10AppsForceUpdateSchedule.recurrence.ToString())
         }
         $complexWindows10AppsForceUpdateSchedule.Add('RunImmediatelyIfAfterStartDateTime', $getValue.AdditionalProperties.windows10AppsForceUpdateSchedule.runImmediatelyIfAfterStartDateTime)
         if ($null -ne $getValue.AdditionalProperties.windows10AppsForceUpdateSchedule.startDateTime)
         {
             $complexWindows10AppsForceUpdateSchedule.Add('StartDateTime', ([DateTimeOffset]$getValue.AdditionalProperties.windows10AppsForceUpdateSchedule.startDateTime).ToString('o'))
         }
-        if ($complexWindows10AppsForceUpdateSchedule.values.Where({ $null -ne $_ }).count -eq 0)
+        if ($complexWindows10AppsForceUpdateSchedule.values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexWindows10AppsForceUpdateSchedule = $null
         }
@@ -1987,7 +1983,6 @@ function Get-TargetResource
             WirelessDisplayRequirePinForPairing                   = $getValue.AdditionalProperties.wirelessDisplayRequirePinForPairing
             Description                                           = $getValue.Description
             DisplayName                                           = $getValue.DisplayName
-            SupportsScopeTags                                     = $getValue.SupportsScopeTags
             Id                                                    = $getValue.Id
             RoleScopeTagIds                                       = $getValue.RoleScopeTagIds
             Ensure                                                = 'Present'
@@ -1996,7 +1991,7 @@ function Get-TargetResource
             TenantId                                              = $TenantId
             ApplicationSecret                                     = $ApplicationSecret
             CertificateThumbprint                                 = $CertificateThumbprint
-            Managedidentity                                       = $ManagedIdentity.IsPresent
+            ManagedIdentity                                       = $ManagedIdentity.IsPresent
             AccessTokens                                          = $AccessTokens
             #endregion
         }
@@ -2004,13 +1999,13 @@ function Get-TargetResource
         $rawAssignments = @()
         $rawAssignments = Get-MgBetaDeviceManagementDeviceConfigurationAssignment -DeviceConfigurationId $Id -All
         $assignmentResult = @()
-        if ($null -ne $rawAssignments -and $rawAssignments.count -gt 0)
+        if ($null -ne $rawAssignments -and $rawAssignments.Count -gt 0)
         {
             $assignmentResult += ConvertFrom-IntunePolicyAssignment -Assignments $rawAssignments
         }
         $results.Add('Assignments', $assignmentResult)
 
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -3218,10 +3213,6 @@ function Set-TargetResource
         $DisplayName,
 
         [Parameter()]
-        [System.Boolean]
-        $SupportsScopeTags,
-
-        [Parameter()]
         [System.String]
         $Id,
 
@@ -3281,29 +3272,19 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $PSBoundParameters.Remove('Ensure') | Out-Null
-    $PSBoundParameters.Remove('Credential') | Out-Null
-    $PSBoundParameters.Remove('ApplicationId') | Out-Null
-    $PSBoundParameters.Remove('ApplicationSecret') | Out-Null
-    $PSBoundParameters.Remove('TenantId') | Out-Null
-    $PSBoundParameters.Remove('CertificateThumbprint') | Out-Null
-    $PSBoundParameters.Remove('ManagedIdentity') | Out-Null
-    $PSBoundParameters.Remove('Verbose') | Out-Null
-    $PSBoundParameters.Remove('AccessTokens') | Out-Null
-
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating an Intune Device Configuration Policy for Windows10 with DisplayName {$DisplayName}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $CreateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
         $CreateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).clone()).Keys
+        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.getType().Name -like '*cimInstance*')
+            if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.GetType().Name -like '*cimInstance*')
             {
                 $CreateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters.$key
             }
@@ -3316,7 +3297,7 @@ function Set-TargetResource
         if ($policy.id)
         {
             $intuneAssignments = @()
-            if ($null -ne $Assignments -and $Assignments.count -gt 0)
+            if ($null -ne $Assignments -and $Assignments.Count -gt 0)
             {
                 $intuneAssignments += ConvertTo-IntunePolicyAssignment -Assignments $Assignments
             }
@@ -3334,15 +3315,15 @@ function Set-TargetResource
         Write-Verbose -Message "Updating the Intune Device Configuration Policy for Windows10 with Id {$($currentInstance.Id)}"
         $PSBoundParameters.Remove('Assignments') | Out-Null
 
-        $UpdateParameters = ([Hashtable]$PSBoundParameters).clone()
+        $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).clone()).Keys
+        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.getType().Name -like '*cimInstance*')
+            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.GetType().Name -like '*cimInstance*')
             {
                 $UpdateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
             }
@@ -3358,7 +3339,7 @@ function Set-TargetResource
         $currentAssignments += Get-MgBetaDeviceManagementDeviceConfigurationAssignment -DeviceConfigurationId $currentInstance.id
 
         $intuneAssignments = @()
-        if ($null -ne $Assignments -and $Assignments.count -gt 0)
+        if ($null -ne $Assignments -and $Assignments.Count -gt 0)
         {
             $intuneAssignments += ConvertTo-IntunePolicyAssignment -Assignments $Assignments
         }
@@ -3375,7 +3356,7 @@ function Set-TargetResource
                 $currentAssignments = $currentAssignments | Where-Object { -not ($_.Target.AdditionalProperties.groupId -eq $assignment.Target.groupId -and $_.Target.AdditionalProperties.'@odata.type' -eq $assignment.Target.'@odata.type') }
             }
         }
-        if ($currentAssignments.count -gt 0)
+        if ($currentAssignments.Count -gt 0)
         {
             foreach ($assignment in $currentAssignments)
             {
@@ -4590,10 +4571,6 @@ function Test-TargetResource
         $DisplayName,
 
         [Parameter()]
-        [System.Boolean]
-        $SupportsScopeTags,
-
-        [Parameter()]
         [System.String]
         $Id,
 
@@ -4640,9 +4617,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -4652,48 +4626,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune Device Configuration Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
-    $testResult = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($source.getType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-Not $testResult)
-            {
-                break
-            }
-
-            $ValuesToCheck.Remove($key) | Out-Null
-        }
-    }
-
-    $ValuesToCheck.remove('Id') | Out-Null
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    if ($testResult)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -4792,7 +4727,7 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
 
@@ -4919,4 +4854,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

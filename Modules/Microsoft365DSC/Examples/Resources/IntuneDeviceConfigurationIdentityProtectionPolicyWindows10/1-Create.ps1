@@ -42,7 +42,6 @@ Configuration Example
             PinSpecialCharactersUsage                    = "allowed";
             PinUppercaseCharactersUsage                  = "allowed";
             SecurityDeviceRequired                       = $True;
-            SupportsScopeTags                            = $True;
             UnlockWithBiometricsEnabled                  = $True;
             UseCertificatesForOnPremisesAuthEnabled      = $True;
             UseSecurityKeyForSignin                      = $True;

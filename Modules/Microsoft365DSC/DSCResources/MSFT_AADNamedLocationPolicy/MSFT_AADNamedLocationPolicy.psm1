@@ -7,7 +7,7 @@ function Get-TargetResource
     param
     (
         [Parameter()]
-        [ValidateSet('#microsoft.graph.countryNamedLocation', '#microsoft.graph.ipNamedLocation', '#microsoft.graph.compliantNetworkNamedLocation')]
+        [ValidateSet('#microsoft.graph.CountryNamedLocation', '#microsoft.graph.ipNamedLocation', '#microsoft.graph.compliantNetworkNamedLocation')]
         [System.String]
         $OdataType,
 
@@ -80,7 +80,7 @@ function Get-TargetResource
         {
             Write-Verbose -Message 'Getting configuration of AAD Named Location'
 
-            $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -148,8 +148,8 @@ function Get-TargetResource
             DisplayName                       = $NamedLocation.DisplayName
             IpRanges                          = $NamedLocation.AdditionalProperties.ipRanges.cidrAddress
             IsTrusted                         = $NamedLocation.AdditionalProperties.isTrusted
-            CountriesAndRegions               = [String[]]$NamedLocation.AdditionalProperties.countriesAndRegions
-            CountryLookupMethod               = $NamedLocation.AdditionalProperties.countryLookupMethod
+            CountriesAndRegions               = [String[]]$NamedLocation.AdditionalProperties.CountriesAndRegions
+            CountryLookupMethod               = $NamedLocation.AdditionalProperties.CountryLookupMethod
             IncludeUnknownCountriesAndRegions = $NamedLocation.AdditionalProperties.includeUnknownCountriesAndRegions
             Ensure                            = 'Present'
             ApplicationSecret                 = $ApplicationSecret
@@ -157,7 +157,7 @@ function Get-TargetResource
             TenantId                          = $TenantId
             CertificateThumbprint             = $CertificateThumbprint
             Credential                        = $Credential
-            Managedidentity                   = $ManagedIdentity.IsPresent
+            ManagedIdentity                   = $ManagedIdentity.IsPresent
             AccessTokens                      = $AccessTokens
         }
 
@@ -182,7 +182,7 @@ function Set-TargetResource
     param
     (
         [Parameter()]
-        [ValidateSet('#microsoft.graph.countryNamedLocation', '#microsoft.graph.ipNamedLocation', '#microsoft.graph.compliantNetworkNamedLocation')]
+        [ValidateSet('#microsoft.graph.CountryNamedLocation', '#microsoft.graph.ipNamedLocation', '#microsoft.graph.compliantNetworkNamedLocation')]
         [System.String]
         $OdataType,
 
@@ -310,7 +310,7 @@ function Set-TargetResource
             $desiredValues.Add('ipRanges', $IpRangesValue)
         }
     }
-    elseif ($OdataType -eq '#microsoft.graph.countryNamedLocation')
+    elseif ($OdataType -eq '#microsoft.graph.CountryNamedLocation')
     {
         $desiredValues.Add('includeUnknownCountriesAndRegions', $IncludeUnknownCountriesAndRegions)
         $desiredValues.Add('countriesAndRegions', $CountriesAndRegions)
@@ -360,7 +360,7 @@ function Test-TargetResource
     param
     (
         [Parameter()]
-        [ValidateSet('#microsoft.graph.countryNamedLocation', '#microsoft.graph.ipNamedLocation', '#microsoft.graph.compliantNetworkNamedLocation')]
+        [ValidateSet('#microsoft.graph.CountryNamedLocation', '#microsoft.graph.ipNamedLocation', '#microsoft.graph.compliantNetworkNamedLocation')]
         [System.String]
         $OdataType,
 
@@ -479,7 +479,7 @@ function Export-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    #$ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' -InboundParameters $PSBoundParameters
+
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
@@ -525,7 +525,7 @@ function Export-TargetResource
                 DisplayName           = $AADNamedLocation.DisplayName
                 ID                    = $AADNamedLocation.ID
                 Credential            = $Credential
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
             $Script:exportedInstance = $AADNamedLocation
@@ -562,4 +562,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

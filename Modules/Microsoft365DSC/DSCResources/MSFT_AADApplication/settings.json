@@ -13,12 +13,12 @@
         "read": [
           {
             "name": "Application.Read.All"
+          },
+          {
+            "name": "Policy.Read.All"
           }
         ],
         "update": [
-          {
-            "name": "Application.Read.All"
-          },
           {
             "name": "Application.ReadWrite.All"
           },
@@ -31,12 +31,12 @@
         "read": [
           {
             "name": "Application.Read.All"
+          },
+          {
+            "name": "Policy.Read.All"
           }
         ],
         "update": [
-          {
-            "name": "Application.Read.All"
-          },
           {
             "name": "Application.ReadWrite.All"
           },
@@ -54,5 +54,59 @@
     "Microsoft.Graph.Beta.Identity.DirectoryManagement",
     "Microsoft.Graph.Users",
     "MSCloudLoginAssistant"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Data",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Applications",
+      "cmdlets": [
+        "Get-MgApplication",
+        "Get-MgServicePrincipal",
+        "New-MgApplication",
+        "New-MgApplicationOwnerByRef",
+        "Remove-MgApplication",
+        "Remove-MgApplicationOwnerDirectoryObjectByRef",
+        "Update-MgApplication"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.Applications",
+      "cmdlets": [
+        "Get-MgBetaApplication",
+        "Invoke-MgBetaInstantiateApplicationTemplate",
+        "Update-MgBetaApplication"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.Identity.DirectoryManagement",
+      "cmdlets": [
+        "Get-MgBetaDirectoryDeletedItemAsApplication",
+        "Restore-MgBetaDirectoryDeletedItem"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.Identity.SignIns",
+      "cmdlets": [
+        "Get-MgBetaPolicyTokenLifetimePolicy",
+        "New-MgApplicationTokenLifetimePolicyByRef",
+        "Remove-MgApplicationTokenLifetimePolicyByRef"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Users",
+      "cmdlets": [
+        "Get-MgUser"
+      ]
+    }
   ]
 }

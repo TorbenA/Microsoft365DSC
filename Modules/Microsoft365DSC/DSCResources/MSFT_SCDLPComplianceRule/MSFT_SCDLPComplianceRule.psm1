@@ -320,13 +320,13 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of DLPCompliancePolicy for $Name"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            Write-Verbose -Message "Getting configuration of DLPCompliancePolicy for $Name"
-
-            $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
+            $null = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
                 -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
@@ -373,12 +373,12 @@ function Get-TargetResource
             $NotifyAllowOverrideValue = $PolicyRule.NotifyAllowOverride.Replace(' ', '').Split(',')
         }
 
-        if ($null -ne $PolicyRule.AnyOfRecipientAddressContainsWords -and $PolicyRule.AnyOfRecipientAddressContainsWords.count -gt 0)
+        if ($null -ne $PolicyRule.AnyOfRecipientAddressContainsWords -and $PolicyRule.AnyOfRecipientAddressContainsWords.Count -gt 0)
         {
             $AnyOfRecipientAddressContainsWords = $PolicyRule.AnyOfRecipientAddressContainsWords.Replace(' ', '').Split(',')
         }
 
-        if ($null -ne $PolicyRule.ExceptIfAnyOfRecipientAddressContainsWords -and $PolicyRule.ExceptIfAnyOfRecipientAddressContainsWords.count -gt 0)
+        if ($null -ne $PolicyRule.ExceptIfAnyOfRecipientAddressContainsWords -and $PolicyRule.ExceptIfAnyOfRecipientAddressContainsWords.Count -gt 0)
         {
             $ExceptIfAnyOfRecipientAddressContainsWords = $PolicyRule.ExceptIfAnyOfRecipientAddressContainsWords.Replace(' ', '').Split(',')
         }
@@ -388,12 +388,12 @@ function Get-TargetResource
             $AnyOfRecipientAddressMatchesPatterns = $PolicyRule.AnyOfRecipientAddressMatchesPatterns.Replace(' ', '').Split(',')
         }
 
-        if ($null -ne $PolicyRule.ContentExtensionMatchesWords -and $PolicyRule.ContentExtensionMatchesWords.count -gt 0)
+        if ($null -ne $PolicyRule.ContentExtensionMatchesWords -and $PolicyRule.ContentExtensionMatchesWords.Count -gt 0)
         {
             $ContentExtensionMatchesWords = $PolicyRule.ContentExtensionMatchesWords.Replace(' ', '').Split(',')
         }
 
-        if ($null -ne $PolicyRule.ExceptIfContentExtensionMatchesWords -and $PolicyRule.ExceptIfContentExtensionMatchesWords.count -gt 0)
+        if ($null -ne $PolicyRule.ExceptIfContentExtensionMatchesWords -and $PolicyRule.ExceptIfContentExtensionMatchesWords.Count -gt 0)
         {
             $ExceptIfContentExtensionMatchesWords = $PolicyRule.ExceptIfContentExtensionMatchesWords.Replace(' ', '').Split(',')
         }
@@ -856,9 +856,6 @@ function Set-TargetResource
         -Parameters $PSBoundParameters
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
-
-    $ConnectionMode = New-M365DSCConnection -Workload 'SecurityComplianceCenter' `
-        -InboundParameters $PSBoundParameters
 
     $CurrentRule = Get-TargetResource @PSBoundParameters
 
@@ -1702,7 +1699,7 @@ function Get-SCDLPSensitiveInformationGroups
 
     foreach ($group in $SensitiveInformationGroups.groups)
     {
-        $myGroup = @{
+        $myGroup = [ordered]@{
             name = $group.name
         }
         if ($null -ne $group.operator)

@@ -8,8 +8,16 @@
   "permissions": {
     "graph": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "NetworkAccess.Read.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "NetworkAccess.ReadWrite.All"
+          }
+        ]
       },
       "application": {
         "read": [
@@ -28,5 +36,21 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.NetworkAccess"
+  ],
+  "supportedEnvironments": [
+    "Global"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.NetworkAccess",
+      "cmdlets": [
+        "Get-MgBetaNetworkAccessFilteringPolicy",
+        "Get-MgBetaNetworkAccessFilteringProfile",
+        "Get-MgBetaNetworkAccessFilteringProfilePolicy",
+        "New-MgBetaNetworkAccessFilteringProfile",
+        "Remove-MgBetaNetworkAccessFilteringProfile"
+      ]
+    }
   ]
 }

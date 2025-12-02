@@ -32,5 +32,22 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.DeviceManagement.Administration"
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.DeviceManagement.Administration",
+      "cmdlets": [
+        "Get-MgBetaDeviceManagementRoleDefinition",
+        "Get-MgBetaDeviceManagementRoleScopeTag",
+        "New-MgBetaDeviceManagementRoleDefinition",
+        "Remove-MgBetaDeviceManagementRoleDefinition",
+        "Update-MgBetaDeviceManagementRoleDefinition"
+      ]
+    }
   ]
 }

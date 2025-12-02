@@ -42,11 +42,11 @@ To authenticate with the Microsoft Graph API, this resource required the followi
 
 - **Read**
 
-    - None
+    - NetworkAccess.Read.All
 
 - **Update**
 
-    - None
+    - NetworkAccess.ReadWrite.All
 
 #### Application permissions
 
@@ -95,7 +95,7 @@ Configuration Example
             );
             Ensure                = "Present";
             Name                  = "MyFQDN";
-            Policy                = "AMyPolicy";
+            Policy                = "MyPolicy";
             RuleType              = "fqdn";
             TenantId              = $TenantId;
         }
@@ -153,7 +153,7 @@ Configuration Example
             );
             Ensure                = "Present";
             Name                  = "MyFQDN";
-            Policy                = "AMyPolicy";
+            Policy                = "MyPolicy";
             RuleType              = "fqdn";
             TenantId              = $TenantId;
         }
@@ -196,7 +196,7 @@ Configuration Example
             );
             Ensure                = "Absent";
             Name                  = "MyFQDN";
-            Policy                = "AMyPolicy";
+            Policy                = "MyPolicy";
             RuleType              = "fqdn";
             TenantId              = $TenantId;
         }

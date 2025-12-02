@@ -2,19 +2,49 @@
   "resourceName": "PPTenantIsolationSettings",
   "description": "",
   "permissions": {
-    "graph": {
+    "powerAppsService": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "User"
+          }
+        ],
+        "update": [
+          {
+            "name": "User"
+          }
+        ]
       },
       "application": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "User"
+          }
+        ],
+        "update": [
+          {
+            "name": "User"
+          }
+        ]
       }
+    },
+    "powerPlatform": {
+      "requiredRoles": [
+        "System Administrator"
+      ]
     }
   },
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "MSCloudLoginAssistant"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Get-MgContext"
+      ]
+    }
   ]
 }

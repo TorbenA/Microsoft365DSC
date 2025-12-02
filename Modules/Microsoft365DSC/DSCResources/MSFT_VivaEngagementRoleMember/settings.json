@@ -8,8 +8,16 @@
   "permissions": {
     "graph": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "EngagementRole.Read.All"
+          }
+        ],
+        "update": [
+          {
+            "name": "EngagementRole.ReadWrite.All"
+          }
+        ]
       },
       "application": {
         "read": [
@@ -27,7 +35,21 @@
   },
   "requiredModules": [
     "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Users",
-    "MSCloudLoginAssistant"
+    "Microsoft.Graph.Users"
+  ],
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Invoke-MgGraphRequest"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Users",
+      "cmdlets": [
+        "Get-MgUser"
+      ]
+    }
   ]
 }

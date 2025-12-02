@@ -31,5 +31,10 @@
   },
   "requiredModules": [
     "MicrosoftTeams"
-  ]
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Configuration"
 }

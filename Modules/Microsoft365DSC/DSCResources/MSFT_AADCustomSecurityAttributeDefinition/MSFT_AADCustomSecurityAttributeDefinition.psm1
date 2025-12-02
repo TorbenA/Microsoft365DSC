@@ -15,6 +15,10 @@ function Get-TargetResource
         $AttributeSet,
 
         [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $AllowedValues,
+
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -31,6 +35,7 @@ function Get-TargetResource
         $IsSearchable,
 
         [Parameter()]
+        [ValidateSet('Available', 'Deprecated')]
         [System.String]
         $Status,
 
@@ -82,8 +87,8 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $Name)
         {
-            New-M365DSCConnection -Workload 'MicrosoftGraph' `
-                -InboundParameters $PSBoundParameters | Out-Null
+            $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+                -InboundParameters $PSBoundParameters
 
             #Ensure the proper dependencies are installed in the current environment.
             Confirm-M365DSCDependencies
@@ -103,11 +108,13 @@ function Get-TargetResource
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
                 $instance = Get-MgBetaDirectoryCustomSecurityAttributeDefinition -CustomSecurityAttributeDefinitionId $Id `
+                    -ExpandProperty 'allowedValues' `
                     -ErrorAction SilentlyContinue
             }
             if ($null -eq $instance)
             {
                 $instance = Get-MgBetaDirectoryCustomSecurityAttributeDefinition -Filter "Name eq '$($Name -replace "'", "''")'" `
+                    -ExpandProperty 'allowedValues' `
                     -ErrorAction SilentlyContinue
             }
             if ($null -eq $instance)
@@ -120,8 +127,18 @@ function Get-TargetResource
             $instance = $Script:exportedInstance
         }
 
+        $complexAllowedValues = @()
+        foreach ($allowedValue in $instance.AllowedValues)
+        {
+            $complexAllowedValues += @{
+                ValueId  = $allowedValue.Id
+                IsActive = $allowedValue.IsActive
+            }
+        }
+
         $results = @{
             Name                    = $instance.Name
+            AllowedValues           = $complexAllowedValues
             AttributeSet            = $instance.AttributeSet
             Id                      = $instance.Id
             Description             = $instance.Description
@@ -139,7 +156,7 @@ function Get-TargetResource
             ManagedIdentity         = $ManagedIdentity.IsPresent
             AccessTokens            = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -168,6 +185,10 @@ function Set-TargetResource
         $AttributeSet,
 
         [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $AllowedValues,
+
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -184,6 +205,7 @@ function Set-TargetResource
         $IsSearchable,
 
         [Parameter()]
+        [ValidateSet('Available', 'Deprecated')]
         [System.String]
         $Status,
 
@@ -245,13 +267,22 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
     $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $setParameters.Remove('AllowedValues') | Out-Null
 
     # CREATE
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         $setParameters.Remove('Id') | Out-Null
         Write-Verbose -Message "Creating new Atribute Definition {$Name}"
-        New-MgBetaDirectoryCustomSecurityAttributeDefinition @SetParameters
+        $attributeDefinition = New-MgBetaDirectoryCustomSecurityAttributeDefinition @SetParameters
+
+        foreach ($allowedValue in $AllowedValues)
+        {
+            New-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue `
+                -CustomSecurityAttributeDefinitionId $attributeDefinition.Id `
+                -Id $allowedValue.ValueId `
+                -IsActive:$allowedValue.IsActive
+        }
     }
     # UPDATE
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
@@ -264,7 +295,33 @@ function Set-TargetResource
         $setParameters.Remove('IsSearchable') | Out-Null
         $setParameters.Remove('Name') | Out-Null
         $setParameters.Remove('Type') | Out-Null
+        if ($setParameters.ContainsKey('UsePreDefinedValuesOnly') -and $setParameters.UsePreDefinedValuesOnly -eq $currentInstance.UsePreDefinedValuesOnly)
+        {
+            $setParameters.Remove('UsePreDefinedValuesOnly') | Out-Null
+        }
         Update-MgBetaDirectoryCustomSecurityAttributeDefinition @SetParameters
+
+        # Allowed values cannot be removed, therefore we only need to add new ones or update existing ones
+        foreach ($allowedValue in $AllowedValues)
+        {
+            $existingAllowedValue = $currentInstance.AllowedValues | Where-Object { $_.Id -eq $allowedValue.ValueId }
+            if ($null -eq $existingAllowedValue)
+            {
+                # Add new allowed value
+                New-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue `
+                    -CustomSecurityAttributeDefinitionId $currentInstance.Id `
+                    -Id $allowedValue.ValueId `
+                    -IsActive:$allowedValue.IsActive
+            }
+            elseif ($existingAllowedValue.IsActive -ne $allowedValue.IsActive)
+            {
+                # Update existing allowed value
+                Update-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue `
+                    -CustomSecurityAttributeDefinitionId $currentInstance.Id `
+                    -AllowedValueId $allowedValue.ValueId `
+                    -IsActive:$allowedValue.IsActive
+            }
+        }
     }
     # REMOVE
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
@@ -290,6 +347,10 @@ function Test-TargetResource
         $AttributeSet,
 
         [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $AllowedValues,
+
+        [Parameter()]
         [System.String]
         $Id,
 
@@ -306,6 +367,7 @@ function Test-TargetResource
         $IsSearchable,
 
         [Parameter()]
+        [ValidateSet('Available', 'Deprecated')]
         [System.String]
         $Status,
 
@@ -360,8 +422,34 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
+    $postProcessingScript = {
+        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
+        # Values cannot be removed from AllowedValues
+        # Therefore, we add the missing values from CurrentValues to DesiredValues for comparison
+        if ($DesiredValues.ContainsKey('AllowedValues'))
+        {
+            foreach ($currentValue in $CurrentValues.AllowedValues)
+            {
+                $matchingValue = $DesiredValues.AllowedValues | Where-Object { $_.ValueId -eq $currentValue.ValueId }
+                if ($null -eq $matchingValue)
+                {
+                    Write-Verbose -Message "Adding missing AllowedValue with ValueId '$($currentValue.ValueId)' from current configuration to desired configuration for comparison."
+                    $DesiredValues.AllowedValues += New-CimInstance -ClassName MSFT_CustomSecurityAttributeAllowedValue -Property @{
+                        IsActive = $currentValue.IsActive
+                        ValueId = $currentValue.ValueId
+                    } -Namespace root/Microsoft/Windows/DesiredStateConfiguration -ClientOnly
+                }
+            }
+
+            $DesiredValues.AllowedValues = [CimInstance[]]$DesiredValues.AllowedValues
+        }
+        return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
+    }
+
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -IncludedProperties @('ValueId', 'IsActive') `
+                                         -PostProcessing $postProcessingScript
     return $result
 }
 
@@ -417,7 +505,9 @@ function Export-TargetResource
 
     try
     {
-        [array] $Script:exportedInstances = Get-MgBetaDirectoryCustomSecurityAttributeDefinition -ErrorAction Stop
+        [array] $Script:exportedInstances = Get-MgBetaDirectoryCustomSecurityAttributeDefinition `
+            -ExpandProperty 'allowedValues' `
+            -ErrorAction Stop
 
         $i = 1
         $dscContent = ''
@@ -453,12 +543,28 @@ function Export-TargetResource
 
             $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
+            if ($null -ne $Results.AllowedValues)
+            {
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.AllowedValues `
+                    -CIMInstanceName 'CustomSecurityAttributeAllowedValue'
+
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                {
+                    $Results.AllowedValues = $complexTypeStringResult
+                }
+                else
+                {
+                    $Results.Remove('AllowedValues') | Out-Null
+                }
+            }
 
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
                 -ModulePath $PSScriptRoot `
                 -Results $Results `
-                -Credential $Credential
+                -Credential $Credential `
+                -NoEscape @('AllowedValues')
             $dscContent += $currentDSCBlock
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
@@ -482,4 +588,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-

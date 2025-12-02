@@ -6,18 +6,33 @@
     "update": []
   },
   "permissions": {
-    "graph": {
+    "Azure Service Management": {
       "delegated": {
-        "read": [],
-        "update": []
+        "read": [
+          {
+            "name": "user_impersonation"
+          }
+        ],
+        "update": [
+          {
+            "name": "user_impersonation"
+          }
+        ]
       },
       "application": {
         "read": [],
         "update": []
       }
+    },
+    "azure": {
+      "requiredRoles": [
+        "Microsoft Sentinel Reader",
+        "Microsoft Sentinel Contributor"
+      ]
     }
   },
   "requiredModules": [
     "Az.Resources"
-  ]
+  ],
+  "mode": "Data"
 }

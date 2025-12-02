@@ -81,5 +81,10 @@
   },
   "requiredModules": [
     "PnP.PowerShell"
-  ]
+  ],
+  "supportedEnvironments": [
+    "Global",
+    "USGov"
+  ],
+  "mode": "Data"
 }

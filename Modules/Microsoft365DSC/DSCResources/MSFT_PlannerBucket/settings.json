@@ -6,12 +6,12 @@
       "delegated": {
         "read": [
           {
-            "name": "Tasks.Read"
+            "name": "Tasks.Read.All"
           }
         ],
         "update": [
           {
-            "name": "Tasks.ReadWrite"
+            "name": "Tasks.ReadWrite.All"
           }
         ]
       },
@@ -33,5 +33,23 @@
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Groups",
     "Microsoft.Graph.Planner"
+  ],
+  "mode": "Data",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Planner",
+      "cmdlets": [
+        "Get-MgGroupPlannerPlan",
+        "Get-MgPlannerPlanBucket",
+        "New-MgPlannerBucket",
+        "Update-MgPlannerPlan"
+      ]
+    }
   ]
 }

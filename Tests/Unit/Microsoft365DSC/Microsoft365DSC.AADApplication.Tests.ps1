@@ -50,6 +50,15 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Invoke-MgGraphRequest -MockWith {
             }
 
+            Mock -CommandName Get-MgBetaPolicyTokenLifetimePolicy -MockWith {
+            }
+
+            Mock -CommandName New-MgApplicationTokenLifetimePolicyByRef -MockWith {
+            }
+
+            Mock -CommandName Remove-MgApplicationTokenLifetimePolicyByRef -MockWith {
+            }
+
             Mock -CommandName New-MgApplication -MockWith {
                 return @{
                     ID    = '12345-12345-12345-12345-12345'
@@ -84,7 +93,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     DisplayName               = 'App1'
-                    AvailableToOtherTenants   = $false
                     Description               = 'App description'
                     GroupMembershipClaims     = '0'
                     Homepage                  = 'https://app.contoso.com'
@@ -120,7 +128,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     ObjectId                  = '5dcb2237-c61b-4258-9c85-eae2aaeba9d6'
                     DisplayName               = 'App1'
-                    AvailableToOtherTenants   = $false
                     Description               = 'App description'
                     GroupMembershipClaims     = '0'
                     Homepage                  = 'https://app.contoso.com'
@@ -171,7 +178,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     DisplayName               = 'App1'
-                    AvailableToOtherTenants   = $false
                     Description               = 'App description'
                     GroupMembershipClaims     = '0'
                     Homepage                  = 'https://app.contoso.com'
@@ -246,7 +252,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     AuthenticationBehaviors   = New-CimInstance -ClassName MSFT_MicrosoftGraphAuthenticationBehaviors -Property @{
                              blockAzureADGraphAccess       = 'false'
                              removeUnverifiedEmailClaim    = 'true'
-                             requireClientServicePrincipal = 'false'
                      } -ClientOnly
                     Api = New-CimInstance -ClassName MSFT_MicrosoftGraphapiApplication -Property @{
                         PreAuthorizedApplications = [CimInstance[]]@(
@@ -348,7 +353,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     $AADApp | Add-Member -MemberType NoteProperty -Name AuthenticationBehaviors -Value @{
                          blockAzureADGraphAccess       = 'false'
                          removeUnverifiedEmailClaim    = 'true'
-                         requireClientServicePrincipal = 'false'
                     }
                     return $AADApp
                 }
@@ -368,7 +372,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     DisplayName               = 'App1'
-                    AvailableToOtherTenants   = $false
                     Description               = 'App description'
                     GroupMembershipClaims     = '0'
                     Homepage                  = 'https://app1.contoso.com' #drift
@@ -418,7 +421,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     DisplayName               = 'App1'
-                    AvailableToOtherTenants   = $false
                     Description               = 'App description'
                     GroupMembershipClaims     = '0'
                     IdentifierUris            = 'https://app.contoso.com'
@@ -429,7 +431,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     AuthenticationBehaviors   = New-CimInstance -ClassName MSFT_MicrosoftGraphAuthenticationBehaviors -Property @{
                             blockAzureADGraphAccess       = 'false'
                             removeUnverifiedEmailClaim    = 'true'
-                            requireClientServicePrincipal = 'false'
                     } -ClientOnly
                     Ensure                  = 'Present'
                     Credential              = $Credential
@@ -457,7 +458,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the new method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName 'Invoke-MgGraphRequest' -Exactly 1
                 Should -Invoke -CommandName 'Update-MgBetaApplication' -Exactly 1
             }
         }
@@ -466,7 +466,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     DisplayName               = 'App1'
-                    AvailableToOtherTenants   = $false
                     Description               = 'App description'
                     GroupMembershipClaims     = '0'
                     IdentifierUris            = 'https://app.contoso.com'

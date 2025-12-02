@@ -48,32 +48,44 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Getting SmtpDaneInbound configuration for {$DomainName}"
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullResult = $PSBoundParameters
-    $nullResult.Ensure = 'Absent'
     try
     {
-        $instance = Get-AcceptedDomain -Identity $DomainName -ErrorAction SilentlyContinue
-        if ($null -eq $instance -or $instance.SmtpDaneStatus -ne 'Enabled')
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.DomainName -ne $DomainName)
         {
-            return $nullResult
+            $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
+                -InboundParameters $PSBoundParameters
+
+            #Ensure the proper dependencies are installed in the current environment.
+            Confirm-M365DSCDependencies
+
+            #region Telemetry
+            $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+            $CommandName = $MyInvocation.MyCommand
+            $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+                -CommandName $CommandName `
+                -Parameters $PSBoundParameters
+            Add-M365DSCTelemetryEvent -Data $data
+            #endregion
+
+            $nullResult = $PSBoundParameters
+            $nullResult.Ensure = 'Absent'
+
+            $instance = Get-AcceptedDomain -Identity $DomainName -ErrorAction SilentlyContinue
+            if ($null -eq $instance -or $instance.SmtpDaneStatus -ne 'Enabled')
+            {
+                Write-Verbose -Message "No EXO SmtpDaneInbound found with DomainName {$DomainName}"
+                return $nullResult
+            }
+        }
+        else
+        {
+            $instance = $Script:exportedInstance
         }
 
-        Write-Verbose -Message "Found an instance with DomainName {$DomainName}"
+        Write-Verbose -Message "Found an EXO SmtpDaneInbound instance with DomainName {$DomainName}"
+
         $results = @{
             DomainName            = $instance.DomainName
             Ensure                = 'Present'
@@ -82,11 +94,11 @@ function Get-TargetResource
             CertificateThumbprint = $CertificateThumbprint
             CertificatePath       = $CertificatePath
             CertificatePassword   = $CertificatePassword
-            Managedidentity       = $ManagedIdentity.IsPresent
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             TenantId              = $TenantId
             AccessTokens          = $AccessTokens
         }
-        return [System.Collections.Hashtable] $results
+        return $results
     }
     catch
     {
@@ -147,8 +159,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters | Out-Null
+    Write-Verbose -Message "Setting SmtpDaneInbound configuration for {$DomainName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -234,9 +245,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -246,23 +254,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of {$DomainName}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-
-
-    Write-Verbose -Message "Current Values: DomainName=$($currentValue.DomainName), Ensure=$($currentValues.Ensure)"
-    Write-Verbose -Message "Target Values: DomainName=$DomainName, Ensure=$Ensure"
-
-    $ValuesToCheck = ([Hashtable]$PSBoundParameters).clone()
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $ValuesToCheck
-    $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-        -Source $($MyInvocation.MyCommand.Source) `
-        -DesiredValues $PSBoundParameters `
-        -ValuesToCheck $ValuesToCheck.Keys
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -322,6 +316,7 @@ function Export-TargetResource
     try
     {
         [array]$getValue = Get-AcceptedDomain -ResultSize Unlimited -ErrorAction Stop
+        $getValue = $getValue | Where-Object { $_.SmtpDaneStatus -eq 'Enabled' }
 
         $i = 1
         $dscContent = ''
@@ -341,9 +336,9 @@ function Export-TargetResource
             }
 
             $displayedKey = $config.DomainName
-            if (-not [String]::IsNullOrEmpty($config.displayName))
+            if (-not [String]::IsNullOrEmpty($config.DisplayName))
             {
-                $displayedKey = $config.displayName
+                $displayedKey = $config.DisplayName
             }
             Write-M365DSCHost -Message "    |---[$i/$($getValue.Count)] $displayedKey" -DeferWrite
             $params = @{
@@ -354,13 +349,12 @@ function Export-TargetResource
                 CertificateThumbprint = $CertificateThumbprint
                 CertificatePath       = $CertificatePath
                 CertificatePassword   = $CertificatePassword
-                Managedidentity       = $ManagedIdentity.IsPresent
+                ManagedIdentity       = $ManagedIdentity.IsPresent
                 TenantId              = $TenantId
                 AccessTokens          = $AccessTokens
             }
-
-            $Results = Get-TargetResource @Params
-
+            $Script:exportedInstance = $config
+            $Results = Get-TargetResource @params
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
                 -ModulePath $PSScriptRoot `
@@ -389,4 +383,3 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
-
