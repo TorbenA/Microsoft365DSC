@@ -75,6 +75,7 @@
   * Removed unused internal functions `Remove-M365DSCCimInstanceTrailingCharacterFromExport`,
     `Update-M365DSCExchangeResourcesSettingsJSON`, `Update-M365DSCSharePointResourcesSettingsJSON`,
     `Split-ArrayByParts`, `Get-SPOUserProfilePropertyInstance` and `Remove-M365DSCEmptyValue`.
+  * Streamlined the report generation and added new visual styles.
 
 # 1.25.1112.1
 
