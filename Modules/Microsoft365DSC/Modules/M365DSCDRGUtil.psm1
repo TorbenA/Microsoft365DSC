@@ -24,23 +24,6 @@ function Get-StringFirstCharacterToLower
     return $Value.Substring(0,1).ToLower() + $Value.Substring(1,$Value.Length-1)
 }
 
-function Remove-M365DSCCimInstanceTrailingCharacterFromExport
-{
-    [CmdletBinding()]
-    [OutputType([System.String])]
-    param(
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        $DSCBlock
-    )
-
-    $DSCBlock = $DSCBlock.Replace("    ,`r`n" , "    `r`n" )
-    $DSCBlock = $DSCBlock.Replace("`r`n;`r`n" , "`r`n" )
-    $DSCBlock = $DSCBlock.Replace("`r`n,`r`n" , "`r`n" )
-
-    return $DSCBlock
-}
-
 function Rename-M365DSCCimInstanceParameter
 {
     [CmdletBinding()]
@@ -2053,7 +2036,7 @@ function Update-DeviceAppManagementPolicyAssignment
                 '@odata.type' = '#microsoft.graph.mobileAppAssignment'
                 intent = $assignment.intent
             }
-            if ($assigment.settings)
+            if ($assignment.settings)
             {
                 $formattedAssignment.Add('settings', $assignment.settings)
             }
@@ -2115,10 +2098,6 @@ function Update-DeviceAppManagementPolicyAssignment
                 $formattedTarget.Add('deviceAndAppManagementAssignmentFilterId',$target.deviceAndAppManagementAssignmentFilterId)
             }
             $formattedAssignment.Add('target', $formattedTarget)
-            if ($assignment.settings)
-            {
-                $formattedAssignment.Add('settings', $assignment.settings)
-            }
             $appManagementPolicyAssignments += $formattedAssignment
         }
 
@@ -3355,6 +3334,7 @@ function Update-IntuneDeviceConfigurationPolicy
         $TemplateReferenceId,
 
         [Parameter()]
+        [AllowNull()]
         [System.String]
         $CreationSource,
 
@@ -3385,7 +3365,7 @@ function Update-IntuneDeviceConfigurationPolicy
             $policy.Add('templateReference', @{ 'templateId' = $TemplateReferenceId })
         }
 
-        if ($PSBoundParameters.ContainsKey('CreationSource'))
+        if ($PSBoundParameters.ContainsKey('CreationSource') -and -not [System.String]::IsNullOrEmpty($CreationSource))
         {
             $policy.Add('creationSource', $CreationSource)
         }
