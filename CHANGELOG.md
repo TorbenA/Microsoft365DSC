@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* AADGroup
+  * Fixed an issue where not all manageable Entra groups were exported.
 * AADNamedLocationPolicy
   * Fixed an issue where not all properties were exported.
     FIXES [#6704](https://github.com/microsoft/Microsoft365DSC/issues/6704)
