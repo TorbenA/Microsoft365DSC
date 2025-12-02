@@ -25,6 +25,8 @@
 * TeamsMeetingPolicy
   * Fixed an issue where the schema had an incorrect type assigned.
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
+* TeamsOrgWideAppSettings
+  * Added SPN support for read-only (monitoring only).
 * MISC
   * Refactor EXO resources to align with the default resource code layout.
 * M365DSCDRGUtil
