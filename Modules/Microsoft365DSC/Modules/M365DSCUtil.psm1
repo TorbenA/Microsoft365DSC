@@ -1310,6 +1310,7 @@ function Test-M365DSCTargetResource
     }
 
     $testTargetResource = $true
+    $skipEvaluation = $false
     if ($DesiredValues.Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "The resource $ResourceName with $finalString was not found in the tenant." -Verbose:$Verbose
@@ -1330,9 +1331,14 @@ function Test-M365DSCTargetResource
         }
         $testTargetResource = $false
     }
+    elseif ($DesiredValues.Ensure -eq 'Absent' -and $CurrentValues.Ensure -eq 'Absent')
+    {
+        Write-Verbose -Message "The resource $ResourceName with $finalString does not exist in the tenant as desired." -Verbose:$Verbose
+        $skipEvaluation = $true
+    }
 
     $testResult = $true
-    if ($testTargetResource)
+    if ($testTargetResource -and -not $skipEvaluation)
     {
         # Compare Cim instances
         $desiredKeys = ([Hashtable]$DesiredValues).Clone().Keys
@@ -1394,7 +1400,7 @@ function Test-M365DSCTargetResource
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)" -Verbose:$Verbose
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)" -Verbose:$Verbose
 
-    if ($testResult)
+    if ($testResult -and -not $skipEvaluation)
     {
         $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
             -Source $ResourceName `
