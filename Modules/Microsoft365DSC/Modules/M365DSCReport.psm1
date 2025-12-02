@@ -616,6 +616,10 @@ function Get-M365WorkloadName
     {
         return 'Security & Compliance'
     }
+    elseif ($ResourceName.StartsWith('Sentinel'))
+    {
+        return 'Sentinel'
+    }
     elseif ($ResourceName.StartsWith('SH'))
     {
         return 'Services Hub'
@@ -699,6 +703,11 @@ function Get-IconPath
     elseif ($ResourceName.StartsWith('SC'))
     {
         return Get-Base64EncodedImage -IconName "SecurityAndCompliance.png"
+    }
+    elseif ($ResourceName.StartsWith('Sentinel'))
+    {
+        # TODO: Add Sentinel icon
+        # return Get-Base64EncodedImage -IconName "SecurityAndCompliance.png"
     }
     elseif ($ResourceName.StartsWith('SH'))
     {
