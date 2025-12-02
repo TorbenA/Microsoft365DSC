@@ -3873,7 +3873,7 @@ function Get-SettingsCatalogSettingDefinitionValueOption {
     foreach ($option in $SettingDefinition.AdditionalProperties.options) {
         $options += @{
             Name        = $option.name
-            Id          = $option.itemId.Split("_")[-1]
+            Id          = $option.optionValue.value
             Type        = $option.optionValue.'@odata.type'.Replace($SettingDefinitionOdataTypeBase, "").Replace("SettingValue", "")
             DisplayName = $option.displayName
         }
