@@ -12,6 +12,13 @@ if ($null -eq $Script:M365DSCDependencies)
     $dependencies = (Import-PowerShellDataFile "$PSScriptRoot/../Dependencies/Manifest.psd1").Dependencies
     foreach ($dependency in $dependencies)
     {
+        # TODO: Review again once ModuleFast can work with additional properties
+        # https://github.com/microsoft/Microsoft365DSC/pull/6726
+        # https://github.com/ykuijs/M365DSC_CICD/issues/53
+        if ($dependency.ModuleName -eq 'PnP.PowerShell')
+        {
+            $dependency.DependsOn = @('Microsoft.Graph.Authentication')
+        }
         $Script:M365DSCDependencies.Add($dependency.ModuleName, $dependency)
     }
 
