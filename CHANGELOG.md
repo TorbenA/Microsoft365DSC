@@ -14,6 +14,8 @@
   * Deprecated `ApplicationSecret` parameter and added new authentication methods.
 * IntuneApplicationControlPolicyWindows10
   * Deprecated resource. Replaced with `IntuneDeviceConfigurationEndpointProtectionPolicyWindows10`.
+* IntuneDeviceConfigurationPlatformScriptLinux
+  * Initial release.
 * IntuneDeviceEnrollmentStatusPageWindows10
   * Fixed an issue where priority was attempted to be set on a newly created policy
     where the priority already matched.
