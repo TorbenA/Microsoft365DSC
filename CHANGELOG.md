@@ -10,6 +10,8 @@
   * Deprecated parameters `Action`, `IsValidationOnly` and `TicketInfo`.
 * AADRoleEligibilityScheduleRequest
   * Deprecated parameters `Action` and `IsValidationOnly`.
+* AADRoleManagementPolicyRule
+  * Reduced export time by 95%.
 * EXOGroupSettings
   * Added support for using display names with the following properties:
     `AcceptMessagesOnlyFromSendersOrMembers`, `GrantSendOnBehalfTo`, `ModeratedBy`
