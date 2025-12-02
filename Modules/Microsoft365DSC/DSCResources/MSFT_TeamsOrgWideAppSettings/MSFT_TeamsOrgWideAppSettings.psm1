@@ -151,8 +151,15 @@ function Set-TargetResource
     $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 
-    $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    Set-CsTeamsSettingsCustomApp @SetParameters
+    if ($PSBoundParameters.ContainsKey('ApplicationId'))
+    {
+        Write-Warning -Message "This resources doesn't support 'write' operations using Service Principal Authentication."
+    }
+    else
+    {
+        $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+        Set-CsTeamsSettingsCustomApp @SetParameters
+    }
 }
 
 function Test-TargetResource
