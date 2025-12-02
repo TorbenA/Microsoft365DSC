@@ -10,6 +10,11 @@
   * Deprecated parameters `Action`, `IsValidationOnly` and `TicketInfo`.
 * AADRoleEligibilityScheduleRequest
   * Deprecated parameters `Action` and `IsValidationOnly`.
+* EXOGroupSettings
+  * Added support for using display names with the following properties:
+    `AcceptMessagesOnlyFromSendersOrMembers`, `GrantSendOnBehalfTo`, `ModeratedBy`
+    and `RejectMessagesFromSendersOrMembers`.
+    FIXES [#6676](https://github.com/microsoft/Microsoft365DSC/issues/6676)
 * EXOMessageClassification
   * Fixed issue where the resource would fail during export if it could not
     find it by `DisplayName`, and it needed to be created, by silently
@@ -63,6 +68,7 @@
   * Added and removed mismatches between parameters and their schema.
   * Added quality assurance checks for parameter and schema mismatches.
   * Refactor EXO resources to align with the default resource code layout.
+  * Moved the `Examples` folder to the top of the repository to reduce core module size.
   * Removed internal module `M365DSCExoResourceUtils`.
   * Removed unused internal functions `Remove-M365DSCCimInstanceTrailingCharacterFromExport`,
     `Update-M365DSCExchangeResourcesSettingsJSON`, `Update-M365DSCSharePointResourcesSettingsJSON`,
