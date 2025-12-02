@@ -1310,6 +1310,7 @@ function Test-M365DSCTargetResource
     }
 
     $testTargetResource = $true
+    $skipEvaluation = $false
     if ($DesiredValues.Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "The resource $ResourceName with $finalString was not found in the tenant." -Verbose:$Verbose
@@ -1330,9 +1331,14 @@ function Test-M365DSCTargetResource
         }
         $testTargetResource = $false
     }
+    elseif ($DesiredValues.Ensure -eq 'Absent' -and $CurrentValues.Ensure -eq 'Absent')
+    {
+        Write-Verbose -Message "The resource $ResourceName with $finalString does not exist in the tenant as desired." -Verbose:$Verbose
+        $skipEvaluation = $true
+    }
 
     $testResult = $true
-    if ($testTargetResource)
+    if ($testTargetResource -and -not $skipEvaluation)
     {
         # Compare Cim instances
         $desiredKeys = ([Hashtable]$DesiredValues).Clone().Keys
@@ -1374,7 +1380,7 @@ function Test-M365DSCTargetResource
                     }
                 }
 
-                $testResult = Compare-M365DSCComplexObjectV2 `
+                $testResult = Compare-M365DSCComplexObject `
                     -Source ($source) `
                     -Target ($targetObjects) `
                     -PropertyName $key
@@ -1394,7 +1400,7 @@ function Test-M365DSCTargetResource
     Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)" -Verbose:$Verbose
     Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)" -Verbose:$Verbose
 
-    if ($testResult)
+    if ($testResult -and -not $skipEvaluation)
     {
         $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
             -Source $ResourceName `
@@ -5514,7 +5520,11 @@ function Join-M365DSCConfiguration
     The parameters to pass to the function.
 
 .EXAMPLE
-    Invoke-PowerShellCoreResource -Path 'C:\Program Files\...\DSCResources\MSFT_Resource\MSFT_Resource.psm1' -FunctionName Test -Parameters @{ Name = 'Value' }
+    Invoke-PowerShellCoreResource -Path 'C:\Program Files\...\DSCResources\MSFT_Resource\MSFT_Resource.psm1' -FunctionName Test-TargetResource -Parameters @{ Name = 'Value' }
+
+.EXAMPLE
+    # From inside of a DSC resource
+    Invoke-PowerShellCoreResource -Path $PSCommandPath -FunctionName $MyInvocation.MyCommand.Name -Parameters $PSBoundParameters
 
 .FUNCTIONALITY
     Internal
@@ -5534,7 +5544,7 @@ function Invoke-PowerShellCoreResource
         [System.String]$Path,
 
         [Parameter(Mandatory = $true)]
-        [ValidateSet('Get', 'Set', 'Test', 'Export')]
+        [ValidateSet('Get-TargetResource', 'Set-TargetResource', 'Test-TargetResource', 'Export-TargetResource')]
         [System.String]$FunctionName,
 
         [Parameter(Mandatory = $true)]
@@ -5548,7 +5558,7 @@ function Invoke-PowerShellCoreResource
 
     $output = Invoke-Command -Session $PSCoreSession -ScriptBlock {
         Import-Module -Name $using:Path
-        & $using:FunctionName-TargetResource @using:Parameters
+        & $using:FunctionName @using:Parameters
     }
 
     return $output
