@@ -13,6 +13,13 @@ if ($null -eq $Script:M365DSCDependencies)
     $dependencies = (Import-PowerShellDataFile "$PSScriptRoot/../Dependencies/Manifest.psd1").Dependencies
     foreach ($dependency in $dependencies)
     {
+        # TODO: Review again once ModuleFast can work with additional properties
+        # https://github.com/microsoft/Microsoft365DSC/pull/6726
+        # https://github.com/ykuijs/M365DSC_CICD/issues/53
+        if ($dependency.ModuleName -eq 'PnP.PowerShell')
+        {
+            $dependency.DependsOn = @('Microsoft.Graph.Authentication')
+        }
         $Script:M365DSCDependencies.Add($dependency.ModuleName, $dependency)
     }
 
@@ -2000,8 +2007,17 @@ function Confirm-M365DSCLoadedModule
     }
 
     $manifestModule = $Script:M365DSCDependencies[$ModuleName]
-    $loadedModule = Get-Module -Name $ModuleName
 
+    if ($null -ne $manifestModule.DependsOn -and $manifestModule.DependsOn.Count -gt 0)
+    {
+        foreach ($dependency in $manifestModule.DependsOn)
+        {
+            Write-Verbose -Message "Validating dependency '$dependency' for module '$ModuleName'."
+            Confirm-M365DSCLoadedModule -ModuleName $dependency
+        }
+    }
+
+    $loadedModule = Get-Module -Name $ModuleName
     if ($null -eq $loadedModule)
     {
         Write-Verbose -Message "Module '$ModuleName' is not loaded. Importing it now."

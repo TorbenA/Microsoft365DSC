@@ -136,6 +136,10 @@
             ModuleName      = 'PnP.PowerShell'
             RequiredVersion = '1.12.0'
             InstallLocation = 'WindowsPowerShell'
+            # TODO: Review again once ModuleFast can work with additional properties
+            # https://github.com/microsoft/Microsoft365DSC/pull/6726
+            # https://github.com/ykuijs/M365DSC_CICD/issues/53
+            #DependsOn       = @('Microsoft.Graph.Authentication')
         },
         @{
             ModuleName      = 'PSDesiredStateConfiguration'

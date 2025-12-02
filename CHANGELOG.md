@@ -48,8 +48,6 @@
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
 * TeamsOrgWideAppSettings
   * Added SPN support for read-only (monitoring only).
-* MISC
-  * Refactor EXO resources to align with the default resource code layout.
 * M365DSCDRGUtil
   * Fixed an issue where a condition check contained a typo.
     FIXES [#6674](https://github.com/microsoft/Microsoft365DSC/issues/6674)
@@ -60,12 +58,16 @@
   * Added handling of custom token replacements.
 * M365DSCUtil
   * Added the parameter `TokenReplacement` to the `Export-M365DSCConfiguration` function.
+  * Fixed an issue where the connection to Graph in combination with PnP would fail.
+    FIXES [#6577](https://github.com/microsoft/Microsoft365DSC/issues/6577)
+    FIXES [#6721](https://github.com/microsoft/Microsoft365DSC/issues/6721)
   * Fixed an issue where the test evaluation for `Absent` did not work as expected.
     FIXES [#6701](https://github.com/microsoft/Microsoft365DSC/issues/6701)
   * Replaced complex object comparison function V2 with V3.
 * MISC
   * Added and removed mismatches between parameters and their schema.
   * Added quality assurance checks for parameter and schema mismatches.
+  * Refactor EXO resources to align with the default resource code layout.
   * Moved the `Examples` folder to the top of the repository to reduce core module size.
   * Removed internal module `M365DSCExoResourceUtils`.
   * Removed unused internal functions `Remove-M365DSCCimInstanceTrailingCharacterFromExport`,
