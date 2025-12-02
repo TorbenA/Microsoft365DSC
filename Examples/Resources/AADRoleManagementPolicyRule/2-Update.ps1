@@ -25,13 +25,13 @@ Configuration Example
 
         AADRoleManagementPolicyRule "AADRoleManagementPolicyRule-Expiration_Admin_Eligibility"
         {
-            expirationRule       = MSFT_AADRoleManagementPolicyExpirationRule{
+            ExpirationRule       = MSFT_AADRoleManagementPolicyExpirationRule{
                 isExpirationRequired = $False
                 maximumDuration = 'P180D'
             };
-            id                   = "Expiration_Admin_Eligibility";
-            roleDisplayName      = "Global Administrator";
-            ruleType             = "#microsoft.graph.unifiedRoleManagementPolicyExpirationRule";
+            Id                   = "Expiration_Admin_Eligibility";
+            RoleDisplayName      = "Global Administrator";
+            RuleType             = "#microsoft.graph.unifiedRoleManagementPolicyExpirationRule";
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint

@@ -13,6 +13,13 @@ if ($null -eq $Script:M365DSCDependencies)
     $dependencies = (Import-PowerShellDataFile "$PSScriptRoot/../Dependencies/Manifest.psd1").Dependencies
     foreach ($dependency in $dependencies)
     {
+        # TODO: Review again once ModuleFast can work with additional properties
+        # https://github.com/microsoft/Microsoft365DSC/pull/6726
+        # https://github.com/ykuijs/M365DSC_CICD/issues/53
+        if ($dependency.ModuleName -eq 'PnP.PowerShell')
+        {
+            $dependency.DependsOn = @('Microsoft.Graph.Authentication')
+        }
         $Script:M365DSCDependencies.Add($dependency.ModuleName, $dependency)
     }
 
@@ -1225,6 +1232,12 @@ function Test-M365DSCTargetResource
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
+    if ($null -eq (Get-Module -Name 'M365DSCCompare'))
+    {
+        $compareModulePath = Join-Path -Path $PSScriptRoot -ChildPath "M365DSCCompare.psm1"
+        Import-Module -Name $compareModulePath -Force
+    }
+
     # Retrieve the primary keys of the given resource and remove them from the list of values to check.
     $currentPath = $PSScriptRoot
     if ($null -eq $Script:M365DSCSchema)
@@ -1253,168 +1266,14 @@ function Test-M365DSCTargetResource
     Write-Verbose -Message "Testing configuration of the $ResourceName with $finalString" -Verbose:$Verbose
 
     $CurrentValues = & MSFT_$ResourceName\Get-TargetResource @DesiredValues
-    $ValuesToCheck = ([Hashtable]$DesiredValues).Clone()
 
-    # Apply custom post-processing to CurrentValues and ValuesToCheck if specified
-    if ($null -ne $PostProcessing)
-    {
-        Write-Verbose -Message "Applying custom post-processing to CurrentValues and ValuesToCheck for resource $ResourceName" -Verbose:$Verbose
-        try
-        {
-            $result = $PostProcessing.Invoke($DesiredValues, $CurrentValues, $ValuesToCheck, $PostProcessingArgs)
-            if ($null -ne $result -and $result.Item1 -is [Hashtable] -and $result.Item2 -is [Hashtable] -and $result.Item3 -is [Hashtable])
-            {
-                $DesiredValues = $result.Item1
-                $CurrentValues = $result.Item2
-                $ValuesToCheck = $result.Item3
-            }
-            else
-            {
-                Write-Warning -Message "PostProcessing function did not return a valid tuple for resource $ResourceName. Using original values."
-            }
-        }
-        catch
-        {
-            Write-Warning -Message "Error occurred during post-processing for resource $ResourceName`: $_"
-        }
-    }
-
-    $ValuesToCheck.Remove('Id') | Out-Null
-    $ValuesToCheck.Remove('Identity') | Out-Null
-
-    # Remove the key parameters from the comparison
-    foreach ($keyToRemove in $resourceKeys)
-    {
-        $ValuesToCheck.Remove($keyToRemove.Name) | Out-Null
-    }
-
-    # Remove PSCredential object from the list of properties to be evaluated
-    $credentialProperties = $resourceDefinition.Parameters | Where-Object -FilterScript { $_.CIMType -eq 'MSFT_Credential' }
-    foreach ($property in $credentialProperties)
-    {
-        $ValuesToCheck.Remove($property.Name) | Out-Null
-    }
-
-    # Remove the ExcludedProperties from the list of properties to be evaluated
-    foreach ($property in $ExcludedProperties)
-    {
-        $ValuesToCheck.Remove($property) | Out-Null
-    }
-
-    # Add the IncludedProperties to the list of properties to be evaluated
-    foreach ($property in $IncludedProperties)
-    {
-        if ($DesiredValues.ContainsKey($property) -and -not $ValuesToCheck.ContainsKey($property))
-        {
-            $ValuesToCheck.Add($property, $DesiredValues.$property)
-        }
-    }
-
-    $testTargetResource = $true
-    $skipEvaluation = $false
-    if ($DesiredValues.Ensure -eq 'Present' -and $CurrentValues.Ensure -eq 'Absent')
-    {
-        Write-Verbose -Message "The resource $ResourceName with $finalString was not found in the tenant." -Verbose:$Verbose
-        $Global:AllDrifts.DriftInfo += @{
-            PropertyName = 'Ensure'
-            CurrentValue = 'Absent'
-            DesiredValue = 'Present'
-        }
-        $testTargetResource = $false
-    }
-    elseif ($DesiredValues.Ensure -eq 'Absent' -and $CurrentValues.Ensure -eq 'Present')
-    {
-        Write-Verbose -Message "The resource $ResourceName with $finalString should not exist in the tenant." -Verbose:$Verbose
-        $Global:AllDrifts.DriftInfo += @{
-            PropertyName = 'Ensure'
-            CurrentValue = 'Present'
-            DesiredValue = 'Absent'
-        }
-        $testTargetResource = $false
-    }
-    elseif ($DesiredValues.Ensure -eq 'Absent' -and $CurrentValues.Ensure -eq 'Absent')
-    {
-        Write-Verbose -Message "The resource $ResourceName with $finalString does not exist in the tenant as desired." -Verbose:$Verbose
-        $skipEvaluation = $true
-    }
-
-    $testResult = $true
-    if ($testTargetResource -and -not $skipEvaluation)
-    {
-        # Compare Cim instances
-        $desiredKeys = ([Hashtable]$DesiredValues).Clone().Keys
-        foreach ($key in $desiredKeys)
-        {
-            $source = $DesiredValues.$key
-            $target = $CurrentValues.$key
-            if ($null -ne $source -and $source.GetType().Name -like '*CimInstance*')
-            {
-                Write-Verbose -Message "Comparing complex object property $key of resource $ResourceName"
-                $CIMProperty = $resourceDefinition.Parameters | Where-Object -FilterScript { $_.Name -eq $key }
-                $CIMName = $CIMProperty.CIMType.Replace('[]', '')
-                $CIMDefinition = $Script:M365DSCSchema | Where-Object -FilterScript { $_.ClassName -eq $CIMName }
-                $CIMPrimaryKeys = $CIMDefinition.Parameters | Where-Object -FilterScript { $_.Option -eq 'Required' }
-
-                $targetObjects = @{}
-                if ($source.GetType().Name -eq 'CimInstance[]')
-                {
-                    $targetObjects = @()
-                }
-
-                foreach ($targetObject in $target)
-                {
-                    foreach ($primaryKey in $CIMPrimaryKeys.Name)
-                    {
-                        if ($primaryKey -notin $IncludedProperties)
-                        {
-                            $targetObject.Remove($primaryKey) | Out-Null
-                        }
-                    }
-
-                    if ($targetObjects -is [array])
-                    {
-                        $targetObjects += $targetObject
-                    }
-                    else
-                    {
-                        $targetObjects = $targetObject
-                    }
-                }
-
-                $testResult = Compare-M365DSCComplexObject `
-                    -Source ($source) `
-                    -Target ($targetObjects) `
-                    -PropertyName $key
-
-                if (-not $testResult)
-                {
-                    Write-Verbose "TestResult returned False for $source"
-                    $testTargetResource = $false
-                }
-
-                $DesiredValues.Remove($key) | Out-Null
-                $ValuesToCheck.Remove($key) | Out-Null
-            }
-        }
-    }
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)" -Verbose:$Verbose
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)" -Verbose:$Verbose
-
-    if ($testResult -and -not $skipEvaluation)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $ResourceName `
-            -DesiredValues $DesiredValues `
-            -ValuesToCheck $ValuesToCheck.Keys `
-            -NoEventMessage `
-            -NoDriftReset
-    }
-
-    if (-not $testResult)
-    {
-        $testTargetResource = $false
-    }
+    $testTargetResource = Compare-M365DSCResourceState -ResourceName $ResourceName `
+        -DesiredValues $DesiredValues `
+        -CurrentValues $CurrentValues `
+        -ExcludedProperties $ExcludedProperties `
+        -IncludedProperties $IncludedProperties `
+        -PostProcessing $PostProcessing `
+        -PostProcessingArgs $PostProcessingArgs
 
     if (-not $testTargetResource)
     {
@@ -2000,8 +1859,17 @@ function Confirm-M365DSCLoadedModule
     }
 
     $manifestModule = $Script:M365DSCDependencies[$ModuleName]
-    $loadedModule = Get-Module -Name $ModuleName
 
+    if ($null -ne $manifestModule.DependsOn -and $manifestModule.DependsOn.Count -gt 0)
+    {
+        foreach ($dependency in $manifestModule.DependsOn)
+        {
+            Write-Verbose -Message "Validating dependency '$dependency' for module '$ModuleName'."
+            Confirm-M365DSCLoadedModule -ModuleName $dependency
+        }
+    }
+
+    $loadedModule = Get-Module -Name $ModuleName
     if ($null -eq $loadedModule)
     {
         Write-Verbose -Message "Module '$ModuleName' is not loaded. Importing it now."
