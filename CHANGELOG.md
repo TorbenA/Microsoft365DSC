@@ -44,7 +44,10 @@
   * Fixed an issue where updating Intune assignments did not include all properties.
     FIXES [#6697](https://github.com/microsoft/Microsoft365DSC/issues/6697)
   * Updated comparison function `Compare-M365DSCComplexObject` to non-recursive.
+* M365DSCReverse
+  * Added handling of custom token replacements.
 * M365DSCUtil
+  * Added the parameter `TokenReplacement` to the `Export-M365DSCConfiguration` function.
   * Fixed an issue where the test evaluation for `Absent` did not work as expected.
     FIXES [#6701](https://github.com/microsoft/Microsoft365DSC/issues/6701)
   * Replaced complex object comparison function V2 with V3.
