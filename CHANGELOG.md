@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADNamedLocationPolicy
+  * Fixed an issue where not all properties were exported.
+    FIXES [#6704](https://github.com/microsoft/Microsoft365DSC/issues/6704)
 * EXOMessageClassification
   * Fixed issue where the resource would fail during export if it could not
     find it by `DisplayName`, and it needed to be created, by silently
@@ -9,11 +12,19 @@
     FIXES [#6691](https://github.com/microsoft/Microsoft365DSC/issues/6691)
 * EXOTenantAllowBlockListItems
   * Deprecated `ApplicationSecret` parameter and added new authentication methods.
+* IntuneApplicationControlPolicyWindows10
+  * Deprecated resource. Replaced with `IntuneDeviceConfigurationEndpointProtectionPolicyWindows10`.
+* IntuneDeviceConfigurationPlatformScriptLinux
+  * Initial release.
 * IntuneDeviceEnrollmentStatusPageWindows10
   * Fixed an issue where priority was attempted to be set on a newly created policy
     where the priority already matched.
 * IntuneDeviceRemediation
   * Updated handling of the `RunRemediationScript` property.
+* IntuneDiskEncryptionFileVaultPolicyMacOS
+  * Initial release.
+* IntuneDiskEncryptionMacOS
+  * Deprecated resource. Replaced with `IntuneDiskEncryptionFileVaultPolicyMacOS`.
 * O365CopilotSettingsPeopleEnhancedPersonalization
   * New resource
 * ODSettings
@@ -25,11 +36,16 @@
 * TeamsMeetingPolicy
   * Fixed an issue where the schema had an incorrect type assigned.
     FIXES [#6687](https://github.com/microsoft/Microsoft365DSC/issues/6687)
+* TeamsOrgWideAppSettings
+  * Added SPN support for read-only (monitoring only).
 * M365DSCDRGUtil
   * Fixed an issue where updating Intune assignments did not include all properties.
     FIXES [#6697](https://github.com/microsoft/Microsoft365DSC/issues/6697)
   * Updated comparison function `Compare-M365DSCComplexObject` to non-recursive.
+* M365DSCReverse
+  * Added handling of custom token replacements.
 * M365DSCUtil
+  * Added the parameter `TokenReplacement` to the `Export-M365DSCConfiguration` function.
   * Fixed an issue where the connection to Graph in combination with PnP would fail.
     FIXES [#6577](https://github.com/microsoft/Microsoft365DSC/issues/6577)
     FIXES [#6721](https://github.com/microsoft/Microsoft365DSC/issues/6721)
