@@ -44,6 +44,9 @@
 * ODSettings
   * Fixed an issue where the parameter definition was missing.
     FIXES [#6684](https://github.com/microsoft/Microsoft365DSC/issues/6684)
+* SPOSite
+   * Fixed an issue about not correctly passing RestrictedToRegion parameter
+    FIXES [#6734](https://github.com/microsoft/Microsoft365DSC/issues/6734)
 * SPOTenantSettings
   * Fixed an issue where the parameter definition was missing.
     FIXES [#6686](https://github.com/microsoft/Microsoft365DSC/issues/6686)
