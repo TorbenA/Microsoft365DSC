@@ -587,7 +587,7 @@ function Set-TargetResource
             DisableCompanyWideSharingLinks              = $DisableCompanyWideSharingLinks
             #LCID Cannot be set after a Template has been applied;
             #LocaleId                       = $LocaleId
-            RestrictedToRegion                          = $RestrictedToRegion
+            RestrictedToGeo                              = $RestrictedToRegion
             #SocialBarOnSitePagesDisabled                = $SocialBarOnSitePagesDisabled
             SharingAllowedDomainList                    = $SharingAllowedDomainList
             SharingBlockedDomainList                    = $SharingBlockedDomainList
