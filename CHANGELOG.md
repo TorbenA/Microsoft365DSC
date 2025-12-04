@@ -1,5 +1,8 @@
 # Change log for Microsoft365DSC
 
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.56.
+
 # 1.25.1203.1
 
 * AADGroup
