@@ -658,6 +658,28 @@ function Start-M365DSCConfigurationExtract
             }
         }
 
+        # If the tenant id is not a GUID, retrieve it based on the organization name
+        # Only implemented for public cloud tenants
+        if (-not ($TenantId -match ('^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$')))
+        {
+            try
+            {
+                Write-Verbose -Message "Retrieving Tenant Id based on provided organization name."
+                $tenantGuid = (Invoke-RestMethod -Uri "https://login.microsoftonline.com/$organization/.well-known/openid-configuration" -Method Get).authorization_endpoint.Split('/')[3]
+                $currentStringReplacementMap = Get-M365DSCStringReplacementMap
+                if (-not $currentStringReplacementMap.ContainsKey($tenantGuid))
+                {
+                    $currentStringReplacementMap.Add($tenantGuid, 'TenantGuid')
+                    Set-M365DSCStringReplacementMap -Map $currentStringReplacementMap
+                }
+            }
+            catch
+            {
+                Write-Warning -Message "Failed to resolve current tenant id from organization name '$organization'. Not replacing tenant id in exported configuration.
+         If you want to have your tenant id replaced in the export, use the -TokenReplacement parameter of Export-M365DSCConfiguration."
+            }
+        }
+
         Confirm-M365DSCDependencies
         $partialExportName = $Global:PartialExportFileName
         $resourcesPath = $resourcesPath | Sort-Object $_.Name

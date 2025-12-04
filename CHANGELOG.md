@@ -1,6 +1,16 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCDRGUtil
+  * Fixed an issue where `Rename-M365DSCCimInstanceParameter` omitted values.
+    FIXES [#6727](https://github.com/microsoft/Microsoft365DSC/issues/6727)
+* M365DSCReverse
+  * Added `TenantGuid` entry to the `ConfigurationData.psd1` file during export.
+    FIXES [#6689](https://github.com/microsoft/Microsoft365DSC/issues/6689)
+
 # 1.25.1203.2
+
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.56.
 
