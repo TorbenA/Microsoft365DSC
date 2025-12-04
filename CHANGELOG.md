@@ -1,6 +1,10 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.25.1203.2
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.56.
+
+# 1.25.1203.1
 
 * AADGroup
   * Fixed an issue where not all manageable Entra groups were exported.
