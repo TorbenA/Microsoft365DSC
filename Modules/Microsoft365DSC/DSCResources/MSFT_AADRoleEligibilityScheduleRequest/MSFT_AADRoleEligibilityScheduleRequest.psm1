@@ -130,6 +130,7 @@ function Get-TargetResource
         else
         {
             $schedule = $Script:exportedInstance
+            # To keep performance good, only assign the current instance
             $Script:AllSchedules = $Script:exportedInstance
         }
 
@@ -212,6 +213,7 @@ function Get-TargetResource
                 $_.RoleDefinitionId -eq $RoleDefinitionId
             }
         }
+
         if ($null -eq $schedule)
         {
             foreach ($instance in $schedules)
@@ -284,10 +286,10 @@ function Get-TargetResource
             RoleDefinition        = $RoleDefinition
             DirectoryScopeId      = $schedule.DirectoryScopeId
             AppScopeId            = $schedule.AppScopeId
-            Action                = $schedule.Action
+            #Action                = $schedule.Action
             Id                    = $schedule.Id
-            Justification         = $schedule.Justification
-            IsValidationOnly      = $schedule.IsValidationOnly
+            Justification         = "Assignment of role eligibility '$RoleDefinition' to principal '$PrincipalValue' of type '$PrincipalType'."
+            #IsValidationOnly      = $schedule.IsValidationOnly
             ScheduleInfo          = $ScheduleInfoValue
             Ensure                = 'Present'
             Credential            = $Credential
@@ -393,6 +395,17 @@ function Set-TargetResource
         $AccessTokens
     )
 
+    # TODO: Remove during next breaking change
+    if ($PSBoundParameters.ContainsKey('Action'))
+    {
+        Write-Warning -Message "The parameter 'Action' is deprecated. It will be removed in the next breaking change release."
+    }
+
+    if ($PSBoundParameters.ContainsKey('IsValidationOnly'))
+    {
+        Write-Warning -Message "The parameter 'IsValidationOnly' is deprecated. It will be removed in the next breaking change release."
+    }
+
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 
@@ -428,7 +441,7 @@ function Set-TargetResource
         $PrincipalId = $PrincipalInstance.Id
     }
 
-    Write-Verbose -Message "Retrieving ROleDefinitionId from Set-TargetResource"
+    Write-Verbose -Message "Retrieving RoleDefinitionId from Set-TargetResource"
     $RoleDefinitionId = (Get-MgBetaRoleManagementDirectoryRoleDefinition -Filter "DisplayName eq '$($RoleDefinition -replace "'", "''")'").Id
 
     $instanceParams = @{
@@ -600,6 +613,17 @@ function Test-TargetResource
         $AccessTokens
     )
 
+    # TODO: Remove during next breaking change
+    if ($PSBoundParameters.ContainsKey('Action'))
+    {
+        Write-Warning -Message "The parameter 'Action' is deprecated. It will be removed in the next breaking change release."
+    }
+
+    if ($PSBoundParameters.ContainsKey('IsValidationOnly'))
+    {
+        Write-Warning -Message "The parameter 'IsValidationOnly' is deprecated. It will be removed in the next breaking change release."
+    }
+
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -621,6 +645,10 @@ function Export-TargetResource
     [OutputType([System.String])]
     param
     (
+        [Parameter()]
+        [System.String]
+        $Filter,
+
         [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
@@ -668,12 +696,11 @@ function Export-TargetResource
     try
     {
         $Script:ExportMode = $true
-        [array] $Script:exportedInstances = Get-MgBetaRoleManagementDirectoryRoleEligibilitySchedule -All `
-                                                -ErrorAction SilentlyContinue
+        [array] $Script:exportedInstances = Get-MgBetaRoleManagementDirectoryRoleEligibilitySchedule -All -Filter $Filter -ErrorAction SilentlyContinue
 
         $i = 1
         $dscContent = ''
-        if ($Script:exportedInstances.Length -eq 0)
+        if ($Script:exportedInstances.Count -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }

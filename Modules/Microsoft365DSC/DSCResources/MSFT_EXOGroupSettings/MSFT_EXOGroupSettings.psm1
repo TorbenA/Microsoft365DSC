@@ -1,5 +1,12 @@
 Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXOGroupSettings'
 
+$Script:displayNameProperties = @{
+    IncludeAcceptMessagesOnlyFromSendersOrMembersWithDisplayNames = $true
+    IncludeGrantSendOnBehalfToWithDisplayNames                    = $true
+    IncludeModeratedByWithDisplayNames                            = $true
+    IncludeRejectMessagesFromSendersOrMembersWithDisplayNames     = $true
+}
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -255,7 +262,6 @@ function Get-TargetResource
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
-
             $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
                 -InboundParameters $PSBoundParameters
 
@@ -276,12 +282,12 @@ function Get-TargetResource
             }
 
             Write-Verbose -Message "Retrieving group by id {$Id}"
-            $group = Get-UnifiedGroup -Identity $Id -IncludeAllProperties -ErrorAction SilentlyContinue
 
+            $group = Get-UnifiedGroup -Identity $Id -IncludeAllProperties @Script:displayNameProperties -ErrorAction SilentlyContinue
             if ($null -eq $group)
             {
                 Write-Verbose -Message "Couldn't retrieve group by ID. Trying by DisplayName {$DisplayName}"
-                $group = Get-UnifiedGroup -Identity $DisplayName -IncludeAllProperties -ErrorAction SilentlyContinue
+                $group = Get-UnifiedGroup -Identity $DisplayName -IncludeAllProperties @Script:displayNameProperties -ErrorAction SilentlyContinue
             }
 
             if ($null -eq $group)
@@ -331,20 +337,20 @@ function Get-TargetResource
             $ExtensionCustomAttribute5Value = @()
         }
 
-        $GrantSendOnBehalfToValue = $group.GrantSendOnBehalfTo
-        if ($null -eq $group.GrantSendOnBehalfTo)
+        $GrantSendOnBehalfToValue = Get-DisplayNameSimplified -DisplayName $group.GrantSendOnBehalfToWithDisplayNames
+        if ($null -eq $group.GrantSendOnBehalfToWithDisplayNames)
         {
             $GrantSendOnBehalfToValue = @()
         }
 
-        $ModeratedByValue = $group.ModeratedBy
-        if ($null -eq $group.ModeratedBy)
+        $ModeratedByValue = Get-DisplayNameSimplified -DisplayName $group.ModeratedByWithDisplayNames
+        if ($null -eq $group.ModeratedByWithDisplayNames)
         {
             $ModeratedByValue = @()
         }
 
-        $AcceptMessagesOnlyFromSendersOrMembersValue = $group.AcceptMessagesOnlyFromSendersOrMembers
-        if ($null -eq $group.AcceptMessagesOnlyFromSendersOrMembers)
+        $AcceptMessagesOnlyFromSendersOrMembersValue = Get-DisplayNameSimplified -DisplayName $group.AcceptMessagesOnlyFromSendersOrMembersWithDisplayNames
+        if ($null -eq $group.AcceptMessagesOnlyFromSendersOrMembersWithDisplayNames)
         {
             $AcceptMessagesOnlyFromSendersOrMembersValue = @()
         }
@@ -355,13 +361,11 @@ function Get-TargetResource
             $MailTipTranslationsValue = @()
         }
 
-        $RejectMessagesFromSendersOrMembersValue = $group.RejectMessagesFromSendersOrMembers
-        if ($null -eq $group.RejectMessagesFromSendersOrMembers)
+        $RejectMessagesFromSendersOrMembersValue = Get-DisplayNameSimplified -DisplayName $group.RejectMessagesFromSendersOrMembersWithDisplayNames
+        if ($null -eq $group.RejectMessagesFromSendersOrMembersWithDisplayNames)
         {
             $RejectMessagesFromSendersOrMembersValue = @()
         }
-
-        Write-Verbose -Message "Found an existing instance of group '$($DisplayName)'"
 
         $result = @{
             DisplayName                            = $DisplayName
@@ -712,9 +716,71 @@ function Set-TargetResource
     # Cannot use PrimarySmtpAddress and EmailAddresses at the same time. If both are present, then give priority to PrimarySmtpAddress.
     if ($UpdateParameters.ContainsKey('PrimarySmtpAddress') -and $null -ne $UpdateParameters.PrimarySmtpAddress)
     {
-        $UpdateParameters.Remove('EmailAddresses')
+        $UpdateParameters.Remove('EmailAddresses') | Out-Null
     }
-    Write-Verbose -Message "Updating settings for group '$($DisplayName)' with the following parameters:`r`n$($UpdateParameters | ConvertTo-Json -Depth 10)"
+
+    # Renaming of WelcomeMessageEnabled to UnifiedGroupWelcomeMessageEnabled
+    if ($UpdateParameters.ContainsKey('WelcomeMessageEnabled'))
+    {
+        $UpdateParameters.Add('UnifiedGroupWelcomeMessageEnabled', $UpdateParameters.WelcomeMessageEnabled)
+        $UpdateParameters.Remove('WelcomeMessageEnabled') | Out-Null
+    }
+
+    foreach ($key in $Script:displayNameProperties.Keys)
+    {
+        $key = $key.Replace("Include", "").Replace("WithDisplayNames", "")
+        if ($PSBoundParameters.ContainsKey($key))
+        {
+            if ($null -eq $Script:RecipientsCache2)
+            {
+                $Script:RecipientsCache2 = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
+                if ($null -eq $Script:RecipientsCache)
+                {
+                    $recipients = Get-Recipient -ResultSize Unlimited
+                    foreach ($recipient in $recipients)
+                    {
+                        $Script:RecipientsCache2[$recipient.PrimarySmtpAddress] = @{
+                            Name               = $recipient.Name
+                            PrimarySmtpAddress = $recipient.PrimarySmtpAddress
+                            WindowsLiveID      = $recipient.WindowsLiveID
+                        }
+                    }
+                }
+                else
+                {
+                    foreach ($entry in $Script:RecipientsCache.GetEnumerator())
+                    {
+                        $Script:RecipientsCache2[$entry.Value.PrimarySmtpAddress] = $entry.Value
+                    }
+                }
+            }
+
+            $convertedList = [System.Collections.Generic.List[System.String]]::new()
+            foreach ($member in $UpdateParameters.$key)
+            {
+                # If member is a GUID, keep as-is
+                $guid = [System.Guid]::Empty
+                if ([System.Guid]::TryParse($member, [ref]$guid))
+                {
+                    $convertedList.Add($member)
+                    continue
+                }
+
+                $entry = $null
+                if ($Script:RecipientsCache2.TryGetValue($member, [ref]$entry))
+                {
+                    $convertedList.Add($entry.Name)
+                }
+                else
+                {
+                    $convertedList.Add($member)
+                }
+            }
+
+            $UpdateParameters[$key] = $convertedList.ToArray()
+        }
+    }
+
     Set-UnifiedGroup @UpdateParameters
 }
 
@@ -976,8 +1042,53 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
+    $postProcessingScript = {
+        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
+        foreach ($key in $Script:displayNameProperties.Keys)
+        {
+            $key = $key.Replace("Include", "").Replace("WithDisplayNames", "")
+            if ($DesiredValues.ContainsKey($key))
+            {
+                if ($null -eq $Script:RecipientsCache)
+                {
+                    $Script:RecipientsCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
+                    Get-Recipient -ResultSize Unlimited | Foreach-Object {
+                        $Script:RecipientsCache[$_.Name] = @{
+                            Name               = $_.Name
+                            PrimarySmtpAddress = $_.PrimarySmtpAddress
+                            WindowsLiveID      = $_.WindowsLiveID
+                        }
+                    }
+                }
+                $convertedValues = @()
+                foreach ($member in $DesiredValues.$key)
+                {
+                    $guid = [System.Guid]::Empty
+                    if ([System.Guid]::TryParse($member, [ref]$guid))
+                    {
+                        $entry = $null
+                        if ($Script:RecipientsCache.TryGetValue($member, [ref]$entry))
+                        {
+                            $convertedValues += $entry.PrimarySmtpAddress
+                        }
+                        else
+                        {
+                            $convertedValues += $member
+                        }
+                    }
+                    else
+                    {
+                        $convertedValues += $member
+                    }
+                }
+                $DesiredValues.$key = $convertedValues
+            }
+        }
+        return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
+    }
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -PostProcessing $postProcessingScript
     return $result
 }
 
@@ -1039,7 +1150,7 @@ function Export-TargetResource
     try
     {
         $Script:ExportMode = $true
-        [array] $Script:exportedInstances = Get-UnifiedGroup -ResultSize Unlimited -ErrorAction SilentlyContinue
+        [array] $Script:exportedInstances = Get-UnifiedGroup -ResultSize Unlimited @Script:displayNameProperties -ErrorAction SilentlyContinue
 
         $i = 1
         if ($Script:exportedInstances.Length -eq 0)
@@ -1110,6 +1221,24 @@ function Export-TargetResource
 
         return ''
     }
+}
+
+function Get-DisplayNameSimplified
+{
+    param(
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [AllowNull()]
+        [System.String[]]
+        $DisplayName
+    )
+
+    $simplifiedNames = @()
+    foreach ($name in $DisplayName)
+    {
+        $simplifiedNames += $name.Split(',')[0].Replace('(','')
+    }
+    return $simplifiedNames | Sort-Object
 }
 
 Export-ModuleMember -Function *-TargetResource
