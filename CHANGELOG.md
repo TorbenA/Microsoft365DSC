@@ -1,6 +1,18 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* TeamsChannel
+  * Updated required permissions for read / update.
+* TeamsEmergencyCallRoutingPolicy
+  * Updated required permissions for read / update.
+* TeamsTeam
+  * Updated required permissions for read / update.
+* TeamsUser
+  * Updated required permissions for read / update.
+
 # 1.25.1203.2
+
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.56.
 
