@@ -324,7 +324,7 @@ function Export-TargetResource
         {
             Write-M365DSCHost -Message "    |---[$i/$($mailboxes.Count)] $($mailbox.UserPrincipalName)" -DeferWrite
 
-            [Array]$irmAccesses = Get-MailboxIRMAccess -Identity $mailbox.UserPrincipalName -ErrorAction Stop
+            [Array]$irmAccesses = Get-MailboxIRMAccess -Identity $mailbox.UserPrincipalName
 
             $j = 1
             Write-M365DSCHost -Message "`r`n" -DeferWrite

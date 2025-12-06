@@ -374,7 +374,7 @@ function Export-TargetResource
 
     try
     {
-        [array]$rules = Get-EXOPhishSimOverrideRule -ErrorAction Stop
+        [array]$rules = Get-EXOPhishSimOverrideRule
 
         $i = 1
         $dscContent = ''
