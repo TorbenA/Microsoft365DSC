@@ -1041,53 +1041,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $postProcessingScript = {
-        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
-        foreach ($key in $Script:displayNameProperties.Keys)
-        {
-            $key = $key.Replace("Include", "").Replace("WithDisplayNames", "")
-            if ($DesiredValues.ContainsKey($key))
-            {
-                if ($null -eq $Script:RecipientsCache)
-                {
-                    $Script:RecipientsCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
-                    Get-Recipient -ResultSize Unlimited | Foreach-Object {
-                        $Script:RecipientsCache[$_.Name] = @{
-                            Name               = $_.Name
-                            PrimarySmtpAddress = $_.PrimarySmtpAddress
-                            WindowsLiveID      = $_.WindowsLiveID
-                        }
-                    }
-                }
-                $convertedValues = @()
-                foreach ($member in $DesiredValues.$key)
-                {
-                    $guid = [System.Guid]::Empty
-                    if ([System.Guid]::TryParse($member, [ref]$guid))
-                    {
-                        $entry = $null
-                        if ($Script:RecipientsCache.TryGetValue($member, [ref]$entry))
-                        {
-                            $convertedValues += $entry.PrimarySmtpAddress
-                        }
-                        else
-                        {
-                            $convertedValues += $member
-                        }
-                    }
-                    else
-                    {
-                        $convertedValues += $member
-                    }
-                }
-                $DesiredValues.$key = $convertedValues
-            }
-        }
-        return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
-    }
+    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -PostProcessing $postProcessingScript
+                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                             @compareParameters
     return $result
 }
 
@@ -1240,4 +1197,58 @@ function Get-DisplayNameSimplified
     return $simplifiedNames | Sort-Object
 }
 
-Export-ModuleMember -Function *-TargetResource
+function Get-CompareParameters
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param()
+
+    return @{
+        PostProcessing = {
+            param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
+            foreach ($key in $Script:displayNameProperties.Keys)
+            {
+                $key = $key.Replace("Include", "").Replace("WithDisplayNames", "")
+                if ($DesiredValues.ContainsKey($key))
+                {
+                    if ($null -eq $Script:RecipientsCache)
+                    {
+                        $Script:RecipientsCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
+                        Get-Recipient -ResultSize Unlimited | Foreach-Object {
+                            $Script:RecipientsCache[$_.Name] = @{
+                                Name               = $_.Name
+                                PrimarySmtpAddress = $_.PrimarySmtpAddress
+                                WindowsLiveID      = $_.WindowsLiveID
+                            }
+                        }
+                    }
+                    $convertedValues = @()
+                    foreach ($member in $DesiredValues.$key)
+                    {
+                        $guid = [System.Guid]::Empty
+                        if ([System.Guid]::TryParse($member, [ref]$guid))
+                        {
+                            $entry = $null
+                            if ($Script:RecipientsCache.TryGetValue($member, [ref]$entry))
+                            {
+                                $convertedValues += $entry.PrimarySmtpAddress
+                            }
+                            else
+                            {
+                                $convertedValues += $member
+                            }
+                        }
+                        else
+                        {
+                            $convertedValues += $member
+                        }
+                    }
+                    $DesiredValues.$key = $convertedValues
+                }
+            }
+            return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
+        }
+    }
+}
+
+Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')

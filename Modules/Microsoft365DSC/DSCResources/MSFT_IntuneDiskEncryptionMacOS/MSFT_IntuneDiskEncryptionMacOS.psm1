@@ -533,29 +533,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $postProcessingScript = {
-        param($DesiredValues, $CurrentValues, $ValuesToCheck, $PostProcessingArgs)
-        $PostProcessingArgs[0] | ForEach-Object {
-            if ($_.Key -notlike '*Variable' -or $_.Key -notin @('Verbose', 'Debug', 'ErrorAction', 'WarningAction', 'InformationAction'))
-            {
-                if ($null -ne $CurrentValues[$_.Key] -or $null -ne $DesiredValues[$_.Key])
-                {
-                    $ValuesToCheck[$_.Key] = $null
-                    if (-not $DesiredValues.ContainsKey($_.Key))
-                    {
-                        $DesiredValues.Add($_.Key, $null)
-                    }
-                }
-            }
-        }
-
-        return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
-    }
-
+    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -PostProcessing $postProcessingScript `
-                                         -PostProcessingArgs $MyInvocation.MyCommand.Parameters.GetEnumerator()
+                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                             @compareParameters
     return $result
 }
 
@@ -703,4 +684,33 @@ function Export-TargetResource
     }
 }
 
-Export-ModuleMember -Function *-TargetResource
+function Get-CompareParameters
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param()
+
+    return @{
+        PostProcessing = {
+            param($DesiredValues, $CurrentValues, $ValuesToCheck, $PostProcessingArgs)
+            $PostProcessingArgs[0] | ForEach-Object {
+                if ($_.Key -notlike '*Variable' -or $_.Key -notin @('Verbose', 'Debug', 'ErrorAction', 'WarningAction', 'InformationAction'))
+                {
+                    if ($null -ne $CurrentValues[$_.Key] -or $null -ne $DesiredValues[$_.Key])
+                    {
+                        $ValuesToCheck[$_.Key] = $null
+                        if (-not $DesiredValues.ContainsKey($_.Key))
+                        {
+                            $DesiredValues.Add($_.Key, $null)
+                        }
+                    }
+                }
+            }
+
+            return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
+        }
+        PostProcessingArgs = $MyInvocation.MyCommand.Parameters.GetEnumerator()
+    }
+}
+
+Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')

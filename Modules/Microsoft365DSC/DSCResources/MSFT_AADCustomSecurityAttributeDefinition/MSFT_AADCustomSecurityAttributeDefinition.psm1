@@ -422,34 +422,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $postProcessingScript = {
-        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
-        # Values cannot be removed from AllowedValues
-        # Therefore, we add the missing values from CurrentValues to DesiredValues for comparison
-        if ($DesiredValues.ContainsKey('AllowedValues'))
-        {
-            foreach ($currentValue in $CurrentValues.AllowedValues)
-            {
-                $matchingValue = $DesiredValues.AllowedValues | Where-Object { $_.ValueId -eq $currentValue.ValueId }
-                if ($null -eq $matchingValue)
-                {
-                    Write-Verbose -Message "Adding missing AllowedValue with ValueId '$($currentValue.ValueId)' from current configuration to desired configuration for comparison."
-                    $DesiredValues.AllowedValues += New-CimInstance -ClassName MSFT_CustomSecurityAttributeAllowedValue -Property @{
-                        IsActive = $currentValue.IsActive
-                        ValueId = $currentValue.ValueId
-                    } -Namespace root/Microsoft/Windows/DesiredStateConfiguration -ClientOnly
-                }
-            }
-
-            $DesiredValues.AllowedValues = [CimInstance[]]$DesiredValues.AllowedValues
-        }
-        return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
-    }
-
+    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -IncludedProperties @('ValueId', 'IsActive') `
-                                         -PostProcessing $postProcessingScript
+                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                             @compareParameters
     return $result
 }
 
@@ -587,4 +563,38 @@ function Export-TargetResource
     }
 }
 
-Export-ModuleMember -Function *-TargetResource
+function Get-CompareParameters
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param()
+
+    return @{
+        IncludedProperties = @('ValueId', 'IsActive')
+        PostProcessing = {
+            param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
+            # Values cannot be removed from AllowedValues
+            # Therefore, we add the missing values from CurrentValues to DesiredValues for comparison
+            if ($DesiredValues.ContainsKey('AllowedValues'))
+            {
+                foreach ($currentValue in $CurrentValues.AllowedValues)
+                {
+                    $matchingValue = $DesiredValues.AllowedValues | Where-Object { $_.ValueId -eq $currentValue.ValueId }
+                    if ($null -eq $matchingValue)
+                    {
+                        Write-Verbose -Message "Adding missing AllowedValue with ValueId '$($currentValue.ValueId)' from current configuration to desired configuration for comparison."
+                        $DesiredValues.AllowedValues += New-CimInstance -ClassName MSFT_CustomSecurityAttributeAllowedValue -Property @{
+                            IsActive = $currentValue.IsActive
+                            ValueId = $currentValue.ValueId
+                        } -Namespace root/Microsoft/Windows/DesiredStateConfiguration -ClientOnly
+                    }
+                }
+
+                $DesiredValues.AllowedValues = [CimInstance[]]$DesiredValues.AllowedValues
+            }
+            return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
+        }
+    }
+}
+
+Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')

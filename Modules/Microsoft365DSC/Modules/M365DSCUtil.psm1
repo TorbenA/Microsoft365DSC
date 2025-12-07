@@ -547,7 +547,11 @@ function Test-M365DSCParameterState
 
         [Parameter(Position = 7)]
         [switch]
-        $NoDriftReset
+        $NoDriftReset,
+
+        [Parameter(Position = 8)]
+        [System.String[]]
+        $ExcludedProperties
     )
 
     $startTime = [System.DateTime]::Now
@@ -643,12 +647,14 @@ function Test-M365DSCParameterState
         }
     }
 
+    $propertiesToExclude = @('Verbose', 'Credential', 'ApplicationId', 'CertificateThumbprint', 'CertificatePath', 'CertificatePassword', 'TenantId', 'ApplicationSecret', 'ManagedIdentity', 'AccessTokens')
+    if ($null -ne $ExcludedProperties)
+    {
+        $propertiesToExclude += $ExcludedProperties
+        $propertiesToExclude = $propertiesToExclude | Select-Object -Unique
+    }
     $KeyList | ForEach-Object -Process {
-        if (($_ -ne 'Verbose') -and ($_ -ne 'Credential') `
-                -and ($_ -ne 'ApplicationId') -and ($_ -ne 'CertificateThumbprint') `
-                -and ($_ -ne 'CertificatePath') -and ($_ -ne 'CertificatePassword') `
-                -and ($_ -ne 'TenantId') -and ($_ -ne 'ApplicationSecret') `
-                -and ($_ -ne 'ManagedIdentity') -and ($_ -ne 'AccessTokens'))
+        if ($_ -notin $propertiesToExclude)
         {
             if (($CurrentValues.ContainsKey($_) -eq $false) `
                     -or ($CurrentValues.$_ -ne $DesiredValues.$_) `
@@ -3294,7 +3300,7 @@ function Assert-M365DSCBlueprint
         }
     }
 
-    if ((Test-Path -Path $LocalBluePrintPath))
+    if (Test-Path -Path $LocalBluePrintPath)
     {
         # Parse the content of the BluePrint into an array of PowerShell Objects
         $fileContent = Get-Content $LocalBluePrintPath -Raw
@@ -5696,6 +5702,166 @@ function Split-M365DSCConfiguration {
     }
 }
 
+<#
+.Description
+    This function retrieves the comparison metadata for a given M365DSC resource.
+    The metadata indicates whether a resource requires custom comparison logic and
+    should expose a Get-CompareParameters function.
+
+.Parameter ResourceName
+    The name of the M365DSC resource (without MSFT_ prefix).
+
+.Example
+    PS> Get-M365DSCResourceComparisonMetadata -ResourceName 'AADRoleAssignmentScheduleRequest'
+
+.Functionality
+    Internal
+#>
+function Get-M365DSCResourceComparisonMetadata
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $ResourceName
+    )
+
+    if ($null -eq $Script:M365DSCComparisonMetadata)
+    {
+        $metadataPath = Join-Path -Path $PSScriptRoot -ChildPath '..\ComparisonMetadata.json'
+        if (Test-Path -Path $metadataPath)
+        {
+            try
+            {
+                $metadataContent = Get-Content -Path $metadataPath -Raw | ConvertFrom-Json
+                $Script:M365DSCComparisonMetadata = @{}
+                foreach ($resource in $metadataContent.Resources.PSObject.Properties)
+                {
+                    $Script:M365DSCComparisonMetadata[$resource.Name] = @{
+                        HasCustomComparison = $resource.Value.HasCustomComparison
+                        Description = $resource.Value.Description
+                    }
+                }
+            }
+            catch
+            {
+                Write-Warning -Message "Failed to load comparison metadata from $metadataPath : $_"
+                $Script:M365DSCComparisonMetadata = @{}
+            }
+        }
+        else
+        {
+            Write-Verbose -Message "Comparison metadata file not found at $metadataPath"
+            $Script:M365DSCComparisonMetadata = @{}
+        }
+    }
+
+    if ($Script:M365DSCComparisonMetadata.ContainsKey($ResourceName))
+    {
+        return $Script:M365DSCComparisonMetadata[$ResourceName]
+    }
+
+    return @{
+        HasCustomComparison = $false
+    }
+}
+
+<#
+.Description
+    This function retrieves the comparison parameters from a resource's Get-CompareParameters function.
+    This is used during drift detection and reporting to ensure that resource-specific comparison logic
+    (such as PostProcessing scripts and ExcludedProperties) is applied consistently.
+
+.Parameter ResourceName
+    The name of the M365DSC resource (without MSFT_ prefix).
+
+.Example
+    PS> Get-M365DSCResourceComparisonParameters -ResourceName 'AADRoleAssignmentScheduleRequest'
+
+.Functionality
+    Internal
+#>
+function Get-M365DSCResourceComparisonParameters
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $ResourceName
+    )
+
+    $compareParameters = @{}
+
+    try
+    {
+        # Check if this resource has custom comparison logic
+        $metadata = Get-M365DSCResourceComparisonMetadata -ResourceName $ResourceName
+
+        if (-not $metadata.HasCustomComparison)
+        {
+            Write-Verbose -Message "Resource $ResourceName does not have custom comparison logic."
+            return $compareParameters
+        }
+
+        # Import the resource module if not already loaded
+        $moduleName = "MSFT_$ResourceName"
+        $module = Get-Module -Name $moduleName
+
+        if ($null -eq $module)
+        {
+            $resourceModulePath = Join-Path -Path $PSScriptRoot -ChildPath "..\DSCResources\$moduleName\$moduleName.psm1"
+            if (Test-Path -Path $resourceModulePath)
+            {
+                Import-Module -Name $resourceModulePath -Force -Global
+                Write-Verbose -Message "Imported module $moduleName from $resourceModulePath"
+            }
+            else
+            {
+                Write-Warning -Message "Resource module not found at $resourceModulePath"
+                return $compareParameters
+            }
+        }
+
+        # Check if the Get-CompareParameters function exists
+        $getCompareParamsCommand = Get-Command -Name "$moduleName\Get-CompareParameters" -ErrorAction SilentlyContinue
+
+        if ($null -eq $getCompareParamsCommand)
+        {
+            Write-Warning -Message "Resource $ResourceName is marked as having custom comparison, but Get-CompareParameters function not found."
+            return $compareParameters
+        }
+
+        # Invoke the Get-CompareParameters function
+        $compareParameters = & "$moduleName\Get-CompareParameters"
+        Write-Verbose -Message "Retrieved comparison parameters for $ResourceName"
+
+        if ($compareParameters.ContainsKey('ExcludedProperties'))
+        {
+            Write-Verbose -Message "  ExcludedProperties: $($compareParameters.ExcludedProperties -join ', ')"
+        }
+
+        if ($compareParameters.ContainsKey('IncludedProperties'))
+        {
+            Write-Verbose -Message "  IncludedProperties: $($compareParameters.IncludedProperties -join ', ')"
+        }
+
+        if ($compareParameters.ContainsKey('PostProcessing'))
+        {
+            Write-Verbose -Message "  PostProcessing: Scriptblock defined"
+        }
+    }
+    catch
+    {
+        Write-Warning -Message "Failed to retrieve comparison parameters for $ResourceName : $_"
+    }
+
+    return $compareParameters
+}
+
 Export-ModuleMember -Function @(
     'Assert-M365DSCBlueprint',
     'Confirm-ImportedCmdletIsAvailable',
@@ -5714,6 +5880,8 @@ Export-ModuleMember -Function @(
     'Get-M365DSCConnectedWorkloadList',
     'Get-M365DSCExportContentForResource',
     'Get-M365DSCOrganization',
+    'Get-M365DSCResourceComparisonMetadata',
+    'Get-M365DSCResourceComparisonParameters',
     'Get-M365DSCResourcesByExportMode',
     'Get-M365DSCStringReplacementMap',
     'Get-M365DSCTelemetryConnectionParameter',

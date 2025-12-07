@@ -1970,6 +1970,11 @@ function New-M365DSCDeltaReport
     $isPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
     if ($isPowerShellCore)
     {
+        $module = Get-Module -Name PSDesiredStateConfiguration | Where-Object { $_.Version -ge [version]'2.0.7' }
+        if ($null -eq $module)
+        {
+            Import-Module -Name "PSDesiredStateConfiguration" -Global -Prefix 'Pwsh' -RequiredVersion 2.0.7
+        }
         $dscResourceInfo = Get-PwshDSCResource -Module 'Microsoft365DSC'
     }
     else
@@ -2027,7 +2032,60 @@ function New-M365DSCDeltaReport
                 }
                 continue
             }
-            $compareResult = Compare-M365DSCResourceState -ResourceName $resource.ResourceName -DesiredValues $destinationResource[0] -CurrentValues $resource -ExcludedProperties $ExcludedProperties
+
+            # Get resource-specific comparison parameters from metadata
+            $resourceCompareParams = @{
+                ResourceName = $resource.ResourceName
+                DesiredValues = $destinationResource[0]
+                CurrentValues = $resource
+                ExcludedProperties = $ExcludedProperties
+            }
+
+            # Check if this resource has custom comparison logic
+            $metadata = Get-M365DSCResourceComparisonMetadata -ResourceName $resource.ResourceName
+            if ($metadata.HasCustomComparison)
+            {
+                Write-Verbose -Message "Resource $($resource.ResourceName) has custom comparison logic. Retrieving parameters..."
+                try
+                {
+                    $customCompareParams = Get-M365DSCResourceComparisonParameters -ResourceName $resource.ResourceName
+
+                    # Merge resource-specific ExcludedProperties with global ones
+                    if ($customCompareParams.ContainsKey('ExcludedProperties') -and $null -ne $customCompareParams.ExcludedProperties)
+                    {
+                        $resourceCompareParams.ExcludedProperties = $ExcludedProperties + $customCompareParams.ExcludedProperties | Select-Object -Unique
+                        Write-Verbose -Message "  Merged ExcludedProperties: $($resourceCompareParams.ExcludedProperties -join ', ')"
+                    }
+
+                    # Add IncludedProperties if specified
+                    if ($customCompareParams.ContainsKey('IncludedProperties') -and $null -ne $customCompareParams.IncludedProperties)
+                    {
+                        $resourceCompareParams.IncludedProperties = $customCompareParams.IncludedProperties
+                        Write-Verbose -Message "  IncludedProperties: $($customCompareParams.IncludedProperties -join ', ')"
+                    }
+
+                    # Add PostProcessing scriptblock if specified
+                    if ($customCompareParams.ContainsKey('PostProcessing') -and $null -ne $customCompareParams.PostProcessing)
+                    {
+                        $resourceCompareParams.PostProcessing = $customCompareParams.PostProcessing
+                        Write-Verbose -Message "  PostProcessing scriptblock applied"
+                    }
+
+                    # Add PostProcessingArgs if specified
+                    if ($customCompareParams.ContainsKey('PostProcessingArgs') -and $null -ne $customCompareParams.PostProcessingArgs)
+                    {
+                        $resourceCompareParams.PostProcessingArgs = $customCompareParams.PostProcessingArgs
+                        Write-Verbose -Message "  PostProcessingArgs applied"
+                    }
+                }
+                catch
+                {
+                    Write-Warning -Message "Failed to retrieve custom comparison parameters for $($resource.ResourceName): $_. Using default comparison."
+                }
+            }
+
+            $compareResult = Compare-M365DSCResourceState @resourceCompareParams
+
             if (-not $compareResult -and $null -ne $Global:AllDrifts.DriftInfo -and $Global:AllDrifts.DriftInfo.Count -gt 0)
             {
                 foreach ($driftInfo in $Global:AllDrifts.DriftInfo)

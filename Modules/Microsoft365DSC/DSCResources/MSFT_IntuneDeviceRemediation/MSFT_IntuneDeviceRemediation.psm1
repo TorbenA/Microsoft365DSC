@@ -677,29 +677,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $postProcessingScript = {
-        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
-        if ($CurrentValues.IsGlobalScript)
-        {
-            Write-Verbose -Message 'Detected a global script, removing read-only properties from the comparison'
-            $ValuesToCheck.Remove('DetectionScriptContent') | Out-Null
-            $ValuesToCheck.Remove('RemediationScriptContent') | Out-Null
-            $ValuesToCheck.Remove('DetectionScriptParameters') | Out-Null
-            $ValuesToCheck.Remove('RemediationScriptParameters') | Out-Null
-            $ValuesToCheck.Remove('DeviceHealthScriptType') | Out-Null
-            $ValuesToCheck.Remove('Publisher') | Out-Null
-            $ValuesToCheck.Remove('EnforceSignatureCheck') | Out-Null
-            $ValuesToCheck.Remove('DisplayName') | Out-Null
-            $ValuesToCheck.Remove('Description') | Out-Null
-        }
-
-        return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
-    }
-
+    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludedProperties @('IsGlobalScript') `
-                                         -PostProcessing $postProcessingScript
+                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                             @compareParameters
     return $result
 }
 
@@ -889,4 +870,33 @@ function Export-TargetResource
     }
 }
 
-Export-ModuleMember -Function *-TargetResource
+function Get-CompareParameters
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param()
+
+    return @{
+        ExcludedProperties = @('IsGlobalScript')
+        PostProcessing = {
+            param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
+            if ($CurrentValues.IsGlobalScript)
+            {
+                Write-Verbose -Message 'Detected a global script, removing read-only properties from the comparison'
+                $ValuesToCheck.Remove('DetectionScriptContent') | Out-Null
+                $ValuesToCheck.Remove('RemediationScriptContent') | Out-Null
+                $ValuesToCheck.Remove('DetectionScriptParameters') | Out-Null
+                $ValuesToCheck.Remove('RemediationScriptParameters') | Out-Null
+                $ValuesToCheck.Remove('DeviceHealthScriptType') | Out-Null
+                $ValuesToCheck.Remove('Publisher') | Out-Null
+                $ValuesToCheck.Remove('EnforceSignatureCheck') | Out-Null
+                $ValuesToCheck.Remove('DisplayName') | Out-Null
+                $ValuesToCheck.Remove('Description') | Out-Null
+            }
+
+            return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
+        }
+    }
+}
+
+Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')

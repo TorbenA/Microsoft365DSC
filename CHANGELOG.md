@@ -4,6 +4,9 @@
 
 * EXOPlace
   * Fixes an issue with the export where it was trying to export RoomList.
+* MISC
+  * Generalized custom comparison handling.
+    FIXES [#6756](https://github.com/microsoft/Microsoft365DSC/issues/6756)
 
 # 1.25.1203.2
 

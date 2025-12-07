@@ -826,7 +826,7 @@ function Set-TargetResource
             else
             {
                 Write-Verbose -Message "Retrieving Scope by Display Name {$($scope.value)}"
-                
+
                 $existingScope = $currentAADApp.Api.Oauth2PermissionScopes | Where-Object -FilterScript {$_.Value -eq $scope.value}
                 $existingScopeId = (New-Guid).ToString()
                 if ($null -ne $existingScope)
@@ -1560,9 +1560,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
+    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludedProperties @('AppId', 'ObjectId')
+                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                             @compareParameters
     return $result
 }
 
@@ -2045,4 +2046,15 @@ function Get-M365DSCAzureADAppPermissions
     return $permissions
 }
 
-Export-ModuleMember -Function *-TargetResource
+function Get-CompareParameters
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param()
+
+    return @{
+        ExcludedProperties = @('AppId', 'ObjectId')
+    }
+}
+
+Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')

@@ -228,7 +228,8 @@ function Compare-M365DSCResourceState
             -DesiredValues $DesiredValues `
             -ValuesToCheck $ValuesToCheck.Keys `
             -NoEventMessage `
-            -NoDriftReset
+            -NoDriftReset `
+            -ExcludedProperties $ExcludedProperties
     }
 
     if ($testResult -and -not $testResult2)
