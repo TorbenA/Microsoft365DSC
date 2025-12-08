@@ -1,6 +1,14 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCUtil
+  * Added logic to clean up temporary files assertion.
+* M365DSCReverse
+  * Added logic to clean up temporary files after export.
+
 # 1.25.1203.2
+
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.56.
 

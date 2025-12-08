@@ -1040,6 +1040,17 @@ function Start-M365DSCConfigurationExtract
                 Write-Verbose -Message $_
             }
         }
+
+        # Remove Temp Partial Export File
+        if (-not [System.String]::IsNullOrEmpty($env:Temp))
+        {
+            $partialPath = Join-Path $env:TEMP -ChildPath "$($Global:PartialExportFileName)"
+            if (Test-Path $partialPath)
+            {
+                Remove-Item -Path $partialPath -Force
+            }
+        }
+
         Pop-Location
     }
     catch

@@ -3370,6 +3370,10 @@ function Assert-M365DSCBlueprint
             -Type $Type `
             -ExcludedProperties $ExcludedProperties `
             -ExcludedResources $ExcludedResources
+
+        # Clean up the temporary files
+        Remove-Item $LocalBluePrintPath -Force -ErrorAction SilentlyContinue
+        Remove-Item $ExportPath -Force -ErrorAction SilentlyContinue
     }
     else
     {
