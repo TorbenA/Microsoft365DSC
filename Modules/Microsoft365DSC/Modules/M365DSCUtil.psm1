@@ -5826,6 +5826,16 @@ function Get-M365DSCResourceComparisonParameters
             }
         }
 
+        if ($null -eq $Script:CompareParametersCache)
+        {
+            $Script:CompareParametersCache = @{}
+        }
+
+        if ($Script:CompareParametersCache.ContainsKey($ResourceName))
+        {
+            return $Script:CompareParametersCache[$ResourceName]
+        }
+
         # Check if the Get-CompareParameters function exists
         $getCompareParamsCommand = Get-Command -Name "$moduleName\Get-CompareParameters" -ErrorAction SilentlyContinue
 
@@ -5837,22 +5847,9 @@ function Get-M365DSCResourceComparisonParameters
 
         # Invoke the Get-CompareParameters function
         $compareParameters = & "$moduleName\Get-CompareParameters"
-        Write-Verbose -Message "Retrieved comparison parameters for $ResourceName"
 
-        if ($compareParameters.ContainsKey('ExcludedProperties'))
-        {
-            Write-Verbose -Message "  ExcludedProperties: $($compareParameters.ExcludedProperties -join ', ')"
-        }
-
-        if ($compareParameters.ContainsKey('IncludedProperties'))
-        {
-            Write-Verbose -Message "  IncludedProperties: $($compareParameters.IncludedProperties -join ', ')"
-        }
-
-        if ($compareParameters.ContainsKey('PostProcessing'))
-        {
-            Write-Verbose -Message "  PostProcessing: Scriptblock defined"
-        }
+        # Cache the retrieved parameters
+        $Script:CompareParametersCache[$ResourceName] = $compareParameters
     }
     catch
     {
