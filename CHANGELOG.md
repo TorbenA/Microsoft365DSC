@@ -1,6 +1,14 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCUtil
+  * Fixed an issue where multiple installed Microsoft365DSC versions
+    will lead to an error during export.
+    FIXES [#6758](https://github.com/microsoft/Microsoft365DSC/issues/6758)
+
 # 1.25.1203.2
+
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.56.
 
