@@ -62,7 +62,6 @@ function Get-TargetResource
             Add-M365DSCTelemetryEvent -Data $data
             #endregion
 
-            $nullResult = $PSBoundParameters
             $instance = Get-MgBetaNetworkAccessForwardingPolicy -Expand * -ErrorAction SilentlyContinue | Where-Object { $_.Name -eq $Name }
         }
         else
@@ -75,10 +74,10 @@ function Get-TargetResource
             throw "Could not retrieve the Forwarding Policy with name: $Name"
         }
 
-        $complexPolicyRules = Get-MicrosoftGraphNetworkAccessForwardingPolicyRules -PolicyRules $instance.PolicyRules
+        $complexPolicyRules = @(Get-MicrosoftGraphNetworkAccessForwardingPolicyRules -PolicyRules $instance.PolicyRules)
 
         $results = @{
-            Name                  = $instance.name
+            Name                  = $instance.Name
             PolicyRules           = $complexPolicyRules
             Credential            = $Credential
             ApplicationId         = $ApplicationId
@@ -438,9 +437,11 @@ function Export-TargetResource
 function Get-MicrosoftGraphNetworkAccessForwardingPolicyRules
 {
     [CmdletBinding()]
-    [OutputType([System.Collections.ArrayList])]
-    param(
+    [OutputType([System.Collections.Hashtable[]])]
+    param
+    (
         [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
         [System.Collections.ArrayList]
         $PolicyRules
     )

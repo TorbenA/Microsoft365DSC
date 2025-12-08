@@ -99,7 +99,6 @@ function Get-TargetResource
                 AccessTokens                  = $AccessTokens
             }
 
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
             return $result
         }
     }

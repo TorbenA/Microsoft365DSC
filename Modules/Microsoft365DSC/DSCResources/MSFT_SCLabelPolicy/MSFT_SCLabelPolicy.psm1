@@ -169,7 +169,6 @@ function Get-TargetResource
         }
         else
         {
-            Write-Verbose -Message "Retrieved policy from cache"
             $policy = $Script:exportedInstance
         }
 
@@ -227,7 +226,6 @@ function Get-TargetResource
             AccessTokens                 = $AccessTokens
         }
 
-        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
         return $result
     }
     catch

@@ -140,7 +140,6 @@ function Get-TargetResource
         }
 
         Write-Verbose -Message "Found Data classification policy $($Identity)"
-        Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
         return $result
     }
     catch

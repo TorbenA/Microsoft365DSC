@@ -129,7 +129,6 @@ function Get-TargetResource
             Write-Verbose "Found existing Security Filter $($FilterName)"
             $result = Get-M365DSCSCMapSecurityFilter -Filter $secFilter -Credential $Credential -ApplicationId $ApplicationId -TenantId $TenantId -CertificateThumbprint $CertificateThumbprint -CertificatePath $CertificatePath -CertificatePassword $CertificatePassword
 
-            Write-Verbose -Message "Get-TargetResource Result: `n $(Convert-M365DscHashtableToString -Hashtable $result)"
             return $result
         }
     }
