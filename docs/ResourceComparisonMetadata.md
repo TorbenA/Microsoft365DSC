@@ -199,30 +199,3 @@ $postProcessingScript = {
 ## Resources Currently Using Custom Comparison
 
 See `ComparisonMetadata.json` for the complete list.
-
-## Testing
-
-To verify the implementation works correctly:
-
-1. **Unit Test:** Call `Get-CompareParameters` directly:
-```powershell
-Import-Module MSFT_AADRoleAssignmentScheduleRequest
-$params = Get-CompareParameters
-$params.ExcludedProperties  # Should return array
-$params.PostProcessing      # Should return ScriptBlock
-```
-
-2. **Integration Test:** Run `Assert-M365DSCBlueprint`:
-```powershell
-Assert-M365DSCBlueprint -BluePrintUrl 'path\to\blueprint.m365' `
-    -OutputReportPath 'path\to\report.html' `
-    -Credentials $cred `
-    -Verbose
-```
-
-## Future Enhancements
-
-1. **Auto-discovery:** Generate `ComparisonMetadata.json` by scanning all resources for `Get-CompareParameters`
-2. **Validation:** Add schema validation for the metadata file
-3. **Documentation Generation:** Auto-generate documentation from metadata
-4. **Performance Caching:** Cache loaded comparison parameters for repeated comparisons
