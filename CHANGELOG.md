@@ -7,6 +7,7 @@
 * MISC
   * Generalized custom comparison handling.
     FIXES [#6756](https://github.com/microsoft/Microsoft365DSC/issues/6756)
+    FIXES [#6584](https://github.com/microsoft/Microsoft365DSC/issues/6584)
 
 # 1.25.1203.2
 
