@@ -1,6 +1,21 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADAuthenticationMethodPolicy
+  * Fixed an issue where empty arrays were not exported.
+    FIXES [#6759](https://github.com/microsoft/Microsoft365DSC/issues/6759)
+* M365DSCDRGUtil
+  * Added missing `UseBasicParsing` because of Windows PowerShell hardening.
+  * Fixed an issue in `Get-M365DSCDRGComplexTypeToHashtable` not working with arrays.
+    FIXES [#6759](https://github.com/microsoft/Microsoft365DSC/issues/6759)
+* M365DSCUtil
+  * Added missing `UseBasicParsing` because of Windows PowerShell hardening.
+  * Fixed an issue where the export would fail if the name of a resource was not
+    the same case as the name in Microsoft365DSC.
+
 # 1.25.1203.2
+
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.56.
 
