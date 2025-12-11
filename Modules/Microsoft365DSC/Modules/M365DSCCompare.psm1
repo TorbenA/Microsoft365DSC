@@ -123,6 +123,7 @@ function Compare-M365DSCResourceState
             DesiredValue = 'Present'
         }
         $testTargetResource = $false
+        $ExcludedProperties += 'Ensure'
     }
     elseif ($DesiredValues.Ensure -eq 'Absent' -and $CurrentValues.Ensure -eq 'Present')
     {
@@ -133,6 +134,7 @@ function Compare-M365DSCResourceState
             DesiredValue = 'Absent'
         }
         $testTargetResource = $false
+        $ExcludedProperties += 'Ensure'
     }
     elseif ($DesiredValues.Ensure -eq 'Absent' -and $CurrentValues.Ensure -eq 'Absent')
     {
