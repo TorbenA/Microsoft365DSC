@@ -1,5 +1,9 @@
 # Change log for Microsoft365DSC
 
+# Unreleased
+ * SPOSite
+   * FIXES [#6734](https://github.com/microsoft/Microsoft365DSC/issues/6734)
+     
 # 1.25.1203.2
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.56.
