@@ -1,6 +1,12 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* EXOPlace
+  * Fixes and issue with the export where it was trying to export RoomList.
+
 # 1.25.1203.2
+
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.56.
 
