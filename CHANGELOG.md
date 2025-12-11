@@ -3,7 +3,7 @@
 # UNRELEASED
 
 * EXOPlace
-  * Fixes and issue with the export where it was trying to export RoomList.
+  * Fixes an issue with the export where it was trying to export RoomList.
 
 # 1.25.1203.2
 
