@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+* EXOActiveSyncMailboxPolicy
+  * Changed cmdlets from `*-ActiveSyncMailboxPolicy` to `*-MobileDeviceMailboxPolicy`.
+  * [BREAKING CHANGE] Updated property names to match newly returned values and parameters.
+    Added new properties `AllowGooglePushNotifications` and `AllowMicrosoftPushNotifications`.
+
 # 1.26.311.1
 
 * AADAccessReviewDefinition
