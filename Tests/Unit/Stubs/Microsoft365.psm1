@@ -33078,6 +33078,537 @@ function Update-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
         $Confirm
     )
 }
+function Get-MgBetaDeviceManagementIntuneBrandingProfile
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter()]
+        [System.String]
+        $IntuneBrandingProfileId,
+
+        [Parameter()]
+        [PSObject]
+        $InputObject,
+
+        [Parameter()]
+        [System.String[]]
+        $ExpandProperty,
+
+        [Parameter()]
+        [System.String[]]
+        $Property,
+
+        [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
+        [System.String]
+        $Search,
+
+        [Parameter()]
+        [System.Int32]
+        $Skip,
+
+        [Parameter()]
+        [System.String[]]
+        $Sort,
+
+        [Parameter()]
+        [System.Int32]
+        $Top,
+
+        [Parameter()]
+        [System.String]
+        $ResponseHeadersVariable,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Break,
+
+        [Parameter()]
+        [System.Collections.IDictionary]
+        $Headers,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelineAppend,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelinePrepend,
+
+        [Parameter()]
+        [System.Uri]
+        $Proxy,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ProxyCredential,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ProxyUseDefaultCredentials,
+
+        [Parameter()]
+        [System.Int32]
+        $PageSize,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $All,
+
+        [Parameter()]
+        [System.String]
+        $CountVariable
+    )
+}
+
+function New-MgBetaDeviceManagementIntuneBrandingProfile
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter()]
+        [PSObject]
+        $BodyParameter,
+
+        [Parameter()]
+        [System.String]
+        $ResponseHeadersVariable,
+
+        [Parameter()]
+        [System.Collections.Hashtable]
+        $AdditionalProperties,
+
+        [Parameter()]
+        [PSObject[]]
+        $Assignments,
+
+        [Parameter()]
+        [PSObject[]]
+        $CompanyPortalBlockedActions,
+
+        [Parameter()]
+        [System.String]
+        $ContactItEmailAddress,
+
+        [Parameter()]
+        [System.String]
+        $ContactItName,
+
+        [Parameter()]
+        [System.String]
+        $ContactItNotes,
+
+        [Parameter()]
+        [System.String]
+        $ContactItPhoneNumber,
+
+        [Parameter()]
+        [System.DateTime]
+        $CreatedDateTime,
+
+        [Parameter()]
+        [System.String]
+        $CustomCanSeePrivacyMessage,
+
+        [Parameter()]
+        [System.String]
+        $CustomCantSeePrivacyMessage,
+
+        [Parameter()]
+        [System.String]
+        $CustomPrivacyMessage,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $DisableClientTelemetry,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $DisableDeviceCategorySelection,
+
+        [Parameter()]
+        [System.String]
+        $DisplayName,
+
+        [Parameter()]
+        [PSObject]
+        $EnrollmentAvailability,
+
+        [Parameter()]
+        [System.String]
+        $Id,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $IsDefaultProfile,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $IsFactoryResetDisabled,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $IsRemoveDeviceDisabled,
+
+        [Parameter()]
+        [PSObject]
+        $LandingPageCustomizedImage,
+
+        [Parameter()]
+        [System.DateTime]
+        $LastModifiedDateTime,
+
+        [Parameter()]
+        [PSObject]
+        $LightBackgroundLogo,
+
+        [Parameter()]
+        [System.String]
+        $OnlineSupportSiteName,
+
+        [Parameter()]
+        [System.String]
+        $OnlineSupportSiteUrl,
+
+        [Parameter()]
+        [System.String]
+        $PrivacyUrl,
+
+        [Parameter()]
+        [System.String]
+        $ProfileDescription,
+
+        [Parameter()]
+        [System.String]
+        $ProfileName,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $SendDeviceOwnershipChangePushNotification,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ShowAzureAdEnterpriseApps,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ShowConfigurationManagerApps,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ShowDisplayNameNextToLogo,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ShowLogo,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ShowOfficeWebApps,
+
+        [Parameter()]
+        [PSObject]
+        $ThemeColor,
+
+        [Parameter()]
+        [PSObject]
+        $ThemeColorLogo,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Break,
+
+        [Parameter()]
+        [System.Collections.IDictionary]
+        $Headers,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelineAppend,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelinePrepend,
+
+        [Parameter()]
+        [System.Uri]
+        $Proxy,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ProxyCredential,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ProxyUseDefaultCredentials,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm
+    )
+}
+
+function Remove-MgBetaDeviceManagementIntuneBrandingProfile
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter()]
+        [System.String]
+        $IntuneBrandingProfileId,
+
+        [Parameter()]
+        [PSObject]
+        $InputObject,
+
+        [Parameter()]
+        [System.String]
+        $ResponseHeadersVariable,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Break,
+
+        [Parameter()]
+        [System.Collections.IDictionary]
+        $Headers,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelineAppend,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelinePrepend,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $PassThru,
+
+        [Parameter()]
+        [System.Uri]
+        $Proxy,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ProxyCredential,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ProxyUseDefaultCredentials,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm
+    )
+}
+
+function Update-MgBetaDeviceManagementIntuneBrandingProfile
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter()]
+        [System.String]
+        $IntuneBrandingProfileId,
+
+        [Parameter()]
+        [PSObject]
+        $InputObject,
+
+        [Parameter()]
+        [PSObject]
+        $BodyParameter,
+
+        [Parameter()]
+        [System.String]
+        $ResponseHeadersVariable,
+
+        [Parameter()]
+        [System.Collections.Hashtable]
+        $AdditionalProperties,
+
+        [Parameter()]
+        [PSObject[]]
+        $Assignments,
+
+        [Parameter()]
+        [PSObject[]]
+        $CompanyPortalBlockedActions,
+
+        [Parameter()]
+        [System.String]
+        $ContactItEmailAddress,
+
+        [Parameter()]
+        [System.String]
+        $ContactItName,
+
+        [Parameter()]
+        [System.String]
+        $ContactItNotes,
+
+        [Parameter()]
+        [System.String]
+        $ContactItPhoneNumber,
+
+        [Parameter()]
+        [System.DateTime]
+        $CreatedDateTime,
+
+        [Parameter()]
+        [System.String]
+        $CustomCanSeePrivacyMessage,
+
+        [Parameter()]
+        [System.String]
+        $CustomCantSeePrivacyMessage,
+
+        [Parameter()]
+        [System.String]
+        $CustomPrivacyMessage,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $DisableClientTelemetry,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $DisableDeviceCategorySelection,
+
+        [Parameter()]
+        [System.String]
+        $DisplayName,
+
+        [Parameter()]
+        [PSObject]
+        $EnrollmentAvailability,
+
+        [Parameter()]
+        [System.String]
+        $Id,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $IsDefaultProfile,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $IsFactoryResetDisabled,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $IsRemoveDeviceDisabled,
+
+        [Parameter()]
+        [PSObject]
+        $LandingPageCustomizedImage,
+
+        [Parameter()]
+        [System.DateTime]
+        $LastModifiedDateTime,
+
+        [Parameter()]
+        [PSObject]
+        $LightBackgroundLogo,
+
+        [Parameter()]
+        [System.String]
+        $OnlineSupportSiteName,
+
+        [Parameter()]
+        [System.String]
+        $OnlineSupportSiteUrl,
+
+        [Parameter()]
+        [System.String]
+        $PrivacyUrl,
+
+        [Parameter()]
+        [System.String]
+        $ProfileDescription,
+
+        [Parameter()]
+        [System.String]
+        $ProfileName,
+
+        [Parameter()]
+        [System.String[]]
+        $RoleScopeTagIds,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $SendDeviceOwnershipChangePushNotification,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ShowAzureAdEnterpriseApps,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ShowConfigurationManagerApps,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ShowDisplayNameNextToLogo,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ShowLogo,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ShowOfficeWebApps,
+
+        [Parameter()]
+        [PSObject]
+        $ThemeColor,
+
+        [Parameter()]
+        [PSObject]
+        $ThemeColorLogo,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Break,
+
+        [Parameter()]
+        [System.Collections.IDictionary]
+        $Headers,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelineAppend,
+
+        [Parameter()]
+        [PSObject[]]
+        $HttpPipelinePrepend,
+
+        [Parameter()]
+        [System.Uri]
+        $Proxy,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ProxyCredential,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ProxyUseDefaultCredentials,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm
+    )
+}
 #endregion
 
 #region Microsoft.Graph.Beta.DeviceManagement.Enrollment

@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* IntuneCustomizationBrandingProfile
+  * Initial release.
+    FIXES [#4155](https://github.com/microsoft/Microsoft365DSC/issues/4155)
 * M365DSCPermissions
   * Fixed an issue where Purview permissions were not in the correct format.
     FIXES [#6822](https://github.com/microsoft/Microsoft365DSC/issues/6822)
