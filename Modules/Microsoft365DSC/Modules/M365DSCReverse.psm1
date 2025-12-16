@@ -930,9 +930,7 @@ function Start-M365DSCConfigurationExtract
         }
 
         #region Copy Downloaded files back into output folder
-        if (($null -ne $Components -and
-                $Components.Contains('SPOApp')) -or
-            $AllComponents -or ($null -ne $Workloads -and $Workloads.Contains('SPO')))
+        if (($null -ne $Components -and $Components.Contains('SPOApp') -and -not $ComponentsToSkip.Contains('SPOApp')) -or $AllComponents)
         {
             if ($AuthMethods -Contains 'Credentials')
             {

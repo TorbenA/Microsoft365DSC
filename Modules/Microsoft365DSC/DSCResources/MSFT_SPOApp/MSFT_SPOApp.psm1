@@ -396,7 +396,7 @@ function Export-TargetResource
             }
             else
             {
-                Write-M365DSCHost -Message "`r`n" -CommitWrite
+                Write-M365DSCHost -Message "`r`n" -DeferWrite
             }
             foreach ($file in $filesToDownload)
             {

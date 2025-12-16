@@ -440,8 +440,10 @@ function Get-MicrosoftGraphNetworkAccessForwardingPolicyRules
 {
     [CmdletBinding()]
     [OutputType([System.Collections.ArrayList])]
-    param(
+    param
+    (
         [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
         [System.Collections.ArrayList]
         $PolicyRules
     )

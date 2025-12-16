@@ -839,14 +839,14 @@ function Export-TargetResource {
             }
             Write-M365DSCHost -Message  "    |---[$j/$($Script:exportedGroups.Count)] $($group.DisplayName)" -DeferWrite
         }
-        else {
+        else
+        {
             Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
 
         $dscContent = ''
         $batchRequests = @()
 
-        Write-M365DSCHost -Message "`r`n" -DeferWrite
         foreach ($group in $Script:exportedGroups)
         {
             $batchRequests += @{
@@ -858,7 +858,6 @@ function Export-TargetResource {
 
         Write-Verbose "Invoking Batch request"
         $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
-        $batchResponses | % {Write-Verbose "Batch ID: $($_.id)"}
 
         foreach ($group in $Script:exportedGroups)
         {

@@ -5,14 +5,22 @@
 * AADAuthenticationMethodPolicy
   * Fixed an issue where empty arrays were not exported.
     FIXES [#6759](https://github.com/microsoft/Microsoft365DSC/issues/6759)
+* AADNetworkAccessForwardingPolicy
+  * Fixed an issue where empty `PolicyRules` would throw an exception during Get and Export.
+* SCSecurityFilter
+  * Added a note that the resource does not support certificate based authentication.
 * M365DSCDRGUtil
   * Added missing `UseBasicParsing` because of Windows PowerShell hardening.
   * Fixed an issue in `Get-M365DSCDRGComplexTypeToHashtable` not working with arrays.
     FIXES [#6759](https://github.com/microsoft/Microsoft365DSC/issues/6759)
+* M365DSCReverse
+  * Fixed an issue when attempting to copy non-downloaded `SPOApp` files.
 * M365DSCUtil
   * Added missing `UseBasicParsing` because of Windows PowerShell hardening.
   * Fixed an issue where the export would fail if the name of a resource was not
     the same case as the name in Microsoft365DSC.
+* MISC
+  * Fixed a couple of misaligned export messages on the console.
 
 # 1.25.1203.2
 
