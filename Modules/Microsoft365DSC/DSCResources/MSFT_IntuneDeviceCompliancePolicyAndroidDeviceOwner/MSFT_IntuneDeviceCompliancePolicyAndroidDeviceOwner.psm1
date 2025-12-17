@@ -215,7 +215,7 @@ function Get-TargetResource
         Write-Verbose -Message "Found Intune Android Device Owner Device Compliance Policy with displayName {$DisplayName}"
 
         #scheduledActionsForRule needs processing before we can interact with it
-        $psCustomObject = $devicePolicy.ScheduledActionsForRule | convertTo-JSON | ConvertFrom-JSON
+        $psCustomObject = $devicePolicy.ScheduledActionsForRule | ConvertTo-Json -Depth 10 | ConvertFrom-JSON
         $scheduledActionsForRuleHashTable = @{}
         $psCustomObject.PsObject.Properties | ForEach-Object {
             $scheduledActionsForRuleHashTable[$_.Name] = $_.Value

@@ -7,7 +7,11 @@
     FIXES [#6759](https://github.com/microsoft/Microsoft365DSC/issues/6759)
 * AADNetworkAccessForwardingPolicy
   * Fixed an issue where empty `PolicyRules` would throw an exception during Get and Export.
+* IntuneEpmElevationRulesPolicyWindows10
+  * Added a throw condition if the reusable certiticate policy setting is not found.
 * SCSecurityFilter
+  * Added a note that the resource does not support certificate based authentication.
+* TeamsOrgWideAppSettings
   * Added a note that the resource does not support certificate based authentication.
 * M365DSCDRGUtil
   * Added missing `UseBasicParsing` because of Windows PowerShell hardening.

@@ -332,7 +332,7 @@ function Export-TargetResource
         $dscContent = ''
         if ($policyPartners.Length -eq 0)
         {
-            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
         else
         {
