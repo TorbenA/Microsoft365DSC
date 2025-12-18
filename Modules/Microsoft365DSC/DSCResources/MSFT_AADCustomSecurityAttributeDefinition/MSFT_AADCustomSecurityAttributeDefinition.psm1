@@ -582,15 +582,31 @@ function Get-CompareParameters
                     $matchingValue = $DesiredValues.AllowedValues | Where-Object { $_.ValueId -eq $currentValue.ValueId }
                     if ($null -eq $matchingValue)
                     {
-                        Write-Verbose -Message "Adding missing AllowedValue with ValueId '$($currentValue.ValueId)' from current configuration to desired configuration for comparison."
-                        $DesiredValues.AllowedValues += New-CimInstance -ClassName MSFT_CustomSecurityAttributeAllowedValue -Property @{
-                            IsActive = $currentValue.IsActive
-                            ValueId = $currentValue.ValueId
-                        } -Namespace root/Microsoft/Windows/DesiredStateConfiguration -ClientOnly
+                        # AllowedValues is either an array of CIM instances or an array of hashtables
+                        # CIM instances is when using Test-DscConfiguration (compiled configuration) and hashtables when creating a report, using values from ConvertTo-DscObject
+                        if ($DesiredValues.AllowedValues -is [CimInstance[]])
+                        {
+                            $DesiredValues.AllowedValues += New-CimInstance -ClassName MSFT_CustomSecurityAttributeAllowedValue -Property @{
+                                IsActive = $currentValue.IsActive
+                                ValueId = $currentValue.ValueId
+                            } -Namespace root/Microsoft/Windows/DesiredStateConfiguration -ClientOnly
+                        }
+                        else
+                        {
+                            $DesiredValues.AllowedValues = @($DesiredValues.AllowedValues)
+                            $DesiredValues.AllowedValues += @{
+                                CIMInstance = 'MSFT_CustomSecurityAttributeAllowedValue'
+                                IsActive = $currentValue.IsActive
+                                ValueId = $currentValue.ValueId
+                            }
+                        }
                     }
                 }
 
-                $DesiredValues.AllowedValues = [CimInstance[]]$DesiredValues.AllowedValues
+                if ($DesiredValues.AllowedValues -is [CimInstance[]])
+                {
+                    $DesiredValues.AllowedValues = [CimInstance[]]$DesiredValues.AllowedValues
+                }
             }
             return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
         }
