@@ -263,18 +263,18 @@ function Get-TargetResource
                 $time = $null
             }
 
-            $assignmentResult += @{
+            $assignmentResult += [ordered]@{
+                Assignment           = (ConvertFrom-IntunePolicyAssignment `
+                        -IncludeDeviceFilter:$true `
+                        -Assignments $assignment) | Select-Object -First 1
                 RunRemediationScript = $assignment.runRemediationScript
-                RunSchedule          = @{
+                RunSchedule          = [ordered]@{
                     DataType = $assignment.RunSchedule.AdditionalProperties.'@odata.type'
                     Date     = $assignment.RunSchedule.AdditionalProperties.date
                     Interval = $assignment.RunSchedule.Interval
                     Time     = $time
                     UseUtc   = $assignment.RunSchedule.AdditionalProperties.useUtc
                 }
-                Assignment           = (ConvertFrom-IntunePolicyAssignment `
-                        -IncludeDeviceFilter:$true `
-                        -Assignments $assignment) | Select-Object -First 1
             }
         }
         $results.Add('Assignments', $assignmentResult)

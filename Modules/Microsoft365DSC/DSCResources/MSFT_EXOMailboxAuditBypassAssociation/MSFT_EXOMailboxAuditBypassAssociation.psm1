@@ -265,7 +265,7 @@ function Export-TargetResource
 
     try
     {
-        [array]$associations = Get-MailboxAuditBypassAssociation -ErrorAction Stop
+        [array]$associations = Get-MailboxAuditBypassAssociation -ErrorAction Stop | Sort-Object -Property Identity
 
         $i = 1
         $dscContent = ''

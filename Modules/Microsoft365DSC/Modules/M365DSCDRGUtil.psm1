@@ -329,7 +329,7 @@ function Get-M365DSCDRGComplexTypeToString
     $indent = '    ' * $IndentLevel
     $keyNotNull = 0
 
-    $keys = $ComplexObject.Keys
+    $keys = $ComplexObject.Keys | Sort-Object
     if ($ComplexObject.Keys.Count -eq 0)
     {
         $properties = $ComplexObject | Get-Member -MemberType Properties

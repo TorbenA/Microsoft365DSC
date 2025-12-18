@@ -90,7 +90,7 @@ function Get-TargetResource
 
         foreach ($passwordCred in $instance.ApplicationRestrictions.PasswordCredentials)
         {
-            $newItem = @{
+            $newItem = [ordered]@{
                 restrictForAppsCreatedAfterDateTime = $passwordCred.RestrictForAppsCreatedAfterDateTime.ToString()
                 restrictionType                     = $passwordCred.RestrictionType
                 state                               = $passwordCred.State
@@ -105,7 +105,7 @@ function Get-TargetResource
 
         foreach ($keyCred in $instance.ApplicationRestrictions.KeyCredentials)
         {
-            $newItem = @{
+            $newItem = [ordered]@{
                 restrictForAppsCreatedAfterDateTime = $keyCred.RestrictForAppsCreatedAfterDateTime.ToString()
                 restrictionType                     = $keyCred.RestrictionType
                 state                               = $keyCred.State
@@ -120,14 +120,14 @@ function Get-TargetResource
         #endregion
 
         #region ServicePrincipalRestrictions
-        $spnRestrictionsValue = @{
+        $spnRestrictionsValue = [ordered]@{
             passwordCredentials     = @()
             keyCredentials          = @()
         }
 
         foreach ($passwordCred in $instance.ServicePrincipalRestrictions.PasswordCredentials)
         {
-            $newItem = @{
+            $newItem = [ordered]@{
                 restrictForAppsCreatedAfterDateTime = $passwordCred.RestrictForAppsCreatedAfterDateTime.ToString()
                 restrictionType                     = $passwordCred.RestrictionType
                 state                               = $passwordCred.State
@@ -142,7 +142,7 @@ function Get-TargetResource
 
         foreach ($keyCred in $instance.ServicePrincipalRestrictions.KeyCredentials)
         {
-            $newItem = @{
+            $newItem = [ordered]@{
                 restrictForAppsCreatedAfterDateTime = $keyCred.RestrictForAppsCreatedAfterDateTime.ToString()
                 restrictionType                     = $keyCred.RestrictionType
                 state                               = $keyCred.State

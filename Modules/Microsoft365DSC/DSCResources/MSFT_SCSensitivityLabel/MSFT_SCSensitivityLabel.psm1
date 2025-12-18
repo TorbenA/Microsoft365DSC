@@ -559,7 +559,7 @@ function Get-TargetResource
         {
             $currConditions = $label.Conditions | ConvertFrom-Json
 
-            $getConditions = @{
+            $getConditions = [ordered]@{
                 Groups   = @()
                 Operator = ''
             }
@@ -571,7 +571,7 @@ function Get-TargetResource
             $policyTip = ''
             [array]$groups = foreach ($group in $currConditions.$($operator))
             {
-                $grpObject = @{
+                $grpObject = [ordered]@{
                     Name     = ''
                     Operator = ''
                 }
@@ -597,7 +597,7 @@ function Get-TargetResource
                         $autoApplyType = ($item.Settings | Where-Object { $_.Key -eq 'autoapplytype' }).Value
                     }
 
-                    $settingsObject = @{
+                    $settingsObject = [ordered]@{
                         name            = ($item.Settings | Where-Object { $_.Key -eq 'name' }).Value
                         confidencelevel = ($item.Settings | Where-Object { $_.Key -eq 'confidencelevel' }).Value
                         mincount        = ($item.Settings | Where-Object { $_.Key -eq 'mincount' }).Value
@@ -620,7 +620,7 @@ function Get-TargetResource
                         $grpName = ($item.Settings | Where-Object { $_.Key -eq 'groupname' }).Value
                     }
 
-                    @{
+                    [ordered]@{
                         name = ($item.Settings | Where-Object { $_.Key -eq 'name' }).Value
                         id   = $item.Value
                     }
@@ -1738,12 +1738,12 @@ function Convert-JSONToLocaleSettings
     $settings = @()
     foreach ($localeSetting in $localeSettings)
     {
-        $result = @{
+        $result = [ordered]@{
             localeKey = $localeSetting.LocaleKey
         }
         foreach ($setting in $localeSetting.Settings)
         {
-            $entry = @{
+            $entry = [ordered]@{
                 Key   = $setting.Key
                 Value = $setting.Value -replace "`r"
             }
@@ -1752,7 +1752,7 @@ function Convert-JSONToLocaleSettings
         $result.Add('LabelSettings', $settings)
         $settings = @()
         $entries += $result
-        $result = @{ }
+        $result = [ordered]@{}
     }
     return $entries
 }
@@ -1780,7 +1780,7 @@ function Convert-StringToAdvancedSettings
             $valueString = $settingString.Substring($startPos, $settingString.Length - $startPos).Trim()
             $values = $valueString.Split(',')
 
-            $entry = @{
+            $entry = [ordered]@{
                 Key   = $settingKey
                 Value = $values.Trim()
             }
@@ -1806,7 +1806,7 @@ function Convert-CIMToAdvancedSettings
         $AdvancedSettings
     )
 
-    $entry = @{ }
+    $entry = [ordered]@{}
     foreach ($obj in $AdvancedSettings)
     {
         $settingsValues = ''
@@ -1865,7 +1865,7 @@ function Convert-CIMToLocaleSettings
         $settings = @()
         foreach ($setting in $localset.LabelSettings)
         {
-            $settingEntry = @{
+            $settingEntry = [ordered]@{
                 Key   = $setting.Key
                 Value = $setting.Value
             }
@@ -1873,8 +1873,8 @@ function Convert-CIMToLocaleSettings
         }
         $localeEntries.Add('Settings', $settings)
         [void]$entry.Add(($localeEntries | ConvertTo-Json))
-        $localeEntries = @{ }
-        $settings = @( )
+        $localeEntries = [ordered]@{}
+        $settings = @()
     }
 
     return $entry

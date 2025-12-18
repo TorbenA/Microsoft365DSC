@@ -136,7 +136,7 @@ function Compare-M365DSCResourceState
     }
     elseif ($DesiredValues.Ensure -eq 'Absent' -and $CurrentValues.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "The resource $ResourceName with $finalString does not exist in the tenant as desired." -Verbose:$Verbose
+        Write-Verbose -Message "The resource $ResourceName with $finalString does not exist in the tenant as desired."
         $skipEvaluation = $true
     }
 

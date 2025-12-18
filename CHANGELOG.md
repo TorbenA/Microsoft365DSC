@@ -24,6 +24,7 @@
   * Fixed an issue where the export would fail if the name of a resource was not
     the same case as the name in Microsoft365DSC.
 * MISC
+  * Applied ordering for CIM instances to minimize Git differences.
   * Fixed a couple of misaligned export messages on the console.
 
 # 1.25.1203.2

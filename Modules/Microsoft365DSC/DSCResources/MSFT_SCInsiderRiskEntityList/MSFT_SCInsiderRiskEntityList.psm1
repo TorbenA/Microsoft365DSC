@@ -152,7 +152,7 @@ function Get-TargetResource
             foreach ($entity in $instance.Entities)
             {
                 $entity = ConvertFrom-Json $entity
-                $current = @{
+                $current = [ordered]@{
                     Dmn        = $entity.Dmn
                     isMLSubDmn = $entity.isMLSubDmn
                 }
@@ -216,7 +216,7 @@ function Get-TargetResource
             foreach ($entity in $instance.Entities)
             {
                 $entity = ConvertFrom-Json $entity
-                $site = @{
+                $site = [ordered]@{
                     Url  = $entity.Url
                     Name = $entity.Name
                     Guid = $entity.Guid

@@ -161,7 +161,7 @@ function Get-TargetResource
                 $primaryIdObject      = $groupSetting.children | Where-Object { $_.settingDefinitionId -eq 'device_vendor_msft_defender_configuration_devicecontrol_policygroups_{groupid}_groupdata_descriptoridlist_primaryid' }
                 $vid_PidObject        = $groupSetting.children | Where-Object { $_.settingDefinitionId -eq 'device_vendor_msft_defender_configuration_devicecontrol_policygroups_{groupid}_groupdata_descriptoridlist_vid_pid' }
 
-                $policySetting = @{
+                $policySetting = [ordered]@{
                     BusId          = $busIdObject.simpleSettingValue.value
                     DeviceId       = $deviceIdObject.simpleSettingValue.value
                     FriendlyNameId = $friendlyNameIdObject.simpleSettingValue.value
@@ -190,7 +190,7 @@ function Get-TargetResource
                 $primaryIdObject           = $groupSetting.children | Where-Object { $_.settingDefinitionId -eq 'device_vendor_msft_defender_configuration_devicecontrol_policygroups_{groupid}_groupdata_printerdevicesidlist_primaryid' }
                 $vid_PidObject             = $groupSetting.children | Where-Object { $_.settingDefinitionId -eq 'device_vendor_msft_defender_configuration_devicecontrol_policygroups_{groupid}_groupdata_printerdevicesidlist_vid_pid' }
 
-                $policySetting = @{
+                $policySetting = [ordered]@{
                     FriendlyNameId      = $friendlyNameIdObject.simpleSettingValue.value
                     Name                = $nameObject.simpleSettingValue.value
                     PrinterConnectionId = [System.Int32]::Parse($printerConnectionIdObject.choiceSettingValue.value.Split("_")[-1])

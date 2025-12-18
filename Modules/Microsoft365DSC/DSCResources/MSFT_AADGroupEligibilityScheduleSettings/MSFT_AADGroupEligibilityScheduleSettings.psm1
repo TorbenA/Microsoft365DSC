@@ -722,14 +722,14 @@ function Get-M365DSCRoleManagementPolicyRuleObject
 
     if ($Script:ExportMode)
     {
-        $values = @{
+        $values = [ordered]@{
             id       = $Rule.id
             ruleType = $Rule.'@odata.type'
         }
     }
     else
     {
-        $values = @{
+        $values = [ordered]@{
             id       = $Rule.id
             ruleType = $Rule.AdditionalProperties.'@odata.type'
         }
@@ -739,14 +739,14 @@ function Get-M365DSCRoleManagementPolicyRuleObject
     {
         if ($Script:ExportMode)
         {
-            $expirationRule = @{
+            $expirationRule = [ordered]@{
                 isExpirationRequired = $Rule.isExpirationRequired
                 maximumDuration      = $Rule.maximumDuration
             }
         }
         else
         {
-            $expirationRule = @{
+            $expirationRule = [ordered]@{
                 isExpirationRequired = $Rule.AdditionalProperties.isExpirationRequired
                 maximumDuration      = $Rule.AdditionalProperties.maximumDuration
             }
@@ -759,7 +759,7 @@ function Get-M365DSCRoleManagementPolicyRuleObject
     {
         if ($Script:ExportMode)
         {
-            $notificationRule = @{
+            $notificationRule = [ordered]@{
                 notificationType           = $Rule.notificationType
                 recipientType              = $Rule.recipientType
                 notificationLevel          = $Rule.notificationLevel
@@ -769,7 +769,7 @@ function Get-M365DSCRoleManagementPolicyRuleObject
         }
         else
         {
-            $notificationRule = @{
+            $notificationRule = [ordered]@{
                 notificationType           = $Rule.AdditionalProperties.notificationType
                 recipientType              = $Rule.AdditionalProperties.recipientType
                 notificationLevel          = $Rule.AdditionalProperties.notificationLevel
@@ -828,7 +828,7 @@ function Get-M365DSCRoleManagementPolicyRuleObject
                 $escalationApprovers += $escalationApprover
             }
 
-            $approvalStage = @{
+            $approvalStage = [ordered]@{
                 approvalStageTimeOutInDays      = $stage.approvalStageTimeOutInDays
                 escalationTimeInMinutes         = $stage.escalationTimeInMinutes
                 isApproverJustificationRequired = $stage.isApproverJustificationRequired
@@ -842,7 +842,7 @@ function Get-M365DSCRoleManagementPolicyRuleObject
 
         if ($Script:ExportMode)
         {
-            $setting = @{
+            $setting = [ordered]@{
                 approvalMode                     = $Rule.setting.approvalMode
                 isApprovalRequired               = $Rule.setting.isApprovalRequired
                 isApprovalRequiredForExtension   = $Rule.setting.isApprovalRequiredForExtension
@@ -852,7 +852,7 @@ function Get-M365DSCRoleManagementPolicyRuleObject
         }
         else
         {
-            $setting = @{
+            $setting = [ordered]@{
                 approvalMode                     = $Rule.AdditionalProperties.setting.approvalMode
                 isApprovalRequired               = $Rule.AdditionalProperties.setting.isApprovalRequired
                 isApprovalRequiredForExtension   = $Rule.AdditionalProperties.setting.isApprovalRequiredForExtension
@@ -870,14 +870,14 @@ function Get-M365DSCRoleManagementPolicyRuleObject
     {
         if ($Script:ExportMode)
         {
-            $authenticationContextRule = @{
+            $authenticationContextRule = [ordered]@{
                 isEnabled  = $Rule.isEnabled
                 claimValue = $Rule.claimValue
             }
         }
         else
         {
-            $authenticationContextRule = @{
+            $authenticationContextRule = [ordered]@{
                 isEnabled  = $Rule.AdditionalProperties.isEnabled
                 claimValue = $Rule.AdditionalProperties.claimValue
             }

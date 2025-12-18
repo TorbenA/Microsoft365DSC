@@ -116,11 +116,11 @@ function Get-TargetResource
                 $policyInfo = Get-MgBetaNetworkAccessFilteringPolicy -FilteringPolicyId $link.Policy.Id
                 if ($null -ne $policyInfo)
                 {
-                    $entry = @{
-                        State        = $link.State
-                        Priority     = $link.AdditionalProperties.priority
-                        LoggingState = $link.AdditionalProperties.loggingState
+                    $entry = [ordered]@{
                         PolicyName   = $policyInfo.Name
+                        LoggingState = $link.AdditionalProperties.loggingState
+                        Priority     = $link.AdditionalProperties.priority
+                        State        = $link.State
                     }
                     $PolicyValue += $entry
                 }
