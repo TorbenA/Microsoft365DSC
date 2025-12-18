@@ -1747,12 +1747,8 @@ function Get-M365DSCResourceKey
     {
         return @('IsSingleInstance')
     }
-    elseif ($Resource.Contains('DisplayName') -and $mandatoryParameters.Name.Contains('DisplayName'))
+    elseif ($Resource.Contains('DisplayName') -and $mandatoryParameters.Name.Contains('DisplayName') -and $Resource.ResourceName -in @('AADGroup', 'IntuneDeviceEnrollmentPlatformRestriction', 'TeamsChannel', 'TeamsTeam'))
     {
-        if ($Resource.ResourceName -eq 'AADMSGroup' -and -not [System.String]::IsNullOrEmpty($Resource.Id))
-        {
-            return @('Id')
-        }
         if ($Resource.ResourceName -eq 'AADGroup' -and -not [System.String]::IsNullOrEmpty($Resource.MailNickname))
         {
             return ('DisplayName', 'MailNickname')
