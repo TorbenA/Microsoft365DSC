@@ -4,6 +4,8 @@
 
 * EXOPlace
   * Fixes an issue with the export where it was trying to export RoomList.
+* M365DSCUtil
+  * Added functionality to change M365DSC configuration during runtime.
 * MISC
   * Generalized custom comparison handling.
     FIXES [#6765](https://github.com/microsoft/Microsoft365DSC/issues/6765)

@@ -39,15 +39,51 @@ if ($null -eq $Script:M365DSCDependencies)
         })
     }
 
-    Write-Verbose -Message "Processing config.json for global required modules"
+    Write-Verbose -Message "Loading current configuration from config.json"
     $Script:M365DSCValidatedDependencies = [System.Collections.Generic.List[System.String]]::new($Script:M365DSCDependencies.Count)
-    $globalRequiredModules = (Get-Content -Path "$PSScriptRoot/../config.json" | ConvertFrom-Json).requiredModules
+    $configAsPsCustomObject = Get-Content -Path "$PSScriptRoot/../config.json" | ConvertFrom-Json
+    $configAsHashtable = @{}
+    foreach ($property in $configAsPsCustomObject.PSObject.Properties)
+    {
+        $configAsHashtable.Add($property.Name, $property.Value)
+    }
+    $Script:CurrentConfiguration = $configAsHashtable
+    $globalRequiredModules = $Script:CurrentConfiguration.requiredModules
     foreach ($entry in $commandToModuleMap.GetEnumerator())
     {
         $sortedFunctions = @($globalRequiredModules.$($entry.Key)) + @($entry.Value) | Sort-Object -Unique
         $Script:M365DSCDependencies[$entry.Key].Commands = $sortedFunctions
     }
     $Script:M365DSCRequiredModules = @($globalRequiredModules.psobject.Properties.Name)
+}
+
+function Get-M365DSCModuleConfiguration
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param()
+
+    return $Script:CurrentConfiguration.Clone()
+}
+
+function Set-M365DSCModuleConfiguration
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $Key,
+
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [AllowEmptyString()]
+        [AllowNull()]
+        [System.Object]
+        $Value
+    )
+
+    $Script:CurrentConfiguration.$Key = $Value
 }
 
 <#
@@ -5876,6 +5912,7 @@ Export-ModuleMember -Function @(
     'Get-M365DSCConfigurationConflict',
     'Get-M365DSCConnectedWorkloadList',
     'Get-M365DSCExportContentForResource',
+    'Get-M365DSCModuleConfiguration',
     'Get-M365DSCOrganization',
     'Get-M365DSCResourceComparisonMetadata',
     'Get-M365DSCResourceComparisonParameters',
@@ -5899,6 +5936,7 @@ Export-ModuleMember -Function @(
     'Remove-M365DSCAuthenticationParameter',
     'Remove-NullEntriesFromHashtable',
     'Set-M365DSCAllResourcesDictionary',
+    'Set-M365DSCModuleConfiguration',
     'Set-M365DSCStringReplacementMap',
     'Split-M365DSCConfiguration',
     'Sync-M365DSCParameter',
