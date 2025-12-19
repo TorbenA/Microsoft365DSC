@@ -6,6 +6,7 @@ $Global:SessionSecurityCompliance = $null
 $Script:M365DSCWorkloads = @('AAD', 'ADO', 'AZURE', 'COMMERCE', 'DEFENDER', 'EXO', 'FABRIC', 'INTUNE', 'O365', 'OD', 'PLANNER', 'PP', 'SC', 'SENTINEL', 'SH', 'SPO', 'TEAMS')
 $Script:M365DSCDependenciesValidated = $false
 $Script:IsPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
+$Script:IsPsResourceGetAvailable = $null -ne (Get-Module -Name Microsoft.PowerShell.PSResourceGet -ListAvailable)
 $Script:M365DSCStringReplacementMap = @{}
 if ($null -eq $Script:M365DSCDependencies)
 {
@@ -650,15 +651,16 @@ function Test-M365DSCParameterState
         $returnValue = $false
     }
 
-    if (($DesiredValues.GetType().Name -ne 'HashTable') `
-            -and ($DesiredValues.GetType().Name -ne 'CimInstance') `
-            -and ($DesiredValues.GetType().Name -ne 'PSBoundParametersDictionary'))
+    $desiredTypeName = $DesiredValues.GetType().Name
+    if (($desiredTypeName -ne 'HashTable') `
+            -and ($desiredTypeName -ne 'CimInstance') `
+            -and ($desiredTypeName -ne 'PSBoundParametersDictionary'))
     {
         throw ("Property 'DesiredValues' in Test-M365DSCParameterState must be either a " + `
-                "Hashtable or CimInstance. Type detected was $($DesiredValues.GetType().Name)")
+                "Hashtable or CimInstance. Type detected was $($desiredTypeName)")
     }
 
-    if (($DesiredValues.GetType().Name -eq 'CimInstance') -and ($null -eq $ValuesToCheck))
+    if (($desiredTypeName -eq 'CimInstance') -and ($null -eq $ValuesToCheck))
     {
         throw ("If 'DesiredValues' is a CimInstance then property 'ValuesToCheck' must contain " + `
                 'a value')
@@ -692,12 +694,12 @@ function Test-M365DSCParameterState
     $KeyList | ForEach-Object -Process {
         if ($_ -notin $propertiesToExclude)
         {
-            if (($CurrentValues.ContainsKey($_) -eq $false) `
-                    -or ($CurrentValues.$_ -ne $DesiredValues.$_) `
-                    -or (($DesiredValues.ContainsKey($_) -eq $true) -and ($null -ne $DesiredValues.$_ -and $DesiredValues.$_.GetType().IsArray)))
+            if (-not $CurrentValues.ContainsKey($_) `
+                    -or $CurrentValues.$_ -ne $DesiredValues.$_ `
+                    -or ($DesiredValues.ContainsKey($_) -eq $true -and ($null -ne $DesiredValues.$_ -and $DesiredValues.$_.GetType().IsArray)))
             {
-                if ($DesiredValues.GetType().Name -eq 'HashTable' -or `
-                        $DesiredValues.GetType().Name -eq 'PSBoundParametersDictionary')
+                if ($desiredTypeName -eq 'HashTable' -or `
+                        $desiredTypeName -eq 'PSBoundParametersDictionary')
                 {
                     $CheckDesiredValue = $DesiredValues.ContainsKey($_)
                 }
@@ -1975,7 +1977,7 @@ function Confirm-M365DSCModuleDependency
 
     $Global:MaximumFunctionCount = 32767
 
-    if ($Global:IsTestEnvironment)
+    if ($Global:IsTestEnvironment -or (Get-M365DSCModuleConfiguration).skipModuleDependencyValidation)
     {
         Write-Verbose -Message "Skipping module dependency validation in test environment for module '$ModuleName'."
         return
@@ -4929,21 +4931,25 @@ function New-M365DSCMissingResourcesExample
 
 <#
 .Description
-This function validates there are no updates to the module or it's dependencies and no multiple versions are present on the local system.
+    This function validates there are no updates to the module or it's dependencies and no multiple versions are present on the local system.
 
 .Example
-Test-M365DSCModuleValidity
-
-.Example
-Test-M365DSCModuleValidity -Force
+    Test-M365DSCModuleValidity
 
 .Functionality
-Public
+    Public
 #>
 function Test-M365DSCModuleValidity
 {
     [CmdletBinding()]
     param()
+
+    if ($Script:IsM365DSCModuleValidated)
+    {
+        Write-Verbose -Message 'The Microsoft365DSC module has already been validated in this session.'
+        Write-Verbose -Message 'If you have updated the module, please restart your PowerShell session to re-validate.'
+        return
+    }
 
     if ($env:AZUREPS_HOST_ENVIRONMENT -like 'AzureAutomation*')
     {
@@ -4952,8 +4958,15 @@ function Test-M365DSCModuleValidity
         return
     }
 
-    # validate only one installation of the module is present (and it's the latest version available)
-    $latestVersion = (Find-Module -Name 'Microsoft365DSC' -Includes 'DSCResource').Version
+    # Validate if only one installation of the module is present and that it's the latest version available
+    if ($Script:IsPsResourceGetAvailable)
+    {
+        $latestVersion = (Find-PSResource -Name 'Microsoft365DSC' -Repository 'PSGallery').Version | Sort-Object -Descending | Select-Object -First 1
+    }
+    else
+    {
+        $latestVersion = (Find-Module -Name 'Microsoft365DSC' -Includes 'DSCResource').Version
+    }
     $localVersion = (Get-Module -Name 'Microsoft365DSC').Version
 
     if ($latestVersion -gt $localVersion)
@@ -4962,6 +4975,8 @@ function Test-M365DSCModuleValidity
         Write-Host "To update the module and it's dependencies, run the following command:"
         Write-Host 'Update-M365DSCModule' -ForegroundColor Blue
     }
+
+    $Script:IsM365DSCModuleValidated = $true
 }
 
 
@@ -5852,7 +5867,13 @@ function Get-M365DSCResourceComparisonParameters
             $resourceModulePath = Join-Path -Path $PSScriptRoot -ChildPath "..\DSCResources\$moduleName\$moduleName.psm1"
             if (Test-Path -Path $resourceModulePath)
             {
-                Import-Module -Name $resourceModulePath -Force -Global
+                $previousValue = (Get-M365DSCModuleConfiguration).skipModuleDependencyValidation
+                if (-not $metadata.RequiresModuleCheck)
+                {
+                    Set-M365DSCModuleConfiguration -Key "skipModuleDependencyValidation" -Value $true
+                }
+                Import-Module -Name $resourceModulePath -Force -Global -Function Get-CompareParameters -Alias @() -Cmdlet @() -Variable @() -DisableNameChecking
+                Set-M365DSCModuleConfiguration -Key "skipModuleDependencyValidation" -Value $previousValue
                 Write-Verbose -Message "Imported module $moduleName from $resourceModulePath"
             }
             else

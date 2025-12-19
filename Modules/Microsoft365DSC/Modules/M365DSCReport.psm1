@@ -1738,10 +1738,11 @@ function Get-M365DSCResourceKey
         $Resource,
 
         [Parameter(Mandatory = $true)]
-        [Array]
+        [System.Collections.Hashtable]
         $DSCResourceInfo
     )
-    $resourceInfo = $DSCResourceInfo | Where-Object -FilterScript {$_.Name -eq $Resource.ResourceName}
+
+    $resourceInfo = $DSCResourceInfo[$Resource.ResourceName]
     [Array]$mandatoryParameters = $resourceInfo.Properties | Where-Object -FilterScript { $_.IsMandatory }
     if ($Resource.Contains('IsSingleInstance') -and $mandatoryParameters.Name.Contains('IsSingleInstance'))
     {
@@ -1977,6 +1978,11 @@ function New-M365DSCDeltaReport
     {
         $dscResourceInfo = Get-DSCResource -Module 'Microsoft365DSC'
     }
+    $dscResourceInfoMap = @{}
+    foreach ($resource in $dscResourceInfo)
+    {
+        $dscResourceInfoMap.Add($resource.Name, $resource)
+    }
 
     Write-Verbose -Message 'Obtaining Delta between the source and destination configurations'
     if (-not $Delta)
@@ -1997,20 +2003,20 @@ function New-M365DSCDeltaReport
         }
         # Parse the blueprint file, pass to Compare-M365DSCConfigurations as object (including comments aka metadata)
         [Array] $desiredConfiguration = Initialize-M365DSCReporting @desiredSplat
-        $sourceReporting = Initialize-M365DSCReporting -ConfigurationPath $Source
+        [Array]$sourceReporting = Initialize-M365DSCReporting -ConfigurationPath $Source
         $Delta = @()
         foreach ($resource in $sourceReporting)
         {
-            [array]$key = Get-M365DSCResourceKey -Resource $resource -DSCResourceInfo $dscResourceInfo
+            [array]$key = Get-M365DSCResourceKey -Resource $resource -DSCResourceInfo $dscResourceInfoMap
             #Write-Progress -Activity "Scanning Source $Source...[$i/$($SourceObject.Count)]" -PercentComplete ($i / ($SourceObject.Count) * 100)
-            [array]$destinationResource = $desiredConfiguration | Where-Object -FilterScript { $_.ResourceName -eq $resource.ResourceName -and $_.($key[0]) -eq $resource.($key[0]) }
+            [array]$destinationResource = $desiredConfiguration.Where({ $_.ResourceName -eq $resource.ResourceName -and $_.($key[0]) -eq $resource.($key[0]) })
 
             $keyName = $key[0..1] -join '\'
             $sourceKeyValue = $resource.($key[0])
             # Filter on the second key
             if ($key.Count -gt 1)
             {
-                [array]$destinationResource = $destinationResource | Where-Object -FilterScript { $_.($key[1]) -eq $resource.($key[1]) }
+                [array]$destinationResource = $destinationResource.Where({ $_.($key[1]) -eq $resource.($key[1]) })
                 $sourceKeyValue = $resource.($key[0]), $resource.($key[1]) -join '\'
             }
             if ($null -eq $destinationResource -or $destinationResource.Count -eq 0)
@@ -2104,15 +2110,15 @@ function New-M365DSCDeltaReport
 
         foreach ($resource in $desiredConfiguration)
         {
-            [array]$key = Get-M365DSCResourceKey -Resource $resource -DSCResourceInfo $dscResourceInfo
+            [array]$key = Get-M365DSCResourceKey -Resource $resource -DSCResourceInfo $dscResourceInfoMap
             $keyName = $key[0..1] -join '\'
             $destinationKeyValue = $resource.($key[0])
-            $sourceResource = $sourceReporting | Where-Object { $_.ResourceName -eq $resource.ResourceName -and $_.($key[0]) -eq $resource.($key[0]) }
+            [array]$sourceResource = $sourceReporting.Where({ $_.ResourceName -eq $resource.ResourceName -and $_.($key[0]) -eq $resource.($key[0]) })
 
             # Filter on the second key
             if ($key.Count -gt 1)
             {
-                [array]$sourceResource = $sourceResource | Where-Object -FilterScript { $_.($key[1]) -eq $resource.($key[1]) }
+                [array]$sourceResource = $sourceResource.Where({ $_.($key[1]) -eq $resource.($key[1]) })
                 $destinationKeyValue = $resource.($key[0]), $resource.($key[1]) -join '\'
             }
 

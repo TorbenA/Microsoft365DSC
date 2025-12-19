@@ -69,7 +69,8 @@
     },
     "EXOGroupSettings": {
       "HasCustomComparison": true,
-      "Description": "Uses PostProcessing scriptblock"
+      "Description": "Uses PostProcessing scriptblock",
+      "RequiresModuleCheck": true
     },
     "EXOHostedContentFilterPolicy": {
       "HasCustomComparison": true,
