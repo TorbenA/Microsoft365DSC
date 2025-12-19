@@ -6,6 +6,7 @@ $Global:SessionSecurityCompliance = $null
 $Script:M365DSCWorkloads = @('AAD', 'ADO', 'AZURE', 'COMMERCE', 'DEFENDER', 'EXO', 'FABRIC', 'INTUNE', 'O365', 'OD', 'PLANNER', 'PP', 'SC', 'SENTINEL', 'SH', 'SPO', 'TEAMS')
 $Script:M365DSCDependenciesValidated = $false
 $Script:IsPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
+$Script:IsPsResourceGetAvailable = $null -ne (Get-Module -Name Microsoft.PowerShell.PSResourceGet -ListAvailable)
 $Script:M365DSCStringReplacementMap = @{}
 if ($null -eq $Script:M365DSCDependencies)
 {
@@ -3495,12 +3496,13 @@ function Update-M365DSCDependencies
         }
 
         # Check if PSResourceGet is installed or not
-        if (-not (Get-Module -Name Microsoft.PowerShell.PSResourceGet -ListAvailable))
+        if (-not $Script:IsPsResourceGetAvailable)
         {
             Write-Warning -Message 'Microsoft.PowerShell.PSResourceGet is not installed, installing it now...'
             try
             {
                 Install-Module -Name Microsoft.PowerShell.PSResourceGet -Scope $Scope -AllowClobber @params -Force -ErrorAction Stop -Repository PSGallery
+                $Script:IsPsResourceGetAvailable = $true
             }
             catch
             {
@@ -3508,16 +3510,11 @@ function Update-M365DSCDependencies
             }
         }
 
-        $isPsResourceGetAvailable = $false
-        if ($null -ne (Get-Module -Name Microsoft.PowerShell.PSResourceGet -ListAvailable))
-        {
-            $isPsResourceGetAvailable = $true
-        }
-
+        $scopedIsPsResourceGetAvailable = $Script:IsPsResourceGetAvailable
         if ($params.ContainsKey('Proxy'))
         {
             Write-Information -MessageData "Falling back to Install-Module because Install-PSResource does not support a proxy"
-            $isPsResourceGetAvailable = $false
+            $scopedIsPsResourceGetAvailable = $false
         }
 
         foreach ($dependency in $Script:M365DSCDependencies.Values.GetEnumerator())
@@ -3575,7 +3572,7 @@ function Update-M365DSCDependencies
                         }
                         Remove-Module $dependency.ModuleName -Force -ErrorAction SilentlyContinue
 
-                        if ($isPsResourceGetAvailable)
+                        if ($scopedIsPsResourceGetAvailable)
                         {
                             Write-Information -MessageData "Using Install-PSResource to install $($dependency.ModuleName) with version {$($dependency.RequiredVersion)}"
                             Install-PSResource -Name $dependency.ModuleName -Version $dependency.RequiredVersion -Scope $Scope -AcceptLicense -SkipDependencyCheck -TrustRepository -Repository $Repository
