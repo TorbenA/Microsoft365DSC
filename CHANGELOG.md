@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* EXOPlace
+  * Fixes an issue with the export where it was trying to export RoomList.
 * O365OrgSettings
   * Added `CertificatePath` with `CertificatePassword` as an authentication method.
 
