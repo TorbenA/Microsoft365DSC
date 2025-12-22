@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* EXOPlace
+  * Fixes an issue with the export where it was trying to export RoomList.
 * M365DSCUtil
   * Improved module installation speed for `Update-M365DSCModule`.
 
