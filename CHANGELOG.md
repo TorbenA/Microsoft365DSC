@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* EXOPlace
+  * Fixes an issue with the export where it was trying to export RoomList.
 * IntuneAppConfigurationDevicePolicy
   * Added error handling with message if targeted app doesn't exist.
 * IntuneAppProtectionPolicyAndroid
