@@ -607,7 +607,8 @@ function Export-TargetResource
     #endregion
     try
     {
-        [array]$places = Get-Place -ResultSize 'Unlimited' -ErrorAction Stop
+        [array]$places = Get-Place -ResultSize 'Unlimited' -ErrorAction Stop | `
+            Where-Object -FilterScript { $_.PlaceType -ne 'RoomList'}
         $dscContent = ''
 
         if ($places.Length -eq 0)

@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* EXOPlace
+  * Fixes an issue with the export where it was trying to export RoomList.
 * M365DSCDRGUtil
   * Fixed an issue where `Rename-M365DSCCimInstanceParameter` omitted values.
     FIXES [#6727](https://github.com/microsoft/Microsoft365DSC/issues/6727)
