@@ -479,9 +479,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -491,46 +488,9 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message "Testing configuration of the Intune Setting Catalog Custom Policy for Windows10 with Id {$Id} and Name {$Name}"
-
-    $CurrentValues = Get-TargetResource @PSBoundParameters
-    $ValuesToCheck = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $testResult = $true
-
-    #Compare Cim instances
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        $source = $PSBoundParameters.$key
-        $target = $CurrentValues.$key
-        if ($source.GetType().Name -like '*CimInstance*')
-        {
-            $testResult = Compare-M365DSCComplexObject `
-                -Source ($source) `
-                -Target ($target)
-
-            if (-not $testResult)
-            {
-                $testResult = $false
-                break
-            }
-            $ValuesToCheck.Remove($key) | Out-Null
-        }
-    }
-
-    $ValuesToCheck.Remove('Id') | Out-Null
-
-    Write-Verbose -Message "Current Values: $(Convert-M365DscHashtableToString -Hashtable $CurrentValues)"
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $ValuesToCheck)"
-
-    if ($testResult)
-    {
-        $testResult = Test-M365DSCParameterState -CurrentValues $CurrentValues `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -DesiredValues $PSBoundParameters `
-            -ValuesToCheck $ValuesToCheck.Keys
-    }
-    Write-Verbose -Message "Test-TargetResource returned $testResult"
-    return $testResult
+    $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+    return $result
 }
 
 function Export-TargetResource
@@ -761,7 +721,7 @@ function Export-TargetResource
 function Get-SettingValue
 {
     [CmdletBinding()]
-    [OutputType([CimInstance[]],[System.Collections.Hashtable], [System.Collections.Hashtable[]])]
+    [OutputType([System.Collections.Hashtable], [System.Collections.Hashtable[]])]
     param (
         [Parameter()]
         $SettingValue,
@@ -804,8 +764,12 @@ function Get-SettingValue
                 $valueName = $child.keys | Where-Object { @('ChoiceSettingCollectionValue','ChoiceSettingValue','GroupSettingCollectionValue','GroupSettingValue','SimpleSettingCollectionValue','SimpleSettingValue') -contains $_ }
                 $rawValue = $child.$valueName
                 $childSettingValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $child.'@odata.type'
-                $childHash.Add( $valueName, $childSettingValue )
-
+                If ( ('ChoiceSettingCollectionValue','GroupSettingCollectionValue','SimpleSettingCollectionValue') -contains $valueName ) {
+                  $childHash.Add( $valueName, [CimInstance[]]$childSettingValue )
+                }
+                Else {
+                  $childHash.Add( $valueName, $childSettingValue )
+                }
                 $complexChild = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstance -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $childHash -ClientOnly
                 $children += $complexChild
               }
@@ -861,8 +825,12 @@ function Get-SettingValue
                 $valueName = $child.keys | Where-Object { @('ChoiceSettingCollectionValue','ChoiceSettingValue','GroupSettingCollectionValue','GroupSettingValue','SimpleSettingCollectionValue','SimpleSettingValue') -contains $_ }
                 $rawValue = $child.$valueName
                 $childSettingValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $child.'@odata.type'
-                $childHash.Add( $valueName, $childSettingValue )
-
+                If ( ('ChoiceSettingCollectionValue','GroupSettingCollectionValue','SimpleSettingCollectionValue') -contains $valueName ) {
+                  $childHash.Add( $valueName, [CimInstance[]]$childSettingValue )
+                }
+                Else {
+                  $childHash.Add( $valueName, $childSettingValue )
+                }
                 $complexChild = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstance -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $childHash -ClientOnly
                 $children += $complexChild
               }
@@ -911,8 +879,12 @@ function Get-SettingValue
                 $valueName = $child.keys | Where-Object { @('ChoiceSettingCollectionValue','ChoiceSettingValue','GroupSettingCollectionValue','GroupSettingValue','SimpleSettingCollectionValue','SimpleSettingValue') -contains $_ }
                 $rawValue = $child.$valueName
                 $childSettingValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $child.'@odata.type'
-                $childHash.Add( $valueName, $childSettingValue )
-
+                If ( ('ChoiceSettingCollectionValue','GroupSettingCollectionValue','SimpleSettingCollectionValue') -contains $valueName ) {
+                  $childHash.Add( $valueName, [CimInstance[]]$childSettingValue )
+                }
+                Else {
+                  $childHash.Add( $valueName, $childSettingValue )
+                }
                 $complexChild = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstance -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $childHash -ClientOnly
                 $children += $complexChild
               }
@@ -983,8 +955,20 @@ function Update-IntuneDeviceConfigurationPolicy
             'settings'          = $Settings
             'roleScopeTagIds'   = $RoleScopeTagIds
         }
-        $body = $policy | ConvertTo-Json -Depth 20
-        #write-verbose -Message $body
+
+        if (-not $RoleScopeTagIds -or $RoleScopeTagIds.Count -eq 0)
+        {
+            # No tag IDs provided -> use the default Intune tag "0"
+            $policy['roleScopeTagIds'] = @("0")
+        }
+        else
+        {
+            # Tag IDs provided -> force array type to ensure Graph serialization consistency
+            $policy['roleScopeTagIds'] = @($RoleScopeTagIds)
+        }
+
+        $body = $policy | ConvertTo-Json -Depth 100
+        #Write-Verbose -Message $body
         Invoke-MgGraphRequest -Method PUT -Uri $Uri -Body $body -ErrorAction Stop 4> $null
     }
     catch
