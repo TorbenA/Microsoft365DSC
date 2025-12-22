@@ -143,13 +143,16 @@ function Get-TargetResource
         foreach ($currentSettings in $getValue.settings)
         {
             $complexSettingInstance = [hashtable]@{}
-            If( -Not([string]::IsNullOrEmpty($currentSettings.SettingInstance.'@odata.type')) ) {
+            if ( -Not([string]::IsNullOrEmpty($currentSettings.SettingInstance.'@odata.type')) )
+            {
                 $complexSettingInstance['odataType'] = $currentSettings.SettingInstance.'@odata.type'
             }
-            If( -Not([string]::IsNullOrEmpty($currentSettings.SettingInstance.settingDefinitionId)) ) {
+            if ( -Not([string]::IsNullOrEmpty($currentSettings.SettingInstance.settingDefinitionId)) )
+            {
                 $complexSettingInstance['SettingDefinitionId'] = $currentSettings.settingInstance.settingDefinitionId
             }
-            If( -Not([string]::IsNullOrEmpty($currentSettings.settingInstance.SettingInstanceTemplateReference.SettingInstanceTemplateId)) ) {
+            if ( -Not([string]::IsNullOrEmpty($currentSettings.settingInstance.SettingInstanceTemplateReference.SettingInstanceTemplateId)) )
+            {
                 $complexSettingInstance['SettingInstanceTemplateReference'] = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstanceTemplateReference -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property @{
                     'SettingInstanceTemplateId' = "$($currentSettings.settingInstance.SettingInstanceTemplateReference.SettingInstanceTemplateId)"
                 } -ClientOnly
@@ -157,11 +160,13 @@ function Get-TargetResource
             $valueName = $currentSettings.settingInstance.AdditionalProperties.keys | Where-Object { @('ChoiceSettingCollectionValue','ChoiceSettingValue','GroupSettingCollectionValue','GroupSettingValue','SimpleSettingCollectionValue','SimpleSettingValue') -contains $_ }
             $rawValue = $currentSettings.settingInstance.AdditionalProperties.$valueName
             $complexValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $currentSettings.settingInstance.AdditionalProperties.'@odata.type'
-            If ( ('ChoiceSettingCollectionValue','GroupSettingCollectionValue','SimpleSettingCollectionValue') -contains $valueName ) {
-              $complexSettingInstance[$valueName] = [CimInstance[]]$complexValue
+            if ( ('ChoiceSettingCollectionValue','GroupSettingCollectionValue','SimpleSettingCollectionValue') -contains $valueName )
+            {
+                $complexSettingInstance[$valueName] = [CimInstance[]]$complexValue
             }
-            Else {
-              $complexSettingInstance[$valueName] = $complexValue
+            else
+            {
+                $complexSettingInstance[$valueName] = $complexValue
             }
             $complexSettings += New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSetting -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property @{
                 'SettingInstance' = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstance -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $complexSettingInstance -ClientOnly
@@ -721,7 +726,7 @@ function Export-TargetResource
 function Get-SettingValue
 {
     [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable], [System.Collections.Hashtable[]])]
+    [OutputType([CimInstance[]], [System.Collections.Hashtable], [System.Collections.Hashtable[]])]
     param (
         [Parameter()]
         $SettingValue,
@@ -735,106 +740,130 @@ function Get-SettingValue
         '*ChoiceSettingInstance'
         {
             $hash = [hashtable]@{}
-            If($SettingValue.Keys -contains '@odata.type' -and -Not([string]::IsNullOrEmpty($SettingValue.'@odata.type')) ) {
-              $hash['odataType'] = $SettingValue.'@odata.type'
+            if ($SettingValue.Keys -contains '@odata.type' -and -Not([string]::IsNullOrEmpty($SettingValue.'@odata.type')) )
+            {
+                $hash['odataType'] = $SettingValue.'@odata.type'
             }
-            If($SettingValue.Keys -contains 'value' -and -Not([string]::IsNullOrEmpty($SettingValue.value)) ) {
-              $hash['Value'] = $SettingValue.value
+            if ($SettingValue.Keys -contains 'value' -and -Not([string]::IsNullOrEmpty($SettingValue.value)) )
+            {
+                $hash['Value'] = $SettingValue.value
             }
-            If($SettingValue.Keys -contains 'SettingValueTemplateReference') {
-              If ( -Not [string]::IsNullOrEmpty($SettingValue.SettingValueTemplateReference.SettingInstanceTemplateId) ) {
-                $hash['SettingValueTemplateReference'] = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingValueTemplateReference -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property @{
-                  'SettingInstanceTemplateId' = $SettingValue.SettingValueTemplateReference.SettingInstanceTemplateId
-                } -ClientOnly
-              }
+            if ($SettingValue.Keys -contains 'SettingValueTemplateReference')
+            {
+                if ( -Not [string]::IsNullOrEmpty($SettingValue.SettingValueTemplateReference.SettingInstanceTemplateId) )
+                {
+                    $hash['SettingValueTemplateReference'] = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingValueTemplateReference -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property @{
+                        'SettingInstanceTemplateId' = $SettingValue.SettingValueTemplateReference.SettingInstanceTemplateId
+                    } -ClientOnly
+                }
             }
-            If ( -Not [String]::IsNullOrEmpty($SettingValue.children) ) {
-              $children = @()
-              foreach ($child in $SettingValue.children) {
-                $childHash = [hashtable]@{}
-                If( -Not([string]::IsNullOrEmpty($child.'@odata.type')) ) {
-                  $childHash['odataType'] = $child.'@odata.type'
+            if ( -Not [String]::IsNullOrEmpty($SettingValue.children) )
+            {
+                $children = @()
+                foreach ($child in $SettingValue.children)
+                {
+                    $childHash = [hashtable]@{}
+                    if ( -Not([string]::IsNullOrEmpty($child.'@odata.type')) )
+                    {
+                        $childHash['odataType'] = $child.'@odata.type'
+                    }
+                    if ( -Not([string]::IsNullOrEmpty($child.settingDefinitionId)) )
+                    {
+                        $childHash['SettingDefinitionId'] = $child.settingDefinitionId
+                    }
+                    if ( -Not [string]::IsNullOrEmpty($child.SettingValueTemplateReference.SettingInstanceTemplateId) )
+                    {
+                        $childHash['SettingValueTemplateReference'] = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstanceTemplateReference -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $child.SettingValueTemplateReference -ClientOnly
+                    }
+                    $valueName = $child.keys | Where-Object { @('ChoiceSettingCollectionValue','ChoiceSettingValue','GroupSettingCollectionValue','GroupSettingValue','SimpleSettingCollectionValue','SimpleSettingValue') -contains $_ }
+                    $rawValue = $child.$valueName
+                    $childSettingValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $child.'@odata.type'
+                    if ( ('ChoiceSettingCollectionValue','GroupSettingCollectionValue','SimpleSettingCollectionValue') -contains $valueName )
+                    {
+                        $childHash.Add( $valueName, [CimInstance[]]$childSettingValue )
+                    }
+                    else
+                    {
+                        $childHash.Add( $valueName, $childSettingValue )
+                    }
+                    $complexChild = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstance -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $childHash -ClientOnly
+                    $children += $complexChild
                 }
-                If( -Not([string]::IsNullOrEmpty($child.settingDefinitionId)) ) {
-                  $childHash['SettingDefinitionId'] = $child.settingDefinitionId
-                }
-                If ( -Not [string]::IsNullOrEmpty($child.SettingValueTemplateReference.SettingInstanceTemplateId) ) {
-                  $childHash['SettingValueTemplateReference'] = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstanceTemplateReference -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $child.SettingValueTemplateReference -ClientOnly
-                }
-                $valueName = $child.keys | Where-Object { @('ChoiceSettingCollectionValue','ChoiceSettingValue','GroupSettingCollectionValue','GroupSettingValue','SimpleSettingCollectionValue','SimpleSettingValue') -contains $_ }
-                $rawValue = $child.$valueName
-                $childSettingValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $child.'@odata.type'
-                If ( ('ChoiceSettingCollectionValue','GroupSettingCollectionValue','SimpleSettingCollectionValue') -contains $valueName ) {
-                  $childHash.Add( $valueName, [CimInstance[]]$childSettingValue )
-                }
-                Else {
-                  $childHash.Add( $valueName, $childSettingValue )
-                }
-                $complexChild = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstance -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $childHash -ClientOnly
-                $children += $complexChild
-              }
-              $hash['Children'] = [CimInstance[]]($Children)
+                $hash['Children'] = [CimInstance[]]($Children)
             }
             return (New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationChoiceSettingValue -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $hash -ClientOnly)
         }
         '*ChoiceSettingCollectionInstance'
         {
             $complexCollection = @()
-            foreach ($item in $SettingValue) {
-              $complexCollection += Get-SettingValue -SettingValue $item -SettingValueType '#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance'
+            foreach ($item in $SettingValue)
+            {
+                $complexCollection += Get-SettingValue -SettingValue $item -SettingValueType '#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance'
             }
             return [CimInstance[]]($complexCollection)
         }
         '*SimpleSettingInstance'
         {
             $hash = [hashtable]@{}
-            If($SettingValue.Keys -contains '@odata.type' -and -Not([string]::IsNullOrEmpty($SettingValue.'@odata.type')) ) {
-              $hash['odataType'] = $SettingValue.'@odata.type'
+            If($SettingValue.Keys -contains '@odata.type' -and -Not([string]::IsNullOrEmpty($SettingValue.'@odata.type')) )
+            {
+                $hash['odataType'] = $SettingValue.'@odata.type'
             }
-            If($SettingValue.Keys -contains 'value' -and -Not([string]::IsNullOrEmpty($SettingValue.value)) ) {
-              Try {
-                $hash['IntValue'] = [UInt32]($SettingValue.value)
-              }
-              Catch {
-                $hash['StringValue'] = [string]($SettingValue.value)
-              }
+            if ($SettingValue.Keys -contains 'value' -and -Not([string]::IsNullOrEmpty($SettingValue.value)) )
+            {
+                try
+                {
+                    $hash['IntValue'] = [UInt32]($SettingValue.value)
+                }
+                catch {
+                    $hash['StringValue'] = [string]($SettingValue.value)
+                }
             }
-            If($SettingValue.Keys -contains 'ValueState' -and -Not([string]::IsNullOrEmpty($SettingValue.ValueState)) ) {
-              $hash['ValueState'] = $SettingValue.ValueState
+            if ($SettingValue.Keys -contains 'ValueState' -and -Not([string]::IsNullOrEmpty($SettingValue.ValueState)) )
+            {
+                $hash['ValueState'] = $SettingValue.ValueState
             }
-            If($SettingValue.Keys -contains 'SettingValueTemplateReference') {
-              If ( -Not [string]::IsNullOrEmpty($SettingValue.SettingValueTemplateReference.SettingInstanceTemplateId) ) {
-                $hash['SettingValueTemplateReference'] = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingValueTemplateReference -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property @{
-                  'SettingInstanceTemplateId' = $SettingValue.SettingValueTemplateReference.SettingInstanceTemplateId
-                } -ClientOnly
-              }
+            if ($SettingValue.Keys -contains 'SettingValueTemplateReference')
+            {
+                if ( -Not [string]::IsNullOrEmpty($SettingValue.SettingValueTemplateReference.SettingInstanceTemplateId) )
+                {
+                    $hash['SettingValueTemplateReference'] = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingValueTemplateReference -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property @{
+                        'SettingInstanceTemplateId' = $SettingValue.SettingValueTemplateReference.SettingInstanceTemplateId
+                    } -ClientOnly
+                }
             }
-            If ( -Not [String]::IsNullOrEmpty($SettingValue.children) ) {
-              $children = @()
-              foreach ($child in $SettingValue.children) {
-                $childHash = [hashtable]@{}
-                If( -Not([string]::IsNullOrEmpty($child.'@odata.type')) ) {
-                  $childHash['odataType'] = $child.'@odata.type'
+            if ( -Not [String]::IsNullOrEmpty($SettingValue.children) )
+            {
+                $children = @()
+                foreach ($child in $SettingValue.children)
+                {
+                    $childHash = [hashtable]@{}
+                    if ( -Not([string]::IsNullOrEmpty($child.'@odata.type')) )
+                    {
+                        $childHash['odataType'] = $child.'@odata.type'
+                    }
+                    if ( -Not([string]::IsNullOrEmpty($child.settingDefinitionId)) )
+                    {
+                        $childHash['SettingDefinitionId'] = $child.settingDefinitionId
+                    }
+                    if ( -Not [string]::IsNullOrEmpty($child.SettingValueTemplateReference.SettingInstanceTemplateId) )
+                    {
+                        $childHash['SettingValueTemplateReference'] = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstanceTemplateReference -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $child.SettingValueTemplateReference -ClientOnly
+                    }
+                    $valueName = $child.keys | Where-Object { @('ChoiceSettingCollectionValue','ChoiceSettingValue','GroupSettingCollectionValue','GroupSettingValue','SimpleSettingCollectionValue','SimpleSettingValue') -contains $_ }
+                    $rawValue = $child.$valueName
+                    $childSettingValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $child.'@odata.type'
+                    if ( ('ChoiceSettingCollectionValue','GroupSettingCollectionValue','SimpleSettingCollectionValue') -contains $valueName )
+                    {
+                        $childHash.Add( $valueName, [CimInstance[]]$childSettingValue )
+                    }
+                    else {
+                        $childHash.Add( $valueName, $childSettingValue )
+                    }
+                    $complexChild = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstance -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $childHash -ClientOnly
+                    $children += $complexChild
                 }
-                If( -Not([string]::IsNullOrEmpty($child.settingDefinitionId)) ) {
-                  $childHash['SettingDefinitionId'] = $child.settingDefinitionId
-                }
-                If ( -Not [string]::IsNullOrEmpty($child.SettingValueTemplateReference.SettingInstanceTemplateId) ) {
-                  $childHash['SettingValueTemplateReference'] = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstanceTemplateReference -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $child.SettingValueTemplateReference -ClientOnly
-                }
-                $valueName = $child.keys | Where-Object { @('ChoiceSettingCollectionValue','ChoiceSettingValue','GroupSettingCollectionValue','GroupSettingValue','SimpleSettingCollectionValue','SimpleSettingValue') -contains $_ }
-                $rawValue = $child.$valueName
-                $childSettingValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $child.'@odata.type'
-                If ( ('ChoiceSettingCollectionValue','GroupSettingCollectionValue','SimpleSettingCollectionValue') -contains $valueName ) {
-                  $childHash.Add( $valueName, [CimInstance[]]$childSettingValue )
-                }
-                Else {
-                  $childHash.Add( $valueName, $childSettingValue )
-                }
-                $complexChild = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstance -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $childHash -ClientOnly
-                $children += $complexChild
-              }
-              $hash['Children'] = [CimInstance[]]($Children)
+                $hash['Children'] = [CimInstance[]]($Children)
             }
             return (New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSimpleSettingValue -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $hash -ClientOnly)
 
@@ -842,53 +871,65 @@ function Get-SettingValue
         '*SimpleSettingCollectionInstance'
         {
             $complexCollection = @()
-            foreach ($item in $SettingValue) {
-              $complexCollection += Get-SettingValue -SettingValue $item -SettingValueType '#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance'
+            foreach ($item in $SettingValue)
+            {
+                $complexCollection += Get-SettingValue -SettingValue $item -SettingValueType '#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance'
             }
             return [CimInstance[]]($complexCollection)
         }
         '*GroupSettingInstance'
         {
             $hash = [hashtable]@{}
-            If($SettingValue.Keys -contains '@odata.type' -and -Not([string]::IsNullOrEmpty($SettingValue.'@odata.type')) ) {
-              $hash['odataType'] = $SettingValue.'@odata.type'
+            if ($SettingValue.Keys -contains '@odata.type' -and -Not([string]::IsNullOrEmpty($SettingValue.'@odata.type')) )
+            {
+                $hash['odataType'] = $SettingValue.'@odata.type'
             }
-            If($SettingValue.Keys -contains 'value' -and -Not([string]::IsNullOrEmpty($SettingValue.value)) ) {
-              $hash['Value'] = $SettingValue.value
+            if ($SettingValue.Keys -contains 'value' -and -Not([string]::IsNullOrEmpty($SettingValue.value)) )
+            {
+                $hash['Value'] = $SettingValue.value
             }
-            If($SettingValue.Keys -contains 'SettingValueTemplateReference') {
-              If ( -Not [string]::IsNullOrEmpty($SettingValue.SettingValueTemplateReference.SettingInstanceTemplateId) ) {
-                $hash['SettingValueTemplateReference'] = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingValueTemplateReference -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property @{
-                  'SettingInstanceTemplateId' = $SettingValue.SettingValueTemplateReference.SettingInstanceTemplateId
-                } -ClientOnly
-              }
+            if ($SettingValue.Keys -contains 'SettingValueTemplateReference')
+            {
+                if ( -Not [string]::IsNullOrEmpty($SettingValue.SettingValueTemplateReference.SettingInstanceTemplateId) )
+                {
+                    $hash['SettingValueTemplateReference'] = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingValueTemplateReference -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property @{
+                        'SettingInstanceTemplateId' = $SettingValue.SettingValueTemplateReference.SettingInstanceTemplateId
+                    } -ClientOnly
+                }
             }
-            If ( -Not [String]::IsNullOrEmpty($SettingValue.children) ) {
-              $children = @()
-              foreach ($child in $SettingValue.children) {
-                $childHash = [hashtable]@{}
-                If( -Not([string]::IsNullOrEmpty($child.'@odata.type')) ) {
-                  $childHash['odataType'] = $child.'@odata.type'
+            if ( -Not [String]::IsNullOrEmpty($SettingValue.children) )
+            {
+                $children = @()
+                foreach ($child in $SettingValue.children)
+                {
+                    $childHash = [hashtable]@{}
+                    if ( -Not([string]::IsNullOrEmpty($child.'@odata.type')) )
+                    {
+                        $childHash['odataType'] = $child.'@odata.type'
+                    }
+                    if ( -Not([string]::IsNullOrEmpty($child.settingDefinitionId)) )
+                    {
+                        $childHash['SettingDefinitionId'] = $child.settingDefinitionId
+                    }
+                    if ( -Not [string]::IsNullOrEmpty($child.SettingValueTemplateReference.SettingInstanceTemplateId) )
+                    {
+                        $childHash['SettingValueTemplateReference'] = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstanceTemplateReference -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $child.SettingValueTemplateReference -ClientOnly
+                    }
+                    $valueName = $child.keys | Where-Object { @('ChoiceSettingCollectionValue','ChoiceSettingValue','GroupSettingCollectionValue','GroupSettingValue','SimpleSettingCollectionValue','SimpleSettingValue') -contains $_ }
+                    $rawValue = $child.$valueName
+                    $childSettingValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $child.'@odata.type'
+                    if ( ('ChoiceSettingCollectionValue','GroupSettingCollectionValue','SimpleSettingCollectionValue') -contains $valueName )
+                    {
+                        $childHash.Add( $valueName, [CimInstance[]]$childSettingValue )
+                    }
+                    else
+                    {
+                        $childHash.Add( $valueName, $childSettingValue )
+                    }
+                    $complexChild = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstance -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $childHash -ClientOnly
+                    $children += $complexChild
                 }
-                If( -Not([string]::IsNullOrEmpty($child.settingDefinitionId)) ) {
-                  $childHash['SettingDefinitionId'] = $child.settingDefinitionId
-                }
-                If ( -Not [string]::IsNullOrEmpty($child.SettingValueTemplateReference.SettingInstanceTemplateId) ) {
-                  $childHash['SettingValueTemplateReference'] = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstanceTemplateReference -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $child.SettingValueTemplateReference -ClientOnly
-                }
-                $valueName = $child.keys | Where-Object { @('ChoiceSettingCollectionValue','ChoiceSettingValue','GroupSettingCollectionValue','GroupSettingValue','SimpleSettingCollectionValue','SimpleSettingValue') -contains $_ }
-                $rawValue = $child.$valueName
-                $childSettingValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $child.'@odata.type'
-                If ( ('ChoiceSettingCollectionValue','GroupSettingCollectionValue','SimpleSettingCollectionValue') -contains $valueName ) {
-                  $childHash.Add( $valueName, [CimInstance[]]$childSettingValue )
-                }
-                Else {
-                  $childHash.Add( $valueName, $childSettingValue )
-                }
-                $complexChild = New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationSettingInstance -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $childHash -ClientOnly
-                $children += $complexChild
-              }
-              $hash['Children'] = [CimInstance[]]($Children)
+                $hash['Children'] = [CimInstance[]]($Children)
             }
             return (New-CimInstance -ClassName MSFT_MicrosoftGraphDeviceManagementConfigurationGroupSettingValue -Namespace root/Microsoft/Windows/DesiredStateConfiguration -Property $hash -ClientOnly)
 
@@ -897,7 +938,7 @@ function Get-SettingValue
         {
             $complexCollection = @()
             foreach ($item in $SettingValue) {
-              $complexCollection += Get-SettingValue -SettingValue $item -SettingValueType '#microsoft.graph.deviceManagementConfigurationGroupSettingInstance'
+                $complexCollection += Get-SettingValue -SettingValue $item -SettingValueType '#microsoft.graph.deviceManagementConfigurationGroupSettingInstance'
             }
             return [CimInstance[]]($complexCollection)
         }
