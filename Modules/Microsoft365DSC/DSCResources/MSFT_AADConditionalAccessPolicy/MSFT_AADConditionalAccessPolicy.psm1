@@ -1821,7 +1821,11 @@ function Set-TargetResource
             if ($currentParameters.ContainsKey('AuthenticationStrength'))
             {
                 $strengthPolicy = Get-MgBetaPolicyAuthenticationStrengthPolicy | Where-Object -FilterScript { $_.DisplayName -eq $AuthenticationStrength } -ErrorAction SilentlyContinue
-                if ($null -ne $strengthPolicy)
+                if ($null -eq $strengthPolicy)
+                {
+                    Write-Warning -Message "Authentication Strength Policy '$AuthenticationStrength' not found for Conditional Access Policy '$DisplayName'."
+                }
+                else
                 {
                     $authenticationStrengthInstance = @{
                         id            = $strengthPolicy.Id
@@ -1925,7 +1929,6 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Set-Targetresource: Change policy $DisplayName"
-        $NewParameters.Add('ConditionalAccessPolicyId', $currentPolicy.Id)
         try
         {
             Write-Verbose -Message "Updating existing policy with values: $(Convert-M365DscHashtableToString -Hashtable $NewParameters)"

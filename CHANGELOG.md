@@ -5,6 +5,9 @@
 * AADAuthenticationMethodPolicy
   * Fixed an issue where empty arrays were not exported.
     FIXES [#6759](https://github.com/microsoft/Microsoft365DSC/issues/6759)
+* AADConditionalAccessPolicy
+  * Fixed an issue where updating a policy would fail.
+    FIXES [#6782](https://github.com/microsoft/Microsoft365DSC/issues/6782)
 * AADNetworkAccessForwardingPolicy
   * Fixed an issue where empty `PolicyRules` would throw an exception during Get and Export.
 * IntuneEpmElevationRulesPolicyWindows10
