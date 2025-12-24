@@ -197,8 +197,11 @@ function Start-M365DSCConfigurationExtract
             $ComponentsToSkip += $ExcludeComponents
         }
 
-        $resourcesInBothIncludeAndExclude = Compare-Object -ReferenceObject $Components `
-            -DifferenceObject $ComponentsToSkip -ExcludeDifferent -IncludeEqual
+        if ($null -ne $Components)
+        {
+            $resourcesInBothIncludeAndExclude = Compare-Object -ReferenceObject $Components `
+                -DifferenceObject $ComponentsToSkip -ExcludeDifferent -IncludeEqual
+        }
         if ($resourcesInBothIncludeAndExclude.Count -gt 0)
         {
             foreach ($resource in $resourcesInBothIncludeAndExclude)

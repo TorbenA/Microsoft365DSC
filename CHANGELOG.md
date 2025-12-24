@@ -1,11 +1,12 @@
 # Change log for Microsoft365DSC
 
-# Unreleased
-* MSFT_IntuneSettingCatalogCustomPolicyWindows10
-  * Fixed the ability to run Get-TargetResource via the LCM (Get-DscConfiguration) and it's ability to return complex nested objects.
-    FIXES [#6092](https://github.com/microsoft/Microsoft365DSC/issues/6092)
+# UNRELEASED
+
+* EXOPlace
+  * Fixes an issue with the export where it was trying to export RoomList.
 
 # 1.25.1203.2
+
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.56.
 
