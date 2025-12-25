@@ -12,6 +12,9 @@
   * Fixed an issue where empty `PolicyRules` would throw an exception during Get and Export.
 * IntuneEpmElevationRulesPolicyWindows10
   * Added a throw condition if the reusable certiticate policy setting is not found.
+* PPTenantIsolationSettings
+  * Fixed an issue where updating the policy failed because of a unresolved tenant name.
+    FIXES [#6778](https://github.com/microsoft/Microsoft365DSC/issues/6778)
 * SCSecurityFilter
   * Added a note that the resource does not support certificate based authentication.
 * TeamsOrgWideAppSettings
