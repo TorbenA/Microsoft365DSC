@@ -7,6 +7,7 @@
 * M365DSCDRGUtil
   * Fixed an issue where `Rename-M365DSCCimInstanceParameter` omitted values.
     FIXES [#6727](https://github.com/microsoft/Microsoft365DSC/issues/6727)
+    FIXES [#6779](https://github.com/microsoft/Microsoft365DSC/issues/6779)
 * M365DSCReverse
   * Added `TenantGuid` entry to the `ConfigurationData.psd1` file during export.
     FIXES [#6689](https://github.com/microsoft/Microsoft365DSC/issues/6689)
