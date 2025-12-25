@@ -6,6 +6,8 @@
   * Fixed an issue where empty arrays were not exported.
     FIXES [#6759](https://github.com/microsoft/Microsoft365DSC/issues/6759)
 * AADConditionalAccessPolicy
+  * Added the property `SecureSignInSessionIsEnabled`.
+    FIXES [#6777](https://github.com/microsoft/Microsoft365DSC/issues/6777)
   * Fixed an issue where updating a policy would fail.
     FIXES [#6782](https://github.com/microsoft/Microsoft365DSC/issues/6782)
 * AADNetworkAccessForwardingPolicy
