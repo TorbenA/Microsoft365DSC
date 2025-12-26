@@ -4,6 +4,9 @@
 
 * EXOPlace
   * Fixes an issue with the export where it was trying to export RoomList.
+* IntuneDeviceConfigurationKioskPolicyWindows10
+  * [BREAKING CHANGE] Removed property `ProfileId` from the
+    `MSFT_MicrosoftGraphWindowsKioskProfile` instance.
 * MISC
   * Added CIM information about required properties to all resources where applicable.
 

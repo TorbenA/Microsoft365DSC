@@ -1,7 +1,7 @@
-[ClassVersion("1.0.0.1")]
+[ClassVersion("1.0.0.0")]
 class MSFT_AADFilteringPolicyRuleDestination
 {
-    [Key, Description("Name of the destination.")] String name;
+    [Write, Description("Name of the destination.")] String name;
     [Write, Description("FQDN value for the destination.")] String value;
 };
 

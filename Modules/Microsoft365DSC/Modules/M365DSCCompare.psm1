@@ -164,6 +164,17 @@ function Compare-M365DSCResourceState
                     $targetObjects = @()
                 }
 
+                if ($CIMName -like "*Intune*PolicyAssignments")
+                {
+                    if (($source.Count -gt 0 -and $source[0].dataType -notin @("#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget")) -or `
+                        ($target.Count -gt 0 -and $target[0].dataType -notin @("#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget")))
+                    {
+                        $CIMPrimaryKeys += @{
+                            Name = 'groupDisplayName'
+                        }
+                    }
+                }
+
                 # Filter all target objects that match the primary keys of the source object(s)
                 $target = $target | Where-Object -FilterScript {
                     $match = $true

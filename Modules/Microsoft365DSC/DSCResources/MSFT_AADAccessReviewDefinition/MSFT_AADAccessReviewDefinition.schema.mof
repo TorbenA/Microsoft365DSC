@@ -82,10 +82,10 @@ class MSFT_MicrosoftGraphAccessReviewStageSettings
     [Key, Description("Unique identifier of the accessReviewStageSettings. The stageId is used in dependsOn property to indicate the stage relationship. Required.")] String StageId;
 };
 
-[ClassVersion("1.0.0.1")]
+[ClassVersion("1.0.0.0")]
 class MSFT_AADAccessReviewDefinitionReviewer
 {
-    [Key, Description("Indicates the display name of the current reviewer, either of a group or of a user.")] String DisplayName;
+    [Write, Description("Indicates the display name of the current reviewer, either of a group or of a user.")] String DisplayName;
     [Write, Description("Indicates the type of reviewer. Possible values: Manager, Owner, User, Group"), ValueMap{"Manager", "Owner", "User", "Group"}, Values{"Manager", "Owner", "User", "Group"}] String Type;
 };
 
