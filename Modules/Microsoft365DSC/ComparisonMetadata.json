@@ -1,8 +1,12 @@
 {
   "Description": "Metadata for resources that require custom comparison logic during drift detection and reporting. When HasCustomComparison is true, the resource's Get-CompareParameters function will be invoked to retrieve comparison-specific parameters (ExcludedProperties, IncludedProperties, PostProcessing, etc.).",
-  "LastGenerated": "2025-12-07 23:37:30",
-  "TotalResources": 94,
+  "LastGenerated": "2025-12-23 20:24:55",
+  "TotalResources": 95,
   "Resources": {
+    "AADAccessReviewDefinition": {
+      "HasCustomComparison": true,
+      "Description": "Uses PostProcessing scriptblock"
+    },
     "AADAdministrativeUnit": {
       "HasCustomComparison": true,
       "Description": "Excludes properties: Visibility"
