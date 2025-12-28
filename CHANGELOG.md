@@ -4,6 +4,9 @@
 
 * EXOPlace
   * Fixes an issue with the export where it was trying to export RoomList.
+* IntuneMobileAppsManagedGooglePlayApp
+  * Fixed an issue where `AssignmentSettings` was not a valid property.
+    FIXES [#6785](https://github.com/microsoft/Microsoft365DSC/issues/6785)
 
 # 1.25.1203.2
 
