@@ -143,9 +143,9 @@ function Get-TargetResource
         foreach ($currentSettings in $getValue.settings)
         {
             $complexSettingInstance = [hashtable]@{}
-            if ( -Not([string]::IsNullOrEmpty($currentSettings.SettingInstance.'@odata.type')) )
+            if ( -Not([string]::IsNullOrEmpty($currentSettings.SettingInstance.AdditionalProperties.'@odata.type')) )
             {
-                $complexSettingInstance['odataType'] = $currentSettings.SettingInstance.'@odata.type'
+                $complexSettingInstance['odataType'] = $currentSettings.SettingInstance.AdditionalProperties.'@odata.type'
             }
             if ( -Not([string]::IsNullOrEmpty($currentSettings.SettingInstance.settingDefinitionId)) )
             {
