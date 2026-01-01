@@ -4,6 +4,8 @@
 
 * EXOPlace
   * Fixes an issue with the export where it was trying to export RoomList.
+* M365DSCLogEngine
+  * Replaced deprecated Windows Event PowerShell cmdlets with .NET.
 
 # 1.25.1203.2
 
