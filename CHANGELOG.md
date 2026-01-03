@@ -4,6 +4,8 @@
 
 * EXOPlace
   * Fixes an issue with the export where it was trying to export RoomList.
+* MISC
+  * Fixed an issue where not all required modules were specified in resource settings.
 
 # 1.25.1203.2
 
