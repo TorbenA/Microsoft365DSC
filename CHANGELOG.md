@@ -15,6 +15,18 @@
 * EXOSecOpsOverrideRule
   * Fixed an issue where the export would fail.
     FIXES [#6753](https://github.com/microsoft/Microsoft365DSC/issues/6753)
+* IntuneAppConfigurationDevicePolicy
+  * Added error handling with message if targeted app doesn't exist.
+* IntuneAppProtectionPolicyAndroid
+  * Fixed several issues when creating and updating the policy.
+    FIXES [#6746](https://github.com/microsoft/Microsoft365DSC/issues/6746)
+* IntuneAppProtectionPolicyiOS
+  * Fixed several issues when creating and updating the policy.
+* IntuneAzureNetworkConnectionWindows365
+  * Fixed the name of the Azure permission provider.
+* IntuneDeviceCompliancePolicyAndroidDeviceOwner
+  * Fixed an issue where a JSON serialization warning was outputted
+    due to the object depth exceeding two levels.
 * MISC
   * Removed verbose output from `Get-TargetResource`.
   * Updated the error behavior to always throw inside `Get-TargetResource`.
