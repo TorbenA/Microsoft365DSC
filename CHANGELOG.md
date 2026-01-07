@@ -1,5 +1,5 @@
 # Change log for Microsoft365DSC
-     
+
 # UNRELEASED
 
 * AADNetworkAccessForwardingPolicy
