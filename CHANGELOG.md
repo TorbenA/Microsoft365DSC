@@ -45,6 +45,9 @@
   * Added `TenantGuid` entry to the `ConfigurationData.psd1` file during export.
     FIXES [#6689](https://github.com/microsoft/Microsoft365DSC/issues/6689)
 * M365DSCUtil
+  * Fixed an issue where multiple installed Microsoft365DSC versions
+    will lead to an error during export.
+    FIXES [#6758](https://github.com/microsoft/Microsoft365DSC/issues/6758)
   * Added functionality to change M365DSC configuration during runtime.
   * Improved module installation speed for `Update-M365DSCModule`.
 * MISC
