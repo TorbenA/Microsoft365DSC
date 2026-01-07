@@ -2,6 +2,21 @@
 
 # UNRELEASED
 
+* AADNetworkAccessForwardingPolicy
+  * Fixed an issue where empty `PolicyRules` would throw an exception during Get.
+* EXOPlace
+  * Fixes an issue with the export where it was trying to export RoomList.
+* MISC
+  * Removed verbose output from `Get-TargetResource`.
+  * Updated the error behavior to always throw inside `Get-TargetResource`.
+
+# 1.25.1203.2
+
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.56.
+
+# 1.25.1203.1
+
 * AADGroup
   * Fixed an issue where not all manageable Entra groups were exported.
 * AADNamedLocationPolicy
