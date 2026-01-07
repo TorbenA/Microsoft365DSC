@@ -6,6 +6,7 @@ $Global:SessionSecurityCompliance = $null
 $Script:M365DSCWorkloads = @('AAD', 'ADO', 'AZURE', 'COMMERCE', 'DEFENDER', 'EXO', 'FABRIC', 'INTUNE', 'O365', 'OD', 'PLANNER', 'PP', 'SC', 'SENTINEL', 'SH', 'SPO', 'TEAMS')
 $Script:M365DSCDependenciesValidated = $false
 $Script:IsPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
+$Script:IsPsResourceGetAvailable = $null -ne (Get-Module -Name Microsoft.PowerShell.PSResourceGet -ListAvailable)
 $Script:M365DSCStringReplacementMap = @{}
 if ($null -eq $Script:M365DSCDependencies)
 {
@@ -3437,6 +3438,12 @@ Specifies that the function should only return the dependencies that are not ins
 .Parameter Scope
 Specifies the scope of the update of the module. The default value is AllUsers(needs to run as elevated user).
 
+.PARAMETER Proxy
+Specifies the proxy server to use for the module installation.
+
+.PARAMETER Repository
+Specifies the PowerShell repository name to use for the installation of the dependencies.
+
 .Example
 Update-M365DSCDependencies
 
@@ -3468,7 +3475,11 @@ function Update-M365DSCDependencies
 
         [Parameter()]
         [System.String]
-        $Proxy
+        $Proxy,
+
+        [Parameter()]
+        [System.String]
+        $Repository = 'PSGallery'
     )
 
     try
@@ -3482,6 +3493,28 @@ function Update-M365DSCDependencies
         if (-not [System.String]::IsNullOrEmpty($Proxy))
         {
             $params.Add('Proxy', $Proxy)
+        }
+
+        # Check if PSResourceGet is installed or not
+        if (-not $Script:IsPsResourceGetAvailable)
+        {
+            Write-Warning -Message 'Microsoft.PowerShell.PSResourceGet is not installed, installing it now...'
+            try
+            {
+                Install-Module -Name Microsoft.PowerShell.PSResourceGet -Scope $Scope -AllowClobber @params -Force -ErrorAction Stop -Repository PSGallery
+                $Script:IsPsResourceGetAvailable = $true
+            }
+            catch
+            {
+                Write-Warning -Message "Failed to install Microsoft.PowerShell.PSResourceGet, continuing without it..."
+            }
+        }
+
+        $scopedIsPsResourceGetAvailable = $Script:IsPsResourceGetAvailable
+        if ($params.ContainsKey('Proxy'))
+        {
+            Write-Information -MessageData "Falling back to Install-Module because Install-PSResource does not support a proxy"
+            $scopedIsPsResourceGetAvailable = $false
         }
 
         foreach ($dependency in $Script:M365DSCDependencies.Values.GetEnumerator())
@@ -3532,14 +3565,23 @@ function Update-M365DSCDependencies
                             continue
                         }
 
-                        Write-Information -MessageData "Installing $($dependency.ModuleName) version {$($dependency.RequiredVersion)}"
                         Remove-Module $dependency.ModuleName -Force -ErrorAction SilentlyContinue
                         if ($dependency.ModuleName -like 'Microsoft.Graph*')
                         {
                             Remove-Module 'Microsoft.Graph.Authentication' -Force -ErrorAction SilentlyContinue
                         }
                         Remove-Module $dependency.ModuleName -Force -ErrorAction SilentlyContinue
-                        Install-Module $dependency.ModuleName -RequiredVersion $dependency.RequiredVersion -AllowClobber -Force -Scope "$Scope" @Params
+
+                        if ($scopedIsPsResourceGetAvailable)
+                        {
+                            Write-Information -MessageData "Using Install-PSResource to install $($dependency.ModuleName) with version {$($dependency.RequiredVersion)}"
+                            Install-PSResource -Name $dependency.ModuleName -Version $dependency.RequiredVersion -Scope $Scope -AcceptLicense -SkipDependencyCheck -TrustRepository -Repository $Repository
+                        }
+                        else
+                        {
+                            Write-Information -MessageData "Using Install-Module to install $($dependency.ModuleName) with version {$($dependency.RequiredVersion)}"
+                            Install-Module $dependency.ModuleName -RequiredVersion $dependency.RequiredVersion -AllowClobber -Force -Scope "$Scope" @Params -Repository $Repository
+                        }
                     }
                 }
 
@@ -4930,6 +4972,18 @@ This function updates the module, dependencies and uninstalls outdated dependenc
 .Parameter Scope
 Specifies the scope of the update of the module. The default value is AllUsers(needs to run as elevated user).
 
+.PARAMETER Proxy
+Specifies the proxy server to use for the update.
+
+.PARAMETER BaseRepository
+Specifies the PowerShell Repository name to use for the installation of the Microsoft365DSC module.
+
+.PARAMETER DependencyRepository
+Specifies the PowerShell Repository name to use for the installation of the dependencies of the Microsoft365DSC module.
+
+.PARAMETER NoUninstall
+Indicates if outdated dependencies and modules should be uninstalled.
+
 .Example
 Update-M365DSCModule
 
@@ -4955,6 +5009,14 @@ function Update-M365DSCModule
         $Proxy,
 
         [Parameter()]
+        [System.String]
+        $BaseRepository = 'PSGallery',
+
+        [Parameter()]
+        [System.String]
+        $DependencyRepository = 'PSGallery',
+
+        [Parameter()]
         [switch]
         $NoUninstall
     )
@@ -4973,7 +5035,12 @@ function Update-M365DSCModule
     {
         if ($_.Exception.Message -like "*Module 'Microsoft365DSC' was not installed by using Install-Module")
         {
-            Write-Verbose -Message "The Microsoft365DSC module was not installed from the PowerShell Gallery and therefore cannot be updated."
+            Write-Verbose -Message "The Microsoft365DSC module might have been installed with Install-PSResource"
+            if ($null -ne (Get-Module -Name Microsoft.PowerShell.PSResourceGet -ListAvailable))
+            {
+                Write-Verbose -Message "Updating the Microsoft365DSC module using Update-PSResource..."
+                Update-PSResource -Name 'Microsoft365DSC' -Scope $Scope -TrustRepository -AcceptLicense -SkipDependencyCheck -Repository $BaseRepository
+            }
         }
     }
     try
@@ -4996,7 +5063,8 @@ function Update-M365DSCModule
             -Source $($MyInvocation.MyCommand.Source)
         throw $_
     }
-    Update-M365DSCDependencies -Scope $Scope -Proxy $Proxy
+
+    Update-M365DSCDependencies -Scope $Scope -Proxy $Proxy -Repository $DependencyRepository
 
     if (-not $NoUninstall)
     {

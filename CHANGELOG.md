@@ -27,6 +27,8 @@
 * M365DSCReverse
   * Added `TenantGuid` entry to the `ConfigurationData.psd1` file during export.
     FIXES [#6689](https://github.com/microsoft/Microsoft365DSC/issues/6689)
+* M365DSCUtil
+  * Improved module installation speed for `Update-M365DSCModule`.
 * MISC
   * Removed verbose output from `Get-TargetResource`.
   * Updated the error behavior to always throw inside `Get-TargetResource`.
