@@ -405,13 +405,8 @@ function Set-TargetResource
         [Array]$newRules = $existingAllowedRules | Where-Object -FilterScript { $_.tenantId -notin $removeRules }
         $tenantIsolationPolicy.Properties.allowedTenants = $newRules
     }
-    $tenantGuid = [System.Guid]::Empty
-    if (-not [System.Guid]::TryParse($TenantId, [ref]$tenantGuid))
-    {
-        $TenantId = Get-M365TenantId -TenantName $TenantId
-    }
     $uri = "https://" + (Get-MSCloudLoginConnectionProfile -Workload 'PowerPlatformREST').BapEndpoint + `
-               "/providers/PowerPlatform.Governance/v1/tenants/$($TenantId)/tenantIsolationPolicy?api-version=2020-06-01"
+               "/providers/PowerPlatform.Governance/v1/tenants/$($tenantinfo)/tenantIsolationPolicy?api-version=2020-06-01"
     Write-Verbose -Message "Updating with payload:`r`n$(ConvertTo-Json $tenantIsolationPolicy -Depth 20)"
     Invoke-M365DSCPowerPlatformRESTWebRequest -Uri $uri -Method 'PUT' -Body $tenantIsolationPolicy
 }
