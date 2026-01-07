@@ -418,9 +418,12 @@ function Get-TargetResource
         $policyApps = Get-MgBetaDeviceAppManagementiOSManagedAppProtectionApp -IosManagedAppProtectionId $Id
 
         $appsArray = @()
-        foreach ($app in $policyApps)
+        if ($policy.AppGroupType -eq 'selectedPublicApps')
         {
-            $appsArray += $app.mobileAppIdentifier.additionalProperties.bundleId
+            foreach ($app in $policyApps)
+            {
+                $appsArray += $app.mobileAppIdentifier.additionalProperties.bundleId
+            }
         }
 
         $assignmentsValues = Get-MgBetaDeviceAppManagementiOSManagedAppProtectionAssignment -IosManagedAppProtectionId $Id
@@ -460,6 +463,12 @@ function Get-TargetResource
             $AllowedDataStorageLocations = [String[]]($policy.AllowedDataStorageLocations)
         }
 
+        $gracePeriodToBlockAppsDuringOffClockHoursString = $null
+        if (-not [System.String]::IsNullOrEmpty($policy.GracePeriodToBlockAppsDuringOffClockHours))
+        {
+            $gracePeriodToBlockAppsDuringOffClockHoursString = [System.Xml.XmlConvert]::ToString($policy.GracePeriodToBlockAppsDuringOffClockHours)
+        }
+
         return @{
             Identity                                       = $policy.Id
             DisplayName                                    = $policy.DisplayName
@@ -472,10 +481,11 @@ function Get-TargetResource
             AppGroupType                                   = [string]$policy.appGroupType
             BlockDataIngestionIntoOrganizationDocuments    = $policy.blockDataIngestionIntoOrganizationDocuments
             CustomDialerAppProtocol                        = [string]$policy.customDialerAppProtocol
-            DeployedAppCount                               = $policy.deployedAppCount
+            # TODO: Remove during next breaking change
+            #DeployedAppCount                               = $policy.deployedAppCount
             DialerRestrictionLevel                         = [string]$policy.dialerRestrictionLevel
             ExemptedUniversalLinks                         = $exemptedUniversalLinks
-            GracePeriodToBlockAppsDuringOffClockHours      = [System.Xml.XmlConvert]::ToString($policy.GracePeriodToBlockAppsDuringOffClockHours)
+            GracePeriodToBlockAppsDuringOffClockHours      = $gracePeriodToBlockAppsDuringOffClockHoursString
             ManagedUniversalLinks                          = $managedUniversalLinks
             MaximumAllowedDeviceThreatLevel                = [string]$policy.maximumAllowedDeviceThreatLevel
             MaximumRequiredOsVersion                       = [string]$policy.maximumRequiredOsVersion
@@ -935,32 +945,9 @@ function Set-TargetResource
         $createParameters.Remove('Identity')
         $createParameters.Remove('Assignments')
         $createParameters.Remove('Apps')
+        $createParameters.Remove('DeployedAppCount')
         $createParameters.TargetedAppManagementLevels = $createParameters.TargetedAppManagementLevels -join ','
 
-        $durationParameters = @(
-            'PeriodOfflineBeforeAccessCheck'
-            'PeriodOnlineBeforeAccessCheck'
-            'PeriodOfflineBeforeWipeIsEnforced'
-            'PeriodBeforePinReset'
-            'PinRequiredInsteadOfBiometricTimeout'
-            'GracePeriodToBlockAppsDuringOffClockHours'
-        )
-        foreach ($duration in $durationParameters)
-        {
-            if (-not [String]::IsNullOrEmpty($createParameters.$duration))
-            {
-                Write-Verbose -Message "Parsing {$($createParameters.$duration)} into TimeSpan"
-                if ($createParameters.$duration.Startswith('P'))
-                {
-                    $timespan = [System.Xml.XmlConvert]::ToTimeSpan($createParameters.$duration)
-                }
-                else
-                {
-                    $timespan = [TimeSpan]$createParameters.$duration
-                }
-                $createParameters.$duration = $timespan
-            }
-        }
         $myExemptedAppProtocols = @()
         foreach ($exemptedAppProtocol in $ExemptedAppProtocols)
         {
@@ -971,20 +958,21 @@ function Set-TargetResource
         }
         $createParameters.ExemptedAppProtocols = $myExemptedAppProtocols
 
-        $arrayTemp = @("minimumWarningSdkVersion","maximumRequiredOsVersion","maximumWarningOsVersion","maximumWipeOsVersion")
-        Foreach($item in $arrayTemp)
+        # Remove empty string parameters that the cmdlet can't handle
+        $arrayTemp = @("MinimumWarningSdkVersion", "MaximumRequiredOsVersion", "MaximumWarningOsVersion", "MaximumWipeOsVersion")
+        foreach ($item in $arrayTemp)
         {
-                if ($createParameters.$item -eq "")
-                {
-                    $createParameters.Remove($item) #for some reason cmdlet can't handle this being blank, which is annoying as we can't enforce it
-                }
+            if ([System.String]::IsNullOrEmpty($createParameters.$item))
+            {
+                $createParameters.Remove($item)
+            }
         }
 
         $policy = New-MgBetaDeviceAppManagementiOSManagedAppProtection -BodyParameter $createParameters
         if ($policy.Id)
         {
             Write-Verbose -Message "Update targetApps for iOS App Protection Policy with Id {$($policy.Id)} and DisplayName {$DisplayName}"
-            $targetApps = Get-IntuneAppProtectionPolicyiOSAppsToHashtable -Apps $Apps
+            $targetApps = Get-IntuneAppProtectionPolicyiOSAppsToHashtable -Apps $Apps -AppGroupType $AppGroupType
             $Url = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceAppManagement/iosManagedAppProtections('$($policy.Id)')/targetApps"
             Invoke-MgGraphRequest -Method POST -Uri $Url -Body $targetApps
 
@@ -1002,40 +990,19 @@ function Set-TargetResource
         $updateParameters.Remove('Identity')
         $updateParameters.Remove('Assignments')
         $updateParameters.Remove('Apps')
+        $updateParameters.Remove('DeployedAppCount')
         $updateParameters.TargetedAppManagementLevels = $updateParameters.TargetedAppManagementLevels -join ','
 
-        $arrayTemp = @("minimumWarningSdkVersion","maximumRequiredOsVersion","maximumWarningOsVersion","maximumWipeOsVersion")
-        Foreach($item in $arrayTemp)
+        # Remove empty string parameters that the cmdlet can't handle
+        $arrayTemp = @("MinimumWarningSdkVersion", "MaximumRequiredOsVersion", "MaximumWarningOsVersion", "MaximumWipeOsVersion")
+        foreach ($item in $arrayTemp)
         {
-                if ($updateParameters.$item -eq "")
-                {
-                    $updateParameters.Remove($item) #for some reason cmdlet can't handle this being blank, which is annoying as we can't enforce it
-                }
-        }
-
-        $durationParameters = @(
-            'PeriodOfflineBeforeAccessCheck'
-            'PeriodOnlineBeforeAccessCheck'
-            'PeriodOfflineBeforeWipeIsEnforced'
-            'PeriodBeforePinReset'
-            'PinRequiredInsteadOfBiometricTimeout'
-            'GracePeriodToBlockAppsDuringOffClockHours'
-        )
-        foreach ($duration in $durationParameters)
-        {
-            if (-not [String]::IsNullOrEmpty($updateParameters.$duration))
+            if ([System.String]::IsNullOrEmpty($updateParameters.$item))
             {
-                if ($updateParameters.$duration.Startswith('P'))
-                {
-                    $timespan = [System.Xml.XmlConvert]::ToTimeSpan($updateParameters.$duration)
-                }
-                else
-                {
-                    $timespan = [TimeSpan]$updateParameters.$duration
-                }
-                $updateParameters.$duration = $timespan
+                $updateParameters.Remove($item)
             }
         }
+
         $myExemptedAppProtocols = @()
         foreach ($exemptedAppProtocol in $ExemptedAppProtocols)
         {
@@ -1045,11 +1012,10 @@ function Set-TargetResource
             }
         }
         $updateParameters.ExemptedAppProtocols = $myExemptedAppProtocols
-
         Update-MgBetaDeviceAppManagementiOSManagedAppProtection -IosManagedAppProtectionId $Identity -BodyParameter $updateParameters
 
         Write-Verbose -Message "Updating targetApps for iOS App Protection Policy with Id {$Identity} and DisplayName {$DisplayName}"
-        $targetApps = Get-IntuneAppProtectionPolicyiOSAppsToHashtable -Apps $Apps
+        $targetApps = Get-IntuneAppProtectionPolicyiOSAppsToHashtable -Apps $Apps -AppGroupType $AppGroupType
         $Url = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceAppManagement/iosManagedAppProtections('$($Identity)')/targetApps"
         Invoke-MgGraphRequest -Method POST -Uri $Url -Body $targetApps
 
@@ -1430,8 +1396,18 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
+    $postProcessingScript = {
+        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
+        if ($DesiredValues.AppGroupType -ne 'SelectedPublicApps')
+        {
+            $ValuesToCheck.Remove('Apps')
+        }
+        return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
+    }
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         -ExcludedProperties @('DeployedAppCount') `
+                                         -PostProcessing $postProcessingScript
     return $result
 }
 
@@ -1584,13 +1560,53 @@ function Get-IntuneAppProtectionPolicyiOSAppsToHashtable
 {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
-    param(
+    param
+    (
         [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
         [System.String[]]
-        $Apps
+        $Apps,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('selectedPublicApps', 'allCoreMicrosoftApps', 'allMicrosoftApps','allApps')]
+        [System.String]
+        $AppGroupType
     )
 
     $formattedApps = @()
+    $allApps = (Get-MgBetaDeviceAppManagementManagedAppStatus -ManagedAppStatusId managedAppList).AdditionalProperties.content.appList | Where-Object {
+        $_.appIdentifier.'@odata.type' -eq '#microsoft.graph.iosMobileAppIdentifier'
+    }
+
+    switch ($AppGroupType)
+    {
+        'selectedPublicApps'
+        {
+            if ($Apps.Count -eq 0)
+            {
+                throw "AppGroupType is set to 'selectedPublicApps' but no Apps were provided."
+            }
+        }
+        'allCoreMicrosoftApps'
+        {
+            $Apps = $allApps | Where-Object appGroups -EQ 'coreMicrosoft' | ForEach-Object {
+                $_.appIdentifier.bundleId
+            }
+        }
+        'allMicrosoftApps'
+        {
+            $Apps = $allApps | Where-Object appGroups -EQ 'microsoft' | ForEach-Object {
+                $_.appIdentifier.bundleId
+            }
+        }
+        'allApps'
+        {
+            $Apps = $allApps | ForEach-Object {
+                $_.appIdentifier.bundleId
+            }
+        }
+    }
+
     foreach ($app in $Apps)
     {
         $formattedApps += @{
@@ -1604,6 +1620,7 @@ function Get-IntuneAppProtectionPolicyiOSAppsToHashtable
 
     return @{
         apps = $formattedApps
+        appGroupType = $AppGroupType
     }
 }
 

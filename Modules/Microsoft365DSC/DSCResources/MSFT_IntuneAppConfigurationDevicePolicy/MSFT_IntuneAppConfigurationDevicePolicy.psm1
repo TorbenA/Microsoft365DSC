@@ -204,7 +204,13 @@ function Get-TargetResource
         $targetedApps = @()
         foreach ($targetedApp in $getValue.TargetedMobileApps)
         {
-            $app = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $targetedApp
+            $app = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $targetedApp -ErrorAction SilentlyContinue
+            if ($null -eq $app)
+            {
+                Write-Warning -Message "App [$targetedApp] was not found. Please make sure the targeted app exists."
+                continue
+            }
+
             if ($platform -eq 'android')
             {
                 $targetedApps += $app.AdditionalProperties.packageId
