@@ -2,8 +2,13 @@
 
 # UNRELEASED
 
+* AADNetworkAccessForwardingPolicy
+  * Fixed an issue where empty `PolicyRules` would throw an exception during Get.
 * EXOPlace
   * Fixes an issue with the export where it was trying to export RoomList.
+* MISC
+  * Removed verbose output from `Get-TargetResource`.
+  * Updated the error behavior to always throw inside `Get-TargetResource`.
 
 * MSFT_IntuneSettingCatalogCustomPolicyWindows10
   * Fixed the ability to run Get-TargetResource via the LCM (Get-DscConfiguration) and it's ability to return complex nested objects.

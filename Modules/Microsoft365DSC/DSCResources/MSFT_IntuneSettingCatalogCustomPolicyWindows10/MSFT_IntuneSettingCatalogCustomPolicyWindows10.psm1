@@ -226,12 +226,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        if ($_.Exception.Message -like 'Error: The displayName*')
-        {
-            throw $_
-        }
-
-        return $nullResult
+        throw
     }
 }
 
@@ -710,16 +705,14 @@ function Export-TargetResource
         }
         else
         {
-            Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
-
             New-M365DSCLogEntry -Message 'Error during Export:' `
                 -Exception $_ `
                 -Source $($MyInvocation.MyCommand.Source) `
                 -TenantId $TenantId `
                 -Credential $Credential
-        }
 
-        return ''
+            throw
+        }
     }
 }
 
@@ -949,7 +942,8 @@ function Update-IntuneDeviceConfigurationPolicy
 {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
-    param (
+    param
+    (
         [Parameter(Mandatory = 'true')]
         [System.String]
         $DeviceManagementConfigurationPolicyId,
