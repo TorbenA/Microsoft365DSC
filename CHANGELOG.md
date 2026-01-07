@@ -18,6 +18,13 @@
 * IntuneDeviceCompliancePolicyAndroidDeviceOwner
   * Fixed an issue where a JSON serialization warning was outputted
     due to the object depth exceeding two levels.
+* M365DSCDRGUtil
+  * Fixed an issue where `Rename-M365DSCCimInstanceParameter` omitted values.
+    FIXES [#6727](https://github.com/microsoft/Microsoft365DSC/issues/6727)
+    FIXES [#6779](https://github.com/microsoft/Microsoft365DSC/issues/6779)
+* M365DSCReverse
+  * Added `TenantGuid` entry to the `ConfigurationData.psd1` file during export.
+    FIXES [#6689](https://github.com/microsoft/Microsoft365DSC/issues/6689)
 * MISC
   * Removed verbose output from `Get-TargetResource`.
   * Updated the error behavior to always throw inside `Get-TargetResource`.
