@@ -20,6 +20,14 @@
     due to the object depth exceeding two levels.
 * O365OrgSettings
   * Added `CertificatePath` with `CertificatePassword` as an authentication method.
+* TeamsChannel
+  * Updated required permissions for read / update.
+* TeamsEmergencyCallRoutingPolicy
+  * Updated required permissions for read / update.
+* TeamsTeam
+  * Updated required permissions for read / update.
+* TeamsUser
+  * Updated required permissions for read / update.
 * M365DSCDRGUtil
   * Fixed an issue where `Rename-M365DSCCimInstanceParameter` omitted values.
     FIXES [#6727](https://github.com/microsoft/Microsoft365DSC/issues/6727)
