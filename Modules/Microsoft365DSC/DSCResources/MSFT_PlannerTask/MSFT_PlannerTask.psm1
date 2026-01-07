@@ -653,23 +653,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $postProcessingScript = {
-        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
-        if ([System.String]::IsNullOrEmpty($DesiredValues.Bucket) -and
-                -not [System.String]::IsNullOrEmpty($CurrentValues.Bucket))
-        {
-            if (-not $ValuesToCheck.ContainsKey('Bucket'))
-            {
-                $DesiredValues.Bucket = $null
-                $ValuesToCheck.Add('Bucket', $null)
-            }
-        }
-        return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
-    }
-
+    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
                                          -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -PostProcessing $postProcessingScript
+                                         @compareParameters
     return $result
 }
 
@@ -1083,4 +1070,27 @@ function Get-TaskColorNameByCategory
     return $null
 }
 
-Export-ModuleMember -Function *-TargetResource
+function Get-CompareParameters
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param()
+
+    return @{
+        PostProcessing = {
+            param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
+            if ([System.String]::IsNullOrEmpty($DesiredValues.Bucket) -and
+                    -not [System.String]::IsNullOrEmpty($CurrentValues.Bucket))
+            {
+                if (-not $ValuesToCheck.ContainsKey('Bucket'))
+                {
+                    $DesiredValues.Bucket = $null
+                    $ValuesToCheck.Add('Bucket', $null)
+                }
+            }
+            return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
+        }
+    }
+}
+
+Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')

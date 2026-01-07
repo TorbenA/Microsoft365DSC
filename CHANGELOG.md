@@ -4,8 +4,17 @@
 
 * AADNetworkAccessForwardingPolicy
   * Fixed an issue where empty `PolicyRules` would throw an exception during Get.
+* EXOExternalInOutlook
+  * Fixed an issue where the export would fail.
+    FIXES [#6753](https://github.com/microsoft/Microsoft365DSC/issues/6753)
+* EXOPhishSimOverrideRule
+  * Fixed an issue where the export would fail.
+    FIXES [#6753](https://github.com/microsoft/Microsoft365DSC/issues/6753)
 * EXOPlace
   * Fixes an issue with the export where it was trying to export RoomList.
+* EXOSecOpsOverrideRule
+  * Fixed an issue where the export would fail.
+    FIXES [#6753](https://github.com/microsoft/Microsoft365DSC/issues/6753)
 * IntuneAppConfigurationDevicePolicy
   * Added error handling with message if targeted app doesn't exist.
 * IntuneAppProtectionPolicyAndroid
@@ -20,6 +29,14 @@
     due to the object depth exceeding two levels.
 * O365OrgSettings
   * Added `CertificatePath` with `CertificatePassword` as an authentication method.
+* TeamsChannel
+  * Updated required permissions for read / update.
+* TeamsEmergencyCallRoutingPolicy
+  * Updated required permissions for read / update.
+* TeamsTeam
+  * Updated required permissions for read / update.
+* TeamsUser
+  * Updated required permissions for read / update.
 * M365DSCDRGUtil
   * Fixed an issue where `Rename-M365DSCCimInstanceParameter` omitted values.
     FIXES [#6727](https://github.com/microsoft/Microsoft365DSC/issues/6727)
@@ -31,8 +48,13 @@
   * Fixed an issue where multiple installed Microsoft365DSC versions
     will lead to an error during export.
     FIXES [#6758](https://github.com/microsoft/Microsoft365DSC/issues/6758)
+  * Added functionality to change M365DSC configuration during runtime.
   * Improved module installation speed for `Update-M365DSCModule`.
 * MISC
+   * Generalized custom comparison handling.
+    FIXES [#6765](https://github.com/microsoft/Microsoft365DSC/issues/6765)
+    FIXES [#6756](https://github.com/microsoft/Microsoft365DSC/issues/6756)
+    FIXES [#6584](https://github.com/microsoft/Microsoft365DSC/issues/6584)
   * Removed verbose output from `Get-TargetResource`.
   * Updated the error behavior to always throw inside `Get-TargetResource`.
 

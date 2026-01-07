@@ -325,7 +325,7 @@ function Export-TargetResource
 
     try
     {
-        [array]$getValue = Get-ExternalInOutlook -ErrorAction Stop
+        [array]$getValue = Get-ExternalInOutlook
 
         $i = 1
         $dscContent = ''

@@ -313,7 +313,7 @@ function Export-TargetResource
 
     try
     {
-        [array]$overrideRules = Get-EXOSecOpsOverrideRule -ErrorAction Stop
+        [array]$overrideRules = Get-EXOSecOpsOverrideRule
 
         $i = 1
         $dscContent = ''
