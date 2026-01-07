@@ -210,12 +210,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        if ($_.Exception.Message -like 'Error: The displayName*')
-        {
-            throw $_
-        }
-
-        return $nullResult
+        throw
     }
 }
 
@@ -368,8 +363,8 @@ function Set-TargetResource
             }
         }
         #region resource generator code
-        Update-IntuneDeviceConfigurationPolicy  `
-            -DeviceManagementConfigurationPolicyId $currentInstance.Id `
+        Update-IntuneDeviceConfigurationPolicy `
+            -DeviceConfigurationPolicyId $currentInstance.Id `
             @UpdateParameters
 
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
@@ -694,16 +689,14 @@ function Export-TargetResource
         }
         else
         {
-            Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
-
             New-M365DSCLogEntry -Message 'Error during Export:' `
                 -Exception $_ `
                 -Source $($MyInvocation.MyCommand.Source) `
                 -TenantId $TenantId `
                 -Credential $Credential
-        }
 
-        return ''
+            throw
+        }
     }
 }
 
@@ -711,7 +704,8 @@ function Get-SettingValue
 {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable], [System.Collections.Hashtable[]])]
-    param (
+    param
+    (
         [Parameter()]
         $SettingValue,
         [Parameter()]
@@ -851,85 +845,6 @@ function Get-SettingValue
         }
     }
     return $complexValue
-}
-
-function Update-IntuneDeviceConfigurationPolicy
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param (
-        [Parameter(Mandatory = 'true')]
-        [System.String]
-        $DeviceManagementConfigurationPolicyId,
-
-        [Parameter()]
-        [System.String]
-        $Name,
-
-        [Parameter()]
-        [System.String]
-        $Description,
-
-        [Parameter()]
-        [System.String]
-        $Platforms,
-
-        [Parameter()]
-        [System.String]
-        $Technologies,
-
-        [Parameter()]
-        [System.String]
-        $TemplateReferenceId,
-
-        [Parameter()]
-        [Array]
-        $Settings,
-
-        [Parameter()]
-        [System.String[]]
-        $RoleScopeTagIds
-    )
-
-    try
-    {
-        $Uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceManagement/configurationPolicies/$DeviceManagementConfigurationPolicyId"
-
-        $policy = @{
-            'name'              = $Name
-            'description'       = $Description
-            'platforms'         = $Platforms
-            'templateReference' = @{'templateId' = $TemplateReferenceId }
-            'technologies'      = $Technologies
-            'settings'          = $Settings
-            'roleScopeTagIds'   = $RoleScopeTagIds
-        }
-
-        if (-not $RoleScopeTagIds -or $RoleScopeTagIds.Count -eq 0)
-        {
-            # No tag IDs provided -> use the default Intune tag "0"
-            $policy['roleScopeTagIds'] = @("0")
-        }
-        else
-        {
-            # Tag IDs provided -> force array type to ensure Graph serialization consistency
-            $policy['roleScopeTagIds'] = @($RoleScopeTagIds)
-        }
-
-        $body = $policy | ConvertTo-Json -Depth 100
-        #Write-Verbose -Message $body
-        Invoke-MgGraphRequest -Method PUT -Uri $Uri -Body $body -ErrorAction Stop 4> $null
-    }
-    catch
-    {
-        New-M365DSCLogEntry -Message 'Error updating data:' `
-            -Exception $_ `
-            -Source $($MyInvocation.MyCommand.Source) `
-            -TenantId $TenantId `
-            -Credential $Credential
-
-        return $null
-    }
 }
 
 Export-ModuleMember -Function *-TargetResource

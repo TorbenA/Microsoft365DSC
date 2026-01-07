@@ -27,7 +27,7 @@ function Get-StringFirstCharacterToLower
 function Rename-M365DSCCimInstanceParameter
 {
     [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable], [System.Collections.Hashtable[]])]
+    [OutputType([System.Collections.Hashtable], [System.Object[]])]
     param(
         [Parameter(Mandatory = $true)]
         $Properties,
@@ -45,18 +45,26 @@ function Rename-M365DSCCimInstanceParameter
         $values = @()
         foreach ($item in $Properties)
         {
-            try
+            $itemType = $item.GetType().FullName
+            if ($itemType -like '*Hashtable*' -or $itemType -like '*CimInstance*' -or $itemType -like '*Object*')
             {
-                $values += Rename-M365DSCCimInstanceParameter -Properties $item -KeyMapping $KeyMapping
+                try
+                {
+                    $values += Rename-M365DSCCimInstanceParameter -Properties $item -KeyMapping $KeyMapping
+                }
+                catch
+                {
+                    Write-Verbose -Message "Error getting values for item {$item}"
+                }
             }
-            catch
+            else
             {
-                Write-Verbose -Message "Error getting values for item {$item}"
+                $values += $item
             }
         }
         $result = $values
 
-        return ,[System.Collections.Hashtable[]]$result
+        return ,$result
     }
     #endregion
 
@@ -69,11 +77,11 @@ function Rename-M365DSCCimInstanceParameter
     if ($type -like '*CimInstance*' -or $type -like '*Hashtable*' -or $type -like '*Object*')
     {
         $hashProperties = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject $result
-        $keys = ($hashProperties.Clone()).keys
+        $keys = ($hashProperties.Clone()).Keys
 
         foreach ($key in $keys)
         {
-            $keyName = $key.Substring(0, 1).Tolower() + $key.Substring(1, $key.Length - 1)
+            $keyName = $key.Substring(0, 1).ToLower() + $key.Substring(1, $key.Length - 1)
             if ($key -in $KeyMapping.Keys)
             {
                 $keyName = $KeyMapping.$key
