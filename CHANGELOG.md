@@ -18,6 +18,8 @@
 * IntuneDeviceCompliancePolicyAndroidDeviceOwner
   * Fixed an issue where a JSON serialization warning was outputted
     due to the object depth exceeding two levels.
+* O365OrgSettings
+  * Added `CertificatePath` with `CertificatePassword` as an authentication method.
 * TeamsChannel
   * Updated required permissions for read / update.
 * TeamsEmergencyCallRoutingPolicy

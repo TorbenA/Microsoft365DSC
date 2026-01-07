@@ -618,7 +618,7 @@ function Start-M365DSCConfigurationExtract
         }
 
         # Retrieve the list of Workloads represented by the resources to export and pre-authenticate to each one;
-        if ($ResourcesToExport.Length -gt 0)
+        if ($ResourcesToExport.Count -gt 0)
         {
             $WorkloadsToConnectTo = Get-M365DSCConnectedWorkloadList -ResourceNames $ResourcesToExport
         }
