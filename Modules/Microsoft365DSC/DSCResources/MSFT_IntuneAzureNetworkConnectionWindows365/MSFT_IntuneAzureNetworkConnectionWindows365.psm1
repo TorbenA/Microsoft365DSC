@@ -489,16 +489,17 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $excludedProperties = @('SubscriptionName', 'AdDomainPassword')
+    $excludedProperties = @()
     if ($ConnectionType -eq 'azureADJoin')
     {
         $excludedProperties += @('AdDomainName', 'AdDomainUsername', 'OrganizationalUnit')
     }
 
+    $compareParameters = Get-CompareParameters
+    $compareParameters.ExcludedProperties += $excludedProperties
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -IncludedProperties @('ResourceGroupId', 'SubnetId', 'SubscriptionName', 'VirtualNetworkId') `
-                                         -ExcludedProperties $excludedProperties
+                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                             @compareParameters
     return $result
 }
 
@@ -635,4 +636,16 @@ function Export-TargetResource
     }
 }
 
-Export-ModuleMember -Function *-TargetResource
+function Get-CompareParameters
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param()
+
+    return @{
+        ExcludedProperties = @('SubscriptionName', 'AdDomainPassword')
+        IncludedProperties = @('ResourceGroupId', 'SubnetId', 'SubscriptionName', 'VirtualNetworkId')
+    }
+}
+
+Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')
