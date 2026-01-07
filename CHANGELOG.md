@@ -26,6 +26,13 @@
   * Updated required permissions for read / update.
 * TeamsUser
   * Updated required permissions for read / update.
+* M365DSCDRGUtil
+  * Fixed an issue where `Rename-M365DSCCimInstanceParameter` omitted values.
+    FIXES [#6727](https://github.com/microsoft/Microsoft365DSC/issues/6727)
+    FIXES [#6779](https://github.com/microsoft/Microsoft365DSC/issues/6779)
+* M365DSCReverse
+  * Added `TenantGuid` entry to the `ConfigurationData.psd1` file during export.
+    FIXES [#6689](https://github.com/microsoft/Microsoft365DSC/issues/6689)
 * MISC
   * Removed verbose output from `Get-TargetResource`.
   * Updated the error behavior to always throw inside `Get-TargetResource`.
@@ -93,6 +100,8 @@
   * Fixed an issue where updating Intune assignments did not include all properties.
     FIXES [#6697](https://github.com/microsoft/Microsoft365DSC/issues/6697)
   * Updated comparison function `Compare-M365DSCComplexObject` to non-recursive.
+* M365DSCResourceGenerator
+  * Updated example generation to always create examples.
 * M365DSCReverse
   * Added handling of custom token replacements.
 * M365DSCUtil
@@ -106,17 +115,19 @@
 * MISC
   * Added and removed mismatches between parameters and their schema.
   * Added quality assurance checks for parameter and schema mismatches.
-  * Refactor EXO resources to align with the default resource code layout.
   * Moved the `Examples` folder to the top of the repository to reduce core module size.
+  * Refactored EXO resources to align with the default resource code layout.
+  * Refactored module structure.
   * Removed internal module `M365DSCExoResourceUtils`.
   * Removed unused internal functions `Remove-M365DSCCimInstanceTrailingCharacterFromExport`,
     `Update-M365DSCExchangeResourcesSettingsJSON`, `Update-M365DSCSharePointResourcesSettingsJSON`,
     `Split-ArrayByParts`, `Get-SPOUserProfilePropertyInstance` and `Remove-M365DSCEmptyValue`.
+  * Streamlined the report generation and added new visual styles.
+  * Updated the `SchemaDefinition.json` to a compressed version.
 * DEPENDENCIES
   * Updated DSCParser to version 2.0.0.21.
   * Updated MSCloudLoginAssistant to version 1.1.55.
     FIXES [#6728](https://github.com/microsoft/Microsoft365DSC/issues/6728)
-  * Streamlined the report generation and added new visual styles.
 
 # 1.25.1112.1
 
