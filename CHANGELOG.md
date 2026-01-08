@@ -64,6 +64,8 @@
   * Fixed an issue where `Rename-M365DSCCimInstanceParameter` omitted values.
     FIXES [#6727](https://github.com/microsoft/Microsoft365DSC/issues/6727)
     FIXES [#6779](https://github.com/microsoft/Microsoft365DSC/issues/6779)
+* M365DSCLogEngine
+  * Replaced deprecated Windows Event PowerShell cmdlets with .NET.
 * M365DSCReverse
   * Added logic to clean up temporary files after export.
   * Added `TenantGuid` entry to the `ConfigurationData.psd1` file during export.
