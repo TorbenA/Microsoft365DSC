@@ -955,9 +955,7 @@ function Start-M365DSCConfigurationExtract
         }
 
         #region Copy Downloaded files back into output folder
-        if (($null -ne $Components -and
-                $Components.Contains('SPOApp')) -or
-            $AllComponents -or ($null -ne $Workloads -and $Workloads.Contains('SPO')))
+        if (($null -ne $Components -and $Components.Contains('SPOApp') -and -not $ComponentsToSkip.Contains('SPOApp')) -or $AllComponents)
         {
             if ($AuthMethods -Contains 'Credentials')
             {
@@ -1065,6 +1063,17 @@ function Start-M365DSCConfigurationExtract
                 Write-Verbose -Message $_
             }
         }
+
+        # Remove Temp Partial Export File
+        if (-not [System.String]::IsNullOrEmpty($env:Temp))
+        {
+            $partialPath = Join-Path $env:TEMP -ChildPath "$($Global:PartialExportFileName)"
+            if (Test-Path $partialPath)
+            {
+                Remove-Item -Path $partialPath -Force
+            }
+        }
+
         Pop-Location
     }
     catch

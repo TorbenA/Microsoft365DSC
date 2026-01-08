@@ -494,11 +494,10 @@ function Export-TargetResource
         }
         else
         {
-            Write-M365DSCHost -Message "    `r`n* Searches not assigned to an eDiscovery Case"
+            Write-M365DSCHost -Message "`r`n    * Searches not assigned to an eDiscovery Case`r`n" -DeferWrite
         }
         $i = 1
         $dscContent = ''
-        $partialContent = ''
         foreach ($search in $searches)
         {
             if ($null -ne $Global:M365DSCExportResourceInstancesCount)
@@ -526,7 +525,7 @@ function Export-TargetResource
         {
             $searches = Get-ComplianceSearch -Case $case.Name
 
-            Write-M365DSCHost -Message "    * [$j/$($cases.Length)] Searches assigned to case $($case.Name)"
+            Write-M365DSCHost -Message "`r`n    * [$j/$($cases.Length)] Searches assigned to case $($case.Name)`r`n" -DeferWrite
             $i = 1
             foreach ($search in $searches)
             {

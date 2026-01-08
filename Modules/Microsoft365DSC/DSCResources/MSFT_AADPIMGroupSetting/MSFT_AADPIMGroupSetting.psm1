@@ -1509,6 +1509,7 @@ function Export-TargetResource
         CountVariable = "CountVar"
         ConsistencyLevel = "eventual"
         ErrorAction = 'Stop'
+        Sort        = 'displayname'
     }
 
     try

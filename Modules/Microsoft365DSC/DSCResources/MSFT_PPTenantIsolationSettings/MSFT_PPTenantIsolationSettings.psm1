@@ -406,7 +406,7 @@ function Set-TargetResource
         $tenantIsolationPolicy.Properties.allowedTenants = $newRules
     }
     $uri = "https://" + (Get-MSCloudLoginConnectionProfile -Workload 'PowerPlatformREST').BapEndpoint + `
-               "/providers/PowerPlatform.Governance/v1/tenants/$($tenantId)/tenantIsolationPolicy?api-version=2020-06-01"
+               "/providers/PowerPlatform.Governance/v1/tenants/$($tenantinfo)/tenantIsolationPolicy?api-version=2020-06-01"
     Write-Verbose -Message "Updating with payload:`r`n$(ConvertTo-Json $tenantIsolationPolicy -Depth 20)"
     Invoke-M365DSCPowerPlatformRESTWebRequest -Uri $uri -Method 'PUT' -Body $tenantIsolationPolicy
 }
@@ -737,6 +737,7 @@ function Export-TargetResource
     }
 }
 
+$Script:TenantNameToGuidCache = @{}
 function Get-M365TenantId
 {
     param
@@ -751,9 +752,16 @@ function Get-M365TenantId
         return '*'
     }
 
+    if ($Script:TenantNameToGuidCache.ContainsKey($TenantName))
+    {
+        return $Script:TenantNameToGuidCache[$TenantName]
+    }
+
     $result = Invoke-WebRequest "https://login.windows.net/$TenantName/.well-known/openid-configuration" -UseBasicParsing
     $jsonResult = $result | ConvertFrom-Json
-    return $jsonResult.token_endpoint.Split('/')[3]
+    $tenantId = $jsonResult.token_endpoint.Split('/')[3]
+    $Script:TenantNameToGuidCache[$TenantName] = $tenantId
+    return $tenantId
 }
 
 Export-ModuleMember -Function *-TargetResource

@@ -112,7 +112,7 @@ function Get-TargetResource
         $complexExtendedNotifications = @()
         foreach ($notification in $policy.ExtendedNotifications)
         {
-            $complexExtendedNotification = @{
+            $complexExtendedNotification = [ordered]@{
                 EmergencyDialString = $notification.EmergencyDialString
             }
             if ($null -ne $notification.NotificationGroup)

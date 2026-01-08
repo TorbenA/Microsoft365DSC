@@ -3003,7 +3003,7 @@ function Install-M365DSCDevBranch
         $extractPath = $env:Temp + '\O365Dev'
         Write-Host 'Done' -ForegroundColor Green
 
-        Invoke-WebRequest -Uri $url -OutFile $output
+        Invoke-WebRequest -Uri $url -OutFile $output -UseBasicParsing
 
         Expand-Archive $output -DestinationPath $extractPath -Force
         #endregion
@@ -3323,7 +3323,7 @@ function Assert-M365DSCBlueprint
     try
     {
         # Download the BluePrint locally in a temp location
-        Invoke-WebRequest -Uri $BluePrintUrl -OutFile $LocalBluePrintPath
+        Invoke-WebRequest -Uri $BluePrintUrl -OutFile $LocalBluePrintPath -UseBasicParsing
     }
     catch
     {
@@ -3415,6 +3415,10 @@ function Assert-M365DSCBlueprint
             -Type $Type `
             -ExcludedProperties $ExcludedProperties `
             -ExcludedResources $ExcludedResources
+
+        # Clean up the temporary files
+        Remove-Item $LocalBluePrintPath -Force -ErrorAction SilentlyContinue
+        Remove-Item $ExportPath -Force -ErrorAction SilentlyContinue
     }
     else
     {
@@ -4289,7 +4293,7 @@ function Get-M365DSCComponentsWithMostSecureAuthenticationType
     $Components = @()
     foreach ($resource in $modules)
     {
-        if ($Resources.Contains(($resource.Name -replace '.psm1', '' -replace 'MSFT_', '')))
+        if ($Resources -contains ($resource.Name -replace '.psm1', '' -replace 'MSFT_', ''))
         {
             Import-Module $resource.FullName -Force
             $parameters = (Get-Command 'Set-TargetResource').Parameters.Keys
