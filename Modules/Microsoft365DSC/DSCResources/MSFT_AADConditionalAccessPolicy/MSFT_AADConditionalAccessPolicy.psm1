@@ -68,7 +68,7 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String[]]
-        [validateSet('none', 'internalGuest', 'b2bCollaborationGuest', 'b2bCollaborationMember', 'b2bDirectConnectUser', 'otherExternalUser', 'serviceProvider', 'unknownFutureValue')]
+        [ValidateSet('none', 'internalGuest', 'b2bCollaborationGuest', 'b2bCollaborationMember', 'b2bDirectConnectUser', 'otherExternalUser', 'serviceProvider', 'unknownFutureValue')]
         $IncludeGuestOrExternalUserTypes,
 
         [Parameter()]
@@ -82,7 +82,7 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String[]]
-        [validateSet('none', 'internalGuest', 'b2bCollaborationGuest', 'b2bCollaborationMember', 'b2bDirectConnectUser', 'otherExternalUser', 'serviceProvider', 'unknownFutureValue')]
+        [ValidateSet('none', 'internalGuest', 'b2bCollaborationGuest', 'b2bCollaborationMember', 'b2bDirectConnectUser', 'otherExternalUser', 'serviceProvider', 'unknownFutureValue')]
         $ExcludeGuestOrExternalUserTypes,
 
         [Parameter()]
@@ -173,6 +173,10 @@ function Get-TargetResource
         [Parameter()]
         [System.String]
         $CloudAppSecurityType,
+
+        [Parameter()]
+        [System.Boolean]
+        $SecureSignInSessionIsEnabled,
 
         [Parameter()]
         [System.Int32]
@@ -746,6 +750,7 @@ function Get-TargetResource
             CloudAppSecurityIsEnabled                = $false -or $Policy.SessionControls.CloudAppSecurity.IsEnabled
             #make false if undefined, true if true
             CloudAppSecurityType                     = [System.String]$Policy.SessionControls.CloudAppSecurity.CloudAppSecurityType
+            SecureSignInSessionIsEnabled             = $false -or $Policy.SessionControls.SecureSignInSession.IsEnabled
             #no translation needed, return empty string array if undefined
             SignInFrequencyIsEnabled                 = $false -or $Policy.SessionControls.SignInFrequency.IsEnabled
             #make false if undefined, true if true
@@ -860,7 +865,7 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String[]]
-        [validateSet('none', 'internalGuest', 'b2bCollaborationGuest', 'b2bCollaborationMember', 'b2bDirectConnectUser', 'otherExternalUser', 'serviceProvider', 'unknownFutureValue')]
+        [ValidateSet('none', 'internalGuest', 'b2bCollaborationGuest', 'b2bCollaborationMember', 'b2bDirectConnectUser', 'otherExternalUser', 'serviceProvider', 'unknownFutureValue')]
         $IncludeGuestOrExternalUserTypes,
 
         [Parameter()]
@@ -874,7 +879,7 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String[]]
-        [validateSet('none', 'internalGuest', 'b2bCollaborationGuest', 'b2bCollaborationMember', 'b2bDirectConnectUser', 'otherExternalUser', 'serviceProvider', 'unknownFutureValue')]
+        [ValidateSet('none', 'internalGuest', 'b2bCollaborationGuest', 'b2bCollaborationMember', 'b2bDirectConnectUser', 'otherExternalUser', 'serviceProvider', 'unknownFutureValue')]
         $ExcludeGuestOrExternalUserTypes,
 
         [Parameter()]
@@ -965,6 +970,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $CloudAppSecurityType,
+
+        [Parameter()]
+        [System.Boolean]
+        $SecureSignInSessionIsEnabled,
 
         [Parameter()]
         [System.Int32]
@@ -1830,7 +1839,11 @@ function Set-TargetResource
             if ($currentParameters.ContainsKey('AuthenticationStrength'))
             {
                 $strengthPolicy = Get-MgBetaPolicyAuthenticationStrengthPolicy | Where-Object -FilterScript { $_.DisplayName -eq $AuthenticationStrength } -ErrorAction SilentlyContinue
-                if ($null -ne $strengthPolicy)
+                if ($null -eq $strengthPolicy)
+                {
+                    Write-Warning -Message "Authentication Strength Policy '$AuthenticationStrength' not found for Conditional Access Policy '$DisplayName'."
+                }
+                else
                 {
                     $authenticationStrengthInstance = @{
                         id            = $strengthPolicy.Id
@@ -1853,30 +1866,42 @@ function Set-TargetResource
             $NewParameters.Add('grantControls', $GrantControls)
         }
 
-        if ($ApplicationEnforcedRestrictionsIsEnabled -or $CloudAppSecurityIsEnabled -or $SignInFrequencyIsEnabled -or $PersistentBrowserIsEnabled -or ($null -ne $DisableResilienceDefaultsIsEnabled))
+        if ($PSBoundParameters.ContainsKey('ApplicationEnforcedRestrictionsIsEnabled') -or $PSBoundParameters.ContainsKey('CloudAppSecurityIsEnabled') `
+            -or $PSBoundParameters.ContainsKey('SignInFrequencyIsEnabled') -or $PSBoundParameters.ContainsKey('PersistentBrowserIsEnabled') `
+            -or ($null -ne $DisableResilienceDefaultsIsEnabled) -or $PSBoundParameters.ContainsKey('SecureSignInSessionIsEnabled'))
         {
             Write-Verbose -Message 'Set-Targetresource: process session controls'
             $sessioncontrols = $null
             Write-Verbose -Message 'Set-Targetresource: create provision Session Control object'
-            $sessioncontrols = @{}
+            $sessioncontrols = @{
+                applicationEnforcedRestrictions = $null
+                cloudAppSecurity                = $null
+                secureSignInSession             = $null
+                signInFrequency                 = $null
+                persistentBrowser               = $null
+                disableResilienceDefaults       = $null
+            }
 
             if ($ApplicationEnforcedRestrictionsIsEnabled -eq $true)
             {
-                $sessioncontrols.Add('applicationEnforcedRestrictions', @{})
-                #create and provision ApplicationEnforcedRestrictions object if used
-                $sessioncontrols.applicationEnforcedRestrictions.Add('IsEnabled', $true)
+                $sessioncontrols.applicationEnforcedRestrictions = @{
+                    isEnabled = $ApplicationEnforcedRestrictionsIsEnabled
+                }
             }
             if ($CloudAppSecurityIsEnabled)
             {
                 $cloudAppSecurityValue = @{
-                    isEnabled            = $false
-                    cloudAppSecurityType = $null
+                    isEnabled            = $true
+                    cloudAppSecurityType = $CloudAppSecurityType
                 }
-
-                $sessioncontrols.Add('cloudAppSecurity', $CloudAppSecurityValue)
-                #create and provision CloudAppSecurity object if used
-                $sessioncontrols.cloudAppSecurity.isEnabled = $true
-                $sessioncontrols.cloudAppSecurity.cloudAppSecurityType = $CloudAppSecurityType
+                $sessioncontrols.cloudAppSecurity = $cloudAppSecurityValue
+            }
+            if ($SecureSignInSessionIsEnabled)
+            {
+                $secureSignInSessionValue = @{
+                    isEnabled = $SecureSignInSessionIsEnabled
+                }
+                $sessioncontrols.secureSignInSession = $secureSignInSessionValue
             }
             if ($SignInFrequencyIsEnabled)
             {
@@ -1887,7 +1912,7 @@ function Set-TargetResource
                     frequencyInterval = $null
                 }
 
-                $sessioncontrols.Add('signInFrequency', $SigninFrequencyProp)
+                $sessioncontrols.signInFrequency = $signinFrequencyProp
                 #create and provision SignInFrequency object if used
                 $sessioncontrols.signInFrequency.isEnabled = $true
                 if ($SignInFrequencyType -ne '')
@@ -1911,18 +1936,14 @@ function Set-TargetResource
             if ($PersistentBrowserIsEnabled)
             {
                 $persistentBrowserValue = @{
-                    isEnabled = $false
-                    mode      = $false
+                    isEnabled = $true
+                    mode      = $PersistentBrowserMode
                 }
-                $sessioncontrols.Add('persistentBrowser', $PersistentBrowserValue)
-                Write-Verbose -Message "Set-Targetresource: Persistent Browser settings defined: PersistentBrowserIsEnabled:$PersistentBrowserIsEnabled, PersistentBrowserMode:$PersistentBrowserMode"
-                #create and provision PersistentBrowser object if used
-                $sessioncontrols.persistentBrowser.isEnabled = $true
-                $sessioncontrols.persistentBrowser.mode = $PersistentBrowserMode
+                $sessioncontrols.persistentBrowser = $persistentBrowserValue
             }
-            if (-not [System.String]::IsNullOrEmpty($DisableResilienceDefaultsIsEnabled))
+            if ($DisableResilienceDefaultsIsEnabled)
             {
-                $sessioncontrols.Add('disableResilienceDefaults', $DisableResilienceDefaultsIsEnabled)
+                $sessioncontrols.disableResilienceDefaults = $DisableResilienceDefaultsIsEnabled
             }
             $NewParameters.Add('sessionControls', $sessioncontrols)
             #add SessionControls to the parameter list
@@ -1934,7 +1955,6 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Set-Targetresource: Change policy $DisplayName"
-        $NewParameters.Add('ConditionalAccessPolicyId', $currentPolicy.Id)
         try
         {
             Write-Verbose -Message "Updating existing policy with values: $(Convert-M365DscHashtableToString -Hashtable $NewParameters)"
@@ -2076,7 +2096,7 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String[]]
-        [validateSet('none', 'internalGuest', 'b2bCollaborationGuest', 'b2bCollaborationMember', 'b2bDirectConnectUser', 'otherExternalUser', 'serviceProvider', 'unknownFutureValue')]
+        [ValidateSet('none', 'internalGuest', 'b2bCollaborationGuest', 'b2bCollaborationMember', 'b2bDirectConnectUser', 'otherExternalUser', 'serviceProvider', 'unknownFutureValue')]
         $IncludeGuestOrExternalUserTypes,
 
         [Parameter()]
@@ -2090,7 +2110,7 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String[]]
-        [validateSet('none', 'internalGuest', 'b2bCollaborationGuest', 'b2bCollaborationMember', 'b2bDirectConnectUser', 'otherExternalUser', 'serviceProvider', 'unknownFutureValue')]
+        [ValidateSet('none', 'internalGuest', 'b2bCollaborationGuest', 'b2bCollaborationMember', 'b2bDirectConnectUser', 'otherExternalUser', 'serviceProvider', 'unknownFutureValue')]
         $ExcludeGuestOrExternalUserTypes,
 
         [Parameter()]
@@ -2181,6 +2201,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $CloudAppSecurityType,
+
+        [Parameter()]
+        [System.Boolean]
+        $SecureSignInSessionIsEnabled,
 
         [Parameter()]
         [System.Int32]

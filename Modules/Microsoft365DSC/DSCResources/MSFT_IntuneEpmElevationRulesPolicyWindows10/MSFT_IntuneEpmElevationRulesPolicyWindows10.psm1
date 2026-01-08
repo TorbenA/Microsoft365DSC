@@ -155,7 +155,11 @@ function Get-TargetResource
             if (-not [System.String]::IsNullOrEmpty($rule.certificatePayloadWithReusableSetting))
             {
                 $certificatePolicyId = $rule.certificatePayloadWithReusableSetting
-                $certificatePolicy = Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings/$certificatePolicyId"
+                $certificatePolicy = Invoke-MgGraphRequest -Uri "/beta/deviceManagement/reusablePolicySettings/$certificatePolicyId" -Method GET -SkipHttpErrorCheck -ErrorAction SilentlyContinue
+                if ($certificatePolicy -is [hashtable] -and $certificatePolicy.ContainsKey('error'))
+                {
+                    throw "Could not retrieve the certificate policy with id '$certificatePolicyId' as a reusable Setting for the Elevation Rule with DisplayName '$($rule.name)' in policy '$($getValue.Name)'."
+                }
                 $complexElevationRuleName.Add('CertificatePayloadWithReusableSetting', $certificatePolicy.displayName)
             }
             $complexElevationRuleName.Add('CertificateFileUpload', $rule.certificateFileUpload)

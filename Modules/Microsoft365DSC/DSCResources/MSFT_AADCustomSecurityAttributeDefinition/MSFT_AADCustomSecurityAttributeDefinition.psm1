@@ -130,7 +130,7 @@ function Get-TargetResource
         $complexAllowedValues = @()
         foreach ($allowedValue in $instance.AllowedValues)
         {
-            $complexAllowedValues += @{
+            $complexAllowedValues += [ordered]@{
                 ValueId  = $allowedValue.Id
                 IsActive = $allowedValue.IsActive
             }

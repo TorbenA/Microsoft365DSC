@@ -408,7 +408,7 @@ function Export-TargetResource
     {
         $Script:ExportMode = $true
         #region resource generator code
-        [array] $Script:exportedInstances = Get-DataClassification -ErrorAction SilentlyContinue
+        [array] $Script:exportedInstances = Get-DataClassification -ErrorAction SilentlyContinue | Sort-Object -Property Name
         $dscContent = [System.Text.StringBuilder]::new()
 
         if ($Script:exportedInstances.Length -eq 0)
