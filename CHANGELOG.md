@@ -40,6 +40,10 @@
 * IntuneMobileAppsManagedGooglePlayApp
   * Fixed an issue where `AssignmentSettings` was not a valid property.
     FIXES [#6785](https://github.com/microsoft/Microsoft365DSC/issues/6785)
+* IntuneSettingCatalogCustomPolicyWindows10
+  * Fixed the ability to run Get-TargetResource via the LCM (Get-DscConfiguration) and
+    it's ability to return complex nested objects.
+    FIXES [#6092](https://github.com/microsoft/Microsoft365DSC/issues/6092)
 * O365OrgSettings
   * Added `CertificatePath` with `CertificatePassword` as an authentication method.
 * PPTenantIsolationSettings
@@ -84,16 +88,13 @@
 * MISC
   * Applied ordering for CIM instances to minimize Git differences.
   * Fixed a couple of misaligned export messages on the console.
+  * Fixed an issue where not all required modules were specified in resource settings.
   * Generalized custom comparison handling.
     FIXES [#6765](https://github.com/microsoft/Microsoft365DSC/issues/6765)
     FIXES [#6756](https://github.com/microsoft/Microsoft365DSC/issues/6756)
     FIXES [#6584](https://github.com/microsoft/Microsoft365DSC/issues/6584)
   * Removed verbose output from `Get-TargetResource`.
   * Updated the error behavior to always throw inside `Get-TargetResource`.
-
-* MSFT_IntuneSettingCatalogCustomPolicyWindows10
-  * Fixed the ability to run Get-TargetResource via the LCM (Get-DscConfiguration) and it's ability to return complex nested objects.
-    FIXES [#6092](https://github.com/microsoft/Microsoft365DSC/issues/6092)
     
 # 1.25.1203.2
 
