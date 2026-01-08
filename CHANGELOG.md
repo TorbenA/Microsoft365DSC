@@ -62,11 +62,16 @@
     FIXES [#6727](https://github.com/microsoft/Microsoft365DSC/issues/6727)
     FIXES [#6779](https://github.com/microsoft/Microsoft365DSC/issues/6779)
 * M365DSCReverse
+  * Added logic to clean up temporary files after export.
   * Added `TenantGuid` entry to the `ConfigurationData.psd1` file during export.
     FIXES [#6689](https://github.com/microsoft/Microsoft365DSC/issues/6689)
   * Fixed an issue when attempting to copy non-downloaded `SPOApp` files.
 * M365DSCUtil
+  * Fixed an issue where multiple installed Microsoft365DSC versions
+    will lead to an error during export.
+    FIXES [#6758](https://github.com/microsoft/Microsoft365DSC/issues/6758)
   * Added functionality to change M365DSC configuration during runtime.
+  * Added logic to clean up temporary files assertion.
   * Added missing `UseBasicParsing` because of Windows PowerShell hardening.
   * Fixed an issue where the export would fail if the name of a resource was not
     the same case as the name in Microsoft365DSC.

@@ -1233,7 +1233,8 @@ function Compare-M365DSCConfigurations
     }
     else
     {
-        $dscResourceInfo = Get-DSCResource -Module 'Microsoft365DSC'
+        $currentModule = Get-Module -Name 'Microsoft365DSC'
+        $dscResourceInfo = Get-DSCResource -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
     }
     # Loop through all items in the source array
     $i = 1
@@ -1976,7 +1977,8 @@ function New-M365DSCDeltaReport
     }
     else
     {
-        $dscResourceInfo = Get-DSCResource -Module 'Microsoft365DSC'
+        $currentModule = Get-Module -Name 'Microsoft365DSC'
+        $dscResourceInfo = Get-DSCResource -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
     }
     $dscResourceInfoMap = @{}
     foreach ($resource in $dscResourceInfo)

@@ -1402,7 +1402,8 @@ function Initialize-M365DSCAllResourcesDictionary
         }
         else
         {
-            $resources = Get-DscResource -Module 'Microsoft365Dsc'
+            $currentModule = Get-Module -Name 'Microsoft365DSC'
+            $resources = Get-DscResource -Module 'Microsoft365Dsc' | Where-Object Version -EQ $currentModule.Version
         }
         foreach ($resource in $resources)
         {
@@ -3414,6 +3415,10 @@ function Assert-M365DSCBlueprint
             -Type $Type `
             -ExcludedProperties $ExcludedProperties `
             -ExcludedResources $ExcludedResources
+
+        # Clean up the temporary files
+        Remove-Item $LocalBluePrintPath -Force -ErrorAction SilentlyContinue
+        Remove-Item $ExportPath -Force -ErrorAction SilentlyContinue
     }
     else
     {
@@ -5224,7 +5229,8 @@ function Get-M365DSCConfigurationConflict
     }
     else
     {
-        $resourcesInModule = Get-DSCResource -Module 'Microsoft365DSC'
+        $currentModule = Get-Module -Name 'Microsoft365DSC'
+        $resourcesInModule = Get-DSCResource -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
     }
     foreach ($component in $parsedContent)
     {
