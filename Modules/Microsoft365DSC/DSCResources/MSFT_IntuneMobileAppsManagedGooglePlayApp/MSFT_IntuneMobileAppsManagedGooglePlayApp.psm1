@@ -499,7 +499,8 @@ function Export-TargetResource
                         IsRequired = $false
                     }
                 )
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString -ComplexObject $Results.Assignments `
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.Assignments `
                     -CIMInstanceName DeviceManagementManagedGooglePlayMobileAppAssignment `
                     -ComplexTypeMapping $complexMapping
                 if ($complexTypeStringResult)

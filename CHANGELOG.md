@@ -37,6 +37,14 @@
     due to the object depth exceeding two levels.
 * IntuneEpmElevationRulesPolicyWindows10
   * Added a throw condition if the reusable certiticate policy setting is not found.
+* IntuneMobileAppsBuiltInStoreApp
+  * Fixed an issue where `AssignmentSettings` was not a valid property.
+* IntuneMobileAppsLobAppiOS
+  * Fixed an issue where `AssignmentSettings` was not a valid property.
+* IntuneMobileAppsLobAppMsiWindows10
+  * Fixed an issue where `Categories` was exported as a String.
+* IntuneMobileAppsMacOSLobApp
+  * Fixed an issue where `AssignmentSettings` was not a valid property.
 * IntuneMobileAppsManagedGooglePlayApp
   * Fixed an issue where `AssignmentSettings` was not a valid property.
     FIXES [#6785](https://github.com/microsoft/Microsoft365DSC/issues/6785)
@@ -95,7 +103,7 @@
     FIXES [#6584](https://github.com/microsoft/Microsoft365DSC/issues/6584)
   * Removed verbose output from `Get-TargetResource`.
   * Updated the error behavior to always throw inside `Get-TargetResource`.
-    
+
 # 1.25.1203.2
 
 * DEPENDENCIES

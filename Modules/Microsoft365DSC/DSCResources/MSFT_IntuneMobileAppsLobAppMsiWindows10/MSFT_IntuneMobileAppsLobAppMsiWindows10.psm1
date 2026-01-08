@@ -747,7 +747,7 @@ function Export-TargetResource
                 -ModulePath $PSScriptRoot `
                 -Results $Results `
                 -Credential $Credential `
-                -NoEscape @('Assignments', 'MinimumSupportedOperatingSystem', 'LargeIcon')
+                -NoEscape @('Assignments', 'Categories', 'MinimumSupportedOperatingSystem', 'LargeIcon')
             $dscContent += $currentDSCBlock
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
