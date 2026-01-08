@@ -283,7 +283,7 @@ function Get-TargetResource
         }
         if ($null -ne $HeaderMatchesPatterns -and $null -ne $HeaderMatchesPatterns.Name)
         {
-            $HeaderMatchesPatternsValue = @{}
+            $HeaderMatchesPatternsValue = [ordered]@{}
             foreach ($value in $HeaderMatchesPatterns[($HeaderMatchesPatterns.Name)])
             {
                 if ($HeaderMatchesPatternsValue.ContainsKey($HeaderMatchesPatterns.Name))
@@ -298,7 +298,7 @@ function Get-TargetResource
         }
         foreach ($pattern in $PolicyRule.HeaderMatchesPatterns.Keys)
         {
-            $HeaderMatchesPatternsValue += @{
+            $HeaderMatchesPatternsValue += [ordered]@{
                 Name  = $pattern
                 Value = $PolicyRule.HeaderMatchesPatterns.$pattern
             }
@@ -1316,7 +1316,7 @@ function Get-SCDLPSensitiveInformation
 
     foreach ($item in $SensitiveInformationItems.SensitiveInformation)
     {
-        $result = @{
+        $result = [ordered]@{
             name = $item.name
         }
 
@@ -1385,7 +1385,7 @@ function Get-SCDLPSensitiveInformationGroups
         $sits = @()
         foreach ($item in $group.SensitiveInformation)
         {
-            $sit = @{
+            $sit = [ordered]@{
                 name = $item.name
             }
 
@@ -1427,7 +1427,7 @@ function Get-SCDLPSensitiveInformationGroups
         $labels = @()
         foreach ($item in $group.labels)
         {
-            $label = @{
+            $label = [ordered]@{
                 name = $item.name
             }
 

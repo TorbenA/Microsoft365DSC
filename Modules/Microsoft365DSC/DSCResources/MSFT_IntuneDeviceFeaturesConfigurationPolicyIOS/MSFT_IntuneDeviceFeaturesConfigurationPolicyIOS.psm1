@@ -981,13 +981,12 @@ function Convert-ComplexObjectToHashtableArray {
     (
         [Parameter()]
         [Object]$InputObject
-
     )
 
     $resultArray = @()
 
     foreach ($item in $InputObject) {
-        $hashTable = @{}
+        $hashtable = [ordered]@{}
 
         foreach ($key in $item.Keys) {
             $keyValue = $item.$key
@@ -1001,13 +1000,13 @@ function Convert-ComplexObjectToHashtableArray {
                         $keyValue = Convert-ComplexObjectToHashtableArray $keyValue #recurse the function
                     }
                 }
-                $hashTable.Add($key, $keyValue)
+                $hashtable.Add($key, $keyValue)
             }
         }
 
         # Add the hash table to the result array only if it contains non-null values
-        if ($hashTable.Values.Where({ $null -ne $_ }).Count -gt 0) {
-            $resultArray += $hashTable
+        if ($hashtable.Values.Where({ $null -ne $_ }).Count -gt 0) {
+            $resultArray += $hashtable
         }
     }
 
@@ -1019,13 +1018,12 @@ function Convert-ComplexObjectToHashtableArray_ExportDataType {
     (
         [Parameter()]
         [Object]$InputObject
-
     )
 
     $resultArray = @()
 
     foreach ($item in $InputObject) {
-        $hashTable = @{}
+        $hashtable = [ordered]@{}
 
         foreach ($key in $item.Keys) {
             $keyValue = $item.$key
@@ -1039,15 +1037,15 @@ function Convert-ComplexObjectToHashtableArray_ExportDataType {
                         $keyValue = Convert-ComplexObjectToHashtableArray_ExportDataType $keyValue #recurse the function
                     }
                 }
-                $hashTable.Add($key, $keyValue)
+                $hashtable.Add($key, $keyValue)
             }else{
-                $hashTable.Add('dataType', $item.$key)
+                $hashtable.Add('dataType', $item.$key)
             }
         }
 
         # Add the hash table to the result array only if it contains non-null values
-        if ($hashTable.Values.Where({ $null -ne $_ }).Count -gt 0) {
-            $resultArray += $hashTable
+        if ($hashtable.Values.Where({ $null -ne $_ }).Count -gt 0) {
+            $resultArray += $hashtable
         }
     }
 
@@ -1055,7 +1053,8 @@ function Convert-ComplexObjectToHashtableArray_ExportDataType {
 }
 
 function Convert-StringToBooleans {
-    param(
+    param
+    (
         [Parameter(Mandatory = $true)]
         [array]$Configurations
     )

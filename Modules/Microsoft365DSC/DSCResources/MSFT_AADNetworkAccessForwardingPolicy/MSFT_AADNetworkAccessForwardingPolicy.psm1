@@ -452,7 +452,7 @@ function Get-MicrosoftGraphNetworkAccessForwardingPolicyRules
         {
             $destinations += $destination.value
         }
-        $newPolicyRules += @{
+        $newPolicyRules += [ordered]@{
             Name         = $rule.Name
             ActionValue  = $rule.AdditionalProperties.action
             RuleType     = $rule.AdditionalProperties.ruleType

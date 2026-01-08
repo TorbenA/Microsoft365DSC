@@ -246,8 +246,7 @@ function Get-TargetResource
 
         if ($null -ne $schedule.ScheduleInfo.Expiration)
         {
-            $expirationValue = @{
-
+            $expirationValue = [ordered]@{
                 type     = $schedule.ScheduleInfo.Expiration.Type
             }
             if ($null -ne $schedule.ScheduleInfo.Expiration.Duration)
@@ -264,8 +263,8 @@ function Get-TargetResource
         {
             if (Test-M365DSCRecurrenceIsConfigured -RecurrenceSettings $schedule.ScheduleInfo.Recurrence)
             {
-                $recurrenceValue = @{
-                    pattern = @{
+                $recurrenceValue = [ordered]@{
+                    pattern = [ordered]@{
                         dayOfMonth     = $schedule.ScheduleInfo.Recurrence.Pattern.dayOfMonth
                         daysOfWeek     = $schedule.ScheduleInfo.Recurrence.Pattern.daysOfWeek
                         firstDayOfWeek = $schedule.ScheduleInfo.Recurrence.Pattern.firstDayOfWeek
@@ -274,7 +273,7 @@ function Get-TargetResource
                         month          = $schedule.ScheduleInfo.Recurrence.Pattern.month
                         type           = $schedule.ScheduleInfo.Recurrence.Pattern.type
                     }
-                    range   = @{
+                    range   = [ordered]@{
                         endDate             = $schedule.ScheduleInfo.Recurrence.Range.endDate
                         numberOfOccurrences = $schedule.ScheduleInfo.Recurrence.Range.numberOfOccurrences
                         recurrenceTimeZone  = $schedule.ScheduleInfo.Recurrence.Range.recurrenceTimeZone

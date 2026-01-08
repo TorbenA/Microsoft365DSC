@@ -113,7 +113,7 @@ function Get-TargetResource
         $complexConditions = @()
         foreach ($condition in $getValue.Conditions)
         {
-            $complexConditions += @{
+            $complexConditions += [ordered]@{
                 Aggregation       = $condition.aggregation
                 ConditionCategory = $condition.conditionCategory
                 Operator          = $condition.operator
@@ -125,10 +125,10 @@ function Get-TargetResource
         $complexNotificationChannels = @()
         foreach ($channel in $getValue.NotificationChannels)
         {
-            $complexNotificationChannels += @{
+            $complexNotificationChannels += [ordered]@{
                 NotificationChannelType = $channel.notificationChannelType
                 NotificationReceivers   = @($channel.notificationReceivers | Foreach-Object {
-                    @{
+                    [ordered]@{
                         ContactInformation = $_.ContactInformation
                         Locale             = $_.locale
                     }
