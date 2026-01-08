@@ -37,6 +37,9 @@
     due to the object depth exceeding two levels.
 * IntuneEpmElevationRulesPolicyWindows10
   * Added a throw condition if the reusable certiticate policy setting is not found.
+* IntuneMobileAppsManagedGooglePlayApp
+  * Fixed an issue where `AssignmentSettings` was not a valid property.
+    FIXES [#6785](https://github.com/microsoft/Microsoft365DSC/issues/6785)
 * O365OrgSettings
   * Added `CertificatePath` with `CertificatePassword` as an authentication method.
 * PPTenantIsolationSettings
