@@ -475,7 +475,7 @@ function Convert-ExistingThemePaletteToHashTable
         [System.Collections.Hashtable]
         $Palette
     )
-    $themeHash = @{ }
+    $themeHash = [ordered]@{}
     foreach ($entry in $Palette.GetEnumerator())
     {
         $themeHash[$entry.Key] = $entry.Value

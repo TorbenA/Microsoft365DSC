@@ -953,7 +953,7 @@ function Convert-StringToAdvancedSettings
                 }
             }
 
-            $entry = @{
+            $entry = [ordered]@{
                 Key   = $settingKey
                 Value = $values
             }
@@ -975,7 +975,7 @@ function Convert-CIMToAdvancedSettings
         $AdvancedSettings
     )
 
-    $entry = @{ }
+    $entry = [ordered]@{}
     foreach ($obj in $AdvancedSettings)
     {
         $settingsValues = ''

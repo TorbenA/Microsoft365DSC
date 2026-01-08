@@ -303,8 +303,8 @@ function Get-TargetResource
 
             $results += @{
                 InstallationOptionsUpdateChannel  = $installationOptions.updateChannel
-                InstallationOptionsAppsForWindows = $appsForWindowsValue
-                InstallationOptionsAppsForMac     = $appsForMacValue
+                InstallationOptionsAppsForWindows = $appsForWindowsValue | Sort-Object
+                InstallationOptionsAppsForMac     = $appsForMacValue | Sort-Object
             }
         }
 

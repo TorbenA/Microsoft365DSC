@@ -2,6 +2,14 @@
 
 # UNRELEASED
 
+* AADAuthenticationMethodPolicy
+  * Fixed an issue where empty arrays were not exported.
+    FIXES [#6759](https://github.com/microsoft/Microsoft365DSC/issues/6759)
+* AADConditionalAccessPolicy
+  * Added the property `SecureSignInSessionIsEnabled`.
+    FIXES [#6777](https://github.com/microsoft/Microsoft365DSC/issues/6777)
+  * Fixed an issue where updating a policy would fail.
+    FIXES [#6782](https://github.com/microsoft/Microsoft365DSC/issues/6782)
 * AADNetworkAccessForwardingPolicy
   * Fixed an issue where empty `PolicyRules` would throw an exception during Get.
 * EXOExternalInOutlook
@@ -27,33 +35,51 @@
 * IntuneDeviceCompliancePolicyAndroidDeviceOwner
   * Fixed an issue where a JSON serialization warning was outputted
     due to the object depth exceeding two levels.
+* IntuneEpmElevationRulesPolicyWindows10
+  * Added a throw condition if the reusable certiticate policy setting is not found.
 * O365OrgSettings
   * Added `CertificatePath` with `CertificatePassword` as an authentication method.
+* PPTenantIsolationSettings
+  * Fixed an issue where updating the policy failed because of an unresolved tenant name.
+    FIXES [#6778](https://github.com/microsoft/Microsoft365DSC/issues/6778)
+* SCSecurityFilter
+  * Added a note that the resource does not support certificate based authentication.
 * TeamsChannel
   * Updated required permissions for read / update.
 * TeamsEmergencyCallRoutingPolicy
   * Updated required permissions for read / update.
+* TeamsOrgWideAppSettings
+  * Added a note that the resource does not support certificate based authentication.
 * TeamsTeam
   * Updated required permissions for read / update.
 * TeamsUser
   * Updated required permissions for read / update.
 * M365DSCDRGUtil
+  * Added missing `UseBasicParsing` because of Windows PowerShell hardening.
+  * Fixed an issue in `Get-M365DSCDRGComplexTypeToHashtable` not working with arrays.
+    FIXES [#6759](https://github.com/microsoft/Microsoft365DSC/issues/6759)
   * Fixed an issue where `Rename-M365DSCCimInstanceParameter` omitted values.
     FIXES [#6727](https://github.com/microsoft/Microsoft365DSC/issues/6727)
     FIXES [#6779](https://github.com/microsoft/Microsoft365DSC/issues/6779)
 * M365DSCReverse
+  * Added logic to clean up temporary files after export.
   * Added `TenantGuid` entry to the `ConfigurationData.psd1` file during export.
     FIXES [#6689](https://github.com/microsoft/Microsoft365DSC/issues/6689)
-  * Added logic to clean up temporary files after export.
+  * Fixed an issue when attempting to copy non-downloaded `SPOApp` files.
 * M365DSCUtil
   * Fixed an issue where multiple installed Microsoft365DSC versions
     will lead to an error during export.
     FIXES [#6758](https://github.com/microsoft/Microsoft365DSC/issues/6758)
   * Added functionality to change M365DSC configuration during runtime.
   * Added logic to clean up temporary files assertion.
+  * Added missing `UseBasicParsing` because of Windows PowerShell hardening.
+  * Fixed an issue where the export would fail if the name of a resource was not
+    the same case as the name in Microsoft365DSC.
   * Improved module installation speed for `Update-M365DSCModule`.
 * MISC
-   * Generalized custom comparison handling.
+  * Applied ordering for CIM instances to minimize Git differences.
+  * Fixed a couple of misaligned export messages on the console.
+  * Generalized custom comparison handling.
     FIXES [#6765](https://github.com/microsoft/Microsoft365DSC/issues/6765)
     FIXES [#6756](https://github.com/microsoft/Microsoft365DSC/issues/6756)
     FIXES [#6584](https://github.com/microsoft/Microsoft365DSC/issues/6584)

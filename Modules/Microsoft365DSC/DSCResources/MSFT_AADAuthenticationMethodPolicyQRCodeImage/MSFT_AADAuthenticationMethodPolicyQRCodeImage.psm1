@@ -480,7 +480,7 @@ function Export-TargetResource
         $dscContent = ''
         if ($Script:exportedInstances.Length -eq 0)
         {
-            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark
+            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
         else
         {
