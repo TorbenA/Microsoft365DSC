@@ -37,6 +37,9 @@
     due to the object depth exceeding two levels.
 * IntuneEpmElevationRulesPolicyWindows10
   * Added a throw condition if the reusable certiticate policy setting is not found.
+* IntuneMobileAppsManagedGooglePlayApp
+  * Fixed an issue where `AssignmentSettings` was not a valid property.
+    FIXES [#6785](https://github.com/microsoft/Microsoft365DSC/issues/6785)
 * IntuneSettingCatalogCustomPolicyWindows10
   * Fixed the ability to run Get-TargetResource via the LCM (Get-DscConfiguration) and
     it's ability to return complex nested objects.
@@ -65,6 +68,8 @@
   * Fixed an issue where `Rename-M365DSCCimInstanceParameter` omitted values.
     FIXES [#6727](https://github.com/microsoft/Microsoft365DSC/issues/6727)
     FIXES [#6779](https://github.com/microsoft/Microsoft365DSC/issues/6779)
+* M365DSCLogEngine
+  * Replaced deprecated Windows Event PowerShell cmdlets with .NET.
 * M365DSCReverse
   * Added logic to clean up temporary files after export.
   * Added `TenantGuid` entry to the `ConfigurationData.psd1` file during export.
