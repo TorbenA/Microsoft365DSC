@@ -44,11 +44,13 @@
 * M365DSCReverse
   * Added `TenantGuid` entry to the `ConfigurationData.psd1` file during export.
     FIXES [#6689](https://github.com/microsoft/Microsoft365DSC/issues/6689)
+  * Added logic to clean up temporary files after export.
 * M365DSCUtil
   * Fixed an issue where multiple installed Microsoft365DSC versions
     will lead to an error during export.
     FIXES [#6758](https://github.com/microsoft/Microsoft365DSC/issues/6758)
   * Added functionality to change M365DSC configuration during runtime.
+  * Added logic to clean up temporary files assertion.
   * Improved module installation speed for `Update-M365DSCModule`.
 * MISC
    * Generalized custom comparison handling.
