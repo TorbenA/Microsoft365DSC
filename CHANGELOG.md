@@ -86,6 +86,10 @@
   * Removed verbose output from `Get-TargetResource`.
   * Updated the error behavior to always throw inside `Get-TargetResource`.
 
+* MSFT_IntuneSettingCatalogCustomPolicyWindows10
+  * Fixed the ability to run Get-TargetResource via the LCM (Get-DscConfiguration) and it's ability to return complex nested objects.
+    FIXES [#6092](https://github.com/microsoft/Microsoft365DSC/issues/6092)
+    
 # 1.25.1203.2
 
 * DEPENDENCIES
