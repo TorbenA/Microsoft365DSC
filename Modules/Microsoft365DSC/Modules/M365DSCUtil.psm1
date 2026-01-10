@@ -2281,31 +2281,21 @@ function New-M365DSCConnection
 
             if ($null -ne $_.TenantId)
             {
-                $invalid = $false
-                try
-                {
-                    [System.Guid]::Parse($_.TenantId) | Out-Null
-                    $invalid = $true
-                }
-                catch
-                {
-                    $invalid = $false
-                }
-                if ($invalid)
+                $parseGuid = [System.Guid]::Empty
+                $isValid = [System.Guid]::TryParse($_.TenantId, [ref]$parseGuid)
+                if ($isValid)
                 {
                     throw "Please provide the tenant name (e.g., contoso.onmicrosoft.com) for TenantId instead of its GUID."
                 }
+
+                $isValid = $_.TenantId -match ".onmicrosoft."
+                if ($isValid)
+                {
+                    return $true
+                }
                 else
                 {
-                    $invalid = $_.TenantId -notmatch ".onmicrosoft."
-                    if (-not $invalid)
-                    {
-                        return $true
-                    }
-                    else
-                    {
-                        Write-Warning -Message "We recommend providing the tenant name in format <tenant>.onmicrosoft.* for TenantId."
-                    }
+                    Write-Warning -Message "We recommend providing the tenant name in format <tenant>.onmicrosoft.* for TenantId."
                 }
             }
             return $true

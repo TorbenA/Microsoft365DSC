@@ -35,6 +35,8 @@
 * IntuneDeviceCompliancePolicyAndroidDeviceOwner
   * Fixed an issue where a JSON serialization warning was outputted
     due to the object depth exceeding two levels.
+* IntuneDeviceCompliancePolicyWindows10
+  * Fixed an issue where the complex type mapping was defined incorrectly.
 * IntuneEpmElevationRulesPolicyWindows10
   * Added a throw condition if the reusable certiticate policy setting is not found.
 * IntuneMobileAppsBuiltInStoreApp
@@ -84,15 +86,16 @@
     FIXES [#6689](https://github.com/microsoft/Microsoft365DSC/issues/6689)
   * Fixed an issue when attempting to copy non-downloaded `SPOApp` files.
 * M365DSCUtil
-  * Fixed an issue where multiple installed Microsoft365DSC versions
-    will lead to an error during export.
-    FIXES [#6758](https://github.com/microsoft/Microsoft365DSC/issues/6758)
   * Added functionality to change M365DSC configuration during runtime.
   * Added logic to clean up temporary files assertion.
   * Added missing `UseBasicParsing` because of Windows PowerShell hardening.
+  * Fixed an issue where multiple installed Microsoft365DSC versions
+    will lead to an error during export.
+    FIXES [#6758](https://github.com/microsoft/Microsoft365DSC/issues/6758)
   * Fixed an issue where the export would fail if the name of a resource was not
     the same case as the name in Microsoft365DSC.
   * Improved module installation speed for `Update-M365DSCModule`.
+  * Updated the Tenant Guid parsing to not throw but instead use `TryParse`.
 * MISC
   * Applied ordering for CIM instances to minimize Git differences.
   * Fixed a couple of misaligned export messages on the console.
