@@ -1159,6 +1159,10 @@ function Export-TargetResource
                         $group.SensitiveInformation = [array]$group.sensitivetypes
                         $group.Remove('sensitivetypes') | Out-Null
                     }
+                    $Results.ContentContainsSensitiveInformation = @{
+                        Groups = [array]$Results.ContentContainsSensitiveInformation.groups
+                        Operator = $Results.ContentContainsSensitiveInformation.operator
+                    }
                 }
                 else
                 {
@@ -1221,6 +1225,10 @@ function Export-TargetResource
                         }
                         $group.SensitiveInformation = [array]$group.sensitivetypes
                         $group.Remove('sensitivetypes') | Out-Null
+                    }
+                    $Results.ExceptIfContentContainsSensitiveInformation = @{
+                        Groups = [array]$Results.ExceptIfContentContainsSensitiveInformation.groups
+                        Operator = $Results.ExceptIfContentContainsSensitiveInformation.operator
                     }
                 }
                 else

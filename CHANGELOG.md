@@ -59,6 +59,8 @@
 * PPTenantIsolationSettings
   * Fixed an issue where updating the policy failed because of an unresolved tenant name.
     FIXES [#6778](https://github.com/microsoft/Microsoft365DSC/issues/6778)
+* SCAutoSensitivityLabelRule
+  * Aligned property formating for improved export processing.
 * SCSecurityFilter
   * Added a note that the resource does not support certificate based authentication.
 * TeamsChannel
