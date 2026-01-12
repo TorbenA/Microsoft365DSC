@@ -10,6 +10,9 @@
     FIXES [#6777](https://github.com/microsoft/Microsoft365DSC/issues/6777)
   * Fixed an issue where updating a policy would fail.
     FIXES [#6782](https://github.com/microsoft/Microsoft365DSC/issues/6782)
+* AADGroup
+  * Prevents retrieving all members of a group in the Get-TargetResource if
+    the parameter is not specified in the configuration.
 * AADNetworkAccessForwardingPolicy
   * Fixed an issue where empty `PolicyRules` would throw an exception during Get.
 * EXOExternalInOutlook
@@ -95,7 +98,7 @@
     FIXES [#6584](https://github.com/microsoft/Microsoft365DSC/issues/6584)
   * Removed verbose output from `Get-TargetResource`.
   * Updated the error behavior to always throw inside `Get-TargetResource`.
-    
+
 # 1.25.1203.2
 
 * DEPENDENCIES
