@@ -15,6 +15,8 @@
     the parameter is not specified in the configuration.
 * AADNetworkAccessForwardingPolicy
   * Fixed an issue where empty `PolicyRules` would throw an exception during Get.
+* EXODistributionGroup
+  * Fixed performance issue with the retrieval of managers.
 * EXOExternalInOutlook
   * Fixed an issue where the export would fail.
     FIXES [#6753](https://github.com/microsoft/Microsoft365DSC/issues/6753)
