@@ -12,6 +12,8 @@
     FIXES [#6782](https://github.com/microsoft/Microsoft365DSC/issues/6782)
 * AADNetworkAccessForwardingPolicy
   * Fixed an issue where empty `PolicyRules` would throw an exception during Get.
+* EXODistributionGroup
+  * Fixed performance issue with the retrieval of managers.
 * EXOExternalInOutlook
   * Fixed an issue where the export would fail.
     FIXES [#6753](https://github.com/microsoft/Microsoft365DSC/issues/6753)
@@ -95,7 +97,7 @@
     FIXES [#6584](https://github.com/microsoft/Microsoft365DSC/issues/6584)
   * Removed verbose output from `Get-TargetResource`.
   * Updated the error behavior to always throw inside `Get-TargetResource`.
-    
+
 # 1.25.1203.2
 
 * DEPENDENCIES
