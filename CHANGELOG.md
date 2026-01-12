@@ -67,6 +67,8 @@
   * Updated required permissions for read / update.
 * TeamsEmergencyCallRoutingPolicy
   * Updated required permissions for read / update.
+* TeamsMeetingBroadcastConfiguration
+  * Fixed an issue where the `SdnApiToken` property was not compared correctly.
 * TeamsOrgWideAppSettings
   * Added a note that the resource does not support certificate based authentication.
 * TeamsTeam
