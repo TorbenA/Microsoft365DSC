@@ -212,7 +212,6 @@ function Get-TargetResource
 
     try
     {
-
         if ($Global:CurrentModeIsExport)
         {
             $null = New-M365DSCConnection -Workload 'ExchangeOnline' `

@@ -233,7 +233,6 @@ function Set-TargetResource
         -InboundParameters $PSBoundParameters
 
     $SafeAttachmentPolicyParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $tenantIdValue = $TenantId
     $SafeAttachmentPolicyParams.Remove('TenantId') | Out-Null
 
     $SafeAttachmentPolicy = Get-SafeAttachmentPolicy -Identity $Identity -ErrorAction SilentlyContinue

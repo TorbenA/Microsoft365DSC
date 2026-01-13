@@ -231,7 +231,6 @@ function Set-TargetResource
         Write-Verbose -Message "Sharing Policy '$($Name)' does not exist but it should. Create and configure it."
         # Create Sharing Policy
         New-SharingPolicy @NewSharingPolicyParams
-
     }
     # CASE: Sharing Policy exists but it shouldn't;
     elseif ($Ensure -eq 'Absent' -and $currentSharingPolicyConfig.Ensure -eq 'Present')
