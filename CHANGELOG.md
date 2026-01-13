@@ -61,6 +61,9 @@
     FIXES [#6092](https://github.com/microsoft/Microsoft365DSC/issues/6092)
 * O365OrgSettings
   * Added `CertificatePath` with `CertificatePassword` as an authentication method.
+* SPOSite
+   * Fixed an issue about not correctly passing RestrictedToRegion parameter.
+     FIXES [#6734](https://github.com/microsoft/Microsoft365DSC/issues/6734)
 * PPTenantIsolationSettings
   * Fixed an issue where updating the policy failed because of an unresolved tenant name.
     FIXES [#6778](https://github.com/microsoft/Microsoft365DSC/issues/6778)
