@@ -26,10 +26,14 @@
     },
     "exchange": {
       "requiredroles": [
-        "Transport Hygiene"
+        "Security Reader",
+        "Transport Hygiene",
+        "View-Only Configuration"
       ],
       "requiredrolegroups": [
-        "Hygiene Management"
+        "Hygiene Management",
+        "Security Reader",
+        "View-Only Organization Management"
       ]
     }
   },

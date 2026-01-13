@@ -28,7 +28,9 @@
       "requiredroles": [
         "Federated Sharing"
       ],
-      "requiredrolegroups": []
+      "requiredrolegroups": [
+        "Organization Management"
+      ]
     }
   },
   "requiredModules": [],

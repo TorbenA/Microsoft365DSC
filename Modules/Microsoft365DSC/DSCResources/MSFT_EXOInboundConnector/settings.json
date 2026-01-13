@@ -29,7 +29,10 @@
         "Remote and Accepted Domains",
         "View-Only Configuration"
       ],
-      "requiredrolegroups": []
+      "requiredrolegroups": [
+        "Organization Management",
+        "View-Only Organization Management"
+      ]
     }
   },
   "requiredModules": [],

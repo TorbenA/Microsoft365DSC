@@ -29,7 +29,10 @@
         "Tenant AllowBlockList Manager",
         "View-Only Configuration"
       ],
-      "requiredrolegroups": []
+      "requiredrolegroups": [
+        "Security Operator",
+        "View-Only Organization Management"
+      ]
     }
   },
   "requiredModules": [],

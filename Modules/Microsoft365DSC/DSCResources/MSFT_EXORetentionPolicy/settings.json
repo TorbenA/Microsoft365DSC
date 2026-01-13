@@ -29,7 +29,10 @@
         "Retention Management",
         "View-Only Configuration"
       ],
-      "requiredrolegroups": []
+      "requiredrolegroups": [
+        "Records Management",
+        "View-Only Organization Management"
+      ]
     }
   },
   "requiredModules": [],

@@ -28,7 +28,9 @@
       "requiredroles": [
         "Mail Tips"
       ],
-      "requiredrolegroups": []
+      "requiredrolegroups": [
+        "Organization Management"
+      ]
     }
   },
   "requiredModules": [],

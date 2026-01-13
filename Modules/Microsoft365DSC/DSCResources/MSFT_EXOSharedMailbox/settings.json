@@ -26,28 +26,13 @@
     },
     "exchange": {
       "requiredroles": [
-        "Audit Logs",
-        "Compliance Admin",
-        "Distribution Groups",
-        "Information Rights Management",
-        "Legal Hold",
-        "Mail Enabled Public Folders",
         "Mail Recipient Creation",
         "Mail Recipients",
-        "Mailbox Search",
-        "Message Tracking",
-        "Move Mailboxes",
-        "Public Folders",
-        "Reset Password",
-        "Retention Management",
-        "Role Management",
-        "User Options",
-        "View-Only Audit Logs",
         "View-Only Recipients"
       ],
       "requiredrolegroups": [
-        "Discovery Management",
-        "Organization Management"
+        "Recipient Management",
+        "View-Only Organization Management"
       ]
     }
   },

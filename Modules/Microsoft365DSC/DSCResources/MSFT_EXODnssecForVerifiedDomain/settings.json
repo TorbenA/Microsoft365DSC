@@ -30,7 +30,11 @@
         "Security Admin",
         "View-Only Configuration"
       ],
-      "requiredrolegroups": []
+      "requiredrolegroups": [
+        "Security Administrator",
+        "Security Reader",
+        "View-Only Organization Management"
+      ]
     }
   },
   "requiredModules": [],

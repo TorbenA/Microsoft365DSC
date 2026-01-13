@@ -27,10 +27,11 @@
     "exchange": {
       "requiredroles": [
         "Address Lists",
-        "View-Only Configuration",
-        "View-Only Recipients"
+        "View-Only Configuration"
       ],
-      "requiredrolegroups": []
+      "requiredrolegroups": [
+        "View-Only Organization Management"
+      ]
     }
   },
   "requiredModules": [],

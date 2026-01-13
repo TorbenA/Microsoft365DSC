@@ -29,7 +29,10 @@
         "Mail Recipients",
         "View-Only Recipients"
       ],
-      "requiredrolegroups": []
+      "requiredrolegroups": [
+        "Recipient Management",
+        "View-Only Organization Management"
+      ]
     }
   },
   "requiredModules": [],

@@ -29,7 +29,10 @@
         "Data Loss Prevention",
         "View-Only Configuration"
       ],
-      "requiredrolegroups": []
+      "requiredrolegroups": [
+        "Compliance Management",
+        "View-Only Organization Management"
+      ]
     }
   },
   "requiredModules": [],

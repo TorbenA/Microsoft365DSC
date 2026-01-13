@@ -29,7 +29,10 @@
         "Recipient Policies",
         "View-Only Configuration"
       ],
-      "requiredrolegroups": []
+      "requiredrolegroups": [
+        "Recipient Management",
+        "View-Only Organization Management"
+      ]
     }
   },
   "requiredModules": [],

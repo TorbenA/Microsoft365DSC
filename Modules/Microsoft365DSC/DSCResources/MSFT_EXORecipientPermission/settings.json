@@ -26,21 +26,10 @@
     },
     "exchange": {
       "requiredroles": [
-        "Distribution Groups",
-        "Legal Hold",
-        "Mail Enabled Public Folders",
-        "Mail Recipient Creation",
-        "Mail Recipients",
-        "Public Folders",
-        "Reset Password",
-        "Role Management",
-        "Security Admin",
-        "User Options",
-        "View-Only Configuration",
-        "View-Only Recipients"
+        "Mail Recipients"
       ],
       "requiredrolegroups": [
-        "Organization Management"
+        "Recipient Management"
       ]
     }
   },

@@ -29,7 +29,10 @@
         "Organization Client Access",
         "View-Only Recipients"
       ],
-      "requiredrolegroups": []
+      "requiredrolegroups": [
+        "Organization Management",
+        "View-Only Organization Management"
+      ]
     }
   },
   "requiredModules": [],
