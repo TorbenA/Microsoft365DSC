@@ -731,30 +731,6 @@ function Set-TargetResource
         $key = $key.Replace("Include", "").Replace("WithDisplayNames", "")
         if ($PSBoundParameters.ContainsKey($key))
         {
-            if ($null -eq $Script:RecipientsCache2)
-            {
-                $Script:RecipientsCache2 = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
-                if ($null -eq $Script:RecipientsCache)
-                {
-                    $recipients = Get-Recipient -ResultSize Unlimited
-                    foreach ($recipient in $recipients)
-                    {
-                        $Script:RecipientsCache2[$recipient.PrimarySmtpAddress] = @{
-                            Name               = $recipient.Name
-                            PrimarySmtpAddress = $recipient.PrimarySmtpAddress
-                            WindowsLiveID      = $recipient.WindowsLiveID
-                        }
-                    }
-                }
-                else
-                {
-                    foreach ($entry in $Script:RecipientsCache.GetEnumerator())
-                    {
-                        $Script:RecipientsCache2[$entry.Value.PrimarySmtpAddress] = $entry.Value
-                    }
-                }
-            }
-
             $convertedList = [System.Collections.Generic.List[System.String]]::new()
             foreach ($member in $UpdateParameters.$key)
             {
@@ -766,15 +742,8 @@ function Set-TargetResource
                     continue
                 }
 
-                $entry = $null
-                if ($Script:RecipientsCache2.TryGetValue($member, [ref]$entry))
-                {
-                    $convertedList.Add($entry.Name)
-                }
-                else
-                {
-                    $convertedList.Add($member)
-                }
+                $entry = Get-Recipient -Identity $member
+                $convertedList.Add($entry.Name)
             }
 
             $UpdateParameters[$key] = $convertedList.ToArray()
@@ -1210,32 +1179,14 @@ function Get-CompareParameters
                 $key = $key.Replace("Include", "").Replace("WithDisplayNames", "")
                 if ($DesiredValues.ContainsKey($key))
                 {
-                    if ($null -eq $Script:RecipientsCache)
-                    {
-                        $Script:RecipientsCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
-                        Get-Recipient -ResultSize Unlimited | Foreach-Object {
-                            $Script:RecipientsCache[$_.Name] = @{
-                                Name               = $_.Name
-                                PrimarySmtpAddress = $_.PrimarySmtpAddress
-                                WindowsLiveID      = $_.WindowsLiveID
-                            }
-                        }
-                    }
                     $convertedValues = @()
                     foreach ($member in $DesiredValues.$key)
                     {
                         $guid = [System.Guid]::Empty
                         if ([System.Guid]::TryParse($member, [ref]$guid))
                         {
-                            $entry = $null
-                            if ($Script:RecipientsCache.TryGetValue($member, [ref]$entry))
-                            {
-                                $convertedValues += $entry.PrimarySmtpAddress
-                            }
-                            else
-                            {
-                                $convertedValues += $member
-                            }
+                            $entry = Get-Recipient -Identity $member
+                            $convertedValues += $entry.PrimarySmtpAddress
                         }
                         else
                         {
