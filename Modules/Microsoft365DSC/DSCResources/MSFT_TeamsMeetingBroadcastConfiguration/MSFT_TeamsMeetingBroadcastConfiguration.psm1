@@ -378,9 +378,9 @@ function Get-CompareParameters
     return @{
         PostProcessing = {
             param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
-            if ($CurrentValues.SdnApiToken -eq '**********')
+            if ($DesiredValues.SdnApiToken -eq '**********' -or $CurrentValues.SdnApiToken -eq '**********')
             {
-                $CurrentValues.Remove('SdnApiToken') | Out-Null
+                $ValuesToCheck.Remove('SdnApiToken') | Out-Null
             }
             return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
         }

@@ -1068,7 +1068,7 @@ function Export-TargetResource
                     @{
                         Name            = 'Assignments'
                         CimInstanceName = 'MSFT_DeviceManagementConfigurationPolicyAssignments'
-                            sRequired      = $False
+                        IsRequired      = $False
                     }
                 )
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
