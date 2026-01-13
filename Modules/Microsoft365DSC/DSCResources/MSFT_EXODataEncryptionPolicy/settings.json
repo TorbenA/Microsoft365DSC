@@ -27,12 +27,9 @@
     "exchange": {
       "requiredroles": [
         "Recipient Policies",
-        "Mail Recipient Creation",
         "View-Only Configuration"
       ],
-      "requiredrolegroups": [
-        "Organization Management"
-      ]
+      "requiredrolegroups": []
     }
   },
   "requiredModules": [],

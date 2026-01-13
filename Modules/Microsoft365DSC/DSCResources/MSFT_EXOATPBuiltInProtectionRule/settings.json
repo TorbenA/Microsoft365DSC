@@ -19,6 +19,15 @@
           }
         ]
       }
+    },
+    "exchange": {
+      "requiredroles": [
+        "Security Reader",
+        "Security Admin",
+        "Transport Hygiene",
+        "View-Only Configuration"
+      ],
+      "requiredrolegroups": []
     }
   },
   "requiredModules": [],

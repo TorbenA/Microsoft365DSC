@@ -29,9 +29,7 @@
         "Organization Client Access",
         "View-Only Configuration"
       ],
-      "requiredrolegroups": [
-        "Organization Management"
-      ]
+      "requiredrolegroups": []
     }
   },
   "requiredModules": [],

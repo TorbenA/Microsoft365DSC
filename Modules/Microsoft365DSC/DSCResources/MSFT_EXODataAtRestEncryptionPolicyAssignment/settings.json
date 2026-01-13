@@ -28,9 +28,7 @@
       "requiredroles": [
         "Compliance Admin"
       ],
-      "requiredrolegroups": [
-        "Organization Management"
-      ]
+      "requiredrolegroups": []
     }
   },
   "requiredModules": [],

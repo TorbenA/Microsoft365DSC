@@ -26,14 +26,10 @@
     },
     "exchange": {
       "requiredroles": [
-        "Compliance Management",
-        "Delegated Setup",
-        "Hygiene Management",
-        "Organization Management",
-        "View-Only Organization Management"
+        "Transport Hygiene"
       ],
       "requiredrolegroups": [
-        "Organization Management"
+        "Hygiene Management"
       ]
     }
   },

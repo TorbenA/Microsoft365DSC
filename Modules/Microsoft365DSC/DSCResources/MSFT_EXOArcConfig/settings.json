@@ -26,15 +26,10 @@
     },
     "exchange": {
       "requiredroles": [
-        "Security Admin",
-        "Security Reader",
         "Tenant AllowBlockList Manager",
-        "Transport Hygiene",
         "View-Only Configuration"
       ],
-      "requiredrolegroups": [
-        "Organization Management"
-      ]
+      "requiredrolegroups": []
     }
   },
   "requiredModules": [],

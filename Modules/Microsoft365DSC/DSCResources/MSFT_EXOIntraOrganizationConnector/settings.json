@@ -27,14 +27,9 @@
     "exchange": {
       "requiredroles": [
         "Federated Sharing",
-        "Organization Transport Settings",
-        "View-Only Configuration",
-        "Mail Tips",
-        "Message Tracking"
+        "View-Only Configuration"
       ],
-      "requiredrolegroups": [
-        "Organization Management"
-      ]
+      "requiredrolegroups": []
     }
   },
   "requiredModules": [],

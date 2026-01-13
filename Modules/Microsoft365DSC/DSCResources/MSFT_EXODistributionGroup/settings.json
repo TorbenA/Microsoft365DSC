@@ -24,8 +24,8 @@
     },
     "exchange": {
       "requiredroles": [
-        "Organization Management",
-        "Recipient Management"
+        "Distribution Groups",
+        "View-Only Recipients"
       ],
       "requiredrolegroups": []
     }

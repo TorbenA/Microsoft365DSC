@@ -26,13 +26,10 @@
     },
     "exchange": {
       "requiredroles": [
-        "Organization Management",
-        "Recipient Management"
+        "View-Only Recipients",
+        "User Options"
       ],
-      "requiredrolegroups": [
-        "Organization Management",
-        "Help Desk"
-      ]
+      "requiredrolegroups": []
     }
   },
   "requiredModules": [],

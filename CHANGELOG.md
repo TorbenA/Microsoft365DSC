@@ -94,8 +94,9 @@
     FIXES [#6756](https://github.com/microsoft/Microsoft365DSC/issues/6756)
     FIXES [#6584](https://github.com/microsoft/Microsoft365DSC/issues/6584)
   * Removed verbose output from `Get-TargetResource`.
+  * Updated and corrected all EXO permissions.
   * Updated the error behavior to always throw inside `Get-TargetResource`.
-    
+
 # 1.25.1203.2
 
 * DEPENDENCIES

@@ -26,14 +26,9 @@
     },
     "exchange": {
       "requiredroles": [
-        "Federated Sharing",
-        "Organization Configuration",
-        "Mail Tips",
-        "Message Tracking"
+        "Federated Sharing"
       ],
-      "requiredrolegroups": [
-        "Organization Management"
-      ]
+      "requiredrolegroups": []
     }
   },
   "requiredModules": [],
