@@ -55,6 +55,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Get-QuarantinePolicy -MockWith {
                 return @{
                     Identity                    = 'TestQuarantinePolicy'
+                    Name                        = 'TestQuarantinePolicy'
                     OrganizationBrandingEnabled = $True
                     ESNEnabled                  = $False
                 }
