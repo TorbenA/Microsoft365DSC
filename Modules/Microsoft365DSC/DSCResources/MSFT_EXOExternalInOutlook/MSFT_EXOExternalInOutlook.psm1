@@ -72,7 +72,7 @@ function Get-TargetResource
             $nullResult = $PSBoundParameters
             $nullResult.Ensure = 'Absent'
 
-            $instance = Get-ExternalInOutlook -Identity $Identity -ErrorAction SilentlyContinue
+            $instance = Get-ExternalInOutlook -Identity $Identity
             if ($null -eq $instance)
             {
                 Write-Verbose -Message "No settings found for ExternalInOutlook with Identity $Identity"

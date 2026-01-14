@@ -625,10 +625,10 @@ function Export-TargetResource
                 $Global:M365DSCExportResourceInstancesCount++
             }
 
-            Write-M365DSCHost -Message "    |---[$i/$($QuarantinePolicies.Length)] $($QuarantinePolicy.Identity)" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$i/$($QuarantinePolicies.Length)] $($QuarantinePolicy.Name)" -DeferWrite
 
             $Params = @{
-                Identity              = $QuarantinePolicy.Identity
+                Identity              = $QuarantinePolicy.Name
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId
                 TenantId              = $TenantId
