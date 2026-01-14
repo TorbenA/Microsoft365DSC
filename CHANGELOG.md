@@ -16,10 +16,15 @@
 * AADNetworkAccessForwardingPolicy
   * Fixed an issue where empty `PolicyRules` would throw an exception during Get.
 * EXODistributionGroup
-  * Fixed performance issue with the retrieval of managers.
+  * Fixes performance issue with the retrieval of managers.
+  * Fixes GUID vs UPN evaluation
+    FIXES [#6769](https://github.com/microsoft/Microsoft365DSC/issues/6769)
 * EXOExternalInOutlook
   * Fixed an issue where the export would fail.
     FIXES [#6753](https://github.com/microsoft/Microsoft365DSC/issues/6753)
+* EXOGroupSettings
+  * Fixed performance issue evaluating and setting values due to the full
+    Recipient list being returned.
 * EXOPhishSimOverrideRule
   * Fixed an issue where the export would fail.
     FIXES [#6753](https://github.com/microsoft/Microsoft365DSC/issues/6753)
