@@ -324,7 +324,7 @@ function Set-TargetResource
             $ruleTenantId = Get-M365TenantId -TenantName $rule.TenantName
             Write-Verbose -Message "Found TenantName {$($rule.TenantName)}"
 
-            $direction = [PSCustomObject]@{
+            $direction = @{
                 inbound  = $false
                 outbound = $false
             }
@@ -351,7 +351,7 @@ function Set-TargetResource
                     }
                 }
 
-                $newRule = [PSCustomObject]@{
+                $newRule = @{
                     tenantId          = $ruleTenantId
                     tenantDisplayName = ''
                     direction         = $direction

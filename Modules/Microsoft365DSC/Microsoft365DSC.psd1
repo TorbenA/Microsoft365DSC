@@ -57,6 +57,7 @@
 
   # Script files (.ps1) that are run in the caller's environment prior to importing this module.
   ScriptsToProcess = @(
+    'Import-M365DSCDllLoaderModule.ps1',
     'Update-MaximumFunctionCount.ps1'
   )
 
@@ -73,6 +74,7 @@
     'Modules/M365DSCDocGenerator.psm1',
     'Modules/M365DSCErrorHandler.psm1',
     'Modules/M365DSCLogEngine.psm1',
+    'Modules/M365DSCModuleMgmt.psm1',
     'Modules/M365DSCPermissions.psm1',
     'Modules/M365DSCReport.psm1',
     'Modules/M365DSCReverse.psm1',

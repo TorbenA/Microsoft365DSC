@@ -1,3 +1,6 @@
+# Automatically initialize accelerator on module import
+Initialize-M365DSCDllLoader -ErrorAction SilentlyContinue
+
 $Script:ReportCSS = @"
 <style>
     body {
@@ -1744,7 +1747,7 @@ function Get-M365DSCResourceKey
     )
 
     $resourceInfo = $DSCResourceInfo[$Resource.ResourceName]
-    [Array]$mandatoryParameters = $resourceInfo.Properties | Where-Object -FilterScript { $_.IsMandatory }
+    [Array]$mandatoryParameters = $resourceInfo.Properties | Where-Object IsMandatory -EQ $true
     if ($Resource.Contains('IsSingleInstance') -and $mandatoryParameters.Name.Contains('IsSingleInstance'))
     {
         return @('IsSingleInstance')
@@ -1968,20 +1971,26 @@ function New-M365DSCDeltaReport
     $isPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
     if ($isPowerShellCore)
     {
-        $module = Get-Module -Name PSDesiredStateConfiguration | Where-Object { $_.Version -ge [version]'2.0.7' }
-        if ($null -eq $module)
+        if ($null -eq $Script:DscResourceInfo)
         {
-            Import-Module -Name "PSDesiredStateConfiguration" -Global -Prefix 'Pwsh' -RequiredVersion 2.0.7
+            $module = Get-Module -Name PSDesiredStateConfiguration | Where-Object { $_.Version -ge [version]'2.0.7' }
+            if ($null -eq $module)
+            {
+                Import-Module -Name "PSDesiredStateConfiguration" -Global -Prefix 'Pwsh' -RequiredVersion 2.0.7
+            }
+            $Script:DscResourceInfo = Get-PwshDSCResource -Module 'Microsoft365DSC'
         }
-        $dscResourceInfo = Get-PwshDSCResource -Module 'Microsoft365DSC'
     }
     else
     {
-        $currentModule = Get-Module -Name 'Microsoft365DSC'
-        $dscResourceInfo = Get-DSCResource -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
+        if ($null -eq $Script:DscResourceInfo)
+        {
+            $currentModule = Get-Module -Name 'Microsoft365DSC'
+            $Script:DscResourceInfo = Get-DSCResource -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
+        }
     }
     $dscResourceInfoMap = @{}
-    foreach ($resource in $dscResourceInfo)
+    foreach ($resource in $Script:DscResourceInfo)
     {
         $dscResourceInfoMap.Add($resource.Name, $resource)
     }
@@ -1994,6 +2003,7 @@ function New-M365DSCDeltaReport
             $desiredSplat = @{
                 ConfigurationPath   = $Destination
                 IncludeComments     = $true
+                DscResourceInfo     = $Script:DscResourceInfo
             }
         }
         else
@@ -2001,17 +2011,18 @@ function New-M365DSCDeltaReport
             $desiredSplat = @{
                 ConfigurationPath   = $Destination
                 IncludeComments     = $false
+                DscResourceInfo     = $Script:DscResourceInfo
             }
         }
         # Parse the blueprint file, pass to Compare-M365DSCConfigurations as object (including comments aka metadata)
-        [Array] $desiredConfiguration = Initialize-M365DSCReporting @desiredSplat
+        [Array]$desiredConfiguration = Initialize-M365DSCReporting @desiredSplat
         [Array]$sourceReporting = Initialize-M365DSCReporting -ConfigurationPath $Source
         $Delta = @()
         foreach ($resource in $sourceReporting)
         {
             [array]$key = Get-M365DSCResourceKey -Resource $resource -DSCResourceInfo $dscResourceInfoMap
             #Write-Progress -Activity "Scanning Source $Source...[$i/$($SourceObject.Count)]" -PercentComplete ($i / ($SourceObject.Count) * 100)
-            [array]$destinationResource = $desiredConfiguration.Where({ $_.ResourceName -eq $resource.ResourceName -and $_.($key[0]) -eq $resource.($key[0]) })
+            [array]$destinationResource = [Microsoft365DSC.Utilities.Utilities]::FilterHashtablesByResourceAndKey($desiredConfiguration, $resource.ResourceName, $key[0], $resource.($key[0]))
 
             $keyName = $key[0..1] -join '\'
             $sourceKeyValue = $resource.($key[0])
@@ -2115,7 +2126,7 @@ function New-M365DSCDeltaReport
             [array]$key = Get-M365DSCResourceKey -Resource $resource -DSCResourceInfo $dscResourceInfoMap
             $keyName = $key[0..1] -join '\'
             $destinationKeyValue = $resource.($key[0])
-            [array]$sourceResource = $sourceReporting.Where({ $_.ResourceName -eq $resource.ResourceName -and $_.($key[0]) -eq $resource.($key[0]) })
+            [array]$sourceResource = [Microsoft365DSC.Utilities.Utilities]::FilterHashtablesByResourceAndKey($sourceReporting, $resource.ResourceName, $key[0], $resource.($key[0]))
 
             # Filter on the second key
             if ($key.Count -gt 1)
@@ -2405,7 +2416,11 @@ function Initialize-M365DSCReporting
 
         [Parameter()]
         [Switch]
-        $IncludeComments
+        $IncludeComments,
+
+        [Parameter()]
+        [Microsoft.PowerShell.DesiredStateConfiguration.DscResourceInfo[]]
+        $DscResourceInfo
     )
 
     if ((Test-Path -Path $ConfigurationPath) -eq $false)
@@ -2431,13 +2446,25 @@ function Initialize-M365DSCReporting
         Write-Verbose 'Error trying to remove Module Version'
     }
 
+    $params = @{
+        Content          = $fileContent
+    }
     if ($IncludeComments)
     {
-        $parsedContent = ConvertTo-DSCObject -Content $fileContent -IncludeComments:$True
+        $params.Add('IncludeComments', $true)
+        if ($PSBoundParameters.ContainsKey('DscResourceInfo'))
+        {
+            $params.Add('DscResourceInfo', $DscResourceInfo)
+        }
+        $parsedContent = ConvertTo-DSCObject @params
     }
     else
     {
-        $parsedContent = ConvertTo-DSCObject -Content $fileContent
+        if ($PSBoundParameters.ContainsKey('DscResourceInfo'))
+        {
+            $params.Add('DscResourceInfo', $DscResourceInfo)
+        }
+        $parsedContent = ConvertTo-DSCObject @params
     }
 
     if ($null -eq $parsedContent)

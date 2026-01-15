@@ -219,7 +219,6 @@ function Get-TargetResource
         $scheduledActionsForRuleHashTable = @{}
         $psCustomObject.PsObject.Properties | ForEach-Object {
             $scheduledActionsForRuleHashTable[$_.Name] = $_.Value
-
         }
         $hashtable = @{}
         $complexScheduledActionsForRule = @()

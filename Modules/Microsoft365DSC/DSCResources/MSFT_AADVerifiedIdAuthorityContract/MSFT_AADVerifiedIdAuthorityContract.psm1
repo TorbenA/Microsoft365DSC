@@ -798,7 +798,7 @@ function Get-M365DSCVerifiedIdAuthorityContractObject
 function Get-M365DSCVerifiedIdAuthorityObject
 {
     [CmdletBinding()]
-    [OutputType([PSCustomObject])]
+    [OutputType([System.Collections.Hashtable])]
     param(
         [Parameter()]
         $Authority
@@ -833,7 +833,7 @@ function Get-M365DSCVerifiedIdAuthorityObject
 
 function Invoke-M365DSCVerifiedIdWebRequest
 {
-    [OutputType([PSCustomObject])]
+    [OutputType([System.Collections.Hashtable])]
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]

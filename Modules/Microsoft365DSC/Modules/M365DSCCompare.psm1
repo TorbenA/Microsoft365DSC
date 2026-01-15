@@ -2,6 +2,12 @@
 .SYNOPSIS
     This module contains the comparison logic for M365DSC.
 #>
+
+$Script:IsPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
+
+# Automatically initialize accelerator on module import
+Initialize-M365DSCDllLoader -ErrorAction SilentlyContinue
+
 function Compare-M365DSCResourceState
 {
     [CmdletBinding()]
@@ -50,7 +56,14 @@ function Compare-M365DSCResourceState
     {
         $schemaPath = Join-Path -Path $currentPath -ChildPath '..\SchemaDefinition.json'
         $schemaJSON = Get-Content $schemaPath -Raw
-        $Script:M365DSCSchema = ConvertFrom-Json $schemaJSON
+        if ($Script:IsPowerShellCore)
+        {
+            $Script:M365DSCSchema = ConvertFrom-Json $schemaJSON -AsHashtable
+        }
+        else
+        {
+            $Script:M365DSCSchema = ConvertFrom-Json $schemaJSON
+        }
 
         $Script:ResourceDefinitionCache = @{}
         foreach ($schemaEntry in $Script:M365DSCSchema)
@@ -178,7 +191,7 @@ function Compare-M365DSCResourceState
                 Write-Verbose -Message "Comparing complex object property $key of resource $ResourceName"
                 $CIMProperty = $parameterDefinition
                 $CIMName = $CIMProperty.CIMType.Replace('[]', '')
-                $CIMDefinition = $Script:M365DSCSchema.Where({ $_.ClassName -eq $CIMName })
+                $CIMDefinition = [Microsoft365DSC.Utilities.Utilities]::FilterCimClassesByName($Script:M365DSCSchema, $CIMName)
                 # Can potentially be a single PSObject, therefore not using Where()
                 $CIMPrimaryKeys = $CIMDefinition.Parameters | Where-Object { $_.Option -eq 'Required' }
 
@@ -186,6 +199,17 @@ function Compare-M365DSCResourceState
                 if ($source.GetType().Name -in @('CimInstance[]', 'Object[]'))
                 {
                     $targetObjects = @()
+                }
+
+                if ($CIMName -like "*Intune*PolicyAssignments" -and -not $CIMName -eq "MSFT_IntuneDeviceRemediationPolicyAssignments")
+                {
+                    if (($source.Count -gt 0 -and $source[0].dataType -notin @("#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget")) -or `
+                        ($target.Count -gt 0 -and $target[0].dataType -notin @("#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget")))
+                    {
+                        $CIMPrimaryKeys += @{
+                            Name = 'groupDisplayName'
+                        }
+                    }
                 }
 
                 # Filter all target objects that match the primary keys of the source object(s)

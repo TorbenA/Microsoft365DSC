@@ -344,7 +344,7 @@ function Set-TargetResource
         $csvFilePath = "$env:TEMP\MigrationUsers.csv"
 
         # Convert each item in the array to a custom object with an EmailAddress property
-        $csvContent = $MigrationUsers | ForEach-Object { [PSCustomObject]@{EmailAddress = $_ } }
+        $csvContent = $MigrationUsers | ForEach-Object { @{EmailAddress = $_ } }
 
         # Export to CSV with the header "EmailAddress"
         $csvContent | Export-Csv -Path $csvFilePath -NoTypeInformation -Force

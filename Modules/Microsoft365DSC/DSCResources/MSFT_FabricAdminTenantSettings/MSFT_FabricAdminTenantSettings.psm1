@@ -2041,7 +2041,7 @@ function Export-TargetResource
 function Get-M365DSCFabricTenantSettingObject
 {
     [CmdletBinding()]
-    [OutputType([PSCustomObject])]
+    [OutputType([System.Collections.Hashtable])]
     param(
         [Parameter()]
         $Setting

@@ -707,7 +707,7 @@ function Export-TargetResource
 function Get-M365DSCRoleManagementPolicyRuleObject
 {
     [CmdletBinding()]
-    [OutputType([PSCustomObject])]
+    [OutputType([System.Collections.Hashtable[]])]
     param(
         [Parameter()]
         $Rule
