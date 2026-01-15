@@ -1,5 +1,14 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCPermissions
+  * Changed the output of `Get-M365DSCCompiledPermissionList` to show the
+    required Read and Update permissions for `Roles` and `RoleGroups`.
+* MISC
+  * Updated the structure of all EXO settings.json files that contain the
+    `Roles` and `RoleGroups` properties.
+
 # 1.26.114.1
 
 * AADAuthenticationMethodPolicy
