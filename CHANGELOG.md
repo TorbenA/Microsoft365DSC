@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCUtil
+  * Fixed an issue where the module is not being updated if installed
+    with `Install-PSResource` because the filter condition was incorrect.
+
 # 1.26.114.1
 
 * AADAuthenticationMethodPolicy
