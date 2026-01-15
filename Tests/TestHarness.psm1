@@ -16,7 +16,7 @@ function Invoke-TestHarness
         $IgnoreCodeCoverage
     )
 
-    $sw = [System.Diagnostics.StopWatch]::startnew()
+    $sw = [System.Diagnostics.Stopwatch]::StartNew()
 
     $MaximumFunctionCount = 32767
     Write-Host -Object 'Running all Microsoft365DSC Unit Tests'

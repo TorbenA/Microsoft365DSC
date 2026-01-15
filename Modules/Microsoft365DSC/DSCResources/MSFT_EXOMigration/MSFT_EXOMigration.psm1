@@ -129,7 +129,11 @@ function Get-TargetResource
         Write-Verbose -Message "Migration Batch with Identity $Identity found"
 
         $Users = Get-MigrationUser -BatchId $Identity
-        $UserEmails = $Users | ForEach-Object { $_.Identity }
+        $UserEmails = @()
+        foreach ($user in $Users)
+        {
+            $UserEmails += $user.Identity
+        }
 
         $results = @{
             Identity              = $Identity

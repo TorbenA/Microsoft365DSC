@@ -1,5 +1,28 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADConditionalAccessPolicy
+  * Fixed an issue where arrays could contain empty strings.
+* AADPasswordRuleSettings
+  * Fixed an issue where `BannedPasswordList` could be null.
+* AADPIMGroupSetting
+  * Fixed an issue where typed variables could lead to an exception.
+* EXOIRMConfiguration
+  * Changed the parameters `LicensingLocation` and `RMSOnlineKeySharingLocation`
+    to `System.String` instead of an implicit conversion to `System.Uri`.
+* EXOMigration
+  * Fixed an issue where `UserEmails` could contain empty strings.
+* IntuneDeviceEnrollmentStatusPageWindows10
+  * Fixed an issue where `SelectedMobileAppNames` could contain empty strings
+    during the execution of `Test-TargetResoure`.
+* SCPolicyConfig
+  * Fixed an issue where the sub-property `JustificationText` could contain
+    empty strings.
+* MISC
+  * Fixed issues with mismatched property types in resource tests.
+  * Refactored parts of the core engine with C#.
+
 # 1.26.114.1
 
 * AADAuthenticationMethodPolicy

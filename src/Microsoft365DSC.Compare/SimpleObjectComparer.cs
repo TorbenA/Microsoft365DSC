@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation;
 
 namespace Microsoft365DSC.Compare
 {
@@ -20,7 +21,7 @@ namespace Microsoft365DSC.Compare
         {
             // Contains the strings to write to the event log
             Hashtable driftedParameters = new();
-            // Contains the drift 
+            // Contains the drift
             Hashtable driftObject = new()
             {
                 { "DriftInfo", new List<Hashtable>() },
@@ -29,7 +30,7 @@ namespace Microsoft365DSC.Compare
             };
 
             // The final return value for the method
-            bool returnValue = false;
+            bool returnValue = true;
 
             if (includedDrifts is not null && includedDrifts.Keys.Count > 0)
             {
@@ -49,9 +50,8 @@ namespace Microsoft365DSC.Compare
                 }
             }
 
-            string desiredTypeName = desiredValues.GetType().Name;
             // Match for Hashtable, CimInstance and PSBoundParametersDictionary, which inherits from Dictionary<string, object>
-            if (desiredValues is not Hashtable && desiredValues is not CimInstance && desiredValues is not Dictionary<string, object>)
+            if (desiredValues is not Hashtable and not CimInstance and not Dictionary<string, object>)
             {
                 throw new ArgumentException($"Property 'DesiredValues' must be either a Hashtable or CimInstance. Type detected was {desiredValues.GetType().FullName}");
             }
@@ -88,9 +88,15 @@ namespace Microsoft365DSC.Compare
                     continue;
                 }
 
+                if (desiredValuesHashtable[key] is null && currentValues.ContainsKey(key) && currentValues[key] is null)
+                {
+                    // Do nothing - Both are null
+                    continue;
+                }
+
                 if (!currentValues.ContainsKey(key) ||
-                    !(currentValues[key]?.Equals(desiredValuesHashtable[key]) ?? false) ||
-                        (desiredValuesHashtable.ContainsKey(key) && 
+                    !(currentValues[key]?.ToString().Equals(desiredValuesHashtable[key]?.ToString(), StringComparison.OrdinalIgnoreCase) ?? false) ||
+                        (desiredValuesHashtable.ContainsKey(key) &&
                             desiredValuesHashtable[key] is not null && desiredValuesHashtable[key] is Array))
                 {
                     if (desiredValuesHashtable.ContainsKey(key))
@@ -115,7 +121,7 @@ namespace Microsoft365DSC.Compare
                                 returnValue = false;
                                 continue;
                             }
-                            
+
                             if (desiredType.Name.Equals("CimInstance[]"))
                             {
                                 // Do nothing because it's already handled previously through Compare-M365DSCComplexObject -> ComplexObjectComparer
@@ -127,12 +133,12 @@ namespace Microsoft365DSC.Compare
                             Array desiredValuesArray = desiredValue is null
                                 ? Array.CreateInstance(desiredType, 0)
                                 : (Array)desiredValue;
-                            Array currentValuesArray = (Array)currentValues[key];
+                            Array currentValuesArray = EnsureArray(currentValues[key], desiredType.GetElementType());
                             var arrayDifferences = ArrayComparer.CompareArrays(currentValuesArray, desiredValuesArray);
                             if (arrayDifferences.Count > 0)
                             {
-                                string currentValuesString = string.Join(", ", currentValuesArray.Cast<string>());
-                                string desiredValuesString = string.Join(", ", desiredValuesArray.Cast<string>());
+                                string currentValuesString = string.Join(", ", Utilities.Utilities.UnwrapArrayToStrings(currentValuesArray));
+                                string desiredValuesString = string.Join(", ", Utilities.Utilities.UnwrapArrayToStrings(desiredValuesArray));
                                 AddDriftInfo(driftObject, key, currentValuesString, desiredValuesString);
                                 AddDriftedParameter(driftedParameters, key, currentValuesString, desiredValuesString);
                                 returnValue = false;
@@ -142,6 +148,12 @@ namespace Microsoft365DSC.Compare
 
                         switch (desiredValue)
                         {
+                            case null:
+                                AddDriftInfo(driftObject, key, currentValues[key] as string ?? string.Empty, "$null");
+                                AddDriftedParameter(driftedParameters, key, currentValues[key] as string ?? string.Empty, "$null");
+                                returnValue = false;
+                                break;
+
                             case string desiredValueString:
                                 string currentValueString = currentValues[key] as string;
                                 if (!string.IsNullOrEmpty(currentValueString))
@@ -157,7 +169,7 @@ namespace Microsoft365DSC.Compare
                                 }
 
                                 if (!string.IsNullOrEmpty(currentValueString) && !string.IsNullOrEmpty(desiredValueString)
-                                    && string.Equals(desiredValueString, currentValueString, StringComparison.Ordinal))
+                                    && string.Equals(desiredValueString, currentValueString, StringComparison.OrdinalIgnoreCase))
                                 {
                                     // Do nothing - Strings are the same
                                     continue;
@@ -168,41 +180,17 @@ namespace Microsoft365DSC.Compare
                                 returnValue = false;
                                 break;
 
-                            case int desiredValueInt32:
-                                AddDriftInfo(driftObject, key, currentValues[key] as string ?? string.Empty, desiredValueInt32.ToString());
-                                AddDriftedParameter(driftedParameters, key, currentValues[key] as string ?? string.Empty, desiredValueInt32.ToString());
-                                returnValue = false;
-                                break;
-
-                            case uint desiredValueUint32:
-                                AddDriftInfo(driftObject, key, currentValues[key] as string ?? string.Empty, desiredValueUint32.ToString());
-                                AddDriftedParameter(driftedParameters, key, currentValues[key] as string ?? string.Empty, desiredValueUint32.ToString());
-                                returnValue = false;
-                                break;
-
-                            case short desiredValueInt16:
-                                AddDriftInfo(driftObject, key, currentValues[key] as string ?? string.Empty, desiredValueInt16.ToString());
-                                AddDriftedParameter(driftedParameters, key, currentValues[key] as string ?? string.Empty, desiredValueInt16.ToString());
-                                returnValue = false;
-                                break;
-
-                            case bool desiredValueBool:
-                                AddDriftInfo(driftObject, key, currentValues[key] as string ?? string.Empty, desiredValueBool.ToString());
-                                AddDriftedParameter(driftedParameters, key, currentValues[key] as string ?? string.Empty, desiredValueBool.ToString());
-                                returnValue = false;
-                                break;
-
-                            case float desiredValueSingle:
-                                AddDriftInfo(driftObject, key, currentValues[key] as string ?? string.Empty, desiredValueSingle.ToString());
-                                AddDriftedParameter(driftedParameters, key, currentValues[key] as string ?? string.Empty, desiredValueSingle.ToString());
-                                returnValue = false;
-                                break;
-
-                            case Hashtable:
-                                throw new NotSupportedException($"Comparing Hashtables with {typeof(SimpleObjectComparer).Name} is not supported.");
-
                             default:
-                                throw new NotSupportedException($"Comparing {desiredType.FullName} with {typeof(SimpleObjectComparer).Name} is not supported.");
+                                // Handle all value types (numeric types and bool)
+                                if (!desiredValue.GetType().IsValueType)
+                                {
+                                    throw new NotSupportedException($"Comparing {desiredType.FullName} with {typeof(SimpleObjectComparer).Name} is not supported.");
+                                }
+
+                                AddDriftInfo(driftObject, key, currentValues[key] as string ?? string.Empty, desiredValue.ToString());
+                                AddDriftedParameter(driftedParameters, key, currentValues[key] as string ?? string.Empty, desiredValue.ToString());
+                                returnValue = false;
+                                break;
                         }
                     }
                 }
@@ -214,6 +202,28 @@ namespace Microsoft365DSC.Compare
                 { "DriftObject", driftObject },
                 { "DriftedParameters", driftedParameters }
             };
+        }
+
+        private static Array EnsureArray(object value, Type? elementType = null)
+        {
+            if (value is null)
+            {
+                elementType = elementType ?? typeof(object);
+                return Array.CreateInstance(elementType, 0);
+            }
+
+            if (value is Array array)
+            {
+                return array;
+            }
+
+            // Single value (ValueType or String) - create array with that value
+            if (value is PSObject psObject)
+                value = psObject.BaseObject;
+            elementType = elementType ?? value.GetType();
+            Array result = Array.CreateInstance(elementType, 1);
+            result.SetValue(value, 0);
+            return result;
         }
 
         private static void AddDriftInfo(Hashtable driftObject, string propertyName, object currentValue, object desiredValue)

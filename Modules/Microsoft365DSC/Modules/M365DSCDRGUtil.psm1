@@ -74,7 +74,7 @@ function Rename-M365DSCCimInstanceParameter
     #region Single
     if ($type -like '*Hashtable')
     {
-        $result = ([Hashtable]$Properties).Clone()
+        $result = [System.Collections.Specialized.CollectionsUtil]::CreateCaseInsensitiveHashtable([Hashtable]$Properties)
     }
 
     if ($type -like '*CimInstance*' -or $type -like '*Hashtable*' -or $type -like '*Object*')

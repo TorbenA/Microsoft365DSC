@@ -1998,22 +1998,17 @@ function New-M365DSCDeltaReport
     Write-Verbose -Message 'Obtaining Delta between the source and destination configurations'
     if (-not $Delta)
     {
+        $desiredSplat = @{
+            ConfigurationPath   = $Destination
+            IncludeComments     = $false
+            DscResourceInfo     = $Script:DscResourceInfo
+        }
+
         if ($IsBlueprintAssessment)
         {
-            $desiredSplat = @{
-                ConfigurationPath   = $Destination
-                IncludeComments     = $true
-                DscResourceInfo     = $Script:DscResourceInfo
-            }
+            $desiredSplat.IncludeComments = $true
         }
-        else
-        {
-            $desiredSplat = @{
-                ConfigurationPath   = $Destination
-                IncludeComments     = $false
-                DscResourceInfo     = $Script:DscResourceInfo
-            }
-        }
+
         # Parse the blueprint file, pass to Compare-M365DSCConfigurations as object (including comments aka metadata)
         [Array]$desiredConfiguration = Initialize-M365DSCReporting @desiredSplat
         [Array]$sourceReporting = Initialize-M365DSCReporting -ConfigurationPath $Source
@@ -2447,25 +2442,19 @@ function Initialize-M365DSCReporting
     }
 
     $params = @{
-        Content          = $fileContent
+        Content = $fileContent
     }
+
     if ($IncludeComments)
     {
         $params.Add('IncludeComments', $true)
-        if ($PSBoundParameters.ContainsKey('DscResourceInfo'))
-        {
-            $params.Add('DscResourceInfo', $DscResourceInfo)
-        }
-        $parsedContent = ConvertTo-DSCObject @params
     }
-    else
+
+    if ($PSBoundParameters.ContainsKey('DscResourceInfo'))
     {
-        if ($PSBoundParameters.ContainsKey('DscResourceInfo'))
-        {
-            $params.Add('DscResourceInfo', $DscResourceInfo)
-        }
-        $parsedContent = ConvertTo-DSCObject @params
+        $params.Add('DscResourceInfo', $DscResourceInfo)
     }
+    $parsedContent = ConvertTo-DSCObject @params
 
     if ($null -eq $parsedContent)
     {

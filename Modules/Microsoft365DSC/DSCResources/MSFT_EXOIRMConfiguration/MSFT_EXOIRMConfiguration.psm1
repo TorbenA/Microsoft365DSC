@@ -40,7 +40,7 @@ function Get-TargetResource
         $JournalReportDecryptionEnabled,
 
         [Parameter()]
-        [System.Uri[]]
+        [System.String[]]
         $LicensingLocation,
 
         [Parameter()]
@@ -48,7 +48,7 @@ function Get-TargetResource
         $RejectIfRecipientHasNoRights,
 
         [Parameter()]
-        [System.Uri]
+        [System.String]
         $RMSOnlineKeySharingLocation,
 
         [Parameter()]
@@ -236,7 +236,7 @@ function Set-TargetResource
         $JournalReportDecryptionEnabled,
 
         [Parameter()]
-        [System.Uri[]]
+        [System.String[]]
         $LicensingLocation,
 
         [Parameter()]
@@ -244,7 +244,7 @@ function Set-TargetResource
         $RejectIfRecipientHasNoRights,
 
         [Parameter()]
-        [System.Uri]
+        [System.String]
         $RMSOnlineKeySharingLocation,
 
         [Parameter()]
@@ -374,7 +374,7 @@ function Test-TargetResource
         $JournalReportDecryptionEnabled,
 
         [Parameter()]
-        [System.Uri[]]
+        [System.String[]]
         $LicensingLocation,
 
         [Parameter()]
@@ -382,7 +382,7 @@ function Test-TargetResource
         $RejectIfRecipientHasNoRights,
 
         [Parameter()]
-        [System.Uri]
+        [System.String]
         $RMSOnlineKeySharingLocation,
 
         [Parameter()]

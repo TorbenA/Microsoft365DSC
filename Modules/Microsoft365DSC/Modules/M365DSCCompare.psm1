@@ -72,7 +72,6 @@ function Compare-M365DSCResourceState
         }
     }
     $resourceDefinition = $Script:ResourceDefinitionCache["MSFT_$ResourceName"]
-    $resourceKeys = $resourceDefinition.Parameters.Where({ $_.Option -eq 'Key' })
 
     # Create a cache for resource property lookups to improve performance
     $Script:ResourcePropertyCache = @{}
@@ -107,16 +106,13 @@ function Compare-M365DSCResourceState
     $null = $ValuesToCheck.Remove('Identity')
 
     # Remove the key parameters from the comparison
-    foreach ($keyToRemove in $resourceKeys)
-    {
-        $null = $ValuesToCheck.Remove($keyToRemove.Name)
-    }
-
     # Remove PSCredential object from the list of properties to be evaluated
-    $credentialProperties = $resourceDefinition.Parameters.Where({ $_.CIMType -eq 'MSFT_Credential' })
-    foreach ($property in $credentialProperties)
+    foreach ($resourceParameter in $resourceDefinition.Parameters)
     {
-        $null = $ValuesToCheck.Remove($property.Name)
+        if ($resourceParameter.CIMType -eq 'PSCredential' -or $resourceParameter.Option -eq 'Key')
+        {
+            $null = $ValuesToCheck.Remove($resourceParameter.Name)
+        }
     }
 
     # Remove the ExcludedProperties from the list of properties to be evaluated
@@ -165,7 +161,7 @@ function Compare-M365DSCResourceState
     }
 
     $testResult = $true
-    if ($testTargetResource -and -not $skipEvaluation)
+    if (-not $skipEvaluation)
     {
         # Compare Cim instances
         # Create property lookup hashtable for this resource type if not already cached
@@ -193,7 +189,7 @@ function Compare-M365DSCResourceState
                 $CIMName = $CIMProperty.CIMType.Replace('[]', '')
                 $CIMDefinition = [Microsoft365DSC.Utilities.Utilities]::FilterCimClassesByName($Script:M365DSCSchema, $CIMName)
                 # Can potentially be a single PSObject, therefore not using Where()
-                $CIMPrimaryKeys = $CIMDefinition.Parameters | Where-Object { $_.Option -eq 'Required' }
+                $CIMPrimaryKeys = $CIMDefinition.Parameters | Where-Object Option -EQ 'Required'
 
                 $targetObjects = @{}
                 if ($source.GetType().Name -in @('CimInstance[]', 'Object[]'))
@@ -228,6 +224,13 @@ function Compare-M365DSCResourceState
                     return $match
                 }
 
+                # For cases where $nullreturn is returned from a resource, the properties may
+                # contain or be CimInstances that need to be converted to hashtables first for comparison
+                if (($null -ne $target -and $target.GetType().Name -like 'CimInstance*') -or `
+                    ($target -is [array] -and $target.Count -gt 0 -and $target[0].GetType().Name -like 'CimInstance*'))
+                {
+                    $target = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $target
+                }
                 foreach ($targetObject in $target)
                 {
                     foreach ($primaryKey in $CIMPrimaryKeys.Name)

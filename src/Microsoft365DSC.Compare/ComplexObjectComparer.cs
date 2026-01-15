@@ -81,10 +81,30 @@ namespace Microsoft365DSC.Compare
                 }
 
                 // Check if left is a complex array
-                if (IsComplexArrayCandidate(left))
+                if (IsComplexArrayCandidate(left) || IsComplexArrayCandidate(right))
                 {
                     _ = CompareComplexArray(left, right, propName, drifts, workStack, ref result);
                     continue;
+                }
+
+                // Check if left is a normal array
+                if (left is Array || right is Array)
+                {
+                    Array leftArray = ToArray(left);
+                    Array rightArray = ToArray(right);
+                    var arrayCompareResult = ArrayComparer.CompareArrays(rightArray, leftArray);
+                    if (arrayCompareResult.Count > 0)
+                    {
+                        var driftEntry = new Dictionary<string, object>
+                        {
+                            { "PropertyName", $"{propName}" },
+                            { "CurrentValue", string.Join(", ", rightArray as IEnumerable<object>) },
+                            { "DesiredValue", string.Join(", ", leftArray as IEnumerable<object>) }
+                        };
+                        drifts.Add(driftEntry);
+                        result = false;
+                        continue;
+                    }
                 }
 
                 // Handle single complex objects or simple values
@@ -212,13 +232,12 @@ namespace Microsoft365DSC.Compare
             Stack<ComparisonFrame> workStack,
             ref bool result)
         {
-            // Get keys from both objects
+            // Get keys from source object
             var leftKeys = GetObjectKeys(left);
             if (right is PSObject psObject)
             {
                 right = psObject.BaseObject;
             }
-            var rightKeys = GetObjectKeys(right);
 
             bool returnResult = true;
             foreach (var key in leftKeys)
@@ -285,9 +304,17 @@ namespace Microsoft365DSC.Compare
         /// </summary>
         private static bool CompareSimpleValues(object left, object right)
         {
+            if (left is PSObject psObject)
+                left = psObject.BaseObject;
+
+            if (right is PSObject psObjectRight)
+                right = psObjectRight.BaseObject;
+
+            // Handle DateTime comparison
             if (left is DateTime leftDate && right is DateTime rightDate)
                 return leftDate == rightDate;
 
+            // Handle string comparison with normalization
             if (left is string leftStr && right is string rightStr)
             {
                 // Normalize line endings
@@ -296,7 +323,72 @@ namespace Microsoft365DSC.Compare
                 return string.Equals(leftStr, rightStr, StringComparison.OrdinalIgnoreCase);
             }
 
-            return Equals(left, right);
+            // Handle numeric type comparisons (Int32, Int64, Int16, UInt32, etc.)
+            if (IsNumericType(left) && IsNumericType(right))
+            {
+                return CompareNumericValues(left, right);
+            }
+
+            // Default comparison
+            return left.ToString().Equals(right.ToString(), StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Determines if an object is a numeric type.
+        /// </summary>
+        private static bool IsNumericType(object obj)
+        {
+            if (obj == null)
+                return false;
+
+            Type type = obj.GetType();
+            return type == typeof(byte) ||
+                   type == typeof(sbyte) ||
+                   type == typeof(short) ||
+                   type == typeof(ushort) ||
+                   type == typeof(int) ||
+                   type == typeof(uint) ||
+                   type == typeof(long) ||
+                   type == typeof(ulong) ||
+                   type == typeof(float) ||
+                   type == typeof(double) ||
+                   type == typeof(decimal);
+        }
+
+        /// <summary>
+        /// Compares two numeric values, handling different numeric types.
+        /// </summary>
+        private static bool CompareNumericValues(object left, object right)
+        {
+            try
+            {
+                // Convert both values to decimal for comparison
+                // Decimal provides the widest range and precision for most scenarios
+                decimal leftDecimal = Convert.ToDecimal(left);
+                decimal rightDecimal = Convert.ToDecimal(right);
+                return leftDecimal == rightDecimal;
+            }
+            catch (OverflowException)
+            {
+                // If decimal conversion fails (e.g., for very large ulong values),
+                // fall back to double comparison
+                try
+                {
+                    double leftDouble = Convert.ToDouble(left);
+                    double rightDouble = Convert.ToDouble(right);
+                    return Math.Abs(leftDouble - rightDouble) < double.Epsilon;
+                }
+                catch
+                {
+                    // If all conversions fail, use default equality
+                    return Equals(left, right);
+                }
+            }
+            catch
+            {
+                // For any other conversion issues, fall back to default equality
+                return Equals(left, right);
+            }
         }
 
         /// <summary>
@@ -324,14 +416,12 @@ namespace Microsoft365DSC.Compare
             if (obj == null)
                 return false;
 
+            if (obj is PSObject psObject && psObject.BaseObject is not null)
+                obj = psObject.BaseObject;
+
             return obj is CimInstance ||
                    obj is IDictionary ||
                    obj is Array;
-        }
-
-        private static bool IsCimInstance(object obj)
-        {
-            return obj is CimInstance;
         }
 
         /// <summary>
@@ -339,6 +429,9 @@ namespace Microsoft365DSC.Compare
         /// </summary>
         private static Array ToArray(object obj)
         {
+            if (obj is null)
+                return Array.Empty<object>();
+
             if (obj is Array array)
                 return array;
 
@@ -406,6 +499,9 @@ namespace Microsoft365DSC.Compare
         /// </summary>
         private static object? GetValue(object obj, string key)
         {
+            if (obj is CimInstance cimInstance)
+                return cimInstance.CimInstanceProperties[key]?.Value;
+
             if (obj is Hashtable hashtable)
                 return hashtable[key];
 

@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft365DSC.Converter\Microsoft365DSC.Converter.csproj" />
+    <ProjectReference Include="..\Microsoft365DSC.Utilities\Microsoft365DSC.Utilities.csproj" />
   </ItemGroup>
 
 </Project>

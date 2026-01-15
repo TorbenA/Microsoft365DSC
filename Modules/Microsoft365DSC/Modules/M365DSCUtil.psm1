@@ -350,6 +350,39 @@ function Get-M365DSCTenantNameFromParameterSet
 }
 
 <#
+.DESCRIPTION
+    This function converts a property value to an array of specified element type.
+
+.FUNCTIONALITY
+    Internal
+#>
+function Get-M365DSCArrayFromProperty
+{
+    [CmdletBinding()]
+    [OutputType([System.Array])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [AllowNull()]
+        [System.Object]
+        $PropertyValue,
+
+        [Parameter(Mandatory = $false)]
+        [System.Type]
+        $ElementType = [System.Object]
+    )
+
+    $array = [System.Array]::CreateInstance($ElementType, 0)
+    foreach ($item in $PropertyValue)
+    {
+        $array += $item
+    }
+
+    ,$array
+}
+
+<#
 .Description
 This function tests if the DSC hashtables have the same values
 
@@ -423,9 +456,16 @@ function Test-M365DSCParameterState
 
     $ConnectionMode = Get-M365DSCAuthenticationMode $DesiredValues
     $dataEvaluation.Add('ConnectionMode', $ConnectionMode)
-    $ValuesToCheckData = $ValuesToCheck | Where-Object -FilterScript { $_ -ne 'Verbose' }
-    $dataEvaluation.Add('Parameters', $ValuesToCheckData -join "`r`n")
-    $dataEvaluation.Add('ParametersCount', $ValuesToCheckData.Length)
+    $valuesToCheckData = [System.Collections.Generic.List[[System.String]]]::new()
+    foreach ($valueToCheck in $ValuesToCheck)
+    {
+        if ($valueToCheck -ne 'Verbose')
+        {
+            $valuesToCheckData.Add($valueToCheck)
+        }
+    }
+    $dataEvaluation.Add('Parameters', $valuesToCheckData -join "`r`n")
+    $dataEvaluation.Add('ParametersCount', $valuesToCheckData.Count)
     Add-M365DSCTelemetryEvent -Type 'DriftEvaluation' -Data $dataEvaluation
     #endregion
 
@@ -4638,6 +4678,7 @@ Export-ModuleMember -Function @(
     'Get-M365DSCAllResources',
     'Get-M365DSCAllResourcesDictionary',
     'Get-M365DSCAPIEndpoint',
+    'Get-M365DSCArrayFromProperty',
     'Get-M365DSCAuthenticationMode',
     'Get-M365DSCComponentsWithMostSecureAuthenticationType',
     'Get-M365DSCConfigurationConflict',

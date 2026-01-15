@@ -27,33 +27,61 @@ namespace Microsoft365DSC.Utilities
             return input;
         }
 
-        public static Array FilterHashtablesByResourceAndKey(IEnumerable<object> hashtables, string resourceName, string key, string keyValue)
+        public static List<Hashtable> FilterHashtablesByResourceAndKey(IEnumerable<object> hashtables, string resourceName, string key, string keyValue)
         {
-            List<Hashtable> results = new List<Hashtable>();
+            List<Hashtable> results = [];
             foreach (Hashtable entry in hashtables.Cast<Hashtable>())
             {
-                if (entry.ContainsKey("ResourceName") && entry["ResourceName"].ToString() == resourceName &&
-                    entry.ContainsKey(key) && entry[key].ToString() == keyValue)
+                if (entry["ResourceName"].ToString() == resourceName &&
+                    entry[key]?.ToString() == keyValue)
                 {
                     results.Add(entry);
                 }
             }
-            return results.ToArray();
+            return results;
         }
 
-        public static object FilterCimClassesByName(IEnumerable<object> schemaObjects, string className)
+        public static object? FilterCimClassesByName(IEnumerable<object> schemaObjects, string className)
         {
-            List<object> results = new List<object>();
             foreach (var entry in schemaObjects.Cast<PSObject>())
             {
                 dynamic dyn = entry as dynamic;
                 string name = dyn.ClassName;
                 if (name == className)
                 {
-                    results.Add(entry);
+                    return entry;
                 }
             }
-            return results.ToArray();
+            return null;
+        }
+
+        public static Array UnwrapArray(Array array)
+        {
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array.GetValue(i) is PSObject psObject)
+                {
+                    array.SetValue(psObject.BaseObject, i);
+                }
+            }
+            return array;
+        }
+
+        public static List<string> UnwrapArrayToStrings(Array array)
+        {
+            List<string> results = new List<string>();
+            foreach (var item in array)
+            {
+                var innerItem = item;
+                if (item is PSObject psObject)
+                    innerItem = psObject.BaseObject;
+
+                if (innerItem is string str)
+                    results.Add(str);
+                else
+                    results.Add(innerItem.ToString());
+            }
+            return results;
         }
     }
 }

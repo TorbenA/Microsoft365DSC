@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace Microsoft365DSC.Compare
 {
@@ -14,13 +15,14 @@ namespace Microsoft365DSC.Compare
             {
                 throw new ArgumentException("Both currentValue and desiredValue must be of type Array and cannot be null.");
             }
-            HashSet<object> currentSet = new (currentArray as IEnumerable<object>);
-            HashSet<object> desiredSet = new (desiredArray as IEnumerable<object>);
-            
+
+            IEnumerable<object> currentObjects = Utilities.Utilities.UnwrapArray(currentArray).Cast<object>();
+            IEnumerable<object> desiredObjects = Utilities.Utilities.UnwrapArray(desiredArray).Cast<object>();
+
             // Find items in desired but not in current
-            foreach (var item in desiredSet)
+            foreach (var item in desiredObjects)
             {
-                if (!currentSet.Contains(item))
+                if (!ContainsItem(currentObjects, item))
                 {
                     compareResults.Add(new CompareObjectModel
                     {
@@ -40,9 +42,9 @@ namespace Microsoft365DSC.Compare
                 }
             }
             // Find items in current but not in desired
-            foreach (var item in currentSet)
+            foreach (var item in currentObjects)
             {
-                if (!desiredSet.Contains(item))
+                if (!ContainsItem(desiredObjects, item))
                 {
                     compareResults.Add(new CompareObjectModel
                     {
@@ -63,6 +65,13 @@ namespace Microsoft365DSC.Compare
             }
 
             return compareResults;
+        }
+
+        private static bool ContainsItem(IEnumerable<object> collection, object item)
+        {
+            return item is string stringItem
+                ? collection.Any(x => x is string s && string.Equals(s, stringItem, StringComparison.OrdinalIgnoreCase))
+                : collection.Contains(item);
         }
     }
 }

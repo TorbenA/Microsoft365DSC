@@ -173,6 +173,9 @@ namespace Microsoft365DSC.Converter
         /// <returns>The extracted value.</returns>
         private static object? GetValueFromObject(object? value)
         {
+            if (value is PSObject psObject)
+                value = psObject.BaseObject;
+
             if (value == null)
             {
                 return null;
