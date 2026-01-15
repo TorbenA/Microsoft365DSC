@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.26.114.1
 
 * AADAuthenticationMethodPolicy
   * Fixed an issue where empty arrays were not exported.
