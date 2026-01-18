@@ -129,6 +129,7 @@ function Build-Project {
         "$projectName.dll"
         "$projectName.pdb"  # Include PDB for debugging
         "$projectName.xml"  # Include XML documentation
+        "$projectName.psd1" # Include PowerShell module manifest if exists
     )
 
     foreach ($fileName in $filesToCopy) {

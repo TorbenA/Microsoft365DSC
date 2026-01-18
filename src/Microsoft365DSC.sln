@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.1.11312.151 d18.0
+VisualStudioVersion = 18.1.11312.151
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft365DSC.Compare", "Microsoft365DSC.Compare\Microsoft365DSC.Compare.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft365DSC.Converter", "Microsoft365DSC.Converter\Microsoft365DSC.Converter.csproj", "{12BBA5E1-820F-48BC-BE28-836B3F35FDA8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft365DSC.Utilities", "Microsoft365DSC.Utilities\Microsoft365DSC.Utilities.csproj", "{584604FF-426D-44A2-B510-0EC3B90CE9EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft365DSC.PSDSC", "Microsoft365DSC.PSDSC\Microsoft365DSC.PSDSC.csproj", "{17AD6C03-444A-4DCD-A2EA-1119CC9F4300}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{584604FF-426D-44A2-B510-0EC3B90CE9EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{584604FF-426D-44A2-B510-0EC3B90CE9EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{584604FF-426D-44A2-B510-0EC3B90CE9EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17AD6C03-444A-4DCD-A2EA-1119CC9F4300}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17AD6C03-444A-4DCD-A2EA-1119CC9F4300}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17AD6C03-444A-4DCD-A2EA-1119CC9F4300}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17AD6C03-444A-4DCD-A2EA-1119CC9F4300}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

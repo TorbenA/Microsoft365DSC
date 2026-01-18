@@ -439,35 +439,39 @@ function Test-M365DSCParameterState
         $Global:PotentialDrifts = @()
     }
 
-    #region Telemetry
-    $data = [System.Collections.Generic.Dictionary[[String], [String]]]::new()
-    $data.Add('Resource', "$Source")
-    $data.Add('Method', 'Test-TargetResource')
-    #endregion
     $returnValue = $true
-
     $TenantName = Get-M365DSCTenantNameFromParameterSet -ParameterSet $DesiredValues
 
-    #region Telemetry - Evaluation
-    $dataEvaluation = [System.Collections.Generic.Dictionary[[String], [String]]]::new()
-    $dataEvaluation.Add('Resource', "$Source")
-    $dataEvaluation.Add('Method', 'Test-TargetResource')
-    $dataEvaluation.Add('Tenant', $TenantName)
-
-    $ConnectionMode = Get-M365DSCAuthenticationMode $DesiredValues
-    $dataEvaluation.Add('ConnectionMode', $ConnectionMode)
-    $valuesToCheckData = [System.Collections.Generic.List[[System.String]]]::new()
-    foreach ($valueToCheck in $ValuesToCheck)
+    #region Telemetry
+    if (Test-IsM365DSCTelemetryEnabled)
     {
-        if ($valueToCheck -ne 'Verbose')
+        $data = [System.Collections.Generic.Dictionary[[System.String], [System.String]]]::new()
+        $data.Add('Resource', "$Source")
+        $data.Add('Method', 'Test-TargetResource')
+
+        $dataEvaluation = [System.Collections.Generic.Dictionary[[System.String], [System.String]]]::new()
+        $dataEvaluation.Add('Resource', "$Source")
+        $dataEvaluation.Add('Method', 'Test-TargetResource')
+        $dataEvaluation.Add('Tenant', $TenantName)
+
+        $ConnectionMode = Get-M365DSCAuthenticationMode $DesiredValues
+        $dataEvaluation.Add('ConnectionMode', $ConnectionMode)
+        # Most likely unnecessary - Keep as a comment for now
+        # TODO: Measure performance impact
+        <#
+        for ($i = 0; $i -lt $ValuesToCheck.Length; $i++)
         {
-            $valuesToCheckData.Add($valueToCheck)
+            if ($ValuesToCheck[$i] -eq 'Verbose')
+            {
+                $ValuesToCheck.RemoveAt($i)
+                break
+            }
         }
+        #>
+        $dataEvaluation.Add('Parameters', $ValuesToCheck -join "`r`n")
+        $dataEvaluation.Add('ParametersCount', $ValuesToCheck.Length)
+        Add-M365DSCTelemetryEvent -Type 'DriftEvaluation' -Data $dataEvaluation
     }
-    $dataEvaluation.Add('Parameters', $valuesToCheckData -join "`r`n")
-    $dataEvaluation.Add('ParametersCount', $valuesToCheckData.Count)
-    Add-M365DSCTelemetryEvent -Type 'DriftEvaluation' -Data $dataEvaluation
-    #endregion
 
     $compareResult = [Microsoft365DSC.Compare.SimpleObjectComparer]::Compare($CurrentValues, $DesiredValues, $ValuesToCheck, $IncludedDrifts, $NoEventMessage, $NoDriftReset, $ExcludedProperties)
     $driftedParameters = $compareResult.DriftedParameters
@@ -813,16 +817,7 @@ function Initialize-M365DSCAllResourcesDictionary
     if ($null -eq $Script:AllM365DSCResources -and -not $Global:IsTestEnvironment)
     {
         $Script:AllM365DSCResources = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new([System.StringComparer]::InvariantCultureIgnoreCase)
-        if ($Script:IsPowerShellCore)
-        {
-            Import-Module -Name 'PSDesiredStateConfiguration' -RequiredVersion 2.0.7 -Prefix 'Pwsh' -Force
-            $resources = Get-PwshDscResource -Module 'Microsoft365Dsc'
-        }
-        else
-        {
-            $currentModule = Get-Module -Name 'Microsoft365DSC'
-            $resources = Get-DscResource -Module 'Microsoft365Dsc' | Where-Object Version -EQ $currentModule.Version
-        }
+        $resources = Get-DscResourceV2 -Module 'Microsoft365DSC'
         foreach ($resource in $resources)
         {
             $Script:AllM365DSCResources.Add($resource.Name, $resource)
@@ -3487,39 +3482,51 @@ function Get-M365DSCAuthenticationMode
         $Parameters
     )
 
-    if ($Parameters.ApplicationId -and $Parameters.TenantId -and $Parameters.CertificateThumbprint)
+    # Cache frequently accessed values to reduce hashtable lookups
+    $applicationId = $Parameters.ApplicationId
+    $tenantId = $Parameters.TenantId
+    $credential = $Parameters.Credential
+
+    # Check service principal authentication modes first (most common in automation)
+    if ($applicationId -and $tenantId)
     {
-        $AuthenticationType = 'ServicePrincipalWithThumbprint'
+        if ($Parameters.CertificateThumbprint)
+        {
+            return 'ServicePrincipalWithThumbprint'
+        }
+        if ($Parameters.ApplicationSecret)
+        {
+            return 'ServicePrincipalWithSecret'
+        }
+        if ($Parameters.CertificatePath -and $Parameters.CertificatePassword)
+        {
+            return 'ServicePrincipalWithPath'
+        }
     }
-    elseif ($Parameters.ApplicationId -and $Parameters.TenantId -and $Parameters.ApplicationSecret)
+
+    # Check credential-based authentication
+    if ($credential)
     {
-        $AuthenticationType = 'ServicePrincipalWithSecret'
+        if ($applicationId)
+        {
+            return 'CredentialsWithApplicationId'
+        }
+        return 'Credentials'
     }
-    elseif ($Parameters.ApplicationId -and $Parameters.TenantId -and $Parameters.CertificatePath -and $Parameters.CertificatePassword)
+
+    # Check other authentication modes
+    if ($Parameters.ManagedIdentity)
     {
-        $AuthenticationType = 'ServicePrincipalWithPath'
+        return 'ManagedIdentity'
     }
-    elseif ($Parameters.Credential -and $Parameters.ApplicationId)
+
+    if ($Parameters.AccessTokens)
     {
-        $AuthenticationType = 'CredentialsWithApplicationId'
+        return 'AccessTokens'
     }
-    elseif ($Parameters.Credential)
-    {
-        $AuthenticationType = 'Credentials'
-    }
-    elseif ($Parameters.ManagedIdentity)
-    {
-        $AuthenticationType = 'ManagedIdentity'
-    }
-    elseif ($Parameters.AccessTokens)
-    {
-        $AuthenticationType = 'AccessTokens'
-    }
-    else
-    {
-        $AuthenticationType = 'Interactive'
-    }
-    return $AuthenticationType
+
+    # Default to interactive
+    return 'Interactive'
 }
 
 <#
@@ -3679,17 +3686,8 @@ function New-M365DSCResourceExample
         $ResourceName
     )
 
-    if ($Script:IsPowerShellCore)
-    {
-        $resource = Get-PwshDscResource -Name $ResourceName
-    }
-    else
-    {
-        $resource = Get-DscResource -Name $ResourceName
-    }
-
+    $resource = Get-DscResourceV2 -Name $ResourceName
     $params = Get-DSCFakeParameters -ModulePath $resource.Path
-
     $params.Credential = '$Credscredential'
 
     if ($params.ContainsKey('ApplicationId'))
@@ -3771,15 +3769,7 @@ function New-M365DSCMissingResourcesExample
 {
     $location = $PSScriptRoot
 
-    if ($Script:IsPowerShellCore)
-    {
-        $m365Resources = Get-PwshDscResource -Module Microsoft365DSC | Select-Object -ExpandProperty Name
-    }
-    else
-    {
-        $m365Resources = Get-DscResource -Module Microsoft365DSC | Select-Object -ExpandProperty Name
-    }
-
+    $m365Resources = Get-DscResourceV2 -Module 'Microsoft365DSC' | Select-Object -ExpandProperty Name
     $examplesPath = Join-Path $location -ChildPath '..\..\..\Examples\Resources'
     $examples = Get-ChildItem -Path $examplesPath | Where-Object { $_.PsIsContainer } | Select-Object -ExpandProperty Name
 
@@ -3901,15 +3891,7 @@ function Get-M365DSCConfigurationConflict
     $parsedContent = ConvertTo-DSCObject -Content $ConfigurationContent
 
     $resourcesPrimaryIdentities = @()
-    if ($Script:IsPowerShellCore)
-    {
-        $resourcesInModule = Get-PwshDSCResource -Module 'Microsoft365DSC'
-    }
-    else
-    {
-        $currentModule = Get-Module -Name 'Microsoft365DSC'
-        $resourcesInModule = Get-DSCResource -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
-    }
+    $resourcesInModule = Get-DscResourceV2 -Module 'Microsoft365DSC'
     foreach ($component in $parsedContent)
     {
         $resourceDefinition = $resourcesInModule | Where-Object -FilterScript {$_.Name -eq $component.ResourceName}

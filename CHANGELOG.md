@@ -22,8 +22,12 @@
 * M365DSCTelemetryEngine
   * Added a function to test if telemetry is enabled.
 * MISC
+  * Added more performance improvements for hot code paths.
   * Fixed issues with mismatched property types in resource tests.
   * Refactored parts of the core engine with C#.
+  * Replaced `Get-(Pwsh)DscResource` with a custom implementation.
+* DEPENDENCIES
+  * Removed the dependency on `PSDesiredStateConfiguration`.
 
 # 1.26.114.1
 
