@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,7 +10,7 @@ namespace Microsoft365DSC.Compare
         {
             List<CompareObjectModel> compareResults = [];
 
-            if (currentArray == null || desiredArray == null)
+            if (currentArray is null || desiredArray is null)
             {
                 throw new ArgumentException("Both currentValue and desiredValue must be of type Array and cannot be null.");
             }

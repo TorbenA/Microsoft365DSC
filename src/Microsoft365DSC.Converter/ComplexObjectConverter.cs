@@ -111,7 +111,7 @@ namespace Microsoft365DSC.Converter
             {
                 var item = source.GetValue(i);
 
-                if (item == null)
+                if (item is null)
                     result[i] = null;
                 else if (item is Array nestedArray)
                     result[i] = ConvertArray(nestedArray);
@@ -176,7 +176,7 @@ namespace Microsoft365DSC.Converter
             if (value is PSObject psObject)
                 value = psObject.BaseObject;
 
-            if (value == null)
+            if (value is null)
             {
                 return null;
             }
@@ -228,7 +228,7 @@ namespace Microsoft365DSC.Converter
             uint indentLevel = 3,
             bool isArray = false)
         {
-            if (complexObject == null)
+            if (complexObject is null)
             {
                 return string.Empty;
             }
@@ -427,7 +427,7 @@ namespace Microsoft365DSC.Converter
                         // Handle simple types using SimpleObjectConverter
                         var currentValue = value;
 
-                        if (currentValue != null && !string.IsNullOrEmpty(currentValue.ToString()) &&
+                        if (currentValue is not null && !string.IsNullOrEmpty(currentValue.ToString()) &&
                             !currentValue.GetType().Name.Contains("Dictionary"))
                         {
                             if (currentValue is string stringValue)
@@ -445,14 +445,9 @@ namespace Microsoft365DSC.Converter
                     var mappedKey = complexTypeMapping.Where(ctm => ctm.Name.Equals(key)).FirstOrDefault();
                     if (mappedKey is not null && mappedKey.IsRequired)
                     {
-                        if (mappedKey.IsArray)
-                        {
-                            _ = currentPropertyBuilder.Append($"{indent}{key} = @()").AppendLine();
-                        }
-                        else
-                        {
-                            _ = currentPropertyBuilder.Append($"{indent}{key} = $null").AppendLine();
-                        }
+                        _ = mappedKey.IsArray
+                            ? currentPropertyBuilder.Append($"{indent}{key} = @()").AppendLine()
+                            : currentPropertyBuilder.Append($"{indent}{key} = $null").AppendLine();
                     }
                 }
             }
@@ -463,12 +458,9 @@ namespace Microsoft365DSC.Converter
             var result = currentPropertyBuilder.ToString();
             var emptyCIM = result.Replace(" ", "").Replace("\r\n", "");
 
-            if (emptyCIM.Equals($"MSFT_{cimInstanceName}{{}}"))
-            {
-                return string.Empty;
-            }
-
-            return result;
+            return emptyCIM.Equals($"MSFT_{cimInstanceName}{{}}")
+                ? string.Empty
+                : result;
         }
     }
 }

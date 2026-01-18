@@ -19,6 +19,8 @@
 * SCPolicyConfig
   * Fixed an issue where the sub-property `JustificationText` could contain
     empty strings.
+* M365DSCTelemetryEngine
+  * Added a function to test if telemetry is enabled.
 * MISC
   * Fixed issues with mismatched property types in resource tests.
   * Refactored parts of the core engine with C#.

@@ -16,7 +16,7 @@ namespace Microsoft365DSC.Converter
         /// <returns>A formatted string representation of the key-value pair</returns>
         public static string ToDscString(string key, object value, string space = "                ")
         {
-            if (value == null)
+            if (value is null)
             {
                 return string.Empty;
             }
@@ -59,7 +59,7 @@ namespace Microsoft365DSC.Converter
             // Array/Collection types
             else if (value is IEnumerable enumerable and not string)
             {
-                var items = enumerable.Cast<object>().Where(item => item != null).ToList();
+                var items = enumerable.Cast<object>().Where(item => item is not null).ToList();
                 _ = returnValue.Append($"{space}{key} = @(");
                 
                 string whitespace = string.Empty;
@@ -74,7 +74,7 @@ namespace Microsoft365DSC.Converter
 
                 foreach (var item in items)
                 {
-                    if (item == null) continue;
+                    if (item is null) continue;
 
                     var itemType = item.GetType();
                     

@@ -61,19 +61,19 @@ namespace Microsoft365DSC.Compare
                 var propName = frame.PropName;
 
                 // Both null => identical
-                if (left == null && right == null)
+                if (left is null && right is null)
                 {
                     continue;
                 }
 
                 // One null and the other not => drift
-                if ((left == null) != (right == null))
+                if ((left is null) != (right is null))
                 {
                     var drift = new Dictionary<string, object>
                     {
                         { "PropertyName", propName },
-                        { "CurrentValue", right == null ? "Current value is null" : "Current value is NOT null" },
-                        { "DesiredValue", left == null ? "Desired value is null" : "Desired value is NOT null" }
+                        { "CurrentValue", right is null ? "Current value is null" : "Current value is NOT null" },
+                        { "DesiredValue", left is null ? "Desired value is null" : "Desired value is NOT null" }
                     };
                     drifts.Add(drift);
                     result = false;
@@ -265,7 +265,7 @@ namespace Microsoft365DSC.Compare
                     continue;
                 }
 
-                if (sourceValue != null && targetValue != null)
+                if (sourceValue is not null && targetValue is not null)
                 {
                     // Check if complex nested type
                     if (IsComplexType(sourceValue))
@@ -338,7 +338,7 @@ namespace Microsoft365DSC.Compare
         /// </summary>
         private static bool IsNumericType(object obj)
         {
-            if (obj == null)
+            if (obj is null)
                 return false;
 
             Type type = obj.GetType();
@@ -396,7 +396,7 @@ namespace Microsoft365DSC.Compare
         /// </summary>
         private static bool IsComplexArrayCandidate(object obj)
         {
-            if (obj == null)
+            if (obj is null)
                 return false;
 
             if (obj is Array array && array.Length > 0)
@@ -413,7 +413,7 @@ namespace Microsoft365DSC.Compare
         /// </summary>
         private static bool IsComplexType(object obj)
         {
-            if (obj == null)
+            if (obj is null)
                 return false;
 
             if (obj is PSObject psObject && psObject.BaseObject is not null)
@@ -486,7 +486,7 @@ namespace Microsoft365DSC.Compare
                 return hashtable.ContainsKey(key);
 
             if (obj is PSObject psObj)
-                return psObj.Properties[key] != null;
+                return psObj.Properties[key] is not null;
 
             if (obj is IDictionary dict)
                 return dict.Contains(key);

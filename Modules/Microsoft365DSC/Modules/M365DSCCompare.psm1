@@ -107,7 +107,8 @@ function Compare-M365DSCResourceState
 
     # Remove the key parameters from the comparison
     # Remove PSCredential object from the list of properties to be evaluated
-    foreach ($resourceParameter in $resourceDefinition.Parameters)
+    $resourceParameters = $resourceDefinition.Parameters
+    foreach ($resourceParameter in $resourceParameters)
     {
         if ($resourceParameter.CIMType -eq 'PSCredential' -or $resourceParameter.Option -eq 'Key')
         {
@@ -168,7 +169,7 @@ function Compare-M365DSCResourceState
         if (-not $Script:ResourcePropertyCache.ContainsKey($ResourceName))
         {
             $propertyLookup = @{}
-            foreach ($prop in $resourceDefinition.Parameters)
+            foreach ($prop in $resourceParameters)
             {
                 $propertyLookup[$prop.Name] = $prop
             }
@@ -185,8 +186,7 @@ function Compare-M365DSCResourceState
             if ($null -ne $source -and ($source.GetType().Name -like '*CimInstance*' -or $parameterDefinition.CIMType -like "MSFT_*"))
             {
                 Write-Verbose -Message "Comparing complex object property $key of resource $ResourceName"
-                $CIMProperty = $parameterDefinition
-                $CIMName = $CIMProperty.CIMType.Replace('[]', '')
+                $CIMName = $parameterDefinition.CIMType.Replace('[]', '')
                 $CIMDefinition = [Microsoft365DSC.Utilities.Utilities]::FilterCimClassesByName($Script:M365DSCSchema, $CIMName)
                 # Can potentially be a single PSObject, therefore not using Where()
                 $CIMPrimaryKeys = $CIMDefinition.Parameters | Where-Object Option -EQ 'Required'

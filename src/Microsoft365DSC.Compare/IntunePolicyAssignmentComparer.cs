@@ -19,7 +19,7 @@ namespace Microsoft365DSC.Compare
         /// <returns>True if assignments match, false otherwise</returns>
         public static bool Compare(Array source, Array target, List<Dictionary<string, object>> drifts)
         {
-            if (source == null || target == null)
+            if (source is null || target is null)
             {
                 return source == target;
             }
@@ -40,7 +40,7 @@ namespace Microsoft365DSC.Compare
             // Compare each assignment in source array
             foreach (var sourceItem in source)
             {
-                if (sourceItem == null)
+                if (sourceItem is null)
                 {
                     continue;
                 }
@@ -61,7 +61,7 @@ namespace Microsoft365DSC.Compare
                     
                     // Find matching assignment target by dataType and groupId
                     Hashtable assignmentTarget = FindAssignmentTarget(target, dataType, assignmentGroupId);
-                    testResult = assignmentTarget != null;
+                    testResult = assignmentTarget is not null;
 
                     // Check for mobile app assignments with intent
                     if (testResult && !string.IsNullOrEmpty(assignmentIntent))
@@ -75,7 +75,7 @@ namespace Microsoft365DSC.Compare
                     {
                         var assignmentGroupDisplayName = GetPropertyValue<string>(assignment, "groupDisplayName");
                         assignmentTarget = FindAssignmentTargetByDisplayName(target, dataType, assignmentGroupDisplayName);
-                        testResult = assignmentTarget != null;
+                        testResult = assignmentTarget is not null;
 
                         if (!testResult)
                         {
@@ -212,7 +212,7 @@ namespace Microsoft365DSC.Compare
         {
             foreach (var item in targetArray)
             {
-                if (item == null) continue;
+                if (item is null) continue;
 
                 var hashtable = ComplexObjectConverter.ToHashtable(item);
                 var itemDataType = GetPropertyValue<string>(hashtable, "dataType");
@@ -235,7 +235,7 @@ namespace Microsoft365DSC.Compare
         {
             foreach (var item in targetArray)
             {
-                if (item == null) continue;
+                if (item is null) continue;
 
                 var hashtable = ComplexObjectConverter.ToHashtable(item);
                 var itemDataType = GetPropertyValue<string>(hashtable, "dataType");
