@@ -5,6 +5,8 @@
 * M365DSCUtil
   * Fixed an issue where the module is not being updated if installed
     with `Install-PSResource` because the filter condition was incorrect.
+* DEPENDENCIES
+* Updated ReverseDSC to version 2.0.0.31.
 
 # 1.26.114.1
 
