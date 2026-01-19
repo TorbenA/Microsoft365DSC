@@ -26,6 +26,8 @@
   * Fixed issues with mismatched property types in resource tests.
   * Refactored parts of the core engine with C#.
   * Replaced `Get-(Pwsh)DscResource` with a custom implementation.
+* DEPENDENCIES
+  * Removed dependency on `PSDesiredStateConfiguration`.
 
 # 1.26.114.1
 

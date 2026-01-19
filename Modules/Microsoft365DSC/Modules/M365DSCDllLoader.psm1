@@ -124,12 +124,10 @@ function Initialize-M365DSCDllLoader
         }
 
         Write-Verbose -Message "Microsoft365DSC C# dll files loaded successfully."
-        Write-Verbose -Message "Loading module 'Microsoft365DSC.PSDSC' to register DSC cmdlet."
-        Import-Module -Name (Join-Path -Path $moduleRoot -ChildPath 'Dependencies\Assemblies\Microsoft365DSC.PSDSC.psd1') -Force -Global -ErrorAction Stop
     }
     catch
     {
-        throw "Failed to initialize Microsoft365DSC C# dll files or load module 'Microsoft365DSC.PSDSC': $($_.Exception.Message)"
+        throw "Failed to initialize Microsoft365DSC C# dll files: $($_.Exception.Message)"
     }
 }
 

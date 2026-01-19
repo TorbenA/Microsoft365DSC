@@ -2428,7 +2428,7 @@ function Initialize-M365DSCReporting
         $IncludeComments,
 
         [Parameter()]
-        [Microsoft.PowerShell.DesiredStateConfiguration.DscResourceInfo[]]
+        [System.Object[]]
         $DscResourceInfo
     )
 
