@@ -2,6 +2,10 @@
 
 # UNRELEASED
 
+* AADRoleAssignmentScheduleRequest
+  * FIXES [#6810](https://github.com/microsoft/Microsoft365DSC/issues/6810)
+* AADRoleEligibilityScheduleRequest
+  * FIXES [#6810](https://github.com/microsoft/Microsoft365DSC/issues/6810)
 * M365DSCPermissions
   * Changed the output of `Get-M365DSCCompiledPermissionList` to show the
     required Read and Update permissions for `Roles` and `RoleGroups`.
