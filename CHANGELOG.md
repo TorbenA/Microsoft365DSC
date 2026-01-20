@@ -19,15 +19,24 @@
 * SCPolicyConfig
   * Fixed an issue where the sub-property `JustificationText` could contain
     empty strings.
+* M365DSCPermissions
+  * Changed the output of `Get-M365DSCCompiledPermissionList` to show the
+    required Read and Update permissions for `Roles` and `RoleGroups`.
 * M365DSCTelemetryEngine
   * Added a function to test if telemetry is enabled.
+* M365DSCUtil
+  * Fixed an issue where the module is not being updated if installed
+    with `Install-PSResource` because the filter condition was incorrect.
 * MISC
   * Added more performance improvements for hot code paths.
   * Fixed issues with mismatched property types in resource tests.
   * Refactored parts of the core engine with C#.
   * Replaced `Get-(Pwsh)DscResource` with a custom implementation.
+  * Updated the structure of all EXO settings.json files that contain the
+    `Roles` and `RoleGroups` properties.
 * DEPENDENCIES
   * Removed dependency on `PSDesiredStateConfiguration`.
+  * Updated ReverseDSC to version 2.0.0.31.
 
 # 1.26.114.1
 

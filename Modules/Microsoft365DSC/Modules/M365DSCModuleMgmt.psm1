@@ -748,7 +748,7 @@ function Update-M365DSCModule
     }
     catch
     {
-        if ($_.Exception.Message -like "*Module 'Microsoft365DSC' was not installed by using Install-Module")
+        if ($_.Exception.Message -like "*Module 'Microsoft365DSC' was not installed by using Install-Module*")
         {
             Write-Verbose -Message "The Microsoft365DSC module might have been installed with Install-PSResource"
             if ($Script:IsPsResourceGetAvailable)
