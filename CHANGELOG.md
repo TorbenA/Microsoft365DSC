@@ -13,6 +13,7 @@
 * M365DSCUtil
   * Added the output of the drift event to the screen in Verbose mode.
     FIXES [#6666](https://github.com/microsoft/Microsoft365DSC/issues/6666)
+  * Added the parameter `-WithStatistics` to `Export-M365DSCConfiguration`.
   * Fixed an issue where the module is not being updated if installed
     with `Install-PSResource` because the filter condition was incorrect.
 * DEPENDENCIES
