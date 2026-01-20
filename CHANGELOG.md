@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* SPOSiteGroup
+  * Fixed a condition mismatch during export resulting in repeated logins.
 * M365DSCPermissions
   * Changed the output of `Get-M365DSCCompiledPermissionList` to show the
     required Read and Update permissions for `Roles` and `RoleGroups`.
