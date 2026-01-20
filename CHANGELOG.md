@@ -9,10 +9,14 @@
   * Updated the structure of all EXO settings.json files that contain the
     `Roles` and `RoleGroups` properties.
 * M365DSCUtil
+  * Added the output of the drift event to the screen in Verbose mode.
+    FIXES [#6666](https://github.com/microsoft/Microsoft365DSC/issues/6666)
   * Fixed an issue where the module is not being updated if installed
     with `Install-PSResource` because the filter condition was incorrect.
 * DEPENDENCIES
-* Updated ReverseDSC to version 2.0.0.31.
+  * Fixed a case typo in `RequiredVersion` of a dependency.
+    FIXES [#6815](https://github.com/microsoft/Microsoft365DSC/issues/6815)
+  * Updated ReverseDSC to version 2.0.0.31.
 
 # 1.26.114.1
 

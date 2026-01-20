@@ -1326,7 +1326,8 @@ function Test-M365DSCTargetResource
                                       -ResourceName $ResourceName `
                                       -TenantName $TenantName `
                                       -CurrentValues $CurrentValues `
-                                      -DesiredValues $DesiredValues
+                                      -DesiredValues $DesiredValues `
+                                      -Verbose:$Verbose
     }
 
     Write-Verbose -Message "Test-M365DSCTargetResource returned $testTargetResource" -Verbose:$Verbose
