@@ -534,6 +534,8 @@ function Update-M365DSCAllowedGraphScopes
     $results = (Get-M365DSCCompiledPermissionList -ResourceNameList $resourceNames -PermissionType 'Delegated' -AccessType $Type).Permissions
     $permissions = ($results | Where-Object -FilterScript { $_.API -eq 'Graph' }).PermissionName
 
+    # Remove the Tasks.Read.All permission from the list as it is causing an issue with the Graph SDK
+    $permissions.Remove('Tasks.Read.All') | Out-Null
     Write-Verbose -Message "Found permissions: $($permissions -join ', ')"
     $params = @{
         Scopes = $permissions
