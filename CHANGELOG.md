@@ -2,6 +2,9 @@
 
 # 1.26.121.1
 
+* AADGroup
+  * Removed caching for the groups role assignments which was causing
+    performance issues in the Get-TargetResource.
 * AADRoleAssignmentScheduleRequest
   * FIXES [#6810](https://github.com/microsoft/Microsoft365DSC/issues/6810)
 * AADRoleEligibilityScheduleRequest
