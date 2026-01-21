@@ -2316,7 +2316,11 @@ function New-M365DSCConnection
 
         [Parameter()]
         [System.String]
-        $Url
+        $Url,
+
+        [Parameter()]
+        [switch]
+        $EnableSearchOnlySession
     )
 
     foreach ($requiredModule in $Script:M365DSCRequiredModules)
@@ -2407,7 +2411,8 @@ function New-M365DSCConnection
                 $Script:M365DSCTelemetryConnectionToGraphParams.Add('Credential', $InboundParameters.Credential)
             }
             Connect-M365Tenant -Workload $Workload `
-                -Credential $InboundParameters.Credential
+                -Credential $InboundParameters.Credential `
+                -EnableSearchOnlySession:$EnableSearchOnlySession
 
             if (-not $Script:M365ConnectedToWorkloads -contains "$Workload-Credential")
             {
@@ -2444,7 +2449,9 @@ function New-M365DSCConnection
             }
             Connect-M365Tenant -Workload $Workload `
                 -Credential $InboundParameters.Credential `
-                -Url $Url
+                -Url $Url `
+                -EnableSearchOnlySession:$EnableSearchOnlySession
+
             if (-not $Script:M365ConnectedToWorkloads -contains "$Workload-Credential")
             {
                 $data.Add('ConnectionMode', 'Credential')
@@ -2489,7 +2496,9 @@ function New-M365DSCConnection
             }
             Connect-M365Tenant -Workload $Workload `
                 -ApplicationId $InboundParameters.ApplicationId `
-                -Credential $InboundParameters.Credential
+                -Credential $InboundParameters.Credential `
+                -EnableSearchOnlySession:$EnableSearchOnlySession
+
             if (-not $Script:M365ConnectedToWorkloads -contains "$Workload-CredentialsWithApplicationId")
             {
                 $data.Add('ConnectionMode', 'CredentialsWithApplicationId')
@@ -2529,7 +2538,9 @@ function New-M365DSCConnection
             Connect-M365Tenant -Workload $Workload `
                 -ApplicationId $InboundParameters.ApplicationId `
                 -Credential $InboundParameters.Credential `
-                -Url $Url
+                -Url $Url `
+                -EnableSearchOnlySession:$EnableSearchOnlySession
+
             if (-not $Script:M365ConnectedToWorkloads -contains "$Workload-CredentialsWithApplicationId")
             {
                 $data.Add('ConnectionMode', 'CredentialsWithApplicationId')
@@ -2588,7 +2599,8 @@ function New-M365DSCConnection
                 -ApplicationId $InboundParameters.ApplicationId `
                 -TenantId $InboundParameters.TenantId `
                 -CertificatePassword $InboundParameters.CertificatePassword.Password `
-                -CertificatePath $InboundParameters.CertificatePath
+                -CertificatePath $InboundParameters.CertificatePath `
+                -EnableSearchOnlySession:$EnableSearchOnlySession
 
             if (-not $Script:M365ConnectedToWorkloads -contains "$Workload-ServicePrincipalWithPath")
             {
@@ -2667,7 +2679,8 @@ function New-M365DSCConnection
             Connect-M365Tenant -Workload $Workload `
                 -ApplicationId $InboundParameters.ApplicationId `
                 -TenantId $InboundParameters.TenantId `
-                -ApplicationSecret $InboundParameters.ApplicationSecret
+                -ApplicationSecret $InboundParameters.ApplicationSecret `
+                -EnableSearchOnlySession:$EnableSearchOnlySession
 
             if (-not $Script:M365ConnectedToWorkloads -contains "$Workload-ServicePrincipalWithSecret")
             {
@@ -2699,7 +2712,8 @@ function New-M365DSCConnection
                 -ApplicationId $InboundParameters.ApplicationId `
                 -TenantId $InboundParameters.TenantId `
                 -ApplicationSecret $InboundParameters.ApplicationSecret `
-                -Url $Url
+                -Url $Url `
+                -EnableSearchOnlySession:$EnableSearchOnlySession
 
             if (-not $Script:M365ConnectedToWorkloads -contains "$Workload-ServicePrincipalWithSecret")
             {
@@ -2735,7 +2749,9 @@ function New-M365DSCConnection
             -ApplicationId $InboundParameters.ApplicationId `
             -TenantId $InboundParameters.TenantId `
             -CertificateThumbprint $InboundParameters.CertificateThumbprint `
-            -Url $Url
+            -Url $Url `
+            -EnableSearchOnlySession:$EnableSearchOnlySession
+
         Write-Verbose -Message "Connection initiated."
         if (-not $Script:M365ConnectedToWorkloads -contains "$Workload-ServicePrincipalWithThumbprint")
         {
@@ -2764,7 +2780,9 @@ function New-M365DSCConnection
         Connect-M365Tenant -Workload $Workload `
             -TenantId $InboundParameters.TenantId `
             -Credential $InboundParameters.Credential `
-            -Url $Url
+            -Url $Url `
+            -EnableSearchOnlySession:$EnableSearchOnlySession
+
         if (-not $Script:M365ConnectedToWorkloads -contains "$Workload-CredentialsWithTenantId")
         {
             $data.Add('ConnectionMode', 'CredentialsWithTenantId')
@@ -2793,7 +2811,8 @@ function New-M365DSCConnection
         }
         Connect-M365Tenant -Workload $Workload `
             -Identity `
-            -TenantId $InboundParameters.TenantId
+            -TenantId $InboundParameters.TenantId `
+            -EnableSearchOnlySession:$EnableSearchOnlySession
 
         if (-not $Script:M365ConnectedToWorkloads -contains "$Workload-ManagedIdentity")
         {
@@ -2824,7 +2843,8 @@ function New-M365DSCConnection
         }
         Connect-M365Tenant -Workload $Workload `
             -AccessTokens $InboundParameters.AccessTokens `
-            -TenantId $InboundParameters.TenantId
+            -TenantId $InboundParameters.TenantId `
+            -EnableSearchOnlySession:$EnableSearchOnlySession
 
         if (-not $Script:M365ConnectedToWorkloads -contains "$Workload-AccessTokens")
         {
