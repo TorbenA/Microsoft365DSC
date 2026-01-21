@@ -2,6 +2,10 @@
 
 # UNRELEASED
 
+* AADRoleAssignmentScheduleRequest
+  * FIXES [#6810](https://github.com/microsoft/Microsoft365DSC/issues/6810)
+* AADRoleEligibilityScheduleRequest
+  * FIXES [#6810](https://github.com/microsoft/Microsoft365DSC/issues/6810)
 * SPOSiteGroup
   * Fixed a condition mismatch during export resulting in repeated logins.
 * M365DSCPermissions
