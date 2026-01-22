@@ -25,12 +25,22 @@
       }
     },
     "purview": {
-      "requiredroles": [
-        "Compliance Search"
-      ],
-      "requiredrolegroups": [
-        "Compliance Data Administrator"
-      ]
+      "requiredroles": {
+        "read": [
+          "Compliance Search"
+        ],
+        "update": [
+          "Compliance Search"
+        ]
+      },
+      "requiredrolegroups": {
+        "read": [
+          "Compliance Data Administrator"
+        ],
+        "update": [
+          "Compliance Data Administrator"
+        ]
+      }
     }
   },
   "requiredModules": [],
