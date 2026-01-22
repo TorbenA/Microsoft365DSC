@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* EXOMailboxFolderPermission
+  * Fixed an issue where `AccessRights` was not exported properly.
+
 # 1.26.121.1
 
 * AADGroup
