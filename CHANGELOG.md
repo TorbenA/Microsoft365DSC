@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* SPOSearchManagedProperty
+  * Fixed an issue when connecting to the SPO AdminUrl.
+
 # 1.26.121.1
 
 * AADGroup
