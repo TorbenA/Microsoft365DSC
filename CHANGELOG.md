@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+* EXOOrganizationConfig
+  * Fixed an issue where applying the configuration failed.
+* DEPENDENCIES
+  * Updated `ExchangeOnlineManagement` to 3.9.2
+    FIXES [#6508](https://github.com/microsoft/Microsoft365DSC/issues/6508)
+
 # 1.26.121.1
 
 * AADGroup
