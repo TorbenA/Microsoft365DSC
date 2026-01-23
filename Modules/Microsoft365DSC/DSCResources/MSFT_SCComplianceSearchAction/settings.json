@@ -35,10 +35,10 @@
       },
       "requiredrolegroups": {
         "read": [
-          "Compliance Data Administrator"
+          "Data Investigator"
         ],
         "update": [
-          "Compliance Data Administrator"
+          "Data Investigator"
         ]
       }
     }
