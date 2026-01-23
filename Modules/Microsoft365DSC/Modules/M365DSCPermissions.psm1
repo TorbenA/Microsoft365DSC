@@ -559,7 +559,7 @@ function Update-M365DSCAllowedGraphScopes
     $permissions = ($results | Where-Object -FilterScript { $_.API -eq 'Graph' }).PermissionName
 
     # Remove the Tasks.Read.All permission from the list as it is causing an issue with the Graph SDK
-    $permissions.Remove('Tasks.Read.All') | Out-Null
+    $permissions = $permissions | Where-Object { $_ -ne "Tasks.Read.All" }
     Write-Verbose -Message "Found permissions: $($permissions -join ', ')"
     $params = @{
         Scopes = $permissions
