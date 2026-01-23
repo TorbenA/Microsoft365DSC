@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneCloudProvisioningPolicyWindows365
+  * Fixed an issue where `ireland` was not a recognized country.
+    FIXES [#6830](https://github.com/microsoft/Microsoft365DSC/issues/6830)
+
 # 1.26.121.1
 
 * AADGroup
