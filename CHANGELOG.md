@@ -1,5 +1,12 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* SCRoleGroupMember
+  * Updated the export to use `Alias` for users with email addresses.
+    Fallback to `Name` for all other types, e.g. Service Principals.
+    FIXES [#6829](https://github.com/microsoft/Microsoft365DSC/issues/6829)
+
 # 1.26.121.1
 
 * AADGroup
