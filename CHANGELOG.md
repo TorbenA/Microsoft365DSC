@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneTermsAndConditions
+  * Initial release.
+
 # 1.26.128.1
 
 * EXOMailboxFolderPermission
