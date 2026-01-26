@@ -480,7 +480,6 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $boundParameters.Remove('Apps') | Out-Null
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -491,6 +490,22 @@ function Set-TargetResource
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
         $createParameters.Remove('Id') | Out-Null
 
+        if ($createParameters.ContainsKey('Apps'))
+        {
+            $targetApps = @()
+            foreach ($app in $createParameters.Apps)
+            {
+                $targetApps += @{
+                    mobileAppIdentifier = @{
+                        '@odata.type' = '#microsoft.graph.windowsAppIdentifier'
+                        windowsAppId   = $app
+                    }
+                }
+            }
+            $createParameters.Remove('Apps') | Out-Null
+            $createParameters.Add('Apps', $targetApps)
+        }
+
         $keys = (([Hashtable]$createParameters).Clone()).Keys
         foreach ($key in $keys)
         {
@@ -500,22 +515,11 @@ function Set-TargetResource
             }
         }
         #region resource generator code
+        $createParameters.Add('@odata.type', '#microsoft.graph.windowsManagedAppProtection')
         $policy = New-MgBetaDeviceAppManagementWindowsManagedAppProtection -BodyParameter $createParameters
 
         if ($policy.Id)
         {
-            $targetApps = @()
-            foreach ($app in $Apps)
-            {
-                $targetApps += @{
-                    mobileAppIdentifier = @{
-                        '@odata.type' = '#microsoft.graph.windowsAppIdentifier'
-                        windowsAppId   = $app
-                    }
-                }
-            }
-            $Url = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceAppManagement/windowsManagedAppProtections('$($policy.Id)')/targetApps"
-            Invoke-MgGraphRequest -Method POST -Uri $Url -Body $targetApps
             $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
             Update-DeviceConfigurationPolicyAssignment `
                 -DeviceConfigurationPolicyId $policy.Id `
@@ -543,22 +547,30 @@ function Set-TargetResource
         }
 
         #region resource generator code
-        Update-MgBetaDeviceAppManagementWindowsManagedAppProtection `
-            -WindowsManagedAppProtectionId $currentInstance.Id `
-            -BodyParameter $UpdateParameters
-
-        $targetApps = @()
-        foreach ($app in $Apps)
+        if ($updateParameters.ContainsKey('Apps'))
         {
-            $targetApps += @{
-                mobileAppIdentifier = @{
-                    '@odata.type' = '#microsoft.graph.windowsAppIdentifier'
-                    windowsAppId   = $app
+            $targetApps = @()
+            foreach ($app in $updateParameters.Apps)
+            {
+                $targetApps += @{
+                    mobileAppIdentifier = @{
+                        '@odata.type' = '#microsoft.graph.windowsAppIdentifier'
+                        windowsAppId   = $app
+                    }
                 }
             }
+            $targetAppsBody = @{
+                appGroupType = 'selectedPublicApps'
+                apps = $targetApps
+            }
+            $updateParameters.Remove('Apps') | Out-Null
+            Invoke-MgGraphRequest -Method POST `
+                -Uri "beta/deviceAppManagement/windowsManagedAppProtections('$($currentInstance.Id)')/targetApps" `
+                -Body $($targetAppsBody | ConvertTo-Json -Depth 10)
         }
-        $Url = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceAppManagement/windowsManagedAppProtections('$($policy.Id)')/targetApps"
-        Invoke-MgGraphRequest -Method POST -Uri $Url -Body $targetApps
+        Update-MgBetaDeviceAppManagementWindowsManagedAppProtection `
+            -WindowsManagedAppProtectionId $currentInstance.Id `
+            -BodyParameter $updateParameters
 
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
         Update-DeviceConfigurationPolicyAssignment `
