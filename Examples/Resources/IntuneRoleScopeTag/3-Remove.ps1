@@ -14,13 +14,15 @@ Configuration Example
 
     node localhost
     {
-        IntuneCustomizationBrandingProfile "IntuneCustomizationBrandingProfile-Company"
+        IntuneRoleScopeTag 'Example'
         {
-            ApplicationId                  = $ApplicationId;
-            CertificateThumbprint          = $CertificateThumbprint;
-            ProfileName                    = "IntuneCustomizationBrandingProfile_1";
-            Ensure                         = "Absent";
-            TenantId                       = $TenantId;
+            DisplayName           = "MyExistingTag"
+            Id                    = "5"
+            Description           = "My Example Tag"
+            Ensure                = "Absent"
+            ApplicationId         = $ApplicationId
+            TenantId              = $TenantId
+            CertificateThumbprint = $CertificateThumbprint
         }
     }
 }

@@ -85,6 +85,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     ShowLogo = $True
                     ShowOfficeWebApps = $True
                     ThemeColor = @{
+                        r = 0
+                        g = 0
+                        b = 0
                     }
                 }
             }
@@ -127,7 +130,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementIntuneBrandingProfileAssignment -MockWith {
             }
-
         }
 
         # Test contexts
@@ -170,10 +172,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     ShowLogo = $True
                     ShowOfficeWebApps = $True
                     ThemeColor = (New-CimInstance -ClassName MSFT_MicrosoftGraphRgbColor -Property @{
+                        r = 0
+                        g = 0
+                        b = 0
                     } -ClientOnly)
                     ThemeColorLogo = (New-CimInstance -ClassName MSFT_MicrosoftGraphMimeContent -Property @{
                         Type = "image/png"
-                        Value = 'FakeStringValue2'
+                        Value = 'FakeStringValue1'
                     } -ClientOnly)
                     Ensure = "Present"
                     Credential = $Credential;
@@ -234,10 +239,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     ShowLogo = $True
                     ShowOfficeWebApps = $True
                     ThemeColor = (New-CimInstance -ClassName MSFT_MicrosoftGraphRgbColor -Property @{
+                        r = 0
+                        g = 0
+                        b = 0
                     } -ClientOnly)
                     ThemeColorLogo = (New-CimInstance -ClassName MSFT_MicrosoftGraphMimeContent -Property @{
                         Type = "image/png"
-                        Value = 'FakeStringValue2'
+                        Value = 'FakeStringValue1'
                     } -ClientOnly)
                     Ensure = "Absent"
                     Credential = $Credential;
@@ -297,10 +305,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     ShowLogo = $True
                     ShowOfficeWebApps = $True
                     ThemeColor = (New-CimInstance -ClassName MSFT_MicrosoftGraphRgbColor -Property @{
+                        r = 0
+                        g = 0
+                        b = 0
                     } -ClientOnly)
                     ThemeColorLogo = (New-CimInstance -ClassName MSFT_MicrosoftGraphMimeContent -Property @{
                         Type = "image/png"
-                        Value = 'FakeStringValue2'
+                        Value = 'FakeStringValue1'
                     } -ClientOnly)
                     Ensure = "Present"
                     Credential = $Credential;
@@ -351,10 +362,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     ShowLogo = $True
                     ShowOfficeWebApps = $True
                     ThemeColor = (New-CimInstance -ClassName MSFT_MicrosoftGraphRgbColor -Property @{
+                        r = 0
+                        g = 0
+                        b = 0
                     } -ClientOnly)
                     ThemeColorLogo = (New-CimInstance -ClassName MSFT_MicrosoftGraphMimeContent -Property @{
                         Type = "image/png"
-                        Value = 'FakeStringValue2'
+                        Value = 'FakeStringValue1'
                     } -ClientOnly)
                     Ensure = "Present"
                     Credential = $Credential;

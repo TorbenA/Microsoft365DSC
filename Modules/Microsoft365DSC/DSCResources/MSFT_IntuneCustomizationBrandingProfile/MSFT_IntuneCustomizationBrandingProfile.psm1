@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName "MSFT_IntuneCustomizationBrandingProfile"
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -37,7 +39,7 @@ function Get-TargetResource
         [System.Boolean]
         $DisableDeviceCategorySelection,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
 
@@ -396,7 +398,7 @@ function Set-TargetResource
         [System.Boolean]
         $DisableDeviceCategorySelection,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
 
@@ -523,9 +525,7 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -547,6 +547,13 @@ function Set-TargetResource
         #region resource generator code
         $policy = New-MgBetaDeviceManagementIntuneBrandingProfile -BodyParameter $createParameters
 
+        # Some properties cannot be set during creation
+        # Wait a few seconds for the policy to be created
+        Start-Sleep -Seconds 3
+        Update-MgBetaDeviceManagementIntuneBrandingProfile `
+            -IntuneBrandingProfileId $policy.Id `
+            -BodyParameter $createParameters
+
         if ($policy.Id)
         {
             $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
@@ -554,11 +561,6 @@ function Set-TargetResource
                 -DeviceConfigurationPolicyId $policy.Id `
                 -Targets $assignmentsHash `
                 -Repository 'deviceManagement/intuneBrandingProfiles'
-
-            # TODO: Add image upload
-
-
-
         }
         #endregion
     }
@@ -569,7 +571,6 @@ function Set-TargetResource
 
         $updateParameters = ([Hashtable]$boundParameters).Clone()
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
-
         $updateParameters.Remove('Id') | Out-Null
 
         $keys = (([Hashtable]$updateParameters).Clone()).Keys
@@ -584,19 +585,14 @@ function Set-TargetResource
         #region resource generator code
         Update-MgBetaDeviceManagementIntuneBrandingProfile `
             -IntuneBrandingProfileId $currentInstance.Id `
-            -BodyParameter $UpdateParameters
+            -BodyParameter $updateParameters
+
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
         Update-DeviceConfigurationPolicyAssignment `
             -DeviceConfigurationPolicyId $currentInstance.Id `
             -Targets $assignmentsHash `
             -Repository 'deviceManagement/intuneBrandingProfiles'
         #endregion
-
-        # TODO: Add image upload
-
-
-
-
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
@@ -646,7 +642,7 @@ function Test-TargetResource
         [System.Boolean]
         $DisableDeviceCategorySelection,
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
 
@@ -861,6 +857,7 @@ function Export-TargetResource
             $params = @{
                 Id                    = $config.Id
                 ProfileName           = $config.ProfileName
+                DisplayName           = $config.DisplayName
                 Ensure                = 'Present'
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId

@@ -40,14 +40,9 @@ class MSFT_IntuneCustomizationBrandingProfile : OMI_BaseResource
     [Write, Description("Phone number of the person/organization responsible for IT support")] String ContactITPhoneNumber;
     [Write, Description("Text comments regarding what the admin has access to on the device")] String CustomCanSeePrivacyMessage;
     [Write, Description("Text comments regarding what the admin doesn't have access to on the device")] String CustomCantSeePrivacyMessage;
-    [Write, Description("Text comments regarding what the admin doesn't have access to on the device")] String CustomPrivacyMessage;
-    [Write, Description("Applies to telemetry sent from all clients to the Intune service. When disabled, all proactive troubleshooting and issue warnings within the client are turned off, and telemetry settings appear inactive or hidden to the device user.")] Boolean DisableClientTelemetry;
     [Write, Description("Boolean that indicates if Device Category Selection will be shown in Company Portal")] Boolean DisableDeviceCategorySelection;
     [Required, Description("Company/organization name that is displayed to end users")] String DisplayName;
     [Write, Description("Customized device enrollment flow displayed to the end user . Possible values are: availableWithPrompts, availableWithoutPrompts, unavailable."), ValueMap{"availableWithPrompts","availableWithoutPrompts","unavailable"}, Values{"availableWithPrompts","availableWithoutPrompts","unavailable"}] String EnrollmentAvailability;
-    [Write, Description("Boolean that represents whether the profile is used as default or not")] Boolean IsDefaultProfile;
-    [Write, Description("Boolean that represents whether the adminsistrator has disabled the 'Factory Reset' action on corporate owned devices.")] Boolean IsFactoryResetDisabled;
-    [Write, Description("Boolean that represents whether the adminsistrator has disabled the 'Remove Device' action on corporate owned devices.")] Boolean IsRemoveDeviceDisabled;
     [Write, Description("Customized image displayed in Company Portal apps landing page"), EmbeddedInstance("MSFT_MicrosoftGraphmimeContent")] String LandingPageCustomizedImage;
     [Write, Description("Logo image displayed in Company Portal apps which have a light background behind the logo"), EmbeddedInstance("MSFT_MicrosoftGraphmimeContent")] String LightBackgroundLogo;
     [Write, Description("Display name of the company/organizations IT helpdesk site")] String OnlineSupportSiteName;
@@ -56,7 +51,6 @@ class MSFT_IntuneCustomizationBrandingProfile : OMI_BaseResource
     [Write, Description("Description of the profile")] String ProfileDescription;
     [Key, Description("Name of the profile")] String ProfileName;
     [Write, Description("List of scope tags assigned to the branding profile")] String RoleScopeTagIds[];
-    [Write, Description("Boolean that indicates if a push notification is sent to users when their device ownership type changes from personal to corporate")] Boolean SendDeviceOwnershipChangePushNotification;
     [Write, Description("Boolean that indicates if AzureAD Enterprise Apps will be shown in Company Portal")] Boolean ShowAzureADEnterpriseApps;
     [Write, Description("Boolean that indicates if Configuration Manager Apps will be shown in Company Portal")] Boolean ShowConfigurationManagerApps;
     [Write, Description("Boolean that represents whether the administrator-supplied display name will be shown next to the logo image or not")] Boolean ShowDisplayNameNextToLogo;
