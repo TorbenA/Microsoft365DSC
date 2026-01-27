@@ -1,7 +1,12 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
 * EXOOrganizationConfig
   * Fixed an issue where applying the configuration failed.
+* M365DSCPermissions
+  * Fixed an issue where Purview permissions were not in the correct format.
+    FIXES [#6822](https://github.com/microsoft/Microsoft365DSC/issues/6822)
 * DEPENDENCIES
   * Updated `ExchangeOnlineManagement` to 3.9.2
     FIXES [#6508](https://github.com/microsoft/Microsoft365DSC/issues/6508)
