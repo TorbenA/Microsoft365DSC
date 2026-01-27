@@ -1229,16 +1229,9 @@ function Compare-M365DSCConfigurations
         [Array]$DestinationObject = $DestinationObject | Where-Object -FilterScript { $_.ResourceName -notin $ExcludedResources }
     }
 
-    $isPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
-    if ($isPowerShellCore)
-    {
-        $dscResourceInfo = Get-PwshDSCResource -Module 'Microsoft365DSC'
-    }
-    else
-    {
-        $currentModule = Get-Module -Name 'Microsoft365DSC'
-        $dscResourceInfo = Get-DSCResource -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
-    }
+    $currentModule = Get-Module -Name 'Microsoft365DSC'
+    $dscResourceInfo = Get-DSCResourceV2 -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
+
     # Loop through all items in the source array
     $i = 1
     foreach ($sourceResource in $SourceObject)
