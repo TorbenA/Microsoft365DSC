@@ -4,6 +4,9 @@
 
 * EXOTransportRule
   * Updated logic to properly handle the Enabled property.
+* IntuneAntivirusPolicyWindows10SettingCatalog
+  * Fixed an issue where the property `TamperProtection` was renamed to
+    `ControlledConfiguration` in the Settings Catalog backend.
 * M365DSCPermissions
   * Fixed an issue where Purview permissions were not in the correct format.
     FIXES [#6822](https://github.com/microsoft/Microsoft365DSC/issues/6822)
