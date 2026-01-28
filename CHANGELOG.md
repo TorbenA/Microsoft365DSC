@@ -13,6 +13,9 @@
 * IntuneCloudProvisioningPolicyWindows365
   * Fixed an issue where `ireland` was not a recognized country.
     FIXES [#6830](https://github.com/microsoft/Microsoft365DSC/issues/6830)
+* IntuneDeviceFeaturesConfigurationPolicyIOS
+  * Fixed an issue where home screen folders were not configurable.
+    FIXES [#6836](https://github.com/microsoft/Microsoft365DSC/issues/6836)
 * O365OrgSettings
   * Fixed an issue where comparing empty app installation options failed.
     FIXES [#6812](https://github.com/microsoft/Microsoft365DSC/issues/6812)
