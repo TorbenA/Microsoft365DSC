@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.26.128.1
 
 * EXOTransportRule
   * Updated logic to properly handle the Enabled property.
@@ -11,6 +11,8 @@
 * M365DSCPermissions
   * Fixed an issue where Purview permissions were not in the correct format.
     FIXES [#6822](https://github.com/microsoft/Microsoft365DSC/issues/6822)
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.57.
 
 # 1.26.121.1
 
