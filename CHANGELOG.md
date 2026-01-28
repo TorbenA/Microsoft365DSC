@@ -6,6 +6,10 @@
   * Fixed an issue where `AccessRights` was not exported properly.
 * EXOTransportRule
   * Updated logic to properly handle the Enabled property.
+* IntuneAntivirusPolicyWindows10SettingCatalog
+  * Fixed an issue where the property `TamperProtection` was renamed to
+    `ControlledConfiguration` in the Settings Catalog backend.
+    FIXES [#6855](https://github.com/microsoft/Microsoft365DSC/issues/6855)
 * SPOTenantSettings
   * Fixing the empty array casting for AllowSelectSGsInODBListInTenant,
     DenySelectSGsInODBListInTenant,DenySelectSecurityGroupsInSPSitesList
