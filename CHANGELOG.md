@@ -2,9 +2,18 @@
 
 # UNRELEASED
 
+* EXOTransportRule
+  * Updated logic to properly handle the Enabled property.
 * IntuneCloudProvisioningPolicyWindows365
   * Fixed an issue where `ireland` was not a recognized country.
     FIXES [#6830](https://github.com/microsoft/Microsoft365DSC/issues/6830)
+* SPOTenantSettings
+  * Fixing the empty array casting for AllowSelectSGsInODBListInTenant,
+    DenySelectSGsInODBListInTenant,DenySelectSecurityGroupsInSPSitesList
+    and AllowSelectSecurityGroupsInSPSitesList in Get-TargetResource.
+* M365DSCPermissions
+  * Fixed an issue where Purview permissions were not in the correct format.
+    FIXES [#6822](https://github.com/microsoft/Microsoft365DSC/issues/6822)
 
 # 1.26.121.1
 
