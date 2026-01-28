@@ -10,6 +10,9 @@
   * Fixed an issue where the property `TamperProtection` was renamed to
     `ControlledConfiguration` in the Settings Catalog backend.
     FIXES [#6855](https://github.com/microsoft/Microsoft365DSC/issues/6855)
+* O365OrgSettings
+  * Fixed an issue where comparing empty app installation options failed.
+    FIXES [#6812](https://github.com/microsoft/Microsoft365DSC/issues/6812)
 * SPOTenantSettings
   * Fixing the empty array casting for AllowSelectSGsInODBListInTenant,
     DenySelectSGsInODBListInTenant,DenySelectSecurityGroupsInSPSitesList
