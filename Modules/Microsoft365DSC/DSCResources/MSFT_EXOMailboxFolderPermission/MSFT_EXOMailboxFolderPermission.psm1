@@ -87,7 +87,7 @@ function Get-TargetResource
         {
             $currentPermission = @{}
             $currentPermission.Add('User', $mailboxFolderPermission.User.ToString())
-            $currentPermission.Add('AccessRights', $mailboxFolderPermission.AccessRights)
+            $currentPermission.Add('AccessRights', [System.String[]]@($mailboxFolderPermission.AccessRights | ForEach-Object { $_.ToString() }))
             if ($null -ne $mailboxFolderPermission.SharingPermissionFlags)
             {
                 $currentPermission.Add('SharingPermissionFlags', $mailboxFolderPermission.SharingPermissionFlags)

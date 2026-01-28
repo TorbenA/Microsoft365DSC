@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* EXOMailboxFolderPermission
+  * Fixed an issue where `AccessRights` was not exported properly.
 * EXOTransportRule
   * Updated logic to properly handle the Enabled property.
 * SPOTenantSettings
