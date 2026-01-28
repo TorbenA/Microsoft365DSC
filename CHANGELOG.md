@@ -2,9 +2,15 @@
 
 # UNRELEASED
 
+* EXOTransportRule
+  * Updated logic to properly handle the Enabled property.
 * IntuneDeviceFeaturesConfigurationPolicyIOS
   * Fixed an issue where home screen folders were not configurable.
     FIXES [#6836](https://github.com/microsoft/Microsoft365DSC/issues/6836)
+* SPOTenantSettings
+  * Fixing the empty array casting for AllowSelectSGsInODBListInTenant,
+    DenySelectSGsInODBListInTenant,DenySelectSecurityGroupsInSPSitesList
+    and AllowSelectSecurityGroupsInSPSitesList in Get-TargetResource.
 * M365DSCPermissions
   * Fixed an issue where Purview permissions were not in the correct format.
     FIXES [#6822](https://github.com/microsoft/Microsoft365DSC/issues/6822)
