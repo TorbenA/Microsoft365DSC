@@ -1,5 +1,12 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCUtil
+  * Fixed an issue where `Export-M365DSCConfiguration` would stop
+    exporting resources after an error on Azure DevOps & GitHub.
+    FIXES [#6862](https://github.com/microsoft/Microsoft365DSC/issues/6862)
+
 # 1.26.128.1
 
 * EXOMailboxFolderPermission
