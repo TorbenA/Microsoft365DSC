@@ -1,5 +1,12 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCUtil
+  * Fixed an issue during module update where `Install-PSResource` throws
+    an error if the module was installed in Windows PowerShell but the
+    update attempt was performed in PowerShell 7.
+
 # 1.26.128.1
 
 * EXOMailboxFolderPermission
