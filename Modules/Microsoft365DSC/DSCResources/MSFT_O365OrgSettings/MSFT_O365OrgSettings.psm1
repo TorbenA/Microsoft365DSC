@@ -159,55 +159,52 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting configuration of Office 365 Group $DisplayName"
+    Write-Verbose -Message "Getting configuration of Office 365 Org Settings"
 
-    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
-
-    $ConnectionModeTasks = New-M365DSCConnection -Workload 'Tasks' `
-        -InboundParameters $PSBoundParameters
-
-    # Workaround for issue when if connected to S+C prior to calling cmdlet, an error about an invalid token is thrown.
-    # If connected to S+C, then we need to re-initialize the connection to EXO.
-    if ((Get-MSCloudLoginConnectionProfile -Workload SecurityComplianceCenter).Connected -and `
-            (Get-MSCloudLoginConnectionProfile -Workload ExchangeOnline).Connected)
-    {
-        Reset-MSCloudLoginConnectionProfileContext -Workload ExchangeOnline
-    }
-    $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = @{
-        IsSingleInstance = $IsSingleInstance
-        Ensure           = 'Absent'
-    }
-
-    $results = @{
-        IsSingleInstance      = 'Yes'
-        Credential            = $Credential
-        ApplicationId         = $ApplicationId
-        TenantId              = $TenantId
-        ApplicationSecret     = $ApplicationSecret
-        CertificateThumbprint = $CertificateThumbprint
-        CertificatePath       = $CertificatePath
-        CertificatePassword   = $CertificatePassword
-        ManagedIdentity       = $ManagedIdentity.IsPresent
-        AccessTokens          = $AccessTokens
-    }
     try
     {
+
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            -InboundParameters $PSBoundParameters
+
+        $ConnectionModeTasks = New-M365DSCConnection -Workload 'Tasks' `
+            -InboundParameters $PSBoundParameters
+
+        # Workaround for issue when if connected to S+C prior to calling cmdlet, an error about an invalid token is thrown.
+        # If connected to S+C, then we need to re-initialize the connection to EXO.
+        if ((Get-MSCloudLoginConnectionProfile -Workload SecurityComplianceCenter).Connected -and `
+                (Get-MSCloudLoginConnectionProfile -Workload ExchangeOnline).Connected)
+        {
+            Reset-MSCloudLoginConnectionProfileContext -Workload ExchangeOnline
+        }
+        $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
+            -InboundParameters $PSBoundParameters
+
+        #Ensure the proper dependencies are installed in the current environment.
+        Confirm-M365DSCDependencies
+
+        #region Telemetry
+        $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+        $CommandName = $MyInvocation.MyCommand
+        $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+            -CommandName $CommandName `
+            -Parameters $PSBoundParameters
+        Add-M365DSCTelemetryEvent -Data $data
+        #endregion
+
+        $results = @{
+            IsSingleInstance      = 'Yes'
+            Credential            = $Credential
+            ApplicationId         = $ApplicationId
+            TenantId              = $TenantId
+            ApplicationSecret     = $ApplicationSecret
+            CertificateThumbprint = $CertificateThumbprint
+            CertificatePath       = $CertificatePath
+            CertificatePassword   = $CertificatePassword
+            ManagedIdentity       = $ManagedIdentity.IsPresent
+            AccessTokens          = $AccessTokens
+        }
+
         $OfficeOnlineId = 'c1f33bc0-bdb4-4248-ba9b-096807ddb43e'
         $M365WebEnableUsersToOpenFilesFrom3PStorageValue = Get-MgServicePrincipal -Filter "appId eq '$OfficeOnlineId'" -Property 'AccountEnabled' -ErrorAction SilentlyContinue
         if ($null -eq $M365WebEnableUsersToOpenFilesFrom3PStorageValue)

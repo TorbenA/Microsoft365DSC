@@ -2,6 +2,11 @@
 
 # UNRELEASED
 
+* O365OrgSettings
+  * Expanded try/catch logic to cover all code paths in Get.
+* O365SearchAndIntelligenceConfiguration
+  * Expanded try/catch logic to cover all code paths in Get.
+    FIXES [#6788](https://github.com/microsoft/Microsoft365DSC/issues/6788)
 * M365DSCUtil
   * Fixed an issue where `Export-M365DSCConfiguration` would stop
     exporting resources after an error on Azure DevOps & GitHub.
