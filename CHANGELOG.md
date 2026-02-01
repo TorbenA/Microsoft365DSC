@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCReport
+  * Added missing Metadata processing when generating reports.
+    FIXES [#6865](https://github.com/microsoft/Microsoft365DSC/issues/6865)
+
 # 1.26.128.1
 
 * EXOMailboxFolderPermission
