@@ -2,6 +2,14 @@
 
 # UNRELEASED
 
+* AADConditionalAccessPolicy
+  * Fixed an issue where `DisableResilienceDefaultsIsEnabled` was not
+    evaluated correctly during `Get`.
+    FIXES [#6871](https://github.com/microsoft/Microsoft365DSC/issues/6871)
+* M365DSCReport
+  * Moved custom header in between HTML tags.
+* M365DSCUtil
+  * Updated the drift information to join array elements with a comma.
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.58.
 
