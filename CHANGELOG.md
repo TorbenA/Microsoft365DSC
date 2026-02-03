@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* FabricAdmintenantsettings
+  * Refreshed the property list.
+   FIXES [#6866](https://github.com/microsoft/Microsoft365DSC/issues/6866)
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.58.
 
