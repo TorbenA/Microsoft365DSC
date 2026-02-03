@@ -186,7 +186,7 @@ class MSFT_FabricAdminTenantSettings : OMI_BaseResource
     [Write, Description("Configure workspace IP firewall rules (preview)"), EmbeddedInstance("MSFT_FabricTenantSetting")] string ConfigureWorkspaceLevelIPFirewallRules;
     [Write, Description("Capacities can be designated as Fabric Copilot capacities"), EmbeddedInstance("MSFT_FabricTenantSetting")] string CopilotCapacitySetupPermissionSwitch;
     [Write, Description("Allow Microsoft Purview to secure AI interactions"), EmbeddedInstance("MSFT_FabricTenantSetting")] string DataSecurityForAIInteractions;
-    [Write, Description(""), EmbeddedInstance("MSFT_FabricTenantSetting")] string DeltaToIcebergTableVirtualization;
+    [Write, Description("TBD"), EmbeddedInstance("MSFT_FabricTenantSetting")] string DeltaToIcebergTableVirtualization;
     [Write, Description("Users can create Digital Twin Builder (preview) items"), EmbeddedInstance("MSFT_FabricTenantSetting")] string DigitalOperationsPreview;
     [Write, Description("Users can create Direct Lake on OneLake semantic models (preview)"), EmbeddedInstance("MSFT_FabricTenantSetting")] string DirectLakeOnOneLakeSemanticModelCreation;
     [Write, Description("Domain admins can set default sensitivity labels for their domains (preview)"), EmbeddedInstance("MSFT_FabricTenantSetting")] string EimInformationProtectionDefaultLabelDomainSetting;
