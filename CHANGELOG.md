@@ -4,6 +4,8 @@
 
 * IntuneTermsAndConditions
   * Initial release.
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.58.
 
 # 1.26.128.1
 
