@@ -5,6 +5,9 @@
 * FabricAdmintenantsettings
   * Refreshed the property list.
    FIXES [#6866](https://github.com/microsoft/Microsoft365DSC/issues/6866)
+* O365OrgSettings
+  * Changed how errors are handled to fail instead of returning false drifts.
+   FIXES [#6787](https://github.com/microsoft/Microsoft365DSC/issues/6787)
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.58.
 
