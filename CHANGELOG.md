@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.58.
+
 # 1.26.128.1
 
 * EXOMailboxFolderPermission
