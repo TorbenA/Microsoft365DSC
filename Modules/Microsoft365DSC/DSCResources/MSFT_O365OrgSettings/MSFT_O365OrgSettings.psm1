@@ -259,11 +259,11 @@ function Get-TargetResource
         $MRODeviceManagerService = 'ebe0c285-db95-403f-a1a3-a793bd6d7767'
         try
         {
-            $servicePrincipal = Get-MgServicePrincipal -Filter "appid eq 'ebe0c285-db95-403f-a1a3-a793bd6d7767'"
+            $servicePrincipal = Get-MgServicePrincipal -Filter "appid eq '$($MRODeviceManagerService)'"
             if ($null -eq $servicePrincipal)
             {
                 Write-Verbose -Message 'Registering the MRO Device Manager Service Principal'
-                New-MgServicePrincipal -AppId 'ebe0c285-db95-403f-a1a3-a793bd6d7767' -ErrorAction Stop | Out-Null
+                New-MgServicePrincipal -AppId $MRODeviceManagerService -ErrorAction Stop | Out-Null
             }
         }
         catch
@@ -1097,8 +1097,7 @@ function Get-M365DSCO365OrgSettingsPlannerConfig
                 -TenantId $TenantId `
                 -Credential $Credential
         }
-
-        return $null
+        throw $_
     }
 }
 
@@ -1158,7 +1157,13 @@ function Get-M365DSCOrgSettingsInstallationOptions
     catch
     {
         Write-Verbose -Message 'Not able to retrieve Office 365 Apps Installation Options. Please ensure correct permissions have been granted.'
-        return $null
+        New-M365DSCLogEntry -Message 'Error retrieving data:' `
+            -Exception $_ `
+            -Source $($MyInvocation.MyCommand.Source) `
+            -TenantId $TenantId `
+            -Credential $Credential
+
+        throw $_
     }
 }
 
@@ -1211,7 +1216,13 @@ function Get-M365DSCOrgSettingsForms
     catch
     {
         Write-Verbose -Message 'Not able to retrieve O365OrgSettings Forms Settings. Please ensure correct permissions have been granted.'
-        return $null
+        New-M365DSCLogEntry -Message 'Error retrieving data:' `
+            -Exception $_ `
+            -Source $($MyInvocation.MyCommand.Source) `
+            -TenantId $TenantId `
+            -Credential $Credential
+
+        throw $_
     }
 }
 
@@ -1256,7 +1267,13 @@ function Get-M365DSCOrgSettingsDynamicsCustomerVoice
     catch
     {
         Write-Verbose -Message 'Not able to retrieve O365OrgSettings Dynamics Customer Voice Settings. Please ensure correct permissions have been granted.'
-        return $null
+        New-M365DSCLogEntry -Message 'Error retrieving data:' `
+            -Exception $_ `
+            -Source $($MyInvocation.MyCommand.Source) `
+            -TenantId $TenantId `
+            -Credential $Credential
+
+        throw $_
     }
 }
 
@@ -1300,7 +1317,13 @@ function Get-M365DSCOrgSettingsAppsAndServices
     catch
     {
         Write-Verbose -Message 'Not able to retrieve O365OrgSettings Apps and Services Settings. Please ensure correct permissions have been granted.'
-        return $null
+        New-M365DSCLogEntry -Message 'Error retrieving data:' `
+            -Exception $_ `
+            -Source $($MyInvocation.MyCommand.Source) `
+            -TenantId $TenantId `
+            -Credential $Credential
+
+        throw $_
     }
 }
 
@@ -1343,7 +1366,13 @@ function Get-M365DSCOrgSettingsToDo
     catch
     {
         Write-Verbose -Message 'Not able to retrieve ToDo settings. Please ensure correct permissions have been granted.'
-        return $null
+        New-M365DSCLogEntry -Message 'Error retrieving data:' `
+            -Exception $_ `
+            -Source $($MyInvocation.MyCommand.Source) `
+            -TenantId $TenantId `
+            -Credential $Credential
+
+        throw $_
     }
 }
 
@@ -1388,7 +1417,13 @@ function Get-M365DSCOrgSettingsAdminCenterReport
     catch
     {
         Write-Verbose -Message 'Not able to retrieve Office 365 Report Settings. Please ensure correct permissions have been granted.'
-        return $null
+        New-M365DSCLogEntry -Message 'Error retrieving data:' `
+            -Exception $_ `
+            -Source $($MyInvocation.MyCommand.Source) `
+            -TenantId $TenantId `
+            -Credential $Credential
+
+        throw $_
     }
 }
 
