@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Added support for `InvitationRedemptionIdentityProviderConfiguration`
+    and `TenantRestrictions`.
+
 # 1.26.311.1
 
 * AADAccessReviewDefinition
