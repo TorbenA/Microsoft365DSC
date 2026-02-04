@@ -2,10 +2,18 @@
 
 # UNRELEASED
 
+* FabricAdmintenantsettings
+  * Refreshed the property list.
+   FIXES [#6866](https://github.com/microsoft/Microsoft365DSC/issues/6866)
+* O365OrgSettings
+  * Changed how errors are handled to fail instead of returning false drifts.
+   FIXES [#6787](https://github.com/microsoft/Microsoft365DSC/issues/6787)
 * M365DSCUtil
   * Fixed an issue during module update where `Install-PSResource` throws
     an error if the module was installed in Windows PowerShell but the
     update attempt was performed in PowerShell 7.
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.58.
 
 # 1.26.128.1
 
