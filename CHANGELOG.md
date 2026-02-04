@@ -2,15 +2,23 @@
 
 # UNRELEASED
 
+* AADRoleAssignmentScheduleRequest
+  * Fixed multiple issues with fetching role assignments.
+    FIXES [#6841](https://github.com/microsoft/Microsoft365DSC/issues/6841)
 * AADRoleEligiblityScheduleRequest
   * Fixed multiple issues with fetching role eligiblity.
     FIXES [#6841](https://github.com/microsoft/Microsoft365DSC/issues/6841)
     FIXES [#6459](https://github.com/microsoft/Microsoft365DSC/issues/6459)
     FIXES [#6416](https://github.com/microsoft/Microsoft365DSC/issues/6416)
     FIXES [#5712](https://github.com/microsoft/Microsoft365DSC/issues/5712)
-* AADRoleAssignmentScheduleRequest
-  * Fixed multiple issues with fetching role assignments.
-    FIXES [#6841](https://github.com/microsoft/Microsoft365DSC/issues/6841)
+* FabricAdmintenantsettings
+  * Refreshed the property list.
+   FIXES [#6866](https://github.com/microsoft/Microsoft365DSC/issues/6866)
+* O365OrgSettings
+  * Changed how errors are handled to fail instead of returning false drifts.
+   FIXES [#6787](https://github.com/microsoft/Microsoft365DSC/issues/6787)
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.58.
 
 # 1.26.128.1
 
