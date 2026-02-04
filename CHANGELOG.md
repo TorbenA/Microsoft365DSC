@@ -4,12 +4,49 @@
 
 * EXOOrganizationConfig
   * Fixed an issue where applying the configuration failed.
+* FabricAdmintenantsettings
+  * Refreshed the property list.
+   FIXES [#6866](https://github.com/microsoft/Microsoft365DSC/issues/6866)
+* O365OrgSettings
+  * Changed how errors are handled to fail instead of returning false drifts.
+   FIXES [#6787](https://github.com/microsoft/Microsoft365DSC/issues/6787)
+* DEPENDENCIES
+  * Updated ExchangeOnlineManagement to version 3.9.2
+    FIXES [#6508](https://github.com/microsoft/Microsoft365DSC/issues/6508)
+  * Updated MSCloudLoginAssistant to version 1.1.58.
+
+# 1.26.128.1
+
+* EXOMailboxFolderPermission
+  * Fixed an issue where `AccessRights` was not exported properly.
+* EXOTransportRule
+  * Updated logic to properly handle the Enabled property.
+* IntuneAntivirusPolicyWindows10SettingCatalog
+  * Fixed an issue where the property `TamperProtection` was renamed to
+    `ControlledConfiguration` in the Settings Catalog backend.
+    FIXES [#6855](https://github.com/microsoft/Microsoft365DSC/issues/6855)
+* IntuneCloudProvisioningPolicyWindows365
+  * Fixed an issue where `ireland` was not a recognized country.
+    FIXES [#6830](https://github.com/microsoft/Microsoft365DSC/issues/6830)
+* IntuneDeviceFeaturesConfigurationPolicyIOS
+  * Fixed an issue where home screen folders were not configurable.
+    FIXES [#6836](https://github.com/microsoft/Microsoft365DSC/issues/6836)
+* O365OrgSettings
+  * Fixed an issue where comparing empty app installation options failed.
+    FIXES [#6812](https://github.com/microsoft/Microsoft365DSC/issues/6812)
+* SPOTenantSettings
+  * Fixing the empty array casting for AllowSelectSGsInODBListInTenant,
+    DenySelectSGsInODBListInTenant,DenySelectSecurityGroupsInSPSitesList
+    and AllowSelectSecurityGroupsInSPSitesList in Get-TargetResource.
 * M365DSCPermissions
   * Fixed an issue where Purview permissions were not in the correct format.
     FIXES [#6822](https://github.com/microsoft/Microsoft365DSC/issues/6822)
 * DEPENDENCIES
-  * Updated `ExchangeOnlineManagement` to 3.9.2
-    FIXES [#6508](https://github.com/microsoft/Microsoft365DSC/issues/6508)
+  * Updated MSCloudLoginAssistant to version 1.1.57.
+* M365DSCUtil
+  * Removed the parameter `SkipModuleReload` from `New-M365DSCConnection`.
+* MISC
+  * Removed the `SkipModuleReload` logic from all resources.
 
 # 1.26.121.1
 
