@@ -6,6 +6,12 @@
   * Fixed an issue where `DisableResilienceDefaultsIsEnabled` was not
     evaluated correctly during `Get`.
     FIXES [#6871](https://github.com/microsoft/Microsoft365DSC/issues/6871)
+* FabricAdmintenantsettings
+  * Refreshed the property list.
+    FIXES [#6866](https://github.com/microsoft/Microsoft365DSC/issues/6866)
+* O365OrgSettings
+  * Changed how errors are handled to fail instead of returning false drifts.
+    FIXES [#6787](https://github.com/microsoft/Microsoft365DSC/issues/6787)
 * M365DSCReport
   * Moved custom header in between HTML tags.
 * M365DSCUtil
