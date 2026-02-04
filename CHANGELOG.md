@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADUser
+  * Fixed an export issue where a user was deleted during a long-running job.
+    FIXES [#5703](https://github.com/microsoft/Microsoft365DSC/issues/5703)
 * EXOOrganizationConfig
   * Fixed an issue where applying the configuration failed.
 * FabricAdmintenantsettings
@@ -10,6 +13,10 @@
 * O365OrgSettings
   * Changed how errors are handled to fail instead of returning false drifts.
    FIXES [#6787](https://github.com/microsoft/Microsoft365DSC/issues/6787)
+* M365DSCUtil
+  * Fixed an issue during module update where `Install-PSResource` throws
+    an error if the module was installed in Windows PowerShell but the
+    update attempt was performed in PowerShell 7.
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.2
     FIXES [#6508](https://github.com/microsoft/Microsoft365DSC/issues/6508)
@@ -34,6 +41,9 @@
 * O365OrgSettings
   * Fixed an issue where comparing empty app installation options failed.
     FIXES [#6812](https://github.com/microsoft/Microsoft365DSC/issues/6812)
+* SCSecurityFilter
+  * Fixed an issue where connecting to the service was not possible.
+    FIXES [#6798](https://github.com/microsoft/Microsoft365DSC/issues/6798)
 * SPOTenantSettings
   * Fixing the empty array casting for AllowSelectSGsInODBListInTenant,
     DenySelectSGsInODBListInTenant,DenySelectSecurityGroupsInSPSitesList
