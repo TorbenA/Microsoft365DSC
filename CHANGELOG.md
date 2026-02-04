@@ -11,12 +11,19 @@
     FIXES [#6459](https://github.com/microsoft/Microsoft365DSC/issues/6459)
     FIXES [#6416](https://github.com/microsoft/Microsoft365DSC/issues/6416)
     FIXES [#5712](https://github.com/microsoft/Microsoft365DSC/issues/5712)
+* AADUser
+  * Fixed an export issue where a user was deleted during a long-running job.
+    FIXES [#5703](https://github.com/microsoft/Microsoft365DSC/issues/5703)
 * FabricAdmintenantsettings
   * Refreshed the property list.
    FIXES [#6866](https://github.com/microsoft/Microsoft365DSC/issues/6866)
 * O365OrgSettings
   * Changed how errors are handled to fail instead of returning false drifts.
    FIXES [#6787](https://github.com/microsoft/Microsoft365DSC/issues/6787)
+* M365DSCUtil
+  * Fixed an issue during module update where `Install-PSResource` throws
+    an error if the module was installed in Windows PowerShell but the
+    update attempt was performed in PowerShell 7.
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.58.
 
@@ -39,6 +46,9 @@
 * O365OrgSettings
   * Fixed an issue where comparing empty app installation options failed.
     FIXES [#6812](https://github.com/microsoft/Microsoft365DSC/issues/6812)
+* SCSecurityFilter
+  * Fixed an issue where connecting to the service was not possible.
+    FIXES [#6798](https://github.com/microsoft/Microsoft365DSC/issues/6798)
 * SPOTenantSettings
   * Fixing the empty array casting for AllowSelectSGsInODBListInTenant,
     DenySelectSGsInODBListInTenant,DenySelectSecurityGroupsInSPSitesList
