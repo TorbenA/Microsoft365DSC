@@ -13,6 +13,9 @@
    FIXES [#6787](https://github.com/microsoft/Microsoft365DSC/issues/6787)
 * SPOSearchManagedProperty
   * Fixed an issue when connecting to the SPO AdminUrl.
+* M365DSCPermissions
+  * Fixed an issue when selecting a property for the result.
+    FIXES [#6882](https://github.com/microsoft/Microsoft365DSC/issues/6882)
 * M365DSCUtil
   * Fixed an issue during module update where `Install-PSResource` throws
     an error if the module was installed in Windows PowerShell but the
