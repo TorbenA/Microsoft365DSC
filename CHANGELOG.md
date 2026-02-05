@@ -5,6 +5,9 @@
 * AADUser
   * Fixed an export issue where a user was deleted during a long-running job.
     FIXES [#5703](https://github.com/microsoft/Microsoft365DSC/issues/5703)
+* IntuneRoleAssignment
+  * Fixed an issue where properties were omitted during Set.
+    FIXES [#6881](https://github.com/microsoft/Microsoft365DSC/issues/6881)
 * FabricAdmintenantsettings
   * Refreshed the property list.
    FIXES [#6866](https://github.com/microsoft/Microsoft365DSC/issues/6866)
