@@ -5,6 +5,8 @@
 * AADCrossTenantAccessPolicyConfigurationDefault
   * Added support for `InvitationRedemptionIdentityProviderConfiguration`
     and `TenantRestrictions`.
+* AADCrossTenantAccessPolicyConfigurationPartner
+  * Added support for `IdentitySynchronization`.
 
 # 1.26.311.1
 
