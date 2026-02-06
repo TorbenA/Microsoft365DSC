@@ -5,6 +5,9 @@
 * AADUser
   * Fixed an export issue where a user was deleted during a long-running job.
     FIXES [#5703](https://github.com/microsoft/Microsoft365DSC/issues/5703)
+* EXODistributionGroup
+  * Updated `Get-TargetResource` to use properties with display name.
+    FIXES [#6769](https://github.com/microsoft/Microsoft365DSC/issues/6769)
 * FabricAdmintenantsettings
   * Refreshed the property list.
    FIXES [#6866](https://github.com/microsoft/Microsoft365DSC/issues/6866)

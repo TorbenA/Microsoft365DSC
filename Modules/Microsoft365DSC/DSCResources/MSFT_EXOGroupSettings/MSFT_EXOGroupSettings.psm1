@@ -1161,7 +1161,7 @@ function Get-DisplayNameSimplified
     {
         $simplifiedNames += $name.Split(',')[0].Replace('(','')
     }
-    return $simplifiedNames | Sort-Object
+    return ,@($simplifiedNames | Sort-Object)
 }
 
 function Get-CompareParameters
