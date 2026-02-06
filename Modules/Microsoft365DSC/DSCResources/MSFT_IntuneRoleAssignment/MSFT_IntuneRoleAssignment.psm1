@@ -324,7 +324,7 @@ function Set-TargetResource
     [array]$membersValue = @()
     if ($PSBoundParameters.ContainsKey('MembersDisplayNames'))
     {
-            foreach ($membersDisplayName in $MembersDisplayNames)
+        foreach ($membersDisplayName in $MembersDisplayNames)
         {
             $filter = "displayName eq '$($membersDisplayName -replace "'", "''")'"
             $memberId = Get-MgGroup -Filter $filter -ErrorAction SilentlyContinue
@@ -332,7 +332,7 @@ function Set-TargetResource
             {
                 if ($membersValue -notcontains $memberId.Id)
                 {
-                    $members += $memberId.Id
+                    $membersValue += $memberId.Id
                 }
             }
             else
@@ -511,57 +511,6 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    if (-not ($RoleDefinition -match '^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$'))
-    {
-        [string]$roleDefinition = $null
-        $filter = "displayName eq '$($RoleDefinitionDisplayName -replace "'", "''")'"
-        $roleDefinitionId = Get-MgDeviceManagementRoleDefinition -All -Filter $filter -ErrorAction SilentlyContinue
-        if ($null -ne $roleDefinitionId)
-        {
-            $roleDefinition = $roleDefinitionId.Id
-            $PSBoundParameters.RoleDefinition = $roleDefinition
-        }
-        else
-        {
-            Write-Verbose -Message "No role definition with DisplayName {$RoleDefinitionDisplayName} was found"
-        }
-    }
-
-    foreach ($membersDisplayName in $MembersDisplayNames)
-    {
-        $filter = "DisplayName eq '$($MembersDisplayName -replace "'", "''")'"
-        $newMember = Get-MgGroup -Filter $filter -ErrorAction SilentlyContinue
-        if ($null -ne $newMember)
-        {
-            if ($Members -notcontains $newMember.Id)
-            {
-                $Members += $newMember.Id
-            }
-        }
-        else
-        {
-            Write-Verbose -Message "No member of type group with DisplayName {$membersDisplayName} was found"
-        }
-    }
-    $PSBoundParameters.Members = $Members
-
-    foreach ($resourceScopesDisplayName in $ResourceScopesDisplayNames)
-    {
-        $filter = "displayName eq '$($resourceScopesDisplayName -replace "'", "''")'"
-        $newResourceScope = Get-MgGroup -Filter $filter -ErrorAction SilentlyContinue
-        if ($null -ne $newResourceScope)
-        {
-            if ($ResourceScopes -notcontains $newResourceScope.Id)
-            {
-                $ResourceScopes += $newResourceScope.Id
-            }
-        }
-        else
-        {
-            Write-Verbose -Message "No resource scope of type group with DisplayName {$ResourceScopesDisplayName} was found"
-        }
-    }
-    $PSBoundParameters.ResourceScopes = $ResourceScopes
 
     $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
@@ -718,7 +667,22 @@ function Get-CompareParameters
     param()
 
     return @{
-        ExcludedProperties = @('ResourceScopesDisplayNames', 'MembersDisplayNames')
+        PostProcessing = {
+            param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
+            if ($DesiredValues.ContainsKey('MembersDisplayNames'))
+            {
+                $ValuesToCheck.Remove('Members') | Out-Null
+            }
+            if ($DesiredValues.ContainsKey('ResourceScopesDisplayNames'))
+            {
+                $ValuesToCheck.Remove('ResourceScopes') | Out-Null
+            }
+            if ($DesiredValues.ContainsKey('RoleDefinitionDisplayName'))
+            {
+                $ValuesToCheck.Remove('RoleDefinition') | Out-Null
+            }
+            return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
+        }
     }
 }
 
