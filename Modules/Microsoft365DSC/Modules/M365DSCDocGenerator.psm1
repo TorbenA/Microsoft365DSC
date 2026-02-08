@@ -583,6 +583,12 @@ function New-DscMofResourceWikiPage
                     ($_.ClassName -ne $dscResourceName)
             }
 
+            if ($embeddedSchemas.Count -gt 0)
+            {
+                $null = $output.AppendLine()
+                $null = $output.AppendLine("## Embedded Instances")
+            }
+
             foreach ($embeddedSchema in $embeddedSchemas)
             {
                 $null = $output.AppendLine()
@@ -601,8 +607,8 @@ function New-DscMofResourceWikiPage
 
             $descriptionContent = Get-Content -Path $readmeFile.FullName -Raw
 
-            # Removing Resource name, which will else be added in the middle of the page
-            $descriptionContent = $descriptionContent -replace "# $($resourceSchema.FriendlyName)`r`n`r`n", ''
+            # Removing first two lines with resource name, which will else be added in the middle of the page
+            $descriptionContent = $descriptionContent -replace "^\s*#\s+.+\r?\n\r?\n", ''
             $null = $output.AppendLine()
             $null = $output.AppendLine($descriptionContent)
 
@@ -610,10 +616,10 @@ function New-DscMofResourceWikiPage
             $settingsFile = Join-Path -Path $mofSchemaFile.DirectoryName -ChildPath 'settings.json'
 
             $permissionsContent = New-Object -TypeName System.Text.StringBuilder
-            $null = $permissionsContent.AppendLine('## Permissions')
 
             if (Test-Path -Path $settingsFile)
             {
+                $null = $permissionsContent.AppendLine('## Permissions')
                 $settingsContent = Get-Content -Path $settingsFile -Raw
                 $settingsJson = ConvertFrom-Json -InputObject $settingsContent
 
@@ -663,7 +669,7 @@ function New-DscMofResourceWikiPage
                         {
                             $delegatedRead = $settingsJson.permissions.graph.delegated.read.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $delegatedRead")
+                        $null = $permissionsContent.AppendLine("  - $delegatedRead")
 
                         $null = $permissionsContent.AppendLine()
                         $null = $permissionsContent.AppendLine('- **Update**')
@@ -677,7 +683,7 @@ function New-DscMofResourceWikiPage
                         {
                             $delegatedUpdate = $settingsJson.permissions.graph.delegated.update.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $delegatedUpdate")
+                        $null = $permissionsContent.AppendLine("  - $delegatedUpdate")
 
                         $null = $permissionsContent.AppendLine()
                         $null = $permissionsContent.AppendLine('#### Application permissions')
@@ -693,7 +699,7 @@ function New-DscMofResourceWikiPage
                         {
                             $applicationRead = $settingsJson.permissions.graph.application.read.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $applicationRead")
+                        $null = $permissionsContent.AppendLine("  - $applicationRead")
 
                         $null = $permissionsContent.AppendLine()
                         $null = $permissionsContent.AppendLine('- **Update**')
@@ -707,7 +713,7 @@ function New-DscMofResourceWikiPage
                         {
                             $applicationUpdate = $settingsJson.permissions.graph.application.update.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $applicationUpdate")
+                        $null = $permissionsContent.AppendLine("  - $applicationUpdate")
                     }
 
                     # Microsoft SharePoint permissions
@@ -731,7 +737,7 @@ function New-DscMofResourceWikiPage
                         {
                             $delegatedRead = $settingsJson.permissions.sharepoint.delegated.read.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $delegatedRead")
+                        $null = $permissionsContent.AppendLine("  - $delegatedRead")
 
                         $null = $permissionsContent.AppendLine()
                         $null = $permissionsContent.AppendLine('- **Update**')
@@ -745,7 +751,7 @@ function New-DscMofResourceWikiPage
                         {
                             $delegatedUpdate = $settingsJson.permissions.sharepoint.delegated.update.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $delegatedUpdate")
+                        $null = $permissionsContent.AppendLine("  - $delegatedUpdate")
 
                         $null = $permissionsContent.AppendLine()
                         $null = $permissionsContent.AppendLine('#### Application permissions')
@@ -761,7 +767,7 @@ function New-DscMofResourceWikiPage
                         {
                             $applicationRead = $settingsJson.permissions.sharepoint.application.read.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $applicationRead")
+                        $null = $permissionsContent.AppendLine("  - $applicationRead")
 
                         $null = $permissionsContent.AppendLine()
                         $null = $permissionsContent.AppendLine('- **Update**')
@@ -775,7 +781,7 @@ function New-DscMofResourceWikiPage
                         {
                             $applicationUpdate = $settingsJson.permissions.sharepoint.application.update.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $applicationUpdate")
+                        $null = $permissionsContent.AppendLine("  - $applicationUpdate")
                     }
 
                     # ProjectWorkManagement API permissions
@@ -799,7 +805,7 @@ function New-DscMofResourceWikiPage
                         {
                             $delegatedRead = $settingsJson.permissions.ProjectWorkManagement.delegated.read.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $delegatedRead")
+                        $null = $permissionsContent.AppendLine("  - $delegatedRead")
 
                         $null = $permissionsContent.AppendLine()
                         $null = $permissionsContent.AppendLine('- **Update**')
@@ -813,7 +819,7 @@ function New-DscMofResourceWikiPage
                         {
                             $delegatedUpdate = $settingsJson.permissions.ProjectWorkManagement.delegated.update.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $delegatedUpdate")
+                        $null = $permissionsContent.AppendLine("  - $delegatedUpdate")
 
                         $null = $permissionsContent.AppendLine()
                         $null = $permissionsContent.AppendLine('#### Application permissions')
@@ -829,7 +835,7 @@ function New-DscMofResourceWikiPage
                         {
                             $applicationRead = $settingsJson.permissions.ProjectWorkManagement.application.read.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $applicationRead")
+                        $null = $permissionsContent.AppendLine("  - $applicationRead")
 
                         $null = $permissionsContent.AppendLine()
                         $null = $permissionsContent.AppendLine('- **Update**')
@@ -843,7 +849,7 @@ function New-DscMofResourceWikiPage
                         {
                             $applicationUpdate = $settingsJson.permissions.ProjectWorkManagement.application.update.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $applicationUpdate")
+                        $null = $permissionsContent.AppendLine("  - $applicationUpdate")
                     }
                 }
             }
@@ -874,7 +880,8 @@ function New-DscMofResourceWikiPage
                 -InputObject ($output.ToString() -replace '\r?\n', "`r`n") `
                 -FilePath $savePath `
                 -Encoding utf8 `
-                -Force:$Force
+                -Force:$Force `
+                -NoNewline
         }
         elseif ($readmeFile.Count -gt 1)
         {

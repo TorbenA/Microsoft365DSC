@@ -13,22 +13,18 @@ To authenticate with the Microsoft Graph API, this resource required the followi
 #### Delegated permissions
 
 - **Read**
-
-    - Agreement.Read.All
+  - Agreement.Read.All
 
 - **Update**
-
-    - Agreement.ReadWrite.All
+  - Agreement.ReadWrite.All
 
 #### Application permissions
 
 - **Read**
-
-    - Agreement.Read.All
+  - Agreement.Read.All
 
 - **Update**
-
-    - Agreement.ReadWrite.All
+  - Agreement.ReadWrite.All
 
 ## Examples
 
