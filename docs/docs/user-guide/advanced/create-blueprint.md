@@ -1,3 +1,5 @@
+# Create Microsoft365DSC Blueprints
+
 A Microsoft365DSC Blueprint is a configuration file that has been reviewed and approved by an organization and which has the .M365 extension instead of a .ps1 one. It can be hosted locally or on the web and is used to assess the current configuration of any Microsoft 365 tenant against it to generate a discrepancy report. Other than having a different file extension than a normal DSC configuration, a Microsoft365DSC Blueprint can also include metadata that will be included as contextual information within the discrepancy report for configuration settings that have been identified as being different on a given tenant.
 
 The following is an example of a blueprint snippet which contains metadata:

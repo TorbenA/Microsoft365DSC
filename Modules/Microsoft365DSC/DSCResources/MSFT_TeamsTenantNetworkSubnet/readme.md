@@ -1,4 +1,3 @@
-
 # TeamsTenantNetworkSubnet
 
 ## Description

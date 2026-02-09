@@ -1,4 +1,3 @@
-
 # TeamsAIPolicy
 
 ## Description

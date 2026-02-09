@@ -1,4 +1,3 @@
-
 # IntuneDeviceCompliancePolicyWindows10
 
 ## Description
@@ -72,6 +71,7 @@ The following table is an example of a range for the acceptable operating system
 Applies only to co-managed devices running Windows 10 and later. Intune-only devices return a not available status.
 
 **Require device compliance from Configuration Manager:**
+
 * Not configured _(default)_ - Intune doesn't check for any of the Configuration Manager settings for compliance.
 * Require - Require all settings (configuration items) in Configuration Manager to be compliant.
 
@@ -80,10 +80,12 @@ Applies only to co-managed devices running Windows 10 and later. Intune-only dev
 #### Password
 
 **Require a password to unlock mobile devices:**
+
 * Not configured _(default)_ - This setting isn't evaluated for compliance or non-compliance.
 * Require - Users must enter a password before they can access their device.
 
 **Simple passwords:**
+
 * Not configured _(default)_ - Users can create simple passwords, such as 1234 or 1111.
 * Block - Users can't create simple passwords, such as 1234 or 1111.
 

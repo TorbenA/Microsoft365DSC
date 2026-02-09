@@ -1,4 +1,3 @@
-
 # TeamsTenantNetworkRegion
 
 ## Description

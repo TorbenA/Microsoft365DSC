@@ -80,7 +80,7 @@ When a device is using an OS version later than the version in the rule, access 
 
   _This setting applies at the device level. If you only need to require a password at the Personally-Owned Work Profile level, then use a configuration policy. See Android Enterprise device configuration settings._
 
-* **Required password type:**
+**Required password type:**
 Choose if a password should include only numeric characters, or a mix of numerals and other characters. Your options:
 
 * Device Default

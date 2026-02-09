@@ -1,4 +1,3 @@
-
 # IntuneAccountProtectionLocalUserGroupMembershipPolicy
 
 ## Description

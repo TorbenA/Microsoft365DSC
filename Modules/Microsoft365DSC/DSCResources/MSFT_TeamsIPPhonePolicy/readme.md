@@ -1,4 +1,3 @@
-
 # TeamsIPPhonePolicy
 
 ## Description

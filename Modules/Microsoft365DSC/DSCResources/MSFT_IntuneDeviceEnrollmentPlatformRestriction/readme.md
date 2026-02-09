@@ -1,4 +1,3 @@
-
 # IntuneDeviceEnrollmentPlatformRestriction
 
 ## Description

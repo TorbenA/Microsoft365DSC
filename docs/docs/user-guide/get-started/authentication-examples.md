@@ -1,6 +1,8 @@
+# Authentication Examples
+
 When you have decided which authentication method to use and made sure all prerequisites (created an application registration and granted/consented permissions) are in place, you are ready to use the authentication method in a DSC configuration. This chapter shows examples of each of the Authentication Methods.
 
-### Example 1: Credentials
+## Example 1: Credentials
 
 This method is using credentials (username / password combination) for authentication and requires that the used credential is **NOT** configured to use Multi-Factor Authentication!
 
@@ -36,7 +38,7 @@ Configuration CredentialsExample
 
 **NOTE:** It is possible to use Conditional Access to restrict the locations from where this account is able to log into Microsoft 365. See <a href="https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-location" target="_blank">here for more information on Conditional Access</a>.
 
-### Example 2: Service Principal with Application Secret
+## Example 2: Service Principal with Application Secret
 
 This method is using a service principal with an application secret for authentication. In this case you have to specify the Application ID (found on the Application Registration page in the Azure Admin Portal), the Tenant ID (<tenantname>.onmicrosoft.com of your tenant) and application secret (generated value when creating a new secrets on the Application Registration page in the Azure Admin Portal).
 
@@ -78,7 +80,7 @@ Configuration ApplicationSecretExample
 }
 ```
 
-### Example 3: Service Principal with Certificate Thumbprint
+## Example 3: Service Principal with Certificate Thumbprint
 
 This method is using a service principal with a certificate thumbprint for authentication and requires that the used certificate is already imported into the local computer certificate store! With this method you have to specify the Application ID (found on the Application Registration page in the Azure Admin Portal), the Tenant ID (<tenantname>.onmicrosoft.com of your tenant) and the tumbprint of the certificate you added to the certificates page of the Application Registration in the Azure Admin Portal.
 
@@ -120,7 +122,7 @@ Configuration CertificateThumbprintExample
 }
 ```
 
-### Example 4: Service Principal with Certificate PFX file
+## Example 4: Service Principal with Certificate PFX file
 
 This method is using a service principal with a certificate PFX file and file password for authentication. To use this method you need to have an export of the certificate that was added to the certificates page of the Application Registration in the Azure Admin Portal. Then you have to specify the Application ID (found on the Application Registration page in the Azure Admin Portal), the Tenant ID (<tenantname>.onmicrosoft.com of your tenant), the path of the PFX file and the password of this PFX file.
 
@@ -167,7 +169,7 @@ Configuration CertificatePathExample
 }
 ```
 
-### Example 5: Managed Identity
+## Example 5: Managed Identity
 
 This method is using a Managed Identity instance. To use this method you need to have a Managed Identity set up (e.g. from an Azure Automation Account) and with the appropriate permissions assigned. Next, you need to specify the Tenant ID (<tenantname>.onmicrosoft.com of your tenant) in combination with the `ManagedIdentity` switch parameter.
 
@@ -204,7 +206,7 @@ Configuration ManagedIdentityExample
 }
 ```
 
-### Example 6: Access Tokens
+## Example 6: Access Tokens
 
 This method is using an Access Token. To use this method you need to first get the access token using e.g. `Get-AzAccessToken -ResourceUrl <resource or url>` for the type of resources you want to manage. For almost all of the AAD and all of the Intune resources, the `https://graph.microsoft.com` resource url is sufficient. However, for resources that require an additional connection (for example the `AADVerifiedIdAuthority` resource, it depends on the `AdminAPI` connection), you might need another scope. In the `AdminAPI` example, the resource url is `6a8b4b39-c021-437c-b060-5a14a3fd65f3` for an application access because it targets the `https://verifiedid.did.msidentity.com` endpoint. Next, you need to specify the Tenant ID (<tenantname>.onmicrosoft.com of your tenant) in combination with the `AccessTokens` parameter.
 

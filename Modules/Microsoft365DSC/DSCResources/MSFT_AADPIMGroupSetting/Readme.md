@@ -2,7 +2,4 @@
 
 ## Description
 
-This resource configure existing PIM Groups. All UI parameters can be configured using this resource like:
-
-- Notifications
-- require approval / ticket / justification / MFA
+This resource configures AAD PIM Group Settings.

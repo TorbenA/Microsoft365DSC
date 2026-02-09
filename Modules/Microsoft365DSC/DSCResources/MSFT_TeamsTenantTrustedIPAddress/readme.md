@@ -1,4 +1,3 @@
-
 # TeamsTenantTrustedIPAddress
 
 ## Description

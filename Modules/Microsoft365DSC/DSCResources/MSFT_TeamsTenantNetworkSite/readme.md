@@ -1,4 +1,3 @@
-
 # TeamsTenantNetworkSite
 
 ## Description
