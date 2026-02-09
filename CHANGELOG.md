@@ -15,6 +15,8 @@
   * Fixed an issue during module update where `Install-PSResource` throws
     an error if the module was installed in Windows PowerShell but the
     update attempt was performed in PowerShell 7.
+* MISC
+  * Aligned markdown documents and description to common standards.
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.58.
 

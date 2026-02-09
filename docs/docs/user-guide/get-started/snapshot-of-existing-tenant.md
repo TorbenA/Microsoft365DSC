@@ -1,7 +1,7 @@
 # Snapshot of an Existing Tenant
 
 The first thing that most folks using Microsoft365DSC will want to do is take a snapshot of an existing tenant they have access to and are familiar with.
-As soon as you install the Microsoft365DSC module on a system, it will automatically get access to run the [Export-M365DSCConfiguration](../cmdlets/Export-M365DSCConfiguration/") PowerShell cmdlet which is the main command for initiating a snapshot of an existing configuration.
+As soon as you install the Microsoft365DSC module on a system, it will automatically get access to run the [Export-M365DSCConfiguration](../cmdlets/Export-M365DSCConfiguration.md) PowerShell cmdlet which is the main command for initiating a snapshot of an existing configuration.
 
 In previous versions of the module, simply running the above cmdlet would automatically launch a Graphical User Interface that would allow you to pick and choose the components you wanted to capture the configuration for as part of your snapshot and initiate the capture process. Current versions of the module have moved to an unattended process by default, meaning that running the cmdlet will expect additional parameters by default and will then attempt to initiate the snapshot process automatically without further human interaction.
 
@@ -97,7 +97,7 @@ The Microsoft365DSC tenant configuration snapshot feature offers several options
 
 ### LaunchWebUI
 
-As mentioned above, the moment this switch is present when calling the **Export-M365DSCConfiguration** cmdlet it will launch new browser window and navigate to the export user interface at https://export.microsoft365dsc.com.
+As mentioned above, the moment this switch is present when calling the **Export-M365DSCConfiguration** cmdlet it will launch new browser window and navigate to the export user interface at <https://export.microsoft365dsc.com/>.
 
 ```PowerShell
 Export-M365DSCConfiguration -LaunchWebUI

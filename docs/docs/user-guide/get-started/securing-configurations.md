@@ -9,7 +9,7 @@ In the case where you are using credentials to authenticate to your tenant, you 
 
 ## Creating an encryption certificate
 
-To remediate this, PowerShell DSC let's us [use an encryption certificate to encrypt information about credentials in the MOF files](https://docs.microsoft.com/en-us/powershell/dsc/pull-server/securemof?view=dsc-1.1). To make this process easier for users, Microsoft365DSC defines a function named [Set-M365DSCAgentCertificateConfiguration](../cmdlets/Set-M365DSCAgentCertificateConfiguration) which will automatically generate an encryption certificate and configure the PowerShell DSC engine on the system to use it for encrypting the MOF files. The cmdlet will return the Thumbprint for the newly generated certificate.
+To remediate this, PowerShell DSC let's us [use an encryption certificate to encrypt information about credentials in the MOF files](https://docs.microsoft.com/en-us/powershell/dsc/pull-server/securemof?view=dsc-1.1). To make this process easier for users, Microsoft365DSC defines a function named [Set-M365DSCAgentCertificateConfiguration](../cmdlets/Set-M365DSCAgentCertificateConfiguration.md) which will automatically generate an encryption certificate and configure the PowerShell DSC engine on the system to use it for encrypting the MOF files. The cmdlet will return the Thumbprint for the newly generated certificate.
 
 <figure markdown>
   ![Example of cmdlet to generate LCM certificate](../../Images/ConfigureLCMCertificate.png)

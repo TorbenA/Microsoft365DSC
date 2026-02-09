@@ -159,7 +159,7 @@ Check out the links in the "More information" section below to learn more about 
 
 ### Determine Required Permissions
 
-In order to be able to interact with these components, you need to grant your application or the Microsoft Graph PowerShell one the proper permissions against the Microsoft Graph scope. To determine what permissions are required by a given component that uses Microsoft Graph, you can use the [Get-M365DSCCompiledPermissionList](../cmdlets/Get-M365DSCCompiledPermissionList) cmdlet and pass in the list of parameters for which you wish to grant permissions for.
+In order to be able to interact with these components, you need to grant your application or the Microsoft Graph PowerShell one the proper permissions against the Microsoft Graph scope. To determine what permissions are required by a given component that uses Microsoft Graph, you can use the [Get-M365DSCCompiledPermissionList](../cmdlets/Get-M365DSCCompiledPermissionList.md) cmdlet and pass in the list of parameters for which you wish to grant permissions for.
 
 <figure markdown>
   ![Example of how to check for the required permissions](../../Images/GetRequiredGraphPermissions.png)
@@ -185,11 +185,11 @@ Get-M365DSCCompiledPermissionList -ResourceNameList (Get-M365DSCAllResources)
   <figcaption>How to retrieve the Graph permissions for all resources</figcaption>
 </figure>
 
-The [Get-M365DSCAllResources](../cmdlets/Get-M365DSCAllResources/) cmdlet will return a list of all components available inside of the Microsoft365DSC solution which will then by passed in the **Get-M365DSCCompiledPermissionList** cmdlet which will compile the resulting permissions needed for the list of components it receives, in occurrence all of them. These permissions need to be granted to your application instance, either using the Azure portal or automating the process via PowerShell.
+The [Get-M365DSCAllResources](../cmdlets/Get-M365DSCAllResources.md) cmdlet will return a list of all components available inside of the Microsoft365DSC solution which will then by passed in the **Get-M365DSCCompiledPermissionList** cmdlet which will compile the resulting permissions needed for the list of components it receives, in occurrence all of them. These permissions need to be granted to your application instance, either using the Azure portal or automating the process via PowerShell.
 
 ### Providing Consent For Graph Permissions
 
-We provide an easy way of consenting permissions to the Delegated Permissions application "Microsoft Graph PowerShell" in your tenant with the [Update-M365DSCAllowedGraphScopes](../cmdlets/Update-M365DSCAllowedGraphScopes/) cmdlet. This cmdlet accepts either a list of components to grant the permissions for or can grant it for all resources if the **-All** switch is used. You also need to specify what type of permissions, Read or Update, you wish to grant it using the **-Type** parameter.
+We provide an easy way of consenting permissions to the Delegated Permissions application "Microsoft Graph PowerShell" in your tenant with the [Update-M365DSCAllowedGraphScopes](../cmdlets/Update-M365DSCAllowedGraphScopes.md) cmdlet. This cmdlet accepts either a list of components to grant the permissions for or can grant it for all resources if the **-All** switch is used. You also need to specify what type of permissions, Read or Update, you wish to grant it using the **-Type** parameter.
 
 <figure markdown>
   ![Consenting to requested Graph permissions](../../Images/AcceptGraphPermissions.png)
@@ -198,11 +198,11 @@ We provide an easy way of consenting permissions to the Delegated Permissions ap
 
 Executing the cmdlet will prompt you to authenticate using an administrator account that has access to consent permissions to Azure AD applications in your environment.
 
-**NOTE:** If you get the error "Device code terminal timed-out after 120 seconds", check out the [Troubleshooting section](../get-started/troubleshooting/#error-device-code-terminal-timed-out-after-120-seconds-please-try-again/)
+**NOTE:** If you get the error "Device code terminal timed-out after 120 seconds", check out the [Troubleshooting section](../get-started/troubleshooting.md#error-device-code-terminal-timed-out-after-120-seconds-please-try-again)
 
 ### Creating a custom Service Principal
 
-As mentioned earlier in this article, there is also the possibility to use Application permissions or custom Service Principal to authenticate against Microsoft 365. This custom Service Principal can be created and configured manually, but Microsoft365DSC also offers the [Update-M365DSCAzureAdApplication](../cmdlets/Update-M365DSCAzureAdApplication/) cmdlet. With this cmdlet, you can create the custom service application, grant the correct permissions, provide admin consent and create credentials (secret or certificate).
+As mentioned earlier in this article, there is also the possibility to use Application permissions or custom Service Principal to authenticate against Microsoft 365. This custom Service Principal can be created and configured manually, but Microsoft365DSC also offers the [Update-M365DSCAzureAdApplication](../cmdlets/Update-M365DSCAzureAdApplication.md) cmdlet. With this cmdlet, you can create the custom service application, grant the correct permissions, provide admin consent and create credentials (secret or certificate).
 
 ```PowerShell
 Update-M365DSCAzureAdApplication -ApplicationName 'Microsoft365DSC' -Permissions @(@{Api='SharePoint';PermissionName='Sites.FullControl.All'}) -AdminConsent -Type Secret -Credential (Get-Credential)
@@ -257,7 +257,7 @@ You should now be able to connect to SharePoint Online using an Application Secr
 
 ## Exchange Permissions
 
-For the Exchange Online resources, the service account needs certain permissions in order to be able to connect and manage the settings in Exchange Online. You can request the required permissions/roles and the corresponding rolegroups using the [Get-M365DSCCompiledPermissionList](../cmdlets/Get-M365DSCCompiledPermissionList) cmdlet.
+For the Exchange Online resources, the service account needs certain permissions in order to be able to connect and manage the settings in Exchange Online. You can request the required permissions/roles and the corresponding rolegroups using the [Get-M365DSCCompiledPermissionList](../cmdlets/Get-M365DSCCompiledPermissionList.md) cmdlet.
 
 To request the permissions,
 
@@ -272,7 +272,7 @@ Get-M365DSCCompiledPermissionList -ResourceNameList @('EXOAcceptedDomain')
 
 Then make sure your service account is a member of the specified Role Group or has been granted the required roles.
 
-> **NOTE:** There are resources, like the [EXOAddressList](../../resources/exchange/EXOAddressList) which roles by default are not granted to any of the default role groups. Make sure you grant these permissions correctly before using them.
+> **NOTE:** There are resources, like the [EXOAddressList](../../resources/exchange/EXOAddressList.md) which roles by default are not granted to any of the default role groups. Make sure you grant these permissions correctly before using them.
 
 When using Service Principals to authenticate against Exchange, make sure your Service Principal is created using [these instructions](https://learn.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2?view=exchange-ps#select-and-assign-the-api-permissions-from-the-portal).
 

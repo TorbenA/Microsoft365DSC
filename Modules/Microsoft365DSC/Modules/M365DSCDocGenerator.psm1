@@ -960,7 +960,7 @@ function Update-M365DSCResourceDocumentationPage
             { $targetFolder = 'commerce'
             }
             'Defender*'
-            { $targetFolder = 'Defender'
+            { $targetFolder = 'defender'
             }
             'EXO*'
             { $targetFolder = 'exchange'
