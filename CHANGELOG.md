@@ -8,23 +8,98 @@
   * Fixed an issue where `BannedPasswordList` could be null.
 * AADPIMGroupSetting
   * Fixed an issue where typed variables could lead to an exception.
+* AADUser
+  * Fixed an export issue where a user was deleted during a long-running job.
+    FIXES [#5703](https://github.com/microsoft/Microsoft365DSC/issues/5703)
 * EXOIRMConfiguration
   * Changed the parameters `LicensingLocation` and `RMSOnlineKeySharingLocation`
     to `System.String` instead of an implicit conversion to `System.Uri`.
 * EXOMigration
   * Fixed an issue where `UserEmails` could contain empty strings.
+* FabricAdmintenantsettings
+  * Refreshed the property list.
+   FIXES [#6866](https://github.com/microsoft/Microsoft365DSC/issues/6866)
 * IntuneDeviceEnrollmentStatusPageWindows10
   * Fixed an issue where `SelectedMobileAppNames` could contain empty strings
     during the execution of `Test-TargetResoure`.
+* O365OrgSettings
+  * Changed how errors are handled to fail instead of returning false drifts.
+    FIXES [#6787](https://github.com/microsoft/Microsoft365DSC/issues/6787)
 * SCPolicyConfig
   * Fixed an issue where the sub-property `JustificationText` could contain
     empty strings.
+* TeamsDialInConferencingTenantSettings
+  * Fixed an issue where the properties `MigrateServiceNumbersOnCrossForestMove`
+    and `UseUniqueConferenceIds` were not rendered correctly in the
+    documentation
+    FIXES [#6890](https://github.com/microsoft/Microsoft365DSC/issues/6890)
+* M365DSCUtil
+  * Fixed an issue during module update where `Install-PSResource` throws
+    an error if the module was installed in Windows PowerShell but the
+    update attempt was performed in PowerShell 7.
+* DEPENDENCIES
+  * Removed dependency on `PSDesiredStateConfiguration`.
+  * Updated MSCloudLoginAssistant to version 1.1.58.
+
+# 1.26.128.1
+
+* EXOMailboxFolderPermission
+  * Fixed an issue where `AccessRights` was not exported properly.
+* EXOTransportRule
+  * Updated logic to properly handle the Enabled property.
+* IntuneAntivirusPolicyWindows10SettingCatalog
+  * Fixed an issue where the property `TamperProtection` was renamed to
+    `ControlledConfiguration` in the Settings Catalog backend.
+    FIXES [#6855](https://github.com/microsoft/Microsoft365DSC/issues/6855)
+* IntuneCloudProvisioningPolicyWindows365
+  * Fixed an issue where `ireland` was not a recognized country.
+    FIXES [#6830](https://github.com/microsoft/Microsoft365DSC/issues/6830)
+* IntuneDeviceFeaturesConfigurationPolicyIOS
+  * Fixed an issue where home screen folders were not configurable.
+    FIXES [#6836](https://github.com/microsoft/Microsoft365DSC/issues/6836)
+* O365OrgSettings
+  * Fixed an issue where comparing empty app installation options failed.
+    FIXES [#6812](https://github.com/microsoft/Microsoft365DSC/issues/6812)
+* SCSecurityFilter
+  * Fixed an issue where connecting to the service was not possible.
+    FIXES [#6798](https://github.com/microsoft/Microsoft365DSC/issues/6798)
+* SPOTenantSettings
+  * Fixing the empty array casting for AllowSelectSGsInODBListInTenant,
+    DenySelectSGsInODBListInTenant,DenySelectSecurityGroupsInSPSitesList
+    and AllowSelectSecurityGroupsInSPSitesList in Get-TargetResource.
+* M365DSCPermissions
+  * Fixed an issue where Purview permissions were not in the correct format.
+    FIXES [#6822](https://github.com/microsoft/Microsoft365DSC/issues/6822)
+* DEPENDENCIES
+  * Updated MSCloudLoginAssistant to version 1.1.57.
+* M365DSCUtil
+  * Removed the parameter `SkipModuleReload` from `New-M365DSCConnection`.
+* MISC
+  * Removed the `SkipModuleReload` logic from all resources.
+
+# 1.26.121.1
+
+* AADGroup
+  * Removed caching for the groups role assignments which was causing
+    performance issues in the Get-TargetResource.
+* AADRoleAssignmentScheduleRequest
+  * FIXES [#6810](https://github.com/microsoft/Microsoft365DSC/issues/6810)
+* AADRoleEligibilityScheduleRequest
+  * FIXES [#6810](https://github.com/microsoft/Microsoft365DSC/issues/6810)
+* M365DSCRuleEvaluation
+  * Fixes for an issue where the resource was complaining about the `Name`
+    parameter missing.
+* SPOSiteGroup
+  * Fixed a condition mismatch during export resulting in repeated logins.
 * M365DSCPermissions
   * Changed the output of `Get-M365DSCCompiledPermissionList` to show the
     required Read and Update permissions for `Roles` and `RoleGroups`.
 * M365DSCTelemetryEngine
   * Added a function to test if telemetry is enabled.
 * M365DSCUtil
+  * Added the output of the drift event to the screen in Verbose mode.
+    FIXES [#6666](https://github.com/microsoft/Microsoft365DSC/issues/6666)
+  * Added the parameter `-WithStatistics` to `Export-M365DSCConfiguration`.
   * Fixed an issue where the module is not being updated if installed
     with `Install-PSResource` because the filter condition was incorrect.
 * MISC
@@ -35,7 +110,8 @@
   * Updated the structure of all EXO settings.json files that contain the
     `Roles` and `RoleGroups` properties.
 * DEPENDENCIES
-  * Removed dependency on `PSDesiredStateConfiguration`.
+  * Fixed a case typo in `RequiredVersion` of a dependency.
+    FIXES [#6815](https://github.com/microsoft/Microsoft365DSC/issues/6815)
   * Updated ReverseDSC to version 2.0.0.31.
 
 # 1.26.114.1

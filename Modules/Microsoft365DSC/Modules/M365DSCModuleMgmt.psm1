@@ -754,7 +754,26 @@ function Update-M365DSCModule
             if ($Script:IsPsResourceGetAvailable)
             {
                 Write-Verbose -Message "Updating the Microsoft365DSC module using Update-PSResource..."
-                Update-PSResource -Name 'Microsoft365DSC' -Scope $Scope -TrustRepository -AcceptLicense -SkipDependencyCheck -Repository $BaseRepository
+                try
+                {
+                    Update-PSResource -Name 'Microsoft365DSC' -Scope $Scope `
+                        -TrustRepository -AcceptLicense -SkipDependencyCheck `
+                        -Repository $BaseRepository -ErrorAction Stop
+                }
+                catch
+                {
+                    if ($_.Exception.Message -like "*No installed packages*")
+                    {
+                        Write-Verbose -Message "Microsoft365DSC was neither installed using Install-Module nor Install-PSResource. Skipping update check."
+                    }
+                    else
+                    {
+                        New-M365DSCLogEntry -Message 'Error Updating Module:' `
+                            -Exception $_ `
+                            -Source $($MyInvocation.MyCommand.Source)
+                        throw $_
+                    }
+                }
             }
         }
     }

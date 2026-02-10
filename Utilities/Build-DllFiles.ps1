@@ -53,6 +53,15 @@ try {
     exit 1
 }
 
+$nugetSource = "https://api.nuget.org/v3/index.json"
+$currentNugetSources = (dotnet nuget list source --format short) -join ", "
+if (-not ($currentNugetSources -like "*$nugetSource*")) {
+    Write-Host "Adding NuGet source: $nugetSource" -ForegroundColor Yellow
+    dotnet nuget add source $nugetSource --name "nuget.org"
+} else {
+    Write-Host "NuGet source already configured: $nugetSource" -ForegroundColor Green
+}
+
 function Build-Project {
     param(
         [Parameter(Mandatory = $true)]

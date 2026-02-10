@@ -34,7 +34,7 @@
         },
         @{
             ModuleName      = 'Microsoft.Graph.Beta.Applications'
-            Requiredversion = '2.28.0'
+            RequiredVersion = '2.28.0'
         },
         @{
             ModuleName      = 'Microsoft.Graph.Authentication'
@@ -130,7 +130,7 @@
         },
         @{
             ModuleName      = "MSCloudLoginAssistant"
-            RequiredVersion = "1.1.56"
+            RequiredVersion = "1.1.58"
         },
         @{
             ModuleName      = 'PnP.PowerShell'
