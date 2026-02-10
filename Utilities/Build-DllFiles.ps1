@@ -144,7 +144,7 @@ function Build-Project {
     }
 
     Write-Host ""
-    Write-Host "✓ Build completed successfully!" -ForegroundColor Green
+    Write-Host "Build completed successfully!" -ForegroundColor Green
     Write-Host "Output location: $targetDir" -ForegroundColor Cyan
 
     # Display file information
