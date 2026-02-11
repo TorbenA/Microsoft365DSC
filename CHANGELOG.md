@@ -14,6 +14,11 @@
 * O365SearchAndIntelligenceConfiguration
   * Expanded try/catch logic to cover all code paths in Get.
     FIXES [#6788](https://github.com/microsoft/Microsoft365DSC/issues/6788)
+* TeamsDialInConferencingTenantSettings
+  * Fixed an issue where the properties `MigrateServiceNumbersOnCrossForestMove`
+    and `UseUniqueConferenceIds` were not rendered correctly in the
+    documentation
+    FIXES [#6890](https://github.com/microsoft/Microsoft365DSC/issues/6890)
 * M365DSCUtil
   * Fixed an issue during module update where `Install-PSResource` throws
     an error if the module was installed in Windows PowerShell but the
