@@ -187,8 +187,8 @@ namespace Microsoft365DSC.Compare
                                     throw new NotSupportedException($"Comparing {desiredType.FullName} with {typeof(SimpleObjectComparer).Name} is not supported.");
                                 }
 
-                                AddDriftInfo(driftObject, key, currentValues[key] as string ?? string.Empty, desiredValue.ToString());
-                                AddDriftedParameter(driftedParameters, key, currentValues[key] as string ?? string.Empty, desiredValue.ToString());
+                                AddDriftInfo(driftObject, key, currentValues[key]?.ToString() ?? string.Empty, desiredValue.ToString());
+                                AddDriftedParameter(driftedParameters, key, currentValues[key]?.ToString() ?? string.Empty, desiredValue.ToString());
                                 returnValue = false;
                                 break;
                         }
