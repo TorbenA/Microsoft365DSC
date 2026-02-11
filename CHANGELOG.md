@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.26.211.1
 
 * AADUser
   * Fixed an export issue where a user was deleted during a long-running job.
