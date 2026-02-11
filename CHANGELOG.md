@@ -14,6 +14,11 @@
 * M365DSCReport
   * Added missing Metadata processing when generating reports.
     FIXES [#6865](https://github.com/microsoft/Microsoft365DSC/issues/6865)
+* TeamsDialInConferencingTenantSettings
+  * Fixed an issue where the properties `MigrateServiceNumbersOnCrossForestMove`
+    and `UseUniqueConferenceIds` were not rendered correctly in the
+    documentation
+    FIXES [#6890](https://github.com/microsoft/Microsoft365DSC/issues/6890)
 * M365DSCUtil
   * Fixed an issue during module update where `Install-PSResource` throws
     an error if the module was installed in Windows PowerShell but the
