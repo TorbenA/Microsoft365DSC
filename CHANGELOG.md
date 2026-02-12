@@ -11,19 +11,43 @@
     FIXES [#6459](https://github.com/microsoft/Microsoft365DSC/issues/6459)
     FIXES [#6416](https://github.com/microsoft/Microsoft365DSC/issues/6416)
     FIXES [#5712](https://github.com/microsoft/Microsoft365DSC/issues/5712)
+
+# 1.26.211.1
+
 * AADUser
   * Fixed an export issue where a user was deleted during a long-running job.
     FIXES [#5703](https://github.com/microsoft/Microsoft365DSC/issues/5703)
+* IntuneRoleAssignment
+  * Fixed an issue where properties were omitted during Set and testing
+    did not work with display names.
+    FIXES [#6881](https://github.com/microsoft/Microsoft365DSC/issues/6881)
 * FabricAdmintenantsettings
   * Refreshed the property list.
    FIXES [#6866](https://github.com/microsoft/Microsoft365DSC/issues/6866)
 * O365OrgSettings
   * Changed how errors are handled to fail instead of returning false drifts.
    FIXES [#6787](https://github.com/microsoft/Microsoft365DSC/issues/6787)
+* O365SearchAndIntelligenceConfiguration
+  * Expanded try/catch logic to cover all code paths in Get.
+    FIXES [#6788](https://github.com/microsoft/Microsoft365DSC/issues/6788)
+* SPOSearchManagedProperty
+  * Fixed an issue when connecting to the SPO AdminUrl.
+    FIXES [#6787](https://github.com/microsoft/Microsoft365DSC/issues/6787)
+* TeamsDialInConferencingTenantSettings
+  * Fixed an issue where the properties `MigrateServiceNumbersOnCrossForestMove`
+    and `UseUniqueConferenceIds` were not rendered correctly in the
+    documentation
+    FIXES [#6890](https://github.com/microsoft/Microsoft365DSC/issues/6890)
 * M365DSCUtil
   * Fixed an issue during module update where `Install-PSResource` throws
     an error if the module was installed in Windows PowerShell but the
     update attempt was performed in PowerShell 7.
+  * Fixed an issue where `Export-M365DSCConfiguration` would stop
+    exporting resources after an error on Azure DevOps & GitHub.
+    FIXES [#6862](https://github.com/microsoft/Microsoft365DSC/issues/6862)
+* M365DSCPermissions
+  * Fixed an issue when selecting a property for the result.
+    FIXES [#6882](https://github.com/microsoft/Microsoft365DSC/issues/6882)
 * DEPENDENCIES
   * Updated MSCloudLoginAssistant to version 1.1.58.
 
