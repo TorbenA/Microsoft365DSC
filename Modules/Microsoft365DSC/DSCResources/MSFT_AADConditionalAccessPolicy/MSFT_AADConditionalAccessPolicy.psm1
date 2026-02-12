@@ -1123,10 +1123,24 @@ function Set-TargetResource
             $IncludeApplicationsValue = @()
             foreach ($app in $IncludeApplications)
             {
+                if ($app -in @('MicrosoftAdminPortals', 'Office365'))
+                {
+                    $IncludeApplicationsValue += $app
+                    continue
+                }
+
                 $objectGuid = [System.Guid]::Empty
                 if ([System.Guid]::TryParse($app, [ref]$objectGuid))
                 {
-                    $IncludeApplicationsValue += $app
+                    $appInfo = Get-MgServicePrincipal -Filter "AppId eq '$app'" -ErrorAction SilentlyContinue
+                    if ($null -ne $appInfo)
+                    {
+                        $IncludeApplicationsValue += $app
+                    }
+                    else
+                    {
+                        throw "Couldn't find IncludedApplication '$app' for conditional access policy '$DisplayName'."
+                    }
                 }
                 else
                 {
@@ -1137,7 +1151,7 @@ function Set-TargetResource
                     }
                     else
                     {
-                        $IncludeApplicationsValue += $app
+                        throw "Couldn't find IncludedApplication '$app' for conditional access policy '$DisplayName'."
                     }
                 }
             }
@@ -1149,21 +1163,35 @@ function Set-TargetResource
             $ExcludeApplicationsValue = @()
             foreach ($app in $ExcludeApplications)
             {
+                if ($app -in @('MicrosoftAdminPortals', 'Office365'))
+                {
+                    $ExcludeApplicationsValue += $app
+                    continue
+                }
+
                 $objectGuid = [System.Guid]::Empty
                 if ([System.Guid]::TryParse($app, [ref]$objectGuid))
                 {
-                    $ExcludeApplicationsValue += $app
+                    $appInfo = Get-MgServicePrincipal -Filter "AppId eq '$app'" -ErrorAction SilentlyContinue
+                    if ($null -ne $appInfo)
+                    {
+                        $ExcludeApplicationsValue += $app
+                    }
+                    else
+                    {
+                        throw "Couldn't find ExcludedApplication '$app' for conditional access policy '$DisplayName'."
+                    }
                 }
                 else
                 {
-                    $appInfo = Get-MgApplication -Filter "DisplayName eq '$($app -replace "'", "''")'" -ErrorAction SilentlyContinue
+                    $appInfo = Get-MgServicePrincipal -Filter "DisplayName eq '$($app -replace "'", "''")'" -ErrorAction SilentlyContinue
                     if ($null -ne $appInfo)
                     {
                         $ExcludeApplicationsValue += $appInfo.AppId
                     }
                     else
                     {
-                        $ExcludeApplicationsValue += $app
+                        throw "Couldn't find ExcludedApplication '$app' for conditional access policy '$DisplayName'."
                     }
                 }
             }
