@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADConditionalAccessPolicy
+  * Added application name resolution and fix warning messages.
+    FIXES [#6902](https://github.com/microsoft/Microsoft365DSC/issues/6902)
+
 # 1.26.211.1
 
 * AADUser

@@ -365,12 +365,7 @@ function Get-TargetResource
                     }
                     catch
                     {
-                        $message = "Couldn't find IncludedUser '$IncludeUserGUID', that is defined in policy '$PolicyDisplayName'. Skipping user."
-                        New-M365DSCLogEntry -Message $message `
-                            -Exception $_ `
-                            -Source $($MyInvocation.MyCommand.Source) `
-                            -TenantId $TenantId `
-                            -Credential $Credential
+                        Write-Warning -Message "Couldn't find IncludedUser '$IncludeUserGUID', that is defined in policy '$PolicyDisplayName'. Skipping user."
                         continue
                     }
                     if ($IncludeUser)
@@ -401,12 +396,7 @@ function Get-TargetResource
                     }
                     catch
                     {
-                        $message = "Couldn't find ExcludedUser '$ExcludeUserGUID', that is defined in policy '$PolicyDisplayName'. Skipping user."
-                        New-M365DSCLogEntry -Message $message `
-                            -Exception $_ `
-                            -Source $($MyInvocation.MyCommand.Source) `
-                            -TenantId $TenantId `
-                            -Credential $Credential
+                        Write-Warning -Message "Couldn't find ExcludedUser '$ExcludeUserGUID', that is defined in policy '$PolicyDisplayName'. Skipping user."
                         continue
                     }
                     if ($ExcludeUser)
@@ -435,12 +425,7 @@ function Get-TargetResource
                 }
                 catch
                 {
-                    $message = "Couldn't find IncludedGroup '$IncludeGroupGUID', that is defined in policy '$PolicyDisplayName'. Skipping group."
-                    New-M365DSCLogEntry -Message $message `
-                        -Exception $_ `
-                        -Source $($MyInvocation.MyCommand.Source) `
-                        -TenantId $TenantId `
-                        -Credential $Credential
+                    Write-Warning -Message "Couldn't find IncludedGroup '$IncludeGroupGUID', that is defined in policy '$PolicyDisplayName'. Skipping group."
                     continue
                 }
                 if ($IncludeGroup)
@@ -464,12 +449,7 @@ function Get-TargetResource
                 }
                 catch
                 {
-                    $message = "Couldn't find ExcludedGroup '$ExcludeGroupGUID', that is defined in policy '$PolicyDisplayName'. Skipping group."
-                    New-M365DSCLogEntry -Message $message `
-                        -Exception $_ `
-                        -Source $($MyInvocation.MyCommand.Source) `
-                        -TenantId $TenantId `
-                        -Credential $Credential
+                    Write-Warning -Message "Couldn't find ExcludedGroup '$ExcludeGroupGUID', that is defined in policy '$PolicyDisplayName'. Skipping group."
                     continue
                 }
                 if ($ExcludeGroup)
@@ -499,11 +479,7 @@ function Get-TargetResource
                 {
                     if ($null -eq $rolelookup[$IncludeRoleGUID])
                     {
-                        $message = "Couldn't find IncludedRole '$IncludeRoleGUID', that is defined in policy '$PolicyDisplayName'. Skipping role."
-                        New-M365DSCLogEntry -Message $message `
-                            -Source $($MyInvocation.MyCommand.Source) `
-                            -TenantId $TenantId `
-                            -Credential $Credential
+                        Write-Warning -Message "Couldn't find IncludedRole '$IncludeRoleGUID', that is defined in policy '$PolicyDisplayName'. Skipping role."
                     }
                     else
                     {
@@ -519,11 +495,7 @@ function Get-TargetResource
                 {
                     if ($null -eq $rolelookup[$ExcludeRoleGUID])
                     {
-                        $message = "Couldn't find ExcludedRole '$ExcludeRoleGUID', that is defined in policy '$PolicyDisplayName'. Skipping role."
-                        New-M365DSCLogEntry -Message $message `
-                            -Source $($MyInvocation.MyCommand.Source) `
-                            -TenantId $TenantId `
-                            -Credential $Credential
+                        Write-Warning -Message "Couldn't find ExcludedRole '$ExcludeRoleGUID', that is defined in policy '$PolicyDisplayName'. Skipping role."
                     }
                     else
                     {
@@ -561,11 +533,7 @@ function Get-TargetResource
                     }
                     elseif ($null -eq $Locationlookup[$IncludeLocationGUID])
                     {
-                        $message = "Couldn't find Location $IncludeLocationGUID , couldn't add to policy $PolicyDisplayName"
-                        New-M365DSCLogEntry -Message $message `
-                            -Source $($MyInvocation.MyCommand.Source) `
-                            -TenantId $TenantId `
-                            -Credential $Credential
+                        Write-Warning -Message "Couldn't find Location $IncludeLocationGUID , couldn't add to policy $PolicyDisplayName"
                     }
                     else
                     {
@@ -589,11 +557,7 @@ function Get-TargetResource
                     }
                     elseif ($null -eq $Locationlookup[$ExcludeLocationGUID])
                     {
-                        $message = "Couldn't find Location $ExcludeLocationGUID , couldn't add to policy $PolicyDisplayName"
-                        New-M365DSCLogEntry -Message $message `
-                            -Source $($MyInvocation.MyCommand.Source) `
-                            -TenantId $TenantId `
-                            -Credential $Credential
+                        Write-Warning -Message "Couldn't find Location $ExcludeLocationGUID , couldn't add to policy $PolicyDisplayName"
                     }
                     else
                     {
@@ -691,13 +655,63 @@ function Get-TargetResource
             $DisableResilienceDefaultsIsEnabledValue = [Boolean]::Parse($Policy.SessionControls.disableResilienceDefaults.isEnabled)
         }
 
+        $includeApplicationsValue = @()
+        if ($Policy.Conditions.Applications.IncludeApplications)
+        {
+            foreach ($app in $Policy.Conditions.Applications.IncludeApplications)
+            {
+                $appGuid = [System.Guid]::Empty
+                if ([System.Guid]::TryParse($app, [ref]$appGuid))
+                {
+                    $appInfo = Get-MgServicePrincipal -Filter "AppId eq '$appGuid'" -ErrorAction SilentlyContinue
+                    if ($null -ne $appInfo)
+                    {
+                        $includeApplicationsValue += $appInfo.DisplayName
+                    }
+                    else
+                    {
+                        Write-Warning -Message "Couldn't find IncludedApplication '$app', that is defined in policy '$PolicyDisplayName'. Skipping application."
+                    }
+                }
+                else
+                {
+                    $includeApplicationsValue += $app
+                }
+            }
+        }
+
+        $excludeApplicationsValue = @()
+        if ($Policy.Conditions.Applications.ExcludeApplications)
+        {
+            foreach ($app in $Policy.Conditions.Applications.ExcludeApplications)
+            {
+                $appGuid = [System.Guid]::Empty
+                if ([System.Guid]::TryParse($app, [ref]$appGuid))
+                {
+                    $appInfo = Get-MgServicePrincipal -Filter "AppId eq '$appGuid'" -ErrorAction SilentlyContinue
+                    if ($null -ne $appInfo)
+                    {
+                        $excludeApplicationsValue += $appInfo.DisplayName
+                    }
+                    else
+                    {
+                        Write-Warning -Message "Couldn't find ExcludedApplication '$app', that is defined in policy '$PolicyDisplayName'. Skipping application."
+                    }
+                }
+                else
+                {
+                    $excludeApplicationsValue += $app
+                }
+            }
+        }
+
         $result = @{
             DisplayName                              = $Policy.DisplayName
             Id                                       = $Policy.Id
             State                                    = $Policy.State
-            IncludeApplications                      = [System.String[]](@() + $Policy.Conditions.Applications.IncludeApplications)
+            IncludeApplications                      = [System.String[]]$includeApplicationsValue
             #no translation of Application GUIDs, return empty string array if undefined
-            ExcludeApplications                      = [System.String[]](@() + $Policy.Conditions.Applications.ExcludeApplications)
+            ExcludeApplications                      = [System.String[]]$excludeApplicationsValue
             ApplicationsFilter                       = $Policy.Conditions.Applications.ApplicationFilter.Rule
             ApplicationsFilterMode                   = $Policy.Conditions.Applications.ApplicationFilter.Mode
             #no translation of GUIDs, return empty string array if undefined
@@ -1109,14 +1123,14 @@ function Set-TargetResource
             $IncludeApplicationsValue = @()
             foreach ($app in $IncludeApplications)
             {
-                $ObjectGuid = [System.Guid]::empty
-                if ([System.Guid]::TryParse($app, [System.Management.Automation.PSReference]$ObjectGuid))
+                $objectGuid = [System.Guid]::Empty
+                if ([System.Guid]::TryParse($app, [ref]$objectGuid))
                 {
                     $IncludeApplicationsValue += $app
                 }
                 else
                 {
-                    $appInfo = Get-MgApplication -Filter "DisplayName eq '$($app -replace "'", "''")'" -ErrorAction SilentlyContinue
+                    $appInfo = Get-MgServicePrincipal -Filter "DisplayName eq '$($app -replace "'", "''")'" -ErrorAction SilentlyContinue
                     if ($null -ne $appInfo)
                     {
                         $IncludeApplicationsValue += $appInfo.AppId
@@ -1135,8 +1149,8 @@ function Set-TargetResource
             $ExcludeApplicationsValue = @()
             foreach ($app in $ExcludeApplications)
             {
-                $ObjectGuid = [System.Guid]::empty
-                if ([System.Guid]::TryParse($app, [System.Management.Automation.PSReference]$ObjectGuid))
+                $objectGuid = [System.Guid]::Empty
+                if ([System.Guid]::TryParse($app, [ref]$objectGuid))
                 {
                     $ExcludeApplicationsValue += $app
                 }
@@ -1199,33 +1213,8 @@ function Set-TargetResource
                 {
                     if ($includeuser -notin 'GuestsOrExternalUsers', 'All', 'None')
                     {
-                        $userguid = $null
-                        try
-                        {
-                            $userguid = (Get-MgUser -UserId $includeuser -ErrorAction Stop).Id
-                        }
-                        catch
-                        {
-                            New-M365DSCLogEntry -Message 'Error updating data:' `
-                                -Exception $_ `
-                                -Source $($MyInvocation.MyCommand.Source) `
-                                -TenantId $TenantId `
-                                -Credential $Credential
-                            throw $_
-                        }
-                        if ($null -eq $userguid)
-                        {
-                            $message = "Couldn't find user '$includeuser', couldn't add to policy '$DisplayName'"
-                            New-M365DSCLogEntry -Message $message `
-                                -Source $($MyInvocation.MyCommand.Source) `
-                                -TenantId $TenantId `
-                                -Credential $Credential
-                            throw $message
-                        }
-                        else
-                        {
-                            $conditions.users.includeUsers += $userguid
-                        }
+                        $userguid = (Get-MgUser -UserId $includeuser -ErrorAction Stop).Id
+                        $conditions.users.includeUsers += $userguid
                     }
                     else
                     {
@@ -1250,33 +1239,8 @@ function Set-TargetResource
                 {
                     if ($excludeuser -notin 'GuestsOrExternalUsers', 'All', 'None')
                     {
-                        $userguid = $null
-                        try
-                        {
-                            $userguid = (Get-MgUser -UserId $excludeuser -ErrorAction Stop).Id
-                        }
-                        catch
-                        {
-                            New-M365DSCLogEntry -Message 'Error updating data:' `
-                                -Exception $_ `
-                                -Source $($MyInvocation.MyCommand.Source) `
-                                -TenantId $TenantId `
-                                -Credential $Credential
-                            throw $_
-                        }
-                        if ($null -eq $userguid)
-                        {
-                            $message = "Couldn't find user '$excludeuser', couldn't add to policy '$DisplayName'"
-                            New-M365DSCLogEntry -Message $message `
-                                -Source $($MyInvocation.MyCommand.Source) `
-                                -TenantId $TenantId `
-                                -Credential $Credential
-                            throw $message
-                        }
-                        else
-                        {
-                            $conditions.users.excludeUsers += $userguid
-                        }
+                        $userguid = (Get-MgUser -UserId $excludeuser -ErrorAction Stop).Id
+                        $conditions.users.excludeUsers += $userguid
                     }
                     else
                     {
@@ -1299,43 +1263,19 @@ function Set-TargetResource
                 #translate user Group names to GUID
                 if ($includegroup)
                 {
-                    $GroupLookup = $null
-                    try
+                    $groupLookup = Get-MgGroup -Filter "DisplayName eq '$($includegroup -replace "'", "''")'" -ErrorAction Stop
+
+                    if ($groupLookup.Count -gt 1)
                     {
-                        $GroupLookup = Get-MgGroup -Filter "DisplayName eq '$($includegroup -replace "'", "''")'" -ErrorAction Stop
+                        throw "More than one group found with displayname '$includegroup', couldn't add to policy '$DisplayName'"
                     }
-                    catch
+                    elseif ($null -eq $groupLookup)
                     {
-                        New-M365DSCLogEntry -Message 'Error updating data:' `
-                            -Exception $_ `
-                            -Source $($MyInvocation.MyCommand.Source) `
-                            -TenantId $TenantId `
-                            -Credential $Credential
-                        throw $_
+                        throw "Couldn't find group '$includegroup', couldn't add to policy '$DisplayName'"
                     }
-                    if ($GroupLookup.Length -gt 1)
-                    {
-                        $message = "Duplicate group found with displayname '$includegroup', couldn't add to policy '$DisplayName'"
-                        New-M365DSCLogEntry -Message $message `
-                            -Source $($MyInvocation.MyCommand.Source) `
-                            -TenantId $TenantId `
-                            -Credential $Credential
-                        throw $message
-                    }
-                    elseif ($null -eq $GroupLookup)
-                    {
-                        $message = "Couldn't find group '$includegroup', couldn't add to policy '$DisplayName'"
-                        New-M365DSCLogEntry -Message $message `
-                            -Source $($MyInvocation.MyCommand.Source) `
-                            -TenantId $TenantId `
-                            -Credential $Credential
-                        throw $message
-                    }
-                    else
-                    {
-                        Write-Verbose -Message 'Adding group to includegroups'
-                        $conditions.Users.IncludeGroups += $GroupLookup.Id
-                    }
+
+                    Write-Verbose -Message 'Adding group to includegroups'
+                    $conditions.Users.IncludeGroups += $GroupLookup.Id
                 }
             }
         }
@@ -1353,43 +1293,19 @@ function Set-TargetResource
                 #translate user Group names to GUID
                 if ($ExcludeGroup)
                 {
-                    $GroupLookup = $null
-                    try
+                    $groupLookup = Get-MgGroup -Filter "DisplayName eq '$($ExcludeGroup -replace "'", "''")'" -ErrorAction Stop
+
+                    if ($groupLookup.Count -gt 1)
                     {
-                        $GroupLookup = Get-MgGroup -Filter "DisplayName eq '$($ExcludeGroup -replace "'", "''")'" -ErrorAction Stop
-                    }
-                    catch
-                    {
-                        New-M365DSCLogEntry -Message 'Error updating data:' `
-                            -Exception $_ `
-                            -Source $($MyInvocation.MyCommand.Source) `
-                            -TenantId $TenantId `
-                            -Credential $Credential
-                        throw $_
-                    }
-                    if ($GroupLookup.Length -gt 1)
-                    {
-                        $message = "Duplicate group found with displayname '$ExcludeGroup', couldn't add to policy '$DisplayName'"
-                        New-M365DSCLogEntry -Message $message `
-                            -Source $($MyInvocation.MyCommand.Source) `
-                            -TenantId $TenantId `
-                            -Credential $Credential
-                        throw $message
+                        throw "More than one group found with displayname '$ExcludeGroup', couldn't add to policy '$DisplayName'"
                     }
                     elseif ($null -eq $GroupLookup)
                     {
-                        $message = "Couldn't find group '$ExcludeGroup', couldn't add to policy '$DisplayName'"
-                        New-M365DSCLogEntry -Message $message `
-                            -Source $($MyInvocation.MyCommand.Source) `
-                            -TenantId $TenantId `
-                            -Credential $Credential
-                        throw $message
+                        throw "Couldn't find group '$ExcludeGroup', couldn't add to policy '$DisplayName'"
                     }
-                    else
-                    {
-                        Write-Verbose -Message 'Adding group to ExcludeGroups'
-                        $conditions.users.excludeGroups += $GroupLookup.Id
-                    }
+
+                    Write-Verbose -Message 'Adding group to ExcludeGroups'
+                    $conditions.users.excludeGroups += $GroupLookup.Id
                 }
             }
         }
@@ -1416,12 +1332,7 @@ function Set-TargetResource
                     {
                         if ($null -eq $rolelookup[$IncludeRole])
                         {
-                            $message = "Couldn't find role '$IncludeRole', couldn't add to policy '$DisplayName'"
-                            New-M365DSCLogEntry -Message $message `
-                                -Source $($MyInvocation.MyCommand.Source) `
-                                -TenantId $TenantId `
-                                -Credential $Credential
-                            throw $message
+                            throw "Couldn't find role '$IncludeRole', couldn't add to policy '$DisplayName'"
                         }
                         else
                         {
@@ -1454,12 +1365,7 @@ function Set-TargetResource
                     {
                         if ($null -eq $rolelookup[$ExcludeRole])
                         {
-                            $message = "Couldn't find role '$ExcludeRole', couldn't add to policy '$DisplayName'"
-                            New-M365DSCLogEntry -Message $message `
-                                -Source $($MyInvocation.MyCommand.Source) `
-                                -TenantId $TenantId `
-                                -Credential $Credential
-                            throw $message
+                            throw "Couldn't find role '$ExcludeRole', couldn't add to policy '$DisplayName'"
                         }
                         else
                         {
@@ -1471,7 +1377,7 @@ function Set-TargetResource
         }
 
         Write-Verbose -Message 'Set-Targetresource: process includeGuestOrExternalUser'
-        If ($currentParameters.ContainsKey('IncludeGuestOrExternalUserTypes'))
+        if ($currentParameters.ContainsKey('IncludeGuestOrExternalUserTypes'))
         {
             if (-not $conditions.ContainsKey('users'))
             {
@@ -1506,7 +1412,7 @@ function Set-TargetResource
         }
 
         Write-Verbose -Message 'Set-Targetresource: process excludeGuestsOrExternalUsers'
-        If ($currentParameters.ContainsKey('ExcludeGuestOrExternalUserTypes'))
+        if ($currentParameters.ContainsKey('ExcludeGuestOrExternalUserTypes'))
         {
             if (-not $conditions.ContainsKey('users'))
             {
@@ -1762,7 +1668,7 @@ function Set-TargetResource
 
         Write-Verbose -Message 'Set-Targetresource: process risk levels and app types'
         Write-Verbose -Message "Set-Targetresource: UserRiskLevels: $UserRiskLevels"
-        If ($currentParameters.ContainsKey('UserRiskLevels'))
+        if ($currentParameters.ContainsKey('UserRiskLevels'))
         {
             $Conditions.Add('userRiskLevels', $UserRiskLevels)
             #no translation or conversion needed
@@ -1770,7 +1676,7 @@ function Set-TargetResource
 
 
         Write-Verbose -Message "Set-Targetresource: SignInRiskLevels: $SignInRiskLevels"
-        If ($currentParameters.ContainsKey('SignInRiskLevels'))
+        if ($currentParameters.ContainsKey('SignInRiskLevels'))
         {
             $Conditions.Add('signInRiskLevels', $SignInRiskLevels)
             #no translation or conversion needed
@@ -1778,7 +1684,7 @@ function Set-TargetResource
 
 
         Write-Verbose -Message "Set-Targetresource: ClientAppTypes: $ClientAppTypes"
-        If ($currentParameters.ContainsKey('ClientAppTypes'))
+        if ($currentParameters.ContainsKey('ClientAppTypes'))
         {
             $Conditions.Add('clientAppTypes', $ClientAppTypes)
             #no translation or conversion needed
