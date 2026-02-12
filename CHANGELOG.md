@@ -1,5 +1,14 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile
+  * Fixed an issue where unmodifiable profiles were exported.
+    FIXES [#6889](https://github.com/microsoft/Microsoft365DSC/issues/6889)
+* TeamsOrgWideAppSettings
+  * Fixed an issue where updating the settings would fail.
+    FIXES [#6900](https://github.com/microsoft/Microsoft365DSC/issues/6900)
+
 # 1.26.211.1
 
 * AADUser
