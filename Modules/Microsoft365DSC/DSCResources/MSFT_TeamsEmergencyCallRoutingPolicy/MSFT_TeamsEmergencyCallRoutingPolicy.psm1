@@ -334,6 +334,10 @@ function Export-TargetResource
     param
     (
         [Parameter()]
+        [System.String]
+        $Filter = "*",
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -376,7 +380,7 @@ function Export-TargetResource
     try
     {
         $i = 1
-        [array]$policies = Get-CsTeamsEmergencyCallRoutingPolicy -ErrorAction Stop
+        [array]$policies = Get-CsTeamsEmergencyCallRoutingPolicy -Filter $Filter -ErrorAction Stop
         $dscContent = ''
         Write-M365DSCHost -Message "`r`n" -DeferWrite
         foreach ($policy in $policies)

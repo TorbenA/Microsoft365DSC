@@ -27,6 +27,7 @@
 * IntuneTermsAndConditions
   * Initial release.
 * MISC
+  * Added filter support across all resources where filtering is applicable.
   * Aligned markdown documents and description to common standards.
 
 # 1.26.218.1
