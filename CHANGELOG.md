@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* EXOServicePrincipal
+  * Fixed an issue where the permissions were not correctly defined.
 * IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile
   * Fixed an issue where unmodifiable profiles were exported.
     FIXES [#6889](https://github.com/microsoft/Microsoft365DSC/issues/6889)
