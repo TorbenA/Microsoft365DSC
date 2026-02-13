@@ -897,6 +897,10 @@ function Export-TargetResource
     param
     (
         [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -944,6 +948,7 @@ function Export-TargetResource
     {
         [array]$getValue = Get-MgBetaEntitlementManagementAccessPackageAssignmentPolicy `
             -All `
+            -Filter $Filter `
             -ErrorAction Stop
 
         $i = 1

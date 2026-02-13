@@ -7,8 +7,8 @@ function Get-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [System.String]
         [ValidateSet('Yes')]
+        [System.String]
         $IsSingleInstance,
 
         [Parameter()]
@@ -203,8 +203,8 @@ function Set-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [System.String]
         [ValidateSet('Yes')]
+        [System.String]
         $IsSingleInstance,
 
         [Parameter()]
@@ -341,8 +341,8 @@ function Test-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [System.String]
         [ValidateSet('Yes')]
+        [System.String]
         $IsSingleInstance,
 
         [Parameter()]

@@ -315,6 +315,10 @@ function Export-TargetResource
     param
     (
         [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -360,7 +364,16 @@ function Export-TargetResource
 
     try
     {
-        [array]$getValue = Get-MgBetaIdentityProvider -All -ErrorAction Stop | Where-Object -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.socialIdentityProvider' }
+        $baseFilter = "isof('microsoft.graph.socialIdentityProvider')"
+        if (-not [System.String]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = Get-MgBetaIdentityProvider -All -Filter $Filter -ErrorAction Stop
 
         $i = 1
         $dscContent = ''

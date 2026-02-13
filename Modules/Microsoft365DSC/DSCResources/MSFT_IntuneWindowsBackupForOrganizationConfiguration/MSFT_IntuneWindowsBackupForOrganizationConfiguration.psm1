@@ -8,8 +8,9 @@ function Get-TargetResource
     (
         #region resource generator code
         [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
         [System.String]
-        $IsSingleInstance = 'Yes',
+        $IsSingleInstance,
 
         [Parameter()]
         [ValidateSet('notConfigured','enabled','disabled')]
@@ -121,8 +122,9 @@ function Set-TargetResource
     (
         #region resource generator code
         [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
         [System.String]
-        $IsSingleInstance = 'Yes',
+        $IsSingleInstance,
 
         [Parameter()]
         [ValidateSet('notConfigured','enabled','disabled')]
@@ -191,8 +193,9 @@ function Test-TargetResource
     (
         #region resource generator code
         [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
         [System.String]
-        $IsSingleInstance = 'Yes',
+        $IsSingleInstance,
 
         [Parameter()]
         [ValidateSet('notConfigured','enabled','disabled')]
