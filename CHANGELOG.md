@@ -4,6 +4,10 @@
 
 * AADConditionalAccessPolicy
   * Fixed an issue where arrays could contain empty strings.
+* AADGroup
+  * Added sort by `DisplayName` during export.
+* AADGroupsNamingPolicy
+  * Fixed an issue where arrays could contain empty strings.
 * EXOServicePrincipal
   * Fixed an issue where the permissions were not correctly defined.
 * IntuneDeviceConfigurationPolicyMacOS

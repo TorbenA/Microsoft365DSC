@@ -1230,6 +1230,7 @@ function Export-TargetResource
             All         = [switch]$true
             ExpandProperty = 'members'
             ErrorAction = 'Stop'
+            Sort        = 'DisplayName'
         }
 
         # Define the list of attributes

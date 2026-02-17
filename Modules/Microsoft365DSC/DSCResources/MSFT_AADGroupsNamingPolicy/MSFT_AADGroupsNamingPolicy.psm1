@@ -85,10 +85,18 @@ function Get-TargetResource
             Write-Verbose 'Found existing AzureAD Groups Naming Policy'
             $valuePrefix = $Policy.Values | Where-Object -FilterScript { $_.Name -eq 'PrefixSuffixNamingRequirement' }
             $valueBlockedWords = $Policy.Values | Where-Object -FilterScript { $_.Name -eq 'CustomBlockedWordsList' }
+            $customBlockedWordsListValue = @()
+            if (-not [System.String]::IsNullOrEmpty($valueBlockedWords.Value))
+            {
+                foreach ($word in $valueBlockedWords.Value.Split(','))
+                {
+                    $customBlockedWordsListValue += $word
+                }
+            }
             $result = @{
                 IsSingleInstance              = 'Yes'
                 PrefixSuffixNamingRequirement = $valuePrefix.Value
-                CustomBlockedWordsList        = $valueBlockedWords.Value.Split(',')
+                CustomBlockedWordsList        = $customBlockedWordsListValue
                 Ensure                        = 'Present'
                 Credential                    = $Credential
                 ApplicationId                 = $ApplicationId
