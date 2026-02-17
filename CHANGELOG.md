@@ -4,6 +4,8 @@
 
 * EXOServicePrincipal
   * Fixed an issue where the permissions were not correctly defined.
+* IntuneDeviceConfigurationPolicyMacOS
+  * Fixed an issue where empty strings were exported in an array.
 * IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile
   * Fixed an issue where unmodifiable profiles were exported.
     FIXES [#6889](https://github.com/microsoft/Microsoft365DSC/issues/6889)
