@@ -11,6 +11,11 @@
     FIXES [#6459](https://github.com/microsoft/Microsoft365DSC/issues/6459)
     FIXES [#6416](https://github.com/microsoft/Microsoft365DSC/issues/6416)
     FIXES [#5712](https://github.com/microsoft/Microsoft365DSC/issues/5712)
+* DEPENDENCIES
+  * Updated ExchangeOnlineManagement to version 3.9.2.
+  * Updated Microsoft.Graph to version 2.35.1.
+  * Updated MicrosoftTeams to version 7.6.0.
+  * Updated MSCloudLoginAssistant to version 1.1.59.
 
 # 1.26.211.1
 
