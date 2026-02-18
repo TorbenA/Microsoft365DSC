@@ -235,7 +235,6 @@ This function creates a new Markdown document from the specified exported config
 .Functionality
 Internal, Hidden
 #>
-
 function New-M365DSCConfigurationToMarkdown
 {
     [CmdletBinding()]
@@ -2104,6 +2103,15 @@ function New-M365DSCDeltaReport
                             ValueInSource      = $driftInfo.CurrentValue
                             ValueInDestination = $driftInfo.DesiredValue
                         })
+                    }
+
+                    if ($destinationResource.ContainsKey("_metadata_$($driftInfo.PropertyName)"))
+                    {
+                        $Metadata = $destinationResource."_metadata_$($driftInfo.PropertyName)"
+                        $Level = $Metadata.Split('|')[0].Replace('### ', '')
+                        $Information = $Metadata.Split('|')[1]
+                        $Delta[-1].Properties[0].Add('_Metadata_Level', $Level)
+                        $Delta[-1].Properties[0].Add('_Metadata_Info', $Information)
                     }
                 }
                 $Global:AllDrifts.DriftInfo = @()

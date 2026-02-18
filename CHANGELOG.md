@@ -20,6 +20,9 @@
 * TeamsOrgWideAppSettings
   * Fixed an issue where updating the settings would fail.
     FIXES [#6900](https://github.com/microsoft/Microsoft365DSC/issues/6900)
+* M365DSCReport
+  * Added missing Metadata processing when generating reports.
+    FIXES [#6865](https://github.com/microsoft/Microsoft365DSC/issues/6865)
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.2.
   * Updated Microsoft.Graph to version 2.35.1.
@@ -40,7 +43,7 @@
    FIXES [#6866](https://github.com/microsoft/Microsoft365DSC/issues/6866)
 * O365OrgSettings
   * Changed how errors are handled to fail instead of returning false drifts.
-   FIXES [#6787](https://github.com/microsoft/Microsoft365DSC/issues/6787)
+    FIXES [#6787](https://github.com/microsoft/Microsoft365DSC/issues/6787)
 * O365SearchAndIntelligenceConfiguration
   * Expanded try/catch logic to cover all code paths in Get.
     FIXES [#6788](https://github.com/microsoft/Microsoft365DSC/issues/6788)
