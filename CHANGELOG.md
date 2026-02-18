@@ -6,6 +6,8 @@
   * Fixed an issue where arrays could contain empty strings.
 * AADGroup
   * Added sort by `DisplayName` during export.
+  * Fixed an issue where group members were not always returned.
+    FIXES [#6854](https://github.com/microsoft/Microsoft365DSC/issues/6854)
 * AADGroupsNamingPolicy
   * Fixed an issue where arrays could contain empty strings.
 * EXOServicePrincipal
