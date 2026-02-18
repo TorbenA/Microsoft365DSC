@@ -10,6 +10,8 @@
   * Fixed an issue where group members were not always returned.
     FIXES [#6854](https://github.com/microsoft/Microsoft365DSC/issues/6854)
 * M365DSCReport
+  * Added missing Metadata processing when generating reports.
+    FIXES [#6865](https://github.com/microsoft/Microsoft365DSC/issues/6865)
   * Moved custom header in between HTML tags.
 * M365DSCUtil
   * Updated the drift information to join array elements with a comma.
