@@ -367,7 +367,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present')
@@ -376,31 +375,26 @@ function Set-TargetResource
 
         $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
-
         $UpdateParameters.Remove('Id') | Out-Null
 
         $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.GetType().Name -like '*cimInstance*')
+            if ($key -eq 'IncludeTargets' -or $key -eq 'ExcludeTargets')
             {
-                $UpdateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
-            }
-            if ($key -eq 'ExcludeTargets' -or $key -eq 'IncludeTargets')
-            {
+                Write-Verbose -Message "Processing $key for update"
                 $i = 0
                 foreach ($entry in $UpdateParameters.$key)
                 {
                     if ($entry.id -notmatch '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$|all_users')
                     {
-                        $Filter = "DisplayName eq '$($entry.id -replace "'", "''")'"
-                        Write-Verbose -Message "Retrieving {$key} Group with DisplayName {$($entry.id)}"
-                        $GroupInstance = Get-MgGroup -Filter $Filter -ErrorAction SilentlyContinue
-                        if ($null -ne $GroupInstance)
+                        $filter = "DisplayName eq '$($entry.id -replace "'", "''")'" | Out-String
+                        $group = Get-MgGroup -Filter $filter
+                        if ($null -eq $group)
                         {
-                            Write-Verbose -Message "Found {$key} Group {$($GroupInstance.id.ToString())}"
-                            $UpdateParameters.$key[$i].id = $GroupInstance.id.ToString()
+                            throw "Failed to find group with name {$($entry.id)} for AAD Authentication Method Policy X509 {$($currentInstance.Id)}"
                         }
+                        $UpdateParameters.$key[$i].id = $group.Id
                     }
                     $i++
                 }

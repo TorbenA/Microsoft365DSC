@@ -6,11 +6,6 @@ function Get-TargetResource
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        [ValidateSet('Global')]
-        $Identity,
-
         [Parameter()]
         [System.String[]]
         $AllowedDomains,
@@ -52,6 +47,11 @@ function Get-TargetResource
         [Parameter()]
         [System.Boolean]
         $RestrictTeamsConsumerToExternalUserProfiles,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
+        [System.String]
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -98,10 +98,6 @@ function Get-TargetResource
                 -Parameters $PSBoundParameters
             Add-M365DSCTelemetryEvent -Data $data
             #endregion
-
-            $nullReturn = @{
-                Identity = 'Global'
-            }
         }
 
         $config = Get-CsTenantFederationConfiguration -ErrorAction Stop
@@ -129,7 +125,6 @@ function Get-TargetResource
         }
 
         return @{
-            Identity                                    = $Identity
             AllowedDomains                              = $AllowedDomainsValues
             BlockedDomains                              = $BlockedDomainsValues
             AllowFederatedUsers                         = $config.AllowFederatedUsers
@@ -140,6 +135,7 @@ function Get-TargetResource
             TreatDiscoveredPartnersAsUnverified         = $config.TreatDiscoveredPartnersAsUnverified
             SharedSipAddressSpace                       = $config.SharedSipAddressSpace
             RestrictTeamsConsumerToExternalUserProfiles = $config.RestrictTeamsConsumerToExternalUserProfiles
+            IsSingleInstance                            = 'Yes'
             Credential                                  = $Credential
             ApplicationId                               = $ApplicationId
             TenantId                                    = $TenantId
@@ -165,11 +161,6 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        [ValidateSet('Global')]
-        $Identity,
-
         [Parameter()]
         [System.String[]]
         $AllowedDomains,
@@ -211,6 +202,11 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $RestrictTeamsConsumerToExternalUserProfiles,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
+        [System.String]
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -269,7 +265,8 @@ function Set-TargetResource
         }
     }
 
-    Write-Verbose -Message "SetParams: $(Convert-M365DscHashtableToString -Hashtable $SetParams)"
+    $SetParams.Add('Identity', 'Global')
+    $SetParams.Remove('IsSingleInstance') | Out-Null
     Set-CsTenantFederationConfiguration @SetParams
 }
 
@@ -279,11 +276,6 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        [ValidateSet('Global')]
-        $Identity,
-
         [Parameter()]
         [System.String[]]
         $AllowedDomains,
@@ -325,6 +317,11 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $RestrictTeamsConsumerToExternalUserProfiles,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
+        [System.String]
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -415,7 +412,7 @@ function Export-TargetResource
     {
         $dscContent = ''
         $params = @{
-            Identity              = 'Global'
+            IsSingleInstance      = 'Yes'
             Credential            = $Credential
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId

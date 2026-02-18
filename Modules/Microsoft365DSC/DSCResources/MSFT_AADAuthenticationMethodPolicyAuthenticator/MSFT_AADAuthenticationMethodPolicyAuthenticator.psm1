@@ -663,21 +663,19 @@ function Set-TargetResource
             }
             if ($key -eq 'IncludeTargets' -or $key -eq 'ExcludeTargets')
             {
+                Write-Verbose -Message "Processing $key for update"
                 $i = 0
                 foreach ($entry in $UpdateParameters.$key)
                 {
                     if ($entry.id -notmatch '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$|all_users')
                     {
-                        $Filter = "DisplayName eq '$($entry.id -replace "'", "''")'" | Out-String
-                        $group = Get-MgGroup -Filter $Filter
-                        if ($null -ne $group)
+                        $filter = "DisplayName eq '$($entry.id -replace "'", "''")'" | Out-String
+                        $group = Get-MgGroup -Filter $filter
+                        if ($null -eq $group)
                         {
-                            $UpdateParameters.$key[$i].ForEach('id', $group.id.ToString())
+                            throw "Failed to find group with name {$($entry.id)} for AAD Authentication Method Policy Authenticator {$($currentInstance.Id)}"
                         }
-                        else
-                        {
-                            Write-Verbose -Message "Couldn't find group with DisplayName {$($entry.id)}"
-                        }
+                        $UpdateParameters.$key[$i].id = $group.Id
                     }
                     $i++
                 }

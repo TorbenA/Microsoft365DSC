@@ -6,7 +6,7 @@ function Get-TargetResource
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $DisplayName,
 
@@ -26,10 +26,10 @@ function Get-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance]
         $ServicePrincipalRestrictions,
 
-        [Parameter()]
-        [ValidateSet('Present', 'Absent')]
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
         [System.String]
-        $Ensure = 'Present',
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -162,7 +162,7 @@ function Get-TargetResource
             IsEnabled                    = $instance.IsEnabled
             ApplicationRestrictions      = $appRestrictionsValue
             ServicePrincipalRestrictions = $spnRestrictionsValue
-            Ensure                       = 'Present'
+            IsSingleInstance             = 'Yes'
             Credential                   = $Credential
             ApplicationId                = $ApplicationId
             TenantId                     = $TenantId
@@ -189,7 +189,7 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $DisplayName,
 
@@ -209,10 +209,10 @@ function Set-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance]
         $ServicePrincipalRestrictions,
 
-        [Parameter()]
-        [ValidateSet('Present', 'Absent')]
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
         [System.String]
-        $Ensure = 'Present',
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -323,6 +323,7 @@ function Set-TargetResource
     }
 
     $setParameters.ServicePrincipalRestrictions = $spnRestrictionsValue
+    $setParams.Remove('IsSingleInstance') | Out-Null
 
     Write-Verbose -Message "Updating the Default App Management Policy"
     Update-MgBetaPolicyDefaultAppManagementPolicy @setParameters
@@ -334,7 +335,7 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $DisplayName,
 
@@ -354,10 +355,10 @@ function Test-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance]
         $ServicePrincipalRestrictions,
 
-        [Parameter()]
-        [ValidateSet('Present', 'Absent')]
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
         [System.String]
-        $Ensure = 'Present',
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -473,7 +474,7 @@ function Export-TargetResource
             $displayedKey = $config.DisplayName
             Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Count)] $displayedKey" -DeferWrite
             $params = @{
-                DisplayName           = $config.DisplayName
+                IsSingleInstance      = 'Yes'
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId
                 TenantId              = $TenantId

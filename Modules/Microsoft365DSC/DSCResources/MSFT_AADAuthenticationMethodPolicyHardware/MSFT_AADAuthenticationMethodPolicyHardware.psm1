@@ -306,32 +306,21 @@ function Set-TargetResource
         $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
         foreach ($key in $keys)
         {
-            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.GetType().Name -like '*cimInstance*')
+            if ($key -eq 'IncludeTargets' -or $key -eq 'ExcludeTargets')
             {
-                $UpdateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
-            }
-            if ($key -eq 'IncludeTargets')
-            {
+                Write-Verbose -Message "Processing $key for update"
                 $i = 0
                 foreach ($entry in $UpdateParameters.$key)
                 {
                     if ($entry.id -notmatch '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$|all_users')
                     {
-                        $Filter = "DisplayName eq '$($entry.id -replace "'", "''")'" | Out-String
-                        $UpdateParameters.$key[$i].foreach('id', (Get-MgGroup -Filter $Filter).id.ToString())
-                    }
-                    $i++
-                }
-            }
-            if ($key -eq 'ExcludeTargets')
-            {
-                $i = 0
-                foreach ($entry in $UpdateParameters.$key)
-                {
-                    if ($entry.id -notmatch '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$|all_users')
-                    {
-                        $Filter = "DisplayName eq '$($entry.id -replace "'", "''")'" | Out-String
-                        $UpdateParameters.$key[$i].foreach('id', (Get-MgGroup -Filter $Filter).id.ToString())
+                        $filter = "DisplayName eq '$($entry.id -replace "'", "''")'" | Out-String
+                        $group = Get-MgGroup -Filter $filter
+                        if ($null -eq $group)
+                        {
+                            throw "Failed to find group with name {$($entry.id)} for AAD Authentication Method Policy Hardware {$($currentInstance.Id)}"
+                        }
+                        $UpdateParameters.$key[$i].id = $group.Id
                     }
                     $i++
                 }
@@ -376,7 +365,6 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $Id,
-
         #endregion
 
         [Parameter()]

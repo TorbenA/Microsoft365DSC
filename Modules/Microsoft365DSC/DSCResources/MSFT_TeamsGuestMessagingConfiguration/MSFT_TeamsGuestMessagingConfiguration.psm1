@@ -6,11 +6,6 @@ function Get-TargetResource
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        [ValidateSet('Global')]
-        $Identity,
-
         [Parameter()]
         [System.Boolean]
         $AllowUserEditMessage,
@@ -51,6 +46,11 @@ function Get-TargetResource
         [Parameter()]
         [System.Boolean]
         $UsersCanDeleteBotMessages,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
+        [System.String]
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -79,31 +79,26 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting configuration of Teams Guest Messaging settings'
 
-    $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = @{
-        Identity = 'Global'
-    }
-
     try
     {
+        $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+            -InboundParameters $PSBoundParameters
+
+        #Ensure the proper dependencies are installed in the current environment.
+        Confirm-M365DSCDependencies
+
+        #region Telemetry
+        $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+        $CommandName = $MyInvocation.MyCommand
+        $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+            -CommandName $CommandName `
+            -Parameters $PSBoundParameters
+        Add-M365DSCTelemetryEvent -Data $data
+        #endregion
+
         $config = Get-CsTeamsGuestMessagingConfiguration -ErrorAction Stop
 
         return @{
-            Identity                  = $Identity
             AllowUserEditMessage      = $config.AllowUserEditMessage
             AllowUserDeleteMessage    = $config.AllowUserDeleteMessage
             AllowUserChat             = $config.AllowUserChat
@@ -114,6 +109,7 @@ function Get-TargetResource
             AllowStickers             = $config.AllowStickers
             AllowImmersiveReader      = $config.AllowImmersiveReader
             UsersCanDeleteBotMessages = $config.UsersCanDeleteBotMessages
+            IsSingleInstance          = 'Yes'
             Credential                = $Credential
             ApplicationId             = $ApplicationId
             TenantId                  = $TenantId
@@ -139,11 +135,6 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        [ValidateSet('Global')]
-        $Identity,
-
         [Parameter()]
         [System.Boolean]
         $AllowUserEditMessage,
@@ -184,6 +175,11 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $UsersCanDeleteBotMessages,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
+        [System.String]
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -242,6 +238,8 @@ function Set-TargetResource
     #endregion
 
     $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $SetParams.Add('Identity', 'Global')
+    $SetParams.Remove('IsSingleInstance') | Out-Null
     Set-CsTeamsGuestMessagingConfiguration @SetParams
 }
 
@@ -251,11 +249,6 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        [ValidateSet('Global')]
-        $Identity,
-
         [Parameter()]
         [System.Boolean]
         $AllowUserEditMessage,
@@ -296,6 +289,11 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $UsersCanDeleteBotMessages,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
+        [System.String]
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -386,7 +384,7 @@ function Export-TargetResource
     {
         $dscContent = ''
         $params = @{
-            Identity              = 'Global'
+            IsSingleInstance      = 'Yes'
             Credential            = $Credential
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId

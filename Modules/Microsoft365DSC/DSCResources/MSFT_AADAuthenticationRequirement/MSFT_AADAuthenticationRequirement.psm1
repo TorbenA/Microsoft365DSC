@@ -15,6 +15,11 @@ function Get-TargetResource
         [System.String]
         $UserPrincipalName,
 
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
+        [System.String]
+        $IsSingleInstance,
+
         [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
@@ -65,16 +70,13 @@ function Get-TargetResource
             Add-M365DSCTelemetryEvent -Data $data
             #endregion
 
-            $nullResult = $PSBoundParameters
-
             $getValue = $null
             $url = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/users/$UserPrincipalName/authentication/requirements"
             $getValue = Invoke-MgGraphRequest -Method Get -Uri $url
 
             if ($null -eq $getValue)
             {
-                Write-Verbose -Message "Could not find an Azure AD Authentication Requirement for user with UPN {$UserPrincipalName}"
-                return $nullResult
+                throw "Could not find an Azure AD Authentication Requirement for user with UPN {$UserPrincipalName}"
             }
         }
         else
@@ -87,6 +89,7 @@ function Get-TargetResource
         $results = @{
             PerUserMfaState       = $getValue.perUserMfaState
             UserPrincipalName     = $UserPrincipalName
+            IsSingleInstance      = 'Yes'
             Credential            = $Credential
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
@@ -123,6 +126,11 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $UserPrincipalName,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
+        [System.String]
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -184,6 +192,7 @@ function Set-TargetResource
         }
     }
 
+    $params.Remove('IsSingleInstance') | Out-Null
     $jsonParams = $params | ConvertTo-Json
 
     Invoke-MgGraphRequest -Method PATCH -Uri $url -Body $jsonParams
@@ -203,6 +212,11 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $UserPrincipalName,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
+        [System.String]
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -329,6 +343,7 @@ function Export-TargetResource
             Write-M365DSCHost -Message "    |---[$i/$($getValue.Count)] $displayedKey" -DeferWrite
             $params = @{
                 UserPrincipalName     = $config.UserPrincipalName
+                IsSingleInstance      = 'Yes'
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId
                 TenantId              = $TenantId

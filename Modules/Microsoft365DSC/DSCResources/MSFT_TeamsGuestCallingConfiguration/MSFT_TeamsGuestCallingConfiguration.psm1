@@ -7,13 +7,13 @@ function Get-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [System.String]
-        [ValidateSet('Global')]
-        $Identity,
-
-        [Parameter(Mandatory = $true)]
         [System.Boolean]
         $AllowPrivateCalling,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
+        [System.String]
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -42,32 +42,28 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting configuration of Teams Guest Calling'
 
-    $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = @{
-        Identity = 'Global'
-    }
-
     try
     {
+        $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+            -InboundParameters $PSBoundParameters
+
+        #Ensure the proper dependencies are installed in the current environment.
+        Confirm-M365DSCDependencies
+
+        #region Telemetry
+        $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+        $CommandName = $MyInvocation.MyCommand
+        $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+            -CommandName $CommandName `
+            -Parameters $PSBoundParameters
+        Add-M365DSCTelemetryEvent -Data $data
+        #endregion
+
         $config = Get-CsTeamsGuestCallingConfiguration -ErrorAction Stop
 
         $result = @{
-            Identity              = $config.Identity
             AllowPrivateCalling   = $config.AllowPrivateCalling
+            IsSingleInstance      = 'Yes'
             Credential            = $Credential
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
@@ -95,13 +91,13 @@ function Set-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [System.String]
-        [ValidateSet('Global')]
-        $Identity,
-
-        [Parameter(Mandatory = $true)]
         [System.Boolean]
         $AllowPrivateCalling,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
+        [System.String]
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -144,6 +140,8 @@ function Set-TargetResource
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
     $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $SetParams.Add('Identity', 'Global')
+    $SetParams.Remove('IsSingleInstance') | Out-Null
 
     if ($AllowPrivateCalling -ne $CurrentValues.AllowPrivateCalling)
     {
@@ -158,13 +156,13 @@ function Test-TargetResource
     param
     (
         [Parameter(Mandatory = $true)]
-        [System.String]
-        [ValidateSet('Global')]
-        $Identity,
-
-        [Parameter(Mandatory = $true)]
         [System.Boolean]
         $AllowPrivateCalling,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
+        [System.String]
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]

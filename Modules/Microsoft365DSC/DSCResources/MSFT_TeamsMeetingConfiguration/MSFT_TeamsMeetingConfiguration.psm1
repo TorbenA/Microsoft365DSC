@@ -6,11 +6,6 @@ function Get-TargetResource
     [OutputType([System.Collections.Hashtable])]
     param
     (
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        [ValidateSet('Global')]
-        $Identity,
-
         [Parameter()]
         [System.String]
         $LogoURL,
@@ -79,6 +74,11 @@ function Get-TargetResource
         [System.Boolean]
         $ClientMediaPortRangeEnabled,
 
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
+        [System.String]
+        $IsSingleInstance,
+
         [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
@@ -106,31 +106,27 @@ function Get-TargetResource
 
     Write-Verbose -Message 'Getting configuration of Teams Meeting'
 
-    $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
-        -InboundParameters $PSBoundParameters
-
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullReturn = @{
-        Identity = 'Global'
-    }
-
     try
     {
+        $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+            -InboundParameters $PSBoundParameters
+
+        #Ensure the proper dependencies are installed in the current environment.
+        Confirm-M365DSCDependencies
+
+        #region Telemetry
+        $ResourceName = $MyInvocation.MyCommand.ModuleName -replace 'MSFT_', ''
+        $CommandName = $MyInvocation.MyCommand
+        $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+            -CommandName $CommandName `
+            -Parameters $PSBoundParameters
+        Add-M365DSCTelemetryEvent -Data $data
+        #endregion
+
         $config = Get-CsTeamsMeetingConfiguration -ErrorAction Stop
 
         return @{
-            Identity                               = $Identity
+            IsSingleInstance                        = 'Yes'
             LogoURL                                = $config.LogoURL
             LegalURL                               = $config.LegalURL
             HelpURL                                = $config.HelpURL
@@ -172,11 +168,6 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        [ValidateSet('Global')]
-        $Identity,
-
         [Parameter()]
         [System.String]
         $LogoURL,
@@ -244,6 +235,11 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $ClientMediaPortRangeEnabled,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
+        [System.String]
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -288,6 +284,8 @@ function Set-TargetResource
         -InboundParameters $PSBoundParameters
 
     $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $SetParams.Add('Identity', 'Global')
+    $SetParams.Remove('IsSingleInstance') | Out-Null
     Set-CsTeamsMeetingConfiguration @SetParams
 }
 
@@ -297,11 +295,6 @@ function Test-TargetResource
     [OutputType([System.Boolean])]
     param
     (
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        [ValidateSet('Global')]
-        $Identity,
-
         [Parameter()]
         [System.String]
         $LogoURL,
@@ -369,6 +362,11 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $ClientMediaPortRangeEnabled,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
+        [System.String]
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -459,7 +457,7 @@ function Export-TargetResource
     {
         $dscContent = ''
         $params = @{
-            Identity              = 'Global'
+            IsSingleInstance      = 'Yes'
             Credential            = $Credential
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
