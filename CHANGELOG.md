@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.26.218.1
 
 * AADConditionalAccessPolicy
   * Fixed an issue where `DisableResilienceDefaultsIsEnabled` was not
