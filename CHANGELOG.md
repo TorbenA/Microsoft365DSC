@@ -5,6 +5,10 @@
 * AADGroup
   * Fixed an issue where group members were not always returned.
     FIXES [#6854](https://github.com/microsoft/Microsoft365DSC/issues/6854)
+* TeamsGroupPolicyAssignment
+  * Properly throws and error when a failure occurs.
+* TeamsTemplatesPolicy
+  * Properly throws and error when a failure occurs.
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.2.
   * Updated Microsoft.Graph to version 2.35.1.
