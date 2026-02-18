@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* Compare-M365DSCConfigurations
+  * Fixed an issue where the Get-DSCResource was passed to a function which expected a hashtable which resulted in a type mismatch
+
 # 1.26.211.1
 
 * AADUser
