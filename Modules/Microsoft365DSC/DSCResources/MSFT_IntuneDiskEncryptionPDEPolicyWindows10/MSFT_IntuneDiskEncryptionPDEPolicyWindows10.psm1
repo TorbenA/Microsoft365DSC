@@ -24,23 +24,23 @@ function Get-TargetResource
         $Id,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $EnablePersonalDataEncryption,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $ProtectDesktop,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $ProtectPictures,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $ProtectDocuments,
 
         [Parameter()]
@@ -211,29 +211,30 @@ function Set-TargetResource
         $Id,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $EnablePersonalDataEncryption,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $ProtectDesktop,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $ProtectPictures,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $ProtectDocuments,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Assignments,
         #endregion
+
         [Parameter()]
         [System.String]
         [ValidateSet('Absent', 'Present')]
@@ -379,23 +380,23 @@ function Test-TargetResource
         $Id,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $EnablePersonalDataEncryption,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $ProtectDesktop,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $ProtectPictures,
 
         [Parameter()]
-        [ValidateSet('0', '1')]
-        [System.String]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $ProtectDocuments,
 
         [Parameter()]
