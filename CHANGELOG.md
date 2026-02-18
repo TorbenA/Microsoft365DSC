@@ -6,10 +6,18 @@
   * Fixed an issue where `DisableResilienceDefaultsIsEnabled` was not
     evaluated correctly during `Get`.
     FIXES [#6871](https://github.com/microsoft/Microsoft365DSC/issues/6871)
+* AADGroup
+  * Fixed an issue where group members were not always returned.
+    FIXES [#6854](https://github.com/microsoft/Microsoft365DSC/issues/6854)
 * M365DSCReport
   * Moved custom header in between HTML tags.
 * M365DSCUtil
   * Updated the drift information to join array elements with a comma.
+* DEPENDENCIES
+  * Updated ExchangeOnlineManagement to version 3.9.2.
+  * Updated Microsoft.Graph to version 2.35.1.
+  * Updated MicrosoftTeams to version 7.6.0.
+  * Updated MSCloudLoginAssistant to version 1.1.59.
 
 # 1.26.211.1
 
