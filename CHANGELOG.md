@@ -4,6 +4,11 @@
 
 * Compare-M365DSCConfigurations
   * Fixed an issue where the Get-DSCResource was passed to a function which expected a hashtable which resulted in a type mismatch
+* DEPENDENCIES
+  * Updated ExchangeOnlineManagement to version 3.9.2.
+  * Updated Microsoft.Graph to version 2.35.1.
+  * Updated MicrosoftTeams to version 7.6.0.
+  * Updated MSCloudLoginAssistant to version 1.1.59.
 
 # 1.26.211.1
 
