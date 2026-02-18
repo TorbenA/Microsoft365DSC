@@ -1236,13 +1236,20 @@ function Compare-M365DSCConfigurations
         $currentModule = Get-Module -Name 'Microsoft365DSC'
         $dscResourceInfo = Get-DSCResource -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
     }
+
+    $dscResourceInfoMap = @{}
+    foreach ($resource in $dscResourceInfo)
+    {
+        $dscResourceInfoMap.Add($resource.Name, $resource)
+    }
+
     # Loop through all items in the source array
     $i = 1
     foreach ($sourceResource in $SourceObject)
     {
         try
         {
-            [array]$key = Get-M365DSCResourceKey -Resource $sourceResource -DSCResourceInfo $dscResourceInfo
+            [array]$key = Get-M365DSCResourceKey -Resource $sourceResource -DSCResourceInfo $dscResourceInfoMap
             Write-Progress -Activity "Scanning Source $Source...[$i/$($SourceObject.Count)]" -PercentComplete ($i / ($SourceObject.Count) * 100)
             [array]$destinationResource = $DestinationObject | Where-Object -FilterScript { $_.ResourceName -eq $sourceResource.ResourceName -and $_.($key[0]) -eq $sourceResource.($key[0]) }
 
@@ -1742,7 +1749,6 @@ function Get-M365DSCResourceKey
         [System.Collections.Hashtable]
         $DSCResourceInfo
     )
-
     $resourceInfo = $DSCResourceInfo[$Resource.ResourceName]
     [Array]$mandatoryParameters = $resourceInfo.Properties | Where-Object -FilterScript { $_.IsMandatory }
     if ($Resource.Contains('IsSingleInstance') -and $mandatoryParameters.Name.Contains('IsSingleInstance'))
