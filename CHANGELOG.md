@@ -1,8 +1,4 @@
 # Change log for Microsoft365DSC
-# UNRELEASED
-
-* IntuneCorporateDeviceIdentifier
-  * Initial release. [#6838](https://github.com/microsoft/Microsoft365DSC/issues/6838)
 
 # UNRELEASED
 
@@ -15,6 +11,8 @@
     FIXES [#6854](https://github.com/microsoft/Microsoft365DSC/issues/6854)
 * EXOOrganizationConfig
   * Fixed an issue where applying the configuration failed.
+* IntuneCorporateDeviceIdentifier
+  * Initial release. [#6838](https://github.com/microsoft/Microsoft365DSC/issues/6838)
 * TeamsGroupPolicyAssignment
   * Properly throws and error when a failure occurs.
 * TeamsTemplatesPolicy
