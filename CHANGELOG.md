@@ -1,4 +1,8 @@
 # Change log for Microsoft365DSC
+# UNRELEASED
+
+* IntuneCorporateDeviceIdentifier
+  * Initial release. [#6838](https://github.com/microsoft/Microsoft365DSC/issues/6838)
 
 # UNRELEASED
 
