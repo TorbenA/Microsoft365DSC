@@ -2,11 +2,16 @@
 
 # UNRELEASED
 
+* AADGroup
+  * Fixed an issue where group members were not always returned.
+    FIXES [#6854](https://github.com/microsoft/Microsoft365DSC/issues/6854)
 * EXOOrganizationConfig
   * Fixed an issue where applying the configuration failed.
 * DEPENDENCIES
-  * Updated ExchangeOnlineManagement to version 3.9.2
-    FIXES [#6508](https://github.com/microsoft/Microsoft365DSC/issues/6508)
+  * Updated ExchangeOnlineManagement to version 3.9.2.
+  * Updated Microsoft.Graph to version 2.35.1.
+  * Updated MicrosoftTeams to version 7.6.0.
+  * Updated MSCloudLoginAssistant to version 1.1.59.
 
 # 1.26.211.1
 
