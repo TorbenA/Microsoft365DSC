@@ -6,6 +6,9 @@
   * Fixed an issue where the export would fail if the secondary tenant does
     not allow reading of the tenant information.
     FIXES [#6843](https://github.com/microsoft/Microsoft365DSC/issues/6843)
+* AADGroup
+  * Fixed an issue where group members were not always returned.
+    FIXES [#6854](https://github.com/microsoft/Microsoft365DSC/issues/6854)
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.2.
   * Updated Microsoft.Graph to version 2.35.1.
