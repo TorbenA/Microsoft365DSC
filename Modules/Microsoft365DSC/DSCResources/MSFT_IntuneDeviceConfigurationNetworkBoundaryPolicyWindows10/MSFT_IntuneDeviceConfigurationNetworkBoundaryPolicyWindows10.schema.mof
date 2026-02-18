@@ -27,13 +27,12 @@ class MSFT_MicrosoftGraphProxiedDomain1
     [Write, Description("The IP address or FQDN")] String IpAddressOrFQDN;
     [Write, Description("Proxy IP or FQDN")] String Proxy;
 };
-[ClassVersion("1.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphIpRange1
 {
-    [Write, Description("IPv4 address in CIDR notation. Not nullable.")] String CidrAddress;
     [Write, Description("Lower address.")] String LowerAddress;
     [Write, Description("Upper address.")] String UpperAddress;
-    [Write, Description("The type of the entity."), ValueMap{"#microsoft.graph.iPv4CidrRange","#microsoft.graph.iPv6CidrRange","#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}, Values{"#microsoft.graph.iPv4CidrRange","#microsoft.graph.iPv6CidrRange","#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}] String odataType;
+    [Write, Description("The type of the entity."), ValueMap{"#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}, Values{"#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}] String odataType;
 };
 
 [ClassVersion("1.0.0.0"), FriendlyName("IntuneDeviceConfigurationNetworkBoundaryPolicyWindows10")]

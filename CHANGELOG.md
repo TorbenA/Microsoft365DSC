@@ -2,6 +2,57 @@
 
 # UNRELEASED
 
+* AADAuthenticationMethodPolicy
+  * [BREAKING CHANGE] Added `IsSingleInstance` parameter.
+    Removed `Ensure`, `DisplayName`, `Description` and `PolicyVersion` parameters.
+* AADAuthenticationMethodPolicy*
+  * Streamlined group resolution during update operation.
+* AADAuthenticationRequirement
+  * [BREAKING CHANGE] Added `IsSingleInstance` parameter.
+* AADTenantAppManagementPolicy
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Ensure` parameter.
+* IntuneAppAndBrowserIsolationPolicyWindows10
+  * Updated several parameter types from String to Integer.
+* IntuneAppAndBrowserIsolationPolicyWindows10ConfigMgr
+  * Updated several parameter types from String to Integer.
+* IntuneAppleMDMPushNotificationCertificate
+  * [BREAKING CHANGE] Removed the `Id` parameter because it is random.
+* IntuneDeviceConfigurationNetworkBoundaryPolicyWindows10
+  * [BREAKING CHANGE] Removed the property `CidrAddress` from `MicrosoftGraphIpRange1`
+    and removed the `#microsoft.graph.iPv4/6CidrRange` values from `odataType`.
+    Only IPv4/v6 ranges are supported in the UI.
+* IntuneDiskEncryptionPDEPolicyWindows10
+  * Updated several parameter types from String to Integer.
+* IntuneEndpointDetectionAndResponsePolicyWindows10
+  * Updated the `SampleSharing` parameter from String to Integer.
+* IntuneExploitProtectionPolicyWindows10SettingCatalog
+  * Updated the `DisallowExploitProtectionOverride` parameter from String to Integer.
+* IntuneMobileAppsManagedGooglePlayApp
+  * [BREAKING CHANGE] Updated the `Assignments` parameter type to allow settings.
+* IntuneMobileAppsBuiltInStoreApp
+  * [BREAKING CHANGE] Updated the `Assignments` parameter type to allow settings.
+* IntuneMobileAppsLobAppiOS
+  * [BREAKING CHANGE] Updated the `Assignments` parameter type to allow settings.
+* IntuneMobileAppsMacOSLobApp
+  * [BREAKING CHANGE] Updated the `Assignments` parameter type to allow settings.
+* TeamsClientConfiguration
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
+* TeamsFederationConfiguration
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Ensure` parameter.
+* TeamsGuestCallingConfiguration
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
+* TeamsGuestMeetingConfiguration
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
+* TeamsGuestMessagingConfiguration
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
+* TeamsMeetingBroadcastConfiguration
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
+* TeamsMeetingConfiguration
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Ensure` parameter.
+* M365DSCPermissions
+  * Removed internal function `Update-M365DSCResourcesSettingsJSON`.
+* M365DSCStubsUtility
+  * Removed module.
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.2.
   * Updated Microsoft.Graph to version 2.35.1.
