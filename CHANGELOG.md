@@ -1,10 +1,6 @@
 # Change log for Microsoft365DSC
-# UNRELEASED
 
-* IntuneCorporateDeviceIdentifier
-  * Initial release. [#6838](https://github.com/microsoft/Microsoft365DSC/issues/6838)
-
-# UNRELEASED
+# 1.26.218.1
 
 * AADConditionalAccessPolicy
   * Fixed an issue where `DisableResilienceDefaultsIsEnabled` was not
@@ -15,6 +11,12 @@
     FIXES [#6854](https://github.com/microsoft/Microsoft365DSC/issues/6854)
 * EXOOrganizationConfig
   * Fixed an issue where applying the configuration failed.
+* IntuneCorporateDeviceIdentifier
+  * Initial release. [#6838](https://github.com/microsoft/Microsoft365DSC/issues/6838)
+* TeamsGroupPolicyAssignment
+  * Properly throws and error when a failure occurs.
+* TeamsTemplatesPolicy
+  * Properly throws and error when a failure occurs.
 * M365DSCReport
   * Added missing Metadata processing when generating reports.
     FIXES [#6865](https://github.com/microsoft/Microsoft365DSC/issues/6865)
