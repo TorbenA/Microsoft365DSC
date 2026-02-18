@@ -2,9 +2,15 @@
 
 # UNRELEASED
 
+* AADAccessReviewDefinition
+  * [BREAKING CHANGE] Fixed the type definition of the `ScopeValue` property.
 * IntuneDeviceConfigurationKioskPolicyWindows10
   * [BREAKING CHANGE] Removed property `ProfileId` from the
     `MSFT_MicrosoftGraphWindowsKioskProfile` instance.
+* IntuneWindowsInformationProtectionPolicyWindows10MdmEnrolled
+  * [BREAKING CHANGE] Removed the `*CidrRange` choices from the ipRange type.
+* SCPolicyConfig
+  * Fixed an issue where `JustificationText` was exported as an array.
 * MISC
   * Added CIM information about required properties to all resources where applicable.
 * DEPENDENCIES

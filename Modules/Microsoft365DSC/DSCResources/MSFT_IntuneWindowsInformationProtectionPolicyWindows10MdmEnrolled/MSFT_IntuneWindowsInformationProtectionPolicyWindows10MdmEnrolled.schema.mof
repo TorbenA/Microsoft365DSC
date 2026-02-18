@@ -38,7 +38,7 @@ class MSFT_MicrosoftGraphIpRange
 {
     [Key, Description("Lower address.")] String LowerAddress;
     [Key, Description("Upper address.")] String UpperAddress;
-    [Key, Description("The type of the entity."), ValueMap{"#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}, Values{"#microsoft.graph.iPv4CidrRange","#microsoft.graph.iPv6CidrRange","#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}] String odataType;
+    [Key, Description("The type of the entity."), ValueMap{"#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}, Values{"#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}] String odataType;
 };
 
 [ClassVersion("1.0.0.1")]
