@@ -23,6 +23,24 @@
           }
         ]
       }
+    },
+    "purview": {
+      "requiredroles": {
+        "read": [
+          "Compliance Search"
+        ],
+        "update": [
+          "Compliance Search"
+        ]
+      },
+      "requiredrolegroups": {
+        "read": [
+          "Data Investigator"
+        ],
+        "update": [
+          "Data Investigator"
+        ]
+      }
     }
   },
   "requiredModules": [],

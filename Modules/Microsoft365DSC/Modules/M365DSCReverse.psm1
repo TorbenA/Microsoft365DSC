@@ -102,7 +102,11 @@ function Start-M365DSCConfigurationExtract
 
         [Parameter()]
         [System.Collections.Generic.Dictionary[System.String, System.Object]]
-        $ResourceSettings
+        $ResourceSettings,
+
+        [Parameter()]
+        [Switch]
+        $WithStatistics
     )
 
     # Start by checking to see if a new version of the tool is available in the PowerShell Gallery
@@ -618,7 +622,7 @@ function Start-M365DSCConfigurationExtract
         }
 
         # Retrieve the list of Workloads represented by the resources to export and pre-authenticate to each one;
-        if ($ResourcesToExport.Length -gt 0)
+        if ($ResourcesToExport.Count -gt 0)
         {
             $WorkloadsToConnectTo = Get-M365DSCConnectedWorkloadList -ResourceNames $ResourcesToExport
         }
@@ -661,12 +665,36 @@ function Start-M365DSCConfigurationExtract
             }
         }
 
+        # If the tenant id is not a GUID, retrieve it based on the organization name
+        # Only implemented for public cloud tenants
+        if (-not ($TenantId -match ('^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$')))
+        {
+            try
+            {
+                Write-Verbose -Message "Retrieving Tenant Id based on provided organization name."
+                $tenantGuid = (Invoke-RestMethod -Uri "https://login.microsoftonline.com/$organization/.well-known/openid-configuration" -Method Get).authorization_endpoint.Split('/')[3]
+                $currentStringReplacementMap = Get-M365DSCStringReplacementMap
+                if (-not $currentStringReplacementMap.ContainsKey($tenantGuid))
+                {
+                    $currentStringReplacementMap.Add($tenantGuid, 'TenantGuid')
+                    Set-M365DSCStringReplacementMap -Map $currentStringReplacementMap
+                }
+            }
+            catch
+            {
+                Write-Warning -Message "Failed to resolve current tenant id from organization name '$organization'. Not replacing tenant id in exported configuration.
+         If you want to have your tenant id replaced in the export, use the -TokenReplacement parameter of Export-M365DSCConfiguration."
+            }
+        }
+
         Confirm-M365DSCDependencies
         $partialExportName = $Global:PartialExportFileName
         $resourcesPath = $resourcesPath | Sort-Object $_.Name
         $synchronizedHashtable = [System.Collections.Hashtable]::Synchronized(@{
-            ResourceCounter = 1
-            ResourcesResult = @{}
+            ResourceCounter     = 1
+            ResourcesResult     = @{}
+            SuccessfulResources = 0
+            FailedResources     = 0
         })
         $resourceDictionary = Get-M365DSCAllResourcesDictionary
         $exportScriptBlock = {
@@ -763,7 +791,7 @@ function Start-M365DSCConfigurationExtract
                     }
                     elseif ($null -ne $resourceFilter)
                     {
-                        Write-M365DSCHost -Message "    `r`n$($Global:M365DSCEmojiYellowCircle) You specified a filter for resource {$resourceName} but it doesn't support filters. Filter will be ignored and all instances of the resource will be captured."
+                        Write-M365DSCHost -Message "    `r`n$($Global:M365DSCEmojiYellowCircle) You specified a filter for resource {$resourceName} but it doesn't support filters. Filter will be ignored and all instances of the resource will be captured." -ForegroundColor DarkYellow -CommitWrite
                     }
                 }
 
@@ -776,10 +804,12 @@ function Start-M365DSCConfigurationExtract
                     $exportOutput = Export-TargetResource @parameters
                     $exportString.Append($exportOutput) | Out-Null
                     ($using:synchronizedHashtable).ResourcesResult.Add($resourceName, $exportString.ToString())
+                    ($using:synchronizedHashtable).SuccessfulResources++
                 }
                 catch
                 {
-                    Write-M365DSCHost -Message "    `r`n$($Global:M365DSCEmojiRedX) An error occurred while exporting resource {$resourceName}: $($_.Exception.Message)" -CommitWrite
+                    Write-M365DSCHost -Message "$($Global:M365DSCEmojiRedX)`r`n    An error occurred while exporting resource {$resourceName}: $($_.Exception.Message)" -ForegroundColor Red -CommitWrite
+                    ($using:synchronizedHashtable).FailedResources++
                     if ($ErrorActionPreference -eq 'Stop')
                     {
                         throw $_
@@ -861,7 +891,7 @@ function Start-M365DSCConfigurationExtract
                 $credsContent = ''
                 foreach ($credEntry in $Global:CredsRepo)
                 {
-                    if (!$credEntry.ToLower().StartsWith('builtin'))
+                    if (-not $credEntry.ToLower().StartsWith('builtin'))
                     {
                         if (!$AzureAutomation)
                         {
@@ -894,6 +924,16 @@ function Start-M365DSCConfigurationExtract
         Write-M365DSCHost -Message '} for {' -DeferWrite
         Write-M365DSCHost -Message "$($Global:M365DSCExportResourceInstancesCount) instances" -DeferWrite -ForegroundColor Magenta
         Write-M365DSCHost -Message '}' -CommitWrite
+        Write-M365DSCHost -Message "Successful exports: {$($synchronizedHashtable.SuccessfulResources)}"
+        Write-M365DSCHost -Message "Failed exports: {$($synchronizedHashtable.FailedResources)}"
+        if ($($synchronizedHashtable.FailedResources) -eq 0)
+        {
+            Write-M365DSCHost -Message "$($Global:M365DSCEmojiGreenCheckmark) Export completed successfully." -ForegroundColor Green
+        }
+        else
+        {
+            Write-M365DSCHost -Message "$($Global:M365DSCEmojiRedX) Export completed with errors." -ForegroundColor Red
+        }
         #endregion
 
         $sessions = Get-PSSession | Where-Object -FilterScript { $_.Name -like 'SfBPowerShellSessionViaTeamsModule_*' -or `
@@ -933,9 +973,7 @@ function Start-M365DSCConfigurationExtract
         }
 
         #region Copy Downloaded files back into output folder
-        if (($null -ne $Components -and
-                $Components.Contains('SPOApp')) -or
-            $AllComponents -or ($null -ne $Workloads -and $Workloads.Contains('SPO')))
+        if (($null -ne $Components -and $Components.Contains('SPOApp') -and -not $ComponentsToSkip.Contains('SPOApp')) -or $AllComponents)
         {
             if ($AuthMethods -Contains 'Credentials')
             {
@@ -1043,7 +1081,27 @@ function Start-M365DSCConfigurationExtract
                 Write-Verbose -Message $_
             }
         }
+
+        # Remove Temp Partial Export File
+        if (-not [System.String]::IsNullOrEmpty($env:Temp))
+        {
+            $partialPath = Join-Path $env:TEMP -ChildPath "$($Global:PartialExportFileName)"
+            if (Test-Path $partialPath)
+            {
+                Remove-Item -Path $partialPath -Force
+            }
+        }
+
         Pop-Location
+        if ($WithStatistics)
+        {
+            @{
+                ExportDurationInSeconds = $timeTaken.TotalSeconds
+                ExportedResourceCount   = $synchronizedHashtable.SuccessfulResources
+                FailedResourceCount     = $synchronizedHashtable.FailedResources
+                TotalResourceCount      = $synchronizedHashtable.SuccessfulResources + $synchronizedHashtable.FailedResources
+            }
+        }
     }
     catch
     {

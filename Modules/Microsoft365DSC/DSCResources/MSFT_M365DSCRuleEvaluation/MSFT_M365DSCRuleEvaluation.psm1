@@ -199,7 +199,7 @@ function Test-TargetResource
         {
             $params.Add('Filter', $Filter)
         }
-
+        Initialize-M365DSCAllResourcesDictionary
         Write-Verbose -Message "Importing module from Path {$($module)}"
         Import-Module $module -Force -Function 'Export-TargetResource'
         $cmdName = "MSFT_$ResourceTypeName\Export-TargetResource"
@@ -226,12 +226,14 @@ function Test-TargetResource
         $DSCStringContent = @"
         # Generated with Microsoft365DSC version 1.23.906.1
         # For additional information on how to use Microsoft365DSC, please visit https://aka.ms/M365DSC
-        param (
+        param
+    (
         )
 
         Configuration M365TenantConfig
         {
-            param (
+            param
+    (
             )
 
             `$OrganizationName = `$ConfigurationData.NonNodeData.OrganizationName

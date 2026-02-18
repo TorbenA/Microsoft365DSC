@@ -23,6 +23,24 @@
           }
         ]
       }
+    },
+    "purview": {
+      "requiredroles": {
+        "read": [
+          "Role Management"
+        ],
+        "update": [
+          "Role Management"
+        ]
+      },
+      "requiredrolegroups": {
+        "read": [
+          "Organization Management"
+        ],
+        "update": [
+          "Organization Management"
+        ]
+      }
     }
   },
   "requiredModules": [],

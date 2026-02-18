@@ -25,15 +25,22 @@
       }
     },
     "exchange": {
-      "requiredroles": [
-        "Hygiene Management",
-        "Compliance Management",
-        "Organization Management",
-        "View-Only Organization Management"
-      ],
-      "requiredrolegroups": [
-        "Organization Management"
-      ]
+      "requiredroles": {
+        "read": [
+          "View-Only Recipients"
+        ],
+        "update": [
+          "Mail Recipients"
+        ]
+      },
+      "requiredrolegroups": {
+        "read": [
+          "View-Only Organization Management"
+        ],
+        "update": [
+          "Recipient Management"
+        ]
+      }
     }
   },
   "requiredModules": [],

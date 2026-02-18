@@ -4,8 +4,8 @@ function Get-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.Collections.Hashtable])]
-    param (
-
+    param
+    (
         [Parameter(Mandatory = $true)]
         [ValidateSet('Yes')]
         [String]
@@ -294,14 +294,37 @@ function Get-TargetResource
         $response = Invoke-PnPSPRestMethod -Method Get `
             -Url "$((Get-MSCloudLoginConnectionProfile -Workload PnP).AdminUrl)/_api/SPO.Tenant?`$select=$($parametersToRetrieve -join ',')"
 
+        $AllowSelectSGsInODBListInTenantValue = @()
+        if ($response.AllowSelectSGsInODBListInTenant -ne $null)
+        {
+            $AllowSelectSGsInODBListInTenantValue = [System.String[]]$response.AllowSelectSGsInODBListInTenant
+        }
+
+        $DenySelectSGsInODBListInTenantValue = @()
+        if ($response.DenySelectSGsInODBListInTenant -ne $null)
+        {
+            $DenySelectSGsInODBListInTenantValue = [System.String[]]$response.DenySelectSGsInODBListInTenant
+        }
+
+        $DenySelectSecurityGroupsInSPSitesListValue = @()
+        if ($response.DenySelectSecurityGroupsInSPSitesList -ne $null)
+        {
+            $DenySelectSecurityGroupsInSPSitesListValue = [System.String[]]$response.DenySelectSecurityGroupsInSPSitesList
+        }
+
+        $AllowSelectSecurityGroupsInSPSitesListValue = @()
+        if ($response.AllowSelectSecurityGroupsInSPSitesList -ne $null)
+        {
+            $AllowSelectSecurityGroupsInSPSitesListValue = [System.String[]]$response.AllowSelectSecurityGroupsInSPSitesList
+        }
 
         return @{
             IsSingleInstance                                       = 'Yes'
             ExemptNativeUsersFromTenantLevelRestricedAccessControl = $response.ExemptNativeUsersFromTenantLevelRestricedAccessControl
-            AllowSelectSGsInODBListInTenant                        = $response.AllowSelectSGsInODBListInTenant
-            DenySelectSGsInODBListInTenant                         = $response.DenySelectSGsInODBListInTenant
-            DenySelectSecurityGroupsInSPSitesList                  = $response.DenySelectSecurityGroupsInSPSitesList
-            AllowSelectSecurityGroupsInSPSitesList                 = $response.AllowSelectSecurityGroupsInSPSitesList
+            AllowSelectSGsInODBListInTenant                        = $AllowSelectSGsInODBListInTenantValue
+            DenySelectSGsInODBListInTenant                         = $DenySelectSGsInODBListInTenantValue
+            DenySelectSecurityGroupsInSPSitesList                  = $DenySelectSecurityGroupsInSPSitesListValue
+            AllowSelectSecurityGroupsInSPSitesList                 = $AllowSelectSecurityGroupsInSPSitesListValue
             EnableAzureADB2BIntegration                            = $response.EnableAzureADB2BIntegration
             HideSyncButtonOnODB                                    = $response.HideSyncButtonOnODB
             MobileFriendlyUrlEnabledInTenant                       = $response.MobileFriendlyUrlEnabledInTenant
@@ -360,25 +383,21 @@ function Get-TargetResource
     }
     catch
     {
-        if ($_.Exception.Message -like 'No connection available')
-        {
-            Write-Verbose -Message 'Make sure that you are connected to your SPOService'
-        }
-
         New-M365DSCLogEntry -Message 'Error retrieving data:' `
             -Exception $_ `
             -Source $($MyInvocation.MyCommand.Source) `
             -TenantId $TenantId `
             -Credential $Credential
 
-        return $nullReturn
+        throw
     }
 }
 
 function Set-TargetResource
 {
     [CmdletBinding()]
-    param (
+    param
+    (
 
         [Parameter(Mandatory = $true)]
         [ValidateSet('Yes')]
@@ -709,7 +728,8 @@ function Test-TargetResource
 {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
-    param (
+    param
+    (
 
         [Parameter(Mandatory = $true)]
         [ValidateSet('Yes')]
@@ -959,9 +979,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
+    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludedProperties @('OneDriveSharingCapability')
+                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                             @compareParameters
     return $result
 }
 
@@ -1070,16 +1091,25 @@ function Export-TargetResource
     }
     catch
     {
-        Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
-
         New-M365DSCLogEntry -Message 'Error during Export:' `
             -Exception $_ `
             -Source $($MyInvocation.MyCommand.Source) `
             -TenantId $TenantId `
             -Credential $Credential
 
-        return ''
+        throw
     }
 }
 
-Export-ModuleMember -Function *-TargetResource
+function Get-CompareParameters
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param()
+
+    return @{
+        ExcludedProperties = @('OneDriveSharingCapability')
+    }
+}
+
+Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')

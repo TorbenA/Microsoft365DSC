@@ -25,14 +25,22 @@
       }
     },
     "exchange": {
-      "requiredroles": [
-        "Organization Management",
-        "Recipient Management"
-      ],
-      "requiredrolegroups": [
-        "Organization Management",
-        "Help Desk"
-      ]
+      "requiredroles": {
+        "read": [
+          "View-Only Configuration"
+        ],
+        "update": [
+          "Retention Management"
+        ]
+      },
+      "requiredrolegroups": {
+        "read": [
+          "View-Only Organization Management"
+        ],
+        "update": [
+          "Records Management"
+        ]
+      }
     }
   },
   "requiredModules": [],

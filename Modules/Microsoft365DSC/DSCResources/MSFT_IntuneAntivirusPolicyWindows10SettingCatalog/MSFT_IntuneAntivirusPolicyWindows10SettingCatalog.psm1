@@ -349,6 +349,11 @@ function Get-TargetResource
         $SubmitSamplesConsent,
 
         [Parameter()]
+        [ValidateSet('Onboarding', 'Offboarding', 'ControlledConfig_Onboarding')]
+        [System.String]
+        $ControlledConfiguration,
+
+        [Parameter()]
         [ValidateSet('Onboarding', 'Offboarding')]
         [System.String]
         $TamperProtection,
@@ -561,13 +566,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        # Necessary to rethrow caught exception regarding duplicate policies
-        if ($_.Exception.Message -like "Duplicate*")
-        {
-            throw $_
-        }
-
-        return $nullResult
+        throw
     }
 }
 
@@ -919,6 +918,11 @@ function Set-TargetResource
         $SubmitSamplesConsent,
 
         [Parameter()]
+        [ValidateSet('Onboarding', 'Offboarding', 'ControlledConfig_Onboarding')]
+        [System.String]
+        $ControlledConfiguration,
+
+        [Parameter()]
         [ValidateSet('Onboarding', 'Offboarding')]
         [System.String]
         $TamperProtection,
@@ -1011,6 +1015,12 @@ function Set-TargetResource
 
     $currentPolicy = Get-TargetResource @PSBoundParameters
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+
+    if ($BoundParameters.ContainsKey('TamperProtection'))
+    {
+        $BoundParameters['ControlledConfiguration'] = $BoundParameters['TamperProtection']
+        $BoundParameters.Remove('TamperProtection')
+    }
 
     if ($BoundParameters.ContainsKey('SevereThreats'))
     {
@@ -1450,6 +1460,11 @@ function Test-TargetResource
         $SubmitSamplesConsent,
 
         [Parameter()]
+        [ValidateSet('Onboarding', 'Offboarding', 'ControlledConfig_Onboarding')]
+        [System.String]
+        $ControlledConfiguration,
+
+        [Parameter()]
         [ValidateSet('Onboarding', 'Offboarding')]
         [System.String]
         $TamperProtection,
@@ -1535,29 +1550,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $postProcessingScript = {
-        param($DesiredValues, $CurrentValues, $ValuesToCheck, $PostProcessingArgs)
-        $PostProcessingArgs[0] | ForEach-Object {
-            if ($_.Key -notlike '*Variable' -or $_.Key -notin @('Verbose', 'Debug', 'ErrorAction', 'WarningAction', 'InformationAction'))
-            {
-                if ($null -ne $CurrentValues[$_.Key] -or $null -ne $DesiredValues[$_.Key])
-                {
-                    $ValuesToCheck[$_.Key] = $null
-                    if (-not $DesiredValues.ContainsKey($_.Key))
-                    {
-                        $DesiredValues.Add($_.Key, $null)
-                    }
-                }
-            }
-        }
-
-        return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
-    }
-
+    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -PostProcessing $postProcessingScript `
-                                         -PostProcessingArgs $MyInvocation.MyCommand.Parameters.GetEnumerator()
+                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                             @compareParameters
     return $result
 }
 
@@ -1601,8 +1597,7 @@ function Export-TargetResource
     )
 
     $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters `
-        -SkipModuleReload:$true
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -1701,17 +1696,56 @@ function Export-TargetResource
         }
         else
         {
-            Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
-
             New-M365DSCLogEntry -Message 'Error during Export:' `
                 -Exception $_ `
                 -Source $($MyInvocation.MyCommand.Source) `
                 -TenantId $TenantId `
                 -Credential $Credential
-        }
 
-        return ''
+            throw
+        }
     }
 }
 
-Export-ModuleMember -Function *-TargetResource
+function Get-CompareParameters
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param()
+
+    return @{
+        PostProcessing = {
+            param($DesiredValues, $CurrentValues, $ValuesToCheck, $PostProcessingArgs)
+            $PostProcessingArgs[0] | ForEach-Object {
+                if ($_.Key -notlike '*Variable' -or $_.Key -notin @('Verbose', 'Debug', 'ErrorAction', 'WarningAction', 'InformationAction'))
+                {
+                    if ($null -ne $CurrentValues[$_.Key] -or $null -ne $DesiredValues[$_.Key])
+                    {
+                        $ValuesToCheck[$_.Key] = $null
+                        if (-not $DesiredValues.ContainsKey($_.Key))
+                        {
+                            $DesiredValues.Add($_.Key, $null)
+                        }
+                    }
+                }
+            }
+
+            # Map the renaming of TamperProtection to ControlledConfiguration for comparison
+            if ($DesiredValues.ContainsKey('TamperProtection'))
+            {
+                $DesiredValues['ControlledConfiguration'] = $DesiredValues['TamperProtection']
+                $DesiredValues.Remove('TamperProtection')
+            }
+            if ($CurrentValues.ContainsKey('TamperProtection'))
+            {
+                $CurrentValues['ControlledConfiguration'] = $CurrentValues['TamperProtection']
+                $CurrentValues.Remove('TamperProtection')
+            }
+
+            return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
+        }
+        PostProcessingArgs = $MyInvocation.MyCommand.Parameters.GetEnumerator()
+    }
+}
+
+Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')

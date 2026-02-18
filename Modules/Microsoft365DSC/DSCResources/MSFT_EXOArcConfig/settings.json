@@ -25,16 +25,22 @@
       }
     },
     "exchange": {
-      "requiredroles": [
-        "Security Admin",
-        "Security Reader",
-        "Tenant AllowBlockList Manager",
-        "Transport Hygiene",
-        "View-Only Configuration"
-      ],
-      "requiredrolegroups": [
-        "Organization Management"
-      ]
+      "requiredroles": {
+        "read": [
+          "View-Only Configuration"
+        ],
+        "update": [
+          "Tenant AllowBlockList Manager"
+        ]
+      },
+      "requiredrolegroups": {
+        "read": [
+          "View-Only Organization Management"
+        ],
+        "update": [
+          "Security Operator"
+        ]
+      }
     }
   },
   "requiredModules": [],

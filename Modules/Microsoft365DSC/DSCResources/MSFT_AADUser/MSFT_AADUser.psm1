@@ -224,6 +224,15 @@ function Get-TargetResource
         )
         $batchResponse = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
 
+        # If the user was deleted in the meantime, then return an empty hashtable
+        # This only happens during Export because we cache the user objects
+        # During normal Get or Test, we would have already returned $nullReturn above
+        if ($null -ne $Script:exportedInstance -and $batchResponse.status -contains '404')
+        {
+            Write-Verbose -Message "The specified user was deleted in the meantime."
+            return @{}
+        }
+
         Write-Verbose -Message "Found User $($UserPrincipalName)"
         $currentLicenseAssignment = @()
         $skus = ($batchResponse | Where-Object -FilterScript { $_.id -eq 'License' }).body.value
@@ -303,7 +312,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        return $nullReturn
+        throw
     }
 }
 
@@ -979,6 +988,7 @@ function Export-TargetResource
             All         = [switch]$true
             Property    = $Script:propertiesToRetrieve
             ErrorAction = 'Stop'
+            Sort        = 'UserPrincipalName'
         }
         $queryTypes = @{
             'eq'         = @('assignedPlans/any(a:a/capabilityStatus)',
@@ -1161,15 +1171,13 @@ function Export-TargetResource
     }
     catch
     {
-        Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
-
         New-M365DSCLogEntry -Message 'Error during Export:' `
             -Exception $_ `
             -Source $($MyInvocation.MyCommand.Source) `
             -TenantId $TenantId `
             -Credential $Credential
 
-        return ''
+        throw
     }
 }
 

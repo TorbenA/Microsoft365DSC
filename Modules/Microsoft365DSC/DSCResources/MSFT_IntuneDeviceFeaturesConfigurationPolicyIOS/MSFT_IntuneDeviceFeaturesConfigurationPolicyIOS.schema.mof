@@ -37,12 +37,19 @@ class MSFT_iosWebContentFilterSpecificWebsitesAccess
     [Write, Description("blockedUrls.")] String blockedUrls[];
 };
 
+[ClassVersion("1.0.0.0")]
+class MSFT_iosHomeScreenFolderPage
+{
+    [Write, Description("A list of apps, folders, and web clips to appear on a page. This collection can contain a maximum of 500 elements."), EmbeddedInstance("MSFT_iosHomeScreenApp")] String apps[];
+};
+
 [ClassVersion("1.0.0.1")]
 class MSFT_iosHomeScreenApp
 {
     [Write, Description("Name of the app. Inherited from iosHomeScreenItem.")] String displayName;
     [Key, Description("BundleID of the app if isWebClip is false or the URL of a web clip if isWebClip is true.")] String bundleID;
     [Write, Description("Is it a website URL or an app")] Boolean isWebClip;
+    [Write, Description("Pages of the folder."), EmbeddedInstance("MSFT_iosHomeScreenFolderPage")] String pages[];
 };
 
 [ClassVersion("1.0.0.0")]

@@ -952,7 +952,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        return $nullReturn
+        throw
     }
 }
 function Set-TargetResource
@@ -1687,7 +1687,6 @@ function Set-TargetResource
 
     $SetTransportRuleParams = $newTransportRuleParams.Clone()
     $SetTransportRuleParams.Add('Identity', $Name)
-    $SetTransportRuleParams.Remove('Enabled') | Out-Null
 
     # CASE: Transport Rule doesn't exist but should;
     if ($Ensure -eq 'Present' -and $currentTransportRuleConfig.Ensure -eq 'Absent')
@@ -1807,6 +1806,20 @@ function Set-TargetResource
             }
         }
 
+        if ($SetTransportRuleParams.ContainsKey('Enabled'))
+        {
+            if ($Enabled)
+            {
+                Write-Verbose -Message "Enabling TransportRule {$Name}"
+                Enable-TransportRule -Identity $Name
+            }
+            else
+            {
+                Write-Verbose -Message "Disabling TransportRule {$Name}"
+                Disable-TransportRule -Identity $Name
+            }
+        }
+        $SetTransportRuleParams.Remove('Enabled') | Out-Null
         Write-Verbose -Message "Transport Rule '$($Name)' already exists, but needs updating."
         Write-Verbose -Message "Setting Transport Rule $($Name) with values: $(Convert-M365DscHashtableToString -Hashtable $SetTransportRuleParams)"
         Set-TransportRule @SetTransportRuleParams
@@ -2579,8 +2592,7 @@ function Export-TargetResource
     )
 
     $ConnectionMode = New-M365DSCConnection -Workload 'ExchangeOnline' `
-        -InboundParameters $PSBoundParameters `
-        -SkipModuleReload $true
+        -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -2643,15 +2655,13 @@ function Export-TargetResource
     }
     catch
     {
-        Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
-
-        New-M365DSCLogEntry -Message 'Error retrieving data:' `
+        New-M365DSCLogEntry -Message 'Error during Export:' `
             -Exception $_ `
             -Source $($MyInvocation.MyCommand.Source) `
             -TenantId $TenantId `
             -Credential $Credential
 
-        return ''
+        throw
     }
 }
 

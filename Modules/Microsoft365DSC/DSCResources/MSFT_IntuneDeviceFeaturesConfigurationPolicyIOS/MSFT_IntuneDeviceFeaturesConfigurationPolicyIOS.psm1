@@ -237,7 +237,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        return $nullResult
+        throw
     }
 }
 
@@ -384,8 +384,6 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-    $allTargetValues = Convert-M365DscHashtableToString -Hashtable $BoundParameters
-
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating an Intune Device Features Configuration Policy for iOS with DisplayName {$DisplayName}"
@@ -404,22 +402,35 @@ function Set-TargetResource
 
         #create params need some processing to get payload in correct format
         $CreateParameters.Add('@odata.type', '#microsoft.graph.iosDeviceFeaturesConfiguration') #add odata type or payload will be rejected
-        if($CreateParameters.WallpaperImage)
+        if ($CreateParameters.WallpaperImage)
         {
             $CreateParameters['WallpaperImage'] = $CreateParameters.WallpaperImage[0] #needs the hashtable not embedded in array
             $CreateParameters.WallpaperImage['value'] = [Convert]::FromBase64String($CreateParameters.WallpaperImage['value'])
         }
         if ($CreateParameters.HomeScreenPages)
         {
-            foreach ($homeScreenPage in $CreateParameters.HomeScreenPages){
-                foreach ($icon in $homeScreenPage.icons){
+            foreach ($homeScreenPage in $CreateParameters.HomeScreenPages)
+            {
+                foreach ($icon in $homeScreenPage.icons)
+                {
+                    if ($icon.ContainsKey('pages'))
+                    {
+                        $icon.Add('@odata.type',"#microsoft.graph.iosHomeScreenFolder")
+                        continue
+                    }
                     $icon.Add('@odata.type',"#microsoft.graph.iosHomeScreenApp")
                 }
             }
         }
         if ($CreateParameters.HomeScreenDockIcons)
         {
-            foreach ($homeScreenDockIcon in $CreateParameters.HomeScreenDockIcons){
+            foreach ($homeScreenDockIcon in $CreateParameters.HomeScreenDockIcons)
+            {
+                if ($homeScreenDockIcon.ContainsKey('pages'))
+                {
+                    $homeScreenDockIcon.Add('@odata.type',"#microsoft.graph.iosHomeScreenFolder")
+                    continue
+                }
                 $homeScreenDockIcon.Add('@odata.type',"#microsoft.graph.iosHomeScreenApp")
             }
         }
@@ -482,15 +493,28 @@ function Set-TargetResource
         }
         if ($UpdateParameters.HomeScreenPages)
         {
-            foreach ($homeScreenPage in $UpdateParameters.HomeScreenPages){
-                foreach ($icon in $homeScreenPage.icons){
+            foreach ($homeScreenPage in $UpdateParameters.HomeScreenPages)
+            {
+                foreach ($icon in $homeScreenPage.icons)
+                {
+                    if ($icon.ContainsKey('pages'))
+                    {
+                        $icon.Add('@odata.type',"#microsoft.graph.iosHomeScreenFolder")
+                        continue
+                    }
                     $icon.Add('@odata.type',"#microsoft.graph.iosHomeScreenApp")
                 }
             }
         }
         if ($UpdateParameters.HomeScreenDockIcons)
         {
-            foreach ($homeScreenDockIcon in $UpdateParameters.HomeScreenDockIcons){
+            foreach ($homeScreenDockIcon in $UpdateParameters.HomeScreenDockIcons)
+            {
+                if ($homeScreenDockIcon.ContainsKey('pages'))
+                {
+                    $homeScreenDockIcon.Add('@odata.type',"#microsoft.graph.iosHomeScreenFolder")
+                    continue
+                }
                 $homeScreenDockIcon.Add('@odata.type',"#microsoft.graph.iosHomeScreenApp")
             }
         }
@@ -829,9 +853,22 @@ function Export-TargetResource
 
             if ($null -ne $Results.HomeScreenDockIcons)
             {
+                $complexMapping = @(
+                    @{
+                        Name = 'pages'
+                        CimInstanceName = 'MSFT_iosHomeScreenFolderPage'
+                        IsRequired = $false
+                    },
+                    @{
+                        Name = 'apps'
+                        CimInstanceName = 'iosHomeScreenApp'
+                        IsRequired = $false
+                    }
+                )
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.HomeScreenDockIcons `
-                    -CIMInstanceName 'MSFT_iosHomeScreenApp'
+                    -CIMInstanceName 'MSFT_iosHomeScreenApp' `
+                    -ComplexTypeMapping $complexMapping
                 if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.HomeScreenDockIcons = $complexTypeStringResult
@@ -847,6 +884,16 @@ function Export-TargetResource
                 $complexMapping = @(
                     @{
                         Name = 'icons'
+                        CimInstanceName = 'iosHomeScreenApp'
+                        IsRequired = $false
+                    },
+                    @{
+                        Name = 'pages'
+                        CimInstanceName = 'MSFT_iosHomeScreenFolderPage'
+                        IsRequired = $false
+                    },
+                    @{
+                        Name = 'apps'
                         CimInstanceName = 'iosHomeScreenApp'
                         IsRequired = $false
                     }
@@ -965,30 +1012,28 @@ function Export-TargetResource
         }
         else
         {
-            Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
-
             New-M365DSCLogEntry -Message 'Error during Export:' `
                 -Exception $_ `
                 -Source $($MyInvocation.MyCommand.Source) `
                 -TenantId $TenantId `
                 -Credential $Credential
-        }
 
-        return ''
+            throw
+        }
     }
 }
 
 function Convert-ComplexObjectToHashtableArray {
-    param (
+    param
+    (
         [Parameter()]
         [Object]$InputObject
-
     )
 
     $resultArray = @()
 
     foreach ($item in $InputObject) {
-        $hashTable = @{}
+        $hashtable = [ordered]@{}
 
         foreach ($key in $item.Keys) {
             $keyValue = $item.$key
@@ -1002,13 +1047,13 @@ function Convert-ComplexObjectToHashtableArray {
                         $keyValue = Convert-ComplexObjectToHashtableArray $keyValue #recurse the function
                     }
                 }
-                $hashTable.Add($key, $keyValue)
+                $hashtable.Add($key, $keyValue)
             }
         }
 
         # Add the hash table to the result array only if it contains non-null values
-        if ($hashTable.Values.Where({ $null -ne $_ }).Count -gt 0) {
-            $resultArray += $hashTable
+        if ($hashtable.Values.Where({ $null -ne $_ }).Count -gt 0) {
+            $resultArray += $hashtable
         }
     }
 
@@ -1016,16 +1061,16 @@ function Convert-ComplexObjectToHashtableArray {
 }
 
 function Convert-ComplexObjectToHashtableArray_ExportDataType {
-    param (
+    param
+    (
         [Parameter()]
         [Object]$InputObject
-
     )
 
     $resultArray = @()
 
     foreach ($item in $InputObject) {
-        $hashTable = @{}
+        $hashtable = [ordered]@{}
 
         foreach ($key in $item.Keys) {
             $keyValue = $item.$key
@@ -1039,15 +1084,15 @@ function Convert-ComplexObjectToHashtableArray_ExportDataType {
                         $keyValue = Convert-ComplexObjectToHashtableArray_ExportDataType $keyValue #recurse the function
                     }
                 }
-                $hashTable.Add($key, $keyValue)
+                $hashtable.Add($key, $keyValue)
             }else{
-                $hashTable.Add('dataType', $item.$key)
+                $hashtable.Add('dataType', $item.$key)
             }
         }
 
         # Add the hash table to the result array only if it contains non-null values
-        if ($hashTable.Values.Where({ $null -ne $_ }).Count -gt 0) {
-            $resultArray += $hashTable
+        if ($hashtable.Values.Where({ $null -ne $_ }).Count -gt 0) {
+            $resultArray += $hashtable
         }
     }
 
@@ -1055,7 +1100,8 @@ function Convert-ComplexObjectToHashtableArray_ExportDataType {
 }
 
 function Convert-StringToBooleans {
-    param(
+    param
+    (
         [Parameter(Mandatory = $true)]
         [array]$Configurations
     )
@@ -1072,7 +1118,8 @@ function Convert-StringToBooleans {
 }
 
 function Convert-DataTypeFormat {
-    param (
+    param
+    (
         [Parameter()]
         [Object]$InputObject
     )

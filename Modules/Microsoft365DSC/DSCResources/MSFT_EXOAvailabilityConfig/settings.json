@@ -25,15 +25,22 @@
       }
     },
     "exchange": {
-      "requiredroles": [
-        "Federated Sharing",
-        "Organization Configuration",
-        "Mail Tips",
-        "Message Tracking"
-      ],
-      "requiredrolegroups": [
-        "Organization Management"
-      ]
+      "requiredroles": {
+        "read": [
+          "Federated Sharing"
+        ],
+        "update": [
+          "Federated Sharing"
+        ]
+      },
+      "requiredrolegroups": {
+        "read": [
+          "Organization Management"
+        ],
+        "update": [
+          "Organization Management"
+        ]
+      }
     }
   },
   "requiredModules": [],

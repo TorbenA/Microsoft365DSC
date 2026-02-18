@@ -134,6 +134,9 @@ function Get-TargetResource
         if (-not $Script:exportMode)
         {
             $null = New-M365DSCConnection -Workload 'PnP' `
+                -InboundParameters $PSBoundParameters
+
+            $null = New-M365DSCConnection -Workload 'PnP' `
                 -InboundParameters $PSBoundParameters `
                 -Url (Get-MSCloudLoginConnectionProfile -Workload PnP).AdminUrl
 
@@ -242,7 +245,7 @@ function Get-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        return $nullReturn
+        throw
     }
 }
 
@@ -898,6 +901,9 @@ function Export-TargetResource
     try
     {
         $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
+            -InboundParameters $PSBoundParameters
+
+        $ConnectionMode = New-M365DSCConnection -Workload 'PnP' `
             -InboundParameters $PSBoundParameters `
             -Url (Get-MSCloudLoginConnectionProfile -Workload PnP).AdminUrl
 
@@ -976,15 +982,13 @@ function Export-TargetResource
     }
     catch
     {
-        Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
-
         New-M365DSCLogEntry -Message 'Error during Export:' `
             -Exception $_ `
             -Source $($MyInvocation.MyCommand.Source) `
             -TenantId $TenantId `
             -Credential $Credential
 
-        return ''
+        throw
     }
 }
 
