@@ -9,6 +9,8 @@
 * AADGroup
   * Fixed an issue where group members were not always returned.
     FIXES [#6854](https://github.com/microsoft/Microsoft365DSC/issues/6854)
+* EXOOrganizationConfig
+  * Fixed an issue where applying the configuration failed.
 * M365DSCReport
   * Added missing Metadata processing when generating reports.
     FIXES [#6865](https://github.com/microsoft/Microsoft365DSC/issues/6865)
