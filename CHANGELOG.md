@@ -4,6 +4,10 @@
 
 * AADAccessReviewDefinition
   * [BREAKING CHANGE] Fixed the type definition of the `ScopeValue` property.
+* AADApplication
+  * Added name resolution for `AppId` and `PermissionIds` in preauthorized applications.
+* AADAuthenticationMethodPolicy*
+  * Streamlined Target name resolution for all authentication resources.
 * IntuneDeviceConfigurationKioskPolicyWindows10
   * [BREAKING CHANGE] Removed property `ProfileId` from the
     `MSFT_MicrosoftGraphWindowsKioskProfile` instance.
