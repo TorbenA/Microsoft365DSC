@@ -1,5 +1,12 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* EXOMailContact
+  * Updated the `Set-TargetResource` logic to use fixed parameters.
+* M365DSCUtil
+  * Removed the internal `Sync-M365DSCParameter` function.
+
 # 1.26.311.1
 
 * AADAccessReviewDefinition
