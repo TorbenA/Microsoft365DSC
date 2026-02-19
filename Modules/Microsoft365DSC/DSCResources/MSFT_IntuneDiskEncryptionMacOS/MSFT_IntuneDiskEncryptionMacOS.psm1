@@ -331,7 +331,6 @@ function Set-TargetResource
     }
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $policyTemplateId = 'a239407c-698d-4ef8-b314-e3ae409204b8'
 
