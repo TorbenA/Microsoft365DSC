@@ -4,13 +4,8 @@
 
 * AADConditionalAccessPolicy
   * Fixed an issue where arrays could contain empty strings.
-  * Fixed an issue where `DisableResilienceDefaultsIsEnabled` was not
-    evaluated correctly during `Get`.
-    FIXES [#6871](https://github.com/microsoft/Microsoft365DSC/issues/6871)
 * AADGroup
   * Added sort by `DisplayName` during export.
-  * Fixed an issue where group members were not always returned.
-    FIXES [#6854](https://github.com/microsoft/Microsoft365DSC/issues/6854)
 * AADGroupsNamingPolicy
   * Fixed an issue where arrays could contain empty strings.
 * EXOServicePrincipal
@@ -23,6 +18,24 @@
 * TeamsOrgWideAppSettings
   * Fixed an issue where updating the settings would fail.
     FIXES [#6900](https://github.com/microsoft/Microsoft365DSC/issues/6900)
+
+# 1.26.218.1
+
+* AADConditionalAccessPolicy
+  * Fixed an issue where `DisableResilienceDefaultsIsEnabled` was not
+    evaluated correctly during `Get`.
+    FIXES [#6871](https://github.com/microsoft/Microsoft365DSC/issues/6871)
+* AADGroup
+  * Fixed an issue where group members were not always returned.
+    FIXES [#6854](https://github.com/microsoft/Microsoft365DSC/issues/6854)
+* EXOOrganizationConfig
+  * Fixed an issue where applying the configuration failed.
+* IntuneCorporateDeviceIdentifier
+  * Initial release. [#6838](https://github.com/microsoft/Microsoft365DSC/issues/6838)
+* TeamsGroupPolicyAssignment
+  * Properly throws and error when a failure occurs.
+* TeamsTemplatesPolicy
+  * Properly throws and error when a failure occurs.
 * M365DSCReport
   * Added missing Metadata processing when generating reports.
     FIXES [#6865](https://github.com/microsoft/Microsoft365DSC/issues/6865)
