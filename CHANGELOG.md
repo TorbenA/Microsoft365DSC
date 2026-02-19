@@ -13,6 +13,30 @@
   * Fixed an issue where `JustificationText` was exported as an array.
 * MISC
   * Added CIM information about required properties to all resources where applicable.
+
+# 1.26.218.1
+
+* AADConditionalAccessPolicy
+  * Fixed an issue where `DisableResilienceDefaultsIsEnabled` was not
+    evaluated correctly during `Get`.
+    FIXES [#6871](https://github.com/microsoft/Microsoft365DSC/issues/6871)
+* AADGroup
+  * Fixed an issue where group members were not always returned.
+    FIXES [#6854](https://github.com/microsoft/Microsoft365DSC/issues/6854)
+* EXOOrganizationConfig
+  * Fixed an issue where applying the configuration failed.
+* IntuneCorporateDeviceIdentifier
+  * Initial release. [#6838](https://github.com/microsoft/Microsoft365DSC/issues/6838)
+* TeamsGroupPolicyAssignment
+  * Properly throws and error when a failure occurs.
+* TeamsTemplatesPolicy
+  * Properly throws and error when a failure occurs.
+* M365DSCReport
+  * Added missing Metadata processing when generating reports.
+    FIXES [#6865](https://github.com/microsoft/Microsoft365DSC/issues/6865)
+  * Moved custom header in between HTML tags.
+* M365DSCUtil
+  * Updated the drift information to join array elements with a comma.
 * DEPENDENCIES
   * Updated ExchangeOnlineManagement to version 3.9.2.
   * Updated Microsoft.Graph to version 2.35.1.
@@ -30,10 +54,10 @@
     FIXES [#6881](https://github.com/microsoft/Microsoft365DSC/issues/6881)
 * FabricAdmintenantsettings
   * Refreshed the property list.
-   FIXES [#6866](https://github.com/microsoft/Microsoft365DSC/issues/6866)
+    FIXES [#6866](https://github.com/microsoft/Microsoft365DSC/issues/6866)
 * O365OrgSettings
   * Changed how errors are handled to fail instead of returning false drifts.
-   FIXES [#6787](https://github.com/microsoft/Microsoft365DSC/issues/6787)
+    FIXES [#6787](https://github.com/microsoft/Microsoft365DSC/issues/6787)
 * O365SearchAndIntelligenceConfiguration
   * Expanded try/catch logic to cover all code paths in Get.
     FIXES [#6788](https://github.com/microsoft/Microsoft365DSC/issues/6788)
