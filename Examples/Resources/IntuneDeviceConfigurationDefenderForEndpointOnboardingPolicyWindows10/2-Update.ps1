@@ -22,7 +22,7 @@ Configuration Example
 
     node localhost
     {
-        IntuneDeviceConfigurationDefenderForEndpointOnboardingPolicyWindows10 'Example'
+        IntuneDeviceConfigurationDefenderOnboardingPolicyWindows10 'Example'
         {
             AdvancedThreatProtectionAutoPopulateOnboardingBlob = $True; # Updated Property
             AdvancedThreatProtectionOnboardingFilename         = "WindowsDefenderATP.onboarding";

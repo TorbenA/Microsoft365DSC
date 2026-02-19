@@ -1,5 +1,16 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* IntuneDeviceConfigurationDefenderForEndpointOnboardingPolicyWindows10
+  * [BREAKING CHANGE] Renamed resource to
+    `IntuneDeviceConfigurationDefenderOnboardingPolicyWindows10`.
+    FIXES [#6559](https://github.com/microsoft/Microsoft365DSC/issues/6559)
+* IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
+  * [BREAKING CHANGE] Renamed resource to
+    `IntuneDeviceConfigurationHealthMonitoringPolicyWindows10`.
+    FIXES [#6559](https://github.com/microsoft/Microsoft365DSC/issues/6559)
+
 # 1.26.218.1
 
 * AADConditionalAccessPolicy

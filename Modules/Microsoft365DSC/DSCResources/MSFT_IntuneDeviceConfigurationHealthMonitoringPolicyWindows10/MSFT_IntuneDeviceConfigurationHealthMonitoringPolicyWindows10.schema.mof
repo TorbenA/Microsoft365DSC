@@ -10,8 +10,8 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
     [Write, Description("The collection Id that is the target of the assignment.(ConfigMgr)")] String collectionId;
 };
 
-[ClassVersion("1.0.0.0"), FriendlyName("IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10")]
-class MSFT_IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10 : OMI_BaseResource
+[ClassVersion("1.0.0.0"), FriendlyName("IntuneDeviceConfigurationHealthMonitoringPolicyWindows10")]
+class MSFT_IntuneDeviceConfigurationHealthMonitoringPolicyWindows10 : OMI_BaseResource
 {
     [Write, Description("Enables device health monitoring on the device. Possible values are: notConfigured, enabled, disabled."), ValueMap{"notConfigured","enabled","disabled"}, Values{"notConfigured","enabled","disabled"}] String AllowDeviceHealthMonitoring;
     [Write, Description("Specifies custom set of events collected from the device where health monitoring is enabled")] String ConfigDeviceHealthMonitoringCustomScope;

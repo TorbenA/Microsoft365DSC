@@ -1,5 +1,5 @@
 
-# IntuneDeviceConfigurationDefenderForEndpointOnboardingPolicyWindows10
+# IntuneDeviceConfigurationDefenderOnboardingPolicyWindows10
 
 ## Description
 

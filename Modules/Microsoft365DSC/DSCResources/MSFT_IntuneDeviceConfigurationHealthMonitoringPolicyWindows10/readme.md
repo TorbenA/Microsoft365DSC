@@ -1,5 +1,5 @@
 
-# IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
+# IntuneDeviceConfigurationHealthMonitoringPolicyWindows10
 
 ## Description
 

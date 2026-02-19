@@ -1,4 +1,4 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceConfigurationDefenderForEndpointOnboardingPolicyWindows10'
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceConfigurationHealthMonitoringPolicyWindows10'
 
 function Get-TargetResource
 {
@@ -8,32 +8,18 @@ function Get-TargetResource
     (
         #region resource generator code
         [Parameter()]
-        [System.Boolean]
-        $AdvancedThreatProtectionAutoPopulateOnboardingBlob,
+        [ValidateSet('notConfigured', 'enabled', 'disabled')]
+        [System.String]
+        $AllowDeviceHealthMonitoring,
 
         [Parameter()]
         [System.String]
-        $AdvancedThreatProtectionOffboardingBlob,
+        $ConfigDeviceHealthMonitoringCustomScope,
 
         [Parameter()]
-        [System.String]
-        $AdvancedThreatProtectionOffboardingFilename,
-
-        [Parameter()]
-        [System.String]
-        $AdvancedThreatProtectionOnboardingBlob,
-
-        [Parameter()]
-        [System.String]
-        $AdvancedThreatProtectionOnboardingFilename,
-
-        [Parameter()]
-        [System.Boolean]
-        $AllowSampleSharing,
-
-        [Parameter()]
-        [System.Boolean]
-        $EnableExpeditedTelemetryReporting,
+        [ValidateSet('undefined', 'healthMonitoring', 'bootPerformance', 'windowsUpdates', 'privilegeManagement')]
+        [System.String[]]
+        $ConfigDeviceHealthMonitoringScope,
 
         [Parameter()]
         [System.String]
@@ -90,7 +76,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Getting configuration of the Intune Device Configuration Defender For Endpoint Onboarding Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
+    Write-Verbose -Message "Getting configuration of the Intune Device Configuration Health Monitoring Configuration Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName}"
 
     try
     {
@@ -116,77 +102,81 @@ function Get-TargetResource
 
             $getValue = $null
             #region resource generator code
-            if (-not [System.String]::IsNullOrEmpty($Id))
+            if (-not [string]::IsNullOrEmpty($Id))
             {
                 $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "Id eq '$Id'" -ErrorAction SilentlyContinue
             }
 
             if ($null -eq $getValue)
             {
-                Write-Verbose -Message "Could not find an Intune Device Configuration Defender For Endpoint Onboarding Policy for Windows10 with Id {$Id}"
+                Write-Verbose -Message "Could not find an Intune Device Configuration Health Monitoring Configuration Policy for Windows10 with Id {$Id}"
 
                 if (-Not [string]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaDeviceManagementDeviceConfiguration `
                         -All `
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                        -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript { `
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsDefenderAdvancedThreatProtectionConfiguration' `
-                    }
-                    if ($null -eq $getValue)
-                    {
-                        Write-Verbose -Message "Could not find an Intune Device Configuration Defender For Endpoint Onboarding Policy for Windows10 with DisplayName {$DisplayName}"
-                        return $nullResult
-                    }
-                    if (([array]$getValue).Count -gt 1)
-                    {
-                        throw "A policy with a duplicated displayName {'$DisplayName'} was found - Ensure displayName is unique"
-                    }
+                        -ErrorAction SilentlyContinue
                 }
             }
             #endregion
+            if ($null -eq $getValue)
+            {
+                Write-Verbose -Message "Could not find an Intune Device Configuration Health Monitoring Configuration Policy for Windows10 with DisplayName {$DisplayName}"
+                return $nullResult
+            }
         }
         else
         {
             $getValue = $Script:exportedInstance
         }
-
         $Id = $getValue.Id
-        Write-Verbose -Message "An Intune Device Configuration Defender For Endpoint Onboarding Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found."
+        Write-Verbose -Message "An Intune Device Configuration Health Monitoring Configuration Policy for Windows10 with Id {$Id} and DisplayName {$DisplayName} was found."
+
+        #region resource generator code
+        $enumAllowDeviceHealthMonitoring = $null
+        if ($null -ne $getValue.AdditionalProperties.allowDeviceHealthMonitoring)
+        {
+            $enumAllowDeviceHealthMonitoring = $getValue.AdditionalProperties.allowDeviceHealthMonitoring.ToString()
+        }
+
+        $enumConfigDeviceHealthMonitoringScope = @()
+        if ($null -ne $getValue.AdditionalProperties.configDeviceHealthMonitoringScope)
+        {
+            $enumConfigDeviceHealthMonitoringScope = $getValue.AdditionalProperties.configDeviceHealthMonitoringScope.ToString().Split(',')
+
+        }
+        #endregion
 
         $results = @{
             #region resource generator code
-            AdvancedThreatProtectionAutoPopulateOnboardingBlob = $getValue.AdditionalProperties.advancedThreatProtectionAutoPopulateOnboardingBlob
-            AdvancedThreatProtectionOffboardingBlob            = $getValue.AdditionalProperties.advancedThreatProtectionOffboardingBlob
-            AdvancedThreatProtectionOffboardingFilename        = $getValue.AdditionalProperties.advancedThreatProtectionOffboardingFilename
-            AdvancedThreatProtectionOnboardingBlob             = $getValue.AdditionalProperties.advancedThreatProtectionOnboardingBlob
-            AdvancedThreatProtectionOnboardingFilename         = $getValue.AdditionalProperties.advancedThreatProtectionOnboardingFilename
-            AllowSampleSharing                                 = $getValue.AdditionalProperties.allowSampleSharing
-            EnableExpeditedTelemetryReporting                  = $getValue.AdditionalProperties.enableExpeditedTelemetryReporting
-            Description                                        = $getValue.Description
-            DisplayName                                        = $getValue.DisplayName
-            Id                                                 = $getValue.Id
-            RoleScopeTagIds                                    = $getValue.RoleScopeTagIds
-            Ensure                                             = 'Present'
-            Credential                                         = $Credential
-            ApplicationId                                      = $ApplicationId
-            TenantId                                           = $TenantId
-            ApplicationSecret                                  = $ApplicationSecret
-            CertificateThumbprint                              = $CertificateThumbprint
-            ManagedIdentity                                    = $ManagedIdentity.IsPresent
-            AccessTokens                                       = $AccessTokens
+            AllowDeviceHealthMonitoring             = $enumAllowDeviceHealthMonitoring
+            ConfigDeviceHealthMonitoringCustomScope = $getValue.AdditionalProperties.configDeviceHealthMonitoringCustomScope
+            ConfigDeviceHealthMonitoringScope       = $enumConfigDeviceHealthMonitoringScope
+            Description                             = $getValue.Description
+            DisplayName                             = $getValue.DisplayName
+            Id                                      = $getValue.Id
+            RoleScopeTagIds                         = $getValue.RoleScopeTagIds
+            Ensure                                  = 'Present'
+            Credential                              = $Credential
+            ApplicationId                           = $ApplicationId
+            TenantId                                = $TenantId
+            ApplicationSecret                       = $ApplicationSecret
+            CertificateThumbprint                   = $CertificateThumbprint
+            ManagedIdentity                         = $ManagedIdentity.IsPresent
+            AccessTokens                            = $AccessTokens
             #endregion
         }
-        $returnAssignments = @()
-        $graphAssignments = Get-MgBetaDeviceManagementDeviceConfigurationAssignment -DeviceConfigurationId $Id
-        if ($graphAssignments.Count -gt 0)
+
+        $assignmentsValues = Get-MgBetaDeviceManagementDeviceConfigurationAssignment -DeviceConfigurationId $Id
+        $assignmentResult = @()
+        if ($assignmentsValues.Count -gt 0)
         {
-            $returnAssignments += ConvertFrom-IntunePolicyAssignment `
+            $assignmentResult += ConvertFrom-IntunePolicyAssignment `
                 -IncludeDeviceFilter:$true `
-                -Assignments ($graphAssignments)
+                -Assignments ($assignmentsValues)
         }
-        $results.Add('Assignments', $returnAssignments)
+        $results.Add('Assignments', $assignmentResult)
 
         return $results
     }
@@ -209,32 +199,18 @@ function Set-TargetResource
     (
         #region resource generator code
         [Parameter()]
-        [System.Boolean]
-        $AdvancedThreatProtectionAutoPopulateOnboardingBlob,
+        [ValidateSet('notConfigured', 'enabled', 'disabled')]
+        [System.String]
+        $AllowDeviceHealthMonitoring,
 
         [Parameter()]
         [System.String]
-        $AdvancedThreatProtectionOffboardingBlob,
+        $ConfigDeviceHealthMonitoringCustomScope,
 
         [Parameter()]
-        [System.String]
-        $AdvancedThreatProtectionOffboardingFilename,
-
-        [Parameter()]
-        [System.String]
-        $AdvancedThreatProtectionOnboardingBlob,
-
-        [Parameter()]
-        [System.String]
-        $AdvancedThreatProtectionOnboardingFilename,
-
-        [Parameter()]
-        [System.Boolean]
-        $AllowSampleSharing,
-
-        [Parameter()]
-        [System.Boolean]
-        $EnableExpeditedTelemetryReporting,
+        [ValidateSet('undefined', 'healthMonitoring', 'bootPerformance', 'windowsUpdates', 'privilegeManagement')]
+        [System.String[]]
+        $ConfigDeviceHealthMonitoringScope,
 
         [Parameter()]
         [System.String]
@@ -256,6 +232,7 @@ function Set-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Assignments,
         #endregion
+
         [Parameter()]
         [System.String]
         [ValidateSet('Absent', 'Present')]
@@ -303,23 +280,15 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
-    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating an Intune Device Configuration Defender For Endpoint Onboarding Policy for Windows10 with DisplayName {$DisplayName}"
-        $BoundParameters.Remove('Assignments') | Out-Null
+        Write-Verbose -Message "Creating an Intune Device Configuration Health Monitoring Configuration Policy for Windows10 with DisplayName {$DisplayName}"
+        $boundParameters.Remove('Assignments') | Out-Null
 
-        $CreateParameters = ([Hashtable]$BoundParameters).Clone()
+        $CreateParameters = ([Hashtable]$boundParameters).Clone()
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
-
-        if ($AdvancedThreatProtectionAutoPopulateOnboardingBlob -and `
-                $PSBoundParameters.AdvancedThreatProtectionAutoPopulateOnboardingBlob)
-        {
-            $CreateParameters.Remove('AdvancedThreatProtectionOnboardingBlob') | Out-Null
-        }
-
         $CreateParameters.Remove('Id') | Out-Null
 
         $keys = (([Hashtable]$CreateParameters).Clone()).Keys
@@ -330,8 +299,20 @@ function Set-TargetResource
                 $CreateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters.$key
             }
         }
+		if ($CreateParameters.ContainsKey('ConfigDeviceHealthMonitoringScope')) {
+			$CreateParameters['configDeviceHealthMonitoringScope'] = ($CreateParameters['ConfigDeviceHealthMonitoringScope'] -join ',')
+			$CreateParameters.Remove('ConfigDeviceHealthMonitoringScope') | Out-Null
+		}
+		if ($CreateParameters.ContainsKey('AllowDeviceHealthMonitoring')) {
+			$CreateParameters['allowDeviceHealthMonitoring'] = $CreateParameters['AllowDeviceHealthMonitoring']
+			$CreateParameters.Remove('AllowDeviceHealthMonitoring') | Out-Null
+		}
+		if ($CreateParameters.ContainsKey('ConfigDeviceHealthMonitoringCustomScope')) {
+			$CreateParameters['configDeviceHealthMonitoringCustomScope'] = $CreateParameters['ConfigDeviceHealthMonitoringCustomScope']
+			$CreateParameters.Remove('ConfigDeviceHealthMonitoringCustomScope') | Out-Null
+		}
         #region resource generator code
-        $CreateParameters.Add('@odata.type', '#microsoft.graph.windowsDefenderAdvancedThreatProtectionConfiguration')
+        $CreateParameters.Add('@odata.type', '#microsoft.graph.windowsHealthMonitoringConfiguration')
         $policy = New-MgBetaDeviceManagementDeviceConfiguration -BodyParameter $CreateParameters
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
 
@@ -345,17 +326,11 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating the Intune Device Configuration Defender For Endpoint Onboarding Policy for Windows10 with Id {$($currentInstance.Id)}"
-        $BoundParameters.Remove('Assignments') | Out-Null
+        Write-Verbose -Message "Updating the Intune Device Configuration Health Monitoring Configuration Policy for Windows10 with Id {$($currentInstance.Id)}"
+        $boundParameters.Remove('Assignments') | Out-Null
 
-        $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
+        $UpdateParameters = ([Hashtable]$boundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
-
-        if ($AdvancedThreatProtectionAutoPopulateOnboardingBlob -and `
-                $PSBoundParameters.AdvancedThreatProtectionAutoPopulateOnboardingBlob)
-        {
-            $UpdateParameters.Remove('AdvancedThreatProtectionOnboardingBlob') | Out-Null
-        }
 
         $UpdateParameters.Remove('Id') | Out-Null
 
@@ -367,8 +342,20 @@ function Set-TargetResource
                 $UpdateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
             }
         }
+		if ($UpdateParameters.ContainsKey('ConfigDeviceHealthMonitoringScope')) {
+			$UpdateParameters['configDeviceHealthMonitoringScope'] = ($UpdateParameters['ConfigDeviceHealthMonitoringScope'] -join ',')
+			$UpdateParameters.Remove('ConfigDeviceHealthMonitoringScope') | Out-Null
+		}
+		if ($UpdateParameters.ContainsKey('AllowDeviceHealthMonitoring')) {
+			$UpdateParameters['allowDeviceHealthMonitoring'] = $UpdateParameters['AllowDeviceHealthMonitoring']
+			$UpdateParameters.Remove('AllowDeviceHealthMonitoring') | Out-Null
+		}
+		if ($UpdateParameters.ContainsKey('ConfigDeviceHealthMonitoringCustomScope')) {
+			$UpdateParameters['configDeviceHealthMonitoringCustomScope'] = $UpdateParameters['ConfigDeviceHealthMonitoringCustomScope']
+			$UpdateParameters.Remove('ConfigDeviceHealthMonitoringCustomScope') | Out-Null
+		}
         #region resource generator code
-        $UpdateParameters.Add('@odata.type', '#microsoft.graph.windowsDefenderAdvancedThreatProtectionConfiguration')
+        $UpdateParameters.Add('@odata.type', '#microsoft.graph.windowsHealthMonitoringConfiguration')
         Update-MgBetaDeviceManagementDeviceConfiguration  `
             -DeviceConfigurationId $currentInstance.Id `
             -BodyParameter $UpdateParameters
@@ -381,7 +368,7 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removing the Intune Device Configuration Defender For Endpoint Onboarding Policy for Windows10 with Id {$($currentInstance.Id)}"
+        Write-Verbose -Message "Removing the Intune Device Configuration Health Monitoring Configuration Policy for Windows10 with Id {$($currentInstance.Id)}"
         #region resource generator code
         Remove-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $currentInstance.Id
         #endregion
@@ -396,32 +383,18 @@ function Test-TargetResource
     (
         #region resource generator code
         [Parameter()]
-        [System.Boolean]
-        $AdvancedThreatProtectionAutoPopulateOnboardingBlob,
+        [ValidateSet('notConfigured', 'enabled', 'disabled')]
+        [System.String]
+        $AllowDeviceHealthMonitoring,
 
         [Parameter()]
         [System.String]
-        $AdvancedThreatProtectionOffboardingBlob,
+        $ConfigDeviceHealthMonitoringCustomScope,
 
         [Parameter()]
-        [System.String]
-        $AdvancedThreatProtectionOffboardingFilename,
-
-        [Parameter()]
-        [System.String]
-        $AdvancedThreatProtectionOnboardingBlob,
-
-        [Parameter()]
-        [System.String]
-        $AdvancedThreatProtectionOnboardingFilename,
-
-        [Parameter()]
-        [System.Boolean]
-        $AllowSampleSharing,
-
-        [Parameter()]
-        [System.Boolean]
-        $EnableExpeditedTelemetryReporting,
+        [ValidateSet('undefined', 'healthMonitoring', 'bootPerformance', 'windowsUpdates', 'privilegeManagement')]
+        [System.String[]]
+        $ConfigDeviceHealthMonitoringScope,
 
         [Parameter()]
         [System.String]
@@ -487,10 +460,8 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                             @compareParameters
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -554,7 +525,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript { `
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsDefenderAdvancedThreatProtectionConfiguration' `
+                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsHealthMonitoringConfiguration' `
         }
         #endregion
 
@@ -595,8 +566,7 @@ function Export-TargetResource
             }
 
             $Script:exportedInstance = $config
-            $Results = Get-TargetResource @params
-
+            $Results = Get-TargetResource @Params
             if ($Results.Assignments)
             {
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString -ComplexObject $Results.Assignments -CIMInstanceName DeviceManagementConfigurationPolicyAssignments
@@ -643,15 +613,5 @@ function Export-TargetResource
         }
     }
 }
-function Get-CompareParameters
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param()
 
-    return @{
-        ExcludedProperties = @('AdvancedThreatProtectionOnboardingBlob')
-    }
-}
-
-Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')
+Export-ModuleMember -Function *-TargetResource

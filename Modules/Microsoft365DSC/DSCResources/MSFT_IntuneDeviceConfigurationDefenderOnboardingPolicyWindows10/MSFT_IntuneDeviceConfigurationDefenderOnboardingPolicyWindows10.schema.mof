@@ -10,8 +10,8 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
     [Write, Description("The collection Id that is the target of the assignment.(ConfigMgr)")] String collectionId;
 };
 
-[ClassVersion("1.0.0.0"), FriendlyName("IntuneDeviceConfigurationDefenderForEndpointOnboardingPolicyWindows10")]
-class MSFT_IntuneDeviceConfigurationDefenderForEndpointOnboardingPolicyWindows10 : OMI_BaseResource
+[ClassVersion("1.0.0.0"), FriendlyName("IntuneDeviceConfigurationDefenderOnboardingPolicyWindows10")]
+class MSFT_IntuneDeviceConfigurationDefenderOnboardingPolicyWindows10 : OMI_BaseResource
 {
     [Write, Description("Auto populate onboarding blob programmatically from Advanced Threat protection service")] Boolean AdvancedThreatProtectionAutoPopulateOnboardingBlob;
     [Write, Description("Windows Defender AdvancedThreatProtection Offboarding Blob.")] String AdvancedThreatProtectionOffboardingBlob;

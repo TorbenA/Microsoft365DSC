@@ -22,7 +22,7 @@ Configuration Example
 
     node localhost
     {
-        IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10 'Example'
+        IntuneDeviceConfigurationHealthMonitoringPolicyWindows10 'Example'
         {
             DisplayName                       = "Health Monitoring Configuration";
             Ensure                            = "Absent";

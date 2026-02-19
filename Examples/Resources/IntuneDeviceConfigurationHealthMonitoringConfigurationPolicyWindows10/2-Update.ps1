@@ -22,7 +22,7 @@ Configuration Example
 
     node localhost
     {
-        IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10 'Example'
+        IntuneDeviceConfigurationHealthMonitoringPolicyWindows10 'Example'
         {
             AllowDeviceHealthMonitoring       = "enabled";
             Assignments                       = @(
