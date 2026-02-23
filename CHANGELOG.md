@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADGroupEligibilitySchedule
+  * Change resource to `Data` plane
+
 # 1.26.218.1
 
 * AADConditionalAccessPolicy
