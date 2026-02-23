@@ -1,4 +1,4 @@
-[ClassVersion("1.0.0.1"), FriendlyName("EXOTenantAllowBlockListItems")]
+[ClassVersion("1.0.0.2"), FriendlyName("EXOTenantAllowBlockListItems")]
 class MSFT_EXOTenantAllowBlockListItems : OMI_BaseResource
 {
     [Key, Description("The action (allow/block) to take for this list entry"), ValueMap{"Allow","Block"}, Values{"Allow","Block"}] String Action;
