@@ -1,5 +1,12 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* EXOTenantAllowBlockListItems
+  * Fixed issue where value `Submission` was missing from the validate
+    set from `ListSubType` parameter.
+    FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
+
 # 1.26.218.1
 
 * AADConditionalAccessPolicy
