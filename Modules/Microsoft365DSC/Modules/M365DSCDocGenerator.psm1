@@ -91,7 +91,7 @@ function Get-DscResourceSchemaPropertyContent
         if (-not [System.String]::IsNullOrEmpty($currentProperty.Description))
         {
             $description = $currentProperty.Description
-            $description = $description.Replace("<", "&lt;").Replace(">", "&gt;")
+            $description = $description.Replace('<', '&lt;').Replace('>', '&gt;')
             $propertyLine += ' ' + $description
         }
 
@@ -547,14 +547,14 @@ function New-DscMofResourceWikiPage
             will get the main resource CIM class.
         #>
         $resourceSchema = $mofSchemas |
-        Where-Object -FilterScript {
+            Where-Object -FilterScript {
                 ($_.ClassName -eq $dscResourceName) -and ($null -ne $_.FriendlyName)
-        }
+            }
 
         [System.Array] $readmeFile = Get-ChildItem -Path $mofSchemaFile.DirectoryName |
-        Where-Object -FilterScript {
-            $_.Name -like 'readme.md'
-        }
+            Where-Object -FilterScript {
+                $_.Name -like 'readme.md'
+            }
 
         if ($readmeFile.Count -eq 1)
         {
@@ -579,9 +579,9 @@ function New-DscMofResourceWikiPage
                 will get the embedded instances (CIM classes).
             #>
             $embeddedSchemas = $mofSchemas |
-            Where-Object -FilterScript {
+                Where-Object -FilterScript {
                     ($_.ClassName -ne $dscResourceName)
-            }
+                }
 
             foreach ($embeddedSchema in $embeddedSchemas)
             {
@@ -953,61 +953,80 @@ function Update-M365DSCResourceDocumentationPage
         switch -Wildcard ($file.BaseName)
         {
             'AAD*'
-            { $targetFolder = 'azure-ad'
+            {
+                $targetFolder = 'azure-ad'
             }
             'ADO*'
-            { $targetFolder = 'azure-devops'
+            {
+                $targetFolder = 'azure-devops'
             }
             'Azure*'
-            { $targetFolder = 'azure'
+            {
+                $targetFolder = 'azure'
             }
             'Commerce*'
-            { $targetFolder = 'commerce'
+            {
+                $targetFolder = 'commerce'
             }
             'Defender*'
-            { $targetFolder = 'Defender'
+            {
+                $targetFolder = 'Defender'
             }
             'EXO*'
-            { $targetFolder = 'exchange'
+            {
+                $targetFolder = 'exchange'
             }
             'Fabric*'
-            { $targetFolder = 'fabric'
+            {
+                $targetFolder = 'fabric'
             }
             'Intune*'
-            { $targetFolder = 'intune'
+            {
+                $targetFolder = 'intune'
             }
             'M365DSC*'
-            { $targetFolder = 'general'
+            {
+                $targetFolder = 'general'
             }
             'O365*'
-            { $targetFolder = 'office365'
+            {
+                $targetFolder = 'office365'
             }
             'OD*'
-            { $targetFolder = 'onedrive'
+            {
+                $targetFolder = 'onedrive'
             }
             'Planner*'
-            { $targetFolder = 'planner'
+            {
+                $targetFolder = 'planner'
             }
             'PP*'
-            { $targetFolder = 'power-platform'
+            {
+                $targetFolder = 'power-platform'
             }
             'SC*'
-            { $targetFolder = 'security-compliance'
+            {
+                $targetFolder = 'security-compliance'
             }
             'Sentinel*'
-            { $targetFolder = 'sentinel'
+            {
+                $targetFolder = 'sentinel'
             }
             'SH*'
-            { $targetFolder = 'services-hub'
+            {
+                $targetFolder = 'services-hub'
             }
             'SPO*'
-            { $targetFolder = 'sharepoint'
+            {
+                $targetFolder = 'sharepoint'
             }
             'Teams*'
-            { $targetFolder = 'teams'
+            {
+                $targetFolder = 'teams'
             }
             'Viva*'
-            { $targetFolder = 'viva'
+            {
+                $targetFolder = 'viva'
             }
             default
             {
