@@ -2460,7 +2460,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -2627,7 +2627,7 @@ function Get-M365DSCFabricTenantSettingObject
     }
     if (-not [System.String]::IsNullOrEmpty($Setting.tenantSettingGroup))
     {
-        $values.Add('tenantSettingGroup',($Setting.tenantSettingGroup -creplace '\P{IsBasicLatin}'))
+        $values.Add('tenantSettingGroup', ($Setting.tenantSettingGroup -creplace '\P{IsBasicLatin}'))
     }
     if ($null -ne $Setting.properties -and $Setting.properties.Length -gt 0)
     {

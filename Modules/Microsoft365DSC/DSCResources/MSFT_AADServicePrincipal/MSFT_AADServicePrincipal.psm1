@@ -1,5 +1,5 @@
 Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADServicePrincipal'
-$Script:PropertiesToExport = "AppDisplayName", "AppId", "Id", "DisplayName", "CustomSecurityAttributes", "AlternativeNames", "AccountEnabled", "AppRoleAssignmentRequired", "ErrorUrl", "Homepage", "LogoutUrl", "Notes", "PreferredSingleSignOnMode", "PublisherName", "ReplyUrls", "SamlMetadataURL", "ServicePrincipalNames", "ServicePrincipalType", "Tags", "KeyCredentials", "PasswordCredentials"
+$Script:PropertiesToExport = 'AppDisplayName', 'AppId', 'Id', 'DisplayName', 'CustomSecurityAttributes', 'AlternativeNames', 'AccountEnabled', 'AppRoleAssignmentRequired', 'ErrorUrl', 'Homepage', 'LogoutUrl', 'Notes', 'PreferredSingleSignOnMode', 'PublisherName', 'ReplyUrls', 'SamlMetadataURL', 'ServicePrincipalNames', 'ServicePrincipalType', 'Tags', 'KeyCredentials', 'PasswordCredentials'
 
 function Get-TargetResource
 {
@@ -174,7 +174,7 @@ function Get-TargetResource
                             -Expand 'AppRoleAssignedTo')
                     if ($null -ne $AADServicePrincipal -and $AADServicePrincipal.Count -gt 1)
                     {
-                        Throw "Multiple Service Principal with the DisplayName $($AppId) exist in the tenant."
+                        throw "Multiple Service Principal with the DisplayName $($AppId) exist in the tenant."
                     }
                 }
                 else
@@ -197,19 +197,19 @@ function Get-TargetResource
 
         $batchRequests = @(
             @{
-                id = 'AppRoleAssignedTo'
+                id     = 'AppRoleAssignedTo'
                 method = 'GET'
-                url = "/servicePrincipals/$($AADServicePrincipal.Id)/appRoleAssignedTo"
+                url    = "/servicePrincipals/$($AADServicePrincipal.Id)/appRoleAssignedTo"
             }
             @{
-                id = 'Owners'
+                id     = 'Owners'
                 method = 'GET'
-                url = "/servicePrincipals/$($AADServicePrincipal.Id)/owners"
+                url    = "/servicePrincipals/$($AADServicePrincipal.Id)/owners"
             }
             @{
-                id = 'delegatedPermissionClassifications'
+                id     = 'delegatedPermissionClassifications'
                 method = 'GET'
-                url = "/servicePrincipals/$($AADServicePrincipal.Id)/delegatedPermissionClassifications"
+                url    = "/servicePrincipals/$($AADServicePrincipal.Id)/delegatedPermissionClassifications"
             }
         )
         $batchResponse = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests -ErrorAction SilentlyContinue
@@ -333,12 +333,12 @@ function Get-TargetResource
         $ObjectGuid = [System.Guid]::empty
         if (-not [System.String]::IsNullOrEmpty($AppId) -and [System.Guid]::TryParse($AppId, [ref]$ObjectGuid))
         {
-            Write-Verbose -Message "Returning AppId as GUID since the provided value was in GUID format."
+            Write-Verbose -Message 'Returning AppId as GUID since the provided value was in GUID format.'
             $appIdToExport = $AADServicePrincipal.AppId
         }
         else
         {
-            Write-Verbose -Message "Returning AppId as Display Name since the provided value was NOT in GUID format."
+            Write-Verbose -Message 'Returning AppId as Display Name since the provided value was NOT in GUID format.'
             $appIdToExport = $AADServicePrincipal.DisplayName
         }
 
@@ -576,7 +576,7 @@ function Set-TargetResource
     $ObjectGuid = [System.Guid]::empty
     if (-not [System.Guid]::TryParse($AppId, [System.Management.Automation.PSReference]$ObjectGuid))
     {
-        Write-Verbose -Message "AppId was provided as a DisplayName. Translating it to an a GUID."
+        Write-Verbose -Message 'AppId was provided as a DisplayName. Translating it to an a GUID.'
         $appInstance = Get-MgApplication -Filter "DisplayName eq '$($AppId -replace "'", "''")'"
         $currentParameters.AppId = $appInstance.AppId
         Write-Verbose -Message "Translated to AppId {$($currentParameters.AppId)}"
@@ -622,7 +622,7 @@ function Set-TargetResource
         # Update AppRoleAssignedTo
         if ($AppRoleAssignedToSpecified)
         {
-            Write-Verbose -Message "Updating AppRoleAssignedTo value"
+            Write-Verbose -Message 'Updating AppRoleAssignedTo value'
             foreach ($assignment in $AppRoleAssignedTo)
             {
                 if ($assignment.PrincipalType -eq 'User')
@@ -685,7 +685,7 @@ function Set-TargetResource
         }
         if ($AppRoleAssignedToSpecified)
         {
-            Write-Verbose -Message "Need to update AppRoleAssignedTo value"
+            Write-Verbose -Message 'Need to update AppRoleAssignedTo value'
             [Array]$currentPrincipals = $currentAADServicePrincipal.AppRoleAssignedTo.Identity
             [Array]$desiredPrincipals = $AppRoleAssignedTo.Identity
 
@@ -984,8 +984,8 @@ function Test-TargetResource
 
     $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                             @compareParameters
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+        @compareParameters
     return $result
 }
 

@@ -214,9 +214,9 @@ function Get-TargetResource
                 url    = "/users/$($UserPrincipalName)/licenseDetails"
             }
             @{
-                id     = 'MemberOf'
-                method = 'GET'
-                url    = "/users/$($UserPrincipalName)/memberOf?`$select=displayName&`$filter=not(groupTypes/any(c:c eq 'DynamicMembership'))"
+                id      = 'MemberOf'
+                method  = 'GET'
+                url     = "/users/$($UserPrincipalName)/memberOf?`$select=displayName&`$filter=not(groupTypes/any(c:c eq 'DynamicMembership'))"
                 headers = @{
                     'ConsistencyLevel' = 'eventual'
                 }
@@ -229,7 +229,7 @@ function Get-TargetResource
         # During normal Get or Test, we would have already returned $nullReturn above
         if ($null -ne $Script:exportedInstance -and $batchResponse.status -contains '404')
         {
-            Write-Verbose -Message "The specified user was deleted in the meantime."
+            Write-Verbose -Message 'The specified user was deleted in the meantime.'
             return @{}
         }
 
@@ -496,28 +496,28 @@ function Set-TargetResource
             $PasswordPolicies = 'None'
         }
         $CreationParams = @{
-            AccountEnabled           = $AccountEnabled
-            City                     = $City
-            Country                  = $Country
-            Department               = $Department
-            DisplayName              = $DisplayName
-            FaxNumber                = $Fax
-            GivenName                = $FirstName
-            JobTitle                 = $Title
-            MobilePhone              = $MobilePhone
-            PasswordPolicies         = $PasswordPolicies
-            OfficeLocation           = $Office
-            Mail                     = $Mail
-            OtherMails               = $OtherMails
-            PostalCode               = $PostalCode
-            PreferredLanguage        = $PreferredLanguage
-            State                    = $State
-            StreetAddress            = $StreetAddress
-            Surname                  = $LastName
-            BusinessPhones           = $PhoneNumber
-            UsageLocation            = $UsageLocation
-            UserPrincipalName        = $UserPrincipalName
-            UserType                 = $UserType
+            AccountEnabled    = $AccountEnabled
+            City              = $City
+            Country           = $Country
+            Department        = $Department
+            DisplayName       = $DisplayName
+            FaxNumber         = $Fax
+            GivenName         = $FirstName
+            JobTitle          = $Title
+            MobilePhone       = $MobilePhone
+            PasswordPolicies  = $PasswordPolicies
+            OfficeLocation    = $Office
+            Mail              = $Mail
+            OtherMails        = $OtherMails
+            PostalCode        = $PostalCode
+            PreferredLanguage = $PreferredLanguage
+            State             = $State
+            StreetAddress     = $StreetAddress
+            Surname           = $LastName
+            BusinessPhones    = $PhoneNumber
+            UsageLocation     = $UsageLocation
+            UserPrincipalName = $UserPrincipalName
+            UserType          = $UserType
         }
         $CreationParams = Remove-NullEntriesFromHashtable -Hash $CreationParams
 
@@ -922,7 +922,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

@@ -52,7 +52,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Getting the Azure AD B2C Authentication Methods Policy"
+    Write-Verbose -Message 'Getting the Azure AD B2C Authentication Methods Policy'
 
     $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
@@ -158,7 +158,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting the Azure AD B2C Authentication Methods Policy"
+    Write-Verbose -Message 'Setting the Azure AD B2C Authentication Methods Policy'
 
     $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
@@ -177,7 +177,7 @@ function Set-TargetResource
 
     $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $setParameters.Remove('IsSingleInstance') | Out-Null
-    Write-Verbose -Message "Updating B2C Authentication Methods Policy"
+    Write-Verbose -Message 'Updating B2C Authentication Methods Policy'
     Update-MgBetaPolicyB2CAuthenticationMethodPolicy @setParameters
 }
 
@@ -243,7 +243,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

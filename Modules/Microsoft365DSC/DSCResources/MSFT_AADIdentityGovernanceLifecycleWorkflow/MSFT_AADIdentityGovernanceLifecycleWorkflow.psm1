@@ -91,7 +91,7 @@ function Get-TargetResource
             $nullResult.Ensure = 'Absent'
 
             $instance = Get-MgBetaIdentityGovernanceLifecycleWorkflow -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                                                                      -ErrorAction Stop
+                -ErrorAction Stop
         }
         else
         {
@@ -298,9 +298,9 @@ function Set-TargetResource
         }
         catch
         {
-            if ($_.ErrorDetails.Message -like "*Insufficient license *")
+            if ($_.ErrorDetails.Message -like '*Insufficient license *')
             {
-                Write-Warning -Message " Insufficient license. You need the Entra ID Governance license."
+                Write-Warning -Message ' Insufficient license. You need the Entra ID Governance license.'
             }
             else
             {
@@ -329,9 +329,9 @@ function Set-TargetResource
         }
         catch
         {
-            if ($_.ErrorDetails.Message -like "*Insufficient license *")
+            if ($_.ErrorDetails.Message -like '*Insufficient license *')
             {
-                Write-Warning -Message " Insufficient license. You need the Entra ID Governance license."
+                Write-Warning -Message ' Insufficient license. You need the Entra ID Governance license.'
             }
             else
             {
@@ -350,13 +350,13 @@ function Set-TargetResource
         try
         {
             $instance = Get-MgBetaIdentityGovernanceLifecycleWorkflow -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
-            Remove-MgBetaIdentityGovernanceLifecycleWorkflow -WorkflowId $instance.Id  -ErrorAction Stop
+            Remove-MgBetaIdentityGovernanceLifecycleWorkflow -WorkflowId $instance.Id -ErrorAction Stop
         }
         catch
         {
-            if ($_.ErrorDetails.Message -like "*Insufficient license *")
+            if ($_.ErrorDetails.Message -like '*Insufficient license *')
             {
-                Write-Warning -Message " Insufficient license. You need the Entra ID Governance license."
+                Write-Warning -Message ' Insufficient license. You need the Entra ID Governance license.'
             }
             else
             {
@@ -449,7 +449,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -620,11 +620,11 @@ function Export-TargetResource
     }
     catch
     {
-        if ($_.ErrorDetails.Message -like "Insufficient license *")
+        if ($_.ErrorDetails.Message -like 'Insufficient license *')
         {
             Write-M365DSCHost -Message "`r`n    " -DeferWrite
             Write-M365DSCHost -Message $Global:M365DSCEmojiYellowCircle -DeferWrite
-            Write-M365DSCHost -Message " Insufficient license. You need the Entra ID Governance license." -CommitWrite
+            Write-M365DSCHost -Message ' Insufficient license. You need the Entra ID Governance license.' -CommitWrite
         }
         else
         {

@@ -70,9 +70,9 @@ function Get-TargetResource
     try
     {
         Write-Verbose -Message "Retrieving space by name {$SpaceName}"
-        $spacesUri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + "/spaces"
+        $spacesUri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + '/spaces'
         $response = Invoke-M365DSCServicesHubWebRequest -Uri $spacesUri -Method GET
-        $space = $response.value | Where-Object -FilterScript {$_.name -eq $SpaceName}
+        $space = $response.value | Where-Object -FilterScript { $_.name -eq $SpaceName }
 
         if ($space.Length -gt 1)
         {
@@ -83,9 +83,9 @@ function Get-TargetResource
             return $nullResult
         }
 
-        $usersUri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + "/spaces/" + $space.spaceId + "/users"
+        $usersUri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + '/spaces/' + $space.spaceId + '/users'
         $response = Invoke-M365DSCServicesHubWebRequest -Uri $usersUri -Method GET
-        $instance = $response.value | Where-Object -FilterScript {$_.email -eq $Email}
+        $instance = $response.value | Where-Object -FilterScript { $_.email -eq $Email }
 
         if ($instance.Length -gt 1)
         {
@@ -184,18 +184,17 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-    $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     Write-Verbose -Message "Retrieving space by name {$SpaceName}"
-    $spacesUri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + "/spaces"
+    $spacesUri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + '/spaces'
     $response = Invoke-M365DSCServicesHubWebRequest -Uri $spacesUri -Method GET
-    $space = $response.value | Where-Object -FilterScript {$_.name -eq $SpaceName}
+    $space = $response.value | Where-Object -FilterScript { $_.name -eq $SpaceName }
 
     if ($currentInstance.Ensure -eq 'Present')
     {
-        $usersUri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + "/spaces/" + $space.spaceId + "/users"
+        $usersUri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + '/spaces/' + $space.spaceId + '/users'
         $response = Invoke-M365DSCServicesHubWebRequest -Uri $usersUri -Method GET
-        $user = $response.value | Where-Object -FilterScript {$_.email -eq $Email}
+        $user = $response.value | Where-Object -FilterScript { $_.email -eq $Email }
     }
 
     # CREATE
@@ -203,37 +202,37 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Adding new user {$Email} with Roles {$($Roles -join ',')}"
         $body = @{
-            email  = $Email
-            roles  = $Roles
+            email = $Email
+            roles = $Roles
         }
 
-        $uri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + "/spaces/" + $space.spaceId + "/users"
+        $uri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + '/spaces/' + $space.spaceId + '/users'
         Write-Verbose -Message "POST request to {$uri}:`r`n$(ConvertTo-Json $body -Depth 5)"
         Invoke-M365DSCServicesHubWebRequest -Uri $uri `
-                                            -Method POST `
-                                            -Body $body
+            -Method POST `
+            -Body $body
     }
     # UPDATE
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         $body = @{
-            roles = $Roles;
+            roles = $Roles
             email = $Email
         }
 
-        $uri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + "/spaces/" + $space.spaceId + "/users/" + $user.id
+        $uri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + '/spaces/' + $space.spaceId + '/users/' + $user.id
         Write-Verbose -Message "PATCH request to {$uri}:`r`n$(ConvertTo-Json $body -Depth 5)"
         Invoke-M365DSCServicesHubWebRequest -Uri $uri `
-                                            -Method PATCH `
-                                            -Body $body
+            -Method PATCH `
+            -Body $body
     }
     # REMOVE
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Removing user {$Email}"
-        $uri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + "/spaces/" + $space.spaceId + "/users/" + $user.id
+        $uri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + '/spaces/' + $space.spaceId + '/users/' + $user.id
         Invoke-M365DSCServicesHubWebRequest -Uri $uri `
-                                            -Method DELETE
+            -Method DELETE
     }
 }
 
@@ -295,7 +294,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -353,7 +352,7 @@ function Export-TargetResource
     {
         $Script:ExportMode = $true
 
-        $spacesUri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + "/spaces"
+        $spacesUri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + '/spaces'
         $response = Invoke-M365DSCServicesHubWebRequest -Uri $spacesUri -Method GET
         $spaces = $response.value
 
@@ -373,7 +372,7 @@ function Export-TargetResource
             $displayedKey = $space.name
             Write-M365DSCHost -Message "    |---[$j/$($spaces.Count)] $displayedKey" -DeferWrite
 
-            $usersUri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + "/spaces/" + $space.spaceId + "/users"
+            $usersUri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + '/spaces/' + $space.spaceId + '/users'
             $response = Invoke-M365DSCServicesHubWebRequest -Uri $usersUri -Method GET
             $users = $response.value
 

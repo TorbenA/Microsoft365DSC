@@ -93,7 +93,7 @@ function Get-TargetResource
 
                     if ($null -ne $getValue -and $getValue.Count -gt 1)
                     {
-                        Throw "Multiple AAD Identity Governance Programs with the Displayname $($DisplayName) exist in the tenant."
+                        throw "Multiple AAD Identity Governance Programs with the Displayname $($DisplayName) exist in the tenant."
                     }
                 }
             }
@@ -296,7 +296,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

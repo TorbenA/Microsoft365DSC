@@ -102,7 +102,7 @@ function Get-TargetResource
 
         #region Get ApiConnectorConfiguration
         $connectorConfiguration = Get-MgBetaIdentityB2XUserFlowApiConnectorConfiguration -B2XIdentityUserFlowId $Id `
-                                                                                         -ExpandProperty 'postFederationSignup,postAttributeCollection'
+            -ExpandProperty 'postFederationSignup,postAttributeCollection'
 
         $complexApiConnectorConfiguration = @{
             postFederationSignupConnectorName    = Get-ConnectorName($connectorConfiguration.PostFederationSignup.DisplayName)
@@ -495,7 +495,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

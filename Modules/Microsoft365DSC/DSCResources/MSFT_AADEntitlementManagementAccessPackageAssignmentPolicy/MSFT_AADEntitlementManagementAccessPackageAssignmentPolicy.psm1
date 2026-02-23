@@ -590,7 +590,7 @@ function Set-TargetResource
                 # For other types (requestorManager, etc.), leave ID as-is
             }
         }
-        If ($null -ne $CreateParameters.CustomExtensionHandlers -and $CreateParameters.CustomExtensionHandlers.Count -gt 0 )
+        if ($null -ne $CreateParameters.CustomExtensionHandlers -and $CreateParameters.CustomExtensionHandlers.Count -gt 0 )
         {
             $formattedCustomExtensionHandlers = @()
             foreach ($customExtensionHandler in $CreateParameters.CustomExtensionHandlers)
@@ -739,7 +739,7 @@ function Set-TargetResource
                 # For other types (requestorManager, etc.), leave ID as-is
             }
         }
-        If ($null -ne $UpdateParameters.CustomExtensionHandlers -and $UpdateParameters.CustomExtensionHandlers.Count -gt 0 )
+        if ($null -ne $UpdateParameters.CustomExtensionHandlers -and $UpdateParameters.CustomExtensionHandlers.Count -gt 0 )
         {
             $formattedCustomExtensionHandlers = @()
             foreach ($customExtensionHandler in $UpdateParameters.CustomExtensionHandlers)
@@ -776,7 +776,6 @@ function Set-TargetResource
             $UpdateParameters.AccessPackageId = $AccessPackageId
         }
 
-        Write-Verbose -Message "Updating with values:`r`n$($UpdateParameters | convertto-json -Depth 10)"
         Set-MgBetaEntitlementManagementAccessPackageAssignmentPolicy `
             -BodyParameter $UpdateParameters `
             -AccessPackageAssignmentPolicyId $currentInstance.Id
@@ -886,7 +885,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $ResourceName
+        -ResourceName $ResourceName
     return $result
 }
 

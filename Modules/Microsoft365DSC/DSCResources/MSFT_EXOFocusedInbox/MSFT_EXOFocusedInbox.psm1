@@ -88,15 +88,15 @@ function Get-TargetResource
         }
 
         $results = @{
-            Identity                     = $Identity
-            FocusedInboxOn               = [Boolean]$instance.FocusedInboxOn
-            Ensure                       = 'Present'
-            Credential                   = $Credential
-            ApplicationId                = $ApplicationId
-            TenantId                     = $TenantId
-            CertificateThumbprint        = $CertificateThumbprint
-            ManagedIdentity              = $ManagedIdentity.IsPresent
-            AccessTokens                 = $AccessTokens
+            Identity              = $Identity
+            FocusedInboxOn        = [Boolean]$instance.FocusedInboxOn
+            Ensure                = 'Present'
+            Credential            = $Credential
+            ApplicationId         = $ApplicationId
+            TenantId              = $TenantId
+            CertificateThumbprint = $CertificateThumbprint
+            ManagedIdentity       = $ManagedIdentity.IsPresent
+            AccessTokens          = $AccessTokens
         }
         return $results
     }
@@ -230,8 +230,8 @@ function Test-TargetResource
 
     $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                             @compareParameters
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+        @compareParameters
     return $result
 }
 

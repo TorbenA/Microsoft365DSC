@@ -112,12 +112,18 @@ function Get-TargetResource
 
         Write-Verbose -Message "Getting GroupPolicyAssignment with PolicyType {$PolicyType} for Group {$($Group.DisplayName)}"
         $AllGroupPolicyAssignment = Get-CsGroupPolicyAssignment -ErrorAction Stop
-        $GroupPolicyAssignment = $AllGroupPolicyAssignment | Where-Object{$_.GroupId -eq $Group.Id -and $_.PolicyType -eq $PolicyType}
+        $GroupPolicyAssignment = $AllGroupPolicyAssignment | Where-Object { $_.GroupId -eq $Group.Id -and $_.PolicyType -eq $PolicyType }
         if ($null -eq $GroupPolicyAssignment)
         {
             Write-Verbose -Message "GroupPolicyAssignment not found for Group {$GroupDisplayName}"
             $nullReturn.GroupId = $Group.Id
             return $nullReturn
+        }
+
+        $priorityValue = $null
+        if ($null -ne $GroupPolicyAssignment.Priority)
+        {
+            $priorityValue = $GroupPolicyAssignment.Priority.ToString()
         }
 
         $Message = "Found GroupPolicyAssignment with PolicyType {$($GroupPolicyAssignment.PolicyType)}, " + `
@@ -128,7 +134,7 @@ function Get-TargetResource
             GroupDisplayName      = $Group.DisplayName
             PolicyType            = $GroupPolicyAssignment.PolicyType
             PolicyName            = $GroupPolicyAssignment.PolicyName
-            Priority              = if ($null -ne $GroupPolicyAssignment.Priority) { $GroupPolicyAssignment.Priority.ToString() } else { $null }
+            Priority              = $priorityValue
             Ensure                = 'Present'
             Credential            = $Credential
             ApplicationId         = $ApplicationId
@@ -336,8 +342,8 @@ function Test-TargetResource
 
     $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                             @compareParameters
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+        @compareParameters
     return $result
 }
 
@@ -419,7 +425,7 @@ function Export-TargetResource
                 $Global:M365DSCExportResourceInstancesCount++
             }
 
-            Write-M365DSCHost -Message  "    |---[$j/$($instances.Length)] GroupPolicyAssignment {$($Group.DisplayName)-$($item.PolicyType)}" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$j/$($instances.Length)] GroupPolicyAssignment {$($Group.DisplayName)-$($item.PolicyType)}" -DeferWrite
             $results = @{
                 GroupDisplayName      = $Group.DisplayName
                 GroupId               = $item.GroupId

@@ -229,8 +229,8 @@ function Set-TargetResource
     $needToUpdate = $false
     if ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Absent')
     {
-        write-verbose "Create new DirectorySetting for 'Password Rule Settings' with default values"
-        $template = Get-MgBetaDirectorySettingTemplate -All | Where-Object -FilterScript {$_.Displayname -eq 'Password Rule Settings'}
+        Write-Verbose "Create new DirectorySetting for 'Password Rule Settings' with default values"
+        $template = Get-MgBetaDirectorySettingTemplate -All | Where-Object -FilterScript { $_.Displayname -eq 'Password Rule Settings' }
         # need to build a new array for values since the template-values contain property DefaultValue but Value is required
         $defaultValues = @()
         $template.Values | ForEach-Object {
@@ -371,7 +371,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

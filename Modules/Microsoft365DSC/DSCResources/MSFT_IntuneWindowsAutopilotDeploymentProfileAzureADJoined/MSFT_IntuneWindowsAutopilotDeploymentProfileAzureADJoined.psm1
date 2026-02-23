@@ -572,7 +572,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -683,7 +683,7 @@ function Export-TargetResource
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.EnrollmentStatusScreenSettings `
                     -CIMInstanceName 'MicrosoftGraphwindowsEnrollmentStatusScreenSettings1'
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.EnrollmentStatusScreenSettings = $complexTypeStringResult
                 }
@@ -697,7 +697,7 @@ function Export-TargetResource
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.OutOfBoxExperienceSettings `
                     -CIMInstanceName 'MicrosoftGraphoutOfBoxExperienceSettings1'
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.OutOfBoxExperienceSettings = $complexTypeStringResult
                 }

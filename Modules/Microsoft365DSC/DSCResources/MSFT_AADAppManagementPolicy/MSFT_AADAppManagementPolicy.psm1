@@ -79,18 +79,18 @@ function Get-TargetResource
     {
         if ($null -ne $Script:exportedInstances -and $Script:ExportMode)
         {
-            $instance = $Script:exportedInstances | Where-Object -FilterScript {$_.Id -eq $Id}
+            $instance = $Script:exportedInstances | Where-Object -FilterScript { $_.Id -eq $Id }
         }
         else
         {
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
                 $instance = Get-MgBetaPolicyAppManagementPolicy -AppManagementPolicyId $Id `
-                                                                -ErrorAction SilentlyContinue
+                    -ErrorAction SilentlyContinue
             }
             else
             {
-                $instance = Get-MgBetaPolicyAppManagementPolicy | Where-Object -FilterScript {$_.DisplayName -eq $DisplayName}
+                $instance = Get-MgBetaPolicyAppManagementPolicy | Where-Object -FilterScript { $_.DisplayName -eq $DisplayName }
             }
 
         }
@@ -100,20 +100,20 @@ function Get-TargetResource
         }
 
         $restrictionsValue = @{
-            passwordCredentials     = @()
-            keyCredentials          = @()
+            passwordCredentials = @()
+            keyCredentials      = @()
         }
 
         foreach ($passwordCred in $instance.Restrictions.PasswordCredentials)
         {
             $newItem = @{
-                restrictForAppsCreatedAfterDateTime = $passwordCred.RestrictForAppsCreatedAfterDateTime.ToString("o")
+                restrictForAppsCreatedAfterDateTime = $passwordCred.RestrictForAppsCreatedAfterDateTime.ToString('o')
                 restrictionType                     = $passwordCred.RestrictionType
                 state                               = $passwordCred.State
             }
             if ($null -ne $passwordCred.MaxLifetime)
             {
-                $iso8601Duration = "P{0}DT{1}H{2}M{3}S" -f $passwordCred.MaxLifetime.Days, $passwordCred.MaxLifetime.Hours, $passwordCred.MaxLifetime.Minutes, $passwordCred.MaxLifetime.Seconds
+                $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $passwordCred.MaxLifetime.Days, $passwordCred.MaxLifetime.Hours, $passwordCred.MaxLifetime.Minutes, $passwordCred.MaxLifetime.Seconds
                 $newItem.Add('maxLifetime', $iso8601Duration)
             }
             $restrictionsValue.passwordCredentials += $newItem
@@ -122,13 +122,13 @@ function Get-TargetResource
         foreach ($keyCred in $instance.Restrictions.KeyCredentials)
         {
             $newItem = @{
-                restrictForAppsCreatedAfterDateTime = $keyCred.RestrictForAppsCreatedAfterDateTime.ToString("o")
+                restrictForAppsCreatedAfterDateTime = $keyCred.RestrictForAppsCreatedAfterDateTime.ToString('o')
                 restrictionType                     = $keyCred.RestrictionType
                 state                               = $keyCred.State
             }
             if ($null -ne $keyCred.MaxLifetime)
             {
-                $iso8601Duration = "P{0}DT{1}H{2}M{3}S" -f $keyCred.MaxLifetime.Days, $keyCred.MaxLifetime.Hours, $keyCred.MaxLifetime.Minutes, $keyCred.MaxLifetime.Seconds
+                $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $keyCred.MaxLifetime.Days, $keyCred.MaxLifetime.Hours, $keyCred.MaxLifetime.Minutes, $keyCred.MaxLifetime.Seconds
                 $newItem.Add('maxLifetime', $iso8601Duration)
             }
             $restrictionsValue.keyCredentials += $newItem
@@ -356,7 +356,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

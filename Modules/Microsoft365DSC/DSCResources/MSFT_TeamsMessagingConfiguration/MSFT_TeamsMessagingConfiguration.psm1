@@ -83,12 +83,11 @@ function Get-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $nullResult = @{}
     try
     {
         $instance = Get-CsTeamsMessagingConfiguration -Identity 'Global'
 
-        Write-Verbose -Message "A Teams Messaging Configuration with Identity {Global} was found"
+        Write-Verbose -Message 'A Teams Messaging Configuration with Identity {Global} was found'
         $results = @{
             ContentBasedPhishingCheck         = $instance.ContentBasedPhishingCheck
             CustomEmojis                      = $instance.CustomEmojis
@@ -205,7 +204,7 @@ function Set-TargetResource
 
     $updateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $updateParameters.Remove('IsSingleInstance') | Out-Null
-    Write-Verbose -Message "Updating the Teams Messaging Configuration with Identity {Global}"
+    Write-Verbose -Message 'Updating the Teams Messaging Configuration with Identity {Global}'
 
     Set-CsTeamsMessagingConfiguration @updateParameters -Identity 'Global' | Out-Null
 }
@@ -290,7 +289,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -325,7 +324,7 @@ function Export-TargetResource
         $ManagedIdentity
     )
 
-   $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
+    $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftTeams' `
         -InboundParameters $PSBoundParameters
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -368,10 +367,10 @@ function Export-TargetResource
             }
             Write-M365DSCHost -Message "    |---[$i/$($getValue.Count)] $displayedKey" -DeferWrite
             $params = @{
-                IsSingleInstance = 'Yes'
-                Credential = $Credential
-                ApplicationId = $ApplicationId
-                TenantId = $TenantId
+                IsSingleInstance      = 'Yes'
+                Credential            = $Credential
+                ApplicationId         = $ApplicationId
+                TenantId              = $TenantId
                 CertificateThumbprint = $CertificateThumbprint
             }
 

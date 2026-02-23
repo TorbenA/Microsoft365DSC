@@ -43,7 +43,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Getting configuration of AAD Access Review Policy"
+    Write-Verbose -Message 'Getting configuration of AAD Access Review Policy'
 
     try
     {
@@ -131,7 +131,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting configuration for Access Review Policy"
+    Write-Verbose -Message 'Setting configuration for Access Review Policy'
 
     $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
@@ -200,7 +200,7 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Testing configuration for Access Review Policy"
+    Write-Verbose -Message 'Testing configuration for Access Review Policy'
 
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
@@ -212,7 +212,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

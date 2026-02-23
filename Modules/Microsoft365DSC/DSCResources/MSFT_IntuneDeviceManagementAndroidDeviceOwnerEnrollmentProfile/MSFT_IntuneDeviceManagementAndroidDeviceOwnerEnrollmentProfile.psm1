@@ -148,27 +148,27 @@ function Get-TargetResource
         }
 
         $results = @{
-            Id                        = $androidDeviceOwnerEnrollmentProfile.Id
-            DisplayName               = $androidDeviceOwnerEnrollmentProfile.DisplayName
-            AccountId                 = $androidDeviceOwnerEnrollmentProfile.AccountId
-            ConfigureWifi             = $androidDeviceOwnerEnrollmentProfile.ConfigureWifi
-            Description               = $androidDeviceOwnerEnrollmentProfile.Description
-            EnrollmentMode            = $androidDeviceOwnerEnrollmentProfile.EnrollmentMode.ToString()
-            EnrollmentTokenType       = $androidDeviceOwnerEnrollmentProfile.EnrollmentTokenType.ToString()
-            IsTeamsDeviceProfile      = $androidDeviceOwnerEnrollmentProfile.IsTeamsDeviceProfile
-            RoleScopeTagIds           = $androidDeviceOwnerEnrollmentProfile.RoleScopeTagIds
-            TokenExpirationDateTime   = $androidDeviceOwnerEnrollmentProfile.TokenExpirationDateTime.ToString()
-            WifiHidden                = $androidDeviceOwnerEnrollmentProfile.WifiHidden
-            WifiPassword              = $androidDeviceOwnerEnrollmentProfile.WifiPassword
-            WifiSecurityType          = $androidDeviceOwnerEnrollmentProfile.WifiSecurityType.ToString()
-            WifiSsid                  = $androidDeviceOwnerEnrollmentProfile.WifiSsid
-            Ensure                    = 'Present'
-            Credential                = $Credential
-            ApplicationId             = $ApplicationId
-            TenantId                  = $TenantId
-            CertificateThumbprint     = $CertificateThumbprint
-            ManagedIdentity           = $ManagedIdentity.IsPresent
-            AccessTokens              = $AccessTokens
+            Id                      = $androidDeviceOwnerEnrollmentProfile.Id
+            DisplayName             = $androidDeviceOwnerEnrollmentProfile.DisplayName
+            AccountId               = $androidDeviceOwnerEnrollmentProfile.AccountId
+            ConfigureWifi           = $androidDeviceOwnerEnrollmentProfile.ConfigureWifi
+            Description             = $androidDeviceOwnerEnrollmentProfile.Description
+            EnrollmentMode          = $androidDeviceOwnerEnrollmentProfile.EnrollmentMode.ToString()
+            EnrollmentTokenType     = $androidDeviceOwnerEnrollmentProfile.EnrollmentTokenType.ToString()
+            IsTeamsDeviceProfile    = $androidDeviceOwnerEnrollmentProfile.IsTeamsDeviceProfile
+            RoleScopeTagIds         = $androidDeviceOwnerEnrollmentProfile.RoleScopeTagIds
+            TokenExpirationDateTime = $androidDeviceOwnerEnrollmentProfile.TokenExpirationDateTime.ToString()
+            WifiHidden              = $androidDeviceOwnerEnrollmentProfile.WifiHidden
+            WifiPassword            = $androidDeviceOwnerEnrollmentProfile.WifiPassword
+            WifiSecurityType        = $androidDeviceOwnerEnrollmentProfile.WifiSecurityType.ToString()
+            WifiSsid                = $androidDeviceOwnerEnrollmentProfile.WifiSsid
+            Ensure                  = 'Present'
+            Credential              = $Credential
+            ApplicationId           = $ApplicationId
+            TenantId                = $TenantId
+            CertificateThumbprint   = $CertificateThumbprint
+            ManagedIdentity         = $ManagedIdentity.IsPresent
+            AccessTokens            = $AccessTokens
         }
 
         return $results
@@ -420,7 +420,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

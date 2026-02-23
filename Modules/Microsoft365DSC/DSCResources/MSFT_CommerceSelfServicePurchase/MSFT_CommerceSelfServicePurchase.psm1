@@ -72,7 +72,7 @@ function Get-TargetResource
     {
         if ($null -ne $Script:exportedInstances -and $Script:ExportMode)
         {
-            $instance = $Script:exportedInstances.items | Where-Object -FilterScript {$_.ProductId -eq $ProductId}
+            $instance = $Script:exportedInstances.items | Where-Object -FilterScript { $_.ProductId -eq $ProductId }
         }
         else
         {
@@ -174,11 +174,10 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-    $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Absent')
     {
-        throw "Ensure cannot be absent. This resource can only update existing Self Service Purchase Policies."
+        throw 'Ensure cannot be absent. This resource can only update existing Self Service Purchase Policies.'
     }
 
     $uri = (Get-MSCloudLoginConnectionProfile -Workload 'Licensing').HostUrl + "/v1/policies/AllowSelfServicePurchase/products/$($ProductId)"
@@ -248,7 +247,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

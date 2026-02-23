@@ -134,7 +134,7 @@ function Get-TargetResource
             {
                 Write-Verbose -Message "Could not find an Intune Windows Autopilot Deployment Profile Azure AD Hybrid Joined with Id {$Id}"
 
-                if (-Not [string]::IsNullOrEmpty($DisplayName))
+                if (-not [string]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile `
                         -All `
@@ -573,7 +573,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -684,7 +684,7 @@ function Export-TargetResource
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.EnrollmentStatusScreenSettings `
                     -CIMInstanceName 'MicrosoftGraphwindowsEnrollmentStatusScreenSettings'
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.EnrollmentStatusScreenSettings = $complexTypeStringResult
                 }
@@ -698,7 +698,7 @@ function Export-TargetResource
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.OutOfBoxExperienceSettings `
                     -CIMInstanceName 'MicrosoftGraphoutOfBoxExperienceSettings'
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.OutOfBoxExperienceSettings = $complexTypeStringResult
                 }

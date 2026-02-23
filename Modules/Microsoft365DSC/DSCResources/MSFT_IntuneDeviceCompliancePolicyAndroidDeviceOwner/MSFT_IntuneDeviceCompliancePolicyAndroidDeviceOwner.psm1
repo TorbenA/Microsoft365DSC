@@ -224,16 +224,17 @@ function Get-TargetResource
         $hashtable = @{}
         $complexScheduledActionsForRule = @()
         $scheduledActionsForRuleHashTable.ScheduledActionConfigurations.PsObject.Properties | ForEach-Object {
-            if($_.Value -match "ActionType")
+            if ($_.Value -match 'ActionType')
             {
-                foreach($item in $_.Value){
-                        $hashtable = @{}
-                        $hashtable.Add('actionType', $item.ActionType)
-                        $hashtable.Add('gracePeriodHours', $item.GracePeriodHours)
-                        $hashtable.Add('notificationMessageCcList', ([Array]$item.NotificationMessageCcList -split " ") )
-                        $hashtable.Add('notificationTemplateId', $item.NotificationTemplateId)
-                        $complexScheduledActionsForRule += $hashtable
-                 }
+                foreach ($item in $_.Value)
+                {
+                    $hashtable = @{}
+                    $hashtable.Add('actionType', $item.ActionType)
+                    $hashtable.Add('gracePeriodHours', $item.GracePeriodHours)
+                    $hashtable.Add('notificationMessageCcList', ([Array]$item.NotificationMessageCcList -split ' ') )
+                    $hashtable.Add('notificationTemplateId', $item.NotificationTemplateId)
+                    $complexScheduledActionsForRule += $hashtable
+                }
             }
         }
 
@@ -742,7 +743,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

@@ -295,7 +295,7 @@ function Set-TargetResource
 
         # Filtering Deprecated value that sometimes causes issues
         # https://learn.microsoft.com/en-us/graph/group-directory-settings?tabs=http#groupunified
-        $newValues = $Policy.Values | Where-Object { $_.Name -ne "EnableMSStandardBlockedWords"}
+        $newValues = $Policy.Values | Where-Object { $_.Name -ne 'EnableMSStandardBlockedWords' }
 
         $index = 0
         foreach ($property in $newValues)
@@ -449,7 +449,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

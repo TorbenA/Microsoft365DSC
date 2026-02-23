@@ -84,8 +84,8 @@ function Get-TargetResource
 
         #region ApplicationRestrictions
         $appRestrictionsValue = @{
-            passwordCredentials     = @()
-            keyCredentials          = @()
+            passwordCredentials = @()
+            keyCredentials      = @()
         }
 
         foreach ($passwordCred in $instance.ApplicationRestrictions.PasswordCredentials)
@@ -97,7 +97,7 @@ function Get-TargetResource
             }
             if ($null -ne $passwordCred.MaxLifetime)
             {
-                $iso8601Duration = "P{0}DT{1}H{2}M{3}S" -f $passwordCred.MaxLifetime.Days, $passwordCred.MaxLifetime.Hours, $passwordCred.MaxLifetime.Minutes, $passwordCred.MaxLifetime.Seconds
+                $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $passwordCred.MaxLifetime.Days, $passwordCred.MaxLifetime.Hours, $passwordCred.MaxLifetime.Minutes, $passwordCred.MaxLifetime.Seconds
                 $newItem.Add('maxLifetime', $iso8601Duration)
             }
             $appRestrictionsValue.passwordCredentials += $newItem
@@ -112,7 +112,7 @@ function Get-TargetResource
             }
             if ($null -ne $keyCred.MaxLifetime)
             {
-                $iso8601Duration = "P{0}DT{1}H{2}M{3}S" -f $keyCred.MaxLifetime.Days, $keyCred.MaxLifetime.Hours, $keyCred.MaxLifetime.Minutes, $keyCred.MaxLifetime.Seconds
+                $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $keyCred.MaxLifetime.Days, $keyCred.MaxLifetime.Hours, $keyCred.MaxLifetime.Minutes, $keyCred.MaxLifetime.Seconds
                 $newItem.Add('maxLifetime', $iso8601Duration)
             }
             $appRestrictionsValue.keyCredentials += $newItem
@@ -121,8 +121,8 @@ function Get-TargetResource
 
         #region ServicePrincipalRestrictions
         $spnRestrictionsValue = [ordered]@{
-            passwordCredentials     = @()
-            keyCredentials          = @()
+            passwordCredentials = @()
+            keyCredentials      = @()
         }
 
         foreach ($passwordCred in $instance.ServicePrincipalRestrictions.PasswordCredentials)
@@ -134,7 +134,7 @@ function Get-TargetResource
             }
             if ($null -ne $passwordCred.MaxLifetime)
             {
-                $iso8601Duration = "P{0}DT{1}H{2}M{3}S" -f $passwordCred.MaxLifetime.Days, $passwordCred.MaxLifetime.Hours, $passwordCred.MaxLifetime.Minutes, $passwordCred.MaxLifetime.Seconds
+                $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $passwordCred.MaxLifetime.Days, $passwordCred.MaxLifetime.Hours, $passwordCred.MaxLifetime.Minutes, $passwordCred.MaxLifetime.Seconds
                 $newItem.Add('maxLifetime', $iso8601Duration)
             }
             $spnRestrictionsValue.passwordCredentials += $newItem
@@ -149,7 +149,7 @@ function Get-TargetResource
             }
             if ($null -ne $keyCred.MaxLifetime)
             {
-                $iso8601Duration = "P{0}DT{1}H{2}M{3}S" -f $keyCred.MaxLifetime.Days, $keyCred.MaxLifetime.Hours, $keyCred.MaxLifetime.Minutes, $keyCred.MaxLifetime.Seconds
+                $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $keyCred.MaxLifetime.Days, $keyCred.MaxLifetime.Hours, $keyCred.MaxLifetime.Minutes, $keyCred.MaxLifetime.Seconds
                 $newItem.Add('maxLifetime', $iso8601Duration)
             }
             $spnRestrictionsValue.keyCredentials += $newItem
@@ -324,7 +324,7 @@ function Set-TargetResource
 
     $setParameters.ServicePrincipalRestrictions = $spnRestrictionsValue
 
-    Write-Verbose -Message "Updating the Default App Management Policy"
+    Write-Verbose -Message 'Updating the Default App Management Policy'
     Update-MgBetaPolicyDefaultAppManagementPolicy @setParameters
 }
 
@@ -394,7 +394,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

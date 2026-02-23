@@ -322,7 +322,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -523,7 +523,7 @@ function Get-M365DSCADOGroupPermission
 
         if ($null -eq $Script:AllAccessControlLists -or $Script:CurrentOrganization -ne $OrganizationName)
         {
-            $Script:AllAccessControlLists = [System.Collections.Generic.Dictionary[System.String,System.Object[]]]::new(100)
+            $Script:AllAccessControlLists = [System.Collections.Generic.Dictionary[System.String, System.Object[]]]::new(100)
             foreach ($namespace in $Script:AllSecurityNamespaces)
             {
                 $uri = "https://dev.azure.com/$($OrganizationName)/_apis/accesscontrollists/$($namespace.namespaceId)?api-version=7.2-preview.1"

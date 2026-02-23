@@ -102,7 +102,7 @@ function Get-TargetResource
     {
         if ($null -ne $Script:exportedInstances -and $Script:exportedInstances.Count -gt 0)
         {
-            $instance = $Script:exportedInstances | Where-Object -FilterScript {$_.DisplayName -eq $DisplayName}
+            $instance = $Script:exportedInstances | Where-Object -FilterScript { $_.DisplayName -eq $DisplayName }
         }
         else
         {
@@ -123,23 +123,23 @@ function Get-TargetResource
         }
 
         $results = @{
-            DisplayName                          = $instance.DisplayName
-            Id                                   = $instance.Id
-            IsViewingBeforeAcceptanceRequired    = $instance.IsViewingBeforeAcceptanceRequired
-            IsPerDeviceAcceptanceRequired        = $instance.IsPerDeviceAcceptanceRequired
-            UserReacceptRequiredFrequency        = $instance.UserReacceptRequiredFrequency
-            AcceptanceStatement                  = $instance.AcceptanceStatement
-            FileData                             = $fileContent
-            FileName                             = $instance.File.Name
-            Language                             = $instance.File.Language
-            Ensure                               = 'Present'
-            Credential                           = $Credential
-            ApplicationId                        = $ApplicationId
-            TenantId                             = $TenantId
-            ApplicationSecret                    = $ApplicationSecret
-            CertificateThumbprint                = $CertificateThumbprint
-            ManagedIdentity                      = $ManagedIdentity.IsPresent
-            AccessTokens                         = $AccessTokens
+            DisplayName                       = $instance.DisplayName
+            Id                                = $instance.Id
+            IsViewingBeforeAcceptanceRequired = $instance.IsViewingBeforeAcceptanceRequired
+            IsPerDeviceAcceptanceRequired     = $instance.IsPerDeviceAcceptanceRequired
+            UserReacceptRequiredFrequency     = $instance.UserReacceptRequiredFrequency
+            AcceptanceStatement               = $instance.AcceptanceStatement
+            FileData                          = $fileContent
+            FileName                          = $instance.File.Name
+            Language                          = $instance.File.Language
+            Ensure                            = 'Present'
+            Credential                        = $Credential
+            ApplicationId                     = $ApplicationId
+            TenantId                          = $TenantId
+            ApplicationSecret                 = $ApplicationSecret
+            CertificateThumbprint             = $CertificateThumbprint
+            ManagedIdentity                   = $ManagedIdentity.IsPresent
+            AccessTokens                      = $AccessTokens
         }
 
         return $results
@@ -252,27 +252,27 @@ function Set-TargetResource
         # Prepare the file content
         $fileContent = @()
         $fileContent += @{
-            fileData = @{
-                data     = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($FileData))
+            fileData  = @{
+                data = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($FileData))
             }
-            fileName     = $FileName
-            language = $Language
+            fileName  = $FileName
+            language  = $Language
             isDefault = $true
         }
 
         $CreateParameters = @{
-            displayName                        = $DisplayName
-            isViewingBeforeAcceptanceRequired  = $IsViewingBeforeAcceptanceRequired
-            isPerDeviceAcceptanceRequired      = $IsPerDeviceAcceptanceRequired
-            userReacceptRequiredFrequency      = $UserReacceptRequiredFrequency
-            acceptanceStatement                = $AcceptanceStatement
-            files                              = $fileContent
+            displayName                       = $DisplayName
+            isViewingBeforeAcceptanceRequired = $IsViewingBeforeAcceptanceRequired
+            isPerDeviceAcceptanceRequired     = $IsPerDeviceAcceptanceRequired
+            userReacceptRequiredFrequency     = $UserReacceptRequiredFrequency
+            acceptanceStatement               = $AcceptanceStatement
+            files                             = $fileContent
         }
 
         $CreateParameters = Remove-NullEntriesFromHashtable -Hash $CreateParameters
         Write-Verbose -Message "Creating Azure AD Agreement with DisplayName {$DisplayName} with:`r`n$(ConvertTo-Json $CreateParameters -Depth 5)"
 
-        Invoke-MgGraphRequest -Uri "/beta/agreements" -Method POST -Body ($CreateParameters | ConvertTo-Json -Depth 5) | Out-Null
+        Invoke-MgGraphRequest -Uri '/beta/agreements' -Method POST -Body ($CreateParameters | ConvertTo-Json -Depth 5) | Out-Null
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
@@ -282,20 +282,20 @@ function Set-TargetResource
         {
             $fileContent = @()
             $fileContent += @{
-                fileData     = @{
+                fileData = @{
                     data = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($FileData))
                 }
-                fileName     = $FileName
+                fileName = $FileName
                 language = $Language
             }
         }
 
         $UpdateParameters = @{
-            displayName                        = $DisplayName
-            isViewingBeforeAcceptanceRequired  = $IsViewingBeforeAcceptanceRequired
-            isPerDeviceAcceptanceRequired      = $IsPerDeviceAcceptanceRequired
-            userReacceptRequiredFrequency      = $UserReacceptRequiredFrequency
-            acceptanceStatement                = $AcceptanceStatement
+            displayName                       = $DisplayName
+            isViewingBeforeAcceptanceRequired = $IsViewingBeforeAcceptanceRequired
+            isPerDeviceAcceptanceRequired     = $IsPerDeviceAcceptanceRequired
+            userReacceptRequiredFrequency     = $UserReacceptRequiredFrequency
+            acceptanceStatement               = $AcceptanceStatement
         }
 
         if ($null -ne $fileContent)
@@ -306,8 +306,8 @@ function Set-TargetResource
         $UpdateParameters = Remove-NullEntriesFromHashtable -Hash $UpdateParameters
         Write-Verbose -Message "Updating Azure AD Agreement with ID {$($currentInstance.Id)} with:`r`n$(ConvertTo-Json $UpdateParameters -Depth 5)"
         Invoke-MgGraphRequest -Method PATCH `
-                              -Uri "/beta/agreements/$($currentInstance.Id)" `
-                              -Body ($UpdateParameters | ConvertTo-Json -Depth 5) | Out-Null
+            -Uri "/beta/agreements/$($currentInstance.Id)" `
+            -Body ($UpdateParameters | ConvertTo-Json -Depth 5) | Out-Null
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
@@ -402,7 +402,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

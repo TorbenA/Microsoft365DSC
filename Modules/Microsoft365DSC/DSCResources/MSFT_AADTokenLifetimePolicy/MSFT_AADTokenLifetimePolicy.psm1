@@ -83,7 +83,7 @@ function Get-TargetResource
             $nullReturn.Ensure = 'Absent'
             try
             {
-                if (-Not [System.String]::IsNullOrEMpty($Id))
+                if (-not [System.String]::IsNullOrEMpty($Id))
                 {
                     $Policy = Get-MgBetaPolicyTokenLifetimePolicy -TokenLifetimePolicyId $Id -ErrorAction SilentlyContinue
                 }
@@ -318,7 +318,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

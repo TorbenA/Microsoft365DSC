@@ -1,5 +1,5 @@
 Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneWindowsUpdateForBusinessHotpatchProfileWindows10'
-$Script:BaseUrl = "/beta/deviceManagement/windowsQualityUpdatePolicies"
+$Script:BaseUrl = '/beta/deviceManagement/windowsQualityUpdatePolicies'
 
 function Get-TargetResource
 {
@@ -130,18 +130,18 @@ function Get-TargetResource
 
         $results = @{
             #region resource generator code
-            Description                            = $getValue.description
-            DisplayName                            = $getValue.displayName
-            RoleScopeTagIds                        = $getValue.roleScopeTagIds
-            HotpatchEnabled                        = $getValue.hotpatchEnabled
-            Id                                     = $getValue.id
-            Ensure                                 = 'Present'
-            Credential                             = $Credential
-            ApplicationId                          = $ApplicationId
-            TenantId                               = $TenantId
-            ApplicationSecret                      = $ApplicationSecret
-            CertificateThumbprint                  = $CertificateThumbprint
-            ManagedIdentity                        = $ManagedIdentity.IsPresent
+            Description           = $getValue.description
+            DisplayName           = $getValue.displayName
+            RoleScopeTagIds       = $getValue.roleScopeTagIds
+            HotpatchEnabled       = $getValue.hotpatchEnabled
+            Id                    = $getValue.id
+            Ensure                = 'Present'
+            Credential            = $Credential
+            ApplicationId         = $ApplicationId
+            TenantId              = $TenantId
+            ApplicationSecret     = $ApplicationSecret
+            CertificateThumbprint = $CertificateThumbprint
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             #endregion
         }
 
@@ -378,7 +378,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

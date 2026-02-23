@@ -883,7 +883,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -1018,7 +1018,7 @@ function Export-TargetResource
                         -CIMInstanceName 'SentinelAlertRuleEventGroupingSettings' `
                         -ComplexTypeMapping $complexMapping
 
-                    if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                    if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                     {
                         $Results.EventGroupingSettings = $complexTypeStringResult
                     }
@@ -1042,7 +1042,7 @@ function Export-TargetResource
                         -CIMInstanceName 'SentinelAlertRuleCustomDetails' `
                         -ComplexTypeMapping $complexMapping
 
-                    if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                    if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                     {
                         $Results.CustomDetails = $complexTypeStringResult
                     }
@@ -1071,7 +1071,7 @@ function Export-TargetResource
                         -CIMInstanceName 'SentinelAlertRuleEntityMapping' `
                         -ComplexTypeMapping $complexMapping
 
-                    if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                    if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                     {
                         $Results.EntityMappings = $complexTypeStringResult
                     }
@@ -1100,7 +1100,7 @@ function Export-TargetResource
                         -CIMInstanceName 'SentinelAlertRuleAlertDetailsOverride' `
                         -ComplexTypeMapping $complexMapping
 
-                    if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                    if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                     {
                         $Results.AlertDetailsOverride = $complexTypeStringResult
                     }
@@ -1129,7 +1129,7 @@ function Export-TargetResource
                         -CIMInstanceName 'SentinelAlertRuleIncidentConfiguration' `
                         -ComplexTypeMapping $complexMapping
 
-                    if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                    if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                     {
                         $Results.IncidentConfiguration = $complexTypeStringResult
                     }

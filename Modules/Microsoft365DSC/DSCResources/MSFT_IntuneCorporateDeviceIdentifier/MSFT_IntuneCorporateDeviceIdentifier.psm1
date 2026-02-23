@@ -86,7 +86,7 @@ function Get-TargetResource
 
         if ($allDevices.Count -eq 0)
         {
-            Write-Verbose -Message "No corporate device identifiers found in Intune"
+            Write-Verbose -Message 'No corporate device identifiers found in Intune'
             return $nullResult
         }
 
@@ -97,11 +97,18 @@ function Get-TargetResource
         foreach ($device in $allDevices)
         {
             $deviceHash = @{
-                Id                          = $device.id
-                importedDeviceIdentifier    = $device.importedDeviceIdentifier
-                importedDeviceIdentityType  = $device.importedDeviceIdentityType
-                Description                 = $device.description
-                Platform                    = if ($device.platform) { $device.platform.ToLower() } else { $null }
+                Id                         = $device.id
+                importedDeviceIdentifier   = $device.importedDeviceIdentifier
+                importedDeviceIdentityType = $device.importedDeviceIdentityType
+                Description                = $device.description
+                Platform                   = if ($device.platform)
+                {
+                    $device.platform.ToLower()
+                }
+                else
+                {
+                    $null
+                }
             }
             $deviceArray += $deviceHash
         }
@@ -304,7 +311,7 @@ function Set-TargetResource
             $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + 'beta/deviceManagement/importedDeviceIdentities/importDeviceIdentityList'
             $body = @{
                 overwriteImportedDeviceIdentities = $false
-                importedDeviceIdentities = $importList
+                importedDeviceIdentities          = $importList
             }
 
             try
@@ -343,7 +350,7 @@ function Set-TargetResource
 
         if ($devicesToAdd.Count -eq 0 -and $devicesToRemove.Count -eq 0)
         {
-            Write-Verbose -Message "No changes needed - current state matches desired state"
+            Write-Verbose -Message 'No changes needed - current state matches desired state'
         }
     }
     elseif ($Ensure -eq 'Absent')
@@ -370,7 +377,7 @@ function Set-TargetResource
         }
         else
         {
-            Write-Verbose -Message "No device identifiers to remove"
+            Write-Verbose -Message 'No device identifiers to remove'
         }
     }
 }
@@ -531,7 +538,7 @@ function Export-TargetResource
                     -CIMInstanceName 'MSFT_IntuneDeviceIdentifier' `
                     -ComplexTypeMapping $complexMapping
 
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.Devices = $complexTypeStringResult
                 }

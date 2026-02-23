@@ -1,4 +1,4 @@
-Confirm-M365DSCModuleDependency -ModuleName "MSFT_IntuneMobileAppsLobAppiOS"
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneMobileAppsLobAppiOS'
 
 function Get-TargetResource
 {
@@ -266,7 +266,7 @@ function Get-TargetResource
         {
             if ($null -ne $assignment.assignmentSettings -and $null -ne $assignment.assignmentSettings.vpnConfigurationId)
             {
-                $vpnConfiguration = Get-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $assignment.assignmentSettings.vpnConfigurationId -Property "DisplayName" -ErrorAction SilentlyContinue
+                $vpnConfiguration = Get-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $assignment.assignmentSettings.vpnConfigurationId -Property 'DisplayName' -ErrorAction SilentlyContinue
                 if ($null -ne $vpnConfiguration)
                 {
                     $assignment.assignmentSettings.vpnConfigurationId = $vpnConfiguration.DisplayName
@@ -434,7 +434,7 @@ function Set-TargetResource
             if (-not [System.Guid]::TryParse($assignment.assignmentSettings.vpnConfigurationId, [ref]$guid))
             {
                 $vpnConfiguration = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "displayName eq '$($assignment.assignmentSettings.vpnConfigurationId)'" | Where-Object -FilterScript {
-                    $_.AdditionalProperties.'@odata.type' -like "#microsoft.graph.*VpnConfiguration"
+                    $_.AdditionalProperties.'@odata.type' -like '#microsoft.graph.*VpnConfiguration'
                 }
                 if ($null -eq $vpnConfiguration)
                 {
@@ -451,7 +451,7 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating an Intune Mobile Apps Lob App iOS with DisplayName {$DisplayName}"
-        $boundParameters.Remove("Assignments") | Out-Null
+        $boundParameters.Remove('Assignments') | Out-Null
 
         $createParameters = ([Hashtable]$boundParameters).Clone()
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
@@ -466,10 +466,10 @@ function Set-TargetResource
             }
         }
         #region resource generator code
-        $createParameters.Add("@odata.type", "#microsoft.graph.iosLobApp")
-        $policy = Invoke-MgGraphRequest -Method POST -Uri "/beta/deviceAppManagement/mobileApps" -Body ($createParameters | ConvertTo-Json -Depth 10)
+        $createParameters.Add('@odata.type', '#microsoft.graph.iosLobApp')
+        $policy = Invoke-MgGraphRequest -Method POST -Uri '/beta/deviceAppManagement/mobileApps' -Body ($createParameters | ConvertTo-Json -Depth 10)
 
-        Invoke-M365DSCIntuneMobileAppInitialUpload -AppId $policy.Id -OdataType "#microsoft.graph.iosLobApp" -FileExtension "ipa"
+        Invoke-M365DSCIntuneMobileAppInitialUpload -AppId $policy.Id -OdataType '#microsoft.graph.iosLobApp' -FileExtension 'ipa'
 
         if ($PSBoundParameters.ContainsKey('Categories'))
         {
@@ -488,7 +488,7 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Intune Mobile Apps Lob App iOS with Id {$($currentInstance.Id)}"
-        $boundParameters.Remove("Assignments") | Out-Null
+        $boundParameters.Remove('Assignments') | Out-Null
 
         $updateParameters = ([Hashtable]$boundParameters).Clone()
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
@@ -505,7 +505,7 @@ function Set-TargetResource
         }
 
         #region resource generator code
-        $updateParameters.Add("@odata.type", "#microsoft.graph.iosLobApp")
+        $updateParameters.Add('@odata.type', '#microsoft.graph.iosLobApp')
         Invoke-MgGraphRequest -Method PATCH -Uri "/beta/deviceAppManagement/mobileApps/$($currentInstance.Id)" -Body ($updateParameters | ConvertTo-Json -Depth 10)
 
         if ($PSBoundParameters.ContainsKey('Categories'))
@@ -660,7 +660,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -820,9 +820,9 @@ function Export-TargetResource
             {
                 $complexMapping = @(
                     @{
-                        Name = 'AssignmentSettings'
+                        Name            = 'AssignmentSettings'
                         CIMInstanceName = 'DeviceManagementLobAppiOSAssignmentSettings'
-                        IsRequired = $false
+                        IsRequired      = $false
                     }
                 )
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `

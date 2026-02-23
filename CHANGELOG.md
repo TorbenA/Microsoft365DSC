@@ -1,5 +1,12 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* SCDLPSensitiveInformationType
+  * Updated test logic to use `Test-M365DSCTargetResource`.
+* MISC
+  * Aligned code formatting across all resources
+
 # 1.26.218.1
 
 * AADConditionalAccessPolicy

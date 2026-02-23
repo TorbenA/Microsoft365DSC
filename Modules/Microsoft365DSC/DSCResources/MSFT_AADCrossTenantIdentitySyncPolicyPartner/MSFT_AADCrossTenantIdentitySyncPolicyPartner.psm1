@@ -1,4 +1,4 @@
-Confirm-M365DSCModuleDependency -ModuleName "MSFT_AADCrossTenantIdentitySyncPolicyPartner"
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADCrossTenantIdentitySyncPolicyPartner'
 
 function Get-TargetResource
 {
@@ -70,19 +70,19 @@ function Get-TargetResource
         Write-Verbose -Message "Retrieving Cross-Tenant Identity Sync Policy for Tenant {$CrossTenantAccessPolicyConfigurationPartnerTenantId}"
         if ($null -ne $Script:exportedInstances -and $Script:ExportMode)
         {
-            Write-Verbose -Message "Retrieving instance from cache."
-            $instance = $Script:exportedInstances | Where-Object -FilterScript {$_.TenantId -eq $CrossTenantAccessPolicyConfigurationPartnerTenantId}
+            Write-Verbose -Message 'Retrieving instance from cache.'
+            $instance = $Script:exportedInstances | Where-Object -FilterScript { $_.TenantId -eq $CrossTenantAccessPolicyConfigurationPartnerTenantId }
         }
         else
         {
-            Write-Verbose -Message "Retrieving instance from API call."
+            Write-Verbose -Message 'Retrieving instance from API call.'
             $instance = Get-MgBetaPolicyCrossTenantAccessPolicyPartnerIdentitySynchronization `
-                            -CrossTenantAccessPolicyConfigurationPartnerTenantId $CrossTenantAccessPolicyConfigurationPartnerTenantId `
-                            -ErrorAction SilentlyContinue
+                -CrossTenantAccessPolicyConfigurationPartnerTenantId $CrossTenantAccessPolicyConfigurationPartnerTenantId `
+                -ErrorAction SilentlyContinue
         }
         if ($null -eq $instance)
         {
-            Write-Verbose -Message "No instance found."
+            Write-Verbose -Message 'No instance found.'
             return $nullResult
         }
 
@@ -267,7 +267,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

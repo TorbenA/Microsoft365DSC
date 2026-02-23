@@ -323,7 +323,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -413,7 +413,7 @@ function Export-TargetResource
                     -ComplexObject $result.EmergencyNumbers `
                     -CIMInstanceName 'TeamsEmergencyNumber' `
                     -ComplexTypeMapping $complexMapping
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $result.EmergencyNumbers = $complexTypeStringResult
                 }

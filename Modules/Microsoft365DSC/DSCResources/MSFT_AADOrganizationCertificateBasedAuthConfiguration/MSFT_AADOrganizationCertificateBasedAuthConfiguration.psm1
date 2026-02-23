@@ -231,8 +231,8 @@ function Set-TargetResource
 
         Write-Verbose -Message "Creating with Parameters:`r`n$(ConvertTo-Json $params -Depth 10)"
         Invoke-MgGraphRequest -Uri $uri `
-                              -Method 'POST' `
-                              -Body $params
+            -Method 'POST' `
+            -Body $params
     }
 }
 
@@ -296,7 +296,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

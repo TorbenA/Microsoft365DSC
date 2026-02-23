@@ -258,7 +258,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -336,7 +336,7 @@ function Export-TargetResource
                 $Global:M365DSCExportResourceInstancesCount++
             }
 
-            Write-M365DSCHost -Message  "    |---[$i/2] $cType" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$i/2] $cType" -DeferWrite
             $Params = @{
                 Credential            = $Credential
                 CdnType               = $cType

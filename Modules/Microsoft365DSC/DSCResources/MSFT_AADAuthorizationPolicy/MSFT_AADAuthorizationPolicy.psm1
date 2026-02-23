@@ -314,8 +314,8 @@ function Set-TargetResource
 
         if (($desiredParam -is [System.Array] -and (Compare-Object -ReferenceObject $desiredParam -DifferenceObject $currentParam)) -or
             ($desiredParam -isnot [System.Array] -and $desiredParam -ne $currentParam) -or
-           ($null -eq $desiredParam -and $null -ne $currentParam) -or
-           ($null -ne $desiredParam -and $null -eq $currentParam))
+            ($null -eq $desiredParam -and $null -ne $currentParam) -or
+            ($null -ne $desiredParam -and $null -eq $currentParam))
         {
             if ($param.ToLower() -match 'defaultuserrole')
             {
@@ -495,7 +495,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

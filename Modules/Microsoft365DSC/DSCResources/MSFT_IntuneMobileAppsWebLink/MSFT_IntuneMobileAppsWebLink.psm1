@@ -416,7 +416,7 @@ function Set-TargetResource
     if ($BoundParameters.ContainsKey('LargeIcon'))
     {
         $complexLargeIcon = @{
-            type = $BoundParameters.LargeIcon.type
+            type  = $BoundParameters.LargeIcon.type
             value = [System.Convert]::FromBase64String($BoundParameters.LargeIcon.value)
         }
         $BoundParameters.Remove('LargeIcon') | Out-Null
@@ -437,7 +437,7 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating an Intune Mobile Apps Web Link with DisplayName {$DisplayName}"
-        $BoundParameters.Remove("Assignments") | Out-Null
+        $BoundParameters.Remove('Assignments') | Out-Null
 
         $createParameters = ([Hashtable]$BoundParameters).Clone()
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
@@ -452,7 +452,7 @@ function Set-TargetResource
             }
         }
         #region resource generator code
-        $createParameters.Add("@odata.type", "#microsoft.graph." + $BoundParameters.TargetType)
+        $createParameters.Add('@odata.type', '#microsoft.graph.' + $BoundParameters.TargetType)
         $policy = New-MgBetaDeviceAppManagementMobileApp -BodyParameter $createParameters
 
         if ($PSBoundParameters.ContainsKey('Categories'))
@@ -472,7 +472,7 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Intune Mobile Apps Web Link with Id {$($currentInstance.Id)}"
-        $BoundParameters.Remove("Assignments") | Out-Null
+        $BoundParameters.Remove('Assignments') | Out-Null
 
         $updateParameters = ([Hashtable]$BoundParameters).Clone()
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
@@ -489,7 +489,7 @@ function Set-TargetResource
         }
 
         #region resource generator code
-        $UpdateParameters.Add("@odata.type", "#microsoft.graph." + $BoundParameters.TargetType)
+        $UpdateParameters.Add('@odata.type', '#microsoft.graph.' + $BoundParameters.TargetType)
         Update-MgBetaDeviceAppManagementMobileApp `
             -MobileAppId $currentInstance.Id `
             -BodyParameter $UpdateParameters
@@ -652,8 +652,8 @@ function Test-TargetResource
 
     $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                             @compareParameters
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+        @compareParameters
     return $result
 }
 
@@ -853,14 +853,14 @@ $Script:odataToPropertiesMap = @{
         'IgnoreManifestScope'
         'TargetApplicationBundleIdentifier'
     )
-    'macOSWebClip' = @(
+    'macOSWebClip'     = @(
         'FullScreenEnabled'
         'PreComposedIconEnabled'
     )
-    'webApp' = @(
+    'webApp'           = @(
         'UseManagedBrowser'
     )
-    'windowsWebApp' = @()
+    'windowsWebApp'    = @()
 }
 
 function Get-CompareParameters

@@ -127,7 +127,7 @@ function Get-TargetResource
 
         Write-Verbose -Message "Found Device Enrollment Limit Restriction with Name {$DisplayName}"
 
-        $results =  @{
+        $results = @{
             Id                    = $config.Id
             DisplayName           = $config.DisplayName
             Description           = $config.Description
@@ -422,7 +422,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

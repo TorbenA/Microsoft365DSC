@@ -1102,7 +1102,7 @@ function Set-TargetResource
     $CurrentPolicyConfig = Get-TargetResource @PSBoundParameters
     if ($EnableSpoAipMigration -ne $CurrentPolicyConfig.EnableSpoAipMigration)
     {
-        $params.Add("EnableSpoAipMigration", $EnableSpoAipMigration)
+        $params.Add('EnableSpoAipMigration', $EnableSpoAipMigration)
     }
     Write-Verbose -Message "Updating policy config with values:`r`n$(Convert-M365DscHashtableToString -Hashtable $params)"
     Set-PolicyConfig @params
@@ -1274,7 +1274,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -1356,7 +1356,8 @@ function Export-TargetResource
             }
             else
             {
-                $Results.Remove('BusinessJustificationList') | Out-Null            }
+                $Results.Remove('BusinessJustificationList') | Out-Null
+            }
         }
 
         if ($null -ne $Results.DLPAppGroups -and $Results.DLPAppGroups.Length -gt 0)
@@ -1598,8 +1599,8 @@ function Export-TargetResource
             -Results $Results `
             -Credential $Credential `
             -NoEscape @('QuarantineParameters', 'BusinessJustificationList', 'DLPAppGroups', 'DLPNetworkShareGroups',
-                'DLPPrinterGroups', 'DLPRemovableMediaGroups', 'SiteGroups', 'UnallowedApp', 'UnallowedCloudSyncApp',
-                'UnallowedBluetoothApp', 'UnallowedBrowser', 'EvidenceStoreSettings')
+            'DLPPrinterGroups', 'DLPRemovableMediaGroups', 'SiteGroups', 'UnallowedApp', 'UnallowedCloudSyncApp',
+            'UnallowedBluetoothApp', 'UnallowedBrowser', 'EvidenceStoreSettings')
 
         $dscContent += $currentDSCBlock
         Save-M365DSCPartialExport -Content $currentDSCBlock `
