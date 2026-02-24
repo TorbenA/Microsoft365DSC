@@ -5,6 +5,7 @@
 * AADTenantAppManagementPolicy
   * Add certificateBasedApplicationConfigurationIds support to AADTenantAppManagementPolicy
     FIXES [6925](https://github.com/microsoft/Microsoft365DSC/issues/6925)
+  * Update format RestrictForAppsCreatedAfterDateTime to match AADAppManagementPolicy
 * EXOTenantAllowBlockListItems
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.
