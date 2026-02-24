@@ -1,4 +1,4 @@
-[ClassVersion("1.0.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_AADAppManagementPolicyRestrictionsCredential
 {
     [Write, Description("Collection of GUIDs of certificateBasedApplicationConfiguration objects that represent trusted certificate authorities. Used when restrictionType is set to trustedCertificateAuthority for keyCredentials.")] string CertificateBasedApplicationConfigurationIds[];
