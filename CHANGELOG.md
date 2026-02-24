@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADAppManagementPolicy
+  * Add certificateBasedApplicationConfigurationIds support to AADAppManagementPolicy
+    FIXES [6926](https://github.com/microsoft/Microsoft365DSC/issues/6926)
 * EXOTenantAllowBlockListItems
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.
