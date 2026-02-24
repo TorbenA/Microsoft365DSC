@@ -6,6 +6,8 @@
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.
     FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
+* M365DSCPermissions
+  * Fixed an issue where granting admin consent was not working with credentials.
 
 # 1.26.218.1
 
