@@ -4,6 +4,7 @@ class MSFT_MicrosoftGraphassignmentreviewsettings
     [Write, Description("The default decision to apply if the request is not reviewed within the period specified in durationInDays."), ValueMap{"acceptAccessRecommendation","keepAccess","removeAccess","unknownFutureValue"}, Values{"acceptAccessRecommendation","keepAccess","removeAccess","unknownFutureValue"}] String AccessReviewTimeoutBehavior;
     [Write, Description("The number of days within which reviewers should provide input.")] UInt32 DurationInDays;
     [Write, Description("Specifies whether to display recommendations to the reviewer. The default value is true")] Boolean IsAccessRecommendationEnabled;
+    [Write, Description("Specifies whether the agentic experience is enabled for this policy.")] Boolean IsAgenticExperienceEnabled;
     [Write, Description("Specifies whether the reviewer must provide justification for the approval. The default value is true.")] Boolean IsApprovalJustificationRequired;
     [Write, Description("If true, access reviews are required for assignments from this policy.")] Boolean IsEnabled;
     [Write, Description("The interval for recurrence, such as monthly or quarterly.")] String RecurrenceType;
