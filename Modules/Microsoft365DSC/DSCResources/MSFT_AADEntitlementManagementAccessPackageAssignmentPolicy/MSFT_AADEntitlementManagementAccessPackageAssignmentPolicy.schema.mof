@@ -65,10 +65,11 @@ class MSFT_MicrosoftGraphapprovalsettings
     [Write, Description("Indicates whether approval is required for a user to extend their assignment.")] Boolean IsApprovalRequiredForExtension;
     [Write, Description("Indicates whether the requestor is required to supply a justification in their request.")] Boolean IsRequestorJustificationRequired;
 };
-[ClassVersion("1.0.0")]
+[ClassVersion("1.0.1")]
 class MSFT_MicrosoftGraphapprovalstage1
 {
     [Write, Description("The number of days that a request can be pending a response before it is automatically denied.")] UInt32 ApprovalStageTimeOutInDays;
+    [Write, Description("Defines whether approver information is visible to the requestor in approval processes within Microsoft Entra entitlement management and related governance scenarios."), ValueMap{"default","notVisible","visible","unknownFutureValue"}, Values{"default","notVisible","visible","unknownFutureValue"}] String ApproverInformationVisibility;
     [Write, Description("Indicates whether the approver is required to provide a justification for approving a request.")] UInt32 EscalationTimeInMinutes;
     [Write, Description("If true, then one or more escalation approvers are configured in this approval stage.")] Boolean IsApproverJustificationRequired;
     [Write, Description("If escalation is required, the time a request can be pending a response from a primary approver.")] Boolean IsEscalationEnabled;
