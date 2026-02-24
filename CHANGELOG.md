@@ -6,6 +6,10 @@
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.
     FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
+* M365DSCDRGUtil
+  * Fixed an issue in `Compare-M365DSCComplexObject` where calling it
+    directly would throw an exception during drift reporting.
+    FIXES [#6922](https://github.com/microsoft/Microsoft365DSC/issues/6922)
 * M365DSCReport
   * Fixed an issue when comparing multiple instances with the same key
     properties would result in a RuntimeException.

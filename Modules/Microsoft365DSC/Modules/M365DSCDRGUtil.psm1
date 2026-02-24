@@ -726,6 +726,18 @@ function Compare-M365DSCComplexObject
         $NoDriftReport
     )
 
+    # Check if global drift variables are initialized. This is usually done in Compare-M365DSCResourceState,
+    # but if this function is called directly, they must be initialized to avoid issues when referincing them in ComparePairIterative
+    if ($null -eq $Global:AllDrifts)
+    {
+        $Global:AllDrifts = @{
+            DriftInfo     = @()
+            CurrentValues = @{}
+            DesiredValues = @{}
+        }
+        $Global:PotentialDrifts = @()
+    }
+
     # Compare two arbitrary objects iteratively (no recursion). Returns $true if identical (no drift).
     # This function will append potential drifts to $Global:PotentialDrifts if $NoDriftReport is $true, otherwise will append to $Global:AllDrifts.DriftInfo on real drifts.
     function ComparePairIterative {
@@ -802,7 +814,7 @@ function Compare-M365DSCComplexObject
 
             # If left is an array of complex objects, handle array logic (order-insensitive)
             if (Test-IsComplexArrayCandidate -Object $l) {
-                # If counts differ, record drift (original did that)
+                # If counts differ, record drift
                 if ($l.Count -ne $r.Count)
                 {
                     Write-Verbose -Message "Configuration drift - The complex array have different number of items: Source {$($l.Count)}, Target {$($r.Count)}"
