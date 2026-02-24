@@ -3,10 +3,12 @@
 # UNRELEASED
 
 * AADEntitlementManagementAccessPackageAssignmentPolicy
-  * Add missing sub-property `IsAgenticExperienceEnabled` to
+  * Added missing sub-property `IsAgenticExperienceEnabled` to
     complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
     `ApprovalStages[]`
     FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
+  * Fixed an issue where the `StartDateTime` property was not standardized.
+    It is now in the ISO 8601 format.
 * EXOTenantAllowBlockListItems
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.
