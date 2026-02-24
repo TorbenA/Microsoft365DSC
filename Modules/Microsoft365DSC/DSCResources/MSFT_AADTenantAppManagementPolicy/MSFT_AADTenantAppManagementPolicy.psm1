@@ -56,6 +56,8 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of Default App Management Policy"
+
     $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
 
@@ -91,7 +93,7 @@ function Get-TargetResource
         foreach ($passwordCred in $instance.ApplicationRestrictions.PasswordCredentials)
         {
             $newItem = [ordered]@{
-                restrictForAppsCreatedAfterDateTime = $passwordCred.RestrictForAppsCreatedAfterDateTime.ToString()
+                restrictForAppsCreatedAfterDateTime = $passwordCred.RestrictForAppsCreatedAfterDateTime.ToString("o")
                 restrictionType                     = $passwordCred.RestrictionType
                 state                               = $passwordCred.State
             }
@@ -106,7 +108,7 @@ function Get-TargetResource
         foreach ($keyCred in $instance.ApplicationRestrictions.KeyCredentials)
         {
             $newItem = [ordered]@{
-                restrictForAppsCreatedAfterDateTime = $keyCred.RestrictForAppsCreatedAfterDateTime.ToString()
+                restrictForAppsCreatedAfterDateTime = $keyCred.RestrictForAppsCreatedAfterDateTime.ToString("o")
                 restrictionType                     = $keyCred.RestrictionType
                 state                               = $keyCred.State
             }
@@ -132,7 +134,7 @@ function Get-TargetResource
         foreach ($passwordCred in $instance.ServicePrincipalRestrictions.PasswordCredentials)
         {
             $newItem = [ordered]@{
-                restrictForAppsCreatedAfterDateTime = $passwordCred.RestrictForAppsCreatedAfterDateTime.ToString()
+                restrictForAppsCreatedAfterDateTime = $passwordCred.RestrictForAppsCreatedAfterDateTime.ToString("o")
                 restrictionType                     = $passwordCred.RestrictionType
                 state                               = $passwordCred.State
             }
@@ -147,7 +149,7 @@ function Get-TargetResource
         foreach ($keyCred in $instance.ServicePrincipalRestrictions.KeyCredentials)
         {
             $newItem = [ordered]@{
-                restrictForAppsCreatedAfterDateTime = $keyCred.RestrictForAppsCreatedAfterDateTime.ToString()
+                restrictForAppsCreatedAfterDateTime = $keyCred.RestrictForAppsCreatedAfterDateTime.ToString("o")
                 restrictionType                     = $keyCred.RestrictionType
                 state                               = $keyCred.State
             }
@@ -246,6 +248,8 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Setting configuration of Default App Management Policy"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
