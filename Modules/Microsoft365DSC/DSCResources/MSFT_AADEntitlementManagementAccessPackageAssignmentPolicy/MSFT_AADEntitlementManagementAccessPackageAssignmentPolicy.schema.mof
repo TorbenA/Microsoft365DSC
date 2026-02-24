@@ -1,4 +1,4 @@
-[ClassVersion("1.0.0")]
+[ClassVersion("1.0.1")]
 class MSFT_MicrosoftGraphassignmentreviewsettings
 {
     [Write, Description("The default decision to apply if the request is not reviewed within the period specified in durationInDays."), ValueMap{"acceptAccessRecommendation","keepAccess","removeAccess","unknownFutureValue"}, Values{"acceptAccessRecommendation","keepAccess","removeAccess","unknownFutureValue"}] String AccessReviewTimeoutBehavior;
