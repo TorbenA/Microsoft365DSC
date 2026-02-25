@@ -293,6 +293,10 @@ function Invoke-M365DSCCommand
         $SuppressNotFoundError,
 
         [Parameter()]
+        [switch]
+        $RetryOnNotFoundError,
+
+        [Parameter()]
         [System.Int32]
         $MaxRetries = 3,
 
@@ -302,23 +306,28 @@ function Invoke-M365DSCCommand
     )
 
     $retryCount = 0
+    $previousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = 'Stop' # Ensure all errors are catchable
     while ($true)
     {
         try
         {
-            return (& $ScriptBlock)
+            $result = (& $ScriptBlock)
+            $ErrorActionPreference = $previousErrorActionPreference
+            return $result
         }
         catch
         {
             # Check if this is a "not found" error that should return $null
-            if ($SuppressNotFoundError -and (Test-M365DSCNotFoundError -ErrorRecord $_))
+            if ($SuppressNotFoundError -and -not $RetryOnNotFoundError -and (Test-M365DSCNotFoundError -ErrorRecord $_))
             {
                 Write-Verbose -Message "Resource not found (expected): $($_.Exception.Message)"
+                $ErrorActionPreference = $previousErrorActionPreference
                 return $null
             }
 
             # Check if this is a transient error that warrants retry
-            if ((Test-M365DSCTransientError -ErrorRecord $_) -and $retryCount -lt $MaxRetries)
+            if ((Test-M365DSCTransientError -ErrorRecord $_) -and $retryCount -lt $MaxRetries -or ($RetryOnNotFoundError -and (Test-M365DSCNotFoundError -ErrorRecord $_) -and $retryCount -lt $MaxRetries))
             {
                 $retryCount++
                 $delay = $BaseDelayInSeconds * [Math]::Pow(2, $retryCount - 1)
@@ -327,7 +336,9 @@ function Invoke-M365DSCCommand
                 continue
             }
 
-            # Permanent error or retries exhausted — throw
+            # Permanent error or retries exhausted. Throw the exception to be handled by the caller.
+            Write-Verbose -Message "Permanent error or max retries reached: $($_.Exception.Message)"
+            $ErrorActionPreference = $previousErrorActionPreference
             throw
         }
     }

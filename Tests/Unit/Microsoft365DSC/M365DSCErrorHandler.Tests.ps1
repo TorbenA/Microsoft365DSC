@@ -215,6 +215,33 @@ Describe 'Invoke-M365DSCCommand' {
         }
     }
 
+    Context 'When a not-found error occurs with RetryOnNotFoundError' {
+        It 'Should not throw the error if limit is not reached' {
+            {
+                $Script:limit = 1
+                $Script:count = 0
+                $baseDelay = 0
+                Invoke-M365DSCCommand -ScriptBlock {
+                    $Script:count++
+                    if ($Script:count -le $Script:limit)
+                    {
+                        throw "Request_ResourceNotFound: Resource does not exist. Attempt $Script:count of $Script:limit."
+                    }
+                    return "Success on attempt $Script:count"
+                } -RetryOnNotFoundError -BaseDelayInSeconds $baseDelay
+            } | Should -Not -Throw
+        }
+
+        It 'Should throw the error if the limit is reached' {
+            {
+                $baseDelay = 0
+                Invoke-M365DSCCommand -ScriptBlock {
+                    throw "Request_ResourceNotFound: Resource does not exist."
+                } -RetryOnNotFoundError -BaseDelayInSeconds $baseDelay -MaxRetries 2
+            } | Should -Throw '*Request_ResourceNotFound*'
+        }
+    }
+
     Context 'When a transient error occurs and then succeeds' {
         It 'Should retry and return the result' {
             $script:callCount = 0
