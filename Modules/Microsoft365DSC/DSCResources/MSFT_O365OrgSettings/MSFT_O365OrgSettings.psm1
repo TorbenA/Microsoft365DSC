@@ -261,7 +261,9 @@ function Get-TargetResource
                 $PSBoundParameters.ContainsKey('VivaInsightsWebExperience') -or `
                 $Script:exportedInstance)
         {
-            $currentVivaInsightsSettings = Invoke-M365DSCCommand -ScriptBlock { Get-DefaultTenantMyAnalyticsFeatureConfig } -RetryOnNotFoundError
+            # TODO: Remove verbose information after testing is complete
+            $currentVivaInsightsSettings = Invoke-M365DSCCommand -ScriptBlock { Get-DefaultTenantMyAnalyticsFeatureConfig -Verbose } -RetryOnNotFoundError
+            Write-Verbose -Message "Current Viva Insights Settings: $($currentVivaInsightsSettings | ConvertTo-Json -Depth 5)" -Verbose
             if ($null -ne $currentVivaInsightsSettings)
             {
                 $results += @{
