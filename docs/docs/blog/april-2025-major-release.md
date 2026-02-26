@@ -4,7 +4,7 @@ As defined by our [Breaking Changes Policy](https://microsoft365dsc.com/concepts
 
 ## AADPasswordRuleSettings - Updated the BannedPasswordCheckOnPremisesMode Accepted Values ([5966](https://github.com/microsoft/Microsoft365DSC/pull/5966))
 
-To reflect and align with a change in the associated API, we are changing the possible value of the BannedPasswordCheckOnPremisesMode property from <strong>Enforced</strong> to <strong>Enforce</strong>. Existing configuration that use this resource, should check for that property and make sure that if the value is specified as Enforced, that it gets updated to Enforce.
+To reflect and align with a change in the associated API, we are changing the possible value of the BannedPasswordCheckOnPremisesMode property from **Enforced** to **Enforce**. Existing configuration that use this resource, should check for that property and make sure that if the value is specified as Enforced, that it gets updated to Enforce.
 
 ## EXOArcConfig - Removed Identity Parameter ([#5917](https://github.com/microsoft/Microsoft365DSC/pull/5917))
 

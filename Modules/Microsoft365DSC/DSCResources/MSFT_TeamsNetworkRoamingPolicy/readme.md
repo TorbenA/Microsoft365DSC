@@ -2,4 +2,4 @@
 
 ## Description
 
-New-CsTeamsNetworkRoamingPolicy allows IT Admins to create policies for Network Roaming and Bandwidth Control experiences in Microsoft Teams.
+This resources configures a Teams Network Roaming Policy.

@@ -152,4 +152,4 @@ These events will be reported as Information entries having an Event ID of 2.
 
 ## Enforcing Tenant ID to be in Format '.onmicrosoft.' ([#3137](https://github.com/microsoft/Microsoft365DSC/pull/3137))
 
-Starting with this version, the TenantID property will no longer be accepting GUIDs. Instead customers should provide their tenants' name, ideally in the format of \<tenant>.onmicrosoft.\<extension>.
+Starting with this version, the TenantID property will no longer be accepting GUIDs. Instead customers should provide their tenants' name, ideally in the format of `<tenant>.onmicrosoft.<extension>`.

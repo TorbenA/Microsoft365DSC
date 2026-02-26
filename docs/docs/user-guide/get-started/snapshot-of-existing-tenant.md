@@ -39,7 +39,7 @@ As mentioned above, Microsoft365DSC now defaults to an unattended capture proces
 
 You can always pass in the credentials as a variable, which will bypass the credential prompt and automatically initiate the export process when calling the cmdlet. E.g.
 
-```PowerShell
+```powershell
 $creds = Get-Credential
 Export-M365DSCConfiguration -Credential $creds
 ```
@@ -99,7 +99,7 @@ The Microsoft365DSC tenant configuration snapshot feature offers several options
 
 As mentioned above, the moment this switch is present when calling the **Export-M365DSCConfiguration** cmdlet it will launch new browser window and navigate to the export user interface at <https://export.microsoft365dsc.com/>.
 
-```PowerShell
+```powershell
 Export-M365DSCConfiguration -LaunchWebUI
 ```
 

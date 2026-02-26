@@ -170,13 +170,13 @@ Doing so will return an object with two properties. The **ReadPermissions** prop
 
 By default, this cmdlet outputs the permissions required for Delegated permissions. To output the Application permissions, use the PermissionType and AccessType parameters
 
-```PowerShell
+```powershell
 Get-M365DSCCompiledPermissionList -ResourceNameList @('AADUser', 'AADApplication') -PermissionType 'Application' -AccessType 'Read'
 ```
 
 If you are trying to interact with all available components in Microsoft365DSC, you can get a complete picture of all permissions required across all resources by running the following line of PowerShell.
 
-```PowerShell
+```powershell
 Get-M365DSCCompiledPermissionList -ResourceNameList (Get-M365DSCAllResources)
 ```
 
@@ -192,7 +192,7 @@ The [Get-M365DSCAllResources](../cmdlets/Get-M365DSCAllResources.md) cmdlet will
 We provide an easy way of consenting permissions to the Delegated Permissions application "Microsoft Graph PowerShell" in your tenant with the [Update-M365DSCAllowedGraphScopes](../cmdlets/Update-M365DSCAllowedGraphScopes.md) cmdlet. This cmdlet accepts either a list of components to grant the permissions for or can grant it for all resources if the **-All** switch is used. You also need to specify what type of permissions, Read or Update, you wish to grant it using the **-Type** parameter.
 
 <figure markdown>
-  ![Consenting to requested Graph permissions](../../Images/AcceptGraphPermissions.png)
+  ![Consenting to requested Graph permissions](../../Images/Accept)
   <figcaption>Consenting to requested Graph permissions</figcaption>
 </figure>
 
@@ -204,13 +204,13 @@ Executing the cmdlet will prompt you to authenticate using an administrator acco
 
 As mentioned earlier in this article, there is also the possibility to use Application permissions or custom Service Principal to authenticate against Microsoft 365. This custom Service Principal can be created and configured manually, but Microsoft365DSC also offers the [Update-M365DSCAzureAdApplication](../cmdlets/Update-M365DSCAzureAdApplication.md) cmdlet. With this cmdlet, you can create the custom service application, grant the correct permissions, provide admin consent and create credentials (secret or certificate).
 
-```PowerShell
+```powershell
 Update-M365DSCAzureAdApplication -ApplicationName 'Microsoft365DSC' -Permissions @(@{Api='SharePoint';PermissionName='Sites.FullControl.All'}) -AdminConsent -Type Secret -Credential (Get-Credential)
 ```
 
 or
 
-```PowerShell
+```powershell
 Update-M365DSCAzureAdApplication -ApplicationName 'Microsoft365DSC' -Permissions @(@{Api='SharePoint';PermissionName='Sites.FullControl.All'}) -AdminConsent -Type Certificate -CreateSelfSignedCertificate -CertificatePath c:\Temp\M365DSC.cer -Credential (Get-Credential)
 ```
 
@@ -228,7 +228,7 @@ Use the [Register-PnPManagementShellAccess](https://pnp.github.io/powershell/cmd
 
 [Create a new app registration](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app) in Microsoft Entra yourself and grant the correct permissions to this app. The documentation on this website for each of the SharePoint Online resources list the permissions needed for the resource.
 
-> Note: Make sure your app has the "Allow Public Client Flows" setting set to "Yes". This is required for SharePoint (and Device Code Flow). More information can be found [here](https://pnp.github.io/powershell/articles/authentication.html#silent-authentication-with-credentials-for-running-in-pipelines).
+> Note: Make sure your app has the "Allow Public Client Flows" setting set to "Yes". This is required for SharePoint (and Device Code Flow). More information can be found on the PnP PowerShell [docs site](https://pnp.github.io/powershell/articles/authentication.html#silent-authentication-with-credentials-for-running-in-pipelines).
 
 As an alternative, you can use the [Register-PnPAzureADApp](https://pnp.github.io/powershell/cmdlets/Register-PnPAzureADApp.html) cmdlet to have PnP PowerShell create the app registration for you and grant the correct permissions.
 
@@ -236,17 +236,17 @@ As an alternative, you can use the [Register-PnPAzureADApp](https://pnp.github.i
 
 SharePoint Online uses the legacy ACS model to authenticate using an Application Secret. In order to get started with it, you will need to register your Azure AD App against your tenant.
 
-1. Navigate to https://\<yourtenant>-admin.sharepoint.com/_layouts/15/appinv.aspx.
+1. Navigate to `https://<yourtenant>-admin.sharepoint.com/_layouts/15/appinv.aspx`.
 2. In the App Id box, type in the application id of your Azure AD App you wish to authenticate with and click on the **Lookup** button.
-3. In the App domain box, type in www.<yourtenant>.com.
+3. In the App domain box, type in `www.<yourtenant>.com`.
 4. Leave the **Redirect URL** box empty.
 5. In the **Permission request XML** box, put in the following XML:
 
-  ```powershell
-    <AppPermissionRequests AllowAppOnlyPolicy="true">
-      <AppPermissionRequest Scope="http://sharepoint/content/tenant" Right="FullControl" />
-    </AppPermissionRequests>
-  ```
+    ```powershell
+      <AppPermissionRequests AllowAppOnlyPolicy="true">
+        <AppPermissionRequest Scope="http://sharepoint/content/tenant" Right="FullControl" />
+      </AppPermissionRequests>
+    ```
 
 6. Click on the **Create** button. </br>
   ![Register a new app for SharePoint Online.](../../Images/Step1-SPOACS.png)
@@ -261,7 +261,7 @@ For the Exchange Online resources, the service account needs certain permissions
 
 To request the permissions,
 
-```PowerShell
+```powershell
 Get-M365DSCCompiledPermissionList -ResourceNameList @('EXOAcceptedDomain')
 ```
 
@@ -280,60 +280,49 @@ When using Service Principals to authenticate against Exchange, make sure your S
 
 If you want to leverage Service Principal Authentication (using an App Registration) for Security and Compliance Center, there are a few extra configuration steps that need to be followed to grant proper permission to your app. Failure to follow these steps will results in the the cmdlets returning empty results.
 
-<ol>
-<li><p><strong>Create a new Service Principal and associate it with your app registration:</strong></p>
-<p>Start by connecting to the Security and Compliance PowerShell module and run the following line to create the Service Principal. The cmdlets refer below won't be available if you don't connect first (use the Connect-IPPSsession cmdlet). The AppID and ObjectID represent the application id and its object id. You can retrieve these by navigating to your app instance on the Azure Portal or by leveraging the Get-MgApplication cmdlet from the Graph PowerShell SDK. In my case, my custom App Registration in Azure AD is named "MySCApp" and I am giving the name SC-SPN to the new Service Principal I am creating.</p>
+1. **Create a new Service Principal and associate it with your app registration:**\
+   Start by connecting to the Security and Compliance PowerShell module and run the following line to create the Service Principal. The cmdlets refer below won't be available if you don't connect first (use the Connect-IPPSsession cmdlet). The AppID and ObjectID represent the application id and its object id. You can retrieve these by navigating to your app instance on the Azure Portal or by leveraging the Get-MgApplication cmdlet from the Graph PowerShell SDK. In my case, my custom App Registration in Azure AD is named "MySCApp" and I am giving the name SC-SPN to the new Service Principal I am creating.</p>
 
-![Retrieving an app registration id from the Azure portal.](../../Images/AppIdRetrieval.png)
+   ![Retrieving an app registration id from the Azure portal.](../../Images/AppIdRetrieval.png)
 
-![PowerShell Script to create a Service Principal](../../Images/CreatingNewSPForSC.png)
+   ![PowerShell Script to create a Service Principal](../../Images/CreatingNewSPForSC.png)
 
-```powershell
-$App = Get-MgApplication -Filter "DisplayName eq 'MySCApp'"
-New-ServicePrincipal -AppId $App.AppId -ServiceId $App.Id -DisplayName "SC-SPN"
-```
+   ```powershell
+   $App = Get-MgApplication -Filter "DisplayName eq 'MySCApp'"
+   New-ServicePrincipal -AppId $App.AppId -ServiceId $App.Id -DisplayName "SC-SPN"
+   ```
 
-</li>
+2. **Grant the eDiscovery Manager role to your new Service Principal:**\
+   Run the following PowerShell command to grant the eDiscovery Manager role to your new Service Principal. The ID passed is the Object ID of the Service Principal you created at the previous step. If you don't have it handy, you can use the Get-ServicePrincipal cmdlet to retrieve it.
 
-<li><p><strong>Grant the eDiscovery Manager role to your new Service Principal:</strong></p>
-<p>Run the following PowerShell command to grant the eDiscovery Manager role to your new Service Principal. The ID passed is the Object ID of the Service Principal you created at the previous step. If you don't have it handy, you can use the Get-ServicePrincipal cmdlet to retrieve it.</p>
+   ![Grant the eDiscovery Manager role to your Service Principal](../../Images/AddSPNeDiscoveryRole.png)
 
-![Grant the eDiscovery Manager role to your Service Principal](../../Images/AddSPNeDiscoveryRole.png)
+   ```powerShell
+   $SPN = Get-ServicePrincipal -Identity "SC-SPN"
+   Add-RoleGroupMember -Identity eDiscoveryManager -Member $SPN.ObjectId
+   ```
 
-``` PowerShell
-$SPN = Get-ServicePrincipal -Identity "SC-SPN"
-Add-RoleGroupMember -Identity eDiscoveryManager -Member $SPN.ObjectId
-```
+3. **Add the Service Principal as a case admin:**\
+   The Service Principal requires one last permission in order to be able to retrieve values from the Security and Compliance center cmdlets. Run the following PowerShell command to add it as a case admin:
 
-</li>
+   ![Grant the eDiscovery Case Admin role to your Service Principal](../../Images/Add-eDiscoveryCaseAdmin.png)
 
-<li>
-<p><strong>Add the Service Principal as a case admin:</strong>
+   ```powershell
+   $SPN = Get-ServicePrincipal -Identity "SC-SPN"
+   Add-eDiscoveryCaseAdmin -User $SPN.Name
+   ```
 
-<p>The Service Principal requires one last permission in order to be able to retrieve values from the Security and Compliance center cmdlets. Run the following PowerShell command to add it as a case admin:</p>
+4. **Grant your app registration the Compliance Administrator role:**\
+   The last required step is to add your app registration to the Compliance Administrator role.
+   ![Add your app registration to the compliance administrator role.](../../Images/AddComplianceAdmin.png)
 
-![Grant the eDiscovery Case Admin role to your Service Principal](../../Images/Add-eDiscoveryCaseAdmin.png)
+We are now ready to authenticate using our app registration to test and confirm that all is working as expected. To do so, you can use the Connect-M365Tenant cmdlet and pass it the information related to your app registration. Below is an example using our app registration. Replace the appid, tenantid and certificatethumbprint parameters by your own. If you are getting an error connecting, you probably haven't granted the Exchange ManageAsApp permission to your app as described in the following article: <https://learn.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2?view=exchange-ps#step-2-assign-api-permissions-to-the-application/>
 
-``` PowerShell
-$SPN = Get-ServicePrincipal -Identity "SC-SPN"
-Add-eDiscoveryCaseAdmin -User $SPN.Name
-```
-
-</p>
-</li>
-<li><p><strong>Grant your app registration the Compliance Administrator role:</strong></p>
-<p>The last required step is to add your app registration to the Compliance Administrator role.</p>
-![Add your app registration to the compliance administrator role.](../../Images/AddComplianceAdmin.png)
-</li>
-
-</ol>
-<p>We are now ready to authenticate using our app registration to test and confirm that all is working as expected. To do so, you can use the Connect-M365Tenant cmdlet and pass it the information related to your app registration. Below is an example using our app registration. Replace the appid, tenantid and certificatethumbprint parameters by your own. If you are getting an error connecting, you probably haven't granted the Exchange ManageAsApp permission to your app as described in the following article: <a href="https://learn.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2?view=exchange-ps#step-2-assign-api-permissions-to-the-application">https://learn.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2?view=exchange-ps#step-2-assign-api-permissions-to-the-application</a></p>
-
-<p><strong>Important</strong>: For GCC High, you will also need to grant the Exchange.ManageAsApp permission from the Microsoft Exchange Online Protection API in addition to the Office 365 Exchange Online API permissions.</p>
+**Important**: For GCC High, you will also need to grant the Exchange.ManageAsApp permission from the Microsoft Exchange Online Protection API in addition to the Office 365 Exchange Online API permissions.
 
 ![Connecting using your app registration and retrieving cases.](../../Images/GetComplianceCase.png)
 
-``` PowerShell
+```powershell
 Connect-M365Tenant -ApplicationId '8154ba3e-3e73-450e-8690-53cfc0eb0d66' -TenantId 'xxxx.onmicrosoft.com' -CertificateThumbprint 'xxx-xxx-xxx-xxx-xxx' -Workload 'SecurityComplianceCenter'
 Get-ComplianceCase
 ```
@@ -376,13 +365,13 @@ The best option when using Microsoft365DSC with SharePoint and OneDrive is to us
 
 The SharePoint PNP team created a cmdlet that simplifies the setup of AzureAD App called [Register-PnPAzureADApp](https://pnp.github.io/powershell/cmdlets/Register-PnPAzureADApp). The following script can be used to create the AzureAD app permissions needed for Microsoft365DSC
 
-```PowerShell
+```powershell
 Register-PnPAzureADApp -ApplicationName TestApp2 -Tenant contoso.onmicrosoft.com -OutPath C:\DSC -CertificatePassword (ConvertTo-SecureString -String "password" -AsPlainText -Force) -Store CurrentUser -Scopes "SPO.Sites.FullControl.All"
 ```
 
 This cmdlet will open a dialog box to authenticate to Azure AD and grant admin consent once its created the AzureAD app. It will also install
 the certificate in current user store and output a PFX file in the C:\DSC directory. If you plan to use the certificate thumbprint option when using
-DSC by default the LCM runs under the system account so easiest option to install in cert store is by using [PSExec](https://docs.microsoft.com/en-us/sysinternals/downloads/psexec). To install certificate under system account using PSExec run the following:
+DSC by default the LCM runs under the system account so easiest option to install in cert store is by using [PSExec](https://docs.microsoft.com/en-us/sysinternals/downloads/psexec). To install certificate under system account using PSExec run the following in an elevated PowerShell session:
 
 1. .\PsExec.exe -s -i mmc.exe
 2. File add / remove snapin > Select certificates > MyUser account

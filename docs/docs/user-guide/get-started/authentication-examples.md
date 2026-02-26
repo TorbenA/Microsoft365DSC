@@ -8,7 +8,7 @@ This method is using credentials (username / password combination) for authentic
 
 When using credentials you have to specify a PSCredential object in the Credential parameter. The PSCredential object contains the username and password for the user that you want to connect with.
 
-```PowerShell
+```powershell
 Configuration CredentialsExample
 {
     param
@@ -42,7 +42,7 @@ Configuration CredentialsExample
 
 This method is using a service principal with an application secret for authentication. In this case you have to specify the Application ID (found on the Application Registration page in the Azure Admin Portal), the Tenant ID (<tenantname>.onmicrosoft.com of your tenant) and application secret (generated value when creating a new secrets on the Application Registration page in the Azure Admin Portal).
 
-```PowerShell
+```powershell
 Configuration ApplicationSecretExample
 {
     param
@@ -82,9 +82,9 @@ Configuration ApplicationSecretExample
 
 ## Example 3: Service Principal with Certificate Thumbprint
 
-This method is using a service principal with a certificate thumbprint for authentication and requires that the used certificate is already imported into the local computer certificate store! With this method you have to specify the Application ID (found on the Application Registration page in the Azure Admin Portal), the Tenant ID (<tenantname>.onmicrosoft.com of your tenant) and the tumbprint of the certificate you added to the certificates page of the Application Registration in the Azure Admin Portal.
+This method is using a service principal with a certificate thumbprint for authentication and requires that the used certificate is already imported into the local computer certificate store! With this method you have to specify the Application ID (found on the Application Registration page in the Azure Admin Portal), the Tenant ID (`<tenantname>.onmicrosoft.com` of your tenant) and the tumbprint of the certificate you added to the certificates page of the Application Registration in the Azure Admin Portal.
 
-```PowerShell
+```powershell
 Configuration CertificateThumbprintExample
 {
     param
@@ -126,7 +126,7 @@ Configuration CertificateThumbprintExample
 
 This method is using a service principal with a certificate PFX file and file password for authentication. To use this method you need to have an export of the certificate that was added to the certificates page of the Application Registration in the Azure Admin Portal. Then you have to specify the Application ID (found on the Application Registration page in the Azure Admin Portal), the Tenant ID (<tenantname>.onmicrosoft.com of your tenant), the path of the PFX file and the password of this PFX file.
 
-```PowerShell
+```powershell
 Configuration CertificatePathExample
 {
     param
@@ -173,7 +173,7 @@ Configuration CertificatePathExample
 
 This method is using a Managed Identity instance. To use this method you need to have a Managed Identity set up (e.g. from an Azure Automation Account) and with the appropriate permissions assigned. Next, you need to specify the Tenant ID (<tenantname>.onmicrosoft.com of your tenant) in combination with the `ManagedIdentity` switch parameter.
 
-```PowerShell
+```powershell
 Configuration ManagedIdentityExample
 {
     param
@@ -210,7 +210,7 @@ Configuration ManagedIdentityExample
 
 This method is using an Access Token. To use this method you need to first get the access token using e.g. `Get-AzAccessToken -ResourceUrl <resource or url>` for the type of resources you want to manage. For almost all of the AAD and all of the Intune resources, the `https://graph.microsoft.com` resource url is sufficient. However, for resources that require an additional connection (for example the `AADVerifiedIdAuthority` resource, it depends on the `AdminAPI` connection), you might need another scope. In the `AdminAPI` example, the resource url is `6a8b4b39-c021-437c-b060-5a14a3fd65f3` for an application access because it targets the `https://verifiedid.did.msidentity.com` endpoint. Next, you need to specify the Tenant ID (<tenantname>.onmicrosoft.com of your tenant) in combination with the `AccessTokens` parameter.
 
-```PowerShell
+```powershell
 # Fetch access token
 Connect-AzAccount
 $accessToken = (ConvertFrom-SecureString -SecureString (Get-AzAccessToken -ResourceUrl "6a8b4b39-c021-437c-b060-5a14a3fd65f3").Token -AsPlainText)

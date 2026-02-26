@@ -54,7 +54,7 @@ The first step in trying to deploy a DSC configuration is to compile the configu
 
 To initiate the deployment of a MOF file onto a Microsoft 365 tenant, you need to use the out-of-the-box cmdlet provided by PowerShell DSC called [Start-DSCConfiguration](https://docs.microsoft.com/en-us/powershell/module/psdesiredstateconfiguration/start-dscconfiguration?view=dsc-1.1). By default, this cmdlet will execute as an asynchronous background job. If you wish to monitor the execution of the process, you need to use the **-Wait** switch, which will make the execution synchronous. We also recommend using the **-Verbose** switch with the command to get additional details on the operation of the deployment process. The cmdlet takes as input the path to the folder containing the compiled MOF file. For example:
 
-```PowerShell
+```powershell
 Start-DSCConfiguration -Path C:\DemoM365DSC\M365TenantConfig -Wait -Verbose -Force
 ```
 
@@ -69,7 +69,7 @@ It is normal for this process to take several minutes (if not hours) to complete
 
 If you simply want to apply the configuration on the tenant as a one-off and prevent the system from running subsequent checks for configuration drifts, you can  remove the configuration you have applied by afterwards running the following PowerShell commands:
 
-```PowerShell
+```powershell
 Stop-DSCConfiguration -Force
 Remove-DSCConfigurationDocument -Stage Current
 ```

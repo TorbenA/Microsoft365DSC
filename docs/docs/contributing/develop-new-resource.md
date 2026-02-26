@@ -30,7 +30,7 @@ Now that you've identified what resource you wish to work on, take a look at the
 
 Take a look at the list of parameters and figure out which one should be implemented by your resource. For the Compliance Case example, the documentation lists the following properties:
 
-```PowerShell
+```powershell
 New-ComplianceCase
    [-Name] String
    [-Confirm]
@@ -47,7 +47,7 @@ The list of parameters is not yet complete at this point. If we take a look at t
 
 We now need to write the list of parameters our Get, Set, and Test functions will accept. Note that the list of parameters for these three functions need to be **exactly the same** otherwise the resource validation will fail. In the Compliance Case example, the properties will translate to the following:
 
-```PowerShell
+```powershell
 [Parameter(Mandatory = $true)]
 [System.String]
 $Name,
@@ -64,7 +64,7 @@ $Status = "Active"
 
 On top of these resources specific parameters, each resource should define the **Ensure** when they support removing instances of the resource. Every resource is  also required to define **Credential** . By adding these two additional properties, the function signature of our resource then becomes:
 
-```PowerShell
+```powershell
 function Get|Set|Test-TargetResource
 [CmdletBinding()]
 [OutputType([Hashtable|void|Boolean])]
@@ -103,7 +103,7 @@ Other authentication properties should be added if the resource supports it:
 * `ManagedIdentity` - If the resource supports managed identity for authentication
 * `AccessTokens` - Access tokens passed to the authentication
 
-```PowerShell
+```powershell
 function Get|Set|Test-TargetResource
 [CmdletBinding()]
 [OutputType([Hashtable|void|Boolean])]
@@ -157,7 +157,7 @@ Some properties can also define a restricted set of accepted values. These can b
 
 If we take our previous example, the schema file for our MSFT_SCComplianceCase resource would become:
 
-```PowerShell
+```powershell
 [ClassVersion("1.0.0.0"), FriendlyName("SCComplianceCase")]
 class MSFT_SCComplianceCase : OMI_BaseResource
 {
