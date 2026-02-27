@@ -7,6 +7,9 @@
     complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
     `ApprovalStages[]`
     FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
+* AADUser
+  * Fixed an issue where not specified properties were applied during update.
+    FIXES [#6934](https://github.com/microsoft/Microsoft365DSC/issues/6934)
 * EXOTenantAllowBlockListItems
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.
