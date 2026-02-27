@@ -1049,6 +1049,12 @@ function Export-M365DSCConfiguration
     # Suppress Progress overlays
     $Global:ProgressPreference = 'SilentlyContinue'
 
+    # Check ErrorActionPreference - Azure DevOps and other Pipeline environments set it to 'Stop' by default
+    if ($ErrorActionPreference -eq 'Stop' -and -not $PSBoundParameters.ContainsKey('ErrorAction'))
+    {
+        $ErrorActionPreference = 'Continue'
+    }
+
     ##### FIRST CHECK AUTH PARAMETERS
     if ($PSBoundParameters.ContainsKey('Credential') -eq $true -and `
         -not [System.String]::IsNullOrEmpty($Credential))
