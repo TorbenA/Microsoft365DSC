@@ -78,8 +78,6 @@ function Get-TargetResource
         Add-M365DSCTelemetryEvent -Data $data
         #endregion
 
-        $nullResult = $PSBoundParameters
-
         $ResourceGroupNameValue = $ResourceGroupName
         $WorkspaceNameValue = $WorkspaceName
         if ($null -ne $Script:exportedInstances -and $Script:ExportMode)

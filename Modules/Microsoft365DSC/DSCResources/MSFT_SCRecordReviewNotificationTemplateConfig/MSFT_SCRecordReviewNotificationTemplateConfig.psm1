@@ -73,8 +73,6 @@ function Get-TargetResource
             Add-M365DSCTelemetryEvent -Data $data
             #endregion
 
-            $nullResult = $PSBoundParameters
-
             $instance = Get-RecordReviewNotificationTemplateConfig -ErrorAction Stop
         }
         else

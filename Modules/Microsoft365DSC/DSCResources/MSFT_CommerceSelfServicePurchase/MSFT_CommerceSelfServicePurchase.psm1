@@ -174,7 +174,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $currentInstance = Get-TargetResource @PSBoundParameters
+    $null = Get-TargetResource @PSBoundParameters
 
     if ($Ensure -eq 'Absent')
     {

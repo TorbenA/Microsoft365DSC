@@ -121,11 +121,9 @@ function Get-TargetResource
         Write-Verbose -Message "An Azure AD Identity API Connector with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
-        $complexAuthenticationConfiguration = [ordered]@{}
         if ($null -ne $getValue.AuthenticationConfiguration.AdditionalProperties.password)
         {
             $securePassword = ConvertTo-SecureString $getValue.AuthenticationConfiguration.AdditionalProperties.password -AsPlainText -Force
-
             $Password = New-Object System.Management.Automation.PSCredential ('Password', $securePassword)
         }
 

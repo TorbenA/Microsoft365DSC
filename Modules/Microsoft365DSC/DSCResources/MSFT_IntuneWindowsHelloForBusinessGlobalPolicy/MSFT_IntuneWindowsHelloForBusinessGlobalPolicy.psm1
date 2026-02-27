@@ -125,8 +125,6 @@ function Get-TargetResource
             Add-M365DSCTelemetryEvent -Data $data
             #endregion
 
-            $nullResult = $PSBoundParameters
-
             #region resource generator code
             $getValue = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration `
                 -ErrorAction SilentlyContinue | Where-Object `
@@ -337,11 +335,8 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $currentInstance = Get-TargetResource @PSBoundParameters
-
+    $null = Get-TargetResource @PSBoundParameters
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
-    Write-Verbose -Message 'Updating the Intune Windows Hello For Business Global Policy'
 
     $updateParameters = ([Hashtable]$boundParameters).Clone()
     $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters

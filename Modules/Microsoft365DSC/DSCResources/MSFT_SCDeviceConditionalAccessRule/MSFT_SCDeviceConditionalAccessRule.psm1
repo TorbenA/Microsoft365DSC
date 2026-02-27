@@ -638,7 +638,6 @@ function Set-TargetResource
         $targetGroupsValue = @()
         foreach ($group in $TargetGroups)
         {
-            $groupValue = ''
             $entry = Get-Group $group -ErrorAction SilentlyContinue
             if ($null -ne $entry)
             {

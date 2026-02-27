@@ -202,16 +202,6 @@ function Set-TargetResource
 
     $null = New-M365DSCConnection -Workload 'MicrosoftGraph' -InboundParameters $PSBoundParameters
 
-    try
-    {
-        $policy = Get-MgGroupLifecyclePolicy -ErrorAction SilentlyContinue
-    }
-    catch
-    {
-        Write-Verbose -Message $_
-        return
-    }
-
     $currentPolicy = Get-TargetResource @PSBoundParameters
 
     if ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Absent')
@@ -374,8 +364,6 @@ function Export-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $organization = ''
-    $principal = '' # Principal represents the "NetBios" name of the tenant (e.g. the M365DSC part of M365DSC.onmicrosoft.com)
     try
     {
         if ($null -ne $Global:M365DSCExportResourceInstancesCount)
@@ -383,44 +371,7 @@ function Export-TargetResource
             $Global:M365DSCExportResourceInstancesCount++
         }
 
-        if ($ConnectionMode -eq 'ServicePrincipalWithThumbprint')
-        {
-            $organization = Get-M365DSCTenantDomain -ApplicationId $ApplicationId `
-                -TenantId $TenantId -CertificateThumbprint $CertificateThumbprint
-        }
-        elseif ($ConnectionMode -eq 'ServicePrincipalWithSecret')
-        {
-            $organization = Get-M365DSCTenantDomain -ApplicationId $ApplicationId `
-                -TenantId $TenantId -ApplicationSecret $ApplicationSecret
-        }
-        elseif ($ConnectionMode -eq 'ManagedIdentity')
-        {
-            $organization = $TenantId
-        }
-        else
-        {
-            if ($null -ne $Credential -and $Credential.UserName.Contains('@'))
-            {
-                $organization = $Credential.UserName.Split('@')[1]
-            }
-        }
-        if ($organization.IndexOf('.') -gt 0)
-        {
-            $principal = $organization.Split('.')[0]
-        }
-
-        try
-        {
-            $Policy = Get-MgGroupLifecyclePolicy -ErrorAction SilentlyContinue
-        }
-        catch
-        {
-            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
-            return ''
-        }
-
         $dscContent = ''
-
         $Params = @{
             Credential                  = $Credential
             IsSingleInstance            = 'Yes'

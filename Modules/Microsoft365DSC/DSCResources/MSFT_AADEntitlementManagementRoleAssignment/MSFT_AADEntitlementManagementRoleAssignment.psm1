@@ -286,7 +286,6 @@ function Set-TargetResource
     }
 
     $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $userInfo = Get-MgUser -UserId $Principal
 
     $roleInfo = Get-MgBetaRoleManagementEntitlementManagementRoleDefinition -Filter "DisplayName eq '$($RoleDefinition -replace "'", "''")'"
     $setParameters.Add('PrincipalId', $objectId)

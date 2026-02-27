@@ -196,8 +196,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $currentInstance = Get-TargetResource @PSBoundParameters
-
+    $null = Get-TargetResource @PSBoundParameters
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     # This GUID is ALWAYS fixed as per the documentation.
@@ -358,8 +357,6 @@ function Export-TargetResource
 
     try
     {
-        # This GUID is ALWAYS fixed as per the documentation.
-        $CertificateBasedAuthConfigurationId = '29728ade-6ae4-4ee9-9103-412912537da5'
         $getValue = Get-MgBetaOrganization
 
         $i = 1

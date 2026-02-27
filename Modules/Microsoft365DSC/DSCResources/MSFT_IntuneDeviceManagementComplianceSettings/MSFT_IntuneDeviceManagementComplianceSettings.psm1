@@ -68,8 +68,6 @@ function Get-TargetResource
         Add-M365DSCTelemetryEvent -Data $data
         #endregion
 
-        $nullResult = $PSBoundParameters
-
         $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + 'beta/deviceManagement/settings'
         $settings = Invoke-MgGraphRequest -Method 'GET' -Uri $uri
 

@@ -228,7 +228,7 @@ function Set-TargetResource
             Desired State. Updating it."
         [Array]$AllGroups = Get-MgGroup -GroupId $OwnerGroup -ErrorAction 'SilentlyContinue'
         Write-Verbose -Message $AllGroups[0]
-        if ($AllGroups -eq $null)
+        if ($null -eq $AllGroups)
         {
             [Array]$AllGroups = Get-MgGroup -Search $OwnerGroup
         }

@@ -60,7 +60,6 @@ function Get-TargetResource
             Add-M365DSCTelemetryEvent -Data $data
             #endregion
 
-            $nullResult = $PSBoundParameters
             $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + 'beta/employeeExperience/roles'
             $roles = Invoke-MgGraphRequest -Uri $uri -Method GET
             $roleInstance = $roles.value | Where-Object -FilterScript { $_.displayName -eq $role }

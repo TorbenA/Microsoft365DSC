@@ -482,8 +482,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $currentMailbox = Get-TargetResource @PSBoundParameters
-
+    $null = Get-TargetResource @PSBoundParameters
     $CASMailboxParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     # CASE: Mailbox exists;

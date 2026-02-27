@@ -295,25 +295,25 @@ function Get-TargetResource
             -Url "$((Get-MSCloudLoginConnectionProfile -Workload PnP).AdminUrl)/_api/SPO.Tenant?`$select=$($parametersToRetrieve -join ',')"
 
         $AllowSelectSGsInODBListInTenantValue = @()
-        if ($response.AllowSelectSGsInODBListInTenant -ne $null)
+        if ($null -ne $response.AllowSelectSGsInODBListInTenant)
         {
             $AllowSelectSGsInODBListInTenantValue = [System.String[]]$response.AllowSelectSGsInODBListInTenant
         }
 
         $DenySelectSGsInODBListInTenantValue = @()
-        if ($response.DenySelectSGsInODBListInTenant -ne $null)
+        if ($null -ne $response.DenySelectSGsInODBListInTenant)
         {
             $DenySelectSGsInODBListInTenantValue = [System.String[]]$response.DenySelectSGsInODBListInTenant
         }
 
         $DenySelectSecurityGroupsInSPSitesListValue = @()
-        if ($response.DenySelectSecurityGroupsInSPSitesList -ne $null)
+        if ($null -ne $response.DenySelectSecurityGroupsInSPSitesList)
         {
             $DenySelectSecurityGroupsInSPSitesListValue = [System.String[]]$response.DenySelectSecurityGroupsInSPSitesList
         }
 
         $AllowSelectSecurityGroupsInSPSitesListValue = @()
-        if ($response.AllowSelectSecurityGroupsInSPSitesList -ne $null)
+        if ($null -ne $response.AllowSelectSecurityGroupsInSPSitesList)
         {
             $AllowSelectSecurityGroupsInSPSitesListValue = [System.String[]]$response.AllowSelectSecurityGroupsInSPSitesList
         }
@@ -706,7 +706,7 @@ function Set-TargetResource
     # Updating via REST
     try
     {
-        Write-Verbose -Message 'Updating properties via REST PATCH call.'
+        Write-Verbose -Message "Updating properties via REST PATCH call: $($spoRestParametersSplat | ConvertTo-Json -Depth 5)"
         Invoke-PnPSPRestMethod -Method PATCH `
             -Url "$((Get-MSCloudLoginConnectionProfile -Workload PnP).AdminUrl)/_api/SPO.Tenant" `
             -Content $spoRestParametersSplat

@@ -79,10 +79,6 @@ function Get-TargetResource
             #endregion
         }
 
-        $nullResult = @{
-            CdnType = $CdnType
-        }
-
         $cdnEnabled = Get-PnPTenantCdnEnabled -CdnType $CdnType `
             -ErrorAction Stop
 

@@ -603,7 +603,7 @@ function Set-TargetResource
                 '@odata.id' = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "v1.0/directoryObjects/$($userInfo.Id)"
             }
             Write-Verbose -Message "Adding new owner {$owner}"
-            $newOwner = New-MgServicePrincipalOwnerByRef -ServicePrincipalId $newSP.Id -BodyParameter $body
+            $null = New-MgServicePrincipalOwnerByRef -ServicePrincipalId $newSP.Id -BodyParameter $body
         }
 
         # Adding delegated permissions classifications

@@ -79,7 +79,6 @@ function Get-TargetResource
         Add-M365DSCTelemetryEvent -Data $data
         #endregion
 
-        $nullResult = $PSBoundParameters
         $instance = Get-MgBetaPolicyAdminConsentRequestPolicy -ErrorAction SilentlyContinue
         if ($null -eq $instance)
         {

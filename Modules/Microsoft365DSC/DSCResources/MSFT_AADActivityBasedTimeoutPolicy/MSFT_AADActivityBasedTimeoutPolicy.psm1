@@ -213,15 +213,13 @@ function Set-TargetResource
     $DefaultTimeOutexistst = $false
     if ($BoundParameters.ContainsKey('AzurePortalTimeOut') `
             -and $null -ne $BoundParameters.AzurePortalTimeOut `
-            -and $BoundParameters.AzurePortalTimeOut -ne '' `
-            -and $BoundParameters.AzurePortalTimeOut -ne $nullString)
+            -and -not [System.String]::IsNullOrEmpty($BoundParameters.AzurePortalTimeOut))
     {
         $AzurePortalTimeOutexist = $true
     }
     if ($BoundParameters.ContainsKey('DefaultTimeOut') `
             -and $null -ne $BoundParameters.DefaultTimeOut `
-            -and $BoundParameters.DefaultTimeOut -ne '' `
-            -and $BoundParameters.DefaultTimeOut -ne $nullString)
+            -and -not [System.String]::IsNullOrEmpty($BoundParameters.DefaultTimeOut))
     {
         $DefaultTimeOutexistst = $true
     }

@@ -203,8 +203,6 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
 
-    $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
     $AuthorizedAppIdsValue = @()
     if ($null -ne $AuthorizedAppIds)
     {
