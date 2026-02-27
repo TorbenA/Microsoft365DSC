@@ -15,8 +15,8 @@ function Get-TargetResource
         $OwnerGroup,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('Present', 'Absent')]
+        [System.String]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -168,8 +168,8 @@ function Set-TargetResource
         $OwnerGroup,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('Present', 'Absent')]
+        [System.String]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -259,8 +259,8 @@ function Test-TargetResource
         $OwnerGroup,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('Present', 'Absent')]
+        [System.String]
         $Ensure = 'Present',
 
         [Parameter()]

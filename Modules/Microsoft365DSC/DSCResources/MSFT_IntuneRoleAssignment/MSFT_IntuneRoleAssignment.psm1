@@ -47,8 +47,8 @@ function Get-TargetResource
         $RoleDefinitionDisplayName,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -257,8 +257,8 @@ function Set-TargetResource
         $RoleDefinitionDisplayName,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -469,8 +469,8 @@ function Test-TargetResource
         $RoleDefinitionDisplayName,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]

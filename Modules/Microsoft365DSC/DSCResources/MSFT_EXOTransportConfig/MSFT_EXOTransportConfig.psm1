@@ -169,10 +169,6 @@ function Get-TargetResource
             Add-M365DSCTelemetryEvent -Data $data
             #endregion
 
-            $nullReturn = @{
-                IsSingleInstance = 'Yes'
-            }
-
             $TransportConfigSettings = Get-TransportConfig -ErrorAction Stop
         }
         else

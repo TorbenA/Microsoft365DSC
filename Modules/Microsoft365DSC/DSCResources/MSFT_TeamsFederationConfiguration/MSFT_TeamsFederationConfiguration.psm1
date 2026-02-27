@@ -98,10 +98,6 @@ function Get-TargetResource
                 -Parameters $PSBoundParameters
             Add-M365DSCTelemetryEvent -Data $data
             #endregion
-
-            $nullReturn = @{
-                Identity = 'Global'
-            }
         }
 
         $config = Get-CsTenantFederationConfiguration -ErrorAction Stop

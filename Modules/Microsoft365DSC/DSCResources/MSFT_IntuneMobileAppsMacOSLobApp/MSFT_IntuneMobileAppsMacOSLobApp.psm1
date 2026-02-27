@@ -7,7 +7,6 @@ function Get-TargetResource
     param
     (
         #region Intune resource parameters
-
         [Parameter()]
         [System.String]
         $Id,

@@ -6,6 +6,7 @@
   * Updated test logic to use `Test-M365DSCTargetResource`.
 * MISC
   * Aligned code formatting across all resources
+  * Expanded try/catch in `Get-TargetResource` to cover authentication.
 
 # 1.26.218.1
 
@@ -4881,7 +4882,7 @@
 # 1.23.607.1
 
 * AADAuthenticationStrengthPolicy
-  * Removed the validateset from the AllowedCombinations property due to incomplete full list of possible values.
+  * Removed the ValidateSet from the AllowedCombinations property due to incomplete full list of possible values.
 * EXOQuarantinePolicy
   * Fixes an issue where GlobalQurantinePolicy properties can't be updated.
 * IntuneAntivirusPolicyWindows10SettingCatalog

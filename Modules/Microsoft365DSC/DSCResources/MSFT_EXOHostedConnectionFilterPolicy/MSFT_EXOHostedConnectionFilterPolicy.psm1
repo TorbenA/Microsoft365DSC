@@ -68,7 +68,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting configuration of HostedConnectionFilterPolicy for $Identity"
+    Write-Verbose -Message "Getting configuration of HostedConnectionFilterPolicy for $Identity"
 
     try
     {

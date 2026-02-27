@@ -57,10 +57,10 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message 'Getting configuration of SPO Tenant Cdn Enabled'
+
     try
     {
-        Write-Verbose -Message 'Getting configuration of SPO Tenant Cdn Enabled'
-
         if (-not $Script:ExportMode)
         {
             $null = New-M365DSCConnection -Workload 'PNP' `

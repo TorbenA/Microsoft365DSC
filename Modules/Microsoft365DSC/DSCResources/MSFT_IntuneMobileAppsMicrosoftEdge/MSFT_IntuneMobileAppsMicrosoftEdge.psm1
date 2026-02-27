@@ -79,8 +79,8 @@ function Get-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -114,13 +114,13 @@ function Get-TargetResource
 
     Write-Verbose -Message "Getting configuration for the Intune Mobile Apps Microsoft Edge with Id {$Id} and DisplayName {$DisplayName}"
 
-    if ($TargetPlatform -eq 'macOS' -and $PSBoundParameters.ContainsKey('DisplayLanguageLocale'))
-    {
-        throw 'DisplayLanguageLocale is not supported for macOS target platform.'
-    }
-
     try
     {
+        if ($TargetPlatform -eq 'macOS' -and $PSBoundParameters.ContainsKey('DisplayLanguageLocale'))
+        {
+            throw 'DisplayLanguageLocale is not supported for macOS target platform.'
+        }
+
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
 
@@ -328,8 +328,8 @@ function Set-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -545,8 +545,8 @@ function Test-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]

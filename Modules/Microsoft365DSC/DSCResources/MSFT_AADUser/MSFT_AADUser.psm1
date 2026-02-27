@@ -150,12 +150,13 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Getting configuration of Office 365 User $UserPrincipalName"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.UserPrincipalName -ne $UserPrincipalName)
         {
-            Write-Verbose -Message "Getting configuration of Office 365 User $UserPrincipalName"
-
             $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 

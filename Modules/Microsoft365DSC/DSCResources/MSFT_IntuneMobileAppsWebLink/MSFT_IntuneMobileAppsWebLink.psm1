@@ -94,8 +94,8 @@ function Get-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -129,16 +129,16 @@ function Get-TargetResource
 
     Write-Verbose -Message "Getting configuration for the Intune Mobile Apps Web Link with Id {$Id} and DisplayName {$DisplayName}"
 
-    foreach ($property in $Script:customProperties)
-    {
-        if ($PSBoundParameters.ContainsKey($property) -and $Script:odataToPropertiesMap.$TargetType -notcontains $property)
-        {
-            throw "Property '$property' is not supported for the target type '$TargetType'."
-        }
-    }
-
     try
     {
+        foreach ($property in $Script:customProperties)
+        {
+            if ($PSBoundParameters.ContainsKey($property) -and $Script:odataToPropertiesMap.$TargetType -notcontains $property)
+            {
+                throw "Property '$property' is not supported for the target type '$TargetType'."
+            }
+        }
+
         if (-not $Script:exportedInstance -or $Script:exportedInstance.DisplayName -ne $DisplayName)
         {
 
@@ -362,8 +362,8 @@ function Set-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -608,8 +608,8 @@ function Test-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]

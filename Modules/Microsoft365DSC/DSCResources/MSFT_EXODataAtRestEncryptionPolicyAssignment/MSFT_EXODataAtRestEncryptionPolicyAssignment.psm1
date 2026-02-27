@@ -11,6 +11,7 @@ function Get-TargetResource
         $DataEncryptionPolicy,
 
         [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
         [System.String]
         $IsSingleInstance,
 
@@ -108,6 +109,7 @@ function Set-TargetResource
         $DataEncryptionPolicy,
 
         [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
         [System.String]
         $IsSingleInstance,
 
@@ -168,6 +170,7 @@ function Test-TargetResource
         $DataEncryptionPolicy,
 
         [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
         [System.String]
         $IsSingleInstance,
 

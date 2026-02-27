@@ -65,8 +65,8 @@ function Get-TargetResource
         $ConversationThreadId,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('Present', 'Absent')]
+        [System.String]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -314,8 +314,8 @@ function Set-TargetResource
         $ConversationThreadId,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('Present', 'Absent')]
+        [System.String]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -615,8 +615,8 @@ function Test-TargetResource
         $ConversationThreadId,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('Present', 'Absent')]
+        [System.String]
         $Ensure = 'Present',
 
         [Parameter()]

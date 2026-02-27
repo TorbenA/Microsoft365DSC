@@ -28,11 +28,11 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
-        [ValidateSet( 'corporateOwnedDedicatedDevice', 'corporateOwnedFullyManaged', 'corporateOwnedWorkProfile', 'corporateOwnedAOSPUserlessDevice', 'corporateOwnedAOSPUserAssociatedDevice')]
+        [ValidateSet('corporateOwnedDedicatedDevice', 'corporateOwnedFullyManaged', 'corporateOwnedWorkProfile', 'corporateOwnedAOSPUserlessDevice', 'corporateOwnedAOSPUserAssociatedDevice')]
         $EnrollmentMode,
 
         [Parameter()]
-        [ValidateSet( 'default', 'corporateOwnedDedicatedDeviceWithAzureADSharedMode', 'deviceStaging')]
+        [ValidateSet('default', 'corporateOwnedDedicatedDeviceWithAzureADSharedMode', 'deviceStaging')]
         $EnrollmentTokenType,
 
         [Parameter()]
@@ -57,7 +57,7 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
-        [ValidateSet( 'none', 'wpa', 'wep' )]
+        [ValidateSet('none', 'wpa', 'wep' )]
         $WifiSecurityType,
 
         [Parameter()]
@@ -65,8 +65,8 @@ function Get-TargetResource
         $WifiSsid,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('Present', 'Absent')]
+        [System.String]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -212,11 +212,11 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
-        [ValidateSet( 'corporateOwnedDedicatedDevice', 'corporateOwnedFullyManaged', 'corporateOwnedWorkProfile', 'corporateOwnedAOSPUserlessDevice', 'corporateOwnedAOSPUserAssociatedDevice')]
+        [ValidateSet('corporateOwnedDedicatedDevice', 'corporateOwnedFullyManaged', 'corporateOwnedWorkProfile', 'corporateOwnedAOSPUserlessDevice', 'corporateOwnedAOSPUserAssociatedDevice')]
         $EnrollmentMode,
 
         [Parameter()]
-        [ValidateSet( 'default', 'corporateOwnedDedicatedDeviceWithAzureADSharedMode', 'deviceStaging')]
+        [ValidateSet('default', 'corporateOwnedDedicatedDeviceWithAzureADSharedMode', 'deviceStaging')]
         $EnrollmentTokenType,
 
         [Parameter()]
@@ -241,7 +241,7 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
-        [ValidateSet( 'none', 'wpa', 'wep' )]
+        [ValidateSet('none', 'wpa', 'wep' )]
         $WifiSecurityType,
 
         [Parameter()]
@@ -249,8 +249,8 @@ function Set-TargetResource
         $WifiSsid,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('Present', 'Absent')]
+        [System.String]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -344,11 +344,11 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
-        [ValidateSet( 'corporateOwnedDedicatedDevice', 'corporateOwnedFullyManaged', 'corporateOwnedWorkProfile', 'corporateOwnedAOSPUserlessDevice', 'corporateOwnedAOSPUserAssociatedDevice')]
+        [ValidateSet('corporateOwnedDedicatedDevice', 'corporateOwnedFullyManaged', 'corporateOwnedWorkProfile', 'corporateOwnedAOSPUserlessDevice', 'corporateOwnedAOSPUserAssociatedDevice')]
         $EnrollmentMode,
 
         [Parameter()]
-        [ValidateSet( 'default', 'corporateOwnedDedicatedDeviceWithAzureADSharedMode', 'deviceStaging')]
+        [ValidateSet('default', 'corporateOwnedDedicatedDeviceWithAzureADSharedMode', 'deviceStaging')]
         $EnrollmentTokenType,
 
         [Parameter()]
@@ -373,7 +373,7 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
-        [ValidateSet( 'none', 'wpa', 'wep' )]
+        [ValidateSet('none', 'wpa', 'wep' )]
         $WifiSecurityType,
 
         [Parameter()]
@@ -381,8 +381,8 @@ function Test-TargetResource
         $WifiSsid,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('Present', 'Absent')]
+        [System.String]
         $Ensure = 'Present',
 
         [Parameter()]

@@ -133,11 +133,12 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration of AAD Service Principal with AppId {$AppId}"
+
     try
     {
         if (-not $Script:exportedInstance -or $Script:exportedInstance.AppId -ne $AppId)
         {
-            Write-Verbose -Message 'Getting configuration of Azure AD ServicePrincipal'
             $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
 

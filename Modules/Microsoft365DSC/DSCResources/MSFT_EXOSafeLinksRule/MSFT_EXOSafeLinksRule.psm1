@@ -88,7 +88,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting configuration of SafeLinksRule for $Identity"
+    Write-Verbose -Message "Getting configuration of SafeLinksRule for $Identity"
 
     try
     {

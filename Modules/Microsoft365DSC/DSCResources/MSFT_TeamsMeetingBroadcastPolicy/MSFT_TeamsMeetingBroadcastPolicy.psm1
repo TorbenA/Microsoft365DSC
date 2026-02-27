@@ -29,8 +29,8 @@ function Get-TargetResource
         $BroadcastRecordingMode,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('Present', 'Absent')]
+        [System.String]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -149,8 +149,8 @@ function Set-TargetResource
         $BroadcastRecordingMode,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('Present', 'Absent')]
+        [System.String]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -255,8 +255,8 @@ function Test-TargetResource
         $BroadcastRecordingMode,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('Present', 'Absent')]
+        [System.String]
         $Ensure = 'Present',
 
         [Parameter()]

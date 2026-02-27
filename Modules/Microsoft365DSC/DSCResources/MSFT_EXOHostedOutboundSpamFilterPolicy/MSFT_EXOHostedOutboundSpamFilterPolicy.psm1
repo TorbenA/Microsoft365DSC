@@ -88,7 +88,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Testing configuration of HostedOutboundSpamFilterPolicy for $Identity"
+    Write-Verbose -Message "Getting configuration of HostedOutboundSpamFilterPolicy for $Identity"
 
     try
     {

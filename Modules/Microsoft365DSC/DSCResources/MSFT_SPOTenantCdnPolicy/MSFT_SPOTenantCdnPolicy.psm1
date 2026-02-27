@@ -78,10 +78,6 @@ function Get-TargetResource
             #endregion
         }
 
-        $nullReturn = @{
-            CDNType = $CDNType
-        }
-
         $Policies = Get-PnPTenantCdnPolicies -CdnType $CDNType -ErrorAction Stop
         if ($Policies['ExcludeRestrictedSiteClassifications'].Length -gt 0)
         {

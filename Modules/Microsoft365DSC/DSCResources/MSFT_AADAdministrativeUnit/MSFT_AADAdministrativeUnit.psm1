@@ -20,7 +20,7 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
-        [validateset('Public', 'HiddenMembership')]
+        [ValidateSet('Public', 'HiddenMembership')]
         [System.String]
         $Visibility,
 
@@ -29,7 +29,7 @@ function Get-TargetResource
         $IsMemberManagementRestricted,
 
         [Parameter()]
-        [validateset('Assigned', 'Dynamic')]
+        [ValidateSet('Assigned', 'Dynamic')]
         [System.String]
         $MembershipType,
 
@@ -38,7 +38,7 @@ function Get-TargetResource
         $MembershipRule,
 
         [Parameter()]
-        [validateset('Paused', 'On')]
+        [ValidateSet('Paused', 'On')]
         [System.String]
         $MembershipRuleProcessingState,
 
@@ -52,8 +52,8 @@ function Get-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -305,7 +305,7 @@ function Set-TargetResource
         $Description,
 
         [Parameter()]
-        [validateset('Public', 'HiddenMembership')]
+        [ValidateSet('Public', 'HiddenMembership')]
         [System.String]
         $Visibility,
 
@@ -314,7 +314,7 @@ function Set-TargetResource
         $IsMemberManagementRestricted,
 
         [Parameter()]
-        [validateset('Assigned', 'Dynamic')]
+        [ValidateSet('Assigned', 'Dynamic')]
         [System.String]
         $MembershipType,
 
@@ -323,7 +323,7 @@ function Set-TargetResource
         $MembershipRule,
 
         [Parameter()]
-        [validateset('Paused', 'On')]
+        [ValidateSet('Paused', 'On')]
         [System.String]
         $MembershipRuleProcessingState,
 
@@ -337,8 +337,8 @@ function Set-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -805,7 +805,7 @@ function Test-TargetResource
         $Description,
 
         [Parameter()]
-        [validateset('Public', 'HiddenMembership')]
+        [ValidateSet('Public', 'HiddenMembership')]
         [System.String]
         $Visibility,
 
@@ -814,7 +814,7 @@ function Test-TargetResource
         $IsMemberManagementRestricted,
 
         [Parameter()]
-        [validateset('Assigned', 'Dynamic')]
+        [ValidateSet('Assigned', 'Dynamic')]
         [System.String]
         $MembershipType,
 
@@ -823,7 +823,7 @@ function Test-TargetResource
         $MembershipRule,
 
         [Parameter()]
-        [validateset('Paused', 'On')]
+        [ValidateSet('Paused', 'On')]
         [System.String]
         $MembershipRuleProcessingState,
 
@@ -837,8 +837,8 @@ function Test-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]

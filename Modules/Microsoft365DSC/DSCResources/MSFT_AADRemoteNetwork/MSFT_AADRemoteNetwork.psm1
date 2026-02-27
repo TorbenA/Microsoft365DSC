@@ -27,8 +27,8 @@ function Get-TargetResource
         $DeviceLinks,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -59,6 +59,8 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Getting configuration for the AAD Network Access Forwarding Profile with Id {$Id} and Name {$Name}"
 
     try
     {
@@ -177,8 +179,8 @@ function Set-TargetResource
         $DeviceLinks,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -324,8 +326,8 @@ function Test-TargetResource
         $DeviceLinks,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
