@@ -601,7 +601,7 @@ function Set-TargetResource
             $creationParams.Add('PasswordProfile', $PasswordProfile)
 
             Write-Verbose -Message "Creating Office 365 User $UserPrincipalName"
-            if (-not $CreationParams.ContainsKey('AccountEnabled') -or -not $creationParams.AccountEnabled)
+            if (-not $creationParams.ContainsKey('AccountEnabled') -or $null -eq $creationParams.AccountEnabled)
             {
                 $creationParams.AccountEnabled = $true
             }
