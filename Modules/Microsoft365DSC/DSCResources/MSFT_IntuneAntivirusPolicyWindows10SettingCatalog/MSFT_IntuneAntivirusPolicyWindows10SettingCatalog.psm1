@@ -535,6 +535,11 @@ function Get-TargetResource
             $returnHashtable.Add('LowSeverityThreats', $policySettings.LowSeverityThreatDefaultAction)
             $policySettings.Remove('LowSeverityThreatDefaultAction')
         }
+        if ($policySettings.ContainsKey('EnableDnsSinkhole'))
+        {
+            Write-Warning -Message "The setting 'EnableDnsSinkhole' is deprecated and will be ignored."
+            $policySettings.Remove('EnableDnsSinkhole') | Out-Null
+        }
         $returnHashtable += $policySettings
 
         $returnAssignments = @()
