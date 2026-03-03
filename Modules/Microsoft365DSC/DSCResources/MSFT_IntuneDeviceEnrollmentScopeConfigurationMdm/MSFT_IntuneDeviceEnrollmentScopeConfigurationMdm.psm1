@@ -223,7 +223,7 @@ function Set-TargetResource
                     throw "Failed to find group '$($diff.InputValue)' in the tenant. Please make sure it exists."
                 }
                 $request.Add('method', 'POST')
-                $request.Add('body', @{ "@odata.id" = "https://graph.microsoft.com/beta/directoryObjects/$($group.Id)" })
+                $request.Add('body', @{ "@odata.id" = "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)odata/groups('$($group.Id)')" })
             }
             $batchRequests += $request
         }

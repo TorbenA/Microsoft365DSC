@@ -10,6 +10,5 @@ class MSFT_IntuneDeviceEnrollmentScopeConfigurationMam : OMI_BaseResource
     [Write, Description("The group display names that are included if the scope is set to 'Selected'.")] String IncludedGroups[];
     [Write, Description("Credentials of the Admin"), EmbeddedInstance("MSFT_Credential")] string Credential;
     [Write, Description("Id of the Azure Active Directory tenant used for authentication.")] String TenantId;
-    [Write, Description("Secret of the Azure Active Directory tenant used for authentication."), EmbeddedInstance("MSFT_Credential")] String ApplicationSecret;
     [Write, Description("Access token used for authentication.")] String AccessTokens[];
 };
