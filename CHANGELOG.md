@@ -11,6 +11,13 @@
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.
     FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
+* IntuneDeviceEnrollmentScopeConfigurationMam
+  * Initial release.
+* IntuneDeviceEnrollmentScopeConfigurationMdm
+  * Initial release.
+* M365DSCUtil
+  * Updated the `Export-M365DSCConfiguration` to only disconnect Graph if
+    not managed through MSCloudLoginAssistant instead of every time it is called.
 
 # 1.26.218.1
 
