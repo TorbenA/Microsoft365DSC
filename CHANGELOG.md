@@ -2,13 +2,6 @@
 
 # UNRELEASED
 
-<<<<<<< chore/code-style
-* SCDLPSensitiveInformationType
-  * Updated test logic to use `Test-M365DSCTargetResource`.
-* MISC
-  * Aligned code formatting across all resources
-  * Expanded try/catch in `Get-TargetResource` to cover authentication.
-=======
 * AADEntitlementManagementAccessPackageAssignmentPolicy
   * Add missing sub-property `IsAgenticExperienceEnabled` to
     complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
@@ -18,7 +11,11 @@
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.
     FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
->>>>>>> Dev
+* SCDLPSensitiveInformationType
+  * Updated test logic to use `Test-M365DSCTargetResource`.
+* MISC
+  * Aligned code formatting across all resources
+  * Expanded try/catch in `Get-TargetResource` to cover authentication.
 
 # 1.26.218.1
 
