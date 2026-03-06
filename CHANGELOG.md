@@ -11,6 +11,9 @@
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.
     FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
+* IntuneCloudProvisioningPolicyWindows365
+  * Fixed an issue where deploying the configuration failed because the property
+    `GeographicLocationType` was missing.
 
 # 1.26.218.1
 
