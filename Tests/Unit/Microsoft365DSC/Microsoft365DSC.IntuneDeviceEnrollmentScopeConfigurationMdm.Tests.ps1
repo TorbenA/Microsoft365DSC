@@ -67,6 +67,23 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
             }
 
+            Mock -CommandName Get-MgGroup -ParameterFilter { $Filter -eq "displayName eq 'FakeGroup1'" } -MockWith {
+                return @{
+                    DisplayName = "FakeGroup1"
+                    Id = "FakeId1"
+                }
+            }
+
+            Mock -CommandName Get-MgGroup -ParameterFilter { $Filter -eq "displayName eq 'FakeGroup2'" } -MockWith {
+                return @{
+                    DisplayName = "FakeGroup2"
+                    Id = "FakeId2"
+                }
+            }
+
+            Mock -CommandName Invoke-MgGraphRequest -MockWith {
+            }
+
             Mock -CommandName New-M365DSCConnection -MockWith {
                 return "Credentials"
             }
@@ -122,8 +139,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName Update-MgBetaPolicyMobileDeviceManagementPolicy -Exactly 1
-                Should -Invoke -CommandName Invoke-M365DSCGraphBatchRequest -Exactly 1
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 2
             }
         }
 
