@@ -15,6 +15,9 @@
   * Initial release.
 * IntuneDeviceEnrollmentScopeConfigurationMdm
   * Initial release.
+* M365DSCReverse
+  * Fixed an issue where no warning was shown when exporting a single
+    resource where the authentication parameters did not match.
 * M365DSCUtil
   * Updated the `Export-M365DSCConfiguration` to only disconnect Graph if
     not managed through MSCloudLoginAssistant instead of every time it is called.

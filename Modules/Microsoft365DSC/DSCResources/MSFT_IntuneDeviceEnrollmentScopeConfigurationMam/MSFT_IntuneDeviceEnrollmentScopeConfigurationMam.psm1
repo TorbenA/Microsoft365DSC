@@ -166,7 +166,12 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting configuration of the Intune Device Enrollment Scope Configuration Mam with Id {$Id} and DisplayName {$DisplayName}"
+    Write-Verbose -Message "Setting configuration of the Intune Device Enrollment Scope Configuration Mam"
+
+    if ($AppliesTo -eq 'Selected' -and $IncludedGroups.Count -eq 0)
+    {
+        throw "IncludedGroups cannot be empty when AppliesTo is set to 'Selected'. Please provide at least one group or change the AppliesTo value."
+    }
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -183,43 +188,76 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
     $updateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
+    $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
     $updateParameters.Remove('IncludedGroups') | Out-Null
     $updateParameters.Remove('IsSingleInstance') | Out-Null
 
+    $urlProps = $updateParameters.Clone()
+    $urlProps.Remove('AppliesTo') | Out-Null
+    foreach ($prop in ($updateParameters.Keys | Where-Object { $urlProps.ContainsKey($_) }))
+    {
+        if ([System.String]::IsNullOrEmpty($urlProps[$prop]))
+        {
+            $urlProps[$prop] = $null
+        }
+    }
+
+    $nonUrlProps = $updateParameters.Clone()
+    foreach ($key in $urlProps.Keys)
+    {
+        $nonUrlProps.Remove($key) | Out-Null
+    }
+
+    if ($nonUrlProps.ContainsKey('AppliesTo') -and $nonUrlProps['AppliesTo'] -eq 'Selected')
+    {
+        $nonUrlProps.Remove('AppliesTo') | Out-Null
+    }
+
     #region resource generator code
-    Update-MgBetaPolicyMobileAppManagementPolicy `
-        -MobileAppManagementPolicyId '0000000a-0000-0000-c000-000000000000' `
-        -BodyParameter $updateParameters
+    Invoke-MgGraphRequest -Uri '/beta/policies/mobileAppManagementPolicies/0000000a-0000-0000-c000-000000000000' `
+        -Body $urlProps `
+        -Method PATCH `
+        -ErrorAction Stop
+
+    if ($nonUrlProps.Keys.Count -gt 0)
+    {
+        Invoke-MgGraphRequest -Uri '/beta/policies/mobileAppManagementPolicies/0000000a-0000-0000-c000-000000000000' `
+            -Body $nonUrlProps `
+            -Method PATCH `
+            -ErrorAction Stop
+    }
 
     if ($PSBoundParameters.ContainsKey('IncludedGroups') -and $AppliesTo -eq 'Selected')
     {
-        $diffs = Compare-Object -ReferenceObject $IncludedGroups -DifferenceObject $currentInstance.IncludedGroups
-        $batchRequests = @()
-        foreach ($diff in $diffs)
+        $diffs = Compare-Object -ReferenceObject $IncludedGroups -DifferenceObject @($currentInstance.IncludedGroups | Where-Object { $null -ne $_ })
+        if ($diffs.Count -eq 0)
         {
-            $request = @{
-                id  = $diff.InputValue
-                url = "/policies/mobileAppManagementPolicies/0000000a-0000-0000-c000-000000000000/includedGroups/`$ref"
-            }
-            if ($diff.SideIndicator -eq "<=")
-            {
-                $request.Add('method', 'DELETE')
-            }
-            elseif ($diff.SideIndicator -eq "=>")
-            {
-                $group = Get-MgGroup -Filter "displayName eq '$($diff.InputValue)'" -Property id
-                if ($null -eq $group)
-                {
-                    throw "Failed to find group '$($diff.InputValue)' in the tenant. Please make sure it exists."
-                }
-                $request.Add('method', 'POST')
-                $request.Add('body', @{ "@odata.id" = "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)odata/groups('$($group.Id)')" })
-            }
-            $batchRequests += $request
+            Write-Verbose -Message 'Included groups are already in the desired state.'
+            return
         }
 
         Write-Verbose -Message "Updating the IncludedGroups of the Intune Device Enrollment Scope Configuration Mam"
-        $null = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
+        foreach ($diff in $diffs)
+        {
+            $group = Get-MgGroup -Filter "displayName eq '$($diff.InputObject)'" -Property id
+            if ($null -eq $group)
+            {
+                throw "Failed to find group '$($diff.InputObject)' in the tenant. Please make sure it exists."
+            }
+            $request = @{}
+            if ($diff.SideIndicator -eq "=>")
+            {
+                $request.Add('Method', 'DELETE')
+                $request.Add('Uri', "/beta/policies/mobileAppManagementPolicies/0000000a-0000-0000-c000-000000000000/includedGroups/$($group.Id)/`$ref")
+            }
+            elseif ($diff.SideIndicator -eq "<=")
+            {
+                $request.Add('Method', 'POST')
+                $request.Add('Body', @{ "@odata.id" = "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)odata/groups('$($group.Id)')" })
+                $request.Add('Uri', "/beta/policies/mobileAppManagementPolicies/0000000a-0000-0000-c000-000000000000/includedGroups/`$ref")
+            }
+            Invoke-MgGraphRequest @request -ErrorAction Stop
+        }
     }
     #endregion
 }
@@ -280,8 +318,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
+    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+                                         @compareParameters
     return $result
 }
 
@@ -379,6 +419,24 @@ function Export-TargetResource
             -Credential $Credential
 
         throw
+    }
+}
+
+function Get-CompareParameters
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param()
+
+    return @{
+        PostProcessing = {
+            param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
+            if ($DesiredValues.AppliesTo -ne 'Selected')
+            {
+                $ValuesToCheck.Remove('IncludedGroups')
+            }
+            return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
+        }
     }
 }
 
