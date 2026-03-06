@@ -300,8 +300,11 @@ function Start-M365DSCConfigurationExtract
         }
 
         Write-Verbose -Message 'Based on provided parameters, retrieving the most secure authentication method to use.'
+        $moduleConfiguration = Get-M365DSCModuleConfiguration
+        Set-M365DSCModuleConfiguration -Key 'skipModuleDependencyValidation' -Value $true
         $allSupportedResourcesWithMostSecureAuthMethod = Get-M365DSCComponentsWithMostSecureAuthenticationType -AuthenticationMethod $AuthMethods `
             -Resources $selectedResources
+        Set-M365DSCModuleConfiguration -Key 'skipModuleDependencyValidation' -Value $moduleConfiguration.skipModuleDependencyValidation
 
         try
         {
@@ -621,50 +624,6 @@ function Start-M365DSCConfigurationExtract
             }
         }
 
-        # Retrieve the list of Workloads represented by the resources to export and pre-authenticate to each one;
-        if ($ResourcesToExport.Count -gt 0)
-        {
-            $WorkloadsToConnectTo = Get-M365DSCConnectedWorkloadList -ResourceNames $ResourcesToExport
-        }
-        foreach ($Workload in $WorkloadsToConnectTo)
-        {
-            Write-M365DSCHost -Message "Connecting to {$($Workload.Name)}..." -DeferWrite
-            $ConnectionParams = @{
-                Workload              = $Workload.Name
-                ApplicationId         = $ApplicationId
-                ApplicationSecret     = $ApplicationSecret
-                TenantId              = $TenantId
-                CertificateThumbprint = $CertificateThumbprint
-                CertificatePath       = $CertificatePath
-                CertificatePassword   = $CertificatePassword.Password
-                Credential            = $Credential
-                Identity              = $ManagedIdentity.IsPresent
-                AccessTokens          = $AccessTokens
-            }
-
-            if ($workload.AuthenticationMethod -eq 'Credentials')
-            {
-                $ConnectionParams.Remove('TenantId') | Out-Null
-                $ConnectionParams.Remove('ApplicationId') | Out-Null
-            }
-
-            try
-            {
-                $existingEndpoints = (Get-MSCloudLoginConnectionProfile -Workload $Workload.Name).Endpoints
-                if ($null -ne $existingEndpoints)
-                {
-                    $ConnectionParams.Add('Endpoints', $existingEndpoints)
-                }
-                Connect-M365Tenant @ConnectionParams | Out-Null
-                Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckmark -CommitWrite
-            }
-            catch
-            {
-                Write-M365DSCHost -Message $Global:M365DSCEmojiRedX -CommitWrite
-                throw $_
-            }
-        }
-
         # If the tenant id is not a GUID, retrieve it based on the organization name
         # Only implemented for public cloud tenants
         if (-not ($TenantId -match ('^(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}$')))
@@ -706,7 +665,7 @@ function Start-M365DSCConfigurationExtract
             $resourceName = $resource.Name.Split('.')[0] -replace 'MSFT_', ''
             $mostSecureAuthMethod = ($using:allSupportedResourcesWithMostSecureAuthMethod | Where-Object { $_.Resource -eq $resourceName }).AuthMethod
 
-            Import-Module $resource.FullName | Out-Null
+            Import-Module $resource.FullName -Force | Out-Null
             $filterExists = (Get-Command 'Export-TargetResource').Parameters.Keys.Contains('Filter')
 
             $parameters = @{}
@@ -838,7 +797,14 @@ function Start-M365DSCConfigurationExtract
                         }
                     }
                 }
-                $resourcesPath | Where-Object { $_ -like "*MSFT_$workload*" } | Invoke-Parallel -ScriptBlock $exportScriptBlock -ModuleName $requiredModules -Verbose
+                $arguments = @{
+                    ScriptBlock = $exportScriptBlock
+                }
+                if ($requiredModules.Count -gt 0)
+                {
+                    $arguments.Add('ModuleName', $requiredModules)
+                }
+                $resourcesPath | Where-Object { $_ -like "*MSFT_$workload*" } | Invoke-Parallel @arguments -Verbose
             }
         }
         else

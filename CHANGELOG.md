@@ -11,6 +11,12 @@
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.
     FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
+* M365DSCReverse
+  * Removed workload pre-authentication during export.
+  * Updated the export logic to start module import during usage
+    and not during resource initialization.
+* M365DSCUtil
+  * Added logic to not always check if a core required module is loaded.
 
 # 1.26.218.1
 
