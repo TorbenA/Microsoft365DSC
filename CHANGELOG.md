@@ -8,6 +8,15 @@
   * Added name resolution for `AppId` and `PermissionIds` in preauthorized applications.
 * AADAuthenticationMethodPolicy*
   * Streamlined Target name resolution for all authentication resources.
+* AADEntitlementManagementAccessPackageAssignmentPolicy
+  * Add missing sub-property `IsAgenticExperienceEnabled` to
+    complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
+    `ApprovalStages[]`
+    FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
+* EXOTenantAllowBlockListItems
+  * Fixed issue where value `Submission` was missing from the validate
+    set from `ListSubType` parameter.
+    FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
 * IntuneDeviceConfigurationKioskPolicyWindows10
   * [BREAKING CHANGE] Removed property `ProfileId` from the
     `MSFT_MicrosoftGraphWindowsKioskProfile` instance.
