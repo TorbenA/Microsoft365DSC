@@ -1123,7 +1123,7 @@ function Set-TargetResource
             $IncludeApplicationsValue = @()
             foreach ($app in $IncludeApplications)
             {
-                if ($app -in @('MicrosoftAdminPortals', 'Office365'))
+                if ($app -in @('All', 'AllAgentIdResources', 'MicrosoftAdminPortals', 'Office365'))
                 {
                     $IncludeApplicationsValue += $app
                     continue
@@ -1163,7 +1163,7 @@ function Set-TargetResource
             $ExcludeApplicationsValue = @()
             foreach ($app in $ExcludeApplications)
             {
-                if ($app -in @('MicrosoftAdminPortals', 'Office365'))
+                if ($app -in @('AllAgentIdResources', 'MicrosoftAdminPortals', 'Office365'))
                 {
                     $ExcludeApplicationsValue += $app
                     continue
@@ -1291,7 +1291,7 @@ function Set-TargetResource
                 #translate user Group names to GUID
                 if ($includegroup)
                 {
-                    $groupLookup = Get-MgGroup -Filter "DisplayName eq '$($includegroup -replace "'", "''")'" -ErrorAction Stop
+                    [array]$groupLookup = Get-MgGroup -Filter "DisplayName eq '$($includegroup -replace "'", "''")'" -ErrorAction Stop
 
                     if ($groupLookup.Count -gt 1)
                     {
@@ -1321,7 +1321,7 @@ function Set-TargetResource
                 #translate user Group names to GUID
                 if ($ExcludeGroup)
                 {
-                    $groupLookup = Get-MgGroup -Filter "DisplayName eq '$($ExcludeGroup -replace "'", "''")'" -ErrorAction Stop
+                    [array]$groupLookup = Get-MgGroup -Filter "DisplayName eq '$($ExcludeGroup -replace "'", "''")'" -ErrorAction Stop
 
                     if ($groupLookup.Count -gt 1)
                     {
