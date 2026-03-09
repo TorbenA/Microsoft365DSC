@@ -2,20 +2,37 @@
 
 # UNRELEASED
 
-<<<<<<< fix/aad-cross-tenant
 * AADCrossTenantIdentitySyncPolicyPartner
   * Fixed an issue where the export would fail if the secondary tenant does
     not allow reading of the tenant information.
     FIXES [#6843](https://github.com/microsoft/Microsoft365DSC/issues/6843)
-=======
+* AADEntitlementManagementAccessPackageAssignmentPolicy
+  * Add missing sub-property `IsAgenticExperienceEnabled` to
+    complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
+    `ApprovalStages[]`
+    FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
+* EXOTenantAllowBlockListItems
+  * Fixed issue where value `Submission` was missing from the validate
+    set from `ListSubType` parameter.
+    FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
+
+# 1.26.218.1
+
 * AADConditionalAccessPolicy
   * Fixed an issue where `DisableResilienceDefaultsIsEnabled` was not
     evaluated correctly during `Get`.
     FIXES [#6871](https://github.com/microsoft/Microsoft365DSC/issues/6871)
->>>>>>> Dev
 * AADGroup
   * Fixed an issue where group members were not always returned.
     FIXES [#6854](https://github.com/microsoft/Microsoft365DSC/issues/6854)
+* EXOOrganizationConfig
+  * Fixed an issue where applying the configuration failed.
+* IntuneCorporateDeviceIdentifier
+  * Initial release. [#6838](https://github.com/microsoft/Microsoft365DSC/issues/6838)
+* TeamsGroupPolicyAssignment
+  * Properly throws and error when a failure occurs.
+* TeamsTemplatesPolicy
+  * Properly throws and error when a failure occurs.
 * M365DSCReport
   * Added missing Metadata processing when generating reports.
     FIXES [#6865](https://github.com/microsoft/Microsoft365DSC/issues/6865)
