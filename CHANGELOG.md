@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADAccessReviewDefinition
+  * Fixed an issue where the filter for Get was applied incorrectly.
+    FIXES [#6947](https://github.com/microsoft/Microsoft365DSC/issues/6947)
 * AADEntitlementManagementAccessPackageAssignmentPolicy
   * Add missing sub-property `IsAgenticExperienceEnabled` to
     complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
