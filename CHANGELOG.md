@@ -4,12 +4,21 @@
 
 * AADConditionalAccessPolicy
   * Fixed an issue where arrays could contain empty strings.
+* AADEntitlementManagementAccessPackageAssignmentPolicy
+  * Add missing sub-property `IsAgenticExperienceEnabled` to
+    complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
+    `ApprovalStages[]`
+    FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
 * AADGroup
   * Added sort by `DisplayName` during export.
 * AADGroupsNamingPolicy
   * Fixed an issue where arrays could contain empty strings.
 * EXOServicePrincipal
   * Fixed an issue where the permissions were not correctly defined.
+* EXOTenantAllowBlockListItems
+  * Fixed issue where value `Submission` was missing from the validate
+    set from `ListSubType` parameter.
+    FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
 * IntuneDeviceConfigurationPolicyMacOS
   * Fixed an issue where arrays could contain empty strings.
 * IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile
