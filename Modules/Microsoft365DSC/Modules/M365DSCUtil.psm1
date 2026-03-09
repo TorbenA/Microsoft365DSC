@@ -811,11 +811,11 @@ function Test-M365DSCParameterState
                                     Write-Verbose -Message "$($_.InputObject) - $($_.SideIndicator)"
                                 }
 
-                                $EventValue = "<CurrentValue>$($CurrentValues.$fieldName)</CurrentValue>"
-                                $EventValue += "<DesiredValue>$($DesiredValues.$fieldName)</DesiredValue>"
+                                $EventValue = "<CurrentValue>$($CurrentValues.$fieldName -join ", ")</CurrentValue>"
+                                $EventValue += "<DesiredValue>$($DesiredValues.$fieldName -join ", ")</DesiredValue>"
                                 $DriftObject.DriftInfo.Add($fieldName, @{
-                                    CurrentValue = $CurrentValues.$fieldName
-                                    DesiredValue = $DesiredValues.$fieldName
+                                    CurrentValue = $CurrentValues.$fieldName -join ", "
+                                    DesiredValue = $DesiredValues.$fieldName -join ", "
                                 })
                                 $DriftedParameters.Add($fieldName, $EventValue)
                                 $returnValue = $false
@@ -1635,6 +1635,12 @@ function Export-M365DSCConfiguration
 
     # Suppress Progress overlays
     $Global:ProgressPreference = 'SilentlyContinue'
+
+    # Check ErrorActionPreference - Azure DevOps and other Pipeline environments set it to 'Stop' by default
+    if ($ErrorActionPreference -eq 'Stop' -and -not $PSBoundParameters.ContainsKey('ErrorAction'))
+    {
+        $ErrorActionPreference = 'Continue'
+    }
 
     ##### FIRST CHECK AUTH PARAMETERS
     if ($PSBoundParameters.ContainsKey('Credential') -eq $true -and `
