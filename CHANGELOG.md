@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* AADAuthenticationMethodPolicyFido2
+  * Add PassKeyProfile handling
 * AADEntitlementManagementAccessPackageAssignmentPolicy
   * Add missing sub-property `IsAgenticExperienceEnabled` to
     complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
