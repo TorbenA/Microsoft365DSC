@@ -27,6 +27,10 @@
   * Initial release.
 * IntuneRoleDefinitionWindows365
   * Initial release.
+* IntuneTermsAndConditions
+  * Initial release.
+* MISC
+  * Aligned markdown documents and description to common standards.
 
 # 1.26.218.1
 
