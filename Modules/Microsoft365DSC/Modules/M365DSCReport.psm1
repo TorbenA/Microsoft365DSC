@@ -1654,7 +1654,7 @@ function Compare-M365DSCConfigurations
 This function gets the key parameter for the specified CIMInstance
 
 .Functionality
-Public
+Internal
 #>
 function Get-M365DSCCIMInstanceKey
 {
