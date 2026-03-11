@@ -4,6 +4,10 @@
 
 * AADConditionalAccessPolicy
   * Fixed an issue where arrays could contain empty strings.
+* AADCrossTenantIdentitySyncPolicyPartner
+  * Fixed an issue where the export would fail if the secondary tenant does
+    not allow reading of the tenant information.
+    FIXES [#6843](https://github.com/microsoft/Microsoft365DSC/issues/6843)
 * AADEntitlementManagementAccessPackageAssignmentPolicy
   * Add missing sub-property `IsAgenticExperienceEnabled` to
     complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
@@ -13,12 +17,17 @@
   * Added sort by `DisplayName` during export.
 * AADGroupsNamingPolicy
   * Fixed an issue where arrays could contain empty strings.
+* EXODistributionGroup
+  * Updated `Get-TargetResource` to use properties with display name.
+    FIXES [#6769](https://github.com/microsoft/Microsoft365DSC/issues/6769)
 * EXOServicePrincipal
   * Fixed an issue where the permissions were not correctly defined.
 * EXOTenantAllowBlockListItems
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.
     FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
+* IntuneAppProtectionPolicyWindows10
+  * Initial release.
 * IntuneDeviceConfigurationPolicyMacOS
   * Fixed an issue where arrays could contain empty strings.
 * IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile
