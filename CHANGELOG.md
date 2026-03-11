@@ -20,6 +20,10 @@
     FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
 * IntuneAppProtectionPolicyWindows10
   * Initial release.
+* IntuneRoleAssignmentWindows365
+  * Initial release.
+* IntuneRoleDefinitionWindows365
+  * Initial release.
 * IntuneTermsAndConditions
   * Initial release.
 
