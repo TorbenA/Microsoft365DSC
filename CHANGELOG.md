@@ -24,6 +24,8 @@
   * Initial release.
 * IntuneRoleDefinitionWindows365
   * Initial release.
+* IntuneTermsAndConditions
+  * Initial release.
 
 # 1.26.218.1
 
