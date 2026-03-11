@@ -23,6 +23,10 @@
 * IntuneCustomizationBrandingProfile
   * Initial release.
     FIXES [#4155](https://github.com/microsoft/Microsoft365DSC/issues/4155)
+* IntuneRoleAssignmentWindows365
+  * Initial release.
+* IntuneRoleDefinitionWindows365
+  * Initial release.
 
 # 1.26.218.1
 
