@@ -11,6 +11,9 @@
     complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
     `ApprovalStages[]`
     FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
+* EXODistributionGroup
+  * Updated `Get-TargetResource` to use properties with display name.
+    FIXES [#6769](https://github.com/microsoft/Microsoft365DSC/issues/6769)
 * EXOTenantAllowBlockListItems
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.

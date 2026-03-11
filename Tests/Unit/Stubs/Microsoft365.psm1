@@ -3121,6 +3121,22 @@ function Get-DistributionGroup
         $IncludeAcceptMessagesOnlyFromWithDisplayNames,
 
         [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $IncludeBypassModerationFromSendersOrMembersWithDisplayNames,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $IncludeGrantSendOnBehalfToWithDisplayNames,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $IncludeManagedByWithDisplayNames,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $IncludeModeratedByWithDisplayNames,
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
