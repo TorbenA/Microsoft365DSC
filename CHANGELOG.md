@@ -33,9 +33,17 @@
 * IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile
   * Fixed an issue where unmodifiable profiles were exported.
     FIXES [#6889](https://github.com/microsoft/Microsoft365DSC/issues/6889)
+* IntuneRoleAssignmentWindows365
+  * Initial release.
+* IntuneRoleDefinitionWindows365
+  * Initial release.
+* IntuneTermsAndConditions
+  * Initial release.
 * TeamsOrgWideAppSettings
   * Fixed an issue where updating the settings would fail.
     FIXES [#6900](https://github.com/microsoft/Microsoft365DSC/issues/6900)
+* MISC
+  * Aligned markdown documents and description to common standards.
 
 # 1.26.218.1
 
