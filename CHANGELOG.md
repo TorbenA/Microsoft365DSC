@@ -20,6 +20,12 @@
     FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
 * IntuneAppProtectionPolicyWindows10
   * Initial release.
+* IntuneRoleAssignmentWindows365
+  * Initial release.
+* IntuneRoleDefinitionWindows365
+  * Initial release.
+* IntuneTermsAndConditions
+  * Initial release.
 * M365DSCDRGUtil
   * Fixed an issue in `Compare-M365DSCComplexObject` where calling it
     directly would throw an exception during drift reporting.
@@ -27,6 +33,8 @@
 * M365DSCReport
   * Fixed an issue when comparing multiple instances with the same key
     properties would result in a RuntimeException.
+* MISC
+  * Aligned markdown documents and description to common standards.
 
 # 1.26.218.1
 
