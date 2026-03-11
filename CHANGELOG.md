@@ -2,6 +2,10 @@
 
 # UNRELEASED
 
+* AADCrossTenantIdentitySyncPolicyPartner
+  * Fixed an issue where the export would fail if the secondary tenant does
+    not allow reading of the tenant information.
+    FIXES [#6843](https://github.com/microsoft/Microsoft365DSC/issues/6843)
 * AADEntitlementManagementAccessPackageAssignmentPolicy
   * Add missing sub-property `IsAgenticExperienceEnabled` to
     complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
