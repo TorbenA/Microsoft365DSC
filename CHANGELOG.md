@@ -2,15 +2,24 @@
 
 # UNRELEASED
 
+* AADCrossTenantIdentitySyncPolicyPartner
+  * Fixed an issue where the export would fail if the secondary tenant does
+    not allow reading of the tenant information.
+    FIXES [#6843](https://github.com/microsoft/Microsoft365DSC/issues/6843)
 * AADEntitlementManagementAccessPackageAssignmentPolicy
   * Add missing sub-property `IsAgenticExperienceEnabled` to
     complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
     `ApprovalStages[]`
     FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
+* EXODistributionGroup
+  * Updated `Get-TargetResource` to use properties with display name.
+    FIXES [#6769](https://github.com/microsoft/Microsoft365DSC/issues/6769)
 * EXOTenantAllowBlockListItems
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.
     FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
+* IntuneAppProtectionPolicyWindows10
+  * Initial release.
 * IntuneTermsAndConditions
   * Initial release.
 
