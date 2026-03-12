@@ -56,25 +56,28 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
-        -InboundParameters $PSBoundParameters
+    Write-Verbose -Message "Getting configuration for the AAD Tenant App Management Policy with DisplayName {$DisplayName}"
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
-
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
-
-    $nullResult = $PSBoundParameters
-    $nullResult.Ensure = 'Absent'
     try
     {
+        $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
+            -InboundParameters $PSBoundParameters
+
+        #Ensure the proper dependencies are installed in the current environment.
+        Confirm-M365DSCDependencies
+
+        #region Telemetry
+        $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+        $CommandName = $MyInvocation.MyCommand
+        $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+            -CommandName $CommandName `
+            -Parameters $PSBoundParameters
+        Add-M365DSCTelemetryEvent -Data $data
+        #endregion
+
+        $nullResult = $PSBoundParameters
+        $nullResult.Ensure = 'Absent'
+
         $instance = Get-MgBetaPolicyDefaultAppManagementPolicy -ErrorAction SilentlyContinue
 
         if ($null -eq $instance)
@@ -84,8 +87,8 @@ function Get-TargetResource
 
         #region ApplicationRestrictions
         $appRestrictionsValue = @{
-            passwordCredentials     = @()
-            keyCredentials          = @()
+            passwordCredentials = @()
+            keyCredentials      = @()
         }
 
         foreach ($passwordCred in $instance.ApplicationRestrictions.PasswordCredentials)
@@ -97,7 +100,7 @@ function Get-TargetResource
             }
             if ($null -ne $passwordCred.MaxLifetime)
             {
-                $iso8601Duration = "P{0}DT{1}H{2}M{3}S" -f $passwordCred.MaxLifetime.Days, $passwordCred.MaxLifetime.Hours, $passwordCred.MaxLifetime.Minutes, $passwordCred.MaxLifetime.Seconds
+                $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $passwordCred.MaxLifetime.Days, $passwordCred.MaxLifetime.Hours, $passwordCred.MaxLifetime.Minutes, $passwordCred.MaxLifetime.Seconds
                 $newItem.Add('maxLifetime', $iso8601Duration)
             }
             $appRestrictionsValue.passwordCredentials += $newItem
@@ -112,7 +115,7 @@ function Get-TargetResource
             }
             if ($null -ne $keyCred.MaxLifetime)
             {
-                $iso8601Duration = "P{0}DT{1}H{2}M{3}S" -f $keyCred.MaxLifetime.Days, $keyCred.MaxLifetime.Hours, $keyCred.MaxLifetime.Minutes, $keyCred.MaxLifetime.Seconds
+                $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $keyCred.MaxLifetime.Days, $keyCred.MaxLifetime.Hours, $keyCred.MaxLifetime.Minutes, $keyCred.MaxLifetime.Seconds
                 $newItem.Add('maxLifetime', $iso8601Duration)
             }
             $appRestrictionsValue.keyCredentials += $newItem
@@ -121,8 +124,8 @@ function Get-TargetResource
 
         #region ServicePrincipalRestrictions
         $spnRestrictionsValue = [ordered]@{
-            passwordCredentials     = @()
-            keyCredentials          = @()
+            passwordCredentials = @()
+            keyCredentials      = @()
         }
 
         foreach ($passwordCred in $instance.ServicePrincipalRestrictions.PasswordCredentials)
@@ -134,7 +137,7 @@ function Get-TargetResource
             }
             if ($null -ne $passwordCred.MaxLifetime)
             {
-                $iso8601Duration = "P{0}DT{1}H{2}M{3}S" -f $passwordCred.MaxLifetime.Days, $passwordCred.MaxLifetime.Hours, $passwordCred.MaxLifetime.Minutes, $passwordCred.MaxLifetime.Seconds
+                $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $passwordCred.MaxLifetime.Days, $passwordCred.MaxLifetime.Hours, $passwordCred.MaxLifetime.Minutes, $passwordCred.MaxLifetime.Seconds
                 $newItem.Add('maxLifetime', $iso8601Duration)
             }
             $spnRestrictionsValue.passwordCredentials += $newItem
@@ -149,7 +152,7 @@ function Get-TargetResource
             }
             if ($null -ne $keyCred.MaxLifetime)
             {
-                $iso8601Duration = "P{0}DT{1}H{2}M{3}S" -f $keyCred.MaxLifetime.Days, $keyCred.MaxLifetime.Hours, $keyCred.MaxLifetime.Minutes, $keyCred.MaxLifetime.Seconds
+                $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $keyCred.MaxLifetime.Days, $keyCred.MaxLifetime.Hours, $keyCred.MaxLifetime.Minutes, $keyCred.MaxLifetime.Seconds
                 $newItem.Add('maxLifetime', $iso8601Duration)
             }
             $spnRestrictionsValue.keyCredentials += $newItem
@@ -251,7 +254,7 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $currentInstance = Get-TargetResource @PSBoundParameters
+    $null = Get-TargetResource @PSBoundParameters
 
     $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $appRestrictionsValue = @{
@@ -324,7 +327,7 @@ function Set-TargetResource
 
     $setParameters.ServicePrincipalRestrictions = $spnRestrictionsValue
 
-    Write-Verbose -Message "Updating the Default App Management Policy"
+    Write-Verbose -Message 'Updating the Default App Management Policy'
     Update-MgBetaPolicyDefaultAppManagementPolicy @setParameters
 }
 
@@ -394,7 +397,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
