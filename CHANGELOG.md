@@ -22,6 +22,9 @@
   * Add certificateBasedApplicationConfigurationIds support to AADTenantAppManagementPolicy
     FIXES [6925](https://github.com/microsoft/Microsoft365DSC/issues/6925)
   * Update format RestrictForAppsCreatedAfterDateTime to match AADAppManagementPolicy
+* AADUser
+  * Fixed an issue where not specified properties were applied during update.
+    FIXES [#6934](https://github.com/microsoft/Microsoft365DSC/issues/6934)
 * EXODistributionGroup
   * Updated `Get-TargetResource` to use properties with display name.
     FIXES [#6769](https://github.com/microsoft/Microsoft365DSC/issues/6769)
