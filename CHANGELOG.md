@@ -41,6 +41,8 @@
   * Fixed an issue in `Compare-M365DSCComplexObject` where calling it
     directly would throw an exception during drift reporting.
     FIXES [#6922](https://github.com/microsoft/Microsoft365DSC/issues/6922)
+* M365DSCPermissions
+  * Fixed an issue where granting admin consent was not working with credentials.
 * M365DSCReport
   * Fixed an issue when comparing multiple instances with the same key
     properties would result in a RuntimeException.
