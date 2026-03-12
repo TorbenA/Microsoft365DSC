@@ -132,6 +132,10 @@ function Get-TargetResource
                 $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $keyCred.MaxLifetime.Days, $keyCred.MaxLifetime.Hours, $keyCred.MaxLifetime.Minutes, $keyCred.MaxLifetime.Seconds
                 $newItem.Add('maxLifetime', $iso8601Duration)
             }
+            if ($null -ne $keyCred.CertificateBasedApplicationConfigurationIds -and $keyCred.CertificateBasedApplicationConfigurationIds.Count -gt 0)
+            {
+                $newItem.Add('certificateBasedApplicationConfigurationIds', [System.String[]]$keyCred.CertificateBasedApplicationConfigurationIds)
+            }
             $restrictionsValue.keyCredentials += $newItem
         }
 
@@ -265,6 +269,10 @@ function Set-TargetResource
         if ($null -ne $keyCred.MaxLifetime)
         {
             $newItem.Add('maxLifetime', $keyCred.MaxLifetime.ToString())
+        }
+        if ($null -ne $keyCred.CertificateBasedApplicationConfigurationIds -and $keyCred.CertificateBasedApplicationConfigurationIds.Count -gt 0)
+        {
+            $newItem.Add('certificateBasedApplicationConfigurationIds', [System.String[]]$keyCred.CertificateBasedApplicationConfigurationIds)
         }
         $restrictionsValue.keyCredentials += $newItem
     }

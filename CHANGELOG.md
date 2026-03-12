@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADAppManagementPolicy
+  * Add certificateBasedApplicationConfigurationIds support to AADAppManagementPolicy
+    FIXES [6926](https://github.com/microsoft/Microsoft365DSC/issues/6926)
 * AADCrossTenantIdentitySyncPolicyPartner
   * Fixed an issue where the export would fail if the secondary tenant does
     not allow reading of the tenant information.
