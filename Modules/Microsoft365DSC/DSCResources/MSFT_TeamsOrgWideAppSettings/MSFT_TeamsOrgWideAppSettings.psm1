@@ -144,8 +144,9 @@ function Set-TargetResource
     }
     else
     {
-        $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-        Set-CsTeamsSettingsCustomApp @SetParameters
+        $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+        $setParameters.Remove('IsSingleInstance') | Out-Null
+        Set-CsTeamsSettingsCustomApp @setParameters
     }
 }
 

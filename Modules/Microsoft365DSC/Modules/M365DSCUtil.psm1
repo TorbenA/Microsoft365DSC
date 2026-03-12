@@ -549,6 +549,39 @@ function Get-M365DSCTenantNameFromParameterSet
 }
 
 <#
+.DESCRIPTION
+    This function converts a property value to an array of specified element type.
+
+.FUNCTIONALITY
+    Internal
+#>
+function Get-M365DSCArrayFromProperty
+{
+    [CmdletBinding()]
+    [OutputType([System.Array])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [AllowNull()]
+        [System.Object]
+        $PropertyValue,
+
+        [Parameter(Mandatory = $false)]
+        [System.Type]
+        $ElementType = [System.Object]
+    )
+
+    $array = [System.Array]::CreateInstance($ElementType, 0)
+    foreach ($item in $PropertyValue)
+    {
+        $array += $item
+    }
+
+    ,$array
+}
+
+<#
 .Description
 This function tests if the DSC hashtables have the same values
 
@@ -6055,6 +6088,7 @@ Export-ModuleMember -Function @(
     'Get-M365DSCAllResources',
     'Get-M365DSCAllResourcesDictionary',
     'Get-M365DSCAPIEndpoint',
+    'Get-M365DSCArrayFromProperty',
     'Get-M365DSCAuthenticationMode',
     'Get-M365DSCComponentsWithMostSecureAuthenticationType',
     'Get-M365DSCConfigurationConflict',

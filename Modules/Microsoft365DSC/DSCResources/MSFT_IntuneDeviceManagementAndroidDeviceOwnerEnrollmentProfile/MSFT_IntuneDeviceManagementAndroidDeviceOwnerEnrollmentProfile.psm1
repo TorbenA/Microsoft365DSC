@@ -481,7 +481,10 @@ function Export-TargetResource
     try
     {
         $Script:ExportMode = $true
-        [array] $Script:exportedInstances = Get-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile -Filter $Filter -ErrorAction Stop
+        # Exclude profiles with Microsoft internal enrollment mode (EnrollmentMode 5) from export
+        # as it cannot be managed. Example is "Default enrollment profile for personally-owned work profile devices"
+        [array] $Script:exportedInstances = Get-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile `
+            -ErrorAction Stop | Where-Object EnrollmentMode -NE 5
 
         $i = 1
         $dscContent = ''

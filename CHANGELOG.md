@@ -8,6 +8,8 @@
 * AADAppManagementPolicy
   * Add certificateBasedApplicationConfigurationIds support to AADAppManagementPolicy
     FIXES [6926](https://github.com/microsoft/Microsoft365DSC/issues/6926)
+* AADConditionalAccessPolicy
+  * Fixed an issue where arrays could contain empty strings.
 * AADCrossTenantIdentitySyncPolicyPartner
   * Fixed an issue where the export would fail if the secondary tenant does
     not allow reading of the tenant information.
@@ -17,6 +19,12 @@
     complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
     `ApprovalStages[]`
     FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
+* AADGroup
+  * Added sort by `DisplayName` during export.
+* AADGroupEligibilitySchedule
+  * Changed resource to `Data` plane.
+* AADGroupsNamingPolicy
+  * Fixed an issue where arrays could contain empty strings.
   * Fixed an issue where the `StartDateTime` property was not standardized.
     It is now in the ISO 8601 format.
 * AADGroupEligibilitySchedule
@@ -31,6 +39,8 @@
 * EXODistributionGroup
   * Updated `Get-TargetResource` to use properties with display name.
     FIXES [#6769](https://github.com/microsoft/Microsoft365DSC/issues/6769)
+* EXOServicePrincipal
+  * Fixed an issue where the permissions were not correctly defined.
 * EXOTenantAllowBlockListItems
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.
@@ -44,6 +54,11 @@
 * IntuneCloudProvisioningPolicyWindows365
   * Fixed an issue where deploying the configuration failed because the property
     `GeographicLocationType` was missing.
+* IntuneDeviceConfigurationPolicyMacOS
+  * Fixed an issue where arrays could contain empty strings.
+* IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile
+  * Fixed an issue where unmodifiable profiles were exported.
+    FIXES [#6889](https://github.com/microsoft/Microsoft365DSC/issues/6889)
 * IntuneRoleAssignmentWindows365
   * Initial release.
 * IntuneRoleDefinitionWindows365
@@ -52,6 +67,9 @@
   * Initial release.
 * SCDLPSensitiveInformationType
   * Updated test logic to use `Test-M365DSCTargetResource`.
+* TeamsOrgWideAppSettings
+  * Fixed an issue where updating the settings would fail.
+    FIXES [#6900](https://github.com/microsoft/Microsoft365DSC/issues/6900)
 * M365DSCDRGUtil
   * Fixed an issue in `Compare-M365DSCComplexObject` where calling it
     directly would throw an exception during drift reporting.
