@@ -58,6 +58,7 @@ if ($null -eq $Script:M365DSCDependencies)
         $Script:M365DSCDependencies[$entry.Key].Commands = $sortedFunctions
     }
     $Script:M365DSCRequiredModules = @($globalRequiredModules.psobject.Properties.Name)
+    $Script:M365DSCRequiredModulesLoaded = $false
 }
 
 function Get-M365DSCModuleConfiguration
@@ -2332,10 +2333,14 @@ function New-M365DSCConnection
         $EnableSearchOnlySession
     )
 
-    foreach ($requiredModule in $Script:M365DSCRequiredModules)
+    if (-not $Script:M365DSCRequiredModulesLoaded)
     {
-        Write-Verbose -Message "Ensuring required module '$requiredModule' is loaded."
-        Confirm-M365DSCLoadedModule -ModuleName $requiredModule
+        foreach ($requiredModule in $Script:M365DSCRequiredModules)
+        {
+            Write-Verbose -Message "Ensuring required module '$requiredModule' is loaded."
+            Confirm-M365DSCLoadedModule -ModuleName $requiredModule
+        }
+        $Script:M365DSCRequiredModulesLoaded = $true
     }
 
     if ($Workload -eq 'MicrosoftTeams')
@@ -4300,7 +4305,7 @@ function Get-M365DSCComponentsWithMostSecureAuthenticationType
     {
         if ($Resources -contains ($resource.Name -replace '.psm1', '' -replace 'MSFT_', ''))
         {
-            Import-Module $resource.FullName -Force
+            Import-Module $resource.FullName -Force -Function @('Set-TargetResource') -DisableNameChecking
             $parameters = (Get-Command 'Set-TargetResource').Parameters.Keys
 
             # Case - Resource supports CertificateThumbprint

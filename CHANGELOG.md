@@ -58,6 +58,12 @@
 * M365DSCReport
   * Fixed an issue when comparing multiple instances with the same key
     properties would result in a RuntimeException.
+* M365DSCReverse
+  * Removed workload pre-authentication during export.
+  * Updated the export logic to start module import during usage
+    and not during resource initialization.
+* M365DSCUtil
+  * Added logic to not always check if a core required module is loaded.
 * MISC
   * Aligned code formatting across all resources.
   * Aligned markdown documents and description to common standards.
