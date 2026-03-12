@@ -45,6 +45,10 @@
 * AADUser
   * Fixed an issue where not specified properties were applied during update.
     FIXES [#6934](https://github.com/microsoft/Microsoft365DSC/issues/6934)
+* AzureRoleAssignmentScheduleRequest
+  * Initial Release. [#6945](https://github.com/microsoft/Microsoft365DSC/issues/6945)
+* AzureRoleEligibilityScheduleRequest
+  * Initial Release. [#694](https://github.com/microsoft/Microsoft365DSC/issues/6945)
 * EXODistributionGroup
   * Updated `Get-TargetResource` to use properties with display name.
     FIXES [#6769](https://github.com/microsoft/Microsoft365DSC/issues/6769)
