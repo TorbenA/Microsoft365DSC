@@ -2115,9 +2115,9 @@ function New-M365DSCDeltaReport
                         })
                     }
 
-                    if ($destinationResource.ContainsKey("_metadata_$($driftInfo.PropertyName)"))
+                    if ($destinationResource[0].ContainsKey("_metadata_$($driftInfo.PropertyName)"))
                     {
-                        $Metadata = $destinationResource."_metadata_$($driftInfo.PropertyName)"
+                        $Metadata = $destinationResource[0]."_metadata_$($driftInfo.PropertyName)"
                         $Level = $Metadata.Split('|')[0].Replace('### ', '')
                         $Information = $Metadata.Split('|')[1]
                         $Delta[-1].Properties[0].Add('_Metadata_Level', $Level)

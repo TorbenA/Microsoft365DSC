@@ -30,6 +30,13 @@
   * Initial release.
 * SCDLPSensitiveInformationType
   * Updated test logic to use `Test-M365DSCTargetResource`.
+* M365DSCDRGUtil
+  * Fixed an issue in `Compare-M365DSCComplexObject` where calling it
+    directly would throw an exception during drift reporting.
+    FIXES [#6922](https://github.com/microsoft/Microsoft365DSC/issues/6922)
+* M365DSCReport
+  * Fixed an issue when comparing multiple instances with the same key
+    properties would result in a RuntimeException.
 * MISC
   * Aligned code formatting across all resources.
   * Aligned markdown documents and description to common standards.
