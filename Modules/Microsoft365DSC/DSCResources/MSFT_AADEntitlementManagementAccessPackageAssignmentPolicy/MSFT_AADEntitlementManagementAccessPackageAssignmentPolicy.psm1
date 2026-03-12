@@ -55,8 +55,8 @@ function Get-TargetResource
         $CustomExtensionHandlers,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -87,6 +87,8 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Getting configuration of Azure AD Entitlement Management Access Package Assignment Policy with Id {$Id} and DisplayName {$DisplayName}"
 
     try
     {
@@ -150,7 +152,7 @@ function Get-TargetResource
             foreach ($setting in $formattedAccessReviewSettings.Reviewers)
             {
                 $setting.Add('odataType', $setting.AdditionalProperties.'@odata.type')
-                if (-not [String]::isNullOrEmpty($setting.AdditionalProperties.id))
+                if (-not [System.String]::IsNullOrEmpty($setting.AdditionalProperties.id))
                 {
                     $user = Get-MgUser -UserId $setting.AdditionalProperties.id -ErrorAction SilentlyContinue
 
@@ -159,7 +161,7 @@ function Get-TargetResource
                         $setting.Add('Id', $user.UserPrincipalName)
                     }
                 }
-                if (-not [String]::isNullOrEmpty($setting.AdditionalProperties.managerLevel))
+                if (-not [System.String]::IsNullOrEmpty($setting.AdditionalProperties.managerLevel))
                 {
                     $setting.Add('ManagerLevel', $setting.AdditionalProperties.managerLevel)
                 }
@@ -183,7 +185,7 @@ function Get-TargetResource
                     foreach ($setting in $approvalStage.PrimaryApprovers)
                     {
                         $setting.Add('odataType', $setting.AdditionalProperties.'@odata.type')
-                        if (-not [String]::isNullOrEmpty($setting.AdditionalProperties.id))
+                        if (-not [System.String]::IsNullOrEmpty($setting.AdditionalProperties.id))
                         {
                             $user = Get-MgUser -UserId $setting.AdditionalProperties.id -ErrorAction SilentlyContinue
                             if ($null -ne $user)
@@ -191,7 +193,7 @@ function Get-TargetResource
                                 $setting.Add('Id', $user.UserPrincipalName)
                             }
                         }
-                        if (-not [String]::isNullOrEmpty($setting.AdditionalProperties.managerLevel))
+                        if (-not [System.String]::IsNullOrEmpty($setting.AdditionalProperties.managerLevel))
                         {
                             $setting.Add('ManagerLevel', $setting.AdditionalProperties.managerLevel)
                         }
@@ -204,7 +206,7 @@ function Get-TargetResource
                     foreach ($setting in $approvalStage.EscalationApprovers)
                     {
                         $setting.Add('odataType', $setting.AdditionalProperties.'@odata.type')
-                        if (-not [String]::isNullOrEmpty($setting.AdditionalProperties.id))
+                        if (-not [System.String]::IsNullOrEmpty($setting.AdditionalProperties.id))
                         {
                             $user = Get-MgUser -UserId $setting.AdditionalProperties.id -ErrorAction SilentlyContinue
                             if ($null -ne $user)
@@ -212,7 +214,7 @@ function Get-TargetResource
                                 $setting.Add('Id', $user.UserPrincipalName)
                             }
                         }
-                        if (-not [String]::isNullOrEmpty($setting.AdditionalProperties.managerLevel))
+                        if (-not [System.String]::IsNullOrEmpty($setting.AdditionalProperties.managerLevel))
                         {
                             $setting.Add('ManagerLevel', $setting.AdditionalProperties.managerLevel)
                         }
@@ -238,7 +240,7 @@ function Get-TargetResource
                 {
                     $setting.Add('odataType', $setting.AdditionalProperties.'@odata.type')
                 }
-                if (-not [String]::isNullOrEmpty($setting.AdditionalProperties.id))
+                if (-not [System.String]::IsNullOrEmpty($setting.AdditionalProperties.id))
                 {
                     # Check the @odata.type to determine if this is a user or group
                     $odataType = $setting.AdditionalProperties.'@odata.type'
@@ -277,7 +279,7 @@ function Get-TargetResource
                         $setting.Add('Id', $setting.AdditionalProperties.id)
                     }
                 }
-                if (-not [String]::isNullOrEmpty($setting.AdditionalProperties.managerLevel))
+                if (-not [System.String]::IsNullOrEmpty($setting.AdditionalProperties.managerLevel))
                 {
                     $setting.Add('ManagerLevel', $setting.AdditionalProperties.managerLevel)
                 }
@@ -433,8 +435,8 @@ function Set-TargetResource
         $CustomExtensionHandlers,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -590,7 +592,7 @@ function Set-TargetResource
                 # For other types (requestorManager, etc.), leave ID as-is
             }
         }
-        If ($null -ne $CreateParameters.CustomExtensionHandlers -and $CreateParameters.CustomExtensionHandlers.Count -gt 0 )
+        if ($null -ne $CreateParameters.CustomExtensionHandlers -and $CreateParameters.CustomExtensionHandlers.Count -gt 0 )
         {
             $formattedCustomExtensionHandlers = @()
             foreach ($customExtensionHandler in $CreateParameters.CustomExtensionHandlers)
@@ -739,7 +741,7 @@ function Set-TargetResource
                 # For other types (requestorManager, etc.), leave ID as-is
             }
         }
-        If ($null -ne $UpdateParameters.CustomExtensionHandlers -and $UpdateParameters.CustomExtensionHandlers.Count -gt 0 )
+        if ($null -ne $UpdateParameters.CustomExtensionHandlers -and $UpdateParameters.CustomExtensionHandlers.Count -gt 0 )
         {
             $formattedCustomExtensionHandlers = @()
             foreach ($customExtensionHandler in $UpdateParameters.CustomExtensionHandlers)
@@ -776,7 +778,6 @@ function Set-TargetResource
             $UpdateParameters.AccessPackageId = $AccessPackageId
         }
 
-        Write-Verbose -Message "Updating with values:`r`n$($UpdateParameters | convertto-json -Depth 10)"
         Set-MgBetaEntitlementManagementAccessPackageAssignmentPolicy `
             -BodyParameter $UpdateParameters `
             -AccessPackageAssignmentPolicyId $currentInstance.Id
@@ -843,8 +844,8 @@ function Test-TargetResource
         $CustomExtensionHandlers,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -886,7 +887,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $ResourceName
+        -ResourceName $ResourceName
     return $result
 }
 
@@ -964,7 +965,7 @@ function Export-TargetResource
             }
 
             $displayedKey = $config.id
-            if (-not [String]::IsNullOrEmpty($config.displayName))
+            if (-not [System.String]::IsNullOrEmpty($config.displayName))
             {
                 $displayedKey = $config.displayName
             }
