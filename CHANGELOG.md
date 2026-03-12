@@ -11,6 +11,8 @@
     complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
     `ApprovalStages[]`
     FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
+* AADGroupEligibilitySchedule
+  * Change resource to `Data` plane
 * EXODistributionGroup
   * Updated `Get-TargetResource` to use properties with display name.
     FIXES [#6769](https://github.com/microsoft/Microsoft365DSC/issues/6769)
