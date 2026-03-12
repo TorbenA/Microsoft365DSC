@@ -32,6 +32,10 @@
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.
     FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
+* IntuneAntivirusPolicyWindows10SettingCatalog
+  * Fixed an issue where `EnableDnsSinkHole` was exported although
+    it is deprecated.
+    FIXES [#6937](https://github.com/microsoft/Microsoft365DSC/issues/6937)
 * IntuneAppProtectionPolicyWindows10
   * Initial release.
 * IntuneRoleAssignmentWindows365
