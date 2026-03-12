@@ -55,8 +55,8 @@ function Get-TargetResource
         $CustomExtensionHandlers,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -87,6 +87,8 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Getting configuration of Azure AD Entitlement Management Access Package Assignment Policy with Id {$Id} and DisplayName {$DisplayName}"
 
     try
     {
@@ -437,8 +439,8 @@ function Set-TargetResource
         $CustomExtensionHandlers,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -698,8 +700,8 @@ function Test-TargetResource
         $CustomExtensionHandlers,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -741,7 +743,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $ResourceName
+        -ResourceName $ResourceName
     return $result
 }
 

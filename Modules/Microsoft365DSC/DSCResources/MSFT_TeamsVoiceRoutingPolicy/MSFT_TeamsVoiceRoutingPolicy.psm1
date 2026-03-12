@@ -285,8 +285,8 @@ function Test-TargetResource
         $excludedProperties += 'OnlinePstnUsages'
     }
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -ExcludedProperties $excludedProperties
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+        -ExcludedProperties $excludedProperties
     return $result
 }
 

@@ -305,13 +305,11 @@ function Get-TargetResource
                 try
                 {
                     $Policy = Get-MgBetaIdentityConditionalAccessPolicy -ConditionalAccessPolicyId $Id -ErrorAction Stop
-                    $jsonPolicy = ConvertTo-Json $Policy -Depth 10 -ErrorAction SilentlyContinue
                 }
                 catch
                 {
                     Write-Verbose -Message "Couldn't find existing policy by ID {$Id}"
                     $Policy = Get-MgBetaIdentityConditionalAccessPolicy -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
-                    $jsonPolicy = ConvertTo-Json -Depth 10 $Policy -ErrorAction SilentlyContinue
 
                     if ($Policy.Length -gt 1)
                     {
@@ -324,7 +322,6 @@ function Get-TargetResource
                 Write-Verbose -Message 'Id was NOT specified'
                 ## Can retreive multiple CA Policies since displayname is not unique
                 $Policy = Get-MgBetaIdentityConditionalAccessPolicy -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
-                $jsonPolicy = ConvertTo-Json -Depth 10 $Policy -ErrorAction SilentlyContinue
 
                 if ($Policy.Length -gt 1)
                 {
@@ -1471,7 +1468,7 @@ function Set-TargetResource
         }
 
         Write-Verbose -Message 'Set-Targetresource: process includeGuestOrExternalUser'
-        If ($currentParameters.ContainsKey('IncludeGuestOrExternalUserTypes'))
+        if ($currentParameters.ContainsKey('IncludeGuestOrExternalUserTypes'))
         {
             if (-not $conditions.ContainsKey('users'))
             {
@@ -1506,7 +1503,7 @@ function Set-TargetResource
         }
 
         Write-Verbose -Message 'Set-Targetresource: process excludeGuestsOrExternalUsers'
-        If ($currentParameters.ContainsKey('ExcludeGuestOrExternalUserTypes'))
+        if ($currentParameters.ContainsKey('ExcludeGuestOrExternalUserTypes'))
         {
             if (-not $conditions.ContainsKey('users'))
             {
@@ -1762,7 +1759,7 @@ function Set-TargetResource
 
         Write-Verbose -Message 'Set-Targetresource: process risk levels and app types'
         Write-Verbose -Message "Set-Targetresource: UserRiskLevels: $UserRiskLevels"
-        If ($currentParameters.ContainsKey('UserRiskLevels'))
+        if ($currentParameters.ContainsKey('UserRiskLevels'))
         {
             $Conditions.Add('userRiskLevels', $UserRiskLevels)
             #no translation or conversion needed
@@ -1770,7 +1767,7 @@ function Set-TargetResource
 
 
         Write-Verbose -Message "Set-Targetresource: SignInRiskLevels: $SignInRiskLevels"
-        If ($currentParameters.ContainsKey('SignInRiskLevels'))
+        if ($currentParameters.ContainsKey('SignInRiskLevels'))
         {
             $Conditions.Add('signInRiskLevels', $SignInRiskLevels)
             #no translation or conversion needed
@@ -1778,7 +1775,7 @@ function Set-TargetResource
 
 
         Write-Verbose -Message "Set-Targetresource: ClientAppTypes: $ClientAppTypes"
-        If ($currentParameters.ContainsKey('ClientAppTypes'))
+        if ($currentParameters.ContainsKey('ClientAppTypes'))
         {
             $Conditions.Add('clientAppTypes', $ClientAppTypes)
             #no translation or conversion needed
@@ -1853,12 +1850,12 @@ function Set-TargetResource
                 }
             }
 
-           if ($currentParameters.ContainsKey('TermsOfUse'))
-           {
-               Write-Verbose -Message "Getting Terms of Use {$TermsOfUse}"
-               $TermsOfUseObj = Get-MgBetaAgreement | Where-Object -FilterScript { $_.DisplayName -eq $TermsOfUse }
-               $GrantControls.Add('termsOfUse', @($TermsOfUseObj.Id))
-           }
+            if ($currentParameters.ContainsKey('TermsOfUse'))
+            {
+                Write-Verbose -Message "Getting Terms of Use {$TermsOfUse}"
+                $TermsOfUseObj = Get-MgBetaAgreement | Where-Object -FilterScript { $_.DisplayName -eq $TermsOfUse }
+                $GrantControls.Add('termsOfUse', @($TermsOfUseObj.Id))
+            }
 
 
             #no translation or conversion needed
@@ -2316,7 +2313,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
