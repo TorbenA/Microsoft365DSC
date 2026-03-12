@@ -16,6 +16,10 @@
     FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
 * AADGroupEligibilitySchedule
   * Change resource to `Data` plane
+* AADTenantAppManagementPolicy
+  * Add certificateBasedApplicationConfigurationIds support to AADTenantAppManagementPolicy
+    FIXES [6925](https://github.com/microsoft/Microsoft365DSC/issues/6925)
+  * Update format RestrictForAppsCreatedAfterDateTime to match AADAppManagementPolicy
 * EXODistributionGroup
   * Updated `Get-TargetResource` to use properties with display name.
     FIXES [#6769](https://github.com/microsoft/Microsoft365DSC/issues/6769)
