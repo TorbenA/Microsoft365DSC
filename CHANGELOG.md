@@ -63,6 +63,9 @@
 * IntuneCloudProvisioningPolicyWindows365
   * Fixed an issue where deploying the configuration failed because the property
     `GeographicLocationType` was missing.
+* IntuneCustomizationBrandingProfile
+  * Initial release.
+    FIXES [#4155](https://github.com/microsoft/Microsoft365DSC/issues/4155)
 * IntuneDeviceConfigurationPolicyMacOS
   * Fixed an issue where arrays could contain empty strings.
 * IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile
