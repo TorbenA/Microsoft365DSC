@@ -2,17 +2,26 @@
 
 # UNRELEASED
 
+* AADAppManagementPolicy
+  * Add certificateBasedApplicationConfigurationIds support to AADAppManagementPolicy
+    FIXES [6926](https://github.com/microsoft/Microsoft365DSC/issues/6926)
 * AADCrossTenantIdentitySyncPolicyPartner
   * Fixed an issue where the export would fail if the secondary tenant does
     not allow reading of the tenant information.
     FIXES [#6843](https://github.com/microsoft/Microsoft365DSC/issues/6843)
 * AADEntitlementManagementAccessPackageAssignmentPolicy
-  * Add missing sub-property `IsAgenticExperienceEnabled` to
+  * Added missing sub-property `IsAgenticExperienceEnabled` to
     complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
     `ApprovalStages[]`
     FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
+  * Fixed an issue where the `StartDateTime` property was not standardized.
+    It is now in the ISO 8601 format.
 * AADGroupEligibilitySchedule
   * Change resource to `Data` plane
+* AADTenantAppManagementPolicy
+  * Add certificateBasedApplicationConfigurationIds support to AADTenantAppManagementPolicy
+    FIXES [6925](https://github.com/microsoft/Microsoft365DSC/issues/6925)
+  * Update format RestrictForAppsCreatedAfterDateTime to match AADAppManagementPolicy
 * AADUser
   * Fixed an issue where not specified properties were applied during update.
     FIXES [#6934](https://github.com/microsoft/Microsoft365DSC/issues/6934)
@@ -37,6 +46,8 @@
   * Fixed an issue in `Compare-M365DSCComplexObject` where calling it
     directly would throw an exception during drift reporting.
     FIXES [#6922](https://github.com/microsoft/Microsoft365DSC/issues/6922)
+* M365DSCPermissions
+  * Fixed an issue where granting admin consent was not working with credentials.
 * M365DSCReport
   * Fixed an issue when comparing multiple instances with the same key
     properties would result in a RuntimeException.
