@@ -1199,17 +1199,16 @@ function Update-M365DSCAzureAdApplication
 
                 Write-LogEntry ' '
                 Write-LogEntry 'Providing Admin Consent for application permissions'
-                $tenantid = $Credential.UserName.Split('@')[1]
-                $username = $Credential.UserName
-                $password = $Credential.GetNetworkCredential().password
 
-                $uri = 'https://login.microsoftonline.com/{0}/oauth2/token' -f $tenantid
-                $body = 'resource=74658136-14ec-4630-ad9b-26e160ff0fc6&client_id=1950a258-227b-4e31-a9cf-717495945fc2&grant_type=password&username={1}&password={0}' -f [System.Web.HttpUtility]::UrlEncode($password), $username
-                $token = Invoke-RestMethod $uri `
-                    -Method POST `
-                    -Body $body `
-                    -ContentType 'application/x-www-form-urlencoded' `
-                    -ErrorAction SilentlyContinue
+                $currentConnectionProfile = Get-MSCloudLoginConnectionProfile -Workload 'MicrosoftGraph'
+                $authorizationUrl = $currentConnectionProfile.AuthorizationUrl
+                $tenantId = $Credential.GetNetworkCredential().UserName.Split('@')[-1]
+                $token = Get-AuthToken -AuthorizationUrl $authorizationUrl `
+                    -ClientId '1950a258-227b-4e31-a9cf-717495945fc2' `
+                    -Scope '74658136-14ec-4630-ad9b-26e160ff0fc6/.default' `
+                    -Credentials $Credential `
+                    -TenantId $tenantId `
+                    -DeviceCode
 
                 $headers = @{
                     Authorization            = "Bearer $($token.access_token)"

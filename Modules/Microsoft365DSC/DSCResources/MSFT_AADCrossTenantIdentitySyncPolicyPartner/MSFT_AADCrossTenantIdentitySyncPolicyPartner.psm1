@@ -280,6 +280,10 @@ function Export-TargetResource
     param
     (
         [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -327,7 +331,10 @@ function Export-TargetResource
     {
         $Script:ExportMode = $true
 
-        $policyPartners = Get-MgBetaPolicyCrossTenantAccessPolicyPartner -All -ErrorAction Stop
+        $policyPartners = Get-MgBetaPolicyCrossTenantAccessPolicyPartner `
+        -All `
+        -Filter $Filter `
+        -ErrorAction Stop
         [array] $Script:exportedInstances = @()
         $i = 1
         $dscContent = ''

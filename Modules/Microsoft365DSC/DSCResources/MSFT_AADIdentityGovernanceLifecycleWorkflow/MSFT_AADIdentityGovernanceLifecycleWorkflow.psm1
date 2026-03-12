@@ -223,7 +223,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($null -ne $ExecutionConditions)
@@ -462,6 +461,10 @@ function Export-TargetResource
     param
     (
         [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -508,7 +511,7 @@ function Export-TargetResource
     try
     {
         $Script:ExportMode = $true
-        [array] $Script:exportedInstances = Get-MgBetaIdentityGovernanceLifecycleWorkflow -ErrorAction Stop
+        [array] $Script:exportedInstances = Get-MgBetaIdentityGovernanceLifecycleWorkflow -All -Filter $Filter -ErrorAction Stop
 
         $i = 1
         $dscContent = ''

@@ -323,6 +323,10 @@ function Export-TargetResource
     param
     (
         [Parameter()]
+        [System.String]
+        $Filter = "*",
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -368,7 +372,7 @@ function Export-TargetResource
 
     try
     {
-        [array]$getValue = Get-CsTeamsShiftsPolicy -ErrorAction Stop
+        [array]$getValue = Get-CsTeamsShiftsPolicy -Filter $Filter -ErrorAction Stop
 
         $i = 1
         $dscContent = ''

@@ -791,6 +791,10 @@ function Export-TargetResource
     param
     (
         [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -840,6 +844,7 @@ function Export-TargetResource
         #region resource generator code
         [array]$getValue = Get-MgBetaEntitlementManagementAccessPackage `
             -All `
+            -Filter $Filter `
             -ErrorAction Stop
 
         #endregion

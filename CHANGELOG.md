@@ -2,6 +2,12 @@
 
 # UNRELEASED
 
+* AADAccessReviewDefinition
+  * Fixed an issue where the filter for Get was applied incorrectly.
+    FIXES [#6947](https://github.com/microsoft/Microsoft365DSC/issues/6947)
+* AADAppManagementPolicy
+  * Add certificateBasedApplicationConfigurationIds support to AADAppManagementPolicy
+    FIXES [6926](https://github.com/microsoft/Microsoft365DSC/issues/6926)
 * AADConditionalAccessPolicy
   * Fixed an issue where arrays could contain empty strings.
 * AADCrossTenantIdentitySyncPolicyPartner
@@ -9,7 +15,7 @@
     not allow reading of the tenant information.
     FIXES [#6843](https://github.com/microsoft/Microsoft365DSC/issues/6843)
 * AADEntitlementManagementAccessPackageAssignmentPolicy
-  * Add missing sub-property `IsAgenticExperienceEnabled` to
+  * Added missing sub-property `IsAgenticExperienceEnabled` to
     complex object `AccessReviewSettings` and `ApproverInformationVisibility` to
     `ApprovalStages[]`
     FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
@@ -19,6 +25,17 @@
   * Changed resource to `Data` plane.
 * AADGroupsNamingPolicy
   * Fixed an issue where arrays could contain empty strings.
+  * Fixed an issue where the `StartDateTime` property was not standardized.
+    It is now in the ISO 8601 format.
+* AADGroupEligibilitySchedule
+  * Change resource to `Data` plane
+* AADTenantAppManagementPolicy
+  * Add certificateBasedApplicationConfigurationIds support to AADTenantAppManagementPolicy
+    FIXES [6925](https://github.com/microsoft/Microsoft365DSC/issues/6925)
+  * Update format RestrictForAppsCreatedAfterDateTime to match AADAppManagementPolicy
+* AADUser
+  * Fixed an issue where not specified properties were applied during update.
+    FIXES [#6934](https://github.com/microsoft/Microsoft365DSC/issues/6934)
 * EXODistributionGroup
   * Updated `Get-TargetResource` to use properties with display name.
     FIXES [#6769](https://github.com/microsoft/Microsoft365DSC/issues/6769)
@@ -28,8 +45,15 @@
   * Fixed issue where value `Submission` was missing from the validate
     set from `ListSubType` parameter.
     FIXES [#6918](https://github.com/microsoft/Microsoft365DSC/issues/6918)
+* IntuneAntivirusPolicyWindows10SettingCatalog
+  * Fixed an issue where `EnableDnsSinkHole` was exported although
+    it is deprecated.
+    FIXES [#6937](https://github.com/microsoft/Microsoft365DSC/issues/6937)
 * IntuneAppProtectionPolicyWindows10
   * Initial release.
+* IntuneCloudProvisioningPolicyWindows365
+  * Fixed an issue where deploying the configuration failed because the property
+    `GeographicLocationType` was missing.
 * IntuneDeviceConfigurationPolicyMacOS
   * Fixed an issue where arrays could contain empty strings.
 * IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile
@@ -50,10 +74,19 @@
   * Fixed an issue in `Compare-M365DSCComplexObject` where calling it
     directly would throw an exception during drift reporting.
     FIXES [#6922](https://github.com/microsoft/Microsoft365DSC/issues/6922)
+* M365DSCPermissions
+  * Fixed an issue where granting admin consent was not working with credentials.
 * M365DSCReport
   * Fixed an issue when comparing multiple instances with the same key
     properties would result in a RuntimeException.
+* M365DSCReverse
+  * Removed workload pre-authentication during export.
+  * Updated the export logic to start module import during usage
+    and not during resource initialization.
+* M365DSCUtil
+  * Added logic to not always check if a core required module is loaded.
 * MISC
+  * Added filter support across all resources where filtering is applicable.
   * Aligned code formatting across all resources.
   * Aligned markdown documents and description to common standards.
   * Expanded try/catch in `Get-TargetResource` to cover authentication.
