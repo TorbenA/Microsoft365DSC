@@ -64,13 +64,13 @@ function Get-M365DSCCompiledPermissionList
 
     $results = @{
         AdministrativeRoles = @{
-            Read = @()
+            Read   = @()
             Update = @()
         }
         Read                = @(
             @{
-                API         = 'Graph'
-                Permission  = @{
+                API        = 'Graph'
+                Permission = @{
                     Name = 'Organization.Read.All'
                     Type = 'Application'
                 }
@@ -78,19 +78,19 @@ function Get-M365DSCCompiledPermissionList
         )
         Update              = @(
             @{
-                API         = 'Graph'
-                Permission  = @{
+                API        = 'Graph'
+                Permission = @{
                     Name = 'Organization.Read.All'
                     Type = 'Application'
                 }
             }
         )
         RequiredRoles       = @{
-            Read = @()
+            Read   = @()
             Update = @()
         }
         RequiredRoleGroups  = @{
-            Read = @()
+            Read   = @()
             Update = @()
         }
     }
@@ -416,9 +416,9 @@ function Get-M365DSCCompiledPermissionList
         }
         $results = @{
             AdministrativeRoles = $results.AdministrativeRoles.$AccessType
-            Permissions = $resultsByType
-            RequiredRoles = ($results.RequiredRoles).$AccessType
-            RequiredRoleGroups = ($results.RequiredRoleGroups).$AccessType
+            Permissions         = $resultsByType
+            RequiredRoles       = ($results.RequiredRoles).$AccessType
+            RequiredRoleGroups  = ($results.RequiredRoleGroups).$AccessType
         }
     }
 
@@ -559,7 +559,7 @@ function Update-M365DSCAllowedGraphScopes
     $permissions = ($results | Where-Object -FilterScript { $_.API -eq 'Graph' }).PermissionName
 
     # Remove the Tasks.Read.All permission from the list as it is causing an issue with the Graph SDK
-    $permissions = $permissions | Where-Object { $_ -ne "Tasks.Read.All" }
+    $permissions = $permissions | Where-Object { $_ -ne 'Tasks.Read.All' }
     Write-Verbose -Message "Found permissions: $($permissions -join ', ')"
     $params = @{
         Scopes = $permissions
@@ -1331,9 +1331,9 @@ function Update-M365DSCAzureAdApplication
 
                     Write-LogEntry "    Certificate details: $($cerCert.Subject) ($($cerCert.Thumbprint))"
                     $params = @{
-                        Type        = 'AsymmetricX509Cert'
-                        Usage       = 'Verify'
-                        Key         = $cerCert.GetRawCertData()
+                        Type  = 'AsymmetricX509Cert'
+                        Usage = 'Verify'
+                        Key   = $cerCert.GetRawCertData()
                     }
 
                     $maxRetries = 3

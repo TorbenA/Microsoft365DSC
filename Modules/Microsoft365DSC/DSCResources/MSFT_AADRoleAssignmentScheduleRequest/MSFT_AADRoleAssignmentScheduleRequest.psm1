@@ -53,8 +53,8 @@ function Get-TargetResource
         $TicketInfo,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -85,6 +85,8 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
+
+    Write-Verbose -Message "Getting configuration of the AAD Role Assignment Schedule Request with Principal {$Principal}, RoleDefinition {$RoleDefinition}, PrincipalType {$PrincipalType} and DirectoryScopeId {$DirectoryScopeId}"
 
     try
     {
@@ -350,8 +352,8 @@ function Set-TargetResource
         $TicketInfo,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -590,8 +592,8 @@ function Test-TargetResource
         $TicketInfo,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]

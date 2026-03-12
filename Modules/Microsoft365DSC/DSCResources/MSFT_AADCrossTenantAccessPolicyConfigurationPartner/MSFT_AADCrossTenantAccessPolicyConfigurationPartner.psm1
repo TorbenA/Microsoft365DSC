@@ -35,8 +35,8 @@ function Get-TargetResource
         $AutomaticUserConsentSettings,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -196,8 +196,8 @@ function Set-TargetResource
         $InboundTrust,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -333,8 +333,8 @@ function Test-TargetResource
         $AutomaticUserConsentSettings,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -376,7 +376,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -488,7 +488,7 @@ function Export-TargetResource
                     -CIMInstanceName 'AADCrossTenantAccessPolicyB2BSetting' `
                     -ComplexTypeMapping $complexMapping
 
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.B2BCollaborationInbound = $complexTypeStringResult
                 }
@@ -512,7 +512,7 @@ function Export-TargetResource
                     -CIMInstanceName 'AADCrossTenantAccessPolicyAutomaticUserConsentSettings' `
                     -ComplexTypeMapping $complexMapping
 
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.AutomaticUserConsentSettings = $complexTypeStringResult
                 }
@@ -551,7 +551,7 @@ function Export-TargetResource
                     -CIMInstanceName 'AADCrossTenantAccessPolicyB2BSetting' `
                     -ComplexTypeMapping $complexMapping
 
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.B2BCollaborationOutbound = $complexTypeStringResult
                 }
@@ -590,7 +590,7 @@ function Export-TargetResource
                     -CIMInstanceName 'AADCrossTenantAccessPolicyB2BSetting' `
                     -ComplexTypeMapping $complexMapping
 
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.B2BDirectConnectInbound = $complexTypeStringResult
                 }
@@ -629,7 +629,7 @@ function Export-TargetResource
                     -CIMInstanceName 'AADCrossTenantAccessPolicyB2BSetting' `
                     -ComplexTypeMapping $complexMapping
 
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.B2BDirectConnectOutbound = $complexTypeStringResult
                 }
@@ -653,7 +653,7 @@ function Export-TargetResource
                     -CIMInstanceName 'AADCrossTenantAccessPolicyInboundTrust' `
                     -ComplexTypeMapping $complexMapping
 
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.InboundTrust = $complexTypeStringResult
                 }
