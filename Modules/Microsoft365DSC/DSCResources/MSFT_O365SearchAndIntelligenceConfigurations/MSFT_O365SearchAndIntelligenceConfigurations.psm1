@@ -115,7 +115,7 @@ function Get-TargetResource
         }
 
         $MeetingInsightsResponse = Get-MeetingInsightsSettings
-        $MeetingInsightsValue    = [Boolean]::Parse($MeetingInsightsResponse.Split(':')[1].Trim())
+        $MeetingInsightsValue = [Boolean]::Parse($MeetingInsightsResponse.Split(':')[1].Trim())
 
         return @{
             IsSingleInstance                       = 'Yes'
@@ -358,7 +358,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

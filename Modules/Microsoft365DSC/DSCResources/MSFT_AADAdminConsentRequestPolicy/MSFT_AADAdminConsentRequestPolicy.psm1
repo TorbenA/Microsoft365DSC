@@ -60,7 +60,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Getting configuration for Admin Consent Request Policy"
+    Write-Verbose -Message 'Getting configuration for Admin Consent Request Policy'
 
     try
     {
@@ -79,7 +79,6 @@ function Get-TargetResource
         Add-M365DSCTelemetryEvent -Data $data
         #endregion
 
-        $nullResult = $PSBoundParameters
         $instance = Get-MgBetaPolicyAdminConsentRequestPolicy -ErrorAction SilentlyContinue
         if ($null -eq $instance)
         {
@@ -220,7 +219,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting configuration for Admin Consent Request Policy"
+    Write-Verbose -Message 'Setting configuration for Admin Consent Request Policy'
 
     $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
@@ -355,7 +354,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -459,7 +458,7 @@ function Export-TargetResource
                     -CIMInstanceName 'AADAdminConsentRequestPolicyReviewer' `
                     -ComplexTypeMapping $complexMapping
 
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.Reviewers = $complexTypeStringResult
                 }

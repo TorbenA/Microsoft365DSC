@@ -40,7 +40,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message 'Checking the Teams Org Wide App Settings'
+    Write-Verbose -Message 'Getting configuration for the Teams Org Wide App Settings'
 
     try
     {
@@ -199,7 +199,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 

@@ -74,9 +74,6 @@ function Get-TargetResource
             Add-M365DSCTelemetryEvent -Data $data
             #endregion
 
-            $nullReturn = $PSBoundParameters
-            $nullReturn.Ensure = 'Absent'
-
             $ResourceConfiguration = Get-ResourceConfig -ErrorAction Stop
         }
         else
@@ -84,7 +81,7 @@ function Get-TargetResource
             $ResourceConfiguration = $Script:exportedInstance
         }
 
-        Write-Verbose -Message "Found ResourceConfiguration"
+        Write-Verbose -Message 'Found ResourceConfiguration'
 
         $result = @{
             IsSingleInstance       = 'Yes'
@@ -255,7 +252,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -319,7 +316,7 @@ function Export-TargetResource
         $dscContent = ''
         Write-M365DSCHost -Message "`r`n" -DeferWrite
 
-        Write-M365DSCHost -Message  "    |---[1/1] $($ResourceConfiguration.Identity)" -DeferWrite
+        Write-M365DSCHost -Message "    |---[1/1] $($ResourceConfiguration.Identity)" -DeferWrite
 
         if ($null -ne $Global:M365DSCExportResourceInstancesCount)
         {
