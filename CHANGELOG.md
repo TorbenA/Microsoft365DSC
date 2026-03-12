@@ -33,6 +33,8 @@
 
 # 1.26.218.1
 
+* Compare-M365DSCConfigurations
+  * Fixed an issue where the Get-DSCResource was passed to a function which expected a hashtable which resulted in a type mismatch
 * AADConditionalAccessPolicy
   * Fixed an issue where `DisableResilienceDefaultsIsEnabled` was not
     evaluated correctly during `Get`.
