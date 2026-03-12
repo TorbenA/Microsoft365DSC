@@ -263,6 +263,10 @@ function Export-TargetResource
     param
     (
         [Parameter()]
+        [System.String]
+        $Filter = "*",
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -308,7 +312,7 @@ function Export-TargetResource
 
     try
     {
-        [array]$getValue = Get-CsTeamsCallHoldPolicy -ErrorAction Stop
+        [array]$getValue = Get-CsTeamsCallHoldPolicy -Filter $Filter -ErrorAction Stop
 
         $i = 1
         $dscContent = ''

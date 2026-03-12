@@ -279,7 +279,6 @@ function Set-TargetResource
         -InboundParameters $PSBoundParameters
 
     $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
     if ([System.String]::IsNullOrEmpty($RestrictedSenderList))
     {
         $SetParams.Remove('RestrictedSenderList') | Out-Null

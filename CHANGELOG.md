@@ -68,6 +68,7 @@
 * M365DSCUtil
   * Added logic to not always check if a core required module is loaded.
 * MISC
+  * Added filter support across all resources where filtering is applicable.
   * Aligned code formatting across all resources.
   * Aligned markdown documents and description to common standards.
   * Expanded try/catch in `Get-TargetResource` to cover authentication.

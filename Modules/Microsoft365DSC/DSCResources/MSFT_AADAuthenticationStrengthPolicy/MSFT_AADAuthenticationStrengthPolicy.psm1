@@ -319,6 +319,10 @@ function Export-TargetResource
     param
     (
         [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -365,8 +369,19 @@ function Export-TargetResource
     try
     {
         #region resource generator code
+        $baseFilter = "policyType ne 'builtIn'"
+        if (-not [System.String]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
+        }
         [array]$getValue = Get-MgBetaPolicyAuthenticationStrengthPolicy `
-            -ErrorAction Stop | Where-Object -FilterScript { $_.PolicyType -ne 'builtIn' }
+            -All `
+            -Filter $Filter `
+            -ErrorAction Stop
         #endregion
 
         $i = 1
