@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.26.311.1
 
 * AADAccessReviewDefinition
   * Fixed an issue where the filter for Get was applied incorrectly.
