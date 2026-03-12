@@ -288,8 +288,8 @@ function Get-TargetResource
         else
         {
             $distributionGroupMembers = Get-DistributionGroupMember -Identity $Identity `
-                    -ErrorAction 'Stop' `
-                    -ResultSize 'Unlimited'
+                -ErrorAction 'Stop' `
+                -ResultSize 'Unlimited'
         }
 
         $distributionMembersValue = @()
@@ -301,7 +301,7 @@ function Get-TargetResource
             }
             else
             {
-                 # For RecipientType 'User', PrimarySmtpAddress is unavailable, but WindowsLiveID is, and works with Add-DistributionGroupMember
+                # For RecipientType 'User', PrimarySmtpAddress is unavailable, but WindowsLiveID is, and works with Add-DistributionGroupMember
                 $distributionMembersValue += $member.WindowsLiveID
             }
         }
@@ -677,8 +677,8 @@ function Set-TargetResource
         Write-Verbose -Message "The Distribution Group {$Identity} exists but shouldn't. Removing it."
         # Use the group identity value retrieved from Get-TargetResource, in case we got the group using PrimarySmtpAddress
         Remove-DistributionGroup -Identity $currentDistributionGroup.Identity `
-                                -BypassSecurityGroupManagerCheck `
-                                -Confirm:$false
+            -BypassSecurityGroupManagerCheck `
+            -Confirm:$false
     }
     # Update even if we just created the group. There are properties that can only be set with the set- cmdlet.
     if ($Ensure -eq 'Present')
@@ -689,7 +689,8 @@ function Set-TargetResource
             $currentParameters.Identity = $newGroup.Identity
         }
         # Otherwise, use the existing group identity (using the value retrieved from Get-TargetResource, in the event that we got the group using PrimarySmtpAddress)
-        else {
+        else
+        {
             $currentParameters.Identity = $currentDistributionGroup.Identity
         }
 
@@ -732,9 +733,9 @@ function Set-TargetResource
                 Write-Verbose -Message "Removing member {$member}"
                 # Use the group identity value retrieved from Get-TargetResource, in case we got the group using PrimarySmtpAddress
                 Remove-DistributionGroupMember -Identity $currentParameters.Identity `
-                                            -Member $member `
-                                            -BypassSecurityGroupManagerCheck `
-                                            -Confirm:$false
+                    -Member $member `
+                    -BypassSecurityGroupManagerCheck `
+                    -Confirm:$false
             }
             $currentParameters.Remove('Members') | Out-Null
         }
@@ -988,8 +989,8 @@ function Test-TargetResource
 
     $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                             @compareParameters
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+        @compareParameters
     return $result
 }
 

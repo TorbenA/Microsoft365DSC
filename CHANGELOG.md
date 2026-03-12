@@ -15,6 +15,8 @@
     FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
 * AADGroup
   * Added sort by `DisplayName` during export.
+* AADGroupEligibilitySchedule
+  * Changed resource to `Data` plane.
 * AADGroupsNamingPolicy
   * Fixed an issue where arrays could contain empty strings.
 * EXODistributionGroup
@@ -39,14 +41,27 @@
   * Initial release.
 * IntuneTermsAndConditions
   * Initial release.
+* SCDLPSensitiveInformationType
+  * Updated test logic to use `Test-M365DSCTargetResource`.
 * TeamsOrgWideAppSettings
   * Fixed an issue where updating the settings would fail.
     FIXES [#6900](https://github.com/microsoft/Microsoft365DSC/issues/6900)
+* M365DSCDRGUtil
+  * Fixed an issue in `Compare-M365DSCComplexObject` where calling it
+    directly would throw an exception during drift reporting.
+    FIXES [#6922](https://github.com/microsoft/Microsoft365DSC/issues/6922)
+* M365DSCReport
+  * Fixed an issue when comparing multiple instances with the same key
+    properties would result in a RuntimeException.
 * MISC
+  * Aligned code formatting across all resources.
   * Aligned markdown documents and description to common standards.
+  * Expanded try/catch in `Get-TargetResource` to cover authentication.
 
 # 1.26.218.1
 
+* Compare-M365DSCConfigurations
+  * Fixed an issue where the Get-DSCResource was passed to a function which expected a hashtable which resulted in a type mismatch
 * AADConditionalAccessPolicy
   * Fixed an issue where `DisableResilienceDefaultsIsEnabled` was not
     evaluated correctly during `Get`.
@@ -4919,7 +4934,7 @@
 # 1.23.607.1
 
 * AADAuthenticationStrengthPolicy
-  * Removed the validateset from the AllowedCombinations property due to incomplete full list of possible values.
+  * Removed the ValidateSet from the AllowedCombinations property due to incomplete full list of possible values.
 * EXOQuarantinePolicy
   * Fixes an issue where GlobalQurantinePolicy properties can't be updated.
 * IntuneAntivirusPolicyWindows10SettingCatalog
