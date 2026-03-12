@@ -132,6 +132,10 @@ function Get-TargetResource
                 $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $keyCred.MaxLifetime.Days, $keyCred.MaxLifetime.Hours, $keyCred.MaxLifetime.Minutes, $keyCred.MaxLifetime.Seconds
                 $newItem.Add('maxLifetime', $iso8601Duration)
             }
+            if ($null -ne $keyCred.CertificateBasedApplicationConfigurationIds -and $keyCred.CertificateBasedApplicationConfigurationIds.Count -gt 0)
+            {
+                $newItem.Add('certificateBasedApplicationConfigurationIds', [System.String[]]$keyCred.CertificateBasedApplicationConfigurationIds)
+            }
             $restrictionsValue.keyCredentials += $newItem
         }
 
@@ -266,6 +270,10 @@ function Set-TargetResource
         {
             $newItem.Add('maxLifetime', $keyCred.MaxLifetime.ToString())
         }
+        if ($null -ne $keyCred.CertificateBasedApplicationConfigurationIds -and $keyCred.CertificateBasedApplicationConfigurationIds.Count -gt 0)
+        {
+            $newItem.Add('certificateBasedApplicationConfigurationIds', [System.String[]]$keyCred.CertificateBasedApplicationConfigurationIds)
+        }
         $restrictionsValue.keyCredentials += $newItem
     }
 
@@ -368,6 +376,10 @@ function Export-TargetResource
     param
     (
         [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -414,7 +426,7 @@ function Export-TargetResource
     try
     {
         $Script:ExportMode = $true
-        [array] $Script:exportedInstances = Get-MgBetaPolicyAppManagementPolicy -ErrorAction Stop
+        [array] $Script:exportedInstances = Get-MgBetaPolicyAppManagementPolicy -Filter $Filter -All -ErrorAction Stop
 
         $i = 1
         $dscContent = ''

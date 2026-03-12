@@ -339,7 +339,7 @@ function Export-TargetResource
 
     try
     {
-        [array] $Script:exportedInstances = Get-CsOnlineApplicationInstance -ErrorAction Stop
+        [array]$Script:exportedInstances = Get-CsOnlineApplicationInstance -ErrorAction Stop
 
         $i = 1
         $dscContent = ''

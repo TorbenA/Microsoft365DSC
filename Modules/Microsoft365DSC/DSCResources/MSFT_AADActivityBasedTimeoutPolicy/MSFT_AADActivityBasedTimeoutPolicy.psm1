@@ -398,6 +398,10 @@ function Export-TargetResource
     param
     (
         [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -444,7 +448,7 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        [array]$getValue = Get-MgBetaPolicyActivityBasedTimeoutPolicy `
+        [array]$getValue = Get-MgBetaPolicyActivityBasedTimeoutPolicy -Filter $Filter `
             -All `
             -ErrorAction Stop
         #endregion

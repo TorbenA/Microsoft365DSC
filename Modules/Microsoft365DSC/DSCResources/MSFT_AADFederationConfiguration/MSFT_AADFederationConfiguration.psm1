@@ -381,6 +381,10 @@ function Export-TargetResource
     param
     (
         [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -427,6 +431,10 @@ function Export-TargetResource
     try
     {
         $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + 'beta/directory/federationConfigurations/microsoft.graph.samlOrWsFedExternalDomainFederation'
+        if (-not [System.String]::IsNullOrEmpty($Filter))
+        {
+            $uri += "?`$filter=$Filter"
+        }
         [array] $Script:exportedInstances = Invoke-MgGraphRequest $uri -Method Get
 
         $i = 1

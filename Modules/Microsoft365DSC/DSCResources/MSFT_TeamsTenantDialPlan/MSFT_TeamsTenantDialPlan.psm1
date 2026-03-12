@@ -375,6 +375,10 @@ function Export-TargetResource
     param
     (
         [Parameter()]
+        [System.String]
+        $Filter = "*",
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -416,7 +420,7 @@ function Export-TargetResource
 
     try
     {
-        [array]$tenantDialPlans = Get-CsTenantDialPlan -ErrorAction Stop
+        [array]$tenantDialPlans = Get-CsTenantDialPlan -Filter $Filter -ErrorAction Stop
 
         $dscContent = ''
         $i = 1

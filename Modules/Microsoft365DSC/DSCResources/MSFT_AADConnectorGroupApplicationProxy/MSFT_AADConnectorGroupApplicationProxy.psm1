@@ -329,6 +329,10 @@ function Export-TargetResource
     param
     (
         [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
 
@@ -375,7 +379,11 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        [array]$getValue = Get-MgBetaOnPremisePublishingProfileConnectorGroup -OnPremisesPublishingProfileId 'applicationProxy' -ErrorAction Stop
+        [array]$getValue = Get-MgBetaOnPremisePublishingProfileConnectorGroup `
+        -All `
+        -Filter $Filter `
+        -OnPremisesPublishingProfileId 'applicationProxy' `
+        -ErrorAction Stop
         #endregion
 
         $i = 1
