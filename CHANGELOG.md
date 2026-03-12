@@ -38,6 +38,9 @@
     FIXES [#6937](https://github.com/microsoft/Microsoft365DSC/issues/6937)
 * IntuneAppProtectionPolicyWindows10
   * Initial release.
+* IntuneCloudProvisioningPolicyWindows365
+  * Fixed an issue where deploying the configuration failed because the property
+    `GeographicLocationType` was missing.
 * IntuneRoleAssignmentWindows365
   * Initial release.
 * IntuneRoleDefinitionWindows365

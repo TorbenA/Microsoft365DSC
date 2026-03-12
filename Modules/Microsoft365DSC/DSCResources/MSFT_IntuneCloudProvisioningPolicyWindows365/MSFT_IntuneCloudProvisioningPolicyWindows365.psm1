@@ -214,6 +214,10 @@ function Get-TargetResource
             {
                 $myDomainJoinConfigurations.Add('Type', $currentDomainJoinConfigurations.type.ToString())
             }
+            if ($null -ne $currentDomainJoinConfigurations.AdditionalProperties.geographicLocationType)
+            {
+                $myDomainJoinConfigurations.Add('GeographicLocationType', $currentDomainJoinConfigurations.AdditionalProperties.geographicLocationType)
+            }
             if ($myDomainJoinConfigurations.values.Where({ $null -ne $_ }).Count -gt 0)
             {
                 $complexDomainJoinConfigurations += $myDomainJoinConfigurations
@@ -475,7 +479,6 @@ function Set-TargetResource
             }
         }
         #region resource generator code
-        $createParameters.Add('@odata.type', '#microsoft.graph.CloudPcProvisioningPolicy')
         $policy = New-MgBetaDeviceManagementVirtualEndpointProvisioningPolicy -BodyParameter $createParameters
 
         if ($policy.Id)
@@ -509,10 +512,10 @@ function Set-TargetResource
         }
 
         #region resource generator code
-        $updateParameters.Add('@odata.type', '#microsoft.graph.CloudPcProvisioningPolicy')
         Update-MgBetaDeviceManagementVirtualEndpointProvisioningPolicy `
             -CloudPcProvisioningPolicyId $currentInstance.Id `
             -BodyParameter $UpdateParameters
+
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
         Update-DeviceConfigurationPolicyAssignment `
             -DeviceConfigurationPolicyId $currentInstance.Id `
@@ -899,7 +902,7 @@ function Get-CompareParameters
     param()
 
     return @{
-        ExcludedProperties = @('ProvisioningType', 'UserExperienceType')
+        ExcludedProperties = @('GeographicLocationType', 'ProvisioningType', 'UserExperienceType')
     }
 }
 
