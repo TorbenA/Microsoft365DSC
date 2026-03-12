@@ -43,8 +43,8 @@ function Get-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -111,7 +111,7 @@ function Get-TargetResource
             {
                 Write-Verbose -Message "Could not find an Intune Device Configuration Health Monitoring Configuration Policy for Windows10 with Id {$Id}"
 
-                if (-Not [string]::IsNullOrEmpty($DisplayName))
+                if (-not [string]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaDeviceManagementDeviceConfiguration `
                         -All `
@@ -234,8 +234,8 @@ function Set-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -299,15 +299,18 @@ function Set-TargetResource
                 $CreateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters.$key
             }
         }
-        if ($CreateParameters.ContainsKey('ConfigDeviceHealthMonitoringScope')) {
+        if ($CreateParameters.ContainsKey('ConfigDeviceHealthMonitoringScope'))
+        {
             $CreateParameters['configDeviceHealthMonitoringScope'] = ($CreateParameters['ConfigDeviceHealthMonitoringScope'] -join ',')
             $CreateParameters.Remove('ConfigDeviceHealthMonitoringScope') | Out-Null
         }
-        if ($CreateParameters.ContainsKey('AllowDeviceHealthMonitoring')) {
+        if ($CreateParameters.ContainsKey('AllowDeviceHealthMonitoring'))
+        {
             $CreateParameters['allowDeviceHealthMonitoring'] = $CreateParameters['AllowDeviceHealthMonitoring']
             $CreateParameters.Remove('AllowDeviceHealthMonitoring') | Out-Null
         }
-        if ($CreateParameters.ContainsKey('ConfigDeviceHealthMonitoringCustomScope')) {
+        if ($CreateParameters.ContainsKey('ConfigDeviceHealthMonitoringCustomScope'))
+        {
             $CreateParameters['configDeviceHealthMonitoringCustomScope'] = $CreateParameters['ConfigDeviceHealthMonitoringCustomScope']
             $CreateParameters.Remove('ConfigDeviceHealthMonitoringCustomScope') | Out-Null
         }
@@ -342,15 +345,18 @@ function Set-TargetResource
                 $UpdateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
             }
         }
-        if ($UpdateParameters.ContainsKey('ConfigDeviceHealthMonitoringScope')) {
+        if ($UpdateParameters.ContainsKey('ConfigDeviceHealthMonitoringScope'))
+        {
             $UpdateParameters['configDeviceHealthMonitoringScope'] = ($UpdateParameters['ConfigDeviceHealthMonitoringScope'] -join ',')
             $UpdateParameters.Remove('ConfigDeviceHealthMonitoringScope') | Out-Null
         }
-        if ($UpdateParameters.ContainsKey('AllowDeviceHealthMonitoring')) {
+        if ($UpdateParameters.ContainsKey('AllowDeviceHealthMonitoring'))
+        {
             $UpdateParameters['allowDeviceHealthMonitoring'] = $UpdateParameters['AllowDeviceHealthMonitoring']
             $UpdateParameters.Remove('AllowDeviceHealthMonitoring') | Out-Null
         }
-        if ($UpdateParameters.ContainsKey('ConfigDeviceHealthMonitoringCustomScope')) {
+        if ($UpdateParameters.ContainsKey('ConfigDeviceHealthMonitoringCustomScope'))
+        {
             $UpdateParameters['configDeviceHealthMonitoringCustomScope'] = $UpdateParameters['ConfigDeviceHealthMonitoringCustomScope']
             $UpdateParameters.Remove('ConfigDeviceHealthMonitoringCustomScope') | Out-Null
         }
@@ -418,8 +424,8 @@ function Test-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -461,7 +467,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
