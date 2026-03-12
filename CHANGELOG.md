@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADAccessReviewDefinition
+  * Fixed an issue where the filter for Get was applied incorrectly.
+    FIXES [#6947](https://github.com/microsoft/Microsoft365DSC/issues/6947)
 * AADAppManagementPolicy
   * Add certificateBasedApplicationConfigurationIds support to AADAppManagementPolicy
     FIXES [6926](https://github.com/microsoft/Microsoft365DSC/issues/6926)
