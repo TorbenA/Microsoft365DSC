@@ -29,6 +29,15 @@
     It is now in the ISO 8601 format.
 * AADGroupEligibilitySchedule
   * Change resource to `Data` plane
+* AADRoleAssignmentScheduleRequest
+  * Fixed multiple issues with fetching role assignments.
+    FIXES [#6841](https://github.com/microsoft/Microsoft365DSC/issues/6841)
+* AADRoleEligiblityScheduleRequest
+  * Fixed multiple issues with fetching role eligiblity.
+    FIXES [#6841](https://github.com/microsoft/Microsoft365DSC/issues/6841)
+    FIXES [#6459](https://github.com/microsoft/Microsoft365DSC/issues/6459)
+    FIXES [#6416](https://github.com/microsoft/Microsoft365DSC/issues/6416)
+    FIXES [#5712](https://github.com/microsoft/Microsoft365DSC/issues/5712)
 * AADTenantAppManagementPolicy
   * Add certificateBasedApplicationConfigurationIds support to AADTenantAppManagementPolicy
     FIXES [6925](https://github.com/microsoft/Microsoft365DSC/issues/6925)
@@ -54,6 +63,9 @@
 * IntuneCloudProvisioningPolicyWindows365
   * Fixed an issue where deploying the configuration failed because the property
     `GeographicLocationType` was missing.
+* IntuneCustomizationBrandingProfile
+  * Initial release.
+    FIXES [#4155](https://github.com/microsoft/Microsoft365DSC/issues/4155)
 * IntuneDeviceConfigurationPolicyMacOS
   * Fixed an issue where arrays could contain empty strings.
 * IntuneDeviceEnrollmentScopeConfigurationMam
