@@ -8,6 +8,8 @@
 * AADAppManagementPolicy
   * Add certificateBasedApplicationConfigurationIds support to AADAppManagementPolicy
     FIXES [6926](https://github.com/microsoft/Microsoft365DSC/issues/6926)
+* AADCertificateBasedApplicationConfiguration
+  * Initial release. [6839](https://github.com/microsoft/Microsoft365DSC/issues/6839)
 * AADConditionalAccessPolicy
   * Fixed an issue where arrays could contain empty strings.
 * AADCrossTenantIdentitySyncPolicyPartner
@@ -29,6 +31,9 @@
     It is now in the ISO 8601 format.
 * AADGroupEligibilitySchedule
   * Change resource to `Data` plane
+* AADPermissionGrantPolicy
+  * Initial Release
+    FIXES [#6914](https://github.com/microsoft/Microsoft365DSC/issues/6914)
 * AADRoleAssignmentScheduleRequest
   * Fixed multiple issues with fetching role assignments.
     FIXES [#6841](https://github.com/microsoft/Microsoft365DSC/issues/6841)
@@ -68,6 +73,10 @@
     FIXES [#4155](https://github.com/microsoft/Microsoft365DSC/issues/4155)
 * IntuneDeviceConfigurationPolicyMacOS
   * Fixed an issue where arrays could contain empty strings.
+* IntuneDeviceEnrollmentScopeConfigurationMam
+  * Initial release.
+* IntuneDeviceEnrollmentScopeConfigurationMdm
+  * Initial release.
 * IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile
   * Fixed an issue where unmodifiable profiles were exported.
     FIXES [#6889](https://github.com/microsoft/Microsoft365DSC/issues/6889)
@@ -92,11 +101,15 @@
   * Fixed an issue when comparing multiple instances with the same key
     properties would result in a RuntimeException.
 * M365DSCReverse
+  * Fixed an issue where no warning was shown when exporting a single
+    resource where the authentication parameters did not match.
   * Removed workload pre-authentication during export.
   * Updated the export logic to start module import during usage
     and not during resource initialization.
 * M365DSCUtil
   * Added logic to not always check if a core required module is loaded.
+  * Updated the `Export-M365DSCConfiguration` to only disconnect Graph if
+    not managed through MSCloudLoginAssistant instead of every time it is called.
 * MISC
   * Added filter support across all resources where filtering is applicable.
   * Aligned code formatting across all resources.
