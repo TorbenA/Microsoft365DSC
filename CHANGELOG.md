@@ -8,6 +8,8 @@
 * AADAppManagementPolicy
   * Add certificateBasedApplicationConfigurationIds support to AADAppManagementPolicy
     FIXES [6926](https://github.com/microsoft/Microsoft365DSC/issues/6926)
+* AADCertificateBasedApplicationConfiguration
+  * Initial release. [6839](https://github.com/microsoft/Microsoft365DSC/issues/6839)
 * AADConditionalAccessPolicy
   * Fixed an issue where arrays could contain empty strings.
 * AADCrossTenantIdentitySyncPolicyPartner
