@@ -25,7 +25,7 @@ class MSFT_AADAuthenticationMethodPolicyFido2IncludeTarget
 class MSFT_AADAuthenticationMethodPolicyFido2PasskeyProfile
 {
     [Write, Description("The unique identifier for the passkey profile.")] String Id;
-    [Write, Description("The display name for the passkey profile.")] String Name;
+    [Key, Description("The display name for the passkey profile.")] String Name;
     [Write, Description("The passkey types supported by this profile."), ValueMap{"deviceBound","deviceBound,synced","crossDevice","synced"}, Values{"deviceBound","deviceBound,synced","crossDevice","synced"}] String PasskeyTypes;
     [Write, Description("The attestation enforcement level for this profile."), ValueMap{"disabled","registrationOnly","registrationAndSignIn"}, Values{"disabled","registrationOnly","registrationAndSignIn"}] String AttestationEnforcement;
     [Write, Description("Key restrictions for this passkey profile."), EmbeddedInstance("MSFT_MicrosoftGraphFido2KeyRestrictions")] String KeyRestrictions;
