@@ -23,6 +23,8 @@
     FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
 * AADGroup
   * Added sort by `DisplayName` during export.
+  * Fixed an issue where empty GroupAsMember and Members weren`t properly
+    returned by the Get-TargetResource function.
 * AADGroupEligibilitySchedule
   * Changed resource to `Data` plane.
 * AADGroupsNamingPolicy

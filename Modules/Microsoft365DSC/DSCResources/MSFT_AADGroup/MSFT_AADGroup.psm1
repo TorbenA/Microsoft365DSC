@@ -225,12 +225,13 @@ function Get-TargetResource
 
         $MembersValues = $null
         $result = @{}
+        $MembersValues = [System.Collections.Generic.List[System.String]]::new()
+        $GroupAsMembersValues = [System.Collections.Generic.List[System.String]]::new()
+
         # If the Members and GroupAsMembers parameters are not specified, do not attempt to retrieve them as part of the Get-TargetResource.
         if ($Group.MembershipRuleProcessingState -ne 'On' -and (($PSBoundParameters.ContainsKey('Members') -and $Members.Count -gt 0) -or ($PSBoundParameters.ContainsKey('GroupAsMembers') -and $GroupAsMembers.Count -gt 0)))
         {
-            # Members
-            $MembersValues = [System.Collections.Generic.List[System.String]]::new()
-            $GroupAsMembersValues = [System.Collections.Generic.List[System.String]]::new()
+            # Members            
             $groupMembers = $Group.Members
             if ($Group.Members.Count -eq 20 -or $Script:requireGroupMemberFetching -eq $true)
             {
@@ -292,8 +293,6 @@ function Get-TargetResource
                     }
                 }
             }
-            $result.Add('Members', $MembersValues)
-            $result.Add('GroupAsMembers', $GroupAsMembersValues)
         }
 
         # MemberOf
@@ -352,6 +351,8 @@ function Get-TargetResource
             GroupTypes                    = [System.String[]]$Group.GroupTypes
             MembershipRule                = $Group.MembershipRule
             MembershipRuleProcessingState = $Group.MembershipRuleProcessingState
+            GroupAsMembers                = $GroupAsMembersValues
+            Members                       = $MembersValues
             SecurityEnabled               = $Group.SecurityEnabled
             MailEnabled                   = $Group.MailEnabled
             IsAssignableToRole            = $false -or $Group.IsAssignableToRole
