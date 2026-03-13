@@ -119,6 +119,8 @@
   * Aligned code formatting across all resources.
   * Aligned markdown documents and description to common standards.
   * Expanded try/catch in `Get-TargetResource` to cover authentication.
+* DEPENDENCIES
+  * Updated Microsoft.Graph to version 2.36.0.
 
 # 1.26.218.1
 

@@ -202,6 +202,8 @@
 * AADUser
   * Fixed an issue where not specified properties were applied during update.
     FIXES [#6934](https://github.com/microsoft/Microsoft365DSC/issues/6934)
+* DefenderRoleDefinition
+  * Initial release
 * EXODistributionGroup
   * Updated `Get-TargetResource` to use properties with display name.
     FIXES [#6769](https://github.com/microsoft/Microsoft365DSC/issues/6769)
@@ -266,7 +268,9 @@
   * Added filter support across all resources where filtering is applicable.
   * Aligned code formatting across all resources.
   * Aligned markdown documents and description to common standards.
-  * Expanded try/catch in `Get-TargetResource` to cover authentication.'
+  * Expanded try/catch in `Get-TargetResource` to cover authentication.
+* DEPENDENCIES
+  * Updated Microsoft.Graph to version 2.36.0.'
 
       # Flag to indicate whether the module requires explicit user acceptance for install/update
       # RequireLicenseAcceptance = $false
