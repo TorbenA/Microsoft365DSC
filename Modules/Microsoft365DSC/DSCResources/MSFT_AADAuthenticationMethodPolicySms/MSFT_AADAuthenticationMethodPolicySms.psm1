@@ -289,7 +289,7 @@ function Set-TargetResource
 
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.smsAuthenticationMethodConfiguration')
-        Update-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration  `
+        Update-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration `
             -AuthenticationMethodConfigurationId $currentInstance.Id `
             -BodyParameter $UpdateParameters
         #endregion

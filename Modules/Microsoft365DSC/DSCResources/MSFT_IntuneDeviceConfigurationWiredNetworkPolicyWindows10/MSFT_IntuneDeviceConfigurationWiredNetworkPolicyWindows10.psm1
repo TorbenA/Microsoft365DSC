@@ -224,7 +224,7 @@ function Get-TargetResource
                         -All `
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript { `
+                        -FilterScript {
                             $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsWiredNetworkConfiguration' `
                     }
                 }
@@ -664,7 +664,7 @@ function Set-TargetResource
 
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.windowsWiredNetworkConfiguration')
-        Update-MgBetaDeviceManagementDeviceConfiguration  `
+        Update-MgBetaDeviceManagementDeviceConfiguration `
             -DeviceConfigurationId $currentInstance.Id `
             -BodyParameter $UpdateParameters
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
@@ -1058,7 +1058,7 @@ function Export-TargetResource
         #region resource generator code
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
-            -FilterScript { `
+            -FilterScript {
                 $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsWiredNetworkConfiguration' `
         }
         #endregion

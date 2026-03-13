@@ -120,7 +120,7 @@ function Get-TargetResource
             if ($null -eq $getValue)
             {
                 $getValue = Get-MgBetaDeviceAppManagementMobileAppConfiguration -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
-                    -FilterScript { `
+                    -FilterScript {
                         $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidManagedStoreAppConfiguration' `
                 }
             }
@@ -531,8 +531,8 @@ function Export-TargetResource
         #region resource generator code
         [array]$getValue = Get-MgBetaDeviceAppManagementMobileAppConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
-            -FilterScript { `
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidManagedStoreAppConfiguration'  `
+            -FilterScript {
+                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidManagedStoreAppConfiguration' `
         }
         #endregion
 

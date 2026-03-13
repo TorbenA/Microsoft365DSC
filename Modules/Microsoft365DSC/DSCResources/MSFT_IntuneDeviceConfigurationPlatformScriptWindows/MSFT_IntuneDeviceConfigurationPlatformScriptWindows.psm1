@@ -321,7 +321,7 @@ function Set-TargetResource
 
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.DeviceManagementScript')
-        Update-MgBetaDeviceManagementScript  `
+        Update-MgBetaDeviceManagementScript `
             -DeviceManagementScriptId $currentInstance.Id `
             -BodyParameter $UpdateParameters
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments

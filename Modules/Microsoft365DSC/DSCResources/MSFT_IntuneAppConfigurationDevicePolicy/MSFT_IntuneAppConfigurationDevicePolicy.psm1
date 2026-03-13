@@ -460,7 +460,7 @@ function Set-TargetResource
         }
 
         #region resource generator code
-        Update-MgBetaDeviceAppManagementMobileAppConfiguration  `
+        Update-MgBetaDeviceAppManagementMobileAppConfiguration `
             -ManagedDeviceMobileAppConfigurationId $currentInstance.Id `
             -BodyParameter $UpdateParameters
 

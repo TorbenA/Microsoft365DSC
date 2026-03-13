@@ -850,7 +850,7 @@ function Get-TargetResource
             if (-not $getValue)
             {
                 $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
-                    -FilterScript { `
+                    -FilterScript {
                         $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.iosGeneralDeviceConfiguration' `
                 }
             }
@@ -2966,8 +2966,8 @@ function Export-TargetResource
         #region resource generator code
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
-            -FilterScript { `
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.iosGeneralDeviceConfiguration'  `
+            -FilterScript {
+                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.iosGeneralDeviceConfiguration' `
         }
         #endregion
 

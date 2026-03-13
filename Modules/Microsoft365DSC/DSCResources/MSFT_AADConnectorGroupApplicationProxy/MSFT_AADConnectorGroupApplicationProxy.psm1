@@ -222,7 +222,7 @@ function Set-TargetResource
         $createParameters.Remove('Id') | Out-Null
 
         #region resource generator code
-        $policy = New-MgBetaOnPremisePublishingProfileConnectorGroup  `
+        $policy = New-MgBetaOnPremisePublishingProfileConnectorGroup `
             -OnPremisesPublishingProfileId $OnPremisesPublishingProfileId `
             -BodyParameter $createParameters
         #endregion
@@ -244,7 +244,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Removing the Azure AD Connector Group Application Proxy with Id {$($currentInstance.Id)}"
         #region resource generator code
-        Remove-MgBetaOnPremisePublishingProfileConnectorGroup  `
+        Remove-MgBetaOnPremisePublishingProfileConnectorGroup `
             -ConnectorGroupId $currentInstance.Id `
             -OnPremisesPublishingProfileId $OnPremisesPublishingProfileId
         #endregion

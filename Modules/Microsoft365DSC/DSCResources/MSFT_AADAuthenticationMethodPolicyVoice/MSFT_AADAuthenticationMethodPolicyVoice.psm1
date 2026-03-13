@@ -298,7 +298,7 @@ function Set-TargetResource
 
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.voiceAuthenticationMethodConfiguration')
-        Update-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration  `
+        Update-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration `
             -AuthenticationMethodConfigurationId $currentInstance.Id `
             -BodyParameter $UpdateParameters
         #endregion

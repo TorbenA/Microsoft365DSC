@@ -322,7 +322,7 @@ function Set-TargetResource
 
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.windows10NetworkBoundaryConfiguration')
-        Update-MgBetaDeviceManagementDeviceConfiguration  `
+        Update-MgBetaDeviceManagementDeviceConfiguration `
             -DeviceConfigurationId $currentInstance.Id `
             -BodyParameter $UpdateParameters
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments

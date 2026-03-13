@@ -322,7 +322,7 @@ function Set-TargetResource
         $getValue = $response.authenticationMethodConfigurations | Where-Object -FilterScript { $_.displayName -eq $currentInstance.displayName }
 
         $params.Remove('displayName') | Out-Null
-        Update-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration  `
+        Update-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration `
             -AuthenticationMethodConfigurationId $getValue.Id `
             -BodyParameter $params
     }

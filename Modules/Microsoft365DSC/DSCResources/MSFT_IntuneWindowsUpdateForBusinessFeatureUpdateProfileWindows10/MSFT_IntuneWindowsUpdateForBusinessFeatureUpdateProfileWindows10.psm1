@@ -448,7 +448,7 @@ function Set-TargetResource
         $updateParameters.Remove('Id') | Out-Null
 
         #region resource generator code
-        Update-MgBetaDeviceManagementWindowsFeatureUpdateProfile  `
+        Update-MgBetaDeviceManagementWindowsFeatureUpdateProfile `
             -WindowsFeatureUpdateProfileId $currentInstance.Id `
             -BodyParameter $UpdateParameters
 
