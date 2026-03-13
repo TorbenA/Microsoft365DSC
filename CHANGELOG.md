@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.26.311.1
 
 * AADAccessReviewDefinition
   * Fixed an issue where the filter for Get was applied incorrectly.
@@ -23,6 +23,8 @@
     FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
 * AADGroup
   * Added sort by `DisplayName` during export.
+  * Fixed an issue where empty GroupAsMember and Members weren`t properly
+    returned by the Get-TargetResource function.
 * AADGroupEligibilitySchedule
   * Changed resource to `Data` plane.
 * AADGroupsNamingPolicy
@@ -117,6 +119,8 @@
   * Aligned code formatting across all resources.
   * Aligned markdown documents and description to common standards.
   * Expanded try/catch in `Get-TargetResource` to cover authentication.
+* DEPENDENCIES
+  * Updated Microsoft.Graph to version 2.36.0.
 
 # 1.26.218.1
 

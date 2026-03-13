@@ -14,12 +14,8 @@ Import-Module -Name (Join-Path -Path $M365DSCTestFolder `
         -ChildPath '\UnitTestHelper.psm1' `
         -Resolve)
 
-$CurrentScriptPath = $PSCommandPath.Split('\')
-$CurrentScriptName = $CurrentScriptPath[$CurrentScriptPath.Length -1]
-$ResourceName      = $CurrentScriptName.Split('.')[1]
 $Global:DscHelper = New-M365DscUnitTestHelper -StubModule $CmdletModule `
-    -DscResource $ResourceName -GenericStubModule $GenericStubPath
-
+    -DscResource "DefenderRoleDefinition" -GenericStubModule $GenericStubPath
 Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
     InModuleScope -ModuleName $Global:DscHelper.ModuleName -ScriptBlock {
         Invoke-Command -ScriptBlock $Global:DscHelper.InitializeScript -NoNewScope
@@ -28,15 +24,21 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             $secpasswd = ConvertTo-SecureString (New-Guid | Out-String) -AsPlainText -Force
             $Credential = New-Object System.Management.Automation.PSCredential ('tenantadmin@mydomain.com', $secpasswd)
 
-            Mock -CommandName Confirm-M365DSCDependencies -MockWith {
+            Mock -ModuleName M365DSCUtil -CommandName Confirm-M365DSCDependencies -MockWith {
             }
+
 
             Mock -CommandName New-M365DSCConnection -MockWith {
                 return "Credentials"
             }
 
-            # Mock Write-Host to hide output during the tests
-            Mock -CommandName Write-Host -MockWith {
+            Mock -CommandName Invoke-WebRequest -MockWith {
+            }
+
+            # Mock Write-M365DSCHost to hide output during the tests
+            Mock -CommandName Write-M365DSCHost -MockWith {
+            }
+            Mock -CommandName Write-Warning -MockWith {
             }
             $Script:exportedInstances =$null
             $Script:ExportMode = $false
