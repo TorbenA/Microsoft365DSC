@@ -1,5 +1,5 @@
 <#
-This example removes a Intune Firewall Policy Setting.
+This example removes a new Defender Role Definition.
 #>
 
 Configuration Example
@@ -21,9 +21,9 @@ Configuration Example
 
     node localhost
     {
-        IntuneFirewallPolicySetting "IntuneFirewallPolicySetting-IntuneFirewallPolicySetting_1"
+        DefenderRoleDefinition "DefenderRoleDefinitionExample"
         {
-            DisplayName           = "IntuneFirewallPolicySetting_1";
+            DisplayName           = "MyNewDefinition";
             Ensure                = "Absent";
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;

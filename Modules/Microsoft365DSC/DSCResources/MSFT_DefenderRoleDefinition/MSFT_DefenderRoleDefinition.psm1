@@ -83,21 +83,22 @@ function Get-TargetResource
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
                 $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/roleManagement/defender/roleDefinitions/$Id"
-                [array]$definition = Invoke-MgGraphRequest -Method GET -Uri $uri -ErrorAction Stop
+                $response = Invoke-MgGraphRequest -Method GET -Uri $uri -ErrorAction Stop
+                [array]$definition = $response.value
             }
-            if ($definition.Length -eq 0)
+            if ($null -eq $definition -or $definition.Length -eq 0)
             {
                 Write-Verbose -Message "No Defender Role Definition {$Id} was found by Identity. Trying to retrieve by DisplayName"
                 $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/roleManagement/defender/roleDefinitions/?`$filter=displayName eq '$DisplayName'"
-                [Array]$definition = Invoke-MgGraphRequest -Method GET -Uri $uri -ErrorAction SilentlyContinue
+                $response = Invoke-MgGraphRequest -Method GET -Uri $uri -ErrorAction SilentlyContinue
+                [Array]$definition = $response.value
             }
 
-            if ($definition.Length -gt 1)
+            if ($null -ne $definition -and $definition.Length -gt 1)
             {
                 throw "Multiple definitions with display name {$DisplayName} were found. Please ensure only one instance exists."
             }
-
-            if ($null -eq $definition)
+            elseif ($null -eq $definition -or $definition.Length -eq 0)
             {
                 Write-Verbose -Message "No Defender Role Definition {$DisplayName} was found by Display Name. Instance doesn't exist."
                 return $nullResult
@@ -214,101 +215,46 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $currentPolicy = Get-TargetResource @PSBoundParameters
-    $Identity = $currentPolicy.Identity
-
-    if ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Absent')
+    $currentDefinition = Get-TargetResource @PSBoundParameters
+    if ($Ensure -eq 'Present' -and $currentDefinition.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating new iOS App Protection Policy {$DisplayName}"
-        $createParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-        $createParameters.Remove('Identity')
-        $createParameters.Remove('Assignments')
-        $createParameters.Remove('Apps')
-        $createParameters.Remove('DeployedAppCount')
-        $createParameters.TargetedAppManagementLevels = $createParameters.TargetedAppManagementLevels -join ','
+        Write-Verbose -Message "Creating new Defender Role Definition {$DisplayName}"
 
-        $myExemptedAppProtocols = @()
-        foreach ($exemptedAppProtocol in $ExemptedAppProtocols)
-        {
-            $myExemptedAppProtocols += @{
-                Name  = $exemptedAppProtocol.Split(':')[0]
-                Value = $exemptedAppProtocol.Split(':')[1]
-            }
-        }
-        $createParameters.ExemptedAppProtocols = $myExemptedAppProtocols
-
-        # Remove empty string parameters that the cmdlet can't handle
-        $arrayTemp = @("MinimumWarningSdkVersion", "MaximumRequiredOsVersion", "MaximumWarningOsVersion", "MaximumWipeOsVersion")
-        foreach ($item in $arrayTemp)
-        {
-            if ([System.String]::IsNullOrEmpty($createParameters.$item))
-            {
-                $createParameters.Remove($item)
-            }
+        $newParams = @{
+            displayName = $DisplayName
+            description = $Description
+            rolePermissions = @(
+                @{
+                    allowedResourceActions = [Array]($RolePermissions.allowedResourceActions)
+                }
+            )
         }
 
-        $policy = New-MgBetaDeviceAppManagementiOSManagedAppProtection -BodyParameter $createParameters
-        if ($policy.Id)
-        {
-            Write-Verbose -Message "Update targetApps for iOS App Protection Policy with Id {$($policy.Id)} and DisplayName {$DisplayName}"
-            $targetApps = Get-IntuneAppProtectionPolicyiOSAppsToHashtable -Apps $Apps -AppGroupType $AppGroupType
-            $Url = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceAppManagement/iosManagedAppProtections('$($policy.Id)')/targetApps"
-            Invoke-MgGraphRequest -Method POST -Uri $Url -Body $targetApps
-
-            $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
-            Update-DeviceConfigurationPolicyAssignment `
-                -DeviceConfigurationPolicyId $policy.Id `
-                -Targets $assignmentsHash `
-                -Repository 'deviceAppManagement/iosManagedAppProtections'
-        }
+        $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/roleManagement/defender/roleDefinitions"
+        $response = Invoke-MgGraphRequest -Method POST -Uri $uri -Body $newParams
     }
-    elseif ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Present')
+    elseif ($Ensure -eq 'Present' -and $currentDefinition.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating existing iOS App Protection Policy {$DisplayName}"
-        $updateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-        $updateParameters.Remove('Identity')
-        $updateParameters.Remove('Assignments')
-        $updateParameters.Remove('Apps')
-        $updateParameters.Remove('DeployedAppCount')
-        $updateParameters.TargetedAppManagementLevels = $updateParameters.TargetedAppManagementLevels -join ','
-
-        # Remove empty string parameters that the cmdlet can't handle
-        $arrayTemp = @("MinimumWarningSdkVersion", "MaximumRequiredOsVersion", "MaximumWarningOsVersion", "MaximumWipeOsVersion")
-        foreach ($item in $arrayTemp)
-        {
-            if ([System.String]::IsNullOrEmpty($updateParameters.$item))
-            {
-                $updateParameters.Remove($item)
-            }
+        Write-Verbose -Message "Updating existing Defender Role Definition {$DisplayName}"
+        
+        $updateParams = @{
+            displayName = $DisplayName
+            description = $Description
+            rolePermissions = @(
+                @{
+                    allowedResourceActions = [Array]($RolePermissions.allowedResourceActions)
+                }
+            )
         }
 
-        $myExemptedAppProtocols = @()
-        foreach ($exemptedAppProtocol in $ExemptedAppProtocols)
-        {
-            $myExemptedAppProtocols += @{
-                Name  = $exemptedAppProtocol.Split(':')[0]
-                Value = $exemptedAppProtocol.Split(':')[1]
-            }
-        }
-        $updateParameters.ExemptedAppProtocols = $myExemptedAppProtocols
-        Update-MgBetaDeviceAppManagementiOSManagedAppProtection -IosManagedAppProtectionId $Identity -BodyParameter $updateParameters
-
-        Write-Verbose -Message "Updating targetApps for iOS App Protection Policy with Id {$Identity} and DisplayName {$DisplayName}"
-        $targetApps = Get-IntuneAppProtectionPolicyiOSAppsToHashtable -Apps $Apps -AppGroupType $AppGroupType
-        $Url = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceAppManagement/iosManagedAppProtections('$($Identity)')/targetApps"
-        Invoke-MgGraphRequest -Method POST -Uri $Url -Body $targetApps
-
-        $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
-        Update-DeviceConfigurationPolicyAssignment `
-            -DeviceConfigurationPolicyId $Identity `
-            -Targets $assignmentsHash `
-            -Repository 'deviceAppManagement/iosManagedAppProtections'
-
+        $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/roleManagement/defender/roleDefinitions/$($currentDefinition.Id)"
+        $response = Invoke-MgGraphRequest -Method PATCH -Uri $uri -Body $updateParams
     }
-    elseif ($Ensure -eq 'Absent' -and $currentPolicy.Ensure -eq 'Present')
+    elseif ($Ensure -eq 'Absent' -and $currentDefinition.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removing iOS App Protection Policy {$DisplayName}"
-        Remove-MgBetaDeviceAppManagementiOSManagedAppProtection -IosManagedAppProtectionId $Identity
+        Write-Verbose -Message "Removing Defender Role Definition {$DisplayName}"
+        $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/roleManagement/defender/roleDefinitions/$($currentDefinition.Id)"
+        $response = Invoke-MgGraphRequest -Method DELETE -Uri $uri
     }
 }
 

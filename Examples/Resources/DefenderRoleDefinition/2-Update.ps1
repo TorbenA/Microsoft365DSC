@@ -1,5 +1,5 @@
 <#
-This example updates a Intune Firewall Policy Setting.
+This example updates a new Defender Role Definition.
 #>
 
 Configuration Example
@@ -21,17 +21,21 @@ Configuration Example
 
     node localhost
     {
-        IntuneFirewallPolicySetting "IntuneFirewallPolicySetting-IntuneFirewallPolicySetting_1"
+        DefenderRoleDefinition "DefenderRoleDefinitionExample"
         {
-            Description           = "";
-            DisplayName           = "IntuneFirewallPolicySetting_1";
+            Description           = "Test Definition - Updated";
+            DisplayName           = "MyNewDefinition";
             Ensure                = "Present";
-            PolicySettings        = @(
-                MSFT_ReusableFirewallPolicySetting{
-                    Keyword = "ReusableSetting1"
-                    AutoResolve = $True # Updated property
+            RolePermissions       = @(
+                MSFT_DefenderRoleDefinitionRolePermissions
+                {
+                    allowedResourceActions = @(
+                        "microsoft.xdr/secops/*/manage"
+                        "microsoft.xdr/securityposture/*/manage"
+                        "microsoft.xdr/configuration/*/manage"
+                    )
                 }
-            );
+            )
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;

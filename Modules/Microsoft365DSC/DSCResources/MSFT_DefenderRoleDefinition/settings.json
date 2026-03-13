@@ -21,7 +21,7 @@
                 ],
                 "update": [
                     {
-                        "name": "RoleManagement.ReadWrite.Directory"
+                        "name": "RoleManagement.ReadWrite.Defender"
                     }
                 ]
             }
