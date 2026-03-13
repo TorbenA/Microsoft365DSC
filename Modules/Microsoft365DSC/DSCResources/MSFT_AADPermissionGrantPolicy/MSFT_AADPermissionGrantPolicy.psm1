@@ -167,7 +167,7 @@ function Set-TargetResource
     [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [System.String]
         $Id,
 
