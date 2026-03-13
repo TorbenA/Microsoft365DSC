@@ -316,7 +316,14 @@ function Start-M365DSCConfigurationExtract
             {
                 $selectedResources = @()
             }
-            [Array]$compareResourcesResult = Compare-Object -ReferenceObject $allSupportedResourcesWithMostSecureAuthMethod.Resource `
+            # Filter null elements in case one resource was provided and is not supported with the provided authentication method
+            # to avoid Compare-Object from throwing a ParameterArgumentValidationErrorNullNotAllowed error
+            $allSupportedResourcesWithMostSecureAuthMethodArray = @()
+            foreach ($resource in $allSupportedResourcesWithMostSecureAuthMethod | Where-Object -FilterScript { $null -ne $_ })
+            {
+                $allSupportedResourcesWithMostSecureAuthMethodArray += $resource.Resource
+            }
+            [Array]$compareResourcesResult = Compare-Object -ReferenceObject $allSupportedResourcesWithMostSecureAuthMethodArray `
                 -DifferenceObject $selectedResources | Where-Object -FilterScript { $_.SideIndicator -eq '=>' }
         }
         catch
@@ -406,7 +413,7 @@ function Start-M365DSCConfigurationExtract
                 {
                     $DSCContent.Append("`r`n") | Out-Null
                 }
-                $DSCContent.Append("    [parameter()]`r`n") | Out-Null
+                $DSCContent.Append("    [Parameter()]`r`n") | Out-Null
                 $DSCContent.Append("    [System.Management.Automation.PSCredential]`r`n") | Out-Null
                 $DSCContent.Append("    `$CertificatePassword`r`n") | Out-Null
                 $newline = $true
@@ -417,7 +424,7 @@ function Start-M365DSCConfigurationExtract
                 {
                     $DSCContent.Append("`r`n") | Out-Null
                 }
-                $DSCContent.Append("    [parameter()]`r`n") | Out-Null
+                $DSCContent.Append("    [Parameter()]`r`n") | Out-Null
                 $DSCContent.Append("    [System.Management.Automation.PSCredential]`r`n") | Out-Null
                 $DSCContent.Append("    `$Credential`r`n") | Out-Null
                 $newline = $true
@@ -479,7 +486,7 @@ function Start-M365DSCConfigurationExtract
                 {
                     $DSCContent.Append("`r`n") | Out-Null
                 }
-                $DSCContent.Append("        [parameter()]`r`n") | Out-Null
+                $DSCContent.Append("        [Parameter()]`r`n") | Out-Null
                 $DSCContent.Append("        [System.Management.Automation.PSCredential]`r`n") | Out-Null
                 $DSCContent.Append("        `$CertificatePassword`r`n") | Out-Null
 
@@ -531,7 +538,7 @@ function Start-M365DSCConfigurationExtract
                 {
                     $DSCContent.Append("`r`n") | Out-Null
                 }
-                $DSCContent.Append("        [parameter()]`r`n") | Out-Null
+                $DSCContent.Append("        [Parameter()]`r`n") | Out-Null
                 $DSCContent.Append("        [System.Management.Automation.PSCredential]`r`n") | Out-Null
                 $DSCContent.Append("        `$Credential`r`n") | Out-Null
 
