@@ -115,6 +115,8 @@
   * Aligned code formatting across all resources.
   * Aligned markdown documents and description to common standards.
   * Expanded try/catch in `Get-TargetResource` to cover authentication.
+  * Fixed an issue where hardcoded Azure urls were used in the resources.
+    FIXES [#6957](https://github.com/microsoft/Microsoft365DSC/issues/6957)
 
 # 1.26.218.1
 
