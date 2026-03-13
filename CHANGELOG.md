@@ -29,6 +29,9 @@
     It is now in the ISO 8601 format.
 * AADGroupEligibilitySchedule
   * Change resource to `Data` plane
+* AADPermissionGrantPolicy
+  * Initial Release
+    FIXES [#6914](https://github.com/microsoft/Microsoft365DSC/issues/6914)
 * AADRoleAssignmentScheduleRequest
   * Fixed multiple issues with fetching role assignments.
     FIXES [#6841](https://github.com/microsoft/Microsoft365DSC/issues/6841)
