@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* AADAuthenticationMethodPolicyFido2
+  * Add PassKeyprofile handling
 * AADAccessReviewDefinition
   * Fixed an issue where the filter for Get was applied incorrectly.
     FIXES [#6947](https://github.com/microsoft/Microsoft365DSC/issues/6947)
