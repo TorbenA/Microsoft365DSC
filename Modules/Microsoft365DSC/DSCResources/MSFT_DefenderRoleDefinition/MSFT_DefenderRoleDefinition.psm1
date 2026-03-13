@@ -37,10 +37,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
-        $ApplicationSecret,
-
-        [Parameter()]
-        [System.String]
         $TenantId,
 
         [Parameter()]
@@ -182,10 +178,6 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
-        $ApplicationSecret,
-
-        [Parameter()]
-        [System.String]
         $TenantId,
 
         [Parameter()]
@@ -236,7 +228,7 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentDefinition.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating existing Defender Role Definition {$DisplayName}"
-        
+
         $updateParams = @{
             displayName = $DisplayName
             description = $Description
@@ -295,10 +287,6 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
-        $ApplicationSecret,
-
-        [Parameter()]
-        [System.String]
         $TenantId,
 
         [Parameter()]
@@ -349,10 +337,6 @@ function Export-TargetResource
         [Parameter()]
         [System.String]
         $TenantId,
-
-        [Parameter()]
-        [System.Management.Automation.PSCredential]
-        $ApplicationSecret,
 
         [Parameter()]
         [System.String]
@@ -412,7 +396,6 @@ function Export-TargetResource
                 Credential            = $Credential
                 ApplicationID         = $ApplicationId
                 TenantId              = $TenantId
-                ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
                 ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
