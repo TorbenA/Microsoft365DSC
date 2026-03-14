@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+* M365DSCDocGenerator
+  * Fixed an issue where no distinction between read and update
+    was done for EXO resources.
+    FIXES [#6965](https://github.com/microsoft/Microsoft365DSC/issues/6965)
+
 # 1.26.311.1
 
 * AADAccessReviewDefinition
