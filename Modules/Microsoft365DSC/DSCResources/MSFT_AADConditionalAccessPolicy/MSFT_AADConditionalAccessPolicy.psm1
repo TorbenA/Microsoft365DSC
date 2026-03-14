@@ -305,13 +305,11 @@ function Get-TargetResource
                 try
                 {
                     $Policy = Get-MgBetaIdentityConditionalAccessPolicy -ConditionalAccessPolicyId $Id -ErrorAction Stop
-                    $jsonPolicy = ConvertTo-Json $Policy -Depth 10 -ErrorAction SilentlyContinue
                 }
                 catch
                 {
                     Write-Verbose -Message "Couldn't find existing policy by ID {$Id}"
                     $Policy = Get-MgBetaIdentityConditionalAccessPolicy -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
-                    $jsonPolicy = ConvertTo-Json -Depth 10 $Policy -ErrorAction SilentlyContinue
 
                     if ($Policy.Length -gt 1)
                     {
@@ -324,7 +322,6 @@ function Get-TargetResource
                 Write-Verbose -Message 'Id was NOT specified'
                 ## Can retreive multiple CA Policies since displayname is not unique
                 $Policy = Get-MgBetaIdentityConditionalAccessPolicy -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
-                $jsonPolicy = ConvertTo-Json -Depth 10 $Policy -ErrorAction SilentlyContinue
 
                 if ($Policy.Length -gt 1)
                 {
@@ -715,7 +712,7 @@ function Get-TargetResource
             ApplicationsFilter                       = $Policy.Conditions.Applications.ApplicationFilter.Rule
             ApplicationsFilterMode                   = $Policy.Conditions.Applications.ApplicationFilter.Mode
             #no translation of GUIDs, return empty string array if undefined
-            IncludeUserActions                       = [System.String[]](@() + $Policy.Conditions.Applications.IncludeUserActions)
+            IncludeUserActions                       = [System.String[]]($Policy.Conditions.Applications.IncludeUserActions)
             #no translation needed, return empty string array if undefined
             IncludeUsers                             = $IncludeUsers
             ExcludeUsers                             = $ExcludeUsers
@@ -725,20 +722,20 @@ function Get-TargetResource
             ExcludeRoles                             = $ExcludeRoles
             IncludeGuestOrExternalUserTypes          = [System.String[]]$IncludeGuestOrExternalUserTypes
             IncludeExternalTenantsMembershipKind     = [System.String]$Policy.Conditions.Users.IncludeGuestsOrExternalUsers.ExternalTenants.MembershipKind
-            IncludeExternalTenantsMembers            = [System.String[]](@() + $Policy.Conditions.Users.IncludeGuestsOrExternalUsers.ExternalTenants.AdditionalProperties.members)
+            IncludeExternalTenantsMembers            = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.Users.IncludeGuestsOrExternalUsers.ExternalTenants.AdditionalProperties.members -ElementType ([System.String])
 
             ExcludeGuestOrExternalUserTypes          = [System.String[]]$ExcludeGuestOrExternalUserTypes
             ExcludeExternalTenantsMembershipKind     = [System.String]$Policy.Conditions.Users.ExcludeGuestsOrExternalUsers.ExternalTenants.MembershipKind
-            ExcludeExternalTenantsMembers            = [System.String[]](@() + $Policy.Conditions.Users.ExcludeGuestsOrExternalUsers.ExternalTenants.AdditionalProperties.members)
+            ExcludeExternalTenantsMembers            = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.Users.ExcludeGuestsOrExternalUsers.ExternalTenants.AdditionalProperties.members -ElementType ([System.String])
 
             IncludeServicePrincipals                 = $Policy.Conditions.ClientApplications.IncludeServicePrincipals
             ExcludeServicePrincipals                 = $Policy.Conditions.ClientApplications.ExcludeServicePrincipals
             ServicePrincipalFilterMode               = $Policy.Conditions.ClientApplications.ServicePrincipalFilter.Mode
             ServicePrincipalFilterRule               = $Policy.Conditions.ClientApplications.ServicePrincipalFilter.Rule
 
-            IncludePlatforms                         = [System.String[]](@() + $Policy.Conditions.Platforms.IncludePlatforms)
+            IncludePlatforms                         = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.Platforms.IncludePlatforms -ElementType ([System.String])
             #no translation needed, return empty string array if undefined
-            ExcludePlatforms                         = [System.String[]](@() + $Policy.Conditions.Platforms.ExcludePlatforms)
+            ExcludePlatforms                         = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.Platforms.ExcludePlatforms -ElementType ([System.String])
             #no translation needed, return empty string array if undefined
             IncludeLocations                         = $IncludeLocations
             ExcludeLocations                         = $ExcludeLocations
@@ -748,16 +745,16 @@ function Get-TargetResource
             #no translation or conversion needed
             DeviceFilterRule                         = [System.String]$Policy.Conditions.Devices.DeviceFilter.Rule
             #no translation or conversion needed
-            UserRiskLevels                           = [System.String[]](@() + $Policy.Conditions.UserRiskLevels)
+            UserRiskLevels                           = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.UserRiskLevels -ElementType ([System.String])
             #no translation needed, return empty string array if undefined
-            SignInRiskLevels                         = [System.String[]](@() + $Policy.Conditions.SignInRiskLevels)
+            SignInRiskLevels                         = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.SignInRiskLevels -ElementType ([System.String])
             #no translation needed, return empty string array if undefined
-            ClientAppTypes                           = [System.String[]](@() + $Policy.Conditions.ClientAppTypes)
+            ClientAppTypes                           = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.ClientAppTypes -ElementType ([System.String])
             #no translation needed, return empty string array if undefined
             GrantControlOperator                     = $Policy.GrantControls.Operator
             #no translation or conversion needed
-            BuiltInControls                          = [System.String[]](@() + $Policy.GrantControls.BuiltInControls)
-            CustomAuthenticationFactors              = [System.String[]](@() + $Policy.GrantControls.CustomAuthenticationFactors)
+            BuiltInControls                          = Get-M365DSCArrayFromProperty -PropertyValue $Policy.GrantControls.BuiltInControls -ElementType ([System.String])
+            CustomAuthenticationFactors              = Get-M365DSCArrayFromProperty -PropertyValue $Policy.GrantControls.CustomAuthenticationFactors -ElementType ([System.String])
             #no translation needed, return empty string array if undefined
             ApplicationEnforcedRestrictionsIsEnabled = $false -or $Policy.SessionControls.ApplicationEnforcedRestrictions.IsEnabled
             #make false if undefined, true if true
@@ -784,7 +781,7 @@ function Get-TargetResource
             TransferMethods                          = [System.String]$Policy.Conditions.AuthenticationFlows.TransferMethods
             ProtocolFlows                            = $ProtocolFlowsValue
             #no translation needed, return empty string array if undefined
-            ServicePrincipalRiskLevels               = [System.String[]](@() + $Policy.Conditions.ServicePrincipalRiskLevels)
+            ServicePrincipalRiskLevels               = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.ServicePrincipalRiskLevels -ElementType ([System.String])
             #Standard part
             TermsOfUse                               = $termOfUseName
             InsiderRiskLevels                        = $InsiderRiskLevelsValue
@@ -1787,12 +1784,12 @@ function Set-TargetResource
                 }
             }
 
-           if ($currentParameters.ContainsKey('TermsOfUse'))
-           {
-               Write-Verbose -Message "Getting Terms of Use {$TermsOfUse}"
-               $TermsOfUseObj = Get-MgBetaAgreement | Where-Object -FilterScript { $_.DisplayName -eq $TermsOfUse }
-               $GrantControls.Add('termsOfUse', @($TermsOfUseObj.Id))
-           }
+            if ($currentParameters.ContainsKey('TermsOfUse'))
+            {
+                Write-Verbose -Message "Getting Terms of Use {$TermsOfUse}"
+                $TermsOfUseObj = Get-MgBetaAgreement | Where-Object -FilterScript { $_.DisplayName -eq $TermsOfUse }
+                $GrantControls.Add('termsOfUse', @($TermsOfUseObj.Id))
+            }
 
 
             #no translation or conversion needed
@@ -2250,7 +2247,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
