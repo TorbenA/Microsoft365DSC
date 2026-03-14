@@ -28,7 +28,7 @@ function Get-TargetResource
         $StandardQRCodeLifetimeInDays,
 
         [Parameter()]
-        [ValidateRange(8,20)]
+        [ValidateRange(8, 20)]
         [System.UInt32]
         $PinLength,
 
@@ -86,7 +86,7 @@ function Get-TargetResource
             $nullResult = $PSBoundParameters
             $nullResult.Ensure = 'Absent'
 
-            $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations/qrCodePin"
+            $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + 'beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations/qrCodePin'
             $response = Invoke-MgGraphRequest -Uri $uri -Method GET
             $instance = $response
         }
@@ -215,7 +215,7 @@ function Set-TargetResource
         $StandardQRCodeLifetimeInDays,
 
         [Parameter()]
-        [ValidateRange(8,20)]
+        [ValidateRange(8, 20)]
         [System.UInt32]
         $PinLength,
 
@@ -321,7 +321,7 @@ function Test-TargetResource
         $StandardQRCodeLifetimeInDays,
 
         [Parameter()]
-        [ValidateRange(8,20)]
+        [ValidateRange(8, 20)]
         [System.UInt32]
         $PinLength,
 
@@ -365,7 +365,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -421,7 +421,7 @@ function Export-TargetResource
 
     try
     {
-        $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations/qrCodePin"
+        $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + 'beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations/qrCodePin'
         $response = Invoke-MgGraphRequest -Uri $uri -Method GET
         [array] $Script:exportedInstances = $response
         $i = 1
@@ -460,7 +460,7 @@ function Export-TargetResource
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.ExcludeTargets `
                     -CIMInstanceName 'AADAuthenticationMethodPolicyQRCodeImageExcludeTarget'
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.ExcludeTargets = $complexTypeStringResult
                 }
@@ -475,7 +475,7 @@ function Export-TargetResource
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.IncludeTargets `
                     -CIMInstanceName 'AADAuthenticationMethodPolicyQRCodeImageIncludeTarget'
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.IncludeTargets = $complexTypeStringResult
                 }

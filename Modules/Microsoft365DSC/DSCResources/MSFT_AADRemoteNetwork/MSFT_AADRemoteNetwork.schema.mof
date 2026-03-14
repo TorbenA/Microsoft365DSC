@@ -1,30 +1,30 @@
 [ClassVersion("1.0.0")]
 class MSFT_AADRemoteNetworkDeviceLinkbgpConfiguration
 {
-	[Write, Description("LocalIpAddress.")] String LocalIPAddress;
-	[Write, Description("PeerIpAddress.")] String PeerIPAddress;
-	[Write, Description("Asn.")] UInt32 Asn;
+    [Write, Description("LocalIpAddress.")] String LocalIPAddress;
+    [Write, Description("PeerIpAddress.")] String PeerIPAddress;
+    [Write, Description("Asn.")] UInt32 Asn;
 };
 
 [ClassVersion("1.0.0")]
 class MSFT_AADRemoteNetworkDeviceLinkRedundancyConfiguration
 {
-	[Write, Description("ZoneLocalIpAddress.")] String ZoneLocalIPAddress;
-	[Write, Description("RedundancyTier.")] String RedundancyTier;
+    [Write, Description("ZoneLocalIpAddress.")] String ZoneLocalIPAddress;
+    [Write, Description("RedundancyTier.")] String RedundancyTier;
 };
 
 [ClassVersion("1.0.0")]
 class MSFT_AADRemoteNetworkDeviceLinkTunnelConfiguration
 {
-	[Write, Description("PreSharedKey")] String PreSharedKey;
-	[Write, Description("ZoneRedundancyPreSharedKey")] String ZoneRedundancyPreSharedKey;
-	[Write, Description("SaLifeTimeSeconds")] UInt32 SaLifeTimeSeconds;
-	[Write, Description("IpSecEncryption")] String IPSecEncryption;
-	[Write, Description("IpSecIntegrity")] String IPSecIntegrity;
-	[Write, Description("IkeEncryption")] String IKEEncryption;
-	[Write, Description("IkeIntegrity")] String IKEIntegrity;
-	[Write, Description("DhGroup")] String DHGroup;
-	[Write, Description("PfsGroup")] String PFSGroup;
+    [Write, Description("PreSharedKey")] String PreSharedKey;
+    [Write, Description("ZoneRedundancyPreSharedKey")] String ZoneRedundancyPreSharedKey;
+    [Write, Description("SaLifeTimeSeconds")] UInt32 SaLifeTimeSeconds;
+    [Write, Description("IpSecEncryption")] String IPSecEncryption;
+    [Write, Description("IpSecIntegrity")] String IPSecIntegrity;
+    [Write, Description("IkeEncryption")] String IKEEncryption;
+    [Write, Description("IkeIntegrity")] String IKEIntegrity;
+    [Write, Description("DhGroup")] String DHGroup;
+    [Write, Description("PfsGroup")] String PFSGroup;
     [Write, Description("ODataType")] String ODataType;
 };
 
@@ -35,7 +35,7 @@ class MSFT_AADRemoteNetworkDeviceLink
     [Write, Description("IP Address")] String IPAddress;
     [Write, Description("Bandwidth Capacity in Mbps")] String BandwidthCapacityInMbps;
     [Write, Description("Device Vendor")] String DeviceVendor;
-	[Write, Description("BgpConfiguration."), EmbeddedInstance("MSFT_AADRemoteNetworkDeviceLinkbgpConfiguration")] String BgpConfiguration;
+    [Write, Description("BgpConfiguration."), EmbeddedInstance("MSFT_AADRemoteNetworkDeviceLinkbgpConfiguration")] String BgpConfiguration;
     [Write, Description("redundancyConfiguration."), EmbeddedInstance("MSFT_AADRemoteNetworkDeviceLinkRedundancyConfiguration")] String RedundancyConfiguration;
     [Write, Description("tunnelConfiguration"), EmbeddedInstance("MSFT_AADRemoteNetworkDeviceLinkTunnelConfiguration")] String TunnelConfiguration;
 };

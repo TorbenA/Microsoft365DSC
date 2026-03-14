@@ -1,4 +1,4 @@
-Confirm-M365DSCModuleDependency -ModuleName "MSFT_IntuneAppControlForBusinessPolicyWindows10"
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneAppControlForBusinessPolicyWindows10'
 
 function Get-TargetResource
 {
@@ -48,8 +48,8 @@ function Get-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -110,7 +110,7 @@ function Get-TargetResource
             #region resource generator code
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaDeviceManagementConfigurationPolicy -DeviceManagementConfigurationPolicyId $Id  -ErrorAction SilentlyContinue
+                $getValue = Get-MgBetaDeviceManagementConfigurationPolicy -DeviceManagementConfigurationPolicyId $Id -ErrorAction SilentlyContinue
             }
 
             if ($null -eq $getValue)
@@ -150,17 +150,17 @@ function Get-TargetResource
 
         $results = @{
             #region resource generator code
-            Description                                = $getValue.Description
-            DisplayName                                = $getValue.Name
-            RoleScopeTagIds                            = $getValue.RoleScopeTagIds
-            Id                                         = $getValue.Id
-            Ensure                                     = 'Present'
-            Credential                                 = $Credential
-            ApplicationId                              = $ApplicationId
-            TenantId                                   = $TenantId
-            ApplicationSecret                          = $ApplicationSecret
-            CertificateThumbprint                      = $CertificateThumbprint
-            ManagedIdentity                            = $ManagedIdentity.IsPresent
+            Description           = $getValue.Description
+            DisplayName           = $getValue.Name
+            RoleScopeTagIds       = $getValue.RoleScopeTagIds
+            Id                    = $getValue.Id
+            Ensure                = 'Present'
+            Credential            = $Credential
+            ApplicationId         = $ApplicationId
+            TenantId              = $TenantId
+            ApplicationSecret     = $ApplicationSecret
+            CertificateThumbprint = $CertificateThumbprint
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             #endregion
         }
         $results += $policySettings
@@ -234,8 +234,8 @@ function Set-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -291,7 +291,7 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating an Intune App Control For Business Policy for Windows10 with Name {$DisplayName}"
-        $boundParameters.Remove("Assignments") | Out-Null
+        $boundParameters.Remove('Assignments') | Out-Null
 
         $settings = Get-IntuneSettingCatalogPolicySetting `
             -DSCParams ([System.Collections.Hashtable]$boundParameters) `
@@ -323,7 +323,7 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Intune App Control For Business Policy for Windows10 with Id {$($currentInstance.Id)}"
-        $boundParameters.Remove("Assignments") | Out-Null
+        $boundParameters.Remove('Assignments') | Out-Null
 
         $settings = Get-IntuneSettingCatalogPolicySetting `
             -DSCParams ([System.Collections.Hashtable]$boundParameters) `
@@ -405,8 +405,8 @@ function Test-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -449,8 +449,8 @@ function Test-TargetResource
 
     $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                             @compareParameters
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+        @compareParameters
     return $result
 }
 
@@ -511,7 +511,7 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        $policyTemplateID = "4321b946-b76b-4450-8afd-769c08b16ffc_1"
+        $policyTemplateID = '4321b946-b76b-4450-8afd-769c08b16ffc_1'
         [array]$getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
             -Filter $Filter `
             -All `
@@ -619,7 +619,7 @@ function Get-CompareParameters
     param()
 
     return @{
-        PostProcessing = {
+        PostProcessing     = {
             param($DesiredValues, $CurrentValues, $ValuesToCheck, $PostProcessingArgs)
             $PostProcessingArgs[0] | ForEach-Object {
                 if ($_.Key -notlike '*Variable' -or $_.Key -notin @('Verbose', 'Debug', 'ErrorAction', 'WarningAction', 'InformationAction'))

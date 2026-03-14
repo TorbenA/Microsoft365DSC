@@ -30,7 +30,7 @@ Configuration Example
             connectedAppsEnabled  = $False;
             packageId             = "app:org.mozilla.firefox";
             payloadJson           = "";
-	        permissionActions     = @(
+            permissionActions     = @(
                 MSFT_androidPermissionAction{
                     action = 'prompt'
                     permission = 'android.permission.RECEIVE_SMS'

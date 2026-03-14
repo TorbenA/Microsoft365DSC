@@ -1,5 +1,5 @@
 Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADApplication'
-$Script:PropertiesToRetrieve = "appRoles, identifierUris, displayName, description, groupMembershipClaims, optionalClaims, web, api, id, appId, spa, applicationTemplateId, signInAudience, authenticationBehaviors, isFallbackPublicClient, publicClient, keyCredentials, passwordCredentials, requiredResourceAccess"
+$Script:PropertiesToRetrieve = 'appRoles, identifierUris, displayName, description, groupMembershipClaims, optionalClaims, web, api, id, appId, spa, applicationTemplateId, signInAudience, authenticationBehaviors, isFallbackPublicClient, publicClient, keyCredentials, passwordCredentials, requiredResourceAccess'
 
 function Get-TargetResource
 {
@@ -104,7 +104,7 @@ function Get-TargetResource
         $Spa,
 
         [Parameter()]
-        [ValidateSet("AzureADandPersonalMicrosoftAccount", "AzureADMultipleOrgs", "AzureADMyOrg", "PersonalMicrosoftAccount")]
+        [ValidateSet('AzureADandPersonalMicrosoftAccount', 'AzureADMultipleOrgs', 'AzureADMyOrg', 'PersonalMicrosoftAccount')]
         [System.String]
         $SignInAudience,
 
@@ -178,7 +178,7 @@ function Get-TargetResource
                     $AADApp = Get-MgBetaApplication `
                         -Filter "AppId eq '$AppId'" `
                         -Property $Script:PropertiesToRetrieve `
-                        -ExpandProperty "owners"
+                        -ExpandProperty 'owners'
                 }
             }
             catch
@@ -190,13 +190,13 @@ function Get-TargetResource
             {
                 Write-Verbose -Message "Attempting to retrieve Azure AD Application by DisplayName {$DisplayName}"
                 $AADApp = [Array](Get-MgBetaApplication `
-                    -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                    -Property $Script:PropertiesToRetrieve `
-                    -ExpandProperty "owners")
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
+                        -Property $Script:PropertiesToRetrieve `
+                        -ExpandProperty 'owners')
             }
             if ($null -ne $AADApp -and $AADApp.Count -gt 1)
             {
-                Throw "Multiple AAD Apps with the Displayname $($DisplayName) exist in the tenant."
+                throw "Multiple AAD Apps with the Displayname $($DisplayName) exist in the tenant."
             }
             elseif ($null -eq $AADApp)
             {
@@ -500,7 +500,7 @@ function Get-TargetResource
 
             # singleSignOnSettings
             $singleSignOnValues = @{
-                singleSignOnMode       = $oppInfo.singleSignOnSettings.singleSignOnMode
+                singleSignOnMode = $oppInfo.singleSignOnSettings.singleSignOnMode
             }
             if ($oppInfo.singleSignOnMode.kerberosSignOnSettings)
             {
@@ -681,7 +681,7 @@ function Set-TargetResource
         $Spa,
 
         [Parameter()]
-        [ValidateSet("AzureADandPersonalMicrosoftAccount", "AzureADMultipleOrgs", "AzureADMyOrg", "PersonalMicrosoftAccount")]
+        [ValidateSet('AzureADandPersonalMicrosoftAccount', 'AzureADMultipleOrgs', 'AzureADMyOrg', 'PersonalMicrosoftAccount')]
         [System.String]
         $SignInAudience,
 
@@ -799,7 +799,7 @@ function Set-TargetResource
 
     if ($PublicClientRedirectUris.Length -gt 0)
     {
-        Write-Verbose -Message "PublicClientRedirectUris were specified"
+        Write-Verbose -Message 'PublicClientRedirectUris were specified'
         $PublicClientValue = @{
             RedirectUris = $PublicClientRedirectUris
         }
@@ -815,7 +815,7 @@ function Set-TargetResource
     }
     if ($currentParameters.Api.Oauth2PermissionScopes)
     {
-        Write-Verbose -Message "Oauth2PermissionScopes specified and is not empty"
+        Write-Verbose -Message 'Oauth2PermissionScopes specified and is not empty'
         $scopeValue = @()
         foreach ($scope in $currentParameters.Api.Oauth2PermissionScopes)
         {
@@ -837,7 +837,7 @@ function Set-TargetResource
             {
                 Write-Verbose -Message "Retrieving Scope by Display Name {$($scope.value)}"
 
-                $existingScope = $currentAADApp.Api.Oauth2PermissionScopes | Where-Object -FilterScript {$_.Value -eq $scope.value}
+                $existingScope = $currentAADApp.Api.Oauth2PermissionScopes | Where-Object -FilterScript { $_.Value -eq $scope.value }
                 $existingScopeId = (New-Guid).ToString()
                 if ($null -ne $existingScope)
                 {
@@ -971,7 +971,7 @@ function Set-TargetResource
                     ObjectId    = $deletedApp.Id
                 }
 
-                $restoredApp = Get-MgApplication -ApplicationId $currentAADApp.Id -ExpandProperty "owners"
+                $restoredApp = Get-MgApplication -ApplicationId $currentAADApp.Id -ExpandProperty 'owners'
                 $ownersValues = @()
                 foreach ($owner in $($restoredApp.Owners | Where-Object { -not $_.DeletedDateTime }))
                 {
@@ -1077,14 +1077,14 @@ function Set-TargetResource
         # Update AppRoles
         if ($null -ne $AppRoles)
         {
-            Write-Verbose -Message "AppRoles were specified."
+            Write-Verbose -Message 'AppRoles were specified.'
 
             # Find roles to Remove
             $fixedRoles = @()
             $rolesToRemove = @()
             foreach ($currentRole in $currentAADApp.AppRoles)
             {
-                $associatedDesiredRoleEntry = $AppRoles | Where-Object -FilterScript {$_.DisplayName -eq $currentRole.DisplayName}
+                $associatedDesiredRoleEntry = $AppRoles | Where-Object -FilterScript { $_.DisplayName -eq $currentRole.DisplayName }
                 if ($null -eq $associatedDesiredRoleEntry)
                 {
                     Write-Verbose -Message "Could not find matching AppRole entry in Desired values for {$($currentRole.DisplayName)}. Will remove role."
@@ -1214,7 +1214,7 @@ function Set-TargetResource
 
         if ($Permissions.Length -eq 0)
         {
-            Write-Verbose -Message "Desired set of permissions is empty, removing all permissions on the app."
+            Write-Verbose -Message 'Desired set of permissions is empty, removing all permissions on the app.'
             $allRequiredAccess = @()
         }
         else
@@ -1304,8 +1304,8 @@ function Set-TargetResource
         Write-Verbose -Message "Current App Id: $($currentAADApp.AppId)"
 
         $IAuthenticationBehaviors = @{
-            blockAzureADGraphAccess       = $AuthenticationBehaviors.blockAzureADGraphAccess
-            removeUnverifiedEmailClaim    = $AuthenticationBehaviors.removeUnverifiedEmailClaim
+            blockAzureADGraphAccess    = $AuthenticationBehaviors.blockAzureADGraphAccess
+            removeUnverifiedEmailClaim = $AuthenticationBehaviors.removeUnverifiedEmailClaim
         }
 
         Update-MgBetaApplication -ApplicationId $currentAADApp.ObjectId -BodyParameter @{
@@ -1542,7 +1542,7 @@ function Test-TargetResource
         $Spa,
 
         [Parameter()]
-        [ValidateSet("AzureADandPersonalMicrosoftAccount", "AzureADMultipleOrgs", "AzureADMyOrg", "PersonalMicrosoftAccount")]
+        [ValidateSet('AzureADandPersonalMicrosoftAccount', 'AzureADMultipleOrgs', 'AzureADMyOrg', 'PersonalMicrosoftAccount')]
         [System.String]
         $SignInAudience,
 
@@ -1595,8 +1595,8 @@ function Test-TargetResource
 
     $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                             @compareParameters
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+        @compareParameters
     return $result
 }
 
@@ -1663,7 +1663,7 @@ function Export-TargetResource
         [array] $Script:exportedInstances = Get-MgBetaApplication `
             -Filter $Filter `
             -Property $Script:PropertiesToRetrieve `
-            -ExpandProperty "owners" `
+            -ExpandProperty 'owners' `
             -All `
             -ErrorAction Stop
         foreach ($AADApp in $Script:exportedInstances)
@@ -2032,7 +2032,7 @@ function Get-M365DSCAzureADAppPermissions
                 {
                     if ($oAuth2grant.Count -gt 0)
                     {
-                        $scopes = ($oAuth2grant.Scope -join " ").Split(' ')
+                        $scopes = ($oAuth2grant.Scope -join ' ').Split(' ')
                         if ($scopes.Contains($scopeInfoValue))
                         {
                             $currentPermission.AdminConsentGranted = $true

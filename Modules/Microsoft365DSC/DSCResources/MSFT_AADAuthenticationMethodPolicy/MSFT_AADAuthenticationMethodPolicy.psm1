@@ -109,7 +109,7 @@ function Get-TargetResource
             {
                 Write-Verbose -Message "Could not find an Azure AD Authentication Method Policy with Id {$Id}"
 
-                if (-Not [string]::IsNullOrEmpty($DisplayName))
+                if (-not [string]::IsNullOrEmpty($DisplayName))
                 {
                     $getValue = Get-MgBetaPolicyAuthenticationMethodPolicy `
                         -ErrorAction SilentlyContinue | Where-Object `
@@ -560,7 +560,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -688,7 +688,7 @@ function Export-TargetResource
                         -CIMInstanceName 'MicrosoftGraphregistrationEnforcement' `
                         -ComplexTypeMapping $complexMapping
 
-                    if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                    if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                     {
                         $Results.RegistrationEnforcement = $complexTypeStringResult
                     }
@@ -717,7 +717,7 @@ function Export-TargetResource
                         -CIMInstanceName 'MicrosoftGraphreportSuspiciousActivitySettings' `
                         -ComplexTypeMapping $complexMapping
 
-                    if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                    if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                     {
                         $Results.ReportSuspiciousActivitySettings = $complexTypeStringResult
                     }
@@ -752,7 +752,7 @@ function Export-TargetResource
                         -CIMInstanceName 'MicrosoftGraphsystemCredentialPreferences' `
                         -ComplexTypeMapping $complexMapping
 
-                    if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                    if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                     {
                         $Results.SystemCredentialPreferences = $complexTypeStringResult
                     }
