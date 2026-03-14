@@ -79,11 +79,7 @@ function Get-TargetResource
             Add-M365DSCTelemetryEvent -Data $data
             #endregion
 
-            $getValue = Get-MgBetaPolicyAuthenticationMethodPolicy -ErrorAction SilentlyContinue
-            if ($null -eq $getValue)
-            {
-                throw "An Azure AD Authentication Method Policy was not found."
-            }
+            $getValue = Get-MgBetaPolicyAuthenticationMethodPolicy -ErrorAction Stop
         }
         else
         {
@@ -386,7 +382,7 @@ function Test-TargetResource
     #endregion
 
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -511,7 +507,7 @@ function Export-TargetResource
                         -CIMInstanceName 'MicrosoftGraphregistrationEnforcement' `
                         -ComplexTypeMapping $complexMapping
 
-                    if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                    if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                     {
                         $Results.RegistrationEnforcement = $complexTypeStringResult
                     }
@@ -540,7 +536,7 @@ function Export-TargetResource
                         -CIMInstanceName 'MicrosoftGraphreportSuspiciousActivitySettings' `
                         -ComplexTypeMapping $complexMapping
 
-                    if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                    if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                     {
                         $Results.ReportSuspiciousActivitySettings = $complexTypeStringResult
                     }
@@ -575,7 +571,7 @@ function Export-TargetResource
                         -CIMInstanceName 'MicrosoftGraphsystemCredentialPreferences' `
                         -ComplexTypeMapping $complexMapping
 
-                    if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                    if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                     {
                         $Results.SystemCredentialPreferences = $complexTypeStringResult
                     }
