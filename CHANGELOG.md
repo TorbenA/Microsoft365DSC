@@ -2,6 +2,12 @@
 
 # UNRELEASED
 
+* MISC
+  * Fixed an issue where hardcoded Azure urls were used in multiple resources.
+    FIXES [#6957](https://github.com/microsoft/Microsoft365DSC/issues/6957)
+
+# 1.26.311.1
+
 * AADAccessReviewDefinition
   * Fixed an issue where the filter for Get was applied incorrectly.
     FIXES [#6947](https://github.com/microsoft/Microsoft365DSC/issues/6947)
@@ -23,6 +29,8 @@
     FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
 * AADGroup
   * Added sort by `DisplayName` during export.
+  * Fixed an issue where empty GroupAsMember and Members weren`t properly
+    returned by the Get-TargetResource function.
 * AADGroupEligibilitySchedule
   * Changed resource to `Data` plane.
 * AADGroupsNamingPolicy
@@ -50,6 +58,8 @@
 * AADUser
   * Fixed an issue where not specified properties were applied during update.
     FIXES [#6934](https://github.com/microsoft/Microsoft365DSC/issues/6934)
+* DefenderRoleDefinition
+  * Initial release
 * EXODistributionGroup
   * Updated `Get-TargetResource` to use properties with display name.
     FIXES [#6769](https://github.com/microsoft/Microsoft365DSC/issues/6769)
@@ -115,8 +125,8 @@
   * Aligned code formatting across all resources.
   * Aligned markdown documents and description to common standards.
   * Expanded try/catch in `Get-TargetResource` to cover authentication.
-  * Fixed an issue where hardcoded Azure urls were used in the resources.
-    FIXES [#6957](https://github.com/microsoft/Microsoft365DSC/issues/6957)
+* DEPENDENCIES
+  * Updated Microsoft.Graph to version 2.36.0.
 
 # 1.26.218.1
 
