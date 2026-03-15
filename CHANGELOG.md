@@ -11,6 +11,18 @@
 * IntuneDeviceConfigurationKioskPolicyWindows10
   * [BREAKING CHANGE] Removed property `ProfileId` from the
     `MSFT_MicrosoftGraphWindowsKioskProfile` instance.
+* IntuneMobileAppsBuiltInStoreApp
+  * Renamed CIM class for assignments from `MSFT_DeviceManagementMobileAppAssignment`
+    to `MSFT_DeviceManagementBuiltInStoreAppAssignment`.
+* IntuneMobileAppsLobAppiOS
+  * Renamed CIM class for assignments from `MSFT_DeviceManagementMobileAppAssignment`
+    to `MSFT_DeviceManagementLobAppiOSAssignment`.
+* IntuneMobileAppsMacOSLobApp
+  * Renamed CIM class for assignments from `MSFT_DeviceManagementMobileAppAssignment`
+    to `MSFT_DeviceManagementMacOSLobAppAssignment`.
+* IntuneMobileAppsManagedGooglePlayApp
+  * Renamed CIM class for assignments from `MSFT_DeviceManagementMobileAppAssignment`
+    to `MSFT_DeviceManagementManagedGooglePlayMobileAppAssignment`.
 * IntuneWindowsInformationProtectionPolicyWindows10MdmEnrolled
   * [BREAKING CHANGE] Removed the `*CidrRange` choices from the ipRange type.
 * SCPolicyConfig
