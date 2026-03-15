@@ -18,7 +18,7 @@ class MSFT_EXOActiveSyncMailboxPolicy : OMI_BaseResource
     [Write, Description("Enables all devices to synchronize with the computer running Exchange, regardless of whether the device can enforce all the specific settings established in the Mobile Device mailbox policy.")] Boolean AllowNonProvisionableDevices;
     [Write, Description("Specifies whether the user can configure a POP3 or IMAP4 email account on the device.")] Boolean AllowPOPIMAPEmail;
     [Write, Description("Specifies whether the mobile phone can initiate a remote desktop connection.")] Boolean AllowRemoteDesktop;
-    [Write, Description("Specifies whether a simple device password is allowed.")] Boolean AllowSimpleDevicePassword;
+    [Write, Description("Specifies whether a simple device password is allowed.")] Boolean AllowSimplePassword;
     [Write, Description("Specifies whether the messaging application on the device can negotiate the encryption algorithm in case a recipient's certificate doesn't support the specified encryption algorithm.")] String AllowSMIMEEncryptionAlgorithmNegotiation;
     [Write, Description("Specifies whether S/MIME software certificates are allowed.")] Boolean AllowSMIMESoftCerts;
     [Write, Description("Specifies whether the device can access information stored on a storage card.")] Boolean AllowStorageCard;
@@ -26,7 +26,7 @@ class MSFT_EXOActiveSyncMailboxPolicy : OMI_BaseResource
     [Write, Description("Specifies whether unsigned applications can be installed on the device.")] Boolean AllowUnsignedApplications;
     [Write, Description("Specifies whether unsigned installation packages can be run on the device.")] Boolean AllowUnsignedInstallationPackages;
     [Write, Description("Specifies whether wireless Internet access is allowed on the device.")] Boolean AllowWiFi;
-    [Write, Description("Specifies whether the device password must be alphanumeric.")] Boolean AlphanumericDevicePasswordRequired;
+    [Write, Description("Specifies whether the device password must be alphanumeric.")] Boolean AlphanumericPasswordRequired;
     [Write, Description("Specifies a list of approved applications for the device.")] String ApprovedApplicationList[];
     [Write, Description("Specifies whether the user can download attachments.")] Boolean AttachmentsEnabled;
     [Write, Description("Enables device encryption on the mobile phone.")] Boolean DeviceEncryptionEnabled;

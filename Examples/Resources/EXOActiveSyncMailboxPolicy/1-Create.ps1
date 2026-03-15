@@ -40,7 +40,7 @@ Configuration Example
             AllowNonProvisionableDevices             = $True;
             AllowPOPIMAPEmail                        = $True;
             AllowRemoteDesktop                       = $True;
-            AllowSimpleDevicePassword                = $True;
+            AllowSimplePassword                      = $True;
             AllowSMIMEEncryptionAlgorithmNegotiation = "AllowAnyAlgorithmNegotiation";
             AllowSMIMESoftCerts                      = $True;
             AllowStorageCard                         = $True;
@@ -66,7 +66,7 @@ Configuration Example
             MaxEmailAgeFilter                        = "All";
             MaxEmailBodyTruncationSize               = "Unlimited";
             MaxEmailHTMLBodyTruncationSize           = "Unlimited";
-            MaxInactivityTimeDeviceLock              = "Unlimited";
+            MaxInactivityTimeLock                    = "Unlimited";
             MinPasswordComplexCharacters             = 1;
             MinPasswordLength                        = 1;
             Name                                     = "Test";

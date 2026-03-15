@@ -109,7 +109,7 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $AlphanumericDevicePasswordRequired,
+        $AlphanumericPasswordRequired,
 
         [Parameter()]
         [System.String[]]
@@ -331,7 +331,7 @@ function Get-TargetResource
             AllowUnsignedApplications                = [System.Boolean]$instance.AllowUnsignedApplications
             AllowUnsignedInstallationPackages        = [System.Boolean]$instance.AllowUnsignedInstallationPackages
             AllowWiFi                                = [System.Boolean]$instance.AllowWiFi
-            AlphanumericDevicePasswordRequired       = [System.Boolean]$instance.AlphanumericDevicePasswordRequired
+            AlphanumericPasswordRequired             = [System.Boolean]$instance.AlphanumericPasswordRequired
             ApprovedApplicationList                  = [System.String[]]$instance.ApprovedApplicationList
             AttachmentsEnabled                       = [System.Boolean]$instance.AttachmentsEnabled
             DeviceEncryptionEnabled                  = [System.Boolean]$instance.DeviceEncryptionEnabled
@@ -492,7 +492,7 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $AlphanumericDevicePasswordRequired,
+        $AlphanumericPasswordRequired,
 
         [Parameter()]
         [System.String[]]
@@ -795,7 +795,7 @@ function Test-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $AlphanumericDevicePasswordRequired,
+        $AlphanumericPasswordRequired,
 
         [Parameter()]
         [System.String[]]
