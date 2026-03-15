@@ -4,7 +4,7 @@
 
 * AADAuthenticationMethodPolicy
   * [BREAKING CHANGE] Added `IsSingleInstance` parameter.
-    Removed `Ensure`, `DisplayName`, `Description` and `PolicyVersion` parameters.
+    Removed `Ensure`, `DisplayName`, `Description`, `Id` and `PolicyVersion` parameters.
 * AADAuthenticationMethodPolicy*
   * Streamlined group resolution during update operation.
 * AADAuthenticationRequirement

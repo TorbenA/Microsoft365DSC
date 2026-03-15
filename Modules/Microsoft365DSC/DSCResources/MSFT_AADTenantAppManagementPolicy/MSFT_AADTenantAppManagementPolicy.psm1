@@ -344,7 +344,7 @@ function Set-TargetResource
     }
 
     $setParameters.ServicePrincipalRestrictions = $spnRestrictionsValue
-    $setParams.Remove('IsSingleInstance') | Out-Null
+    $setParameters.Remove('IsSingleInstance') | Out-Null
 
     Write-Verbose -Message 'Updating the Default App Management Policy'
     Update-MgBetaPolicyDefaultAppManagementPolicy @setParameters

@@ -58,7 +58,7 @@ class MSFT_AADAuthenticationMethodPolicy : OMI_BaseResource
     [Write, Description("Enforce registration at sign-in time. This property can be used to remind users to set up targeted authentication methods."), EmbeddedInstance("MSFT_MicrosoftGraphregistrationEnforcement")] String RegistrationEnforcement;
     [Write, Description("Allows users to report suspicious activities if they receive an authentication request that they did not initiate."), EmbeddedInstance("MSFT_MicrosoftGraphreportSuspiciousActivitySettings")] String ReportSuspiciousActivitySettings;
     [Write, Description("Prompt users with their most-preferred credential for multifactor authentication."), EmbeddedInstance("MSFT_MicrosoftGraphsystemCredentialPreferences")] String SystemCredentialPreferences;
-    [Key, Description("Only valid value is 'Yes'."), ValueMap{"Yes"}, Values{"Yes"}] String
+    [Key, Description("Only valid value is 'Yes'."), ValueMap{"Yes"}, Values{"Yes"}] String IsSingleInstance;
     [Write, Description("Credentials of the Admin"), EmbeddedInstance("MSFT_Credential")] string Credential;
     [Write, Description("Id of the Azure Active Directory application to authenticate with.")] String ApplicationId;
     [Write, Description("Id of the Azure Active Directory tenant used for authentication.")] String TenantId;

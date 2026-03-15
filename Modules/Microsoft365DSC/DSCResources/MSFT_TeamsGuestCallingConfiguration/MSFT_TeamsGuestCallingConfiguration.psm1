@@ -253,7 +253,7 @@ function Export-TargetResource
     {
         $dscContent = ''
         $params = @{
-            Identity              = 'Global'
+            IsSingleInstance      = 'Yes'
             AllowPrivateCalling   = $true
             Credential            = $Credential
             ApplicationId         = $ApplicationId

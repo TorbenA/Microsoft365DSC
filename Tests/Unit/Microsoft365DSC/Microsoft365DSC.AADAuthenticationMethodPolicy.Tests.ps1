@@ -104,10 +104,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The AADAuthenticationMethodPolicy should exist but it DOES NOT" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    Description = "FakeStringValue"
-                    DisplayName = "FakeStringValue"
-                    Id = "FakeStringValue"
-                    PolicyVersion = "FakeStringValue"
                     ReconfirmationInDays = 25
                     RegistrationEnforcement = (New-CimInstance -ClassName MSFT_MicrosoftGraphregistrationEnforcement -Property @{
                         AuthenticationMethodsRegistrationCampaign = (New-CimInstance -ClassName MSFT_MicrosoftGraphauthenticationMethodsRegistrationCampaign -Property @{
@@ -151,7 +147,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             } -ClientOnly)
                         )
                     } -ClientOnly)
-                    Ensure = "Present"
+                    IsSingleInstance = 'Yes'
                     Credential = $Credential;
                 }
 
@@ -160,7 +156,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
             }
             It 'Should return Values from the Get method' {
-                (Get-TargetResource @testParams).Ensure | Should -Be 'Absent'
+                (Get-TargetResource @testParams).IsSingleInstance | Should -Be 'Yes'
             }
             It 'Should return false from the Test method' {
                 Test-TargetResource @testParams | Should -Be $false
@@ -170,10 +166,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The AADAuthenticationMethodPolicy Exists and Values are already in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    Description = "FakeStringValue"
-                    DisplayName = "FakeStringValue"
-                    Id = "FakeStringValue"
-                    PolicyVersion = "FakeStringValue"
                     ReconfirmationInDays = 25
                     RegistrationEnforcement = (New-CimInstance -ClassName MSFT_MicrosoftGraphregistrationEnforcement -Property @{
                         AuthenticationMethodsRegistrationCampaign = (New-CimInstance -ClassName MSFT_MicrosoftGraphauthenticationMethodsRegistrationCampaign -Property @{
@@ -217,7 +209,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             } -ClientOnly)
                         )
                     } -ClientOnly)
-                    Ensure = 'Present'
+                    IsSingleInstance = 'Yes'
                     Credential = $Credential;
                 }
             }
@@ -230,10 +222,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The AADAuthenticationMethodPolicy exists and values are NOT in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    Description = "FakeStringValue"
-                    DisplayName = "FakeStringValue"
-                    Id = "FakeStringValue"
-                    PolicyVersion = "FakeStringValue"
                     ReconfirmationInDays = 25
                     RegistrationEnforcement = (New-CimInstance -ClassName MSFT_MicrosoftGraphregistrationEnforcement -Property @{
                         AuthenticationMethodsRegistrationCampaign = (New-CimInstance -ClassName MSFT_MicrosoftGraphauthenticationMethodsRegistrationCampaign -Property @{
@@ -277,13 +265,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             } -ClientOnly)
                         )
                     } -ClientOnly)
-                    Ensure = 'Present'
+                    IsSingleInstance = 'Yes'
                     Credential = $Credential;
                 }
             }
 
             It 'Should return Values from the Get method' {
-                (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
+                (Get-TargetResource @testParams).IsSingleInstance | Should -Be 'Yes'
             }
 
             It 'Should return false from the Test method' {

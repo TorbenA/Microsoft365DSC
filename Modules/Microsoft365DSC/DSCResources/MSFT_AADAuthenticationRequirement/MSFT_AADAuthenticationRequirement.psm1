@@ -354,7 +354,7 @@ function Export-TargetResource
             }
 
             $Script:exportedInstance = $config
-            $Results = Get-TargetResource @Params
+            $Results = Get-TargetResource @params
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
                 -ModulePath $PSScriptRoot `

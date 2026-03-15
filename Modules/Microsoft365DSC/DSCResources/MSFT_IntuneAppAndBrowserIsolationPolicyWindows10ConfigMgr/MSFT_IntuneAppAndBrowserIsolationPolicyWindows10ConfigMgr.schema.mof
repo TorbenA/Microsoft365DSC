@@ -10,7 +10,6 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
     [Write, Description("The collection Id that is the target of the assignment.(ConfigMgr)")] String collectionId;
 };
 
-
 [ClassVersion("1.0.0.1"), FriendlyName("IntuneAppAndBrowserIsolationPolicyWindows10ConfigMgr")]
 class MSFT_IntuneAppAndBrowserIsolationPolicyWindows10ConfigMgr : OMI_BaseResource
 {
@@ -26,7 +25,7 @@ class MSFT_IntuneAppAndBrowserIsolationPolicyWindows10ConfigMgr : OMI_BaseResour
     [Write, Description("Allow data persistence (0: Application Guard discards user-downloaded files and other items (such as, cookies, Favorites, and so on) during machine restart or user log-off., 1: Application Guard saves user-downloaded files and other items (such as, cookies, Favorites, and so on) for use in future Application Guard sessions.)"), ValueMap{"0", "1"}, Values{"0", "1"}] SInt32 AllowPersistence;
     [Write, Description("Allow hardware-accelerated rendering (0: Cannot access the vGPU and uses the CPU to support rendering graphics. When the policy is not configured, it is the same as disabled (0)., 1: Turns on the functionality to access the vGPU offloading graphics rendering from the CPU. This can create a faster experience when working with graphics intense websites or watching video within the container.)"), ValueMap{"0", "1"}, Values{"0", "1"}] SInt32 AllowVirtualGPU;
     [Write, Description("Print Settings (0: Disables all print functionality., 1: Enables only XPS printing., 2: Enables only PDF printing., 4: Enables only local printing., 8: Enables only network printing.)"), ValueMap{"0", "1", "2", "4", "8"}, Values{"0", "1", "2", "4", "8"}] SInt32 PrintingSettings[];
-    [Write, Description("Allow camera and microphone access (0: Microsoft Defender Application Guard cannot access the device's camera and microphone. When the policy is not configured, it is the same as disabled (0)., 1: Turns on the functionality to allow Microsoft Defender Application Guard to access the device's camera and microphone.)"), ValueMap{"0", "1"}, Values{"0", "1"}] StrSInt32ing AllowCameraMicrophoneRedirection;
+    [Write, Description("Allow camera and microphone access (0: Microsoft Defender Application Guard cannot access the device's camera and microphone. When the policy is not configured, it is the same as disabled (0)., 1: Turns on the functionality to allow Microsoft Defender Application Guard to access the device's camera and microphone.)"), ValueMap{"0", "1"}, Values{"0", "1"}] SInt32 AllowCameraMicrophoneRedirection;
     [Write, Description("Audit Application Guard (0: Audit event logs aren't collected for Application Guard., 1: Application Guard inherits its auditing policies from system and starts to audit security events for Application Guard container.)"), ValueMap{"0", "1"}, Values{"0", "1"}] SInt32 AuditApplicationGuard;
     [Write, Description("Certificate Thumbprints")] String CertificateThumbprints[];
     [Write, Description("Enterprise IP Range")] String EnterpriseIPRange[];
