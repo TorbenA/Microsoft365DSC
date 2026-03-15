@@ -6192,6 +6192,8 @@ function Update-M365DSCAuthenticationTargets
     param
     (
         [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [AllowNull()]
         [System.Object[]]
         $Targets
     )
