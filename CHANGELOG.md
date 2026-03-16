@@ -2,9 +2,14 @@
 
 # UNRELEASED
 
+* IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
+  * Fixed an issue with value handling when creating or updating policies.
+    FIXES [#6955](https://github.com/microsoft/Microsoft365DSC/issues/6955)
+* TeamsEmergencyCallingPolicy
+  * Added explicit cast to string for `ExternalLocationLookupMode`.
 * MISC
   * Fixed an issue where hardcoded Azure urls were used in multiple resources.
-    FIXES [#6957](https://github.com/microsoft/Microsoft365DSC/issues/6957)
+    FIXES [#6957](https://github.com/microsoft/Microsoft365DSC/issues/6957
 
 # 1.26.311.1
 
