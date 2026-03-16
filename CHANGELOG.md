@@ -2,6 +2,11 @@
 
 # UNRELEASED
 
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Added support for `InvitationRedemptionIdentityProviderConfiguration`
+    and `TenantRestrictions`.
+* AADCrossTenantAccessPolicyConfigurationPartner
+  * Added support for `IdentitySynchronization`.
 * IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
   * Fixed an issue with value handling when creating or updating policies.
     FIXES [#6955](https://github.com/microsoft/Microsoft365DSC/issues/6955)
