@@ -10,6 +10,10 @@
 * MISC
   * Fixed an issue where hardcoded Azure urls were used in multiple resources.
     FIXES [#6957](https://github.com/microsoft/Microsoft365DSC/issues/6957
+* M365DSCDocGenerator
+  * Fixed an issue where no distinction between read and update
+    was done for EXO resources.
+    FIXES [#6965](https://github.com/microsoft/Microsoft365DSC/issues/6965)
 
 # 1.26.311.1
 
