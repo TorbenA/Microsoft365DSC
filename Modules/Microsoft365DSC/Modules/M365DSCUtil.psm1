@@ -1746,10 +1746,12 @@ function Export-M365DSCConfiguration
     #endregion
 
     # Make sure we are not connected to Microsoft Graph on another tenant
+    # except if connected through MSCloudLoginAssistant - it will handle the connection
     try
     {
         Confirm-M365DSCLoadedModule -ModuleName 'Microsoft.Graph.Authentication'
-        if ($null -ne (Get-MgContext))
+        $currentConnectionProfile = Get-MSCloudLoginConnectionProfile -Workload 'MicrosoftGraph'
+        if ($null -ne (Get-MgContext) -and -not $currentConnectionProfile.Connected)
         {
             Disconnect-MgGraph -ErrorAction Stop | Out-Null
             Reset-MSCloudLoginConnectionProfileContext -Workload 'MicrosoftGraph'
