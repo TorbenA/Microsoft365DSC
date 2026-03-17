@@ -3,13 +3,43 @@
 # UNRELEASED
 
 * AADAuthenticationMethodPolicyFido2
-  * Add PassKeyprofile handling
+  * Add Passkey profile handling
+* AzureRoleAssignmentScheduleRequest
+  * Initial Release. [#6945](https://github.com/microsoft/Microsoft365DSC/issues/6945)
+* AzureRoleEligibilityScheduleRequest
+  * Initial Release. [#694](https://github.com/microsoft/Microsoft365DSC/issues/6945)
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Added support for `InvitationRedemptionIdentityProviderConfiguration`
+    and `TenantRestrictions`.
+* AADCrossTenantAccessPolicyConfigurationPartner
+  * Added support for `IdentitySynchronization`.
+* EXOMailContact
+  * Updated the `Set-TargetResource` logic to use fixed parameters.
+* IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
+  * Fixed an issue with value handling when creating or updating policies.
+    FIXES [#6955](https://github.com/microsoft/Microsoft365DSC/issues/6955)
+* TeamsEmergencyCallingPolicy
+  * Added explicit cast to string for `ExternalLocationLookupMode`.
+* M365DSCUtil
+  * Removed the internal `Sync-M365DSCParameter` function.
+* MISC
+  * Fixed an issue where hardcoded Azure urls were used in multiple resources.
+    FIXES [#6957](https://github.com/microsoft/Microsoft365DSC/issues/6957
+* M365DSCDocGenerator
+  * Fixed an issue where no distinction between read and update
+    was done for EXO resources.
+    FIXES [#6965](https://github.com/microsoft/Microsoft365DSC/issues/6965)
+
+# 1.26.311.1
+
 * AADAccessReviewDefinition
   * Fixed an issue where the filter for Get was applied incorrectly.
     FIXES [#6947](https://github.com/microsoft/Microsoft365DSC/issues/6947)
 * AADAppManagementPolicy
   * Add certificateBasedApplicationConfigurationIds support to AADAppManagementPolicy
     FIXES [6926](https://github.com/microsoft/Microsoft365DSC/issues/6926)
+* AADCertificateBasedApplicationConfiguration
+  * Initial release. [6839](https://github.com/microsoft/Microsoft365DSC/issues/6839)
 * AADConditionalAccessPolicy
   * Fixed an issue where arrays could contain empty strings.
 * AADCrossTenantIdentitySyncPolicyPartner
@@ -23,6 +53,8 @@
     FIXES [#6930](https://github.com/microsoft/Microsoft365DSC/issues/6930)
 * AADGroup
   * Added sort by `DisplayName` during export.
+  * Fixed an issue where empty GroupAsMember and Members weren`t properly
+    returned by the Get-TargetResource function.
 * AADGroupEligibilitySchedule
   * Changed resource to `Data` plane.
 * AADGroupsNamingPolicy
@@ -31,6 +63,9 @@
     It is now in the ISO 8601 format.
 * AADGroupEligibilitySchedule
   * Change resource to `Data` plane
+* AADPermissionGrantPolicy
+  * Initial Release
+    FIXES [#6914](https://github.com/microsoft/Microsoft365DSC/issues/6914)
 * AADRoleAssignmentScheduleRequest
   * Fixed multiple issues with fetching role assignments.
     FIXES [#6841](https://github.com/microsoft/Microsoft365DSC/issues/6841)
@@ -47,6 +82,8 @@
 * AADUser
   * Fixed an issue where not specified properties were applied during update.
     FIXES [#6934](https://github.com/microsoft/Microsoft365DSC/issues/6934)
+* DefenderRoleDefinition
+  * Initial release
 * EXODistributionGroup
   * Updated `Get-TargetResource` to use properties with display name.
     FIXES [#6769](https://github.com/microsoft/Microsoft365DSC/issues/6769)
@@ -70,6 +107,10 @@
     FIXES [#4155](https://github.com/microsoft/Microsoft365DSC/issues/4155)
 * IntuneDeviceConfigurationPolicyMacOS
   * Fixed an issue where arrays could contain empty strings.
+* IntuneDeviceEnrollmentScopeConfigurationMam
+  * Initial release.
+* IntuneDeviceEnrollmentScopeConfigurationMdm
+  * Initial release.
 * IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile
   * Fixed an issue where unmodifiable profiles were exported.
     FIXES [#6889](https://github.com/microsoft/Microsoft365DSC/issues/6889)
@@ -94,16 +135,22 @@
   * Fixed an issue when comparing multiple instances with the same key
     properties would result in a RuntimeException.
 * M365DSCReverse
+  * Fixed an issue where no warning was shown when exporting a single
+    resource where the authentication parameters did not match.
   * Removed workload pre-authentication during export.
   * Updated the export logic to start module import during usage
     and not during resource initialization.
 * M365DSCUtil
   * Added logic to not always check if a core required module is loaded.
+  * Updated the `Export-M365DSCConfiguration` to only disconnect Graph if
+    not managed through MSCloudLoginAssistant instead of every time it is called.
 * MISC
   * Added filter support across all resources where filtering is applicable.
   * Aligned code formatting across all resources.
   * Aligned markdown documents and description to common standards.
   * Expanded try/catch in `Get-TargetResource` to cover authentication.
+* DEPENDENCIES
+  * Updated Microsoft.Graph to version 2.36.0.
 
 # 1.26.218.1
 
