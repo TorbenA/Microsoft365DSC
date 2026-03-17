@@ -2,6 +2,10 @@
 
 # UNRELEASED
 
+* AzureRoleAssignmentScheduleRequest
+  * Initial Release. [#6945](https://github.com/microsoft/Microsoft365DSC/issues/6945)
+* AzureRoleEligibilityScheduleRequest
+  * Initial Release. [#694](https://github.com/microsoft/Microsoft365DSC/issues/6945)
 * AADCrossTenantAccessPolicyConfigurationDefault
   * Added support for `InvitationRedemptionIdentityProviderConfiguration`
     and `TenantRestrictions`.
