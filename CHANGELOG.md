@@ -6,14 +6,27 @@
   * Initial Release. [#6945](https://github.com/microsoft/Microsoft365DSC/issues/6945)
 * AzureRoleEligibilityScheduleRequest
   * Initial Release. [#694](https://github.com/microsoft/Microsoft365DSC/issues/6945)
+* AADCrossTenantAccessPolicyConfigurationDefault
+  * Added support for `InvitationRedemptionIdentityProviderConfiguration`
+    and `TenantRestrictions`.
+* AADCrossTenantAccessPolicyConfigurationPartner
+  * Added support for `IdentitySynchronization`.
+* EXOMailContact
+  * Updated the `Set-TargetResource` logic to use fixed parameters.
 * IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
   * Fixed an issue with value handling when creating or updating policies.
     FIXES [#6955](https://github.com/microsoft/Microsoft365DSC/issues/6955)
 * TeamsEmergencyCallingPolicy
   * Added explicit cast to string for `ExternalLocationLookupMode`.
+* M365DSCUtil
+  * Removed the internal `Sync-M365DSCParameter` function.
 * MISC
   * Fixed an issue where hardcoded Azure urls were used in multiple resources.
     FIXES [#6957](https://github.com/microsoft/Microsoft365DSC/issues/6957
+* M365DSCDocGenerator
+  * Fixed an issue where no distinction between read and update
+    was done for EXO resources.
+    FIXES [#6965](https://github.com/microsoft/Microsoft365DSC/issues/6965)
 
 # 1.26.311.1
 
