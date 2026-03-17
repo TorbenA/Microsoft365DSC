@@ -11,6 +11,8 @@
     and `TenantRestrictions`.
 * AADCrossTenantAccessPolicyConfigurationPartner
   * Added support for `IdentitySynchronization`.
+* AzureRoleEligibilityScheduleSettings
+  * Initial Release [#6974](https://github.com/microsoft/Microsoft365DSC/issues/6974)
 * EXOMailContact
   * Updated the `Set-TargetResource` logic to use fixed parameters.
 * IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
