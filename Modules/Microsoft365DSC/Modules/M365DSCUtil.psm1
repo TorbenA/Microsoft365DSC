@@ -1746,10 +1746,12 @@ function Export-M365DSCConfiguration
     #endregion
 
     # Make sure we are not connected to Microsoft Graph on another tenant
+    # except if connected through MSCloudLoginAssistant - it will handle the connection
     try
     {
         Confirm-M365DSCLoadedModule -ModuleName 'Microsoft.Graph.Authentication'
-        if ($null -ne (Get-MgContext))
+        $currentConnectionProfile = Get-MSCloudLoginConnectionProfile -Workload 'MicrosoftGraph'
+        if ($null -ne (Get-MgContext) -and -not $currentConnectionProfile.Connected)
         {
             Disconnect-MgGraph -ErrorAction Stop | Out-Null
             Reset-MSCloudLoginConnectionProfileContext -Workload 'MicrosoftGraph'
@@ -5344,133 +5346,6 @@ function Get-M365DSCConfigurationConflict
 }
 
 <#
-.DESCRIPTION
-    This function returns a hashtable with aligned to the parameter pattern of the given cmdlet.
-
-.EXAMPLE
-    PS> $param = @{
-            Path = 'C:\Test'
-            DoesNotExist = '123'
-        }
-    PS> Sync-M365DSCParameter -Command (Get-Command -Name Get-ChildItem) -Parameters $param
-
-.FUNCTIONALITY
-    Private
-#>
-# TODO: Check if necessary to keep this function.
-function Sync-M365DSCParameter
-{
-    [Cmdletbinding()]
-    param (
-        [Parameter(Mandatory = $true)]
-        [ValidateScript({
-            $_ -is [System.Management.Automation.FunctionInfo] -or
-            $_ -is [System.Management.Automation.CmdletInfo] -or
-            $_ -is [System.Management.Automation.ExternalScriptInfo] -or
-            $_ -is [System.Management.Automation.AliasInfo]
-        })]
-        [object]$Command,
-
-        [hashtable]$Parameters,
-
-        [switch]$ConvertValue
-    )
-
-    if (-not $PSBoundParameters.ContainsKey('Parameters'))
-    {
-        $Parameters = ([hashtable]$ALBoundParameters).Clone()
-    }
-    else
-    {
-        $Parameters = ([hashtable]$Parameters).Clone()
-    }
-
-    if ($Command -is [System.Management.Automation.AliasInfo])
-    {
-        $command = & (Get-Module -Name $Command.Source) {
-            param([string]$Name)
-
-            Get-Command -Name $Name
-        } $Command.Definition
-    }
-
-    $commonParameters = [System.Management.Automation.Internal.CommonParameters].GetProperties().Name
-    $commandParameterKeys = $Command.Parameters.Keys.GetEnumerator() | ForEach-Object { $_ }
-    $parameterKeys = $Parameters.Keys.GetEnumerator() | ForEach-Object { $_ }
-
-    $keysToRemove = Compare-Object -ReferenceObject $commandParameterKeys -DifferenceObject $parameterKeys |
-        Select-Object -ExpandProperty InputObject
-
-    $keysToRemove = $keysToRemove + $commonParameters | Select-Object -Unique #remove the common parameters
-
-    foreach ($key in $keysToRemove)
-    {
-        $Parameters.Remove($key)
-    }
-
-    if ($ConvertValue.IsPresent)
-    {
-        $keysToUpdate = @{}
-        foreach ($kvp in $Parameters.GetEnumerator())
-        {
-            if (-not $kvp.Value) # $null or empty string will not trip up conversion
-            {
-                continue
-            }
-
-            $targetType = $Command.Parameters[$kvp.Key].ParameterType
-            $sourceType = $kvp.Value.GetType()
-            $targetValue = $kvp.Value -as $targetType
-
-            if (-not $targetValue -and $targetType.ImplementedInterfaces -contains [Collections.IList])
-            {
-                $targetValue = $targetType::new()
-                foreach ($v in $kvp.Value)
-                {
-                    $targetValue.Add($v)
-                }
-            }
-
-            if (-not $targetValue -and $targetType.ImplementedInterfaces -contains [Collections.IDictionary] )
-            {
-                $targetValue = $targetType::new()
-                foreach ($k in $kvp.Value.GetEnumerator())
-                {
-                    $targetValue.Add($k.Key, $k.Value)
-                }
-            }
-
-            if (-not $targetValue -and ($sourceType.ImplementedInterfaces -contains [Collections.IList] -and $targetType.ImplementedInterfaces -notcontains [Collections.IList]))
-            {
-                Write-Verbose -Message "Value of source parameter $($kvp.Key) is a collection, but target parameter is not. Selecting first object"
-                $targetValue = $kvp.Value | Select-Object -First 1
-            }
-
-            if (-not $targetValue)
-            {
-                Write-Error -Message "Conversion of source parameter $($kvp.Key) (Type: $($sourceType.FullName)) to type $($targetType.FullName) was impossible"
-                return
-            }
-
-            $keysToUpdate[$kvp.Key] = $targetValue
-        }
-    }
-
-    if ($keysToUpdate)
-    {
-        foreach ($kvp in $keysToUpdate.GetEnumerator())
-        {
-            $Parameters[$kvp.Key] = $kvp.Value
-        }
-    }
-
-    if ($PSBoundParameters.ContainsKey('Parameters'))
-    {
-        $Parameters
-    }
-}
-
-<#
 .SYNOPSIS
     Joins two or more M365DSC configurations into a single configuration.
 
@@ -6121,7 +5996,6 @@ Export-ModuleMember -Function @(
     'Set-M365DSCModuleConfiguration',
     'Set-M365DSCStringReplacementMap',
     'Split-M365DSCConfiguration',
-    'Sync-M365DSCParameter',
     'Test-M365DSCDependenciesForNewVersions',
     'Test-M365DSCModuleValidity',
     'Test-M365DSCParameterState',
