@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* AADAuthenticationMethodPolicyFido2
+  * Add PassKeyProfile handling
 * AzureRoleAssignmentScheduleRequest
   * Initial Release. [#6945](https://github.com/microsoft/Microsoft365DSC/issues/6945)
 * AzureRoleEligibilityScheduleRequest
