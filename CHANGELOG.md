@@ -2,6 +2,12 @@
 
 # UNRELEASED
 
+* TeamsMeetingPolicy
+  * [BREAKING CHANGE] Removed the obsolete parameter `AllowCarbonSummary`.
+    FIXES [#6972](https://github.com/microsoft/Microsoft365DSC/issues/6972)
+
+# UNRELEASED
+
 * AzureRoleAssignmentScheduleRequest
   * Initial Release. [#6945](https://github.com/microsoft/Microsoft365DSC/issues/6945)
 * AzureRoleEligibilityScheduleRequest
@@ -22,7 +28,7 @@
   * Removed the internal `Sync-M365DSCParameter` function.
 * MISC
   * Fixed an issue where hardcoded Azure urls were used in multiple resources.
-    FIXES [#6957](https://github.com/microsoft/Microsoft365DSC/issues/6957
+    FIXES [#6957](https://github.com/microsoft/Microsoft365DSC/issues/6957)
 * M365DSCDocGenerator
   * Fixed an issue where no distinction between read and update
     was done for EXO resources.

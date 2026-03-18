@@ -72606,10 +72606,6 @@ function New-CsTeamsMeetingPolicy
 
         [Parameter()]
         [System.Boolean]
-        $AllowCarbonSummary,
-
-        [Parameter()]
-        [System.Boolean]
         $AllowLocalRecording,
 
         [Parameter()]
@@ -74693,10 +74689,6 @@ function Set-CsTeamsMeetingPolicy
         [Parameter()]
         [System.String]
         $WatermarkForCameraVideoPattern,
-
-        [Parameter()]
-        [System.Boolean]
-        $AllowCarbonSummary,
 
         [Parameter()]
         [System.Boolean]
