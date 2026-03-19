@@ -3284,6 +3284,9 @@ Specifies the name of resources that should not be assessed as part of the repor
 .Parameter DriftOnly
 Specifies if the report should only show properties drifts and not missing instances.
 
+.Parameter KeepExport
+Specifies if the export created to compare with the blueprint should be kept after the report is generated. By default, the export will be removed after the report is generated.
+
 .Example
 Assert-M365DSCBlueprint -BluePrintUrl 'C:\DS\blueprint.m365' -OutputReportPath 'C:\DSC\BlueprintReport.html'
 
@@ -3292,6 +3295,9 @@ Assert-M365DSCBlueprint -BluePrintUrl 'C:\DS\blueprint.m365' -OutputReportPath '
 
 .Example
 Assert-M365DSCBlueprint -BluePrintUrl 'C:\DS\blueprint.m365' -OutputReportPath 'C:\DSC\BlueprintReport.html' -ApplicationId $clientid -TenantId $tenantId -CertificateThumbprint $certthumbprint -HeaderFilePath 'C:\DSC\ReportCustomHeader.html'
+
+.Example
+Assert-M365DSCBlueprint -BluePrintUrl 'C:\DS\blueprint.m365' -OutputReportPath 'C:\DSC\BlueprintReport.html' -KeepExport $true
 
 .Functionality
 Public
@@ -3352,7 +3358,11 @@ function Assert-M365DSCBlueprint
 
         [Parameter()]
         [System.Boolean]
-        $DriftOnly = $true
+        $DriftOnly = $true,
+
+        [Parameter()]
+        [System.Boolean]
+        $KeepExport = $false
     )
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -3465,7 +3475,10 @@ function Assert-M365DSCBlueprint
 
         # Clean up the temporary files
         Remove-Item $LocalBluePrintPath -Force -ErrorAction SilentlyContinue
-        Remove-Item $ExportPath -Force -ErrorAction SilentlyContinue
+        if (!$KeepExport)
+        {
+            Remove-Item $ExportPath -Force -ErrorAction SilentlyContinue
+        }
     }
     else
     {
