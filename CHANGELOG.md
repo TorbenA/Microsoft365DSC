@@ -35,6 +35,9 @@
   * Fixed an issue where no distinction between read and update
     was done for EXO resources.
     FIXES [#6965](https://github.com/microsoft/Microsoft365DSC/issues/6965)
+* DkimSigningConfig
+  * Fixed an issue to create new DkimSigningConfig
+    FIXES [#6982](https://github.com/microsoft/Microsoft365DSC/issues/6982)
 
 # 1.26.311.1
 
