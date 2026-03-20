@@ -6,8 +6,10 @@
   * [BREAKING CHANGE] Removed the obsolete parameter `AllowCarbonSummary`.
     FIXES [#6972](https://github.com/microsoft/Microsoft365DSC/issues/6972)
 
-# UNRELEASED
+# 1.26.318.1
 
+* AADAuthenticationMethodPolicyFido2
+  * Add PassKeyProfile handling
 * AzureRoleAssignmentScheduleRequest
   * Initial Release. [#6945](https://github.com/microsoft/Microsoft365DSC/issues/6945)
 * AzureRoleEligibilityScheduleRequest
@@ -22,6 +24,12 @@
 * IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
   * Fixed an issue with value handling when creating or updating policies.
     FIXES [#6955](https://github.com/microsoft/Microsoft365DSC/issues/6955)
+* SCLabelPolicy
+  * Fixed an issue where setting `AdvancedSettings` failed.
+    FIXES [#6973](https://github.com/microsoft/Microsoft365DSC/issues/6973)
+* SCSensitivityLabel
+  * Fixed an issue where setting `AdvancedSettings` failed.
+    FIXES [#6973](https://github.com/microsoft/Microsoft365DSC/issues/6973)
 * TeamsEmergencyCallingPolicy
   * Added explicit cast to string for `ExternalLocationLookupMode`.
 * M365DSCUtil
@@ -33,6 +41,8 @@
   * Fixed an issue where no distinction between read and update
     was done for EXO resources.
     FIXES [#6965](https://github.com/microsoft/Microsoft365DSC/issues/6965)
+* DEPENDENCIES
+  * Updated Microsoft.Graph to version 2.36.1.
 
 # 1.26.311.1
 
