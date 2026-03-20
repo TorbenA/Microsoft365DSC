@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCUtil
+  * Added `KeepExport` parameter to `Assert-M365DSCBlueprint` function.
+
 # 1.26.318.1
 
 * AADAuthenticationMethodPolicyFido2
@@ -28,7 +33,6 @@
   * Added explicit cast to string for `ExternalLocationLookupMode`.
 * M365DSCUtil
   * Removed the internal `Sync-M365DSCParameter` function.
-  * Added `KeepExport` parameter to `Assert-M365DSCBlueprint` function.
 * MISC
   * Fixed an issue where hardcoded Azure urls were used in multiple resources.
     FIXES [#6957](https://github.com/microsoft/Microsoft365DSC/issues/6957)
