@@ -4,6 +4,8 @@
 
 * M365DSCUtil
   * Added `KeepExport` parameter to `Assert-M365DSCBlueprint` function.
+* MISC
+  * Removed duplicate complex hashtable conversions.
 
 # 1.26.318.1
 

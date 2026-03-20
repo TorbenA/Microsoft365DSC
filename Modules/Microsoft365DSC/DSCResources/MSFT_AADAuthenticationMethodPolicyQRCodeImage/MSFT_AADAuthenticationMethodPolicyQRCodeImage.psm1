@@ -292,41 +292,32 @@ function Set-TargetResource
 
         $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
-
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
-        foreach ($key in $keys)
+        if ($UpdateParameters.ContainsKey('IncludeTargets'))
         {
-            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.GetType().Name -like '*cimInstance*')
+            $i = 0
+            foreach ($entry in $UpdateParameters.IncludeTargets)
             {
-                $UpdateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
-            }
-            if ($key -eq 'IncludeTargets')
-            {
-                $i = 0
-                foreach ($entry in $UpdateParameters.$key)
+                if ($entry.id -notmatch '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$|all_users')
                 {
-                    if ($entry.id -notmatch '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$|all_users')
-                    {
-                        $Filter = "DisplayName eq '$($entry.id -replace "'", "''")'" | Out-String
-                        $UpdateParameters.$key[$i].foreach('id', (Get-MgGroup -Filter $Filter).id.ToString())
-                    }
-                    $i++
+                    $Filter = "DisplayName eq '$($entry.id -replace "'", "''")'" | Out-String
+                    $UpdateParameters.IncludeTargets[$i].ForEach('id', (Get-MgGroup -Filter $Filter).id.ToString())
                 }
+                $i++
             }
-            if ($key -eq 'ExcludeTargets')
+        }
+        if ($UpdateParameters.ContainsKey('ExcludeTargets'))
+        {
+            $i = 0
+            foreach ($entry in $UpdateParameters.ExcludeTargets)
             {
-                $i = 0
-                foreach ($entry in $UpdateParameters.$key)
+                if ($entry.id -notmatch '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$|all_users')
                 {
-                    if ($entry.id -notmatch '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$|all_users')
-                    {
-                        $Filter = "DisplayName eq '$($entry.id -replace "'", "''")'" | Out-String
-                        $UpdateParameters.$key[$i].foreach('id', (Get-MgGroup -Filter $Filter).id.ToString())
-                    }
-                    $i++
+                    $Filter = "DisplayName eq '$($entry.id -replace "'", "''")'" | Out-String
+                    $UpdateParameters.ExcludeTargets[$i].ForEach('id', (Get-MgGroup -Filter $Filter).id.ToString())
                 }
+                $i++
             }
         }
         #region resource generator code
