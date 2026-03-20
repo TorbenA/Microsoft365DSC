@@ -5,7 +5,9 @@
 * EXOTenantAllowBlockListItems
   * [BREAKING CHANGE] Removed the Microsoft reserved `SubmissionID` parameter.
   * [BREAKING CHANGE] Updated the property `Action` to be Required instead of Key.
-  * Fixed an issue where comparing resources would compare the wrong instances.
+* M365DSCReport
+  * Fixed an issue where comparing instances of `EXOTenantAllowBlockListItems` would
+    use the wrong resource keys.
     FIXES [#6981](https://github.com/microsoft/Microsoft365DSC/issues/6981)
 
 # UNRELEASED
