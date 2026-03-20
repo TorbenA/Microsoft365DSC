@@ -5,6 +5,8 @@
 * DkimSigningConfig
   * Fixed an issue to create new DkimSigningConfig
     FIXES [#6982](https://github.com/microsoft/Microsoft365DSC/issues/6982)
+* M365DSCUtil
+  * Added `KeepExport` parameter to `Assert-M365DSCBlueprint` function.
 
 # 1.26.318.1
 
