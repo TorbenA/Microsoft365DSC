@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCUtil
+  * Added `KeepExport` parameter to `Assert-M365DSCBlueprint` function.
+
 # 1.26.318.1
 
 * AADAuthenticationMethodPolicyFido2
