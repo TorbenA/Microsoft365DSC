@@ -9,6 +9,8 @@
   * Fixed an issue where comparing instances of `EXOTenantAllowBlockListItems` would
     use the wrong resource keys.
     FIXES [#6981](https://github.com/microsoft/Microsoft365DSC/issues/6981)
+* M365DSCUtil
+  * Added `KeepExport` parameter to `Assert-M365DSCBlueprint` function.
 
 # 1.26.318.1
 
