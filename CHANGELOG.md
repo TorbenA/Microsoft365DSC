@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.26.318.1
 
 * AADAuthenticationMethodPolicyFido2
   * Add PassKeyProfile handling
@@ -35,6 +35,8 @@
   * Fixed an issue where no distinction between read and update
     was done for EXO resources.
     FIXES [#6965](https://github.com/microsoft/Microsoft365DSC/issues/6965)
+* DEPENDENCIES
+  * Updated Microsoft.Graph to version 2.36.1.
 
 # 1.26.311.1
 
