@@ -595,7 +595,7 @@ function Set-TargetResource
         if ($createParameters.ContainsKey('Rules'))
         {
             $rulesToProcess = @()
-            $rulesToProcess = $createParameters.$key
+            $rulesToProcess = $createParameters.Rules
 
             foreach ($rule in $rulesToProcess)
             {
@@ -623,7 +623,7 @@ function Set-TargetResource
                 }
             }
 
-            $createParameters.$key = $rulesToProcess
+            $createParameters.Rules = $rulesToProcess
         }
         #region resource generator code
         $createParameters.Add('@odata.type', '#microsoft.graph.win32LobApp')
@@ -657,7 +657,7 @@ function Set-TargetResource
         if ($updateParameters.ContainsKey('Rules'))
         {
             $rulesToProcess = @()
-            $rulesToProcess = $updateParameters.$key
+            $rulesToProcess = $updateParameters.Rules
 
             foreach ($rule in $rulesToProcess)
             {
@@ -685,7 +685,7 @@ function Set-TargetResource
                 }
             }
 
-            $updateParameters.$key = $rulesToProcess
+            $updateParameters.Rules = $rulesToProcess
         }
 
         #region resource generator code
