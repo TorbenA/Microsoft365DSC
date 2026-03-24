@@ -32,6 +32,10 @@ function Get-TargetResource
         $IncludeTargets,
 
         [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $PasskeyProfiles,
+
+        [Parameter()]
         [ValidateSet('enabled', 'disabled')]
         [System.String]
         $State,
@@ -151,6 +155,16 @@ function Get-TargetResource
                 $myExcludeTargets.Add('TargetType', $currentExcludeTargets.targetType.ToString())
             }
 
+            if ($null -ne $currentExcludeTargets.isRegistrationRequired)
+            {
+                $myExcludeTargets.Add('IsRegistrationRequired', [System.Convert]::ToBoolean($currentExcludeTargets.isRegistrationRequired))
+            }
+
+            if ($null -ne $currentExcludeTargets.allowedPasskeyProfiles)
+            {
+                $myExcludeTargets.Add('AllowedPasskeyProfiles', [string[]]$currentExcludeTargets.allowedPasskeyProfiles)
+            }
+
             if ($myExcludeTargets.values.Where({ $null -ne $_ }).Count -gt 0)
             {
                 $complexExcludeTargets += $myExcludeTargets
@@ -182,9 +196,59 @@ function Get-TargetResource
                 $myIncludeTargets.Add('TargetType', $currentIncludeTargets.targetType.ToString())
             }
 
+            if ($null -ne $currentIncludeTargets.isRegistrationRequired)
+            {
+                $myIncludeTargets.Add('IsRegistrationRequired', [System.Convert]::ToBoolean($currentIncludeTargets.isRegistrationRequired))
+            }
+
+            if ($null -ne $currentIncludeTargets.allowedPasskeyProfiles)
+            {
+                $myIncludeTargets.Add('AllowedPasskeyProfiles', [string[]]$currentIncludeTargets.allowedPasskeyProfiles)
+            }
+
             if ($myIncludeTargets.values.Where({ $null -ne $_ }).Count -gt 0)
             {
                 $complexIncludeTargets += $myIncludeTargets
+            }
+        }
+
+        Write-Verbose 'Processing Passkey profiles'
+        $complexPasskeyProfiles = @()
+        foreach ($currentPasskeyProfiles in $getValue.AdditionalProperties.passkeyProfiles){
+            $myPasskeyProfiles = @{}
+            $myPasskeyProfiles.Add('Id', $currentPasskeyProfiles.id)
+            $myPasskeyProfiles.Add('Name', $currentPasskeyProfiles.name)
+            if ($null -ne $currentPasskeyProfiles.passkeyTypes)
+            {
+                # Convert array to single comma-separated string if needed
+                if ($currentPasskeyProfiles.passkeyTypes -is [Array])
+                {
+                    $myPasskeyProfiles.Add('PasskeyTypes', $currentPasskeyProfiles.passkeyTypes -join ',')
+                }
+                else
+                {
+                    $myPasskeyProfiles.Add('PasskeyTypes', $currentPasskeyProfiles.passkeyTypes)
+                }
+            }
+            if ($null -ne $currentPasskeyProfiles.attestationEnforcement)
+            {
+                $myPasskeyProfiles.Add('AttestationEnforcement', $currentPasskeyProfiles.attestationEnforcement.ToString())
+            }
+            if ($null -ne $currentPasskeyProfiles.keyRestrictions)
+            {
+                $KeyRestrictionsForProfile = @{
+                    AaGuids = $currentPasskeyProfiles.keyRestrictions.aaGuids
+                    IsEnforced = $currentPasskeyProfiles.keyRestrictions.isEnforced
+                }
+                if ($null -ne $currentPasskeyProfiles.keyRestrictions.enforcementType)
+                {
+                    $KeyRestrictionsForProfile['EnforcementType'] = $currentPasskeyProfiles.keyRestrictions.enforcementType.ToString()
+                }
+                $myPasskeyProfiles.Add('KeyRestrictions', $KeyRestrictionsForProfile)
+            }
+            if ($myPasskeyProfiles.values.Where({ $null -ne $_ }).Count -gt 0)
+            {
+                $complexPasskeyProfiles += $myPasskeyProfiles
             }
         }
 
@@ -203,6 +267,7 @@ function Get-TargetResource
             KeyRestrictions                  = $complexKeyRestrictions
             ExcludeTargets                   = $complexExcludeTargets
             IncludeTargets                   = $complexIncludeTargets
+            PasskeyProfiles                  = $complexPasskeyProfiles
             State                            = $enumState
             Id                               = $getValue.Id
             Ensure                           = 'Present'
@@ -259,6 +324,10 @@ function Set-TargetResource
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $IncludeTargets,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $PasskeyProfiles,
 
         [Parameter()]
         [ValidateSet('enabled', 'disabled')]
@@ -326,7 +395,18 @@ function Set-TargetResource
 
         Update-M365DSCAuthenticationTargets -Targets $UpdateParameters.ExcludeTargets
         Update-M365DSCAuthenticationTargets -Targets $UpdateParameters.IncludeTargets
-
+     
+        if ($UpdateParameters.ContainsKey('PasskeyProfiles')
+        {
+            # Ensure passkeyTypes is handled as a single string value for API compatibility
+            foreach ($profile in $UpdateParameters.PasskeyProfiles)
+            {
+                if ($null -ne $profile.passkeyTypes -and $profile.passkeyTypes -is [Array])
+                {
+                    $profile.passkeyTypes = $profile.passkeyTypes -join ','
+                }
+            }
+        }
         #region resource generator code
         Write-Verbose -Message "Parameters:`r`n$(ConvertTo-Json $UpdateParameters -Depth 10)"
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.fido2AuthenticationMethodConfiguration')
@@ -374,6 +454,10 @@ function Test-TargetResource
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $IncludeTargets,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
+        $PasskeyProfiles,
 
         [Parameter()]
         [ValidateSet('enabled', 'disabled')]
@@ -524,8 +608,8 @@ function Export-TargetResource
             {
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.KeyRestrictions `
-                    -CIMInstanceName 'MicrosoftGraphfido2KeyRestrictions'
-                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                    -CIMInstanceName 'MicrosoftGraphFido2KeyRestrictions'
+                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.KeyRestrictions = $complexTypeStringResult
                 }
@@ -562,13 +646,41 @@ function Export-TargetResource
                     $Results.Remove('IncludeTargets') | Out-Null
                 }
             }
+            if ($null -ne $Results.PasskeyProfiles)
+            {
+                $complexMapping = @(
+                    @{
+                        Name            = 'PasskeyProfiles'
+                        CimInstanceName = 'AADAuthenticationMethodPolicyFido2PasskeyProfile'
+                        IsRequired      = $False
+                    }
+                    @{
+                        Name            = 'KeyRestrictions'
+                        CimInstanceName = 'MicrosoftGraphFido2KeyRestrictions'
+                        IsRequired      = $False
+                    }
+                )
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.PasskeyProfiles `
+                    -CIMInstanceName 'AADAuthenticationMethodPolicyFido2PasskeyProfile' `
+                    -ComplexTypeMapping $complexMapping `
+                    -Whitespace ''
+                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                {
+                    $Results.PasskeyProfiles = $complexTypeStringResult
+                }
+                else
+                {
+                    $Results.Remove('PasskeyProfiles') | Out-Null
+                }
+            }
 
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
                 -ModulePath $PSScriptRoot `
                 -Results $Results `
                 -Credential $Credential `
-                -NoEscape @('KeyRestrictions', 'ExcludeTargets', 'IncludeTargets')
+                -NoEscape @('KeyRestrictions', 'ExcludeTargets', 'IncludeTargets', 'PasskeyProfiles') `
 
             $dscContent += $currentDSCBlock
             Save-M365DSCPartialExport -Content $currentDSCBlock `
