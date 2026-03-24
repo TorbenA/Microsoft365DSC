@@ -1,4 +1,4 @@
-[ClassVersion("1.0.0.0"), FriendlyName("EXOIRMConfiguration")]
+[ClassVersion("1.0.0.1"), FriendlyName("EXOIRMConfiguration")]
 class MSFT_EXOIRMConfiguration : OMI_BaseResource
 {
     [Key, Description("Only valid value is 'Yes'."), ValueMap{"Yes"}, Values{"Yes"}] String IsSingleInstance;
