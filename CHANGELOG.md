@@ -2,10 +2,15 @@
 
 # UNRELEASED
 
+* EXODkimSigningConfig
+  * Fixed an issue to create new DkimSigningConfig
+    FIXES [#6982](https://github.com/microsoft/Microsoft365DSC/issues/6982)
 * SCRoleGroupMember
-  * Updated the export to use `Alias` for users with email addresses.
+  * [BREAKING CHANGE] Updated the export to use `Alias` for users with email addresses.
     Fallback to `Name` for all other types, e.g. Service Principals.
     FIXES [#6829](https://github.com/microsoft/Microsoft365DSC/issues/6829)
+* M365DSCUtil
+  * Added `KeepExport` parameter to `Assert-M365DSCBlueprint` function.
 
 # 1.26.318.1
 
