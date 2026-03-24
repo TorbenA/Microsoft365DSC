@@ -395,8 +395,8 @@ function Set-TargetResource
 
         Update-M365DSCAuthenticationTargets -Targets $UpdateParameters.ExcludeTargets
         Update-M365DSCAuthenticationTargets -Targets $UpdateParameters.IncludeTargets
-     
-        if ($UpdateParameters.ContainsKey('PasskeyProfiles')
+
+        if ($UpdateParameters.ContainsKey('PasskeyProfiles'))
         {
             # Ensure passkeyTypes is handled as a single string value for API compatibility
             foreach ($profile in $UpdateParameters.PasskeyProfiles)
