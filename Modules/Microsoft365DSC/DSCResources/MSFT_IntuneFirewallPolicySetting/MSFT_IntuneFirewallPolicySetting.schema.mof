@@ -3,7 +3,7 @@ class MSFT_ReusableFirewallPolicySetting
 {
     [Write, Description("The addresses to resolve. Required, if AutoResolve is set to 'False'.")] String Addresses[];
     [Required, Description("If the Firewall service should automatically resolve the IP addresses.")] Boolean AutoResolve;
-    [Required, Description("The identifier of the reusable firewall policy setting.")] String Keyword;
+    [Key, Description("The identifier of the reusable firewall policy setting.")] String Keyword;
 };
 
 [ClassVersion("1.0.0.0"), FriendlyName("IntuneFirewallPolicySetting")]
