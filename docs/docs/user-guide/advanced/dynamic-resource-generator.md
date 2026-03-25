@@ -26,7 +26,8 @@ The main function for the module is the **New-M365DSCResource** cmdlet which wil
 | SettingsCatalogSettingTemplates | False | Array of device configuration policy templates | Templates of an Intune policy that is based on the Settings Catalog. The templates can be obtained with `Get-MgBetaDeviceManagementConfigurationPolicyTemplateSettingTemplate`. |
 | SkipPlatformsAndTechnologies | False | Switch | For a settings catalog resource, if the platforms and technologies should be removed from the parameters for the resource. |
 
-As an example, to generate the AADDomain resource for the Azure Active Directory workload, we've run the following command. **NOTE: The paths specified represent the local paths on the machine used. Make sure to update this to point to the location of your local branch on your machine.**
+As an example, to generate the AADDomain resource for the Azure Active Directory workload, run the following command. 
+**NOTE:**The paths specified represent the local paths on the machine used. Make sure to update this to point to the location of your local branch on your machine.**
 
 ```powershell
 cd C:\Github\Microsoft365DSC\ResourceGenerator
@@ -35,65 +36,23 @@ Import-Module .\M365DSCResourceGenerator.psm1
 $ResourcePath = "C:\GitHub\Microsoft365DSC\Modules\Microsoft365DSC\DSCResources"
 $UnitTestPath = "C:\GitHub\Microsoft365DSC\Tests\Unit\Microsoft365DSC"
 $ExamplePath = "C:\GitHub\Microsoft365DSC\Modules\Microsoft365DSC\Examples\Resources"
-$creds = Get-Credential
+$creds = Get-Credential #Use creditials from a test tenant onlt
 
-New-M365DSCResource -ResourceName AADDomain -Workload MicrosoftGraph -CmdletNoun 'MgDomain' -Path $ResourcePath -UnitTestPath $UnitTestPath -ExampleFilePath $ExamplePath -Credential $creds
-```
-## Additional Examples and Scenarios
-The following examples demonstrate common scenerios for using the Dynamic Resource Generator.
-## Scenario 1: Generate a Basic Microsoft Graph Resource
-```powershell
 New-M365DSCResource `
   -ResourceName AADDomain `
   -Workload MicrosoftGraph `
-  -CmdletNoun 'MgDomain'
+  -CmdletNoun 'MgDomain' `
+  -Path $ResourcePath `
+  -UnitTestPath $UnitTestPath `
+  -ExampleFilePath $ExamplePath `
+  -Credential $creds `
 ```
-This scenario generates:
-- A new DSC resource
-- Schema definition
-- Example configuration
-- Unit test template
-## Scenario 2: Generate an Intune Resource
-```powershell
-New-M365DSCResource `
-  -ResourceName IntunePolicyExample `
-  -Workload Intune
-```
-Use this when creating resources related to:
-- Device management
-- Endpoint policies
-- Configuration profiles
-## Scenario 3: Generate a Microsoft Teams Resource
-```powershell
-New-M365DSCResource `
-  -ResourceName TeamsMessagingPolicy `
-  -Workload MicrosoftTeams
-```
-Useful for:
-- Teams governance
-- Messaging settings
-- Teams configuration policies
-## Step-By-Step Guide to Test the DRG
-### Step 1: Clone the Repository
-```bash
-git clone https://github.com/microsoft/Microsoft365DSC
-cd Microsoft365DSC
-```
-### Step 2: Navigate to the Resource Generator
-```powershell
-cd ResourceGenerator
-```
-### Step 3: Import the Module
-```powershell
-Import-Module .\M365DSCResourceGenerator.psm1
-```
-### Step 4: Run the Generator
-Execute the command for the workload you want to test.
-### Step 5: Verify Generated Files
-Check the resources are created in:
-- DSC Resource folder
-- Unit test folder
-- Examples folder
-- Documentation files
+Running this command will generate the following files under the path you specified:
+- DSC Resource - The resource module and schema files (e.g., MSFT_AADDomain.psm1 and MSFT_AADDomain.schema.mof)
+- README - auto-generated Docmentation describing the resource's properties
+- Example - A sample .ps1 configuration that shows how to use resource in a DSC script
+- Unit tests - A Pre-scaffolded Pester test file to validate the resource's behavior
+
+  After generation, review each file to ensure the auto-detected properties match your expectations. Some properties may need to be maarked as [key[ or[Required] in the schema manually, depending on the workload's API behavior.
 
 We are currently looking for users to help us test and improve the DRG. If you are interested in helping out, please try it out with the instructions above and report any issues or questions in the Issues section of the [GitHub repository](https://github.com/microsoft/Microsoft365DSC) mentioning that the item is related to the DRG testing.
