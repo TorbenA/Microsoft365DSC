@@ -2,9 +2,38 @@
 
 # UNRELEASED
 
+* AADAccessReviewDefinition
+  * [BREAKING CHANGE] Fixed the type definition of the `ScopeValue` property.
+* AADApplication
+  * Added name resolution for `AppId` and `PermissionIds` in preauthorized applications.
+* AADAuthenticationMethodPolicy*
+  * Streamlined Target name resolution for all authentication resources.
+* DkimSigningConfig
+  * Fixed an issue to create new DkimSigningConfig
+    FIXES [#6982](https://github.com/microsoft/Microsoft365DSC/issues/6982)
+* IntuneDeviceConfigurationKioskPolicyWindows10
+  * [BREAKING CHANGE] Removed property `ProfileId` from the
+    `MSFT_MicrosoftGraphWindowsKioskProfile` instance.
+* IntuneMobileAppsBuiltInStoreApp
+  * Renamed CIM class for assignments from `MSFT_DeviceManagementMobileAppAssignment`
+    to `MSFT_DeviceManagementBuiltInStoreAppAssignment`.
+* IntuneMobileAppsLobAppiOS
+  * Renamed CIM class for assignments from `MSFT_DeviceManagementMobileAppAssignment`
+    to `MSFT_DeviceManagementLobAppiOSAssignment`.
+* IntuneMobileAppsMacOSLobApp
+  * Renamed CIM class for assignments from `MSFT_DeviceManagementMobileAppAssignment`
+    to `MSFT_DeviceManagementMacOSLobAppAssignment`.
+* IntuneMobileAppsManagedGooglePlayApp
+  * Renamed CIM class for assignments from `MSFT_DeviceManagementMobileAppAssignment`
+    to `MSFT_DeviceManagementManagedGooglePlayMobileAppAssignment`.
+* IntuneWindowsInformationProtectionPolicyWindows10MdmEnrolled
+  * [BREAKING CHANGE] Removed the `*CidrRange` choices from the ipRange type.
+* SCPolicyConfig
+  * Fixed an issue where `JustificationText` was exported as an array.
 * M365DSCUtil
   * Added `KeepExport` parameter to `Assert-M365DSCBlueprint` function.
 * MISC
+  * Added CIM information about required properties to all resources where applicable.
   * Removed duplicate complex hashtable conversions.
 
 # 1.26.318.1
@@ -371,8 +400,8 @@
 * O365OrgSettings
   * Added `CertificatePath` with `CertificatePassword` as an authentication method.
 * SPOSite
-   * Fixed an issue about not correctly passing RestrictedToRegion parameter.
-     FIXES [#6734](https://github.com/microsoft/Microsoft365DSC/issues/6734)
+  * Fixed an issue about not correctly passing RestrictedToRegion parameter.
+    FIXES [#6734](https://github.com/microsoft/Microsoft365DSC/issues/6734)
 * PPTenantIsolationSettings
   * Fixed an issue where updating the policy failed because of an unresolved tenant name.
     FIXES [#6778](https://github.com/microsoft/Microsoft365DSC/issues/6778)

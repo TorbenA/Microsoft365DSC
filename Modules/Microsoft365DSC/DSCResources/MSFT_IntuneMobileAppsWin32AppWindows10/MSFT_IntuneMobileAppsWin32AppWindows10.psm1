@@ -556,8 +556,7 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
-    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $boundParameters.Remove('Categories') | Out-Null
 
     if ($boundParameters.ContainsKey('AllowedArchitectures'))

@@ -381,7 +381,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $platform = 'android'
     if ($BoundParameters.ContainsKey('EncodedSettingXml') -or $BoundParameters.ContainsKey('Settings'))
