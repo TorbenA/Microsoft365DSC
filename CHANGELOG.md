@@ -34,6 +34,8 @@
   * Added `KeepExport` parameter to `Assert-M365DSCBlueprint` function.
 * MISC
   * Added CIM information about required properties to all resources where applicable.
+  * Updated documentation for different group types for AADGroup, EXOGroupSettings
+    and EXODistributionGroup.
 
 # 1.26.318.1
 
