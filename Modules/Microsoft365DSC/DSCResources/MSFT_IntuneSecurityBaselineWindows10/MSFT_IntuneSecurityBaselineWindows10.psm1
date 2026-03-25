@@ -819,7 +819,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     $templateReferenceId = '66df8dce-0166-4b82-92f7-1f74e3ca17a3_4'
