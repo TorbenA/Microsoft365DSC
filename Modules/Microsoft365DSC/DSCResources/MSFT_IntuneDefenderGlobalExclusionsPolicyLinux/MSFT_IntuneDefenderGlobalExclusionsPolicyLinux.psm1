@@ -269,7 +269,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     # Convert MSFT_MicrosoftGraphIntuneSettingsCatalogExclusionsV2 to MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions
