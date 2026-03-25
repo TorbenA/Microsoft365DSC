@@ -260,8 +260,7 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
-    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     if ($boundParameters.ContainsKey('BrandingOptions'))
     {
         $boundParameters.BrandingOptions = $boundParameters.BrandingOptions -join ','

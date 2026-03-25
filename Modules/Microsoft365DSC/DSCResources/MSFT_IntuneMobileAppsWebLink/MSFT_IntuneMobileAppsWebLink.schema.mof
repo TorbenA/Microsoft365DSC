@@ -49,7 +49,6 @@ class MSFT_IntuneMobileAppsWebLink : OMI_BaseResource
     [Write, Description("Thumbprint of the Azure Active Directory application's authentication certificate to use for authentication.")] String CertificateThumbprint;
     [Write, Description("Managed ID being used for authentication.")] Boolean ManagedIdentity;
     [Write, Description("Access token used for authentication.")] String AccessTokens[];
-
     [Required, Description("The target type of the web link."), ValueMap{"iosiPadOSWebClip","macOSWebClip","webApp","windowsWebApp"}, Values{"iosiPadOSWebClip","macOSWebClip","webApp","windowsWebApp"}] String TargetType;
     [Write, Description("Indicates the web app URL. Example: 'https://www.contoso.com'. Cannot be updated after creation.")] String AppUrl;
     [Write, Description("Whether or not to use managed browser (on iOS it's Microsoft Edge). This property is only applicable 'webApp' and 'iosiPadOSWebClip' target type.")] Boolean UseManagedBrowser;
