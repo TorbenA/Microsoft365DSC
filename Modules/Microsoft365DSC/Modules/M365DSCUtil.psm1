@@ -3284,6 +3284,9 @@ Specifies the name of resources that should not be assessed as part of the repor
 .Parameter DriftOnly
 Specifies if the report should only show properties drifts and not missing instances.
 
+.Parameter KeepExport
+Specifies if the export created to compare with the blueprint should be kept after the report is generated. By default, the export will be removed after the report is generated.
+
 .Example
 Assert-M365DSCBlueprint -BluePrintUrl 'C:\DS\blueprint.m365' -OutputReportPath 'C:\DSC\BlueprintReport.html'
 
@@ -3292,6 +3295,9 @@ Assert-M365DSCBlueprint -BluePrintUrl 'C:\DS\blueprint.m365' -OutputReportPath '
 
 .Example
 Assert-M365DSCBlueprint -BluePrintUrl 'C:\DS\blueprint.m365' -OutputReportPath 'C:\DSC\BlueprintReport.html' -ApplicationId $clientid -TenantId $tenantId -CertificateThumbprint $certthumbprint -HeaderFilePath 'C:\DSC\ReportCustomHeader.html'
+
+.Example
+Assert-M365DSCBlueprint -BluePrintUrl 'C:\DS\blueprint.m365' -OutputReportPath 'C:\DSC\BlueprintReport.html' -KeepExport $true
 
 .Functionality
 Public
@@ -3352,7 +3358,11 @@ function Assert-M365DSCBlueprint
 
         [Parameter()]
         [System.Boolean]
-        $DriftOnly = $true
+        $DriftOnly = $true,
+
+        [Parameter()]
+        [System.Boolean]
+        $KeepExport = $false
     )
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -3465,7 +3475,10 @@ function Assert-M365DSCBlueprint
 
         # Clean up the temporary files
         Remove-Item $LocalBluePrintPath -Force -ErrorAction SilentlyContinue
-        Remove-Item $ExportPath -Force -ErrorAction SilentlyContinue
+        if (!$KeepExport)
+        {
+            Remove-Item $ExportPath -Force -ErrorAction SilentlyContinue
+        }
     }
     else
     {
@@ -5951,6 +5964,161 @@ function Get-M365DSCResourceComparisonParameters
     return $compareParameters
 }
 
+function Get-M365DSCGroupDisplayNameById
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $GroupId
+    )
+
+    try
+    {
+        $group = Get-MgGroup -GroupId $GroupId -Property DisplayName -ErrorAction Stop
+        return $group.DisplayName
+    }
+    catch
+    {
+        $message = "Could not find a group with id $($GroupId). Skipping group display name resolution for this id."
+        New-M365DSCLogEntry -Message $message `
+            -Exception $_ `
+            -Source $($MyInvocation.MyCommand.Source) `
+            -TenantId $TenantId `
+            -Credential $Credential
+    }
+}
+
+function Get-M365DSCGroupIdByDisplayName
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $GroupDisplayName
+    )
+
+    try
+    {
+        $group = Get-MgGroup -Filter "displayName eq '$GroupDisplayName'" -Property Id -ErrorAction Stop
+        return $group.Id
+    }
+    catch
+    {
+        $message = "Could not find a group with display name $($GroupDisplayName). Skipping group ID resolution for this display name."
+        New-M365DSCLogEntry -Message $message `
+            -Exception $_ `
+            -Source $($MyInvocation.MyCommand.Source) `
+            -TenantId $TenantId `
+            -Credential $Credential
+    }
+}
+
+function Get-M365DSCUserPrincipalNameById
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $UserId
+    )
+
+    try
+    {
+        $user = Get-MgUser -UserId $UserId -Property UserPrincipalName -ErrorAction Stop
+        return $user.UserPrincipalName
+    }
+    catch
+    {
+        $message = "Could not find a user with id $($UserId). Skipping user principal name resolution for this id."
+        New-M365DSCLogEntry -Message $message `
+            -Exception $_ `
+            -Source $($MyInvocation.MyCommand.Source) `
+            -TenantId $TenantId `
+            -Credential $Credential
+    }
+}
+
+function Get-M365DSCUserIdByPrincipalName
+{
+    [CmdletBinding()]
+    [OutputType([System.String])]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $UserPrincipalName
+    )
+
+    try
+    {
+        $user = Get-MgUser -UserId $UserPrincipalName -Property Id -ErrorAction Stop
+        return $user.Id
+    }
+    catch
+    {
+        $message = "Could not find a user with principal name $($UserPrincipalName). Skipping user ID resolution for this principal name."
+        New-M365DSCLogEntry -Message $message `
+            -Exception $_ `
+            -Source $($MyInvocation.MyCommand.Source) `
+            -TenantId $TenantId `
+            -Credential $Credential
+    }
+}
+
+function Update-M365DSCAuthenticationTargets
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [AllowEmptyCollection()]
+        [AllowNull()]
+        [System.Object[]]
+        $Targets
+    )
+
+    if ($null -eq $targets)
+    {
+        return
+    }
+
+    foreach ($target in $targets)
+    {
+        if ($target.ContainsKey('Id') -and $target.ContainsKey('TargetType'))
+        {
+            if ($target.Id -eq '0000000-0000-0000-0000-000000000000' -or $target.Id -eq 'all_users' `
+                -or $target.Id -match '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
+            {
+                continue
+            }
+
+            if ($target.TargetType -eq 'Group')
+            {
+                $groupId = Get-M365DSCGroupIdByDisplayName -GroupDisplayName $($target.Id -replace "'", "''")
+                if ($null -ne $groupId)
+                {
+                    $target.Id = $groupId
+                }
+            }
+            elseif ($target.TargetType -eq 'User')
+            {
+                $userId = Get-M365DSCUserIdByPrincipalName -UserPrincipalName $($target.Id -replace "'", "''")
+                if ($null -ne $userId)
+                {
+                    $target.Id = $userId
+                }
+            }
+        }
+    }
+}
+
 Export-ModuleMember -Function @(
     'Assert-M365DSCBlueprint',
     'Confirm-ImportedCmdletIsAvailable',
@@ -5969,6 +6137,8 @@ Export-ModuleMember -Function @(
     'Get-M365DSCConfigurationConflict',
     'Get-M365DSCConnectedWorkloadList',
     'Get-M365DSCExportContentForResource',
+    'Get-M365DSCGroupDisplayNameById',
+    'Get-M365DSCGroupIdByDisplayName',
     'Get-M365DSCModuleConfiguration',
     'Get-M365DSCOrganization',
     'Get-M365DSCResourceComparisonMetadata',
@@ -5978,6 +6148,8 @@ Export-ModuleMember -Function @(
     'Get-M365DSCTelemetryConnectionParameter',
     'Get-M365DSCTenantDomain',
     'Get-M365DSCTenantNameFromParameterSet',
+    'Get-M365DSCUserIdByPrincipalName',
+    'Get-M365DSCUserPrincipalNameById',
     'Get-M365DSCWorkloadForResource',
     'Get-M365TenantName',
     'Get-SPOAdministrationUrl',
@@ -6001,6 +6173,7 @@ Export-ModuleMember -Function @(
     'Test-M365DSCParameterState',
     'Test-M365DSCTargetResource',
     'Uninstall-M365DSCOutdatedDependencies',
+    'Update-M365DSCAuthenticationTargets',
     'Update-M365DSCDependencies',
     'Update-M365DSCExportAuthenticationResults',
     'Update-M365DSCModule',
