@@ -17,7 +17,7 @@ class MSFT_AADGroup : OMI_BaseResource
     [Write, Description("Displayname values for the groups member of the group.")] String GroupAsMembers[];
     [Write, Description("DisplayName values for the groups that this group is a member of.")] String MemberOf[];
     [Write, Description("Specifies if the current group is part of a selected Group Lifecycle Policy configuration. Only applicable for Microsoft 365 Groups.")] Boolean GroupLifecyclePolicySelectedEnabled;
-    [Write, Description("Specifies the type of the group. To create a dynamic membership group, specify DynamicMembership. To create a Microsoft 365 (aka Unified) group, specify Unified. To create a Microsoft 365 dynamic membership group, specify both Unified and DynamicMembership.")] String GroupTypes[];
+    [Write, Description("Specifies the type of the group. To create a security group, leave empty. To create a dynamic membership group, specify DynamicMembership. To create a Microsoft 365 (aka Unified) group, specify Unified. To create a Microsoft 365 dynamic membership group, specify both Unified and DynamicMembership.")] String GroupTypes[];
     [Write, Description("Specifies the membership rule for a dynamic group.")] String MembershipRule;
     [Write, Description("Specifies the rule processing state. The acceptable values for this parameter are: On. Process the group rule or Paused. Stop processing the group rule."), ValueMap{"On","Paused"}, Values{"On","Paused"}] String MembershipRuleProcessingState;
     [Required, Description("Specifies whether the group is security enabled. For security groups, this value must be $True.")] Boolean SecurityEnabled;
