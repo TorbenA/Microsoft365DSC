@@ -1,14 +1,15 @@
-[ClassVersion("1.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_AADAuthenticationMethodPolicySmsExcludeTarget
 {
-    [Write, Description("The object identifier of an Azure AD group.")] String Id;
-    [Write, Description("The type of the authentication method target. Possible values are: group and unknownFutureValue."), ValueMap{"user","group","unknownFutureValue"}, Values{"user","group","unknownFutureValue"}] String TargetType;
+    [Key, Description("The object identifier of an Azure AD group.")] String Id;
+    [Key, Description("The type of the authentication method target. Possible values are: group and unknownFutureValue."), ValueMap{"group","unknownFutureValue"}, Values{"group","unknownFutureValue"}] String TargetType;
 };
-[ClassVersion("1.0.0")]
+
+[ClassVersion("1.0.0.1")]
 class MSFT_AADAuthenticationMethodPolicySmsIncludeTarget
 {
-    [Write, Description("The object identifier of an Azure AD group.")] String Id;
-    [Write, Description("The type of the authentication method target. Possible values are: group and unknownFutureValue."), ValueMap{"user","group","unknownFutureValue"}, Values{"user","group","unknownFutureValue"}] String TargetType;
+    [Key, Description("The object identifier of an Azure AD group.")] String Id;
+    [Key, Description("The type of the authentication method target. Possible values are: group and unknownFutureValue."), ValueMap{"group","unknownFutureValue"}, Values{"group","unknownFutureValue"}] String TargetType;
 };
 
 [ClassVersion("1.0.0.0"), FriendlyName("AADAuthenticationMethodPolicySms")]
@@ -24,6 +25,6 @@ class MSFT_AADAuthenticationMethodPolicySms : OMI_BaseResource
     [Write, Description("Id of the Azure Active Directory tenant used for authentication.")] String TenantId;
     [Write, Description("Secret of the Azure Active Directory tenant used for authentication."), EmbeddedInstance("MSFT_Credential")] String ApplicationSecret;
     [Write, Description("Thumbprint of the Azure Active Directory application's authentication certificate to use for authentication.")] String CertificateThumbprint;
-	[Write, Description("Managed ID being used for authentication.")] Boolean ManagedIdentity;
+    [Write, Description("Managed ID being used for authentication.")] Boolean ManagedIdentity;
     [Write, Description("Access token used for authentication.")] String AccessTokens[];
 };

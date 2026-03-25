@@ -183,7 +183,7 @@ function Compare-M365DSCResourceState
             $source = $DesiredValues.$key
             $target = $CurrentValues.$key
             $parameterDefinition = $resourcePropertyLookup[$key]
-            if ($null -ne $source -and ($source.GetType().Name -like '*CimInstance*' -or $parameterDefinition.CIMType -like "MSFT_*"))
+            if ($null -ne $source -and ($source.GetType().Name -like '*CimInstance*' -or $parameterDefinition.CIMType -like 'MSFT_*'))
             {
                 Write-Verbose -Message "Comparing complex object property $key of resource $ResourceName"
                 $CIMName = $parameterDefinition.CIMType.Replace('[]', '')
@@ -216,7 +216,7 @@ function Compare-M365DSCResourceState
                         # Because $source can be an array, we need to check if the
                         # primary key value exists in any of the source objects
                         $sourceValue = $source.$primaryKey | Select-Object -Unique
-                        if ($_.$primaryKey -notin @($sourceValue))
+                        if ($null -ne $_.$primaryKey -and $_.$primaryKey -notin @($sourceValue))
                         {
                             $match = $false
                         }

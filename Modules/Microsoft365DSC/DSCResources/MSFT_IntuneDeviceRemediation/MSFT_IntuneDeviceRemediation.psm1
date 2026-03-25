@@ -71,8 +71,8 @@ function Get-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -362,8 +362,8 @@ function Set-TargetResource
         $Assignments,
         #endregion
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -408,7 +408,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $BoundParameters.Remove('IsGlobalScript') | Out-Null
 
@@ -635,8 +634,8 @@ function Test-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -679,8 +678,8 @@ function Test-TargetResource
 
     $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                             @compareParameters
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+        @compareParameters
     return $result
 }
 
@@ -790,7 +789,7 @@ function Export-TargetResource
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.DetectionScriptParameters `
                     -CIMInstanceName 'MicrosoftGraphdeviceHealthScriptParameter'
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.DetectionScriptParameters = $complexTypeStringResult
                 }
@@ -804,7 +803,7 @@ function Export-TargetResource
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.RemediationScriptParameters `
                     -CIMInstanceName 'MicrosoftGraphdeviceHealthScriptParameter'
-                if (-Not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
                     $Results.RemediationScriptParameters = $complexTypeStringResult
                 }
@@ -876,7 +875,7 @@ function Get-CompareParameters
 
     return @{
         ExcludedProperties = @('IsGlobalScript')
-        PostProcessing = {
+        PostProcessing     = {
             param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
             if ($CurrentValues.IsGlobalScript)
             {

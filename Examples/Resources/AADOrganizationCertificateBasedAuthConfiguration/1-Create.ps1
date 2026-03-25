@@ -30,14 +30,14 @@ Configuration Example
             CertificateAuthorities = @(
                 MSFT_MicrosoftGraphcertificateAuthority{
                     IsRootAuthority = $True
-					DeltaCertificateRevocationListUrl = 'pqr.com'
+                    DeltaCertificateRevocationListUrl = 'pqr.com'
                     Certificate = '<Base64 encoded cert>'
                 }
                 MSFT_MicrosoftGraphcertificateAuthority{
                     IsRootAuthority = $True
                     CertificateRevocationListUrl = 'xyz.com'
                     DeltaCertificateRevocationListUrl = 'pqr.com'
-                    Certificate = '<Base64 encoded cert>'
+                    Certificate = '<Base64 encoded cert 2>'
                 }
             );
             Ensure                 = "Present";

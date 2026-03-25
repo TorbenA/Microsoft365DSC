@@ -91,7 +91,7 @@ function Get-DscResourceSchemaPropertyContent
         if (-not [System.String]::IsNullOrEmpty($currentProperty.Description))
         {
             $description = $currentProperty.Description
-            $description = $description.Replace("<", "&lt;").Replace(">", "&gt;")
+            $description = $description.Replace('<', '&lt;').Replace('>', '&gt;')
             $propertyLine += ' ' + $description
         }
 
@@ -547,14 +547,14 @@ function New-DscMofResourceWikiPage
             will get the main resource CIM class.
         #>
         $resourceSchema = $mofSchemas |
-        Where-Object -FilterScript {
+            Where-Object -FilterScript {
                 ($_.ClassName -eq $dscResourceName) -and ($null -ne $_.FriendlyName)
-        }
+            }
 
         [System.Array] $readmeFile = Get-ChildItem -Path $mofSchemaFile.DirectoryName |
-        Where-Object -FilterScript {
-            $_.Name -like 'readme.md'
-        }
+            Where-Object -FilterScript {
+                $_.Name -like 'readme.md'
+            }
 
         if ($readmeFile.Count -eq 1)
         {
@@ -579,8 +579,14 @@ function New-DscMofResourceWikiPage
                 will get the embedded instances (CIM classes).
             #>
             $embeddedSchemas = $mofSchemas |
-            Where-Object -FilterScript {
+                Where-Object -FilterScript {
                     ($_.ClassName -ne $dscResourceName)
+                }
+
+            if ($embeddedSchemas.Count -gt 0)
+            {
+                $null = $output.AppendLine()
+                $null = $output.AppendLine("## Embedded Instances")
             }
 
             foreach ($embeddedSchema in $embeddedSchemas)
@@ -601,8 +607,8 @@ function New-DscMofResourceWikiPage
 
             $descriptionContent = Get-Content -Path $readmeFile.FullName -Raw
 
-            # Removing Resource name, which will else be added in the middle of the page
-            $descriptionContent = $descriptionContent -replace "# $($resourceSchema.FriendlyName)`r`n`r`n", ''
+            # Removing first two lines with resource name, which will else be added in the middle of the page
+            $descriptionContent = $descriptionContent -replace "^\s*#\s+.+\r?\n\r?\n", ''
             $null = $output.AppendLine()
             $null = $output.AppendLine($descriptionContent)
 
@@ -610,10 +616,10 @@ function New-DscMofResourceWikiPage
             $settingsFile = Join-Path -Path $mofSchemaFile.DirectoryName -ChildPath 'settings.json'
 
             $permissionsContent = New-Object -TypeName System.Text.StringBuilder
-            $null = $permissionsContent.AppendLine('## Permissions')
 
             if (Test-Path -Path $settingsFile)
             {
+                $null = $permissionsContent.AppendLine('## Permissions')
                 $settingsContent = Get-Content -Path $settingsFile -Raw
                 $settingsJson = ConvertFrom-Json -InputObject $settingsContent
 
@@ -626,19 +632,33 @@ function New-DscMofResourceWikiPage
                     $null = $permissionsContent.AppendLine()
                     $null = $permissionsContent.AppendLine('#### Roles')
                     $null = $permissionsContent.AppendLine()
-                    $null = $permissionsContent.AppendLine("- $($settingsJson.permissions.exchange.requiredroles -join ', ')")
+                    $null = $permissionsContent.AppendLine('* **Read**')
+                    $null = $permissionsContent.AppendLine("* $($settingsJson.permissions.exchange.requiredroles.read -join ', ')")
+                    $null = $permissionsContent.AppendLine('* **Update**')
+                    $null = $permissionsContent.AppendLine("* $($settingsJson.permissions.exchange.requiredroles.update -join ', ')")
                     $null = $permissionsContent.AppendLine()
                     $null = $permissionsContent.AppendLine('#### Role Groups')
                     $null = $permissionsContent.AppendLine()
-                    if ($settingsJson.permissions.exchange.requiredrolegroups.Count -ne 0)
+                    $null = $permissionsContent.AppendLine('* **Read**')
+                    if ($settingsJson.permissions.exchange.requiredrolegroups.read.Count -ne 0)
                     {
-                        $roleGroups = $settingsJson.permissions.exchange.requiredrolegroups -join ', '
+                        $roleGroups = $settingsJson.permissions.exchange.requiredrolegroups.read -join ', '
                     }
                     else
                     {
                         $roleGroups = 'None'
                     }
-                    $null = $permissionsContent.AppendLine("- $roleGroups")
+                    $null = $permissionsContent.AppendLine("* $roleGroups")
+                    $null = $permissionsContent.AppendLine('* **Update**')
+                    if ($settingsJson.permissions.exchange.requiredrolegroups.update.Count -ne 0)
+                    {
+                        $roleGroups = $settingsJson.permissions.exchange.requiredrolegroups.update -join ', '
+                    }
+                    else
+                    {
+                        $roleGroups = 'None'
+                    }
+                    $null = $permissionsContent.AppendLine("* $roleGroups")
                 }
                 else
                 {
@@ -652,8 +672,7 @@ function New-DscMofResourceWikiPage
                         $null = $permissionsContent.AppendLine()
                         $null = $permissionsContent.AppendLine('#### Delegated permissions')
                         $null = $permissionsContent.AppendLine()
-                        $null = $permissionsContent.AppendLine('- **Read**')
-                        $null = $permissionsContent.AppendLine()
+                        $null = $permissionsContent.AppendLine('* **Read**')
 
                         if ($settingsJson.permissions.graph.delegated.read.Count -eq 0)
                         {
@@ -663,11 +682,10 @@ function New-DscMofResourceWikiPage
                         {
                             $delegatedRead = $settingsJson.permissions.graph.delegated.read.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $delegatedRead")
+                        $null = $permissionsContent.AppendLine("  * $delegatedRead")
 
                         $null = $permissionsContent.AppendLine()
-                        $null = $permissionsContent.AppendLine('- **Update**')
-                        $null = $permissionsContent.AppendLine()
+                        $null = $permissionsContent.AppendLine('* **Update**')
 
                         if ($settingsJson.permissions.graph.delegated.update.Count -eq 0)
                         {
@@ -677,13 +695,12 @@ function New-DscMofResourceWikiPage
                         {
                             $delegatedUpdate = $settingsJson.permissions.graph.delegated.update.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $delegatedUpdate")
+                        $null = $permissionsContent.AppendLine("  * $delegatedUpdate")
 
                         $null = $permissionsContent.AppendLine()
                         $null = $permissionsContent.AppendLine('#### Application permissions')
                         $null = $permissionsContent.AppendLine()
-                        $null = $permissionsContent.AppendLine('- **Read**')
-                        $null = $permissionsContent.AppendLine()
+                        $null = $permissionsContent.AppendLine('* **Read**')
 
                         if ($settingsJson.permissions.graph.application.read.Count -eq 0)
                         {
@@ -693,11 +710,10 @@ function New-DscMofResourceWikiPage
                         {
                             $applicationRead = $settingsJson.permissions.graph.application.read.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $applicationRead")
+                        $null = $permissionsContent.AppendLine("  * $applicationRead")
 
                         $null = $permissionsContent.AppendLine()
-                        $null = $permissionsContent.AppendLine('- **Update**')
-                        $null = $permissionsContent.AppendLine()
+                        $null = $permissionsContent.AppendLine('* **Update**')
 
                         if ($settingsJson.permissions.graph.application.update.Count -eq 0)
                         {
@@ -707,7 +723,7 @@ function New-DscMofResourceWikiPage
                         {
                             $applicationUpdate = $settingsJson.permissions.graph.application.update.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $applicationUpdate")
+                        $null = $permissionsContent.AppendLine("  * $applicationUpdate")
                     }
 
                     # Microsoft SharePoint permissions
@@ -720,8 +736,7 @@ function New-DscMofResourceWikiPage
                         $null = $permissionsContent.AppendLine()
                         $null = $permissionsContent.AppendLine('#### Delegated permissions')
                         $null = $permissionsContent.AppendLine()
-                        $null = $permissionsContent.AppendLine('- **Read**')
-                        $null = $permissionsContent.AppendLine()
+                        $null = $permissionsContent.AppendLine('* **Read**')
 
                         if ($settingsJson.permissions.sharepoint.delegated.read.Count -eq 0)
                         {
@@ -731,11 +746,10 @@ function New-DscMofResourceWikiPage
                         {
                             $delegatedRead = $settingsJson.permissions.sharepoint.delegated.read.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $delegatedRead")
+                        $null = $permissionsContent.AppendLine("  * $delegatedRead")
 
                         $null = $permissionsContent.AppendLine()
-                        $null = $permissionsContent.AppendLine('- **Update**')
-                        $null = $permissionsContent.AppendLine()
+                        $null = $permissionsContent.AppendLine('* **Update**')
 
                         if ($settingsJson.permissions.sharepoint.delegated.update.Count -eq 0)
                         {
@@ -745,13 +759,12 @@ function New-DscMofResourceWikiPage
                         {
                             $delegatedUpdate = $settingsJson.permissions.sharepoint.delegated.update.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $delegatedUpdate")
+                        $null = $permissionsContent.AppendLine("  * $delegatedUpdate")
 
                         $null = $permissionsContent.AppendLine()
                         $null = $permissionsContent.AppendLine('#### Application permissions')
                         $null = $permissionsContent.AppendLine()
-                        $null = $permissionsContent.AppendLine('- **Read**')
-                        $null = $permissionsContent.AppendLine()
+                        $null = $permissionsContent.AppendLine('* **Read**')
 
                         if ($settingsJson.permissions.sharepoint.application.read.Count -eq 0)
                         {
@@ -761,11 +774,10 @@ function New-DscMofResourceWikiPage
                         {
                             $applicationRead = $settingsJson.permissions.sharepoint.application.read.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $applicationRead")
+                        $null = $permissionsContent.AppendLine("  * $applicationRead")
 
                         $null = $permissionsContent.AppendLine()
-                        $null = $permissionsContent.AppendLine('- **Update**')
-                        $null = $permissionsContent.AppendLine()
+                        $null = $permissionsContent.AppendLine('* **Update**')
 
                         if ($settingsJson.permissions.sharepoint.application.update.Count -eq 0)
                         {
@@ -775,7 +787,7 @@ function New-DscMofResourceWikiPage
                         {
                             $applicationUpdate = $settingsJson.permissions.sharepoint.application.update.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $applicationUpdate")
+                        $null = $permissionsContent.AppendLine("  * $applicationUpdate")
                     }
 
                     # ProjectWorkManagement API permissions
@@ -788,8 +800,7 @@ function New-DscMofResourceWikiPage
                         $null = $permissionsContent.AppendLine()
                         $null = $permissionsContent.AppendLine('#### Delegated permissions')
                         $null = $permissionsContent.AppendLine()
-                        $null = $permissionsContent.AppendLine('- **Read**')
-                        $null = $permissionsContent.AppendLine()
+                        $null = $permissionsContent.AppendLine('* **Read**')
 
                         if ($settingsJson.permissions.ProjectWorkManagement.delegated.read.Count -eq 0)
                         {
@@ -799,11 +810,10 @@ function New-DscMofResourceWikiPage
                         {
                             $delegatedRead = $settingsJson.permissions.ProjectWorkManagement.delegated.read.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $delegatedRead")
+                        $null = $permissionsContent.AppendLine("  * $delegatedRead")
 
                         $null = $permissionsContent.AppendLine()
-                        $null = $permissionsContent.AppendLine('- **Update**')
-                        $null = $permissionsContent.AppendLine()
+                        $null = $permissionsContent.AppendLine('* **Update**')
 
                         if ($settingsJson.permissions.ProjectWorkManagement.delegated.update.Count -eq 0)
                         {
@@ -813,13 +823,12 @@ function New-DscMofResourceWikiPage
                         {
                             $delegatedUpdate = $settingsJson.permissions.ProjectWorkManagement.delegated.update.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $delegatedUpdate")
+                        $null = $permissionsContent.AppendLine("  * $delegatedUpdate")
 
                         $null = $permissionsContent.AppendLine()
                         $null = $permissionsContent.AppendLine('#### Application permissions')
                         $null = $permissionsContent.AppendLine()
-                        $null = $permissionsContent.AppendLine('- **Read**')
-                        $null = $permissionsContent.AppendLine()
+                        $null = $permissionsContent.AppendLine('* **Read**')
 
                         if ($settingsJson.permissions.ProjectWorkManagement.application.read.Count -eq 0)
                         {
@@ -829,11 +838,10 @@ function New-DscMofResourceWikiPage
                         {
                             $applicationRead = $settingsJson.permissions.ProjectWorkManagement.application.read.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $applicationRead")
+                        $null = $permissionsContent.AppendLine("  * $applicationRead")
 
                         $null = $permissionsContent.AppendLine()
-                        $null = $permissionsContent.AppendLine('- **Update**')
-                        $null = $permissionsContent.AppendLine()
+                        $null = $permissionsContent.AppendLine('* **Update**')
 
                         if ($settingsJson.permissions.ProjectWorkManagement.application.update.Count -eq 0)
                         {
@@ -843,7 +851,7 @@ function New-DscMofResourceWikiPage
                         {
                             $applicationUpdate = $settingsJson.permissions.ProjectWorkManagement.application.update.name -join ', '
                         }
-                        $null = $permissionsContent.AppendLine("    - $applicationUpdate")
+                        $null = $permissionsContent.AppendLine("  * $applicationUpdate")
                     }
                 }
             }
@@ -874,7 +882,8 @@ function New-DscMofResourceWikiPage
                 -InputObject ($output.ToString() -replace '\r?\n', "`r`n") `
                 -FilePath $savePath `
                 -Encoding utf8 `
-                -Force:$Force
+                -Force:$Force `
+                -NoNewline
         }
         elseif ($readmeFile.Count -gt 1)
         {
@@ -953,61 +962,80 @@ function Update-M365DSCResourceDocumentationPage
         switch -Wildcard ($file.BaseName)
         {
             'AAD*'
-            { $targetFolder = 'azure-ad'
+            {
+                $targetFolder = 'azure-ad'
             }
             'ADO*'
-            { $targetFolder = 'azure-devops'
+            {
+                $targetFolder = 'azure-devops'
             }
             'Azure*'
-            { $targetFolder = 'azure'
+            {
+                $targetFolder = 'azure'
             }
             'Commerce*'
-            { $targetFolder = 'commerce'
+            {
+                $targetFolder = 'commerce'
             }
             'Defender*'
-            { $targetFolder = 'Defender'
+            {
+                $targetFolder = 'defender'
             }
             'EXO*'
-            { $targetFolder = 'exchange'
+            {
+                $targetFolder = 'exchange'
             }
             'Fabric*'
-            { $targetFolder = 'fabric'
+            {
+                $targetFolder = 'fabric'
             }
             'Intune*'
-            { $targetFolder = 'intune'
+            {
+                $targetFolder = 'intune'
             }
             'M365DSC*'
-            { $targetFolder = 'general'
+            {
+                $targetFolder = 'general'
             }
             'O365*'
-            { $targetFolder = 'office365'
+            {
+                $targetFolder = 'office365'
             }
             'OD*'
-            { $targetFolder = 'onedrive'
+            {
+                $targetFolder = 'onedrive'
             }
             'Planner*'
-            { $targetFolder = 'planner'
+            {
+                $targetFolder = 'planner'
             }
             'PP*'
-            { $targetFolder = 'power-platform'
+            {
+                $targetFolder = 'power-platform'
             }
             'SC*'
-            { $targetFolder = 'security-compliance'
+            {
+                $targetFolder = 'security-compliance'
             }
             'Sentinel*'
-            { $targetFolder = 'sentinel'
+            {
+                $targetFolder = 'sentinel'
             }
             'SH*'
-            { $targetFolder = 'services-hub'
+            {
+                $targetFolder = 'services-hub'
             }
             'SPO*'
-            { $targetFolder = 'sharepoint'
+            {
+                $targetFolder = 'sharepoint'
             }
             'Teams*'
-            { $targetFolder = 'teams'
+            {
+                $targetFolder = 'teams'
             }
             'Viva*'
-            { $targetFolder = 'viva'
+            {
+                $targetFolder = 'viva'
             }
             default
             {

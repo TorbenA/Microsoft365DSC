@@ -148,8 +148,8 @@ function Get-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -435,8 +435,8 @@ function Set-TargetResource
         $Assignments,
         #endregion
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -472,13 +472,13 @@ function Set-TargetResource
 
     if ($PSBoundParameters.ContainsKey('WebSQLAccess'))
     {
-        Write-Warning -Message "The WebSQLAccess parameter is deprecated and will be removed in a future version. It will not be used in the current operation."
+        Write-Warning -Message 'The WebSQLAccess parameter is deprecated and will be removed in a future version. It will not be used in the current operation.'
         $PSBoundParameters.Remove('WebSQLAccess') | Out-Null
     }
 
     if ($PSBoundParameters.ContainsKey('EdgeEnhanceImagesEnabled'))
     {
-        Write-Warning -Message "The EdgeEnhanceImagesEnabled parameter is deprecated and will be removed in a future version. It will not be used in the current operation."
+        Write-Warning -Message 'The EdgeEnhanceImagesEnabled parameter is deprecated and will be removed in a future version. It will not be used in the current operation.'
         $PSBoundParameters.Remove('EdgeEnhanceImagesEnabled') | Out-Null
     }
 
@@ -495,7 +495,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     $templateReferenceId = 'c66347b7-8325-4954-a235-3bf2233dfbfd_3'
@@ -505,7 +504,7 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating an Intune Security Baseline Microsoft Edge with Name {$DisplayName}"
-        $BoundParameters.Remove("Assignments") | Out-Null
+        $BoundParameters.Remove('Assignments') | Out-Null
 
         $settings = Get-IntuneSettingCatalogPolicySetting `
             -DSCParams ([System.Collections.Hashtable]$BoundParameters) `
@@ -537,7 +536,7 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Intune Security Baseline Microsoft Edge with Id {$($currentInstance.Id)}"
-        $BoundParameters.Remove("Assignments") | Out-Null
+        $BoundParameters.Remove('Assignments') | Out-Null
 
         $settings = Get-IntuneSettingCatalogPolicySetting `
             -DSCParams ([System.Collections.Hashtable]$BoundParameters) `
@@ -718,8 +717,8 @@ function Test-TargetResource
         #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -753,13 +752,13 @@ function Test-TargetResource
 
     if ($PSBoundParameters.ContainsKey('WebSQLAccess'))
     {
-        Write-Warning -Message "The WebSQLAccess parameter is deprecated and will be removed in a future version. It will not be used in the current operation."
+        Write-Warning -Message 'The WebSQLAccess parameter is deprecated and will be removed in a future version. It will not be used in the current operation.'
         $PSBoundParameters.Remove('WebSQLAccess') | Out-Null
     }
 
     if ($PSBoundParameters.ContainsKey('EdgeEnhanceImagesEnabled'))
     {
-        Write-Warning -Message "The EdgeEnhanceImagesEnabled parameter is deprecated and will be removed in a future version. It will not be used in the current operation."
+        Write-Warning -Message 'The EdgeEnhanceImagesEnabled parameter is deprecated and will be removed in a future version. It will not be used in the current operation.'
         $PSBoundParameters.Remove('EdgeEnhanceImagesEnabled') | Out-Null
     }
 
@@ -774,8 +773,8 @@ function Test-TargetResource
 
     $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                             -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                             @compareParameters
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+        @compareParameters
     return $result
 }
 
@@ -931,7 +930,7 @@ function Get-CompareParameters
 
     return @{
         ExcludedProperties = @('WebSQLAccess', 'EdgeEnhanceImagesEnabled')
-        PostProcessing = {
+        PostProcessing     = {
             param($DesiredValues, $CurrentValues, $ValuesToCheck, $PostProcessingArgs)
             $PostProcessingArgs[0] | ForEach-Object {
                 if ($_.Key -notlike '*Variable' -or $_.Key -notin @('Verbose', 'Debug', 'ErrorAction', 'WarningAction', 'InformationAction'))

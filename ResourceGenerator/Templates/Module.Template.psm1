@@ -8,8 +8,8 @@ function Get-TargetResource
 <ParameterBlock><AssignmentsParam>        #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -125,8 +125,8 @@ function Set-TargetResource
         #region resource generator code
 <ParameterBlock><AssignmentsParam>        #endregion
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -173,8 +173,7 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
-    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
 <#SettingsCatalogProperties#>
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
@@ -215,8 +214,8 @@ function Test-TargetResource
 <ParameterBlock><AssignmentsParam>        #endregion
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]

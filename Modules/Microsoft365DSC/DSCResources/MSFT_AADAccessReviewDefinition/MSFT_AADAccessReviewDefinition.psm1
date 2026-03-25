@@ -43,8 +43,8 @@ function Get-TargetResource
         $Id,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -115,10 +115,7 @@ function Get-TargetResource
                 {
                     $getValue = Get-MgBetaIdentityGovernanceAccessReviewDefinition `
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                        -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript {
-                        $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.AccessReviewScheduleDefinition'
-                    }
+                        -ErrorAction SilentlyContinue
                 }
             }
             #endregion
@@ -148,6 +145,7 @@ function Get-TargetResource
             $myPrincipalScopes.Add('Query', $currentPrincipalScopes.query)
             $myPrincipalScopes.Add('QueryRoot', $currentPrincipalScopes.queryRoot)
             $myPrincipalScopes.Add('QueryType', $currentPrincipalScopes.queryType)
+            $myPrincipalScopes.Add('ScopeType', $currentPrincipalScopes.scopeType)
             if ($null -ne $currentPrincipalScopes.'@odata.type')
             {
                 $myPrincipalScopes.Add('odataType', $currentPrincipalScopes.'@odata.type'.ToString())
@@ -165,6 +163,9 @@ function Get-TargetResource
             $myResourceScopes.Add('Query', $currentResourceScopes.query)
             $myResourceScopes.Add('QueryRoot', $currentResourceScopes.queryRoot)
             $myResourceScopes.Add('QueryType', $currentResourceScopes.queryType)
+            $myResourceScopes.Add('DisplayName', $currentResourceScopes.displayName)
+            $myResourceScopes.Add('ResourceScopeId', $currentResourceScopes.resourceId)
+            $myResourceScopes.Add('ScopeType', $currentResourceScopes.scopeType)
             if ($null -ne $currentResourceScopes.'@odata.type')
             {
                 $myResourceScopes.Add('odataType', $currentResourceScopes.'@odata.type'.ToString())
@@ -175,7 +176,6 @@ function Get-TargetResource
             }
         }
         $complexScope.Add('ResourceScopes', $complexResourceScopes)
-
 
         if ($null -ne $getValue.Scope.AdditionalProperties.'@odata.type')
         {
@@ -355,17 +355,18 @@ function Get-TargetResource
                 $currentQuery = $batchResponses | Where-Object { $_.id -eq $currentFallbackReviewer.Query }
                 switch ($currentFallbackReviewer.Query)
                 {
-                    { $_ -like "*users*" }
+                    { $_ -like '*users*' }
                     {
                         $reviewerType = 'User'
                     }
-                    { $_ -like "*groups*" }
+                    { $_ -like '*groups*' }
                     {
                         $reviewerType = 'Group'
                     }
                 }
                 $myFallbackReviewer = [ordered]@{}
                 $myFallbackReviewer.Add('DisplayName', $currentQuery.body.displayName)
+                $myFallbackReviewer.Add('ScopeType', $currentFallbackReviewer.AdditionalProperties.scopeType)
                 $myFallbackReviewer.Add('Type', $reviewerType)
                 $complexFallbackReviewers += $myFallbackReviewer
             }
@@ -374,9 +375,9 @@ function Get-TargetResource
         $complexReviewers = @()
         $allQueries = $getValue.Reviewers.Query
         $batchRequests = @()
-        foreach ($query in $allQueries)
+        foreach ($query in $($allQueries | Where-Object { $_ -notlike "*manager*" -and -not [System.String]::IsNullOrEmpty($_) }))
         {
-            if ($query -like "*manager*")
+            if ($query -like '*manager*')
             {
                 continue
             }
@@ -397,25 +398,26 @@ function Get-TargetResource
             $currentQuery = $batchResponses | Where-Object { $_.id -eq $currentReviewer.Query }
             switch ($currentReviewer.Query)
             {
-                { $_ -like "*manager*" }
+                { $_ -like '*manager*' }
                 {
                     $reviewerType = 'Manager'
                 }
-                { $_ -like "*users*" }
+                { $_ -like '*users*' }
                 {
                     $reviewerType = 'User'
                 }
-                { $_ -like "*groups*" }
+                { $_ -like '*groups*' }
                 {
                     $reviewerType = 'Group'
                 }
-                { $_ -like "*/owners"}
+                { $_ -like '*/owners' }
                 {
                     $reviewerType = 'Owner'
                 }
             }
             $myReviewer = [ordered]@{}
             $myReviewer.Add('DisplayName', $currentQuery.body.displayName)
+            $myReviewer.Add('ScopeType', $currentReviewer.AdditionalProperties.scopeType)
             $myReviewer.Add('Type', $reviewerType)
             $complexReviewers += $myReviewer
         }
@@ -496,8 +498,8 @@ function Set-TargetResource
         $Id,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -561,9 +563,9 @@ function Set-TargetResource
             }
             $filter = "displayName eq '$($currentFallbackReviewer.DisplayName -replace "'", "''")'"
             $batchRequests += @{
-                id = $currentFallbackReviewer.DisplayName
+                id     = $currentFallbackReviewer.DisplayName
                 method = 'GET'
-                url = "/$($reviewerType)?`$filter=$filter"
+                url    = "/$($reviewerType)?`$filter=$filter"
             }
         }
         if ($batchRequests.Count -gt 0)
@@ -591,8 +593,8 @@ function Set-TargetResource
                     $append = '/transitiveMembers/microsoft.graph.user'
                 }
                 $myFallbackReviewer = @{
-                    query = "/v1.0/$reviewerType/$($currentQuery.body.value.id)$append"
-                    queryType = "MicrosoftGraph"
+                    query     = "/v1.0/$reviewerType/$($currentQuery.body.value.id)$append"
+                    queryType = 'MicrosoftGraph'
                 }
                 $newFallbackReviewers += $myFallbackReviewer
             }
@@ -606,20 +608,23 @@ function Set-TargetResource
         $batchRequests = @()
         foreach ($currentReviewer in $Reviewers)
         {
-            if ($currentReviewer.Type -eq 'Manager')
+            if ($currentReviewer.Type -eq 'Manager' -or $currentReviewer.ScopeType -in @('Manager', 'ResourceOwner'))
             {
                 continue
             }
 
             switch ($currentReviewer.Type)
             {
-                'User' {
+                'User'
+                {
                     $reviewerType = 'users'
                 }
-                'Group' {
+                'Group'
+                {
                     $reviewerType = 'groups'
                 }
-                'Owner' {
+                'Owner'
+                {
                     $reviewerType = 'groups'
                 }
             }
@@ -627,9 +632,9 @@ function Set-TargetResource
             {
                 $filter = "displayName eq '$($currentReviewer.DisplayName -replace "'", "''")'"
                 $batchRequests += @{
-                    id = $currentReviewer.DisplayName
+                    id     = $currentReviewer.DisplayName
                     method = 'GET'
-                    url = "/$($reviewerType)?`$filter=$filter"
+                    url    = "/$($reviewerType)?`$filter=$filter"
                 }
             }
         }
@@ -644,13 +649,16 @@ function Set-TargetResource
             $currentQuery = $batchResponses | Where-Object { $_.id -eq $currentReviewer.DisplayName }
             switch ($currentReviewer.Type)
             {
-                'User' {
+                'User'
+                {
                     $reviewerType = 'users'
                 }
-                'Group' {
+                'Group'
+                {
                     $reviewerType = 'groups'
                 }
-                'Owner' {
+                'Owner'
+                {
                     $reviewerType = 'groups'
                 }
             }
@@ -666,14 +674,14 @@ function Set-TargetResource
                     $append = '/owners'
                 }
                 $myReviewer = @{
-                    query = "/v1.0/$reviewerType/$($currentQuery.body.value.id)$append"
-                    queryType = "MicrosoftGraph"
+                    query     = "/v1.0/$reviewerType/$($currentQuery.body.value.id)$append"
+                    queryType = 'MicrosoftGraph'
                 }
 
                 if ($currentReviewer.Type -eq 'Manager')
                 {
-                    $myReviewer.query = "./manager"
-                    $myReviewer.queryRoot = "decisions"
+                    $myReviewer.query = './manager'
+                    $myReviewer.queryRoot = 'decisions'
                 }
                 $newReviewers += $myReviewer
             }
@@ -699,6 +707,14 @@ function Set-TargetResource
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
         $createParameters.Remove('Id') | Out-Null
 
+        foreach ($scope in $createParameters.ScopeValue.ResourceScopes)
+        {
+            if ($scope.ContainsKey('ResourceScopeId'))
+            {
+                $scope.Add('ResourceId', $scope.ResourceScopeId)
+                $scope.Remove('ResourceScopeId') | Out-Null
+            }
+        }
         $createParameters.Add('Scope', $createParameters.ScopeValue)
         $createParameters.Remove('ScopeValue') | Out-Null
 
@@ -752,6 +768,14 @@ function Set-TargetResource
 
         $createParameters.Remove('Id') | Out-Null
 
+        foreach ($scope in $createParameters.ScopeValue.ResourceScopes)
+        {
+            if ($scope.ContainsKey('ResourceScopeId'))
+            {
+                $scope.Add('ResourceId', $scope.ResourceScopeId)
+                $scope.Remove('ResourceScopeId') | Out-Null
+            }
+        }
         $createParameters.Add('Scope', $createParameters.ScopeValue)
         $createParameters.Remove('ScopeValue') | Out-Null
 
@@ -809,6 +833,14 @@ function Set-TargetResource
 
         $updateParameters.Remove('Id') | Out-Null
 
+        foreach ($scope in $updateParameters.ScopeValue.ResourceScopes)
+        {
+            if ($scope.ContainsKey('ResourceScopeId'))
+            {
+                $scope.Add('ResourceId', $scope.ResourceScopeId)
+                $scope.Remove('ResourceScopeId') | Out-Null
+            }
+        }
         $updateParameters.Add('Scope', $updateParameters.ScopeValue)
         $updateParameters.Remove('ScopeValue') | Out-Null
 
@@ -885,8 +917,8 @@ function Test-TargetResource
         $Id,
 
         [Parameter()]
+        [ValidateSet('Present', 'Absent')]
         [System.String]
-        [ValidateSet('Absent', 'Present')]
         $Ensure = 'Present',
 
         [Parameter()]
@@ -929,8 +961,8 @@ function Test-TargetResource
 
     $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         @compareParameters
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+        @compareParameters
     return $result
 }
 
@@ -1049,12 +1081,12 @@ function Export-TargetResource
                     }
                     @{
                         Name            = 'PrincipalScopes'
-                        CimInstanceName = 'MicrosoftGraphAccessReviewScope'
+                        CimInstanceName = 'MicrosoftGraphAccessReviewPrincipalScope'
                         IsRequired      = $False
                     }
                     @{
                         Name            = 'ResourceScopes'
-                        CimInstanceName = 'MicrosoftGraphAccessReviewScope'
+                        CimInstanceName = 'MicrosoftGraphAccessReviewResourceScope'
                         IsRequired      = $False
                     }
                 )
@@ -1248,8 +1280,8 @@ function Get-CompareParameters
                     Write-Verbose -Message "Parsed Desired StartDateTime: $parsedDesiredDate, Parsed Current StartDateTime: $parsedCurrentDate"
                     if ($parsedDesiredDate -ne $parsedCurrentDate -and $parsedDesiredDate -lt [System.DateTime]::UtcNow)
                     {
-                        Write-Verbose -Message "Ignoring StartDateTime in ScheduleInfo as it is in the past. StartDateTime cannot be set to a past date."
-                        Write-Verbose -Message "Aligning the Desired and Current StartDateTime values for comparison."
+                        Write-Verbose -Message 'Ignoring StartDateTime in ScheduleInfo as it is in the past. StartDateTime cannot be set to a past date.'
+                        Write-Verbose -Message 'Aligning the Desired and Current StartDateTime values for comparison.'
                         $DesiredValues.SettingsValue.Recurrence.Range.StartDate = $CurrentValues.SettingsValue.Recurrence.Range.StartDate
                     }
                 }
