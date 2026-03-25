@@ -94,10 +94,27 @@ function Get-TargetResource
         foreach ($currentExcludeTargets in $getValue.registrationEnforcement.authenticationMethodsRegistrationCampaign.excludeTargets)
         {
             $myExcludeTargets = [ordered]@{}
-            $myExcludeTargets.Add('Id', $currentExcludeTargets.id)
             if ($null -ne $currentExcludeTargets.targetType)
             {
                 $myExcludeTargets.Add('TargetType', $currentExcludeTargets.targetType.ToString())
+                if ($myExcludeTargets.TargetType -eq 'Group')
+                {
+                    $myExcludeTargetsDisplayName = Get-M365DSCGroupDisplayNameById -GroupId $currentExcludeTargets.Id
+                    if ($null -eq $myExcludeTargetsDisplayName)
+                    {
+                        continue
+                    }
+                    $myExcludeTargets.Add('Id', $myExcludeTargetsDisplayName)
+                }
+                elseif ($myExcludeTargets.TargetType -eq 'User')
+                {
+                    $myExcludeTargetsUserPrincipalName = Get-M365DSCUserPrincipalNameById -UserId $currentExcludeTargets.Id
+                    if ($null -eq $myExcludeTargetsUserPrincipalName)
+                    {
+                        continue
+                    }
+                    $myExcludeTargets.Add('Id', $myExcludeTargetsUserPrincipalName)
+                }
             }
             if ($myExcludeTargets.values.Where({ $null -ne $_ }).Count -gt 0)
             {
@@ -109,7 +126,26 @@ function Get-TargetResource
         foreach ($currentIncludeTargets in $getValue.registrationEnforcement.authenticationMethodsRegistrationCampaign.includeTargets)
         {
             $myIncludeTargets = [ordered]@{}
-            $myIncludeTargets.Add('Id', $currentIncludeTargets.id)
+            if ($currentIncludeTargets.id -ne "all_users")
+            {
+                $myIncludeTargetsDisplayName = $null
+                if ($currentIncludeTargets.targetType -eq 'Group')
+                {
+                    $myIncludeTargetsDisplayName = Get-M365DSCGroupDisplayNameById -GroupId $currentIncludeTargets.Id
+                }
+                elseif ($currentIncludeTargets.targetType -eq 'User')
+                {
+                    $myIncludeTargetsDisplayName = Get-M365DSCUserPrincipalNameById -UserId $currentIncludeTargets.Id
+                }
+                if (-not [System.String]::IsNullOrEmpty($myIncludeTargetsDisplayName))
+                {
+                    $myIncludeTargets.Add('Id', $myIncludeTargetsDisplayName)
+                }
+            }
+            else
+            {
+                $myIncludeTargets.Add('Id', $currentIncludeTargets.id)
+            }
             $myIncludeTargets.Add('TargetedAuthenticationMethod', $currentIncludeTargets.targetedAuthenticationMethod)
             if ($null -ne $currentIncludeTargets.targetType)
             {
@@ -138,7 +174,22 @@ function Get-TargetResource
 
         $complexReportSuspiciousActivitySettings = [ordered]@{}
         $newComplexIncludeTarget = [ordered]@{}
-        $newComplexIncludeTarget.Add('Id', $getValue.ReportSuspiciousActivitySettings.IncludeTarget.id)
+        if ($getValue.ReportSuspiciousActivitySettings.IncludeTarget.id -ne "all_users")
+        {
+            $includeTargetDisplayName = $null
+            if ($getValue.ReportSuspiciousActivitySettings.IncludeTarget.targetType -eq 'Group')
+            {
+                $includeTargetDisplayName = Get-M365DSCGroupDisplayNameById -GroupId $getValue.ReportSuspiciousActivitySettings.IncludeTarget.Id
+                if ($null -ne $includeTargetDisplayName)
+                {
+                    $newComplexIncludeTarget.Add('Id', $includeTargetDisplayName)
+                }
+            }
+        }
+        else
+        {
+            $newComplexIncludeTarget.Add('Id', $getValue.ReportSuspiciousActivitySettings.IncludeTarget.id)
+        }
         if ($null -ne $getValue.ReportSuspiciousActivitySettings.IncludeTarget.targetType)
         {
             $newComplexIncludeTarget.Add('TargetType', $getValue.ReportSuspiciousActivitySettings.IncludeTarget.targetType.ToString())
@@ -163,7 +214,22 @@ function Get-TargetResource
         foreach ($currentExcludeTargets in $getValue.SystemCredentialPreferences.excludeTargets)
         {
             $myExcludeTargets = [ordered]@{}
-            $myExcludeTargets.Add('Id', $currentExcludeTargets.id)
+            if ($currentExcludeTargets.id -ne "all_users")
+            {
+                if ($currentExcludeTargets.targetType -eq 'Group')
+                {
+                    $myExcludeTargetsDisplayName = Get-M365DSCGroupDisplayNameById -GroupId $currentExcludeTargets.Id
+                    if ($null -eq $myExcludeTargetsDisplayName)
+                    {
+                        continue
+                    }
+                    $myExcludeTargets.Add('Id', $myExcludeTargetsDisplayName)
+                }
+            }
+            else
+            {
+                $myExcludeTargets.Add('Id', $currentExcludeTargets.id)
+            }
             if ($null -ne $currentExcludeTargets.targetType)
             {
                 $myExcludeTargets.Add('TargetType', $currentExcludeTargets.targetType.ToString())
@@ -178,7 +244,22 @@ function Get-TargetResource
         foreach ($currentIncludeTargets in $getValue.SystemCredentialPreferences.includeTargets)
         {
             $myIncludeTargets = [ordered]@{}
-            $myIncludeTargets.Add('Id', $currentIncludeTargets.id)
+            if ($currentIncludeTargets.id -ne "all_users")
+            {
+                if ($currentIncludeTargets.targetType -eq 'Group')
+                {
+                    $myIncludeTargetsDisplayName = Get-M365DSCGroupDisplayNameById -GroupId $currentIncludeTargets.Id
+                    if ($null -eq $myIncludeTargetsDisplayName)
+                    {
+                        continue
+                    }
+                    $myIncludeTargets.Add('Id', $myIncludeTargetsDisplayName)
+                }
+            }
+            else
+            {
+                $myIncludeTargets.Add('Id', $currentIncludeTargets.id)
+            }
             if ($null -ne $currentIncludeTargets.targetType)
             {
                 $myIncludeTargets.Add('TargetType', $currentIncludeTargets.targetType.ToString())
@@ -307,6 +388,11 @@ function Set-TargetResource
     Write-Verbose -Message "Updating the Azure AD Authentication Method Policy"
 
     $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $boundParameters
+    Update-M365DSCAuthenticationTargets -Targets $updateParameters.RegistrationEnforcement.AuthenticationMethodsRegistrationCampaign.ExcludeTargets
+    Update-M365DSCAuthenticationTargets -Targets $updateParameters.RegistrationEnforcement.AuthenticationMethodsRegistrationCampaign.IncludeTargets
+    Update-M365DSCAuthenticationTargets -Targets $updateParameters.ReportSuspiciousActivitySettings.IncludeTarget
+    Update-M365DSCAuthenticationTargets -Targets $updateParameters.SystemCredentialPreferences.ExcludeTargets
+    Update-M365DSCAuthenticationTargets -Targets $updateParameters.SystemCredentialPreferences.IncludeTargets
 
     #region resource generator code
     $updateParameters.Remove('IsSingleInstance') | Out-Null

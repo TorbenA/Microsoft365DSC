@@ -287,7 +287,6 @@ function Get-TargetResource
                 $complexAppConfiguration = $null
             }
             $mykioskProfiles.Add('AppConfiguration', $complexAppConfiguration)
-            $mykioskProfiles.Add('ProfileId', $currentkioskProfiles.profileId)
             $mykioskProfiles.Add('ProfileName', $currentkioskProfiles.profileName)
             $complexUserAccountsConfiguration = @()
             foreach ($currentUserAccountsConfiguration in $currentkioskProfiles.userAccountsConfiguration)
@@ -500,7 +499,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')

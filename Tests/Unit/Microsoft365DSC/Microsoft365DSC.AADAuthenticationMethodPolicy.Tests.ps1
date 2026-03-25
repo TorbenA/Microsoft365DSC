@@ -86,7 +86,20 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             }
                         )
                     }
+                }
+            }
 
+            Mock -CommandName Get-MgGroup -ModuleName M365DSCUtil -MockWith {
+                return @{
+                    DisplayName = "FakeStringValue2"
+                    Id = "a8ab05ba-6680-4f93-88ae-71099eedfda1"
+                }
+            }
+
+            Mock -CommandName Get-MgUser -ModuleName M365DSCUtil -MockWith {
+                return @{
+                    Id = "FakeStringValue"
+                    UserPrincipalName = "FakeStringValue"
                 }
             }
 
@@ -128,7 +141,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         VoiceReportingCode = 0
                         State = 'default'
                         IncludeTarget = (New-CimInstance -ClassName MSFT_AADAuthenticationMethodPolicyIncludeTarget -Property @{
-                                Id = 'a8ab05ba-6680-4f93-88ae-71099eedfda1'
+                                Id = 'FakeStringValue2'
                                 TargetType = 'group'
                         } -ClientOnly)
                     } -ClientOnly);
@@ -190,7 +203,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         VoiceReportingCode = 0
                         State = 'default'
                         IncludeTarget = (New-CimInstance -ClassName MSFT_AADAuthenticationMethodPolicyIncludeTarget -Property @{
-                                Id = 'a8ab05ba-6680-4f93-88ae-71099eedfda1'
+                                Id = 'FakeStringValue2'
                                 TargetType = 'group'
                         } -ClientOnly)
                     } -ClientOnly);
@@ -246,7 +259,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         VoiceReportingCode = 1 # Drift
                         State = 'default'
                         IncludeTarget = (New-CimInstance -ClassName MSFT_AADAuthenticationMethodPolicyIncludeTarget -Property @{
-                                Id = 'a8ab05ba-6680-4f93-88ae-71099eedfda1'
+                                Id = 'FakeStringValue2'
                                 TargetType = 'group'
                         } -ClientOnly)
                     } -ClientOnly);

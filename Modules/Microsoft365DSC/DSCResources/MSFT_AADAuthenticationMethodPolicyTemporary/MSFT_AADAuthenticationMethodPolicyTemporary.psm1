@@ -130,21 +130,12 @@ function Get-TargetResource
             $myExcludeTargets = [ordered]@{}
             if ($currentExcludeTargets.id -ne 'all_users')
             {
-                try
+                $myExcludeTargetsDisplayName = Get-M365DSCGroupDisplayNameById -GroupId $currentExcludeTargets.id
+                if ($null -eq $myExcludeTargetsDisplayName)
                 {
-                    $myExcludeTargetsDisplayName = Get-MgGroup -GroupId $currentExcludeTargets.id -ErrorAction Stop
-                    $myExcludeTargets.Add('Id', $myExcludeTargetsDisplayName.DisplayName)
-                }
-                catch
-                {
-                    $message = "Could not find a group with id $($currentExcludeTargets.id) specified in ExcludeTargets. Skipping group!"
-                    New-M365DSCLogEntry -Message $message `
-                        -Exception $_ `
-                        -Source $($MyInvocation.MyCommand.Source) `
-                        -TenantId $TenantId `
-                        -Credential $Credential
                     continue
                 }
+                $myExcludeTargets.Add('Id', $myExcludeTargetsDisplayName)
             }
             else
             {
@@ -164,42 +155,33 @@ function Get-TargetResource
         #endregion
 
         Write-Verbose -Message 'Processing IncludeTargets'
-        $complexincludeTargets = @()
-        foreach ($currentincludeTargets in $getValue.AdditionalProperties.includeTargets)
+        $complexIncludeTargets = @()
+        foreach ($currentIncludeTargets in $getValue.AdditionalProperties.includeTargets)
         {
-            Write-Verbose -Message "Retrieving IncludeTarget {$($currentincludeTargets.id)}"
-            $myincludeTargets = [ordered]@{}
+            Write-Verbose -Message "Retrieving IncludeTarget {$($currentIncludeTargets.id)}"
+            $myIncludeTargets = [ordered]@{}
             if ($currentIncludeTargets.id -ne 'all_users')
             {
-                try
+                $myIncludeTargetsDisplayName = Get-M365DSCGroupDisplayNameById -GroupId $currentIncludeTargets.id
+                if ($null -eq $myIncludeTargetsDisplayName)
                 {
-                    $myIncludeTargetsDisplayName = Get-MgGroup -GroupId $currentIncludeTargets.id -ErrorAction Stop
-                    $myIncludeTargets.Add('Id', $myIncludeTargetsDisplayName.DisplayName)
-                }
-                catch
-                {
-                    $message = "Could not find a group with id $($currentIncludeTargets.id) specified in IncludeTargets. Skipping group!"
-                    New-M365DSCLogEntry -Message $message `
-                        -Exception $_ `
-                        -Source $($MyInvocation.MyCommand.Source) `
-                        -TenantId $TenantId `
-                        -Credential $Credential
                     continue
                 }
+                $myIncludeTargets.Add('Id', $myIncludeTargetsDisplayName)
             }
             else
             {
                 $myIncludeTargets.Add('Id', $currentIncludeTargets.id)
             }
 
-            if ($null -ne $currentincludeTargets.targetType)
+            if ($null -ne $currentIncludeTargets.targetType)
             {
-                $myincludeTargets.Add('TargetType', $currentincludeTargets.targetType.ToString())
+                $myIncludeTargets.Add('TargetType', $currentIncludeTargets.targetType.ToString())
             }
 
-            if ($myincludeTargets.values.Where({ $null -ne $_ }).Count -gt 0)
+            if ($myIncludeTargets.values.Where({ $null -ne $_ }).Count -gt 0)
             {
-                $complexincludeTargets += $myincludeTargets
+                $complexIncludeTargets += $myIncludeTargets
             }
         }
 
@@ -220,7 +202,7 @@ function Get-TargetResource
             MaximumLifetimeInMinutes = $getValue.AdditionalProperties.maximumLifetimeInMinutes
             MinimumLifetimeInMinutes = $getValue.AdditionalProperties.minimumLifetimeInMinutes
             ExcludeTargets           = $complexExcludeTargets
-            IncludeTargets           = $complexincludeTargets
+            IncludeTargets           = $complexIncludeTargets
             State                    = $enumState
             Id                       = $getValue.Id
             Ensure                   = 'Present'
@@ -351,29 +333,9 @@ function Set-TargetResource
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
-        foreach ($key in $keys)
-        {
-            if ($key -eq 'IncludeTargets' -or $key -eq 'ExcludeTargets')
-            {
-                Write-Verbose -Message "Processing $key for update"
-                $i = 0
-                foreach ($entry in $UpdateParameters.$key)
-                {
-                    if ($entry.id -notmatch '^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$|all_users')
-                    {
-                        $filter = "DisplayName eq '$($entry.id -replace "'", "''")'" | Out-String
-                        $group = Get-MgGroup -Filter $filter
-                        if ($null -eq $group)
-                        {
-                            throw "Failed to find group with name {$($entry.id)} for AAD Authentication Method Policy Temporary {$($currentInstance.Id)}"
-                        }
-                        $UpdateParameters.$key[$i].id = $group.Id
-                    }
-                    $i++
-                }
-            }
-        }
+        Update-M365DSCAuthenticationTargets -Targets $UpdateParameters.ExcludeTargets
+        Update-M365DSCAuthenticationTargets -Targets $UpdateParameters.IncludeTargets
+
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.temporaryAccessPassAuthenticationMethodConfiguration')
         Update-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration  `

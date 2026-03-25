@@ -385,7 +385,7 @@ function Get-TargetResource
                     $current = [ordered]@{
                         Id                = $entity.Id
                         Enable            = [Boolean]$entity.Enable
-                        justificationText = $entity.justificationText
+                        justificationText = $entity.justificationText | Select-Object -First 1
                     }
                     $BusinessJustificationListValue += $current
                 }
