@@ -10,7 +10,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
     [Write, Description("The collection Id that is the target of the assignment.(ConfigMgr)")] String collectionId;
 };
 
-[ClassVersion("1.0.0.0"), FriendlyName("IntuneEndpointDetectionAndResponsePolicyWindows10")]
+[ClassVersion("1.0.0.1"), FriendlyName("IntuneEndpointDetectionAndResponsePolicyWindows10")]
 class MSFT_IntuneEndpointDetectionAndResponsePolicyWindows10 : OMI_BaseResource
 {
     [Write, Description("Identity of the endpoint detection and response policy for Windows 10.")] String Identity;
@@ -18,7 +18,7 @@ class MSFT_IntuneEndpointDetectionAndResponsePolicyWindows10 : OMI_BaseResource
     [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];
     [Write, Description("Description of the endpoint detection and response policy for Windows 10.")] String Description;
     [Write, Description("Assignments of the endpoint detection and response policy for Windows 10."), EmbeddedInstance("MSFT_DeviceManagementConfigurationPolicyAssignments")] String Assignments[];
-    [Write, Description("Return or set Windows Defender Advanced Threat Protection Sample Sharing configuration parameter: 0 - none, 1 - All"), ValueMap{"0", "1"}, Values{"0", "1"}] String SampleSharing;
+    [Write, Description("Return or set Windows Defender Advanced Threat Protection Sample Sharing configuration parameter: 0 - none, 1 - All"), ValueMap{"0", "1"}, Values{"0", "1"}] SInt32 SampleSharing;
     [Write, Description("Microsoft Defender for Endpoint endpoint detection and response capabilities provide advanced attack detections that are near real-time and actionable. Security analysts can prioritize alerts effectively, gain visibility into the full scope of a breach, and take response actions to remediate threats."), ValueMap{"AutoFromConnector", "Onboard", "Offboard"}, Values{"AutoFromConnector", "Onboard", "Offboard"}] String ConfigurationType;
     [Write, Description("Set Windows Defender Advanced Threat Protection Onboarding blob and initiate onboarding to Windows Defender Advanced Threat Protection")] String ConfigurationBlob;
     [Write, Description("Present ensures the policy exists, absent ensures it is removed"), ValueMap{"Present","Absent"}, Values{"Present","Absent"}] string Ensure;
