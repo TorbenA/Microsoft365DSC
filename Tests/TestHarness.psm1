@@ -13,7 +13,11 @@ function Invoke-TestHarness
 
         [Parameter()]
         [Switch]
-        $IgnoreCodeCoverage
+        $IgnoreCodeCoverage,
+
+        [Parameter()]
+        [System.String]
+        $ModuleDirectory = (Join-Path -Path $PSScriptRoot -ChildPath '..\Modules\Microsoft365DSC' -Resolve)
     )
 
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
@@ -24,7 +28,7 @@ function Invoke-TestHarness
     $repoDir = Join-Path -Path $PSScriptRoot -ChildPath '..\' -Resolve
 
     $oldModPath = $env:PSModulePath
-    $env:PSModulePath = $env:PSModulePath + [System.IO.Path]::PathSeparator + (Join-Path -Path $repoDir -ChildPath 'Modules\Microsoft365DSC')
+    $env:PSModulePath = $env:PSModulePath + [System.IO.Path]::PathSeparator + $ModuleDirectory
 
     $testCoverageFiles = @()
     if ($IgnoreCodeCoverage.IsPresent -eq $false)

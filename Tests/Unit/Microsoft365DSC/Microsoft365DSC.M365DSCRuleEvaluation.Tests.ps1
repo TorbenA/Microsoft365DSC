@@ -38,7 +38,18 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
 
             Mock -CommandName MSFT_AADConditionalAccessPolicy\Export-TargetResource -MockWith {
-                return "AADConditionalAccessPolicy 'FakeItem1'{`r`n    DisplayName='test';State = 'Enabled'`r`n}`r`nAADConditionalAccessPolicy 'FakeItem2'{`r`n    DisplayName='test';State = 'Disabled'`r`n}"
+                return @"
+                AADConditionalAccessPolicy 'FakeItem1'
+                {
+                    DisplayName ='test';
+                    State = 'Enabled';
+                }
+                AADConditionalAccessPolicy 'FakeItem2'
+                {
+                    DisplayName ='test';
+                    State = 'Disabled';
+                }
+"@
             }
 
             Mock -CommandName New-M365DSCConnection -MockWith {
