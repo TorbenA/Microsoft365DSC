@@ -810,14 +810,6 @@ function Set-TargetResource
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
         $CreateParameters.Remove('Id') | Out-Null
 
-        foreach ($key in ($CreateParameters.Clone()).Keys)
-        {
-            if ($CreateParameters[$key].GetType().Fullname -like '*CimInstance*')
-            {
-                $CreateParameters[$key] = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters[$key]
-            }
-        }
-
         <#if ($AdditionalProperties)
         {
             $CreateParameters.Add('AdditionalProperties', $AdditionalProperties)
@@ -845,15 +837,6 @@ function Set-TargetResource
         $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $UpdateParameters
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
         $UpdateParameters.Remove('Id') | Out-Null
-
-        foreach ($key in ($UpdateParameters.Clone()).Keys)
-        {
-            if ($UpdateParameters[$key].GetType().Fullname -like '*CimInstance*')
-            {
-                $UpdateParameters[$key] = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters[$key]
-            }
-        }
-
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.macOSGeneralDeviceConfiguration')
 
         #region resource generator code

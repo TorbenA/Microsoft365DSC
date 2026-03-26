@@ -81,6 +81,7 @@
   * Added `KeepExport` parameter to `Assert-M365DSCBlueprint` function.
 * MISC
   * Added CIM information about required properties to all resources where applicable.
+  * Removed duplicate complex hashtable conversions.
 
 # 1.26.318.1
 
