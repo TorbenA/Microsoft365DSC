@@ -1,4 +1,4 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceConfigurationDefenderForEndpointOnboardingPolicyWindows10'
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceConfigurationDefenderOnboardingPolicyWindows10'
 
 function Get-TargetResource
 {

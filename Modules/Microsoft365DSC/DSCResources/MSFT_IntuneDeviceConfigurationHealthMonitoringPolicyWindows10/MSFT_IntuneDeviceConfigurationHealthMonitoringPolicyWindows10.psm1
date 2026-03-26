@@ -1,4 +1,4 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10'
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceConfigurationHealthMonitoringPolicyWindows10'
 
 function Get-TargetResource
 {

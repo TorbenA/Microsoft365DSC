@@ -39,6 +39,14 @@
   * Updated several parameter types from String to Integer.
 * IntuneAppleMDMPushNotificationCertificate
   * [BREAKING CHANGE] Removed the `Id` parameter because it is random.
+* IntuneDeviceConfigurationDefenderForEndpointOnboardingPolicyWindows10
+  * [BREAKING CHANGE] Renamed resource to
+    `IntuneDeviceConfigurationDefenderOnboardingPolicyWindows10`.
+    FIXES [#6559](https://github.com/microsoft/Microsoft365DSC/issues/6559)
+* IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
+  * [BREAKING CHANGE] Renamed resource to
+    `IntuneDeviceConfigurationHealthMonitoringPolicyWindows10`.
+    FIXES [#6559](https://github.com/microsoft/Microsoft365DSC/issues/6559)
 * IntuneDeviceConfigurationKioskPolicyWindows10
   * [BREAKING CHANGE] Removed property `ProfileId` from the
     `MSFT_MicrosoftGraphWindowsKioskProfile` instance.
