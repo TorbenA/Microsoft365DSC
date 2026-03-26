@@ -693,7 +693,7 @@ function Export-TargetResource
                 $complexMapping = @(
                     @{
                         Name            = 'IdentitySynchronization'
-                        CimInstanceName = 'AADCrossTenantIdentitySyncPolicyPartner'
+                        CimInstanceName = 'AADCrossTenantIdentitySyncPolicyPartnerInbound'
                         IsRequired      = $False
                     },
                     @{

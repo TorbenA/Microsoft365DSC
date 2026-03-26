@@ -32,7 +32,7 @@ class MSFT_MicrosoftGraphVpnServer
     [Write, Description("Default server.")] Boolean isDefaultServer;
 };
 
-[ClassVersion("1.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftvpnProxyServer
 {
     [Write, Description("Proxy's automatic configuration script url.")] String automaticConfigurationScriptUrl;
