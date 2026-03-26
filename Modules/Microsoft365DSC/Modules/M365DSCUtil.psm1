@@ -1541,11 +1541,15 @@ function New-M365DSCConnection
         $EnableSearchOnlySession
     )
 
-    $requiredModules = Get-M365DSCRequiredModules
-    foreach ($requiredModule in $requiredModules)
+    if (-not (Test-IsM365DSCRequiredModulesLoaded))
     {
-        Write-Verbose -Message "Ensuring required module '$requiredModule' is loaded."
-        Confirm-M365DSCLoadedModule -ModuleName $requiredModule
+        $requiredModules = Get-M365DSCRequiredModules
+        foreach ($requiredModule in $requiredModules)
+        {
+            Write-Verbose -Message "Ensuring required module '$requiredModule' is loaded."
+            Confirm-M365DSCLoadedModule -ModuleName $requiredModule
+        }
+        Set-M365DSCRequiredModulesLoaded -Value $true
     }
 
     if ($Workload -eq 'MicrosoftTeams')
