@@ -19,6 +19,9 @@
 * DkimSigningConfig
   * Fixed an issue to create new DkimSigningConfig
     FIXES [#6982](https://github.com/microsoft/Microsoft365DSC/issues/6982)
+* EXOIRMConfiguration
+  * Added support for EnablePortalTrackingLogs
+    FIXES [#6992](https://github.com/microsoft/Microsoft365DSC/issues/6992)
 * IntuneAppAndBrowserIsolationPolicyWindows10
   * Updated several parameter types from String to Integer.
 * IntuneAppAndBrowserIsolationPolicyWindows10ConfigMgr
