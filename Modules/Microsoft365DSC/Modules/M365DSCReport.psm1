@@ -1854,6 +1854,10 @@ function Get-M365DSCResourceKey
     elseif ($mandatoryParameters.Count -gt 0)
     {
         # return all mandatory parameters
+        if ($Resource.ResourceName -eq 'EXOTenantAllowBlockListItems')
+        {
+            $mandatoryParameters = $mandatoryParameters | Where-Object Name -NE 'Action' # Action is not a key property but still mandatory
+        }
         $Script:MandatoryParametersCache[$Resource.ResourceName] = @($mandatoryParameters.Name)
         return @($mandatoryParameters.Name)
     }

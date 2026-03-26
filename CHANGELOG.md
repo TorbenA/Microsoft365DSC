@@ -6,32 +6,66 @@
   * [BREAKING CHANGE] Fixed the type definition of the `ScopeValue` property.
 * AADApplication
   * Added name resolution for `AppId` and `PermissionIds` in preauthorized applications.
+* AADAuthenticationMethodPolicy
+  * [BREAKING CHANGE] Added `IsSingleInstance` parameter.
+    Removed `Ensure`, `DisplayName`, `Description`, `Id` and `PolicyVersion` parameters.
 * AADAuthenticationMethodPolicy*
+  * Streamlined group resolution during update operation.
   * Streamlined Target name resolution for all authentication resources.
+* AADAuthenticationRequirement
+  * [BREAKING CHANGE] Added `IsSingleInstance` parameter.
+* AADTenantAppManagementPolicy
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Ensure` parameter.
 * EXODkimSigningConfig
   * Fixed an issue to create new DkimSigningConfig
     FIXES [#6982](https://github.com/microsoft/Microsoft365DSC/issues/6982)
 * EXOIRMConfiguration
+  * Added support for EnablePortalTrackingLogs
+    FIXES [#6992](https://github.com/microsoft/Microsoft365DSC/issues/6992)
   * Changed the parameters `LicensingLocation` and `RMSOnlineKeySharingLocation`
     to `System.String` instead of an implicit conversion to `System.Uri`.
 * EXOMigration
   * Fixed an issue where `UserEmails` could contain empty strings.
+* EXOTenantAllowBlockListItems
+  * [BREAKING CHANGE] Removed the Microsoft reserved `SubmissionID` parameter.
+  * [BREAKING CHANGE] Updated the property `Action` to be Required instead of Key.
+* IntuneAppAndBrowserIsolationPolicyWindows10
+  * Updated several parameter types from String to Integer.
+* IntuneAppAndBrowserIsolationPolicyWindows10ConfigMgr
+  * Updated several parameter types from String to Integer.
+* IntuneAppleMDMPushNotificationCertificate
+  * [BREAKING CHANGE] Removed the `Id` parameter because it is random.
 * IntuneDeviceConfigurationKioskPolicyWindows10
   * [BREAKING CHANGE] Removed property `ProfileId` from the
     `MSFT_MicrosoftGraphWindowsKioskProfile` instance.
+* IntuneDeviceConfigurationNetworkBoundaryPolicyWindows10
+  * [BREAKING CHANGE] Removed the property `CidrAddress` from `MicrosoftGraphIpRange1`
+    and removed the `#microsoft.graph.iPv4/6CidrRange` values from `odataType`.
+    Only IPv4/v6 ranges are supported in the UI.
 * IntuneDeviceEnrollmentStatusPageWindows10
   * Fixed an issue where `SelectedMobileAppNames` could contain empty strings
     during the execution of `Test-TargetResoure`.
+* IntuneDiskEncryptionPDEPolicyWindows10
+  * Updated several parameter types from String to Integer.
+* IntuneEndpointDetectionAndResponsePolicyWindows10
+  * Updated the `SampleSharing` parameter from String to Integer.
+* IntuneExploitProtectionPolicyWindows10SettingCatalog
+  * Updated the `DisallowExploitProtectionOverride` parameter from String to Integer.
+* IntuneMobileAppsMacOSLobApp
+  * [BREAKING CHANGE] Updated the `Assignments` parameter type to allow settings.
 * IntuneMobileAppsBuiltInStoreApp
+  * [BREAKING CHANGE] Updated the `Assignments` parameter type to allow settings.
   * Renamed CIM class for assignments from `MSFT_DeviceManagementMobileAppAssignment`
     to `MSFT_DeviceManagementBuiltInStoreAppAssignment`.
 * IntuneMobileAppsLobAppiOS
+  * [BREAKING CHANGE] Updated the `Assignments` parameter type to allow settings.
   * Renamed CIM class for assignments from `MSFT_DeviceManagementMobileAppAssignment`
     to `MSFT_DeviceManagementLobAppiOSAssignment`.
 * IntuneMobileAppsMacOSLobApp
   * Renamed CIM class for assignments from `MSFT_DeviceManagementMobileAppAssignment`
     to `MSFT_DeviceManagementMacOSLobAppAssignment`.
 * IntuneMobileAppsManagedGooglePlayApp
+  * [BREAKING CHANGE] Updated the `Assignments` parameter type to allow settings.
   * Renamed CIM class for assignments from `MSFT_DeviceManagementMobileAppAssignment`
     to `MSFT_DeviceManagementManagedGooglePlayMobileAppAssignment`.
 * IntuneWindowsInformationProtectionPolicyWindows10MdmEnrolled
@@ -39,10 +73,36 @@
 * SCPolicyConfig
   * Fixed an issue where `JustificationText` was exported as an array and could
     contain empty strings.
+* TeamsClientConfiguration
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
+* TeamsFederationConfiguration
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Ensure` parameter.
+* TeamsGuestCallingConfiguration
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
+* TeamsGuestMeetingConfiguration
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
+* TeamsGuestMessagingConfiguration
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
+* TeamsMeetingBroadcastConfiguration
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
+* TeamsMeetingConfiguration
+  * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Ensure` parameter.
+* TeamsMeetingPolicy
+  * [BREAKING CHANGE] Removed the obsolete parameter `AllowCarbonSummary`.
+    FIXES [#6972](https://github.com/microsoft/Microsoft365DSC/issues/6972)
+* M365DSCPermissions
+  * Removed internal function `Update-M365DSCResourcesSettingsJSON`.
+* M365DSCReport
+  * Fixed an issue where comparing instances of `EXOTenantAllowBlockListItems` would
+    use the wrong resource keys.
+    FIXES [#6981](https://github.com/microsoft/Microsoft365DSC/issues/6981)
+* M365DSCStubsUtility
+  * Removed module.
 * M365DSCUtil
   * Added `KeepExport` parameter to `Assert-M365DSCBlueprint` function.
 * MISC
   * Added CIM information about required properties to all resources where applicable.
+  * Removed duplicate complex hashtable conversions.
 
 # 1.26.318.1
 
@@ -62,6 +122,9 @@
 * IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
   * Fixed an issue with value handling when creating or updating policies.
     FIXES [#6955](https://github.com/microsoft/Microsoft365DSC/issues/6955)
+* O365OrgSettings
+  * Fixed an issue where the export was empty.
+    FIXES [#6987](https://github.com/microsoft/Microsoft365DSC/issues/6987)
 * SCLabelPolicy
   * Fixed an issue where setting `AdvancedSettings` failed.
     FIXES [#6973](https://github.com/microsoft/Microsoft365DSC/issues/6973)

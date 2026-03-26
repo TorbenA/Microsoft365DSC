@@ -77,7 +77,6 @@
     'Modules/M365DSCPermissions.psm1',
     'Modules/M365DSCReport.psm1',
     'Modules/M365DSCReverse.psm1',
-    'Modules/M365DSCStubsUtility.psm1',
     'Modules/M365DSCTelemetryEngine.psm1',
     'Modules/M365DSCUtil.psm1',
     'Modules/M365DSCDRGUtil.psm1',
@@ -109,7 +108,6 @@
     'New-M365DSCDeltaReport',
     'New-M365DSCNotificationEndpointRegistration',
     'New-M365DSCReportFromConfiguration',
-    'New-M365DSCStubFiles',
     'Remove-M365DSCNotificationEndpointRegistration',
     'Set-M365DSCAgentCertificateConfiguration',
     'Split-M365DSCConfiguration',
@@ -121,8 +119,7 @@
     'Update-M365DSCAzureAdApplication',
     'Update-M365DSCDependencies',
     'Update-M365DSCModule',
-    'Update-M365DSCResourceDocumentationPage',
-    'Update-M365DSCResourcesSettingsJSON'
+    'Update-M365DSCResourceDocumentationPage'
   )
 
   # Variables to export from this module
