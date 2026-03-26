@@ -22,6 +22,9 @@
 * EXOIRMConfiguration
   * Added support for EnablePortalTrackingLogs
     FIXES [#6992](https://github.com/microsoft/Microsoft365DSC/issues/6992)
+* EXOTenantAllowBlockListItems
+  * [BREAKING CHANGE] Removed the Microsoft reserved `SubmissionID` parameter.
+  * [BREAKING CHANGE] Updated the property `Action` to be Required instead of Key.
 * IntuneAppAndBrowserIsolationPolicyWindows10
   * Updated several parameter types from String to Integer.
 * IntuneAppAndBrowserIsolationPolicyWindows10ConfigMgr
@@ -81,6 +84,10 @@
     FIXES [#6972](https://github.com/microsoft/Microsoft365DSC/issues/6972)
 * M365DSCPermissions
   * Removed internal function `Update-M365DSCResourcesSettingsJSON`.
+* M365DSCReport
+  * Fixed an issue where comparing instances of `EXOTenantAllowBlockListItems` would
+    use the wrong resource keys.
+    FIXES [#6981](https://github.com/microsoft/Microsoft365DSC/issues/6981)
 * M365DSCStubsUtility
   * Removed module.
 * M365DSCUtil
