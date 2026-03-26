@@ -189,7 +189,12 @@ function Compare-M365DSCResourceState
                 $CIMName = $parameterDefinition.CIMType.Replace('[]', '')
                 $CIMDefinition = [Microsoft365DSC.Utilities.Utilities]::FilterCimClassesByName($Script:M365DSCSchema, $CIMName)
                 # Can potentially be a single PSObject, therefore not using Where()
-                $CIMPrimaryKeys = $CIMDefinition.Parameters | Where-Object Option -EQ 'Required'
+                [array]$CIMPrimaryKeys = @()
+                $requiredParameters = $CIMDefinition.Parameters | Where-Object Option -EQ 'Required'
+                if ($requiredParameters.Count -gt 0)
+                {
+                    $CIMPrimaryKeys += $requiredParameters
+                }
 
                 $targetObjects = @{}
                 if ($source.GetType().Name -in @('CimInstance[]', 'Object[]'))
@@ -197,8 +202,10 @@ function Compare-M365DSCResourceState
                     $targetObjects = @()
                 }
 
-                if ($CIMName -like "*Intune*PolicyAssignments" -and -not $CIMName -eq "MSFT_IntuneDeviceRemediationPolicyAssignments")
+                $isIntunePolicyAssignment = $false
+                if (($CIMName -like "*Intune*PolicyAssignments" -or $CIMName -like "*DeviceManagementConfigurationPolicyAssignments") -and $CIMName -ne "MSFT_IntuneDeviceRemediationPolicyAssignments")
                 {
+                    $isIntunePolicyAssignment = $true
                     if (($source.Count -gt 0 -and $source[0].dataType -notin @("#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget")) -or `
                         ($target.Count -gt 0 -and $target[0].dataType -notin @("#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget")))
                     {
@@ -235,6 +242,11 @@ function Compare-M365DSCResourceState
                 {
                     foreach ($primaryKey in $CIMPrimaryKeys.Name)
                     {
+                        if ($isIntunePolicyAssignment -and $primaryKey -eq 'dataType')
+                        {
+                            continue
+                        }
+
                         if ($primaryKey -notin $IncludedProperties)
                         {
                             $targetObject.Remove($primaryKey) | Out-Null

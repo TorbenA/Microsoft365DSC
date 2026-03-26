@@ -217,6 +217,13 @@ namespace Microsoft365DSC.Compare
                 return array;
             }
 
+            if (value is IList list)
+            {
+                Array newArray = Array.CreateInstance(list.GetType().GetGenericArguments()[0], list.Count);
+                list.CopyTo(newArray, 0);
+                return newArray;
+            }
+
             // Single value (ValueType or String) - create array with that value
             if (value is PSObject psObject)
                 value = psObject.BaseObject;

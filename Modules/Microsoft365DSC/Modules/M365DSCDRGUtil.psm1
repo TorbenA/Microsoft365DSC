@@ -639,7 +639,7 @@ function ConvertFrom-IntunePolicyAssignment
         $assignmentResult += $hashAssignment
     }
 
-    return ,[System.Collections.Hashtable[]]$assignmentResult
+    return ,$assignmentResult
 }
 
 function ConvertTo-IntunePolicyAssignment
@@ -841,7 +841,7 @@ function ConvertFrom-IntuneMobileAppAssignment
         $assignmentResult += $hashAssignment
     }
 
-    return ,[System.Collections.Hashtable[]]$assignmentResult
+    return ,$assignmentResult
 }
 
 function ConvertTo-IntuneMobileAppAssignment

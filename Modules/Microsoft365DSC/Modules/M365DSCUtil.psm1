@@ -4778,9 +4778,7 @@ Export-ModuleMember -Function @(
     'Test-CodePage',
     'Test-M365DSCParameterState',
     'Test-M365DSCTargetResource',
-    'Uninstall-M365DSCOutdatedDependencies',
     'Update-M365DSCAuthenticationTargets',
-    'Update-M365DSCDependencies',
     'Update-M365DSCExportAuthenticationResults',
     'Write-M365DSCHost'
 )
