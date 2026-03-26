@@ -582,11 +582,6 @@ function Export-TargetResource
             {
                 $complexMapping = @(
                     @{
-                        Name            = 'Settings'
-                        CimInstanceName = 'MicrosoftGraphDeviceManagementConfigurationSetting'
-                        IsRequired      = $False
-                    }
-                    @{
                         Name            = 'SettingInstance'
                         CimInstanceName = 'MicrosoftGraphDeviceManagementConfigurationSettingInstance'
                         IsRequired      = $False
@@ -640,7 +635,8 @@ function Export-TargetResource
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.Settings `
                     -CIMInstanceName 'MicrosoftGraphdeviceManagementConfigurationSetting' `
-                    -ComplexTypeMapping $complexMapping
+                    -ComplexTypeMapping $complexMapping `
+                    -IsArray:$true
 
                 if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {

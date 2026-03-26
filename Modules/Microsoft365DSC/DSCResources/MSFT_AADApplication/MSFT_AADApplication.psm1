@@ -1954,7 +1954,7 @@ function Export-TargetResource
 function Get-M365DSCAzureADAppPermissions
 {
     [CmdletBinding()]
-    [OutputType([PSCustomObject])]
+    [OutputType([System.Collections.Hashtable[]])]
     param
     (
         [Parameter(Mandatory = $true)]

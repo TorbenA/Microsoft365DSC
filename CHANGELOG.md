@@ -16,12 +16,16 @@
   * [BREAKING CHANGE] Added `IsSingleInstance` parameter.
 * AADTenantAppManagementPolicy
   * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Ensure` parameter.
-* DkimSigningConfig
+* EXODkimSigningConfig
   * Fixed an issue to create new DkimSigningConfig
     FIXES [#6982](https://github.com/microsoft/Microsoft365DSC/issues/6982)
 * EXOIRMConfiguration
   * Added support for EnablePortalTrackingLogs
     FIXES [#6992](https://github.com/microsoft/Microsoft365DSC/issues/6992)
+  * Changed the parameters `LicensingLocation` and `RMSOnlineKeySharingLocation`
+    to `System.String` instead of an implicit conversion to `System.Uri`.
+* EXOMigration
+  * Fixed an issue where `UserEmails` could contain empty strings.
 * EXOTenantAllowBlockListItems
   * [BREAKING CHANGE] Removed the Microsoft reserved `SubmissionID` parameter.
   * [BREAKING CHANGE] Updated the property `Action` to be Required instead of Key.
@@ -38,6 +42,9 @@
   * [BREAKING CHANGE] Removed the property `CidrAddress` from `MicrosoftGraphIpRange1`
     and removed the `#microsoft.graph.iPv4/6CidrRange` values from `odataType`.
     Only IPv4/v6 ranges are supported in the UI.
+* IntuneDeviceEnrollmentStatusPageWindows10
+  * Fixed an issue where `SelectedMobileAppNames` could contain empty strings
+    during the execution of `Test-TargetResoure`.
 * IntuneDiskEncryptionPDEPolicyWindows10
   * Updated several parameter types from String to Integer.
 * IntuneEndpointDetectionAndResponsePolicyWindows10
@@ -64,7 +71,8 @@
 * IntuneWindowsInformationProtectionPolicyWindows10MdmEnrolled
   * [BREAKING CHANGE] Removed the `*CidrRange` choices from the ipRange type.
 * SCPolicyConfig
-  * Fixed an issue where `JustificationText` was exported as an array.
+  * Fixed an issue where `JustificationText` was exported as an array and could
+    contain empty strings.
 * TeamsClientConfiguration
   * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
 * TeamsFederationConfiguration
@@ -292,6 +300,12 @@
 
 # 1.26.211.1
 
+* AADConditionalAccessPolicy
+  * Fixed an issue where arrays could contain empty strings.
+* AADPasswordRuleSettings
+  * Fixed an issue where `BannedPasswordList` could be null.
+* AADPIMGroupSetting
+  * Fixed an issue where typed variables could lead to an exception.
 * AADUser
   * Fixed an export issue where a user was deleted during a long-running job.
     FIXES [#5703](https://github.com/microsoft/Microsoft365DSC/issues/5703)
@@ -327,6 +341,7 @@
   * Fixed an issue when selecting a property for the result.
     FIXES [#6882](https://github.com/microsoft/Microsoft365DSC/issues/6882)
 * DEPENDENCIES
+  * Removed dependency on `PSDesiredStateConfiguration`.
   * Updated MSCloudLoginAssistant to version 1.1.58.
 
 # 1.26.128.1
@@ -382,15 +397,21 @@
 * M365DSCPermissions
   * Changed the output of `Get-M365DSCCompiledPermissionList` to show the
     required Read and Update permissions for `Roles` and `RoleGroups`.
-* MISC
-  * Updated the structure of all EXO settings.json files that contain the
-    `Roles` and `RoleGroups` properties.
+* M365DSCTelemetryEngine
+  * Added a function to test if telemetry is enabled.
 * M365DSCUtil
   * Added the output of the drift event to the screen in Verbose mode.
     FIXES [#6666](https://github.com/microsoft/Microsoft365DSC/issues/6666)
   * Added the parameter `-WithStatistics` to `Export-M365DSCConfiguration`.
   * Fixed an issue where the module is not being updated if installed
     with `Install-PSResource` because the filter condition was incorrect.
+* MISC
+  * Added more performance improvements for hot code paths.
+  * Fixed issues with mismatched property types in resource tests.
+  * Refactored parts of the core engine with C#.
+  * Replaced `Get-(Pwsh)DscResource` with a custom implementation.
+  * Updated the structure of all EXO settings.json files that contain the
+    `Roles` and `RoleGroups` properties.
 * DEPENDENCIES
   * Fixed a case typo in `RequiredVersion` of a dependency.
     FIXES [#6815](https://github.com/microsoft/Microsoft365DSC/issues/6815)
