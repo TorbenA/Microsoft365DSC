@@ -48,3 +48,18 @@ jobs:
               throw "Resource {$($resource.Name)} has a name that leads to import errors because the path is too long."
             }
           }
+
+      - name: Ensure No Hardcoded Azure Endpoints
+        shell: pwsh
+        run: |
+          $resources = Get-ChildItem './Modules/Microsoft365DSC/DSCResources/*.psm1' -Recurse
+
+          foreach ($resource in $resources)
+          {
+            $content = Get-Content $resource.FullName -Raw
+            $foundPosition = $content.IndexOf('https://management.azure.com', 0)
+            if ($foundPosition -ge 0)
+            {
+              throw "Resource {$($Resource.Name)} contains hardcoded Azure references."
+            }
+          }

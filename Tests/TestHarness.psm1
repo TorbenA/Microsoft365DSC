@@ -16,7 +16,7 @@ function Invoke-TestHarness
         $IgnoreCodeCoverage
     )
 
-    $sw = [System.Diagnostics.StopWatch]::startnew()
+    $sw = [System.Diagnostics.Stopwatch]::StartNew()
 
     $MaximumFunctionCount = 32767
     Write-Host -Object 'Running all Microsoft365DSC Unit Tests'
@@ -38,7 +38,6 @@ function Invoke-TestHarness
     }
 
     Import-Module -Name "$repoDir/Modules/Microsoft365DSC/Microsoft365DSC.psd1"
-    Import-Module -Name PSDesiredStateConfiguration -Global -Prefix 'Pwsh' -Force
     $testsToRun = @()
 
     # Run Unit Tests
