@@ -76,6 +76,9 @@
   * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
 * TeamsMeetingConfiguration
   * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Ensure` parameter.
+* TeamsMeetingPolicy
+  * [BREAKING CHANGE] Removed the obsolete parameter `AllowCarbonSummary`.
+    FIXES [#6972](https://github.com/microsoft/Microsoft365DSC/issues/6972)
 * M365DSCPermissions
   * Removed internal function `Update-M365DSCResourcesSettingsJSON`.
 * M365DSCStubsUtility
