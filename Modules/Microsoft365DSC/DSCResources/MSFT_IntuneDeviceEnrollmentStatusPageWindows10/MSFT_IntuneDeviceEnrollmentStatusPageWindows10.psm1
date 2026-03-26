@@ -632,7 +632,13 @@ function Test-TargetResource
     if ($PSBoundParameters.ContainsKey('SelectedMobileAppIds') -eq $true -and $PSBoundParameters.ContainsKey('SelectedMobileAppNames') -eq $false)
     {
         Write-Verbose -Message 'Converting SelectedMobileAppIds to SelectedMobileAppNames'
-        $PSBoundParameters.SelectedMobileAppNames = $SelectedMobileAppIds | ForEach-Object { (Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $_).DisplayName }
+        $resolvedNames = @()
+        foreach ($appId in $SelectedMobileAppIds)
+        {
+            $mobileEntry = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $appId
+            $resolvedNames += $mobileEntry.DisplayName
+        }
+        $PSBoundParameters.SelectedMobileAppNames = $resolvedNames
     }
     $PSBoundParameters.Remove('SelectedMobileAppIds') | Out-Null
 

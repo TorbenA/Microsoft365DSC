@@ -592,12 +592,12 @@ function Set-TargetResource
                 $currentMembers = @()
                 foreach ($member in $backCurrentMembers)
                 {
-                    $currentMembers += [pscustomobject]@{Type = $member.Type; Identity = $member.Identity }
+                    $currentMembers += @{Type = $member.Type; Identity = $member.Identity }
                 }
                 $desiredMembers = @()
                 foreach ($member in $requestedMembers)
                 {
-                    $desiredMembers += [pscustomobject]@{Type = $member.Type; Identity = $member.Identity }
+                    $desiredMembers += @{Type = $member.Type; Identity = $member.Identity }
                 }
                 $membersDiff = Compare-Object -ReferenceObject $currentMembers -DifferenceObject $desiredMembers -Property Identity, Type
                 foreach ($diff in $membersDiff)
@@ -667,7 +667,7 @@ function Set-TargetResource
             $compareCurrentScopedRoleMembersValue = @()
             foreach ($roleMember in $currentScopedRoleMembersValue)
             {
-                $compareCurrentScopedRoleMembersValue += [pscustomobject]@{
+                $compareCurrentScopedRoleMembersValue += @{
                     RoleName = $roleMember.RoleName
                     Identity = $roleMember.RoleMemberInfo.Identity
                     Type     = $roleMember.RoleMemberInfo.Type
@@ -676,7 +676,7 @@ function Set-TargetResource
             $compareDesiredScopedRoleMembersValue = @()
             foreach ($roleMember in $desiredScopedRoleMembersValue)
             {
-                $compareDesiredScopedRoleMembersValue += [pscustomobject]@{
+                $compareDesiredScopedRoleMembersValue += @{
                     RoleName = $roleMember.RoleName
                     Identity = $roleMember.RoleMemberInfo.Identity
                     Type     = $roleMember.RoleMemberInfo.Type
