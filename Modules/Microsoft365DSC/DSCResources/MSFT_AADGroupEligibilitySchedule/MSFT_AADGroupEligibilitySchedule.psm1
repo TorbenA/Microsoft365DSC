@@ -492,14 +492,6 @@ function Set-TargetResource
         }
         $createParameters.Add('PrincipalId', $PrincipalId)
 
-        $keys = (([Hashtable]$createParameters).Clone()).Keys
-        foreach ($key in $keys)
-        {
-            if ($null -ne $createParameters.$key -and $createParameters.$key.GetType().Name -like '*CimInstance*')
-            {
-                $createParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $createParameters.$key
-            }
-        }
         #region resource generator code
         Write-Verbose -Message "Creating the Azure AD Group Eligibility Schedule with parameters:`r`n$(ConvertTo-Json $createParameters -Depth 10)"
         New-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilityScheduleRequest -BodyParameter $createParameters
@@ -602,22 +594,13 @@ function Set-TargetResource
 
         $updateParameters.Add('PrincipalId', $PrincipalId)
 
-        $keys = (([Hashtable]$updateParameters).Clone()).Keys
-        foreach ($key in $keys)
-        {
-            if ($null -ne $updateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
-            {
-                $updateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.PrivilegedAccessGroupEligibilityScheduleId
-            }
-        }
-
         #region resource generator code
         New-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilityScheduleRequest -BodyParameter $UpdateParameters
         #endregion
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removiong the Azure AD Group Eligibility Schedule with Id {$($currentInstance.Id)}"
+        Write-Verbose -Message "Removing the Azure AD Group Eligibility Schedule with Id {$($currentInstance.Id)}"
 
         $updateParameters = ([Hashtable]$BoundParameters).Clone()
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
@@ -643,15 +626,6 @@ function Set-TargetResource
             }
         }
         $updateParameters.Add('PrincipalId', $PrincipalId)
-
-        $keys = (([Hashtable]$updateParameters).Clone()).Keys
-        foreach ($key in $keys)
-        {
-            if ($null -ne $updateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
-            {
-                $updateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.PrivilegedAccessGroupEligibilityScheduleId
-            }
-        }
 
         #region resource generator code
         New-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilityScheduleRequest -BodyParameter $UpdateParameters

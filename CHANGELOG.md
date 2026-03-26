@@ -88,6 +88,7 @@
   * Added `KeepExport` parameter to `Assert-M365DSCBlueprint` function.
 * MISC
   * Added CIM information about required properties to all resources where applicable.
+  * Removed duplicate complex hashtable conversions.
 
 # 1.26.318.1
 
@@ -107,6 +108,9 @@
 * IntuneDeviceConfigurationHealthMonitoringConfigurationPolicyWindows10
   * Fixed an issue with value handling when creating or updating policies.
     FIXES [#6955](https://github.com/microsoft/Microsoft365DSC/issues/6955)
+* O365OrgSettings
+  * Fixed an issue where the export was empty.
+    FIXES [#6987](https://github.com/microsoft/Microsoft365DSC/issues/6987)
 * SCLabelPolicy
   * Fixed an issue where setting `AdvancedSettings` failed.
     FIXES [#6973](https://github.com/microsoft/Microsoft365DSC/issues/6973)
