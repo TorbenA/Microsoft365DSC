@@ -16,6 +16,10 @@
   * [BREAKING CHANGE] Added `IsSingleInstance` parameter.
 * AADTenantAppManagementPolicy
   * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Ensure` parameter.
+* EXOActiveSyncMailboxPolicy
+  * Changed cmdlets from `*-ActiveSyncMailboxPolicy` to `*-MobileDeviceMailboxPolicy`.
+  * [BREAKING CHANGE] Updated property names to match newly returned values and parameters.
+    Added new properties `AllowGooglePushNotifications` and `AllowMicrosoftPushNotifications`.
 * EXODkimSigningConfig
   * Fixed an issue to create new DkimSigningConfig
     FIXES [#6982](https://github.com/microsoft/Microsoft365DSC/issues/6982)
