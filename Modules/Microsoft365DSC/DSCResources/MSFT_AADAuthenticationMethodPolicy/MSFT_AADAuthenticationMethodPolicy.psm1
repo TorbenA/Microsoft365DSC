@@ -8,18 +8,6 @@ function Get-TargetResource
     (
         #region resource generator code
         [Parameter()]
-        [System.String]
-        $Description,
-
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        $DisplayName,
-
-        [Parameter()]
-        [System.String]
-        $PolicyVersion,
-
-        [Parameter()]
         [System.Int32]
         $ReconfirmationInDays,
 
@@ -34,16 +22,12 @@ function Get-TargetResource
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance]
         $SystemCredentialPreferences,
-
-        [Parameter()]
-        [System.String]
-        $Id,
         #endregion
 
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
         [System.String]
-        [ValidateSet('Present')]
-        $Ensure = 'Present',
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -95,43 +79,13 @@ function Get-TargetResource
             Add-M365DSCTelemetryEvent -Data $data
             #endregion
 
-            $nullResult = $PSBoundParameters
-            $nullResult.Ensure = 'Absent'
-
-            $getValue = $null
-            #region resource generator code
-            if (-not [System.String]::IsNullOrEmpty($Id))
-            {
-                $getValue = Get-MgBetaPolicyAuthenticationMethodPolicy -ErrorAction SilentlyContinue
-            }
-
-            if ($null -eq $getValue)
-            {
-                Write-Verbose -Message "Could not find an Azure AD Authentication Method Policy with Id {$Id}"
-
-                if (-not [string]::IsNullOrEmpty($DisplayName))
-                {
-                    $getValue = Get-MgBetaPolicyAuthenticationMethodPolicy `
-                        -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript { `
-                            $_.DisplayName -eq "$($DisplayName)" `
-                            -and $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.AuthenticationMethodsPolicy' `
-                    }
-                }
-            }
-            #endregion
-            if ($null -eq $getValue)
-            {
-                Write-Verbose -Message "Could not find an Azure AD Authentication Method Policy with DisplayName {$DisplayName}"
-                return $nullResult
-            }
+            $getValue = Get-MgBetaPolicyAuthenticationMethodPolicy -ErrorAction Stop
         }
         else
         {
             $getValue = $Script:exportedInstance
         }
-        $Id = $getValue.Id
-        Write-Verbose -Message "An Azure AD Authentication Method Policy with Id {$Id} and DisplayName {$DisplayName} was found."
+        Write-Verbose -Message "An Azure AD Authentication Method Policy was found."
 
         #region resource generator code
         $complexRegistrationEnforcement = [ordered]@{}
@@ -328,15 +282,11 @@ function Get-TargetResource
 
         $results = @{
             #region resource generator code
-            Description                      = $getValue.Description
-            DisplayName                      = $getValue.DisplayName
-            PolicyVersion                    = $getValue.PolicyVersion
             ReconfirmationInDays             = $getValue.ReconfirmationInDays
             RegistrationEnforcement          = $complexRegistrationEnforcement
             ReportSuspiciousActivitySettings = $complexReportSuspiciousActivitySettings
             SystemCredentialPreferences      = $complexSystemCredentialPreferences
-            Id                               = $getValue.Id
-            Ensure                           = 'Present'
+            IsSingleInstance                 = 'Yes'
             Credential                       = $Credential
             ApplicationId                    = $ApplicationId
             TenantId                         = $TenantId
@@ -368,18 +318,6 @@ function Set-TargetResource
     (
         #region resource generator code
         [Parameter()]
-        [System.String]
-        $Description,
-
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        $DisplayName,
-
-        [Parameter()]
-        [System.String]
-        $PolicyVersion,
-
-        [Parameter()]
         [System.Int32]
         $ReconfirmationInDays,
 
@@ -395,15 +333,11 @@ function Set-TargetResource
         [Microsoft.Management.Infrastructure.CimInstance]
         $SystemCredentialPreferences,
 
-        [Parameter()]
-        [System.String]
-        $Id,
-
         #endregion
-        [Parameter()]
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('Yes')]
         [System.String]
-        [ValidateSet('Present')]
-        $Ensure = 'Present',
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -451,30 +385,20 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-    if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
-    {
-        Write-Verbose -Message 'Azure AD Authentication Method Policy instance cannot be created'
-    }
-    elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
-    {
-        Write-Verbose -Message "Updating the Azure AD Authentication Method Policy with Id {$($currentInstance.Id)}"
+    Write-Verbose -Message "Updating the Azure AD Authentication Method Policy"
 
-        $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
-        $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
-        $UpdateParameters.Remove('Id') | Out-Null
+    $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $boundParameters
+    Update-M365DSCAuthenticationTargets -Targets $updateParameters.RegistrationEnforcement.AuthenticationMethodsRegistrationCampaign.ExcludeTargets
+    Update-M365DSCAuthenticationTargets -Targets $updateParameters.RegistrationEnforcement.AuthenticationMethodsRegistrationCampaign.IncludeTargets
+    Update-M365DSCAuthenticationTargets -Targets $updateParameters.ReportSuspiciousActivitySettings.IncludeTarget
+    Update-M365DSCAuthenticationTargets -Targets $updateParameters.SystemCredentialPreferences.ExcludeTargets
+    Update-M365DSCAuthenticationTargets -Targets $updateParameters.SystemCredentialPreferences.IncludeTargets
 
-        Update-M365DSCAuthenticationTargets -Targets $UpdateParameters.RegistrationEnforcement.AuthenticationMethodsRegistrationCampaign.ExcludeTargets
-        Update-M365DSCAuthenticationTargets -Targets $UpdateParameters.RegistrationEnforcement.AuthenticationMethodsRegistrationCampaign.IncludeTargets
-        Update-M365DSCAuthenticationTargets -Targets $UpdateParameters.ReportSuspiciousActivitySettings.IncludeTarget
-        Update-M365DSCAuthenticationTargets -Targets $UpdateParameters.SystemCredentialPreferences.ExcludeTargets
-        Update-M365DSCAuthenticationTargets -Targets $UpdateParameters.SystemCredentialPreferences.IncludeTargets
-
-        #region resource generator code
-        $UpdateParameters.Add('@odata.type', '#microsoft.graph.AuthenticationMethodsPolicy')
-        Write-Verbose -Message "Updating AuthenticationMethodPolicy with: `r`n$(Convert-M365DscHashtableToString -Hashtable $UpdateParameters)"
-        Update-MgBetaPolicyAuthenticationMethodPolicy -BodyParameter $UpdateParameters
-        #endregion
-    }
+    #region resource generator code
+    $updateParameters.Remove('IsSingleInstance') | Out-Null
+    $updateParameters.Add('@odata.type', '#microsoft.graph.AuthenticationMethodsPolicy')
+    Update-MgBetaPolicyAuthenticationMethodPolicy -BodyParameter $updateParameters
+    #endregion
 }
 
 function Test-TargetResource
@@ -484,18 +408,6 @@ function Test-TargetResource
     param
     (
         #region resource generator code
-        [Parameter()]
-        [System.String]
-        $Description,
-
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        $DisplayName,
-
-        [Parameter()]
-        [System.String]
-        $PolicyVersion,
-
         [Parameter()]
         [System.Int32]
         $ReconfirmationInDays,
@@ -511,15 +423,11 @@ function Test-TargetResource
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance]
         $SystemCredentialPreferences,
+        #endregion
 
-        [Parameter()]
+        [ValidateSet('Yes')]
         [System.String]
-        $Id,
-
-        [Parameter()]
-        [System.String]
-        [ValidateSet('Present')]
-        $Ensure = 'Present',
+        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -617,8 +525,7 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        [array]$getValue = Get-MgBetaPolicyAuthenticationMethodPolicy `
-            -ErrorAction Stop | Where-Object -FilterScript { $null -ne $_.DisplayName }
+        [array]$getValue = Get-MgBetaPolicyAuthenticationMethodPolicy -ErrorAction Stop
         #endregion
 
         $i = 1
@@ -645,9 +552,7 @@ function Export-TargetResource
 
                 Write-M365DSCHost -Message "    |---[$i/$($getValue.Count)] $displayedKey" -DeferWrite
                 $params = @{
-                    Id                    = $config.Id
-                    DisplayName           = $config.DisplayName
-                    Ensure                = 'Present'
+                    IsSingleInstance      = 'Yes'
                     Credential            = $Credential
                     ApplicationId         = $ApplicationId
                     TenantId              = $TenantId
