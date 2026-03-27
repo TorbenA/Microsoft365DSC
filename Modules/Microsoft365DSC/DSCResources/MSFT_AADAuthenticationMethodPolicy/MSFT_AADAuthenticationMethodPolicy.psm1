@@ -425,6 +425,7 @@ function Test-TargetResource
         $SystemCredentialPreferences,
         #endregion
 
+        [Parameter(Mandatory = $true)]
         [ValidateSet('Yes')]
         [System.String]
         $IsSingleInstance,
