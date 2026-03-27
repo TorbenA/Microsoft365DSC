@@ -122,6 +122,7 @@
 * MISC
   * Added CIM information about required properties to all resources where applicable.
   * Removed duplicate complex hashtable conversions.
+  * Store error logs in $env:TEMP instead of current working directory.
 
 # 1.26.318.1
 
