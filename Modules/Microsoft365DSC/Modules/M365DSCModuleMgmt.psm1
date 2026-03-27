@@ -49,6 +49,7 @@ if ($null -eq $Script:M365DSCDependencies)
         $Script:M365DSCDependencies[$entry.Key].Commands = $sortedFunctions
     }
     $Script:M365DSCRequiredModules = @($globalRequiredModules.psobject.Properties.Name)
+    $Script:M365DSCRequiredModulesLoaded = $false
 }
 
 function Get-M365DSCResourceSettings
@@ -65,6 +66,25 @@ function Get-M365DSCRequiredModules
     param()
 
     return $Script:M365DSCRequiredModules
+}
+
+function Set-M365DSCRequiredModulesLoaded
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Boolean]$Value
+    )
+
+    $Script:M365DSCRequiredModulesLoaded = $Value
+}
+
+function Test-IsM365DSCRequiredModulesLoaded
+{
+    [CmdletBinding()]
+    param()
+
+    return $Script:M365DSCRequiredModulesLoaded
 }
 
 function Get-M365DSCModuleConfiguration
@@ -231,7 +251,7 @@ function Confirm-M365DSCLoadedModule
     PS> Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADApplication'
 
 .FUNCTIONALITY
-    Public
+    Internal
 #>
 function Confirm-M365DSCModuleDependency
 {
@@ -814,6 +834,8 @@ Export-ModuleMember -Function @(
     'Get-M365DSCRequiredModules',
     'Get-M365DSCResourceSettings',
     'Set-M365DSCModuleConfiguration',
+    'Set-M365DSCRequiredModulesLoaded',
+    'Test-IsM365DSCRequiredModulesLoaded',
     'Test-M365DSCDependenciesForNewVersions',
     'Test-M365DSCModuleValidity',
     'Uninstall-M365DSCOutdatedDependencies',

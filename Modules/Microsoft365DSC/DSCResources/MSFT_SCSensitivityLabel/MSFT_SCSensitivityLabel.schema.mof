@@ -33,18 +33,18 @@ class MSFT_SCSLAutoLabelingSettings
     [Required, Description("Specifies what to do when content matches the conditions"),ValueMap{"Automatic","Recommend"}, Values{"Automatic","Recommend"}] String AutoApplyType;
 };
 
-[ClassVersion("1.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_SCLabelSetting
 {
-    [Write, Description("Advanced settings key.")] String Key;
+    [Required, Description("Advanced settings key.")] String Key;
     [Write, Description("Advanced settings value.")] String Value[];
 };
 
 [ClassVersion("1.0.0.1")]
 class MSFT_SCLabelLocaleSettings
 {
-    [Key, Description("Name of the Local key.")] String localeKey;
-    [Write, Description("The locale settings display names."),EmbeddedInstance("MSFT_SCLabelSetting")] String LabelSettings[];
+    [Required, Description("Name of the Local key.")] String LocaleKey;
+    [Write, Description("The locale settings display names."), EmbeddedInstance("MSFT_SCLabelSetting")] String LabelSettings[];
 };
 
 [ClassVersion("1.0.0.0"), FriendlyName("SCSensitivityLabel")]

@@ -14,6 +14,9 @@
   * Streamlined Target name resolution for all authentication resources.
 * AADAuthenticationRequirement
   * [BREAKING CHANGE] Added `IsSingleInstance` parameter.
+* AADCrossTenantAccessPolicyConfigurationPartner
+  * Fixed an issue where the schema was incorrect.
+    FIXES [#6998](https://github.com/microsoft/Microsoft365DSC/issues/6998)
 * AADTenantAppManagementPolicy
   * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Ensure` parameter.
 * EXOActiveSyncMailboxPolicy
@@ -85,6 +88,9 @@
 * SCPolicyConfig
   * Fixed an issue where `JustificationText` was exported as an array and could
     contain empty strings.
+* SCSensitivityLabel
+  * Fixed an issue where the CIM definition for `MSFT_LabelSetting` did not match.
+    FIXES [#7002](https://github.com/microsoft/Microsoft365DSC/issues/7002)
 * TeamsClientConfiguration
   * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
 * TeamsFederationConfiguration

@@ -1229,7 +1229,7 @@ function Compare-M365DSCConfigurations
     }
 
     $currentModule = Get-Module -Name 'Microsoft365DSC'
-    $dscResourceInfo = Get-DSCResourceV2 -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
+    $dscResourceInfo = Get-DscResourceV2 -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
 
     $dscResourceInfoMap = @{}
     foreach ($resource in $dscResourceInfo)
@@ -2005,7 +2005,7 @@ function New-M365DSCDeltaReport
     if ($null -eq $Script:DscResourceInfo)
     {
         $currentModule = Get-Module -Name 'Microsoft365DSC'
-        $Script:DscResourceInfo = Get-DSCResourceV2 -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
+        $Script:DscResourceInfo = Get-DscResourceV2 -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
     }
 
     $dscResourceInfoMap = @{}
@@ -2018,9 +2018,9 @@ function New-M365DSCDeltaReport
     if (-not $Delta)
     {
         $desiredSplat = @{
-            ConfigurationPath   = $Destination
-            IncludeComments     = $false
-            DscResourceInfo     = $Script:DscResourceInfo
+            ConfigurationPath = $Destination
+            IncludeComments   = $false
+            DscResourceInfo   = $Script:DscResourceInfo
         }
 
         if ($IsBlueprintAssessment)
