@@ -81,6 +81,7 @@
     to `MSFT_DeviceManagementMacOSLobAppAssignment`.
 * IntuneMobileAppsManagedGooglePlayApp
   * [BREAKING CHANGE] Updated the `Assignments` parameter type to allow settings.
+  * Added support for `androidManagedStoreAppTrackIds` in the assignment settings.
   * Renamed CIM class for assignments from `MSFT_DeviceManagementMobileAppAssignment`
     to `MSFT_DeviceManagementManagedGooglePlayMobileAppAssignment`.
 * IntuneWindowsInformationProtectionPolicyWindows10MdmEnrolled
@@ -114,12 +115,15 @@
   * Fixed an issue where comparing instances of `EXOTenantAllowBlockListItems` would
     use the wrong resource keys.
     FIXES [#6981](https://github.com/microsoft/Microsoft365DSC/issues/6981)
+  * Removed the deprecated function `Compare-M365DSCConfigurations`.
+    Use `New-M365DSCDeltaReport` as a replacement.
 * M365DSCStubsUtility
   * Removed module.
 * M365DSCUtil
   * Added `KeepExport` parameter to `Assert-M365DSCBlueprint` function.
 * MISC
   * Added CIM information about required properties to all resources where applicable.
+  * Refactored module structure to improve maintainability.
   * Removed duplicate complex hashtable conversions.
 
 # 1.26.318.1

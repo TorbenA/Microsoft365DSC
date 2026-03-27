@@ -1,7 +1,7 @@
 [ClassVersion("1.0.0.1")]
 class MSFT_SCSLSensitiveInformationType
 {
-    [Key, Description("Name of the Sensitive Information Type")] String name;
+    [Required, Description("Name of the Sensitive Information Type")] String name;
     [Write, Description("Confidence level value for the Sensitive Information"),ValueMap{"Low","Medium","High"}, Values{"Low","Medium","High"}] String confidencelevel;
     [Write, Description("Type of Classifier value for the Sensitive Information")] String classifiertype;
     [Write, Description("Minimum Count value for the Sensitive Information")] String mincount;

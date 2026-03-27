@@ -170,12 +170,32 @@ $Script:ReportCSS = @'
 </style>
 '@
 
-<#
-.Description
-This function generates HTML workload sections by grouping resources
+# Shared lookup table mapping resource name prefixes to workload names and icon file names.
+# Order matters: longer/more-specific prefixes must come before shorter ones (e.g. 'SPO' before 'SH').
+$Script:WorkloadMapping = [ordered]@{
+    'AAD'      = @{ WorkloadName = 'Azure Active Directory'; IconName = 'AzureAD.jpg' }
+    'ADO'      = @{ WorkloadName = 'Azure DevOps';           IconName = 'AzureDevOps.png' }
+    'Azure'    = @{ WorkloadName = 'Azure';                  IconName = 'Azure.png' }
+    'Defender' = @{ WorkloadName = 'Microsoft Defender';      IconName = 'SecurityAndCompliance.png' }
+    'EXO'      = @{ WorkloadName = 'Exchange Online';        IconName = 'Exchange.jpg' }
+    'Intune'   = @{ WorkloadName = 'Intune';                 IconName = 'Intune.jpg' }
+    'O365'     = @{ WorkloadName = 'Office 365';             IconName = 'Office365.jpg' }
+    'OD'       = @{ WorkloadName = 'OneDrive';               IconName = 'OneDrive.jpg' }
+    'Planner'  = @{ WorkloadName = 'Planner';                IconName = 'Planner.png' }
+    'PP'       = @{ WorkloadName = 'Power Platform';         IconName = 'PowerApps.jpg' }
+    'SC'       = @{ WorkloadName = 'Security & Compliance';  IconName = 'SecurityAndCompliance.png' }
+    'Sentinel' = @{ WorkloadName = 'Sentinel';               IconName = $null }
+    'SH'       = @{ WorkloadName = 'Services Hub';           IconName = $null }
+    'SPO'      = @{ WorkloadName = 'SharePoint Online';      IconName = 'SharePoint.jpg' }
+    'Teams'    = @{ WorkloadName = 'Microsoft Teams';        IconName = 'Teams.jpg' }
+}
 
-.Functionality
-Internal, Hidden
+<#
+.DESCRIPTION
+    This function generates HTML workload sections by grouping resources
+
+.FUNCTIONALITY
+    Internal, Hidden
 #>
 function New-M365DSCWorkloadSection
 {
@@ -232,11 +252,11 @@ function New-M365DSCWorkloadSection
 }
 
 <#
-.Description
-This function creates a new Markdown document from the specified exported configuration
+.DESCRIPTION
+    This function creates a new Markdown document from the specified exported configuration
 
-.Functionality
-Internal, Hidden
+.FUNCTIONALITY
+    Internal, Hidden
 #>
 function New-M365DSCConfigurationToMarkdown
 {
@@ -365,11 +385,11 @@ function New-M365DSCConfigurationToMarkdown
 
 
 <#
-.Description
-This function creates a new HTML document from the specified exported configuration
+.DESCRIPTION
+    This function creates a new HTML document from the specified exported configuration
 
-.Functionality
-Internal, Hidden
+.FUNCTIONALITY
+    Internal, Hidden
 #>
 function New-M365DSCConfigurationToHTML
 {
@@ -531,11 +551,11 @@ function New-M365DSCConfigurationToHTML
 }
 
 <#
-.Description
-This function creates a new JSON file from the specified exported configuration
+.DESCRIPTION
+    This function creates a new JSON file from the specified exported configuration
 
-.Functionality
-Internal, Hidden
+.FUNCTIONALITY
+    Internal, Hidden
 #>
 function New-M365DSCConfigurationToJSON
 {
@@ -557,11 +577,11 @@ function New-M365DSCConfigurationToJSON
 
 
 <#
-.Description
-This function gets the workload name from a resource name
+.DESCRIPTION
+    This function gets the workload name from a resource name
 
-.Functionality
-Internal, Hidden
+.FUNCTIONALITY
+    Internal, Hidden
 #>
 function Get-M365WorkloadName
 {
@@ -574,78 +594,23 @@ function Get-M365WorkloadName
         $ResourceName
     )
 
-    if ($ResourceName.StartsWith('AAD'))
+    foreach ($prefix in $Script:WorkloadMapping.Keys)
     {
-        return 'Azure Active Directory'
+        if ($ResourceName.StartsWith($prefix))
+        {
+            return $Script:WorkloadMapping[$prefix].WorkloadName
+        }
     }
-    elseif ($ResourceName.StartsWith('ADO'))
-    {
-        return 'Azure DevOps'
-    }
-    elseif ($ResourceName.StartsWith('Azure'))
-    {
-        return 'Azure'
-    }
-    elseif ($ResourceName.StartsWith('Defender'))
-    {
-        return 'Microsoft Defender'
-    }
-    elseif ($ResourceName.StartsWith('EXO'))
-    {
-        return 'Exchange Online'
-    }
-    elseif ($ResourceName.StartsWith('Intune'))
-    {
-        return 'Intune'
-    }
-    elseif ($ResourceName.StartsWith('O365'))
-    {
-        return 'Office 365'
-    }
-    elseif ($ResourceName.StartsWith('OD'))
-    {
-        return 'OneDrive'
-    }
-    elseif ($ResourceName.StartsWith('Planner'))
-    {
-        return 'Planner'
-    }
-    elseif ($ResourceName.StartsWith('PP'))
-    {
-        return 'Power Platform'
-    }
-    elseif ($ResourceName.StartsWith('SC'))
-    {
-        return 'Security & Compliance'
-    }
-    elseif ($ResourceName.StartsWith('Sentinel'))
-    {
-        return 'Sentinel'
-    }
-    elseif ($ResourceName.StartsWith('SH'))
-    {
-        return 'Services Hub'
-    }
-    elseif ($ResourceName.StartsWith('SPO'))
-    {
-        return 'SharePoint Online'
-    }
-    elseif ($ResourceName.StartsWith('Teams'))
-    {
-        return 'Microsoft Teams'
-    }
-    else
-    {
-        return 'Other'
-    }
+
+    return 'Other'
 }
 
 <#
-.Description
-This function gets the URL to the logo of the workload of the specified resource
+.DESCRIPTION
+    This function gets the URL to the logo of the workload of the specified resource
 
-.Functionality
-Internal, Hidden
+.FUNCTIONALITY
+    Internal, Hidden
 #>
 function Get-IconPath
 {
@@ -662,77 +627,29 @@ function Get-IconPath
     {
         return Get-Base64EncodedImage -IconName 'Promo.png'
     }
-    elseif ($ResourceName.StartsWith('AAD'))
+
+    foreach ($prefix in $Script:WorkloadMapping.Keys)
     {
-        return Get-Base64EncodedImage -IconName 'AzureAD.jpg'
+        if ($ResourceName.StartsWith($prefix))
+        {
+            $iconName = $Script:WorkloadMapping[$prefix].IconName
+            if ($null -ne $iconName)
+            {
+                return Get-Base64EncodedImage -IconName $iconName
+            }
+            return $null
+        }
     }
-    elseif ($ResourceName.StartsWith('ADO'))
-    {
-        return Get-Base64EncodedImage -IconName 'AzureDevOps.png'
-    }
-    elseif ($ResourceName.StartsWith('Azure'))
-    {
-        return Get-Base64EncodedImage -IconName 'Azure.png'
-    }
-    elseif ($ResourceName.StartsWith('Defender'))
-    {
-        return Get-Base64EncodedImage -IconName 'SecurityAndCompliance.png'
-    }
-    elseif ($ResourceName.StartsWith('EXO'))
-    {
-        return Get-Base64EncodedImage -IconName 'Exchange.jpg'
-    }
-    elseif ($ResourceName.StartsWith('Intune'))
-    {
-        return Get-Base64EncodedImage -IconName 'Intune.jpg'
-    }
-    elseif ($ResourceName.StartsWith('O365'))
-    {
-        return Get-Base64EncodedImage -IconName 'Office365.jpg'
-    }
-    elseif ($ResourceName.StartsWith('OD'))
-    {
-        return Get-Base64EncodedImage -IconName 'OneDrive.jpg'
-    }
-    elseif ($ResourceName.StartsWith('Planner'))
-    {
-        return Get-Base64EncodedImage -IconName 'Planner.png'
-    }
-    elseif ($ResourceName.StartsWith('PP'))
-    {
-        return Get-Base64EncodedImage -IconName 'PowerApps.jpg'
-    }
-    elseif ($ResourceName.StartsWith('SC'))
-    {
-        return Get-Base64EncodedImage -IconName 'SecurityAndCompliance.png'
-    }
-    elseif ($ResourceName.StartsWith('Sentinel'))
-    {
-        # TODO: Add Sentinel icon
-        # return Get-Base64EncodedImage -IconName "SecurityAndCompliance.png"
-    }
-    elseif ($ResourceName.StartsWith('SH'))
-    {
-        # TODO: Add Services Hub icon
-        #return Get-Base64EncodedImage -IconName "SecurityAndCompliance.png"
-    }
-    elseif ($ResourceName.StartsWith('SPO'))
-    {
-        return Get-Base64EncodedImage -IconName 'SharePoint.jpg'
-    }
-    elseif ($ResourceName.StartsWith('Teams'))
-    {
-        return Get-Base64EncodedImage -IconName 'Teams.jpg'
-    }
+
     return $null
 }
 
 <#
-.Description
-This function returns a string containing mime-type and base64 encoded image to embed into DSC report directly.
+.DESCRIPTION
+    This function returns a string containing mime-type and base64 encoded image to embed into DSC report directly.
 
-.Functionality
-Internal, Hidden
+.FUNCTIONALITY
+    Internal, Hidden
 #>
 function Get-Base64EncodedImage
 {
@@ -781,11 +698,11 @@ function Get-Base64EncodedImage
 }
 
 <#
-.Description
-This function creates a new Excel document from the specified exported configuration
+.DESCRIPTION
+    This function creates a new Excel document from the specified exported configuration
 
-.Functionality
-Internal, Hidden
+.FUNCTIONALITY
+    Internal, Hidden
 #>
 function New-M365DSCConfigurationToExcel
 {
@@ -900,11 +817,11 @@ function New-M365DSCConfigurationToExcel
 }
 
 <#
-.Description
-This function creates a new CSV file from the specified exported configuration
+.DESCRIPTION
+    This function creates a new CSV file from the specified exported configuration
 
-.Functionality
-Internal, Hidden
+.FUNCTIONALITY
+    Internal, Hidden
 #>
 function New-M365DSCConfigurationToCSV
 {
@@ -999,30 +916,30 @@ function New-M365DSCConfigurationToCSV
 }
 
 <#
-.Description
-This function creates a report from the specified exported configuration,
-either in HTML or Excel format
+.DESCRIPTION
+    This function creates a report from the specified exported configuration,
+    either in HTML or Excel format
 
-.Parameter Type
-The type of report that should be created: Excel or HTML.
+.PARAMETER Type
+    The type of report that should be created: Excel or HTML.
 
-.Parameter ConfigurationPath
-The path to the exported DSC configuration that the report should be created for.
+.PARAMETER ConfigurationPath
+    The path to the exported DSC configuration that the report should be created for.
 
-.Parameter OutputPath
-The output path of the report.
+.PARAMETER OutputPath
+    The output path of the report.
 
-.Example
-New-M365DSCReportFromConfiguration -Type 'HTML' -ConfigurationPath 'C:\DSC\ConfigName.ps1' -OutputPath 'C:\Dsc\M365Report.html'
+.EXAMPLE
+    PS> New-M365DSCReportFromConfiguration -Type 'HTML' -ConfigurationPath 'C:\DSC\ConfigName.ps1' -OutputPath 'C:\Dsc\M365Report.html'
 
-.Example
-New-M365DSCReportFromConfiguration -Type 'Excel' -ConfigurationPath 'C:\DSC\ConfigName.ps1' -OutputPath 'C:\Dsc\M365Report.xlsx'
+.EXAMPLE
+    PS> New-M365DSCReportFromConfiguration -Type 'Excel' -ConfigurationPath 'C:\DSC\ConfigName.ps1' -OutputPath 'C:\Dsc\M365Report.xlsx'
 
-.Example
-New-M365DSCReportFromConfiguration -Type 'JSON' -ConfigurationPath 'C:\DSC\ConfigName.ps1' -OutputPath 'C:\Dsc\M365Report.json'
+.EXAMPLE
+    PS> New-M365DSCReportFromConfiguration -Type 'JSON' -ConfigurationPath 'C:\DSC\ConfigName.ps1' -OutputPath 'C:\Dsc\M365Report.json'
 
-.Functionality
-Public
+.FUNCTIONALITY
+    Public
 #>
 function New-M365DSCReportFromConfiguration
 {
@@ -1129,534 +1046,11 @@ function New-M365DSCReportFromConfiguration
 }
 
 <#
-.Description
-This function compares two provided DSC configuration to determine the delta.
+.DESCRIPTION
+    This function gets the key parameter for the specified CIMInstance
 
-.Parameter Source
-Local path of the source configuration.
-
-.Parameter Destination
-Local path of the destination configuraton.
-
-.Parameter SourceObject
-Array that contains the list of configuration components for the source.
-
-.Parameter DestinationObject
-Array that contains the list of configuration components for the destination.
-
-.Parameter ExcludedProperties
-Array that contains the list of parameters to exclude.
-
-.Parameter ExcludedResources
-Array that contains the list of resources to exclude.
-
-.Parameter IsBlueprintAssessment
-Specifies whether or not we are currently comparing a configuration to a Blueprint.
-
-.Example
-Compare-M365DSCConfigurations -Source 'C:\DSC\source.ps1' -Destination 'C:\DSC\destination.ps1'
-
-.Functionality
-Public
-#>
-# TODO: Remove in a future release
-function Compare-M365DSCConfigurations
-{
-    [CmdletBinding()]
-    [OutputType([System.Array])]
-    param
-    (
-        [Parameter()]
-        [System.String]
-        $Source,
-
-        [Parameter()]
-        [System.String]
-        $Destination,
-
-        [Parameter()]
-        [System.Boolean]
-        $CaptureTelemetry = $true,
-
-        [Parameter()]
-        [Array]
-        $SourceObject,
-
-        [Parameter()]
-        [Array]
-        $DestinationObject,
-
-        [Parameter()]
-        [Array]
-        $ExcludedProperties,
-
-        [Parameter()]
-        [Array]
-        $ExcludedResources,
-
-        [Parameter()]
-        [System.Boolean]
-        $IsBlueprintAssessment = $false
-    )
-
-    if ($CaptureTelemetry)
-    {
-        #Ensure the proper dependencies are installed in the current environment.
-        Confirm-M365DSCDependencies
-
-        #region Telemetry
-        $data = [System.Collections.Generic.Dictionary[[String], [String]]]::new()
-        $data.Add('Event', 'Compare')
-        Add-M365DSCTelemetryEvent -Data $data -Type 'CompareConfigurations'
-        #endregion
-    }
-
-    [Array] $Delta = @()
-
-    if (-not $SourceObject)
-    {
-        [Array] $SourceObject = Initialize-M365DSCReporting -ConfigurationPath $Source
-    }
-    if (-not $DestinationObject)
-    {
-        [Array] $DestinationObject = Initialize-M365DSCReporting -ConfigurationPath $Destination
-    }
-
-    if ($ExcludedResources.Count -gt 0)
-    {
-        [Array]$SourceObject = $SourceObject | Where-Object -FilterScript { $_.ResourceName -notin $ExcludedResources }
-        [Array]$DestinationObject = $DestinationObject | Where-Object -FilterScript { $_.ResourceName -notin $ExcludedResources }
-    }
-
-    $currentModule = Get-Module -Name 'Microsoft365DSC'
-    $dscResourceInfo = Get-DscResourceV2 -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
-
-    $dscResourceInfoMap = @{}
-    foreach ($resource in $dscResourceInfo)
-    {
-        $dscResourceInfoMap.Add($resource.Name, $resource)
-    }
-
-    # Loop through all items in the source array
-    $i = 1
-    foreach ($sourceResource in $SourceObject)
-    {
-        try
-        {
-            [array]$key = Get-M365DSCResourceKey -Resource $sourceResource -DSCResourceInfo $dscResourceInfoMap
-            Write-Progress -Activity "Scanning Source $Source...[$i/$($SourceObject.Count)]" -PercentComplete ($i / ($SourceObject.Count) * 100)
-            [array]$destinationResource = $DestinationObject | Where-Object -FilterScript { $_.ResourceName -eq $sourceResource.ResourceName -and $_.($key[0]) -eq $sourceResource.($key[0]) }
-
-            $keyname = $key[0..1] -join '\'
-            $SourceKeyValue = $sourceResource.($key[0])
-            # Filter on the second key
-            if ($key.Count -gt 1)
-            {
-                [array]$destinationResource = $destinationResource | Where-Object -FilterScript { $_.ResourceName -eq $sourceResource.ResourceName -and $_.($key[1]) -eq $sourceResource.($key[1]) }
-                $SourceKeyValue = $sourceResource.($key[0]), $sourceResource.($key[1]) -join '\'
-            }
-            if ($null -eq $destinationResource)
-            {
-                $drift = @{
-                    ResourceName         = $sourceResource.ResourceName
-                    ResourceInstanceName = $sourceResource.ResourceInstanceName
-                    Key                  = $keyName
-                    KeyValue             = $SourceKeyValue
-                    Properties           = @(@{
-                            ParameterName      = '_IsInConfiguration_'
-                            ValueInSource      = 'Present'
-                            ValueInDestination = 'Absent'
-                        })
-                }
-                $Delta += , $drift
-                $drift = $null
-            }
-            else
-            {
-                $filteredProperties = @(
-                    'ResourceName',
-                    'ResourceId',
-                    'Credential',
-                    'CertificatePath',
-                    'CertificatePassword',
-                    'TenantId',
-                    'ApplicationId',
-                    'CertificateThumbprint',
-                    'ApplicationSecret',
-                    'ManagedIdentity'
-                )
-
-                $filteredProperties = ($filteredProperties + $ExcludedProperties) | Select-Object -Unique
-
-                [System.Collections.Hashtable]$destinationResource = $destinationResource[0]
-                # The resource instance exists in both the source and the destination. Compare each property;
-                foreach ($propertyName in $sourceResource.Keys)
-                {
-                    if ($propertyName -notin $filteredProperties)
-                    {
-                        $destinationPropertyName = $propertyName
-
-                        # Case where the property contains CIMInstances
-                        if ($null -ne $sourceResource.$propertyName.Keys -and $sourceResource.$propertyName.Keys.Contains('CIMInstance'))
-                        {
-                            foreach ($instance in $sourceResource.$propertyName)
-                            {
-                                [string]$key = Get-M365DSCCimInstanceKey -CIMInstance $instance
-
-                                $destinationResourceInstances = $destinationResource.$destinationPropertyName | Where-Object -FilterScript { $_."$key" -eq $instance."$key" }
-
-                                if ($null -ne $destinationResourceInstances)
-                                {
-                                    # There is a chance we found multiple instances of a CIMInstance based on its key property.
-                                    # If that's the case, loop through each instance found and if at least one of them is
-                                    # a perfect match, then don't consider this a drift.
-                                    $foundOneMatch = $false
-                                    $foundMatchResource = $null
-                                    $drift = $null
-                                    foreach ($destinationResourceInstance in $destinationResourceInstances)
-                                    {
-                                        $foundResourceMatch = $true
-                                        [array]$driftProperties = @()
-                                        foreach ($property in $instance.Keys)
-                                        {
-                                            if ($null -eq $destinationResourceInstance."$property" -or `
-                                                (-not [System.String]::IsNullOrEmpty($instance."$property") -and
-                                                    $null -ne (Compare-Object -ReferenceObject ($instance."$property")`
-                                                            -DifferenceObject ($destinationResourceInstance."$property"))))
-                                            {
-                                                $driftProperties += @{
-                                                    ParameterName      = $property
-                                                    CIMInstanceKey     = $key
-                                                    CIMInstanceValue   = $instance."$Key"
-                                                    ValueInSource      = $instance."$property"
-                                                    ValueInDestination = $destinationResourceInstance."$property"
-                                                }
-                                                $foundResourceMatch = $false
-                                            }
-                                        }
-                                        if ($foundResourceMatch)
-                                        {
-                                            $foundOneMatch = $true
-                                            $foundMatchResource = $destinationResourceInstance
-                                        }
-                                        else
-                                        {
-                                            $drift = @{
-                                                ResourceName         = $sourceResource.ResourceName
-                                                ResourceInstanceName = $destinationResource.ResourceInstanceName
-                                                Key                  = $propertyName
-                                                KeyValue             = $instance."$key"
-                                                Properties           = $driftProperties
-                                            }
-                                        }
-                                    }
-                                    if ($foundOneMatch)
-                                    {
-                                        # If a match was found, clear the drift.
-                                        $drift = $null
-                                        $destinationResource.$destinationPropertyName = $destinationResource.$destinationPropertyName | Where-Object { $_ -ne $foundMatchResource }
-                                    }
-                                    else
-                                    {
-                                        $Delta += , $drift
-                                        $drift = $null
-                                    }
-                                }
-                                else
-                                {
-                                    # We have detected a drift where the CIM Instance exists in the Source but NOT in the Destination
-                                    $drift = @{
-                                        ResourceName         = $sourceResource.ResourceName
-                                        ResourceInstanceName = $destinationResource.ResourceInstanceName
-                                        Key                  = $propertyName
-                                        KeyValue             = $instance."$key"
-                                        Properties           = @(@{
-                                            ParameterName      = $propertyName
-                                            CIMInstanceKey     = $key
-                                            CIMInstanceValue   = $instance."$Key"
-                                            ValueInSource      = $instance
-                                            ValueInDestination = $null
-                                        })
-                                    }
-                                    if ($null -ne $drift)
-                                    {
-                                        $Delta += , $drift
-                                        $drift = $null
-                                    }
-                                }
-                            }
-                        }
-                        # Needs to be a separate nested if statement otherwise the ReferenceObject can be null and it will error out;
-                        elseif ($destinationResource.ContainsKey($destinationPropertyName) -eq $false -or (-not [System.String]::IsNullOrEmpty($propertyName) -and
-                                ($null -ne $sourceResource.$propertyName -and
-                                $null -ne (Compare-Object -ReferenceObject ($sourceResource.$propertyName)`
-                                        -DifferenceObject ($destinationResource.$destinationPropertyName)))) -and
-                            -not ([System.String]::IsNullOrEmpty($destinationResource.$destinationPropertyName) -and [System.String]::IsNullOrEmpty($sourceResource.$propertyName)))
-                        {
-                            if ($null -eq $drift -and (-not $IsBlueprintAssessment -or $destinationResource.ContainsKey($destinationPropertyName)))
-                            {
-                                $drift = @{
-                                    ResourceName         = $sourceResource.ResourceName
-                                    ResourceInstanceName = $destinationResource.ResourceInstanceName
-                                    Key                  = $keyname
-                                    KeyValue             = $SourceKeyValue
-                                    Properties           = @(@{
-                                        ParameterName      = $propertyName
-                                        ValueInSource      = $sourceResource.$propertyName
-                                        ValueInDestination = $destinationResource.$destinationPropertyName
-                                    })
-                                }
-
-                                if ($destinationResource.Contains("_metadata_$($destinationPropertyName)"))
-                                {
-                                    $Metadata = $destinationResource."_metadata_$($destinationPropertyName)"
-                                    $Level = $Metadata.Split('|')[0].Replace('### ', '')
-                                    $Information = $Metadata.Split('|')[1]
-                                    $drift.Properties[0].Add('_Metadata_Level', $Level)
-                                    $drift.Properties[0].Add('_Metadata_Info', $Information)
-                                }
-                                if ($null -ne $drift)
-                                {
-                                    $Delta += , $drift
-                                    $drift = $null
-                                }
-                            }
-                            elseif (-not $IsBluePrintAssessment -or $destinationResource.ContainsKey($destinationPropertyName))
-                            {
-                                $newDrift = @{
-                                    ParameterName      = $propertyName
-                                    ValueInSource      = $sourceResource.$propertyName
-                                    ValueInDestination = $destinationResource.$destinationPropertyName
-                                }
-                                if ($destinationResource.Contains("_metadata_$($destinationPropertyName)"))
-                                {
-                                    $Metadata = $destinationResource."_metadata_$($destinationPropertyName)"
-                                    $Level = $Metadata.Split('|')[0].Replace('### ', '')
-                                    $Information = $Metadata.Split('|')[1]
-                                    $newDrift.Add('_Metadata_Level', $Level)
-                                    $newDrift.Add('_Metadata_Info', $Information)
-                                }
-                                $drift.Properties += $newDrift
-                            }
-                        }
-                    }
-                }
-
-                # Do the scan the other way around because there's a chance that the property, if null, wasn't part of the source object.
-                # By scanning against the destination we will catch properties that are not null on the source but not null in destination;
-                foreach ($propertyName in $destinationResource.Keys)
-                {
-                    if ($propertyName -notin $filteredProperties)
-                    {
-                        $sourcePropertyName = $propertyName
-
-                        # Case where the property contains CIMInstances
-                        if ($null -ne $destinationResource.$propertyName.Keys -and $destinationResource.$propertyName.Keys.Contains('CIMInstance'))
-                        {
-                            foreach ($instance in $destinationResource.$propertyName)
-                            {
-                                [string]$key = Get-M365DSCCimInstanceKey -CIMInstance $instance
-
-                                $sourceResourceInstances = $sourceResource.$sourcePropertyName | Where-Object -FilterScript { $_."$key" -eq $instance."$key" }
-
-                                if ($null -ne $sourceResourceInstances)
-                                {
-                                    # There is a chance we found 2 instances of a CIMInstance based on its key property.
-                                    # If that's the case, loop through each instance found and if at least one of them is
-                                    # a perfect match, then don't consider this a drift.
-                                    $foundOneMatch = $false
-                                    $drift = $null
-                                    foreach ($sourceResourceInstance in $sourceResourceInstances)
-                                    {
-                                        $innerDrift = $null
-                                        foreach ($property in $instance.Keys)
-                                        {
-                                            if ($null -eq $sourceResourceInstance."$property" -or `
-                                                ($null -ne $instance."$property" -and `
-                                                    $null -ne (Compare-Object -ReferenceObject ($instance."$property")`
-                                                        -DifferenceObject ($sourceResourceInstance."$property"))))
-                                            {
-                                                # Make sure we haven't already added this drift in the delta return object to prevent duplicates.
-                                                $existing = $delta | Where-Object -FilterScript {
-                                                    $_.ResourceName -eq $destinationResource.ResourceName -and
-                                                    $_.ResourceInstanceName -eq $destinationResource.ResourceInstanceName
-                                                }
-
-                                                $sameEntry = $null
-                                                if ($null -ne $existing)
-                                                {
-                                                    $sameEntry = $existing.Properties | Where-Object -FilterScript {
-                                                        $_.ParameterName -eq $property -and `
-                                                        $_.CIMInstanceKey -eq $key -and `
-                                                        $_.CIMInstanceValue -eq ($instance."$key") -and `
-                                                        $_.ValueInSource -eq $sourceResourceInstance."$property" -and `
-                                                        $_.ValueInDestination -eq $instance."$property"
-                                                    }
-                                                }
-
-                                                if ($null -eq $sameEntry)
-                                                {
-                                                    $innerDrift = @{
-                                                        ResourceName         = $destinationResource.ResourceName
-                                                        ResourceInstanceName = $destinationResource.ResourceInstanceName
-                                                        Key                  = $propertyName
-                                                        KeyValue             = $instance."$key"
-                                                        Properties           = @(@{
-                                                            ParameterName      = $property
-                                                            CIMInstanceKey     = $key
-                                                            CIMInstanceValue   = $instance."$Key"
-                                                            ValueInSource      = $sourceResourceInstance."$property"
-                                                            ValueInDestination = $instance."$property"
-                                                        })
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        if ($null -eq $innerDrift)
-                                        {
-                                            $foundOneMatch = $true
-                                        }
-                                        else
-                                        {
-                                            $drift = $innerDrift
-                                        }
-                                    }
-                                    if ($foundOneMatch)
-                                    {
-                                        # If a match was found, clear the drift.
-                                        $drift = $null
-                                    }
-                                }
-                                else
-                                {
-                                    # We have detected a drift where the CIM Instance exists in the Destination but NOT in the Source
-                                    $drift = @{
-                                        ResourceName         = $destinationResource.ResourceName
-                                        ResourceInstanceName = $destinationResource.ResourceInstanceName
-                                        Key                  = $propertyName
-                                        KeyValue             = $instance."$key"
-                                        Properties           = @(@{
-                                            ParameterName      = $propertyName
-                                            CIMInstanceKey     = $key
-                                            CIMInstanceValue   = $instance."$Key"
-                                            ValueInSource      = $null
-                                            ValueInDestination = $instance
-                                        })
-                                    }
-                                    if ($null -ne $drift)
-                                    {
-                                        $Delta += , $drift
-                                        $drift = $null
-                                    }
-                                }
-                            }
-                        }
-                        elseif (-not [System.String]::IsNullOrEmpty($propertyName) -and
-                            -not $sourceResource.Contains($sourcePropertyName))
-                        {
-                            if ($null -eq $drift -and (-not $IsBlueprintAssessment -or -not $sourcePRopertyName.StartsWith('_metadata_')))
-                            {
-                                $drift = @{
-                                    ResourceName = $sourceResource.ResourceName
-                                    Key          = $keyName
-                                    KeyValue     = $SourceKeyValue
-                                    Properties   = @(@{
-                                        ParameterName      = $sourcePropertyName
-                                        ValueInSource      = $null
-                                        ValueInDestination = $destinationResource.$propertyName
-                                    })
-                                }
-                            }
-                            elseif (-not $IsBlueprintAssessment -or -not $sourcePRopertyName.StartsWith('_metadata_'))
-                            {
-                                $drift.Properties += @{
-                                    ParameterName      = $sourcePropertyName
-                                    ValueInSource      = $null
-                                    ValueInDestination = $destinationResource.$propertyName
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if ($null -ne $drift)
-                {
-                    $Delta += , $drift
-                    $drift = $null
-                }
-            }
-        }
-        catch
-        {
-            Write-Error -Message $_ -ErrorAction Continue
-        }
-        $i++
-    }
-    Write-Progress -Activity 'Scanning Source...' -Completed
-
-    # Loop through all items in the destination array
-    $i = 1
-    try
-    {
-        foreach ($destinationResource in $DestinationObject)
-        {
-            try
-            {
-                [System.Collections.HashTable]$currentDestinationResource = ([array]$destinationResource)[0]
-                $key = Get-M365DSCResourceKey -Resource $currentDestinationResource -DSCResourceInfo $dscResourceInfo
-                Write-Progress -Activity "Scanning Destination $Destination...[$i/$($DestinationObject.Count)]" -PercentComplete ($i / ($DestinationObject.Count) * 100)
-                $sourceResource = $SourceObject | Where-Object -FilterScript {
-                    $_.ResourceName -eq $currentDestinationResource.ResourceName -and `
-                    $_.($key[0]) -eq $currentDestinationResource.($key[0]) -and `
-                    $_.ResourceInstanceName -eq $currentDestinationResource.ResourceInstanceName
-                }
-                $currentDestinationKeyValue = $currentDestinationResource.($key[0])
-
-                # Filter on the second key
-                if ($key.Count -gt 1)
-                {
-                    [array]$sourceResource = $sourceResource | Where-Object -FilterScript { $_.ResourceName -eq $currentDestinationResource.ResourceName -and $_.($key[1]) -eq $currentDestinationResource.($key[1]) }
-                    $currentDestinationKeyValue = $currentDestinationResource.($key[0]), $currentDestinationResource.($key[1]) -join '\'
-                }
-                if ($null -eq $sourceResource)
-                {
-                    $drift = @{
-                        ResourceName         = $currentDestinationResource.ResourceName
-                        ResourceInstanceName = $currentDestinationResource.ResourceInstanceName
-                        Key                  = $key
-                        KeyValue             = $currentDestinationResource."$key"
-                        Properties           = @(@{
-                            ParameterName      = '_IsInConfiguration_'
-                            ValueInSource      = 'Absent'
-                            ValueInDestination = 'Present'
-                        })
-                    }
-                    $Delta += , $drift
-                    $drift = $null
-                }
-            }
-            catch
-            {
-                Write-Verbose -Message "Error: $_"
-            }
-            $i++
-        }
-    }
-    catch
-    {
-        Write-Error -Message $_ -ErrorAction Continue
-    }
-    Write-Progress -Activity 'Scanning Destination...' -Completed
-
-    return $Delta
-}
-
-<#
-.Description
-This function gets the key parameter for the specified CIMInstance
-
-.Functionality
-Internal
+.FUNCTIONALITY
+    Internal
 #>
 function Get-M365DSCCIMInstanceKey
 {
@@ -1727,11 +1121,11 @@ function Get-M365DSCCIMInstanceKey
 }
 
 <#
-.Description
-This function gets the key parameter for the specified resource
+.DESCRIPTION
+    This function gets the key parameter for the specified resource
 
-.Functionality
-Internal, Hidden
+.FUNCTIONALITY
+    Internal, Hidden
 #>
 function Get-M365DSCResourceKey
 {
@@ -1868,45 +1262,45 @@ function Get-M365DSCResourceKey
 }
 
 <#
-.Description
-This function creates a delta HTML report between two provided exported
-DSC configurations
+.DESCRIPTION
+    This function creates a delta HTML report between two provided exported
+    DSC configurations
 
-.Parameter Source
-The source DSC configuration to compare from.
+.PARAMETER Source
+    The source DSC configuration to compare from.
 
-.Parameter Destination
-The destination DSC configuration to compare with.
+.PARAMETER Destination
+    The destination DSC configuration to compare with.
 
-.Parameter OutputPath
-The output path of the delta report.
+.PARAMETER OutputPath
+    The output path of the delta report.
 
-.Parameter DriftOnly
-Specifies that only difference should be in the report.
+.PARAMETER DriftOnly
+    Specifies that only difference should be in the report.
 
-.Parameter IsBlueprintAssessment
-Specifies that the report is a comparison with a Blueprint.
+.PARAMETER IsBlueprintAssessment
+    Specifies that the report is a comparison with a Blueprint.
 
-.Parameter HeaderFilePath
-Specifies that file that contains a custom header for the report.
+.PARAMETER HeaderFilePath
+    Specifies that file that contains a custom header for the report.
 
-.Parameter Delta
-An array with difference, already compiled from another source.
+.PARAMETER Delta
+    An array with difference, already compiled from another source.
 
-.Parameter ExcludedProperties
-Array that contains the list of parameters to exclude.
+.PARAMETER ExcludedProperties
+    Array that contains the list of parameters to exclude.
 
-.Parameter ExcludedResources
-Array that contains the list of resources to exclude.
+.PARAMETER ExcludedResources
+    Array that contains the list of resources to exclude.
 
-.Example
-New-M365DSCDeltaReport -Source 'C:\DSC\Source.ps1' -Destination 'C:\DSC\Destination.ps1' -OutputPath 'C:\Dsc\DeltaReport.html'
+.EXAMPLE
+    PS> New-M365DSCDeltaReport -Source 'C:\DSC\Source.ps1' -Destination 'C:\DSC\Destination.ps1' -OutputPath 'C:\Dsc\DeltaReport.html'
 
-.Example
-New-M365DSCDeltaReport -Source 'C:\DSC\Source.ps1' -Destination 'C:\DSC\Destination.ps1' -OutputPath 'C:\Dsc\DeltaReport.html' -DriftOnly $true
+.EXAMPLE
+    PS> New-M365DSCDeltaReport -Source 'C:\DSC\Source.ps1' -Destination 'C:\DSC\Destination.ps1' -OutputPath 'C:\Dsc\DeltaReport.html' -DriftOnly $true
 
-.Functionality
-Public
+.FUNCTIONALITY
+    Public
 #>
 function New-M365DSCDeltaReport
 {
@@ -2028,7 +1422,7 @@ function New-M365DSCDeltaReport
             $desiredSplat.IncludeComments = $true
         }
 
-        # Parse the blueprint file, pass to Compare-M365DSCConfigurations as object (including comments aka metadata)
+        # Parse the blueprint file, pass to other comparison functions as object (including comments aka metadata)
         [Array]$desiredConfiguration = Initialize-M365DSCReporting @desiredSplat
         [Array]$sourceReporting = Initialize-M365DSCReporting -ConfigurationPath $Source
         $Delta = @()
@@ -2427,11 +1821,11 @@ function New-M365DSCDeltaReport
 }
 
 <#
-.Description
-This function prepares the configuration for further parsing of the data
+.DESCRIPTION
+    This function prepares the configuration for further parsing of the data
 
-.Functionality
-Internal, Hidden
+.FUNCTIONALITY
+    Internal, Hidden
 #>
 function Initialize-M365DSCReporting
 {
@@ -2497,11 +1891,11 @@ function Initialize-M365DSCReporting
 }
 
 <#
-.Description
+.DESCRIPTION
     This function recursively converts a PowerShell object into an HTML list,
     flattening nested properties.
 
-.Functionality
+.FUNCTIONALITY
     Internal, Hidden
 #>
 function Convert-ObjectToHtmlList
@@ -2589,7 +1983,6 @@ function Convert-ObjectToHtmlList
 }
 
 Export-ModuleMember -Function @(
-    'Compare-M365DSCConfigurations',
     'New-M365DSCDeltaReport',
     'New-M365DSCReportFromConfiguration',
     'Get-M365DSCCIMInstanceKey'

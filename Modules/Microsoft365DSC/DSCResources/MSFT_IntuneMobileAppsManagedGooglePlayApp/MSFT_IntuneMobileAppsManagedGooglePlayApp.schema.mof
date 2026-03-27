@@ -16,10 +16,11 @@ class MSFT_DeviceManagementMobileAppAssignmentSettings
     [Required, Description("The odata type of the assignment type."), ValueMap{"#microsoft.graph.androidManagedStoreAppAssignmentSettings", "#microsoft.graph.iosStoreAppAssignmentSettings", "#microsoft.graph.iosLobAppAssignmentSettings", "#microsoft.graph.macOsLobAppAssignmentSettings", "#microsoft.graph.win32LobAppAssignmentSettings", "#microsoft.graph.winGetAppAssignmentSettings", "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"}, Values{"#microsoft.graph.androidManagedStoreAppAssignmentSettings", "#microsoft.graph.iosLobAppAssignmentSettings", "#microsoft.graph.iosStoreAppAssignmentSettings", "#microsoft.graph.macOsLobAppAssignmentSettings", "#microsoft.graph.win32LobAppAssignmentSettings", "#microsoft.graph.winGetAppAssignmentSettings", "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"}] String odataType;
 };
 
-[ClassVersion("1.0.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_DeviceManagementManagedGooglePlayMobileAppAssignmentSettings : MSFT_DeviceManagementMobileAppAssignmentSettings
 {
     [Write, Description("Priority for automatic udpates for this app assignment. Possible values are: default, postponed, priority."), ValueMap{"default","postponed","priority"}, Values{"default","postponed","priority"}] String autoUpdateMode;
+    [Write, Description("The track IDs to enable for this app assignment.")] String androidManagedStoreAppTrackIds[];
 };
 
 [ClassVersion("1.0.0.0")]
