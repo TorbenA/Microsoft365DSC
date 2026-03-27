@@ -5,7 +5,7 @@ class MSFT_SCHeaderPattern
     [Required, Description("Regular expressions for the pattern")] String Values[];
 };
 
-[ClassVersion("1.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_SCDLPSensitiveInformation
 {
     [Key, Description("Name of the Sensitive Information Content")] String name;
@@ -25,7 +25,7 @@ class MSFT_SCDLPLabel
     [Write, Description("Type of the Sensitive Information label")] String type;
 };
 
-[ClassVersion("1.0.0")]
+[ClassVersion("1.0.1")]
 class MSFT_SCDLPContainsSensitiveInformationGroup
 {
     [Write, Description("Sensitive Information Content Types"),EmbeddedInstance("MSFT_SCDLPSensitiveInformation")] String SensitiveInformation[];

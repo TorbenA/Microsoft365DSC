@@ -1,3 +1,6 @@
+# Automatically initialize accelerator on module import
+Initialize-M365DSCDllLoader -ErrorAction SilentlyContinue
+
 $Script:ReportCSS = @'
 <style>
     body {
@@ -1225,16 +1228,8 @@ function Compare-M365DSCConfigurations
         [Array]$DestinationObject = $DestinationObject | Where-Object -FilterScript { $_.ResourceName -notin $ExcludedResources }
     }
 
-    $isPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
-    if ($isPowerShellCore)
-    {
-        $dscResourceInfo = Get-PwshDSCResource -Module 'Microsoft365DSC'
-    }
-    else
-    {
-        $currentModule = Get-Module -Name 'Microsoft365DSC'
-        $dscResourceInfo = Get-DscResource -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
-    }
+    $currentModule = Get-Module -Name 'Microsoft365DSC'
+    $dscResourceInfo = Get-DscResourceV2 -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
 
     $dscResourceInfoMap = @{}
     foreach ($resource in $dscResourceInfo)
@@ -1753,84 +1748,117 @@ function Get-M365DSCResourceKey
         $DSCResourceInfo
     )
     $resourceInfo = $DSCResourceInfo[$Resource.ResourceName]
-    [Array]$mandatoryParameters = $resourceInfo.Properties | Where-Object -FilterScript { $_.IsMandatory }
-    if ($Resource.Contains('IsSingleInstance') -and $mandatoryParameters.Name.Contains('IsSingleInstance'))
+    if ($null -eq $Script:MandatoryParametersCache)
     {
+        $Script:MandatoryParametersCache = @{}
+    }
+
+    if ($Script:MandatoryParametersCache.ContainsKey($Resource.ResourceName))
+    {
+        return $Script:MandatoryParametersCache[$Resource.ResourceName]
+    }
+
+    [Array]$mandatoryParameters = $resourceInfo.Properties | Where-Object IsMandatory -EQ $true
+    if ($Resource.ContainsKey('IsSingleInstance') -and $mandatoryParameters.Name.Contains('IsSingleInstance'))
+    {
+        $Script:MandatoryParametersCache[$Resource.ResourceName] = @('IsSingleInstance')
         return @('IsSingleInstance')
     }
-    elseif ($Resource.Contains('DisplayName') -and $mandatoryParameters.Name.Contains('DisplayName') -and $Resource.ResourceName -in @('AADGroup', 'IntuneDeviceEnrollmentPlatformRestriction', 'TeamsChannel', 'TeamsTeam'))
+    elseif ($Resource.ContainsKey('DisplayName') -and $mandatoryParameters.Name.Contains('DisplayName') -and $Resource.ResourceName -in @('AADGroup', 'IntuneDeviceEnrollmentPlatformRestriction', 'TeamsChannel', 'TeamsTeam'))
     {
         if ($Resource.ResourceName -eq 'AADGroup' -and -not [System.String]::IsNullOrEmpty($Resource.MailNickname))
         {
+            $Script:MandatoryParametersCache[$Resource.ResourceName] = @('DisplayName', 'MailNickname')
             return ('DisplayName', 'MailNickname')
         }
         if ($Resource.ResourceName -eq 'IntuneDeviceEnrollmentPlatformRestriction' -and $Resource.Keys.Where({ $_ -like '*Restriction' }))
         {
+            $Script:MandatoryParametersCache[$Resource.ResourceName] = @('ResourceInstanceName')
             return @('ResourceInstanceName')
         }
         if ($Resource.ResourceName -eq 'TeamsChannel' -and -not [System.String]::IsNullOrEmpty($Resource.TeamName))
         {
             # Teams Channel displaynames are not tenant-unique (e.g. "General" is almost in every team), but should be unique per team
+            $Script:MandatoryParametersCache[$Resource.ResourceName] = @('TeamName', 'DisplayName')
             return @('TeamName', 'DisplayName')
         }
         if ($Resource.ResourceName -eq 'TeamsTeam' -and -not [System.String]::IsNullOrEmpty($Resource.MailNickName))
         {
             # Teams names are not unique
+            $Script:MandatoryParametersCache[$Resource.ResourceName] = @('MailNickName', 'DisplayName')
             return @('MailNickName', 'DisplayName')
         }
+        $Script:MandatoryParametersCache[$Resource.ResourceName] = @('DisplayName')
         return @('DisplayName')
     }
-    elseif ($Resource.Contains('Identity') -and $mandatoryParameters.Name.Contains('Identity'))
+    elseif ($Resource.ContainsKey('Identity') -and $mandatoryParameters.Name.Contains('Identity'))
     {
+        $Script:MandatoryParametersCache[$Resource.ResourceName] = @('Identity')
         return @('Identity')
     }
-    elseif ($Resource.Contains('Name') -and $mandatoryParameters.Name.Contains('Name'))
+    elseif ($Resource.ContainsKey('Name') -and $mandatoryParameters.Name.Contains('Name'))
     {
+        $Script:MandatoryParametersCache[$Resource.ResourceName] = @('Name')
         return @('Name')
     }
-    elseif ($Resource.Contains('Url') -and $mandatoryParameters.Name.Contains('Url'))
+    elseif ($Resource.ContainsKey('Url') -and $mandatoryParameters.Name.Contains('Url'))
     {
+        $Script:MandatoryParametersCache[$Resource.ResourceName] = @('Url')
         return @('Url')
     }
-    elseif ($Resource.Contains('Organization') -and $mandatoryParameters.Name.Contains('Organization'))
+    elseif ($Resource.ContainsKey('Organization') -and $mandatoryParameters.Name.Contains('Organization'))
     {
+        $Script:MandatoryParametersCache[$Resource.ResourceName] = @('Organization')
         return @('Organization')
     }
-    elseif ($Resource.Contains('CDNType') -and $mandatoryParameters.Name.Contains('CDNType'))
+    elseif ($Resource.ContainsKey('CDNType') -and $mandatoryParameters.Name.Contains('CDNType'))
     {
+        $Script:MandatoryParametersCache[$Resource.ResourceName] = @('CDNType')
         return @('CDNType')
     }
-    elseif ($Resource.Contains('Action') -and $Resource.ResourceName -eq 'SCComplianceSearchAction' -and $mandatoryParameters.Name.Contains('Action'))
+    elseif ($Resource.ContainsKey('Action') -and $Resource.ResourceName -eq 'SCComplianceSearchAction' -and $mandatoryParameters.Name.Contains('Action'))
     {
+        $Script:MandatoryParametersCache[$Resource.ResourceName] = @('SearchName', 'Action')
         return @('SearchName', 'Action')
     }
-    elseif ($Resource.Contains('Workload') -and $Resource.ResourceName -eq 'SCAuditConfigurationPolicy' -and $mandatoryParameters.Name.Contains('Workload'))
+    elseif ($Resource.ContainsKey('Workload') -and $Resource.ResourceName -eq 'SCAuditConfigurationPolicy' -and $mandatoryParameters.Name.Contains('Workload'))
     {
+        $Script:MandatoryParametersCache[$Resource.ResourceName] = @('Workload')
         return @('Workload')
     }
-    elseif ($Resource.Contains('Title') -and $Resource.ResourceName -eq 'SPOSiteDesign' -and $mandatoryParameters.Name.Contains('Title'))
+    elseif ($Resource.ContainsKey('Title') -and $Resource.ResourceName -eq 'SPOSiteDesign' -and $mandatoryParameters.Name.Contains('Title'))
     {
+        $Script:MandatoryParametersCache[$Resource.ResourceName] = @('Title')
         return @('Title')
     }
-    elseif ($Resource.Contains('SiteDesignTitle') -and $mandatoryParameters.Name.Contains('SiteDesignTitle'))
+    elseif ($Resource.ContainsKey('SiteDesignTitle') -and $mandatoryParameters.Name.Contains('SiteDesignTitle'))
     {
+        $Script:MandatoryParametersCache[$Resource.ResourceName] = @('SiteDesignTitle')
         return @('SiteDesignTitle')
     }
-    elseif ($Resource.Contains('Key') -and $Resource.ResourceName -eq 'SPOStorageEntity' -and $mandatoryParameters.Name.Contains('Key'))
+    elseif ($Resource.ContainsKey('Key') -and $Resource.ResourceName -eq 'SPOStorageEntity' -and $mandatoryParameters.Name.Contains('Key'))
     {
+        $Script:MandatoryParametersCache[$Resource.ResourceName] = @('Key')
         return @('Key')
     }
-    elseif ($Resource.Contains('Usage') -and $mandatoryParameters.Name.Contains('Usage'))
+    elseif ($Resource.ContainsKey('Usage') -and $mandatoryParameters.Name.Contains('Usage'))
     {
+        $Script:MandatoryParametersCache[$Resource.ResourceName] = @('Usage')
         return @('Usage')
     }
-    elseif ($Resource.Contains('OrgWideAccount') -and $mandatoryParameters.Name.Contains('OrgWideAccount'))
+    elseif ($Resource.ContainsKey('OrgWideAccount') -and $mandatoryParameters.Name.Contains('OrgWideAccount'))
     {
+        $Script:MandatoryParametersCache[$Resource.ResourceName] = @('OrgWideAccount')
         return @('OrgWideAccount')
     }
     elseif ($mandatoryParameters.Count -gt 0)
     {
         # return all mandatory parameters
+        if ($Resource.ResourceName -eq 'EXOTenantAllowBlockListItems')
+        {
+            $mandatoryParameters = $mandatoryParameters | Where-Object Name -NE 'Action' # Action is not a key property but still mandatory
+        }
+        $Script:MandatoryParametersCache[$Resource.ResourceName] = @($mandatoryParameters.Name)
         return @($mandatoryParameters.Name)
     }
     elseif ($mandatoryParameters.Count -eq 0)
@@ -1974,23 +2002,14 @@ function New-M365DSCDeltaReport
     $ExcludedProperties += 'ResourceInstanceName'
     $ExcludedProperties = $ExcludedProperties + $authParameters | Select-Object -Unique
 
-    $isPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
-    if ($isPowerShellCore)
-    {
-        $module = Get-Module -Name PSDesiredStateConfiguration | Where-Object { $_.Version -ge [version]'2.0.7' }
-        if ($null -eq $module)
-        {
-            Import-Module -Name 'PSDesiredStateConfiguration' -Global -Prefix 'Pwsh' -RequiredVersion 2.0.7
-        }
-        $dscResourceInfo = Get-PwshDSCResource -Module 'Microsoft365DSC'
-    }
-    else
+    if ($null -eq $Script:DscResourceInfo)
     {
         $currentModule = Get-Module -Name 'Microsoft365DSC'
-        $dscResourceInfo = Get-DscResource -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
+        $Script:DscResourceInfo = Get-DscResourceV2 -Module 'Microsoft365DSC' | Where-Object Version -EQ $currentModule.Version
     }
+
     $dscResourceInfoMap = @{}
-    foreach ($resource in $dscResourceInfo)
+    foreach ($resource in $Script:DscResourceInfo)
     {
         $dscResourceInfoMap.Add($resource.Name, $resource)
     }
@@ -1998,29 +2017,26 @@ function New-M365DSCDeltaReport
     Write-Verbose -Message 'Obtaining Delta between the source and destination configurations'
     if (-not $Delta)
     {
+        $desiredSplat = @{
+            ConfigurationPath = $Destination
+            IncludeComments   = $false
+            DscResourceInfo   = $Script:DscResourceInfo
+        }
+
         if ($IsBlueprintAssessment)
         {
-            $desiredSplat = @{
-                ConfigurationPath = $Destination
-                IncludeComments   = $true
-            }
+            $desiredSplat.IncludeComments = $true
         }
-        else
-        {
-            $desiredSplat = @{
-                ConfigurationPath = $Destination
-                IncludeComments   = $false
-            }
-        }
+
         # Parse the blueprint file, pass to Compare-M365DSCConfigurations as object (including comments aka metadata)
-        [Array] $desiredConfiguration = Initialize-M365DSCReporting @desiredSplat
+        [Array]$desiredConfiguration = Initialize-M365DSCReporting @desiredSplat
         [Array]$sourceReporting = Initialize-M365DSCReporting -ConfigurationPath $Source
         $Delta = @()
         foreach ($resource in $sourceReporting)
         {
             [array]$key = Get-M365DSCResourceKey -Resource $resource -DSCResourceInfo $dscResourceInfoMap
             #Write-Progress -Activity "Scanning Source $Source...[$i/$($SourceObject.Count)]" -PercentComplete ($i / ($SourceObject.Count) * 100)
-            [array]$destinationResource = $desiredConfiguration.Where({ $_.ResourceName -eq $resource.ResourceName -and $_.($key[0]) -eq $resource.($key[0]) })
+            [array]$destinationResource = [Microsoft365DSC.Utilities.Utilities]::FilterHashtablesByResourceAndKey($desiredConfiguration, $resource.ResourceName, $key[0], $resource.($key[0]))
 
             $keyName = $key[0..1] -join '\'
             $sourceKeyValue = $resource.($key[0])
@@ -2133,7 +2149,7 @@ function New-M365DSCDeltaReport
             [array]$key = Get-M365DSCResourceKey -Resource $resource -DSCResourceInfo $dscResourceInfoMap
             $keyName = $key[0..1] -join '\'
             $destinationKeyValue = $resource.($key[0])
-            [array]$sourceResource = $sourceReporting.Where({ $_.ResourceName -eq $resource.ResourceName -and $_.($key[0]) -eq $resource.($key[0]) })
+            [array]$sourceResource = [Microsoft365DSC.Utilities.Utilities]::FilterHashtablesByResourceAndKey($sourceReporting, $resource.ResourceName, $key[0], $resource.($key[0]))
 
             # Filter on the second key
             if ($key.Count -gt 1)
@@ -2427,7 +2443,11 @@ function Initialize-M365DSCReporting
 
         [Parameter()]
         [Switch]
-        $IncludeComments
+        $IncludeComments,
+
+        [Parameter()]
+        [System.Object[]]
+        $DscResourceInfo
     )
 
     if ((Test-Path -Path $ConfigurationPath) -eq $false)
@@ -2438,29 +2458,35 @@ function Initialize-M365DSCReporting
 
     Write-Verbose -Message "Loading file '$ConfigurationPath'"
 
-    $fileContent = Get-Content $ConfigurationPath -Raw
+    $fileContent = [System.IO.File]::ReadAllText($ConfigurationPath)
     try
     {
         $startPosition = $fileContent.IndexOf(' -ModuleVersion')
         if ($startPosition -gt 0)
         {
-            $endPosition = $fileContent.IndexOf("`r", $startPosition)
+            $endPosition = $fileContent.IndexOf("`n", $startPosition)
             $fileContent = $fileContent.Remove($startPosition, $endPosition - $startPosition)
         }
     }
     catch
     {
-        Write-Verbose 'Error trying to remove Module Version'
+        Write-Warning -Message "Error trying to remove Module Version: $($_.Exception | Out-String)"
+    }
+
+    $params = @{
+        Content = $fileContent
     }
 
     if ($IncludeComments)
     {
-        $parsedContent = ConvertTo-DSCObject -Content $fileContent -IncludeComments:$True
+        $params.Add('IncludeComments', $true)
     }
-    else
+
+    if ($PSBoundParameters.ContainsKey('DscResourceInfo'))
     {
-        $parsedContent = ConvertTo-DSCObject -Content $fileContent
+        $params.Add('DscResourceInfo', $DscResourceInfo)
     }
+    $parsedContent = ConvertTo-DSCObject @params
 
     if ($null -eq $parsedContent)
     {

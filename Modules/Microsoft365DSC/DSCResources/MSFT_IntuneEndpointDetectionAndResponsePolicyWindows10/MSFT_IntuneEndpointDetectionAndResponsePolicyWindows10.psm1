@@ -23,8 +23,8 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
-        [System.String]
-        [ValidateSet('0', '1')]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $SampleSharing,
 
         [Parameter()]
@@ -216,8 +216,8 @@ function Set-TargetResource
         $Description,
 
         [Parameter()]
-        [System.String]
-        [ValidateSet('0', '1')]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $SampleSharing,
 
         [Parameter()]
@@ -403,8 +403,8 @@ function Test-TargetResource
         $Description,
 
         [Parameter()]
-        [System.String]
-        [ValidateSet('0', '1')]
+        [ValidateSet(0, 1)]
+        [System.Int32]
         $SampleSharing,
 
         [Parameter()]

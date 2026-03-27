@@ -22,7 +22,7 @@
         },
         @{
             ModuleName      = 'DSCParser'
-            RequiredVersion = '2.0.0.21'
+            RequiredVersion = '3.0.0.1'
         },
         @{
             ModuleName      = 'ExchangeOnlineManagement'
@@ -140,13 +140,6 @@
             # https://github.com/microsoft/Microsoft365DSC/pull/6726
             # https://github.com/ykuijs/M365DSC_CICD/issues/53
             #DependsOn       = @('Microsoft.Graph.Authentication')
-        },
-        @{
-            ModuleName      = 'PSDesiredStateConfiguration'
-            RequiredVersion = '2.0.7'
-            PowerShellCore  = $true
-            ExplicitLoading = $true
-            Prefix          = 'Pwsh'
         },
         @{
             ModuleName      = 'ReverseDSC'
