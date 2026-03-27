@@ -2390,3 +2390,26 @@ function Wait-ForFileProcessing
 
     $file
 }
+
+Export-ModuleMember -Function @(
+    'Compare-M365DSCIntunePolicyAssignment',
+    'ConvertFrom-IntuneMobileAppAssignment',
+    'ConvertFrom-IntunePolicyAssignment',
+    'ConvertTo-IntuneMobileAppAssignment',
+    'ConvertTo-IntunePolicyAssignment',
+    'Export-IntuneSettingCatalogPolicySettings',
+    'Find-GraphDataUsingComplexFunctions',
+    'Get-ComplexFunctionsFromFilterQuery',
+    'Get-IntuneSettingCatalogPolicySetting',
+    'Get-IntuneSettingCatalogPolicySettingDSCValue',
+    'Get-IntuneSettingCatalogPolicySettingInstanceValue',
+    'Get-M365DSCIntuneDeviceConfigurationSettings',
+    'Get-OmaSettingPlainTextValue',
+    'Invoke-M365DSCIntuneMobileAppInitialUpload',
+    'Remove-ComplexFunctionsFromFilterQuery',
+    'Update-DeviceAppManagementAppCategory',
+    'Update-DeviceAppManagementPolicyAssignment',
+    'Update-DeviceConfigurationPolicyAssignment',
+    'Update-IntuneDeviceConfigurationPolicy',
+    'Wait-ForFileProcessing'
+)

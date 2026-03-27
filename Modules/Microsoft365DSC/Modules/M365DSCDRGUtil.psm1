@@ -197,7 +197,16 @@ function Get-M365DSCDRGComplexTypeToString
         return $null
     }
 
-    $returnValue = [Microsoft365DSC.Converter.ComplexObjectConverter]::ToDscString($ComplexObject, $CIMInstanceName, $ComplexTypeMapping, $Whitespace, $IndentLevel, $IsArray)
+    $typeMappingList = [System.Collections.Generic.List[Microsoft365DSC.Converter.ComplexTypeMapping]]::new()
+    if ($PSBoundParameters.ContainsKey('ComplexTypeMapping') -and $ComplexTypeMapping -ne $null)
+    {
+        foreach ($mapping in $ComplexTypeMapping)
+        {
+            $typeMappingList.Add($mapping)
+        }
+    }
+
+    $returnValue = [Microsoft365DSC.Converter.ComplexObjectConverter]::ToDscString($ComplexObject, $CIMInstanceName, $typeMappingList, $Whitespace, $IndentLevel, $IsArray)
     if ($returnValue -is [System.Array])
     {
         return ,$returnValue
