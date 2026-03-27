@@ -8,7 +8,8 @@
   * Added name resolution for `AppId` and `PermissionIds` in preauthorized applications.
 * AADAuthenticationMethodPolicy
   * [BREAKING CHANGE] Added `IsSingleInstance` parameter.
-    Removed `Ensure`, `DisplayName`, `Description`, `Id` and `PolicyVersion` parameters.
+    Removed `Ensure`, `DisplayName`, `Description`, `Id` and `PolicyVersion`
+  * Fixed error in parameters.
 * AADAuthenticationMethodPolicy*
   * Streamlined group resolution during update operation.
   * Streamlined Target name resolution for all authentication resources.
