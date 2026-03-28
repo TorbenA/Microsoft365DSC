@@ -56,11 +56,11 @@ class MSFT_MicrosoftGraphVpnRoute
     [Write, Description("Prefix size. (1-32). Valid values 1 to 32")] UInt32 PrefixSize;
 };
 
-[ClassVersion("1.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphExtendedKeyUsage
 {
-    [Write, Description("Extended Key Usage Name")] String Name;
-    [Write, Description("Extended Key Usage Object Identifier")] String ObjectIdentifier;
+    [Key, Description("Extended Key Usage Name")] String Name;
+    [Key, Description("Extended Key Usage Object Identifier")] String ObjectIdentifier;
 };
 
 [ClassVersion("1.0.0")]
@@ -95,12 +95,12 @@ class MSFT_MicrosoftGraphNumberRange
     [Write, Description("Upper number.")] UInt32 UpperNumber;
 };
 
-[ClassVersion("1.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphVpnServer
 {
-    [Write, Description("Address (IP address, FQDN or URL)")] String Address;
-    [Write, Description("Description.")] String Description;
-    [Write, Description("Default server.")] Boolean IsDefaultServer;
+    [Key, Description("Address (IP address, FQDN or URL)")] String address;
+    [Write, Description("Description.")] String description;
+    [Write, Description("Default server.")] Boolean isDefaultServer;
 };
 
 [ClassVersion("1.0.0.0"), FriendlyName("IntuneDeviceConfigurationVpnPolicyWindows10")]

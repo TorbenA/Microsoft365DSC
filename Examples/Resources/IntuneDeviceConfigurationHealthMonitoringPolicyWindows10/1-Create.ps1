@@ -22,20 +22,18 @@ Configuration Example
 
     node localhost
     {
-        IntuneDeviceConfigurationDefenderForEndpointOnboardingPolicyWindows10 'Example'
+        IntuneDeviceConfigurationHealthMonitoringPolicyWindows10 'Example'
         {
-            AdvancedThreatProtectionAutoPopulateOnboardingBlob = $True; # Updated Property
-            AdvancedThreatProtectionOnboardingFilename         = "WindowsDefenderATP.onboarding";
-            AllowSampleSharing                                 = $True;
-            Assignments                                        = @(
+            AllowDeviceHealthMonitoring       = "enabled";
+            Assignments                       = @(
                 MSFT_DeviceManagementConfigurationPolicyAssignments{
                     deviceAndAppManagementAssignmentFilterType = 'none'
-                    dataType = '#microsoft.graph.allDevicesAssignmentTarget'
+                    dataType = '#microsoft.graph.allLicensedUsersAssignmentTarget'
                 }
             );
-            DisplayName                                        = "MDE onboarding Legacy";
-            EnableExpeditedTelemetryReporting                  = $True;
-            Ensure                                             = "Present";
+            ConfigDeviceHealthMonitoringScope = @("bootPerformance","windowsUpdates");
+            DisplayName                       = "Health Monitoring Configuration";
+            Ensure                            = "Present";
             ApplicationId         = $ApplicationId;
             TenantId              = $TenantId;
             CertificateThumbprint = $CertificateThumbprint;

@@ -744,14 +744,6 @@ function Set-TargetResource
             }
         }
 
-        $keys = (([Hashtable]$createParameters).Clone()).Keys
-        foreach ($key in $keys)
-        {
-            if ($null -ne $createParameters.$key -and $createParameters.$key.GetType().Name -like '*CimInstance*')
-            {
-                $createParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $createParameters.$key
-            }
-        }
         $createParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
         Write-Verbose -Message "Creating an Azure AD Access Review Definition with: $(ConvertTo-Json $createParameters -Depth 10)"
         $policy = New-MgBetaIdentityGovernanceAccessReviewDefinition -BodyParameter $createParameters
@@ -810,14 +802,6 @@ function Set-TargetResource
             Write-Verbose -Message "Priting Values: $(Convert-M365DscHashtableToString -Hashtable $hashtable)"
         }
 
-        $keys = (([Hashtable]$createParameters).Clone()).Keys
-        foreach ($key in $keys)
-        {
-            if ($null -ne $createParameters.$key -and $createParameters.$key.GetType().Name -like '*CimInstance*')
-            {
-                $createParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $createParameters.$key
-            }
-        }
         #region resource generator code
         $createParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
         Write-Verbose -Message "Creating an Azure AD Access Review Definition with: $(ConvertTo-Json $createParameters -Depth 10)"
@@ -846,16 +830,6 @@ function Set-TargetResource
 
         $updateParameters.Add('Settings', $updateParameters.SettingsValue)
         $updateParameters.Remove('SettingsValue') | Out-Null
-
-
-        $keys = (([Hashtable]$updateParameters).Clone()).Keys
-        foreach ($key in $keys)
-        {
-            if ($null -ne $updateParameters.$key -and $updateParameters.$key.GetType().Name -like '*CimInstance*')
-            {
-                $updateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $updateParameters.AccessReviewScheduleDefinitionId
-            }
-        }
 
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')

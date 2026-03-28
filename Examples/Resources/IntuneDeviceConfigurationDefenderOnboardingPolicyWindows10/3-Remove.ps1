@@ -22,7 +22,7 @@ Configuration Example
 
     node localhost
     {
-        IntuneDeviceConfigurationDefenderForEndpointOnboardingPolicyWindows10 'Example'
+        IntuneDeviceConfigurationDefenderOnboardingPolicyWindows10 'Example'
         {
             DisplayName                                        = "MDE onboarding Legacy";
             Ensure                                             = "Absent";
