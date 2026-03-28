@@ -64,7 +64,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The instance exists and values are already in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    IsSingleInstance    = 'Yes'
                     UserPrincipalName   = "user@test.com"
                     PerUserMfaState     = 'Enabled'
                     Credential          = $Credential;
@@ -79,7 +78,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The instance exists and values are NOT in the desired state - Enable" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    IsSingleInstance    = 'Yes'
                     UserPrincipalName   = "user@test.com"
                     PerUserMfaState     = 'Enabled'
                     Credential          = $Credential;
@@ -111,7 +109,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The instance exists and values are NOT in the desired state - Disable" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    IsSingleInstance    = 'Yes'
                     UserPrincipalName   = "user@test.com"
                     PerUserMfaState     = 'Disabled' # Drift
                     Credential          = $Credential;

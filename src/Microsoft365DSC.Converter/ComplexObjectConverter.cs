@@ -352,7 +352,7 @@ namespace Microsoft365DSC.Converter
 
                         if (complexTypeMapping.Any(ctm => ctm.Name.Equals(key, StringComparison.OrdinalIgnoreCase)))
                         {
-                            hashPropertyType = complexTypeMapping.Where(ctm => ctm.Name.Equals(key, StringComparison.OrdinalIgnoreCase)).First().CimInstanceName;
+                            hashPropertyType = complexTypeMapping.First(ctm => ctm.Name.Equals(key, StringComparison.OrdinalIgnoreCase)).CimInstanceName;
                         }
 
                         if (isNestedArray && complexTypeMapping.Any(ctm => ctm.Name.Equals(key, StringComparison.OrdinalIgnoreCase)))

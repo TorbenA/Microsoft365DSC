@@ -15,11 +15,6 @@ function Get-TargetResource
         [System.String]
         $UserPrincipalName,
 
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('Yes')]
-        [System.String]
-        $IsSingleInstance,
-
         [Parameter()]
         [System.Management.Automation.PSCredential]
         $Credential,
@@ -89,7 +84,6 @@ function Get-TargetResource
         $results = @{
             PerUserMfaState       = $getValue.perUserMfaState
             UserPrincipalName     = $UserPrincipalName
-            IsSingleInstance      = 'Yes'
             Credential            = $Credential
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
@@ -126,11 +120,6 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $UserPrincipalName,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('Yes')]
-        [System.String]
-        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -192,7 +181,6 @@ function Set-TargetResource
         }
     }
 
-    $params.Remove('IsSingleInstance') | Out-Null
     $jsonParams = $params | ConvertTo-Json
 
     Invoke-MgGraphRequest -Method PATCH -Uri $url -Body $jsonParams
@@ -212,11 +200,6 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $UserPrincipalName,
-
-        [Parameter(Mandatory = $true)]
-        [ValidateSet('Yes')]
-        [System.String]
-        $IsSingleInstance,
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -343,7 +326,6 @@ function Export-TargetResource
             Write-M365DSCHost -Message "    |---[$i/$($getValue.Count)] $displayedKey" -DeferWrite
             $params = @{
                 UserPrincipalName     = $config.UserPrincipalName
-                IsSingleInstance      = 'Yes'
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId
                 TenantId              = $TenantId
