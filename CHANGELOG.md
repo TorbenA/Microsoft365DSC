@@ -128,6 +128,8 @@
   * Added CIM information about required properties to all resources where applicable.
   * Refactored module structure to improve maintainability.
   * Removed duplicate complex hashtable conversions.
+  * Updated documentation for different group types for AADGroup, EXOGroupSettings
+    and EXODistributionGroup.
 
 # 1.26.318.1
 
