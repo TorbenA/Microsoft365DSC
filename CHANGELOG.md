@@ -88,6 +88,10 @@
 * SCPolicyConfig
   * Fixed an issue where `JustificationText` was exported as an array and could
     contain empty strings.
+* SCRoleGroupMember
+  * [BREAKING CHANGE] Updated the export to use `Alias` for users with email addresses.
+    Fallback to `Name` for all other types, e.g. Service Principals.
+    FIXES [#6829](https://github.com/microsoft/Microsoft365DSC/issues/6829)
 * SCSensitivityLabel
   * Fixed an issue where the CIM definition for `MSFT_LabelSetting` did not match.
     FIXES [#7002](https://github.com/microsoft/Microsoft365DSC/issues/7002)
