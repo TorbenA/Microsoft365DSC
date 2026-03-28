@@ -28,7 +28,6 @@ Configuration Example
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint
             PerUserMfaState       = "disabled";
-            IsSingleInstance      = 'Yes';
             UserPrincipalName     = "TestMailbox109@$OrganizationName";
         }
     }
