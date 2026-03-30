@@ -296,6 +296,8 @@ function Export-M365DSCConfiguration
     $data.Add('Workloads', $Workloads)
     #endregion
 
+    Confirm-M365DSCDependencies
+
     # Make sure we are not connected to Microsoft Graph on another tenant
     # except if connected through MSCloudLoginAssistant - it will handle the connection
     try

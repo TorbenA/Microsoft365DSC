@@ -785,8 +785,7 @@ function Export-TargetResource
         {
             $Filter = "$Filter and"
         }
-        $Filter = "$Filter NOT(groupTypes/any(x:x eq 'DynamicMembership'))"
-        Write-Verbose "Setting Export fitler to $Filter"
+        $Filter = "$Filter NOT(groupTypes/any(x:x eq 'DynamicMembership')) and not(mailEnabled eq true and securityEnabled eq true)"
     }
 
     $ExportParameters = @{
@@ -805,8 +804,7 @@ function Export-TargetResource
         Write-Verbose "Got $($Script:exportedGroups.Length) total unfiltered groups"
         Write-Verbose 'Filtering all groups to PIM compatible'
         $Script:exportedGroups = $Script:exportedGroups | Where-Object -FilterScript {
-            -not ($_.MailEnabled -and ($null -eq $_.GroupTypes -or $_.GroupTypes.Length -eq 0)) -and `
-                -not ($_.MailEnabled -and $_.SecurityEnabled)
+            -not ($_.MailEnabled -and ($null -eq $_.GroupTypes -or $_.GroupTypes.Length -eq 0))
         }
         Write-Verbose "Got $($Script:exportedGroups.Length) PIM compatible groups"
 

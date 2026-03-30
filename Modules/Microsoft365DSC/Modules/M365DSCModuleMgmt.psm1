@@ -218,6 +218,10 @@ function Confirm-M365DSCLoadedModule
             $importModuleSplat.Add('Function', $manifestModule.Commands)
             $importModuleSplat.Cmdlet = $manifestModule.Commands
         }
+        if ($ModuleName -eq 'PnP.PowerShell' -and $manifestModule.RequiredVersion -eq '1.12.0' -and $Script:IsPowerShellCore)
+        {
+            $importModuleSplat.Add('UseWindowsPowerShell', $true)
+        }
         Import-Module @importModuleSplat
         Write-Verbose -Message "Module '$ModuleName' with version '$($manifestModule.RequiredVersion)' has been imported."
     }
