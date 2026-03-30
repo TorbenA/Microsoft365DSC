@@ -13,15 +13,15 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphCustomSubjectAlternativeName
 {
-    [Key, Description("Custom SAN Name")] String Name;
-    [Key, Description("Custom SAN Type. Possible values are: none, emailAddress, userPrincipalName, customAzureADAttribute, domainNameService, universalResourceIdentifier."), ValueMap{"none","emailAddress","userPrincipalName","customAzureADAttribute","domainNameService","universalResourceIdentifier"}, Values{"none","emailAddress","userPrincipalName","customAzureADAttribute","domainNameService","universalResourceIdentifier"}] String SanType;
+    [Required, Description("Custom SAN Name")] String Name;
+    [Required, Description("Custom SAN Type. Possible values are: none, emailAddress, userPrincipalName, customAzureADAttribute, domainNameService, universalResourceIdentifier."), ValueMap{"none","emailAddress","userPrincipalName","customAzureADAttribute","domainNameService","universalResourceIdentifier"}, Values{"none","emailAddress","userPrincipalName","customAzureADAttribute","domainNameService","universalResourceIdentifier"}] String SanType;
 };
 
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphExtendedKeyUsage
 {
-    [Key, Description("Extended Key Usage Name")] String Name;
-    [Key, Description("Extended Key Usage Object Identifier")] String ObjectIdentifier;
+    [Required, Description("Extended Key Usage Name")] String Name;
+    [Required, Description("Extended Key Usage Object Identifier")] String ObjectIdentifier;
 };
 
 [ClassVersion("1.0.0.0"), FriendlyName("IntuneDeviceConfigurationSCEPCertificatePolicyWindows10")]

@@ -14,7 +14,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 class MSFT_MicrosoftGraphapplistitemMacOS
 {
     [Write, Description("Specify the odataType"), ValueMap{"#microsoft.graph.appleAppListItem"}, Values{"#microsoft.graph.appleAppListItem"}] String odataType;
-    [Key, Description("The application or bundle identifier of the application")] String appId;
+    [Required, Description("The application or bundle identifier of the application")] String appId;
     [Write, Description("The Store URL of the application")] String appStoreUrl;
     [Write, Description("The application name")] String name;
     [Write, Description("The publisher of the application")] String publisher;

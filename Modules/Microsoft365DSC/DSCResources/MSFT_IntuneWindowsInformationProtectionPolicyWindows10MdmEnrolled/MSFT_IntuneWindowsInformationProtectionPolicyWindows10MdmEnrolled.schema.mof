@@ -22,36 +22,36 @@ class MSFT_MicrosoftGraphWindowsInformationProtectionDataRecoveryCertificate
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphWindowsInformationProtectionResourceCollection
 {
-    [Key, Description("Display name")] String DisplayName;
+    [Required, Description("Display name")] String DisplayName;
     [Write, Description("Collection of resources")] String Resources[];
 };
 
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphWindowsInformationProtectionIPRangeCollection
 {
-    [Key, Description("Display name")] String DisplayName;
+    [Required, Description("Display name")] String DisplayName;
     [Write, Description("Collection of ip ranges"), EmbeddedInstance("MSFT_MicrosoftGraphIpRange")] String Ranges[];
 };
 
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphIpRange
 {
-    [Key, Description("Lower address.")] String LowerAddress;
-    [Key, Description("Upper address.")] String UpperAddress;
-    [Key, Description("The type of the entity."), ValueMap{"#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}, Values{"#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}] String odataType;
+    [Required, Description("Lower address.")] String LowerAddress;
+    [Required, Description("Upper address.")] String UpperAddress;
+    [Required, Description("The type of the entity."), ValueMap{"#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}, Values{"#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}] String odataType;
 };
 
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphWindowsInformationProtectionProxiedDomainCollection
 {
-    [Key, Description("Display name")] String DisplayName;
+    [Required, Description("Display name")] String DisplayName;
     [Write, Description("Collection of proxied domains"), EmbeddedInstance("MSFT_MicrosoftGraphProxiedDomain")] String ProxiedDomains[];
 };
 
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphProxiedDomain
 {
-    [Key, Description("The IP address or FQDN")] String IpAddressOrFQDN;
+    [Required, Description("The IP address or FQDN")] String IpAddressOrFQDN;
     [Write, Description("Proxy IP or FQDN")] String Proxy;
 };
 
@@ -60,7 +60,7 @@ class MSFT_MicrosoftGraphWindowsInformationProtectionApp
 {
     [Write, Description("If true, app is denied protection or exemption.")] Boolean Denied;
     [Write, Description("The app's description.")] String Description;
-    [Key, Description("App display name.")] String DisplayName;
+    [Required, Description("App display name.")] String DisplayName;
     [Write, Description("The product name.")] String ProductName;
     [Write, Description("The publisher name")] String PublisherName;
     [Write, Description("The binary name.")] String BinaryName;

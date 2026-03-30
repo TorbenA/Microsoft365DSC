@@ -13,15 +13,15 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphOperatingSystemVersionRange
 {
-    [Key, Description("The description of this range (e.g. Valid 1702 builds)")] String Description;
-    [Key, Description("The lowest inclusive version that this range contains.")] String LowestVersion;
-    [Key, Description("The highest inclusive version that this range contains.")] String HighestVersion;
+    [Required, Description("The description of this range (e.g. Valid 1702 builds)")] String Description;
+    [Required, Description("The lowest inclusive version that this range contains.")] String LowestVersion;
+    [Required, Description("The highest inclusive version that this range contains.")] String HighestVersion;
 };
 
 [ClassVersion("1.0.0.0")]
 class MSFT_MicrosoftGraphDeviceCompliancePolicyScript
 {
-    [Key, Description("Device compliance script name.")] String DisplayName;
+    [Required, Description("Device compliance script name.")] String DisplayName;
     [Write, Description("Rules content of the custom settings.")] String RulesContent;
 };
 

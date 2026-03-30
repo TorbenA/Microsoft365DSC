@@ -13,7 +13,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 [ClassVersion("1.0.0.1")]
 class MSFT_androidPermissionAction
 {
-    [Key, Description("Android permission string, defined in the official Android documentation. Example 'android.permission.READ_CONTACTS'.")] String permission;
+    [Required, Description("Android permission string, defined in the official Android documentation. Example 'android.permission.READ_CONTACTS'.")] String permission;
     [Required, Description("Type of Android permission action. Possible values are: prompt, autoGrant, autoDeny."), ValueMap{"prompt","autoGrant","autoDeny"}, Values{"prompt","autoGrant","autoDeny"}] String action;
 };
 

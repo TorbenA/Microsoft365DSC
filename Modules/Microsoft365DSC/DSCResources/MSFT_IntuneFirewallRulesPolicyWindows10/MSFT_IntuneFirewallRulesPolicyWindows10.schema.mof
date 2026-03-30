@@ -14,7 +14,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 class MSFT_MicrosoftGraphIntuneSettingsCatalogFirewallRuleName
 {
     [Write, Description("Enabled - Depends on FirewallRuleName (0: Disabled, 1: Enabled)"), ValueMap{"0", "1"}, Values{"0", "1"}] String Enabled;
-    [Key, Description("Name - Depends on FirewallRuleName")] String Name;
+    [Required, Description("Name - Depends on FirewallRuleName")] String Name;
     [Write, Description("Interface Types - Depends on FirewallRuleName (RemoteAccess, Wireless, Lan, MobileBroadband, MBB, All)"), ValueMap{"RemoteAccess", "Wireless", "Lan", "MobileBroadband", "MBB", "All"}, Values{"RemoteAccess", "Wireless", "Lan", "MobileBroadband", "MBB", "All"}] String InterfaceTypes[];
     [Write, Description("File Path - Depends on FirewallRuleName")] String FilePath;
     [Write, Description("Remote Port Ranges - Depends on FirewallRuleName")] String RemotePortRanges[];

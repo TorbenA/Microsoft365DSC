@@ -4,7 +4,7 @@ class MSFT_AADFilteringProfilePolicyLink
     [Write, Description("Logging state for the associated policy.")] String LoggingState;
     [Write, Description("Priority of the associated policy.")] UInt32 Priority;
     [Write, Description("State of the associated policy.")] String State;
-    [Key, Description("Name of the associated policy.")] String PolicyName;
+    [Required, Description("Name of the associated policy.")] String PolicyName;
 };
 
 [ClassVersion("1.0.0.0"), FriendlyName("AADFilteringProfile")]

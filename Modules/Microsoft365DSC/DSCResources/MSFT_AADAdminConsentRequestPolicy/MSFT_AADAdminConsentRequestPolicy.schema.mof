@@ -2,7 +2,7 @@
 class MSFT_AADAdminConsentRequestPolicyReviewer
 {
     [Write, Description("Type of reviewwer. Can be User, Group or Role")] String ReviewerType;
-    [Key, Description("Identifier for the reviewer instance.")] String ReviewerId;
+    [Required, Description("Identifier for the reviewer instance.")] String ReviewerId;
     [Write, Description("Associated query.")] String QueryRoot;
 };
 

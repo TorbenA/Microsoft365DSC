@@ -14,14 +14,14 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 class MSFT_MicrosoftGraphAndroidPermissionAction
 {
     [Write, Description("Type of Android permission action. Possible values are: prompt, autoGrant, autoDeny."), ValueMap{"prompt","autoGrant","autoDeny"}, Values{"prompt","autoGrant","autoDeny"}] String Action;
-    [Key, Description("Android permission string, defined in the official Android documentation.  Example 'android.permission.READ_CONTACTS'.")] String Permission;
+    [Required, Description("Android permission string, defined in the official Android documentation.  Example 'android.permission.READ_CONTACTS'.")] String Permission;
 };
 
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphAppConfigurationSettingItem
 {
-    [Key, Description("app configuration key.")] String AppConfigKey;
-    [Key, Description("app configuration key type. Possible values are: stringType, integerType, realType, booleanType, tokenType."), ValueMap{"stringType","integerType","realType","booleanType","tokenType"}, Values{"stringType","integerType","realType","booleanType","tokenType"}] String AppConfigKeyType;
+    [Required, Description("app configuration key.")] String AppConfigKey;
+    [Required, Description("app configuration key type. Possible values are: stringType, integerType, realType, booleanType, tokenType."), ValueMap{"stringType","integerType","realType","booleanType","tokenType"}, Values{"stringType","integerType","realType","booleanType","tokenType"}] String AppConfigKeyType;
     [Write, Description("app configuration key value.")] String AppConfigKeyValue;
 };
 
