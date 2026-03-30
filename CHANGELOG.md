@@ -41,6 +41,19 @@
   * Updated several parameter types from String to Integer.
 * IntuneAppleMDMPushNotificationCertificate
   * [BREAKING CHANGE] Removed the `Id` parameter because it is random.
+* IntuneDeviceCompliancePolicyAndroidWorkProfile
+  * Updated the resource to use display names for `NotificationTemplateId`
+    and `NotificationMessageCCList`.
+  * Updated the resource to omit `NotificationTemplateId` if it is set to
+    `00000000-0000-0000-0000-000000000000`.
+* IntuneDeviceCompliancePolicyAndroidDeviceOwner
+  * Updated the resource to use display names for `NotificationTemplateId`
+    and `NotificationMessageCCList`.
+  * Updated the resource to omit `NotificationTemplateId` if it is set to
+    `00000000-0000-0000-0000-000000000000`.
+* IntuneDeviceCompliancePolicyWindows10
+  * Fixed an issue where `NotificationMessageCCList` would be exported
+    without quotes around the group names.
 * IntuneDeviceConfigurationDefenderForEndpointOnboardingPolicyWindows10
   * [BREAKING CHANGE] Renamed resource to
     `IntuneDeviceConfigurationDefenderOnboardingPolicyWindows10`.
