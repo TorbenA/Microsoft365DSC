@@ -1,14 +1,14 @@
 [ClassVersion("1.0.0.1")]
 class MSFT_PolicyConfigApp
 {
-    [Key, Description("Name of the application.")] String Value;
+    [Required, Description("Name of the application.")] String Value;
     [Write, Description("Name of the executable file.")] String Executable;
 };
 
 [ClassVersion("1.0.0.1")]
 class MSFT_PolicyConfigStorageAccount
 {
-    [Key, Description("TBD")] String Name;
+    [Required, Description("TBD")] String Name;
     [Write, Description("TBD")] String BlobUri;
 };
 
@@ -25,7 +25,7 @@ class MSFT_PolicyConfigSiteGroupAddress
 class MSFT_PolicyConfigDLPSiteGroups
 {
     [Write, Description("TBD")] String Id;
-    [Key, Description("TBD")] String Name;
+    [Required, Description("TBD")] String Name;
     [Write, Description("TBD"), EmbeddedInstance("MSFT_PolicyConfigSiteGroupAddress")] String addresses[];
 };
 
@@ -35,7 +35,7 @@ class MSFT_PolicyConfigRemovableMedia
     [Write, Description("TBD")] String deviceId;
     [Write, Description("TBD")] String removableMediaVID;
     [Write, Description("TBD")] String name;
-    [Key, Description("TBD")] String alias;
+    [Required, Description("TBD")] String alias;
     [Write, Description("TBD")] String removableMediaPID;
     [Write, Description("TBD")] String instancePathId;
     [Write, Description("TBD")] String serialNumberId;
@@ -45,7 +45,7 @@ class MSFT_PolicyConfigRemovableMedia
 [ClassVersion("1.0.0.1")]
 class MSFT_PolicyConfigDLPRemovableMediaGroups
 {
-    [Key, Description("TBD")] String groupName;
+    [Required, Description("TBD")] String groupName;
     [Write, Description("TBD"), EmbeddedInstance("MSFT_PolicyConfigRemovableMedia")] String removableMedia[];
 };
 
@@ -63,7 +63,7 @@ class MSFT_PolicyConfigPrinter
     [Write, Description("TBD")] Boolean usbPrinter;
     [Write, Description("TBD")] String usbPrinterId;
     [Write, Description("TBD")] String name;
-    [Key, Description("TBD")] String alias;
+    [Required, Description("TBD")] String alias;
     [Write, Description("TBD")] String usbPrinterVID;
     [Write, Description("TBD"), EmbeddedInstance("MSFT_PolicyConfigIPRange")] String ipRange;
     [Write, Description("TBD")] Boolean corporatePrinter;
@@ -74,7 +74,7 @@ class MSFT_PolicyConfigPrinter
 [ClassVersion("1.0.0.1")]
 class MSFT_PolicyConfigDLPNetworkShareGroups
 {
-    [Key, Description("TBD")] String groupName;
+    [Required, Description("TBD")] String groupName;
     [Write, Description("TBD")] String groupId;
     [Write, Description("TBD")] String networkPaths[];
 };
@@ -83,7 +83,7 @@ class MSFT_PolicyConfigDLPNetworkShareGroups
 class MSFT_PolicyConfigDLPApp
 {
     [Write, Description("TBD")] String ExecutableName;
-    [Key, Description("TBD")] String Name;
+    [Required, Description("TBD")] String Name;
     [Write, Description("TBD")] Boolean Quarantine;
 };
 
@@ -91,7 +91,7 @@ class MSFT_PolicyConfigDLPApp
 class MSFT_PolicyConfigDLPAppGroups
 {
     [Write, Description("TBD")] String Id;
-    [Key, Description("TBD")] String Name;
+    [Required, Description("TBD")] String Name;
     [Write, Description("TBD")] String Description;
     [Write, Description("TBD"), EmbeddedInstance("MSFT_PolicyConfigDLPApp")] String Apps[];
 };
@@ -108,7 +108,7 @@ class MSFT_PolicyConfigEvidenceStoreSettings
 [ClassVersion("1.0.0.1")]
 class MSFT_PolicyConfigBusinessJustificationList
 {
-    [Key, Description("TBD")] String Id;
+    [Required, Description("TBD")] String Id;
     [Write, Description("TBD")] String justificationText;
     [Write, Description("TBD")] Boolean Enable;
 };
@@ -116,7 +116,7 @@ class MSFT_PolicyConfigBusinessJustificationList
 [ClassVersion("1.0.0.1")]
 class MSFT_PolicyConfigDLPPrinterGroups
 {
-    [Key, Description("TBD")] String groupName;
+    [Required, Description("TBD")] String groupName;
     [Write, Description("TBD")] String groupId;
     [Write, Description("TBD"), EmbeddedInstance("MSFT_PolicyConfigPrinter")] String printers[];
 };

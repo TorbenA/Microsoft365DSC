@@ -14,7 +14,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 class MSFT_MicrosoftGraphWindows10AssociatedApps
 {
     [Write, Description("Application type. Possible values are: desktop, universal."), ValueMap{"desktop","universal"}, Values{"desktop","universal"}] String AppType;
-    [Key, Description("Identifier.")] String Identifier;
+    [Required, Description("Identifier.")] String Identifier;
 };
 
 [ClassVersion("1.0.0")]
@@ -32,7 +32,7 @@ class MSFT_MicrosoftGraphCryptographySuite
 class MSFT_MicrosoftGraphVpnDnsRule
 {
     [Write, Description("Automatically connect to the VPN when the device connects to this domain: Default False.")] Boolean AutoTrigger;
-    [Key, Description("Name.")] String Name;
+    [Required, Description("Name.")] String Name;
     [Write, Description("Keep this rule active even when the VPN is not connected: Default False")] Boolean Persistent;
     [Write, Description("Proxy Server Uri.")] String ProxyServerUri;
     [Write, Description("Servers.")] String Servers[];
@@ -52,15 +52,15 @@ class MSFT_MicrosoftGraphWindows10VpnProxyServer
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphVpnRoute
 {
-    [Key, Description("Destination prefix (IPv4/v6 address).")] String DestinationPrefix;
+    [Required, Description("Destination prefix (IPv4/v6 address).")] String DestinationPrefix;
     [Write, Description("Prefix size. (1-32). Valid values 1 to 32")] UInt32 PrefixSize;
 };
 
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphExtendedKeyUsage
 {
-    [Key, Description("Extended Key Usage Name")] String Name;
-    [Key, Description("Extended Key Usage Object Identifier")] String ObjectIdentifier;
+    [Required, Description("Extended Key Usage Name")] String Name;
+    [Required, Description("Extended Key Usage Object Identifier")] String ObjectIdentifier;
 };
 
 [ClassVersion("1.0.0")]
@@ -98,7 +98,7 @@ class MSFT_MicrosoftGraphNumberRange
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphVpnServer
 {
-    [Key, Description("Address (IP address, FQDN or URL)")] String address;
+    [Required, Description("Address (IP address, FQDN or URL)")] String address;
     [Write, Description("Description.")] String description;
     [Write, Description("Default server.")] Boolean isDefaultServer;
 };

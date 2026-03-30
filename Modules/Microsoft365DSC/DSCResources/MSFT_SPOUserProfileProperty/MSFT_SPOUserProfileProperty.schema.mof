@@ -1,7 +1,7 @@
 [ClassVersion("1.0.0.1")]
 class MSFT_SPOUserProfilePropertyInstance
 {
-    [Key, Description("Name of the User Profile Property.")] String Key;
+    [Required, Description("Name of the User Profile Property.")] String Key;
     [Write, Description("Value of the User Profile Property.")] String Value;
 };
 

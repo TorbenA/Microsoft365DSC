@@ -18,7 +18,7 @@ class MSFT_ReusableStorageDeviceControlPolicySetting
 class MSFT_ReusablePrinterDeviceControlPolicySetting
 {
     [Write, Description("The Friendly Name of the device. Example is 'Generic Printer'.")] String FriendlyNameId;
-    [Key, Description("The identifier of the reusable policy setting.")] String Name;
+    [Required, Description("The identifier of the reusable policy setting.")] String Name;
     [Write, Description("The Primary ID of the device. Possible values are: 0: Printer Devices"), ValueMap{"0"}, Values{"0"}] SInt32 PrimaryId;
     [Write, Description("The Printer Connection Id. Possible values are: 0: USB, 1: Corporate, 2: Network, 3: Universal, 4: File, 5: Custom, 6: Local."), ValueMap{"0", "1", "2", "3", "4", "5", "6"}, Values{"0", "1", "2", "3", "4", "5", "6"}] SInt32 PrinterConnectionId;
     [Write, Description("The combination of Vendor and Product ID. Example is '0000_1111.")] String VID_PID;

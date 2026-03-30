@@ -14,7 +14,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 class MSFT_MicrosoftGraphapplistitem
 {
     [Write, Description("odatatype of the item."), ValueMap{"#microsoft.graph.appleAppListItem"}, Values{"#microsoft.graph.appleAppListItem"}] String odataType;
-    [Key, Description("Kiosk mode managed app id")] String appId;
+    [Required, Description("Kiosk mode managed app id")] String appId;
     [Write, Description("Define the app store URL.")] String appStoreUrl;
     [Write, Description("Define the name of the app.")] String name;
     [Write, Description("Define the publisher of the app.")] String publisher;

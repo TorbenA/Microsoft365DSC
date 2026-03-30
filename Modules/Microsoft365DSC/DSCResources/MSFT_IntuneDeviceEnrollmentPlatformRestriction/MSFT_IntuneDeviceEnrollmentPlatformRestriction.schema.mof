@@ -21,10 +21,10 @@ class MSFT_DeviceEnrollmentPlatformRestriction
     [Write, Description("Collection of blocked Skus.")] String BlockedSkus[];
 };
 
-[ClassVersion("1.0.0.0"), FriendlyName("IntuneDeviceEnrollmentPlatformRestriction")]
+[ClassVersion("1.0.0.1"), FriendlyName("IntuneDeviceEnrollmentPlatformRestriction")]
 class MSFT_IntuneDeviceEnrollmentPlatformRestriction : OMI_BaseResource
 {
-    [Key, Description("Identity of the device enrollment platform restriction.")] String Identity;
+    [Write, Description("Identity of the device enrollment platform restriction.")] String Identity;
     [Key, Description("Display name of the device enrollment platform restriction.")] String DisplayName;
     [Write, Description("Description of the device enrollment platform restriction.")] String Description;
     [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];

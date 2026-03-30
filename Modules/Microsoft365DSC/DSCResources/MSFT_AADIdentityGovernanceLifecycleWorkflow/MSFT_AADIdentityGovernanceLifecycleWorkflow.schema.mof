@@ -24,14 +24,14 @@ class MSFT_IdentityGovernanceWorkflowExecutionConditions
 [ClassVersion("1.0.0")]
 class MSFT_AADIdentityGovernanceTaskArguments
 {
-    [Key, Description("The name of the key")] String Name;
+    [Required, Description("The name of the key")] String Name;
     [Write, Description("The value associated with the key")] String Value;
 };
 
 [ClassVersion("1.0.0.1")]
 class MSFT_AADIdentityGovernanceTask
 {
-    [Key, Description("Specifies the display name of the Workflow Task")] String DisplayName;
+    [Required, Description("Specifies the display name of the Workflow Task")] String DisplayName;
     [Write, Description("Description of the Workflow Task")] String Description;
     [Write, Description("Category of the Workflow Task")] String Category;
     [Write, Description("Indicates if the Workflow Task is enabled or not")] Boolean IsEnabled;

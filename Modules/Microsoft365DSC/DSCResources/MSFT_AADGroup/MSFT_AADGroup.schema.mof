@@ -2,7 +2,7 @@
 class MSFT_AADGroupLicense
 {
     [Write, Description("A collection of the unique identifiers for plans that have been disabled.")] String DisabledPlans[];
-    [Key, Description("The unique identifier for the SKU.")] String SkuId;
+    [Required, Description("The unique identifier for the SKU.")] String SkuId;
 };
 
 [ClassVersion("1.0.0.1"), FriendlyName("AADGroup")]

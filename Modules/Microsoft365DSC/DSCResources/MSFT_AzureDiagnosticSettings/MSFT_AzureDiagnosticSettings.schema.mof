@@ -1,7 +1,7 @@
 [ClassVersion("1.0.0.1")]
 class MSFT_AzureDiagnosticSettingsCategory
 {
-    [Key, Description("Name of the category.")] String Category;
+    [Required, Description("Name of the category.")] String Category;
     [Write, Description("Is the log category enabled or not.")] Boolean enabled;
 };
 

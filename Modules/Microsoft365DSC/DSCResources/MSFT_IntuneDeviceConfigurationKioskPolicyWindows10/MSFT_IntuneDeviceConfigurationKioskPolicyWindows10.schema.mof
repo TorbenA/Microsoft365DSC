@@ -14,7 +14,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 class MSFT_MicrosoftGraphWindowsKioskProfile
 {
     [Write, Description("The App configuration that will be used for this kiosk configuration."), EmbeddedInstance("MSFT_MicrosoftGraphWindowsKioskAppConfiguration")] String AppConfiguration;
-    [Key, Description("This is a friendly name used to identify a group of applications, the layout of these apps on the start menu and the users to whom this kiosk configuration is assigned.")] String ProfileName;
+    [Required, Description("This is a friendly name used to identify a group of applications, the layout of these apps on the start menu and the users to whom this kiosk configuration is assigned.")] String ProfileName;
     [Write, Description("The user accounts that will be locked to this kiosk configuration. This collection can contain a maximum of 100 elements."), EmbeddedInstance("MSFT_MicrosoftGraphWindowsKioskUser")] String UserAccountsConfiguration[];
 };
 

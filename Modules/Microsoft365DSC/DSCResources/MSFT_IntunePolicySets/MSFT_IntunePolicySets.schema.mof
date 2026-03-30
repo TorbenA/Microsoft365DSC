@@ -15,7 +15,7 @@ class MSFT_DeviceManagementConfigurationPolicyItems
 {
     [Write, Description("The type of policy the item represents.")] String dataType;
     [Write, Description("The group Id of the policy the item represents.")] String payloadId;
-    [Key, Description("The collection display name of the policy the item represents")] String displayName;
+    [Required, Description("The collection display name of the policy the item represents")] String displayName;
     [Write, Description("The type of policy the item represents.")] String itemType;
     [Write, Description("Tags of the guided deployment")] String guidedDeploymentTags[];
 };

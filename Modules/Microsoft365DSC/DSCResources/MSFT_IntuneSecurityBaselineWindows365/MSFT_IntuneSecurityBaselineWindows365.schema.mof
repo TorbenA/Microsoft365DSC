@@ -14,7 +14,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 class MSFT_MicrosoftGraphIntuneSettingsCatalogpol_hardenedpaths
 {
     [Write, Description("Value")] String value;
-    [Key, Description("Name")] String key;
+    [Required, Description("Name")] String key;
 };
 
 [ClassVersion("1.0.0.1")]

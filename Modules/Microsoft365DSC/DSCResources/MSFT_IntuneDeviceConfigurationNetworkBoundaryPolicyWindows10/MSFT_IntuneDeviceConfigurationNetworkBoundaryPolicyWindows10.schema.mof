@@ -26,16 +26,16 @@ class MSFT_MicrosoftGraphWindowsNetworkIsolationPolicy
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphProxiedDomain1
 {
-    [Key, Description("The IP address or FQDN")] String IpAddressOrFQDN;
+    [Required, Description("The IP address or FQDN")] String IpAddressOrFQDN;
     [Write, Description("Proxy IP or FQDN")] String Proxy;
 };
 
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphIpRange1
 {
-    [Key, Description("Lower address.")] String LowerAddress;
-    [Key, Description("Upper address.")] String UpperAddress;
-    [Key, Description("The type of the entity."), ValueMap{"#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}, Values{"#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}] String odataType;
+    [Required, Description("Lower address.")] String LowerAddress;
+    [Required, Description("Upper address.")] String UpperAddress;
+    [Required, Description("The type of the entity."), ValueMap{"#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}, Values{"#microsoft.graph.iPv4Range","#microsoft.graph.iPv6Range"}] String odataType;
 };
 
 [ClassVersion("1.0.0.0"), FriendlyName("IntuneDeviceConfigurationNetworkBoundaryPolicyWindows10")]

@@ -15,7 +15,7 @@ class MSFT_MicrosoftGraphIntuneSettingsCatalogElevationRuleName
 {
     [Write, Description("Child process behavior (allowrunelevated: AllowRunElevated, allowrunelevatedrulerequired: AllowRunElevatedRuleRequired, deny: Deny)"), ValueMap{"allowrunelevated", "allowrunelevatedrulerequired", "deny"}, Values{"allowrunelevated", "allowrunelevatedrulerequired", "deny"}] String ChildProcessBehavior;
     [Required, Description("File name")] String FileName;
-    [Key, Description("Rule name")] String Name;
+    [Required, Description("Rule name")] String Name;
     [Write, Description("File path")] String FilePath;
     [Write, Description("Product name")] String ProductName;
     [Write, Description("Applies to (allusers: Allusers)"), ValueMap{"allusers"}, Values{"allusers"}] String AppliesTo;

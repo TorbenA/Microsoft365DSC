@@ -21,8 +21,8 @@ class MSFT_SentinelAlertRuleEntityMapping
 [ClassVersion("1.0.0.1")]
 class MSFT_SentinelAlertRuleEntityMappingFieldMapping
 {
-    [Key, Description("Name of the column")] String columnName;
-    [Key, Description("Identifier of the associated field.")] String identifier;
+    [Required, Description("Name of the column")] String columnName;
+    [Required, Description("Identifier of the associated field.")] String identifier;
 };
 
 [ClassVersion("1.0.0.0")]
@@ -38,7 +38,7 @@ class MSFT_SentinelAlertRuleAlertDetailsOverride
 [ClassVersion("1.0.0.1")]
 class MSFT_SentinelAlertRuleAlertDetailsOverrideAlertDynamicProperty
 {
-    [Key, Description("Dynamic property key.")] String alertProperty;
+    [Required, Description("Dynamic property key.")] String alertProperty;
     [Write, Description("Dynamic property value.")] String alertPropertyValue;
 };
 

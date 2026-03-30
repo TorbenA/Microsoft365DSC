@@ -14,7 +14,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 class MSFT_MicrosoftGraphIntuneSettingsCatalogPolicyRule
 {
     [Write, Description("Entry"), EmbeddedInstance("MSFT_MicrosoftGraphIntuneSettingsCatalogPolicyRuleEntry")] String Entry[];
-    [Key, Description("Name")] String Name;
+    [Required, Description("Name")] String Name;
     [Write, Description("Excluded ID")] String ExcludedIdList_GroupId[];
     [Write, Description("Included ID")] String IncludedIdList_GroupId[];
 };

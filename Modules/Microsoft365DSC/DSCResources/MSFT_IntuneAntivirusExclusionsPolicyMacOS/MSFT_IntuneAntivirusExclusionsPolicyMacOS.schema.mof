@@ -13,7 +13,7 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 [ClassVersion("1.0.0.2")]
 class MSFT_MicrosoftGraphIntuneSettingsCatalogExclusions
 {
-    [Key, Description("Type - Depends on exclusions (excludedPath: Path, excludedFileExtension: File extension, excludedFileName: Process name)"), ValueMap{"excludedPath", "excludedFileExtension", "excludedFileName"}, Values{"excludedPath", "excludedFileExtension", "excludedFileName"}] String exclusions_item_type;
+    [Required, Description("Type - Depends on exclusions (excludedPath: Path, excludedFileExtension: File extension, excludedFileName: Process name)"), ValueMap{"excludedPath", "excludedFileExtension", "excludedFileName"}, Values{"excludedPath", "excludedFileExtension", "excludedFileName"}] String exclusions_item_type;
     [Write, Description("File extension - Depends on exclusions_item_type=excludedFileExtension")] String exclusions_item_extension;
     [Write, Description("File name - exclusions_item_type=excludedFileName")] String exclusions_item_name;
     [Write, Description("Path - exclusions_item_type=excludedPath")] String exclusions_item_path;

@@ -53,9 +53,9 @@ class MSFT_AADApplicationOnPremisesPublishing
 [ClassVersion("1.0.0.1")]
 class MSFT_AADApplicationPermission
 {
-    [Key, Description("Name of the requested permission.")] String Name;
-    [Key, Description("Name of the API from which the permission comes from.")] String SourceAPI;
-    [Key, Description("Type of permission."), ValueMap{"AppOnly", "Delegated"}, Values{"AppOnly", "Delegated"}] String Type;
+    [Required, Description("Name of the requested permission.")] String Name;
+    [Required, Description("Name of the API from which the permission comes from.")] String SourceAPI;
+    [Required, Description("Type of permission."), ValueMap{"AppOnly", "Delegated"}, Values{"AppOnly", "Delegated"}] String Type;
     [Write, Description("Represented whether or not the Admin consent been granted on the app.")] Boolean AdminConsentGranted;
 };
 
@@ -71,14 +71,14 @@ class MSFT_MicrosoftGraphOptionalClaims
 class MSFT_MicrosoftGraphOptionalClaim
 {
     [Write, Description("If the value is true, the claim specified by the client is necessary to ensure a smooth authorization experience for the specific task requested by the end user. The default value is false.")] Boolean Essential;
-    [Key, Description("The name of the optional claim.")] String Name;
+    [Required, Description("The name of the optional claim.")] String Name;
     [Write, Description("The source (directory object) of the claim. There are predefined claims and user-defined claims from extension properties. If the source value is null, the claim is a predefined optional claim. If the source value is user, the value in the name property is the extension property from the user object.")] String Source;
 };
 
 [ClassVersion("1.0.0.1")]
 class MSFT_MicrosoftGraphPreAuthorizedApplication
 {
-    [Key, Description("The unique identifier for the client application.")] String AppId;
+    [Required, Description("The unique identifier for the client application.")] String AppId;
     [Required, Description("The unique identifier for the scopes the client application is granted.")] String PermissionIds[];
 };
 
@@ -89,7 +89,7 @@ class MSFT_MicrosoftGraphApiOauth2PermissionScopes
     [Write, Description("The permission's title, intended to be read by an administrator granting the permission on behalf of all users.")] String adminConsentDisplayName;
     [Write, Description("A description of the delegated permissions, intended to be read by a user granting the permission on their own behalf. This text appears in consent experiences where the user is consenting only on behalf of themselves.")] String userConsentDescription;
     [Write, Description("A title for the permission, intended to be read by a user granting the permission on their own behalf. This text appears in consent experiences where the user is consenting only on behalf of themselves.")] String userConsentDisplayName;
-    [Key, Description("Specifies the value to include in the scp (scope) claim in access tokens. Must not exceed 120 characters in length.")] String value;
+    [Required, Description("Specifies the value to include in the scp (scope) claim in access tokens. Must not exceed 120 characters in length.")] String value;
     [Write, Description("When you create or update a permission, this property must be set to true (which is the default). To delete a permission, this property must first be set to false. At that point, in a subsequent call, the permission may be removed.")] Boolean isEnabled;
     [Write, Description("The possible values are: User and Admin. Specifies whether this delegated permission should be considered safe for non-admin users to consent to on behalf of themselves, or whether an administrator consent should always be required.")] String type;
     [Write, Description("Unique delegated permission identifier inside the collection of delegated permissions defined for a resource application.")] String id;
@@ -141,7 +141,7 @@ class MSFT_MicrosoftGraphAppRole
     [Write, Description("Unique role identifier inside the appRoles collection. When creating a new app role, a new GUID identifier must be provided.")] String Id;
     [Write, Description("When creating or updating an app role, this must be set to true (which is the default). To delete a role, this must first be set to false.  At that point, in a subsequent call, this role may be removed.")] Boolean IsEnabled;
     [Write, Description("Specifies if the app role is defined on the application object or on the servicePrincipal entity. Must not be included in any POST or PATCH requests. Read-only.")] String Origin;
-    [Key, Description("Specifies the value to include in the roles claim in ID tokens and access tokens authenticating an assigned user or service principal. Must not exceed 120 characters in length. Allowed characters are : ! # $ % & ' ( ) * + , - . / :   =       + _    } , and characters in the ranges 0-9, A-Z and a-z. Any other character, including the space character, aren't allowed. May not begin with ..")] String Value;
+    [Required, Description("Specifies the value to include in the roles claim in ID tokens and access tokens authenticating an assigned user or service principal. Must not exceed 120 characters in length. Allowed characters are : ! # $ % & ' ( ) * + , - . / :   =       + _    } , and characters in the ranges 0-9, A-Z and a-z. Any other character, including the space character, aren't allowed. May not begin with ..")] String Value;
 };
 
 [ClassVersion("1.0.0")]

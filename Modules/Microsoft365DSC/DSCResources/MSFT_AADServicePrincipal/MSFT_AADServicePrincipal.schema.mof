@@ -1,21 +1,21 @@
 [ClassVersion("1.0.0.1")]
 class MSFT_AADServicePrincipalRoleAssignment
 {
-    [Key, Description("Type of principal. Accepted values are User or Group"), ValueMap{"Group","User"}, Values{"Group","User"}] String PrincipalType;
-    [Key, Description("Unique identity representing the principal.")] String Identity;
+    [Required, Description("Type of principal. Accepted values are User or Group"), ValueMap{"Group","User"}, Values{"Group","User"}] String PrincipalType;
+    [Required, Description("Unique identity representing the principal.")] String Identity;
 };
 
 [ClassVersion("1.0.0.1")]
 class MSFT_AADServicePrincipalDelegatedPermissionClassification
 {
     [Write, Description("Classification of the delegated permission"), ValueMap{"low", "medium", "high"}, Values{"low", "medium", "high"}] String Classification;
-    [Key, Description("Name of the permission")] String PermissionName;
+    [Required, Description("Name of the permission")] String PermissionName;
 };
 
 [ClassVersion("1.0.0.1")]
 class MSFT_AADServicePrincipalAttributeValue
 {
-    [Key, Description("Name of the Attribute")] String AttributeName;
+    [Required, Description("Name of the Attribute")] String AttributeName;
     [Write, Description("If the attribute has a string array value")] String StringArrayValue[];
     [Write, Description("If the attribute has a int array value")] UInt32 IntArrayValue[];
     [Write, Description("If the attribute has a string value")] String StringValue;
@@ -26,7 +26,7 @@ class MSFT_AADServicePrincipalAttributeValue
 [ClassVersion("1.0.0.1")]
 class MSFT_AADServicePrincipalAttributeSet
 {
-    [Key, Description("Attribute Set Name.")] String AttributeSetName;
+    [Required, Description("Attribute Set Name.")] String AttributeSetName;
     [Write, Description("List of attribute values."), EmbeddedInstance("MSFT_AADServicePrincipalAttributeValue")] String AttributeValues[];
 };
 

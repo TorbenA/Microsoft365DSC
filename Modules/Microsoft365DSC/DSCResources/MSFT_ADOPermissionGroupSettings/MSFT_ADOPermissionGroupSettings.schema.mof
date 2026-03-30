@@ -1,10 +1,10 @@
 [ClassVersion("1.0.0.1")]
 class MSFT_ADOPermission
 {
-    [Key, Description("Id of the associate security namespace.")] String NamespaceId;
-    [Key, Description("Display name of the permission scope.")] String DisplayName;
+    [Required, Description("Id of the associate security namespace.")] String NamespaceId;
+    [Required, Description("Display name of the permission scope.")] String DisplayName;
     [Write, Description("Bit mask for the permission")] UInt32 Bit;
-    [Key, Description("Token value")] String Token;
+    [Required, Description("Token value")] String Token;
 };
 
 [ClassVersion("1.0.0.0"), FriendlyName("ADOPermissionGroupSettings")]
