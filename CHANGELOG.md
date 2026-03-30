@@ -101,6 +101,10 @@
     to `MSFT_DeviceManagementManagedGooglePlayMobileAppAssignment`.
 * IntuneWindowsInformationProtectionPolicyWindows10MdmEnrolled
   * [BREAKING CHANGE] Removed the `*CidrRange` choices from the ipRange type.
+* PPTenantSettings
+  * Changed type of `EnableDesktopFlowDataPolicyManagement` property from String to
+    Boolean to avoid errors or warnings.
+    FIXES [#6740](https://github.com/microsoft/Microsoft365DSC/issues/6740)
 * SCPolicyConfig
   * Fixed an issue where `JustificationText` was exported as an array and could
     contain empty strings.
@@ -142,7 +146,7 @@
   * Added `KeepExport` parameter to `Assert-M365DSCBlueprint` function.
 * DEPENDENCIES
   * Updated `DSCParser` to version 3.0.0.1.
-  * Updated `MSCloudLoginAssistant` to version 1.1.60.
+  * Updated `MSCloudLoginAssistant` to version 1.1.61.
   * Updated `ReverseDSC` to version 2.0.0.32.
 * MISC
   * Added CIM information about required properties to all resources where applicable.
