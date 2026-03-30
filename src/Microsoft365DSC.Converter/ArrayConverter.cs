@@ -13,7 +13,7 @@ namespace Microsoft365DSC.Converter
             _ = sb.Append("(");
             for (int i = 0; i < array.Length; i++)
             {
-                object item = array.GetValue(i);
+                object? item = array.GetValue(i);
                 if (item is Hashtable hashtable)
                 {
                     _ = sb.Append("{");
@@ -26,12 +26,12 @@ namespace Microsoft365DSC.Converter
                 }
                 else
                 {
-                    _ = sb.Append(item.ToString());
+                    _ = sb.Append(item?.ToString());
                 }
 
                 if (i < (array.Length - 1))
                 {
-                    _ = sb.Append(",");
+                    _ = sb.Append(',');
                 }
             }
             _ = sb.Append(")");
