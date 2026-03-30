@@ -270,14 +270,6 @@ function Set-TargetResource
         $CreateParameters.Add('@odata.type', '#microsoft.graph.iosCustomConfiguration')
         $CreateParameters.Remove('Id') | Out-Null
 
-        foreach ($key in ($CreateParameters.Clone()).Keys)
-        {
-            if ($CreateParameters[$key].GetType().Fullname -like '*CimInstance*')
-            {
-                $CreateParameters[$key] = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters[$key]
-            }
-        }
-
         #region resource generator code
         $policy = New-MgBetaDeviceManagementDeviceConfiguration -BodyParameter $CreateParameters
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
@@ -298,14 +290,6 @@ function Set-TargetResource
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
         $UpdateParameters.Remove('Id') | Out-Null
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.iosCustomConfiguration')
-
-        foreach ($key in ($UpdateParameters.Clone()).Keys)
-        {
-            if ($UpdateParameters[$key].GetType().Fullname -like '*CimInstance*')
-            {
-                $UpdateParameters[$key] = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters[$key]
-            }
-        }
 
         #region resource generator code
         Update-MgBetaDeviceManagementDeviceConfiguration -BodyParameter $UpdateParameters `

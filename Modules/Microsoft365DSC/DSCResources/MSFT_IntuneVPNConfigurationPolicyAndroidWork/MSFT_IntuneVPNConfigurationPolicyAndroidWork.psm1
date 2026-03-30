@@ -436,7 +436,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     #proxy and server values need converting before new- / update- cmdlets will accept parameters
@@ -474,16 +473,7 @@ function Set-TargetResource
                 $CreateParameters.Remove($keyName)
             }
         }
-
         $CreateParameters.Remove('Id') | Out-Null
-
-        foreach ($key in ($CreateParameters.Clone()).Keys)
-        {
-            if ($CreateParameters[$key].GetType().Fullname -like '*CimInstance*')
-            {
-                $CreateParameters[$key] = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters[$key]
-            }
-        }
 
         if ($AdditionalProperties.proxyServer)
         {
@@ -522,16 +512,7 @@ function Set-TargetResource
                 $UpdateParameters.Remove($keyName)
             }
         }
-
         $UpdateParameters.Remove('Id') | Out-Null
-
-        foreach ($key in ($UpdateParameters.Clone()).Keys)
-        {
-            if ($UpdateParameters[$key].GetType().Fullname -like '*CimInstance*')
-            {
-                $UpdateParameters[$key] = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters[$key]
-            }
-        }
 
         if ($AdditionalProperties.proxyServer)
         {

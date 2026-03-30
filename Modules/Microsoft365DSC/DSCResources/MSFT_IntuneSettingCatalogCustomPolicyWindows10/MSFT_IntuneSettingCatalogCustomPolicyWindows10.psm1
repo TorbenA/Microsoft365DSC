@@ -322,7 +322,6 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $keyToRename = @{
         'odataType'   = '@odata.type'
@@ -339,14 +338,6 @@ function Set-TargetResource
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters -KeyMapping $keyToRename
         $CreateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$CreateParameters).Clone()).Keys
-        foreach ($key in $keys)
-        {
-            if ($null -ne $CreateParameters.$key -and $CreateParameters.$key.GetType().Name -like '*cimInstance*')
-            {
-                $CreateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $CreateParameters.$key
-            }
-        }
         #region resource generator code
         $CreateParameters.Add('@odata.type', '#microsoft.graph.DeviceManagementConfigurationPolicy')
         $policy = New-MgBetaDeviceManagementConfigurationPolicy -BodyParameter $CreateParameters
@@ -367,17 +358,8 @@ function Set-TargetResource
 
         $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters -KeyMapping $keyToRename
-
         $UpdateParameters.Remove('Id') | Out-Null
 
-        $keys = (([Hashtable]$UpdateParameters).Clone()).Keys
-        foreach ($key in $keys)
-        {
-            if ($null -ne $UpdateParameters.$key -and $UpdateParameters.$key.GetType().Name -like '*cimInstance*')
-            {
-                $UpdateParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $UpdateParameters.$key
-            }
-        }
         #region resource generator code
         Update-IntuneDeviceConfigurationPolicy `
             -DeviceConfigurationPolicyId $currentInstance.Id `
@@ -600,11 +582,6 @@ function Export-TargetResource
             {
                 $complexMapping = @(
                     @{
-                        Name            = 'Settings'
-                        CimInstanceName = 'MicrosoftGraphDeviceManagementConfigurationSetting'
-                        IsRequired      = $False
-                    }
-                    @{
                         Name            = 'SettingInstance'
                         CimInstanceName = 'MicrosoftGraphDeviceManagementConfigurationSettingInstance'
                         IsRequired      = $False
@@ -658,7 +635,8 @@ function Export-TargetResource
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.Settings `
                     -CIMInstanceName 'MicrosoftGraphdeviceManagementConfigurationSetting' `
-                    -ComplexTypeMapping $complexMapping
+                    -ComplexTypeMapping $complexMapping `
+                    -IsArray:$true
 
                 if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
                 {
