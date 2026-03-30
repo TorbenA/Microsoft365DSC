@@ -13,6 +13,9 @@
 * AADAuthenticationMethodPolicy*
   * Streamlined group resolution during update operation.
   * Streamlined Target name resolution for all authentication resources.
+* AADConditionalAccessPolicy
+  * Added application name resolution and fix warning messages.
+    FIXES [#6902](https://github.com/microsoft/Microsoft365DSC/issues/6902)
 * AADCrossTenantAccessPolicyConfigurationPartner
   * Fixed an issue where the schema was incorrect.
     FIXES [#6998](https://github.com/microsoft/Microsoft365DSC/issues/6998)
