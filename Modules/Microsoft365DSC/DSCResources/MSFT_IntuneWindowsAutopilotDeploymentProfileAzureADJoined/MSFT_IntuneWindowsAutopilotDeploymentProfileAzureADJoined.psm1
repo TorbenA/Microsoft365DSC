@@ -396,7 +396,7 @@ function Set-TargetResource
 
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.azureADWindowsAutopilotDeploymentProfile')
-        Update-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile  `
+        Update-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile `
             -WindowsAutopilotDeploymentProfileId $currentInstance.Id `
             -BodyParameter $UpdateParameters
         #endregion
@@ -618,7 +618,7 @@ function Export-TargetResource
         #region resource generator code
         [array]$getValue = Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
-            -FilterScript { `
+            -FilterScript {
                 $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.azureADWindowsAutopilotDeploymentProfile' `
         }
         #endregion

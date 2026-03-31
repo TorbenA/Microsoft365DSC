@@ -289,7 +289,7 @@ function Set-TargetResource
 
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.softwareOathAuthenticationMethodConfiguration')
-        Update-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration  `
+        Update-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration `
             -AuthenticationMethodConfigurationId $currentInstance.Id `
             -BodyParameter $UpdateParameters
         #endregion
@@ -430,7 +430,7 @@ function Export-TargetResource
     {
         #region resource generator code
         [array]$getValue = Get-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration `
-            -AuthenticationMethodConfigurationId SoftwareOath  `
+            -AuthenticationMethodConfigurationId SoftwareOath `
             -ErrorAction Stop | Where-Object -FilterScript { $null -ne $_.Id }
         #endregion
 

@@ -323,7 +323,7 @@ function Set-TargetResource
         }
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.windowsHealthMonitoringConfiguration')
-        Update-MgBetaDeviceManagementDeviceConfiguration  `
+        Update-MgBetaDeviceManagementDeviceConfiguration `
             -DeviceConfigurationId $currentInstance.Id `
             -BodyParameter $UpdateParameters
 
@@ -492,7 +492,7 @@ function Export-TargetResource
         #region resource generator code
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
-            -FilterScript { `
+            -FilterScript {
                 $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsHealthMonitoringConfiguration' `
         }
         #endregion

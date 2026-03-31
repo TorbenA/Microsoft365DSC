@@ -165,7 +165,7 @@ function Get-TargetResource
                         -All `
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript { `
+                        -FilterScript {
                             $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10EnrollmentCompletionPageConfiguration' `
                     } | Where-Object -FilterScript { $null -ne $_.DisplayName }
                 }
@@ -706,7 +706,7 @@ function Export-TargetResource
         #region resource generator code
         [array]$getValue = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
-            -FilterScript { `
+            -FilterScript {
                 $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10EnrollmentCompletionPageConfiguration' `
         }
         #endregion
@@ -818,7 +818,7 @@ function Update-DeviceEnrollmentConfigurationPriority
         Invoke-MgGraphRequest `
             -Method POST `
             -Body $body `
-            -Uri $Uri  `
+            -Uri $Uri `
             -ErrorAction Stop 4> $null
     }
     catch

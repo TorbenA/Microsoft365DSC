@@ -429,7 +429,7 @@ function Set-TargetResource
         #region resource generator code
         #Update Core policy
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.GroupPolicyConfiguration')
-        Update-MgBetaDeviceManagementGroupPolicyConfiguration  `
+        Update-MgBetaDeviceManagementGroupPolicyConfiguration `
             -GroupPolicyConfigurationId $currentInstance.Id `
             -BodyParameter $UpdateParameters
 

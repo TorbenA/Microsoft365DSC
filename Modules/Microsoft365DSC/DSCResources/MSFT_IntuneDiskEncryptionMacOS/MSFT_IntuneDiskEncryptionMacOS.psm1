@@ -138,7 +138,7 @@ function Get-TargetResource
                         -All `
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript { `
+                        -FilterScript {
                             $_.TemplateId -eq 'a239407c-698d-4ef8-b314-e3ae409204b8' `
                     }
 
@@ -593,7 +593,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementIntent -Filter $Filter `
             -All `
             -ErrorAction Stop | Where-Object `
-            -FilterScript { `
+            -FilterScript {
                 $_.TemplateId -eq 'a239407c-698d-4ef8-b314-e3ae409204b8' `
         }
         #endregion

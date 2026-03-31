@@ -117,7 +117,7 @@ function Get-TargetResource
             if ($null -eq $getValue)
             {
                 $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
-                    -FilterScript { `
+                    -FilterScript {
                         $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileWiFiConfiguration' `
                 }
             }
@@ -515,8 +515,8 @@ function Export-TargetResource
         #region resource generator code
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
-            -FilterScript { `
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileWiFiConfiguration'  `
+            -FilterScript {
+                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileWiFiConfiguration' `
         }
         #endregion
 

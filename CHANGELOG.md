@@ -136,6 +136,8 @@
 * TeamsMeetingPolicy
   * [BREAKING CHANGE] Removed the obsolete parameter `AllowCarbonSummary`.
     FIXES [#6972](https://github.com/microsoft/Microsoft365DSC/issues/6972)
+* TeamsOnlineVoiceMailPolicy
+  * [BREAKING CHANGE] Changed the type of `MaximumRecordingLength` from String to Int.
 * M365DSCPermissions
   * Removed internal function `Update-M365DSCResourcesSettingsJSON`.
 * M365DSCReport

@@ -146,7 +146,7 @@ function Get-TargetResource
                     -All `
                     -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                     -ErrorAction SilentlyContinue | Where-Object `
-                    -FilterScript { `
+                    -FilterScript {
                         $_.DeviceHealthScriptType -eq 'deviceHealthScript' `
                 }
 
@@ -491,7 +491,7 @@ function Set-TargetResource
         }
 
         #region resource generator code
-        Update-MgBetaDeviceManagementDeviceHealthScript  `
+        Update-MgBetaDeviceManagementDeviceHealthScript `
             -DeviceHealthScriptId $currentInstance.Id `
             -BodyParameter $UpdateParameters
 
