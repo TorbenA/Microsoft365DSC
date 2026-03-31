@@ -35,6 +35,10 @@
     to `System.String` instead of an implicit conversion to `System.Uri`.
 * EXOMigration
   * Fixed an issue where `UserEmails` could contain empty strings.
+* EXOSharedMailbox
+  * Added support for properties `MessageCopyForSendOnBehalfEnabled` and
+    `MessageCopyForSentAsEnabled` and while here fixed several issues with this
+    resource
 * EXOTenantAllowBlockListItems
   * [BREAKING CHANGE] Removed the Microsoft reserved `SubmissionID` parameter.
   * [BREAKING CHANGE] Updated the property `Action` to be Required instead of Key.
