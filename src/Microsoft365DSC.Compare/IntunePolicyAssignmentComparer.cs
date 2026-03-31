@@ -165,12 +165,12 @@ namespace Microsoft365DSC.Compare
             var targetFilterId = GetPropertyValue<string>(assignmentTarget, "deviceAndAppManagementAssignmentFilterId");
 
             bool isFilterTypeSpecified = 
-                (!string.IsNullOrEmpty(assignmentFilterType) && !assignmentFilterType.Equals("none", StringComparison.OrdinalIgnoreCase)) ||
-                (!string.IsNullOrEmpty(targetFilterType) && !targetFilterType.Equals("none", StringComparison.OrdinalIgnoreCase));
+                (!string.IsNullOrEmpty(assignmentFilterType) && !assignmentFilterType!.Equals("none", StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(targetFilterType) && !targetFilterType!.Equals("none", StringComparison.OrdinalIgnoreCase));
 
             bool isFilterIdSpecified = 
-                (!string.IsNullOrEmpty(assignmentFilterId) && !assignmentFilterId.Equals("00000000-0000-0000-0000-000000000000", StringComparison.OrdinalIgnoreCase)) ||
-                (!string.IsNullOrEmpty(targetFilterId) && !targetFilterId.Equals("00000000-0000-0000-0000-000000000000", StringComparison.OrdinalIgnoreCase));
+                (!string.IsNullOrEmpty(assignmentFilterId) && !assignmentFilterId!.Equals("00000000-0000-0000-0000-000000000000", StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(targetFilterId) && !targetFilterId!.Equals("00000000-0000-0000-0000-000000000000", StringComparison.OrdinalIgnoreCase));
 
             bool testResult = true;
 
@@ -208,7 +208,7 @@ namespace Microsoft365DSC.Compare
         /// <summary>
         /// Finds an assignment target in the array by dataType and groupId.
         /// </summary>
-        private static Hashtable FindAssignmentTarget(Array targetArray, string dataType, string groupId)
+        private static Hashtable? FindAssignmentTarget(Array targetArray, string dataType, string groupId)
         {
             foreach (var item in targetArray)
             {
@@ -231,7 +231,7 @@ namespace Microsoft365DSC.Compare
         /// <summary>
         /// Finds an assignment target in the array by dataType and groupDisplayName.
         /// </summary>
-        private static Hashtable FindAssignmentTargetByDisplayName(Array targetArray, string dataType, string groupDisplayName)
+        private static Hashtable? FindAssignmentTargetByDisplayName(Array targetArray, string dataType, string groupDisplayName)
         {
             foreach (var item in targetArray)
             {
@@ -254,7 +254,7 @@ namespace Microsoft365DSC.Compare
         /// <summary>
         /// Gets a typed property value from a hashtable with null safety.
         /// </summary>
-        private static T GetPropertyValue<T>(Hashtable hashtable, string key)
+        private static T? GetPropertyValue<T>(Hashtable hashtable, string key)
         {
             if (hashtable is null || !hashtable.ContainsKey(key))
             {

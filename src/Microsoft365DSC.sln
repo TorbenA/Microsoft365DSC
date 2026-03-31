@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft365DSC.Converter",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft365DSC.Utilities", "Microsoft365DSC.Utilities\Microsoft365DSC.Utilities.csproj", "{584604FF-426D-44A2-B510-0EC3B90CE9EE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft365DSC.Connection", "Microsoft365DSC.Connection\Microsoft365DSC.Connection.csproj", "{5F417C95-E24E-4CD4-BC9E-2C39D5AE115E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{584604FF-426D-44A2-B510-0EC3B90CE9EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{584604FF-426D-44A2-B510-0EC3B90CE9EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{584604FF-426D-44A2-B510-0EC3B90CE9EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F417C95-E24E-4CD4-BC9E-2C39D5AE115E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F417C95-E24E-4CD4-BC9E-2C39D5AE115E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F417C95-E24E-4CD4-BC9E-2C39D5AE115E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F417C95-E24E-4CD4-BC9E-2C39D5AE115E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
