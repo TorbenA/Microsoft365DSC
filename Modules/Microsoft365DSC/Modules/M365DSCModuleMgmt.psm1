@@ -520,6 +520,9 @@ function Uninstall-M365DSCOutdatedDependencies
 .PARAMETER Repository
     Specifies the PowerShell repository name to use for the installation of the dependencies.
 
+.PARAMETER UsePowerShellGet
+    Specifies that Install-Module should be used for the installation of the dependencies instead of Install-PSResource.
+
 .EXAMPLE
     PS> Update-M365DSCDependencies
 
@@ -555,7 +558,11 @@ function Update-M365DSCDependencies
 
         [Parameter()]
         [System.String]
-        $Repository = 'PSGallery'
+        $Repository = 'PSGallery',
+
+        [Parameter()]
+        [switch]
+        $UsePowerShellGet
     )
 
     try
@@ -648,7 +655,7 @@ function Update-M365DSCDependencies
                         }
                         Remove-Module $dependency.ModuleName -Force -ErrorAction SilentlyContinue
 
-                        if ($scopedIsPsResourceGetAvailable)
+                        if ($scopedIsPsResourceGetAvailable -and -not $UsePowerShellGet)
                         {
                             Write-Information -MessageData "Using Install-PSResource to install $($dependency.ModuleName) with version {$($dependency.RequiredVersion)}"
                             Install-PSResource -Name $dependency.ModuleName -Version $dependency.RequiredVersion -Scope $Scope -AcceptLicense -SkipDependencyCheck -TrustRepository -Repository $Repository
