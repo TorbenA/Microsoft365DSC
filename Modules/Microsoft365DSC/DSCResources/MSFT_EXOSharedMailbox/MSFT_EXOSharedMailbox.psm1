@@ -135,14 +135,14 @@ function Get-TargetResource
         }
 
         #region EmailAddresses
-        $CurrentEmailAddresses = $mailbox.EmailAddresses.Split(':') | ?{ $_ -ne "smtp" }
+        $CurrentEmailAddresses = $mailbox.EmailAddresses.Split(':') | Where-Object { $_ -ne "smtp" }
         if ($null -ne $PrimarySMTPAddress)
         {
-            $CurrentEmailAddresses = $CurrentEmailAddresses | ?{ $_ -ne $PrimarySMTPAddress }
+            $CurrentEmailAddresses = $CurrentEmailAddresses | Where-Object { $_ -ne $PrimarySMTPAddress }
         }
         else
         {
-            $CurrentEmailAddresses = $CurrentEmailAddresses | ?{ $_ -ne $mailbox.PrimarySMTPAddress }
+            $CurrentEmailAddresses = $CurrentEmailAddresses | Where-Object { $_ -ne $mailbox.PrimarySMTPAddress }
         }
         #endregion
 
@@ -380,24 +380,24 @@ function Set-TargetResource
             $current = $currentMailbox.EmailAddresses
             $desired = $EmailAddresses
 
-            $emailAddressesToAdd = $desired | ?{ $_ -notin $current } | Sort-Object -Unique
+            $emailAddressesToAdd = $desired | Where-Object { $_ -notin $current } | Sort-Object -Unique
             if ($null -ne $PrimarySMTPAddress)
             {
-                $emailAddressesToAdd = $emailAddressesToAdd | ?{ $_ -ne $PrimarySMTPAddress }
+                $emailAddressesToAdd = $emailAddressesToAdd | Where-Object { $_ -ne $PrimarySMTPAddress }
             }
             else
             {
-                $emailAddressesToAdd = $emailAddressesToAdd | ?{ $_ -ne $currentMailbox.PrimarySMTPAddress }
+                $emailAddressesToAdd = $emailAddressesToAdd | Where-Object { $_ -ne $currentMailbox.PrimarySMTPAddress }
             }
 
-            $emailAddressesToRemove = $current | ?{ $_ -notin $desired } | Sort-Object -Unique
+            $emailAddressesToRemove = $current | Where-Object { $_ -notin $desired } | Sort-Object -Unique
             if ($null -ne $PrimarySMTPAddress)
             {
-                $emailAddressesToRemove = $emailAddressesToRemove | ?{ $_ -ne $PrimarySMTPAddress }
+                $emailAddressesToRemove = $emailAddressesToRemove | Where-Object { $_ -ne $PrimarySMTPAddress }
             }
             else
             {
-                $emailAddressesToRemove = $emailAddressesToRemove | ?{ $_ -ne $currentMailbox.PrimarySMTPAddress }
+                $emailAddressesToRemove = $emailAddressesToRemove | Where-Object { $_ -ne $currentMailbox.PrimarySMTPAddress }
             }
 
             if ($null -ne $emailAddressesToAdd -or $null -ne $emailAddressesToRemove)
