@@ -70,6 +70,7 @@ function Initialize-M365DSCDllLoader
             'Microsoft365DSC.Compare.dll'
             'Microsoft365DSC.Connection.dll'
             'Microsoft365DSC.Converter.dll'
+            'Microsoft365DSC.Intune.dll'
             'Microsoft365DSC.Utilities.dll'
         )
 
