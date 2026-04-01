@@ -144,6 +144,7 @@
   * Added the parameter `UsePowerShellGet` to `Update-M365DSCDependencies` as an override
     fallback if `Install-PSResource` is not available or not working.
     FIXES [#7003](https://github.com/microsoft/Microsoft365DSC/issues/7003)
+  * Fixed an issue where an in-memory update of the module failed.
 * M365DSCPermissions
   * Removed internal function `Update-M365DSCResourcesSettingsJSON`.
 * M365DSCReport

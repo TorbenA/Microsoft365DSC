@@ -409,15 +409,21 @@ function Uninstall-M365DSCOutdatedDependencies
                 Write-Information -MessageData "Uninstalling $($module.Name) Version {$($module.Version)}"
                 if (Test-Path -Path $($module.Path))
                 {
-                    Remove-Item $($module.ModuleBase) -Force -Recurse
+                    Remove-Item $($module.ModuleBase) -Force -Recurse -ErrorAction Stop
                 }
             }
             catch
             {
-                New-M365DSCLogEntry -Message "Could not uninstall $($module.Name) Version $($module.Version)" `
+                $message = "Could not uninstall $($module.Name) Version $($module.Version)"
+                if ($_.Exception.Message -like "*Access to the path* is denied*" -and ($Scope -eq "AllUsers") -and -not
+                    ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
+                {
+                    $message += ' You need to run this command as a local administrator.'
+                }
+                New-M365DSCLogEntry -Message $message `
                     -Exception $_ `
                     -Source $($MyInvocation.MyCommand.Source)
-                Write-Error -Message "Could not uninstall $($module.Name) Version $($module.Version)" -ErrorAction Continue
+                Write-Error -Message $message -ErrorAction Continue
             }
         }
 
@@ -447,15 +453,21 @@ function Uninstall-M365DSCOutdatedDependencies
                         Write-Information -MessageData "Uninstalling $($foundModule.Name) Version {$($foundModule.Version)}"
                         if (Test-Path -Path $($foundModule.Path))
                         {
-                            Remove-Item $($foundModule.ModuleBase) -Force -Recurse
+                            Remove-Item $($foundModule.ModuleBase) -Force -Recurse -ErrorAction Stop
                         }
                     }
                     catch
                     {
-                        New-M365DSCLogEntry -Message "Could not uninstall $($foundModule.Name) Version $($foundModule.Version)" `
+                        $message = "Could not uninstall $($foundModule.Name) Version $($foundModule.Version)"
+                        if ($_.Exception.Message -like "*Access to the path* is denied*" -and
+                            ($Scope -eq "AllUsers") -and -not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
+                        {
+                            $message += ' You need to run this command as a local administrator.'
+                        }
+                        New-M365DSCLogEntry -Message $message `
                             -Exception $_ `
                             -Source $($MyInvocation.MyCommand.Source)
-                        Write-Error -Message "Could not uninstall $($foundModule.Name) Version $($foundModule.Version)" -ErrorAction Continue
+                        Write-Error -Message $message -ErrorAction Continue
                     }
                 }
             }
@@ -486,12 +498,21 @@ function Uninstall-M365DSCOutdatedDependencies
                 Write-Information -MessageData "Uninstalling $($foundModule.Name) version {$($foundModule.Version)}"
                 if (Test-Path -Path $($foundModule.Path))
                 {
-                    Remove-Item $($foundModule.ModuleBase) -Force -Recurse
+                    Remove-Item $($foundModule.ModuleBase) -Force -Recurse -ErrorAction Stop
                 }
             }
             catch
             {
-                Write-Error -Message "Could not uninstall $($foundModule.Name) Version $($foundModule.Version)" -ErrorAction Continue
+                $message = "Could not uninstall $($foundModule.Name) Version $($foundModule.Version)"
+                if ($_.Exception.Message -like "*Access to the path* is denied*" -and
+                    ($Scope -eq "AllUsers") -and -not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))
+                {
+                    $message += ' You need to run this command as a local administrator.'
+                }
+                New-M365DSCLogEntry -Message $message `
+                    -Exception $_ `
+                    -Source $($MyInvocation.MyCommand.Source)
+                Write-Error -Message $message -ErrorAction Continue
             }
         }
     }
@@ -768,6 +789,7 @@ function Update-M365DSCModule
     )
 
     $params = @{}
+    $unloadModule = $true
 
     if (-not [System.String]::IsNullOrEmpty($proxy))
     {
@@ -807,11 +829,19 @@ function Update-M365DSCModule
                 }
             }
         }
+        elseif ($_.Exception.Message -like "*was not updated because no valid module was found*")
+        {
+            Write-Verbose -Message "No valid module was found to update."
+            $unloadModule = $false
+        }
     }
     try
     {
-        Write-Verbose -Message "Unloading all instances of the Microsoft365DSC module from the current PowerShell session."
-        Remove-Module Microsoft365DSC -Force
+        if ($unloadModule)
+        {
+            Write-Verbose -Message "Unloading all instances of the Microsoft365DSC module from the current PowerShell session."
+            Remove-Module Microsoft365DSC -Force
+        }
 
         Write-Verbose -Message "Retrieving all versions of the Microsoft365DSC installed on the machine."
         [Array]$instances = Get-Module Microsoft365DSC -ListAvailable | Sort-Object -Property Version -Descending
