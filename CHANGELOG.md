@@ -1076,6 +1076,7 @@
   * Fixed typo in `ManagedIdentity` property across all resources.
   * Improved module import speed by up to 60%.
   * Reduced repeated logins during export of SPO and Teams resources.
+  * [BREAKING CHANGE] Removed the public function `Get-M365DSCConnectedWorkloadList`.
   * Removed unnecessary type casting across all resources.
   * Streamlined test cases.
   * Updated most resource testing to use the new comparison function.

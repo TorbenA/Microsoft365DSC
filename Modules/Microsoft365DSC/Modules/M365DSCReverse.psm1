@@ -300,11 +300,8 @@ function Start-M365DSCConfigurationExtract
         }
 
         Write-Verbose -Message 'Based on provided parameters, retrieving the most secure authentication method to use.'
-        $moduleConfiguration = Get-M365DSCModuleConfiguration
-        Set-M365DSCModuleConfiguration -Key 'skipModuleDependencyValidation' -Value $true
         $allSupportedResourcesWithMostSecureAuthMethod = Get-M365DSCComponentsWithMostSecureAuthenticationType -AuthenticationMethod $AuthMethods `
             -Resources $selectedResources
-        Set-M365DSCModuleConfiguration -Key 'skipModuleDependencyValidation' -Value $moduleConfiguration.skipModuleDependencyValidation
 
         try
         {

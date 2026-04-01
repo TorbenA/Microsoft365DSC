@@ -1,5 +1,7 @@
 [hashtable]$Script:M365DSCTelemetryConnectionToGraphParams = @{}
 
+Initialize-M365DSCDllLoader -ErrorAction SilentlyContinue
+
 <#
 .DESCRIPTION
     This function gets all resources that support the specified authentication method and
@@ -24,99 +26,12 @@ function Get-M365DSCComponentsWithMostSecureAuthenticationType
         $Resources
     )
 
-    $modules = Get-ChildItem -Path ($PSScriptRoot + '\..\DSCResources\') -Recurse -Filter '*.psm1'
-    $Components = @()
-    foreach ($resource in $modules)
-    {
-        if ($Resources -contains ($resource.Name -replace '.psm1', '' -replace 'MSFT_', ''))
-        {
-            Import-Module $resource.FullName -Force -Function @('Set-TargetResource') -DisableNameChecking
-            $parameters = (Get-Command 'Set-TargetResource').Parameters.Keys
-
-            # Case - Resource supports CertificateThumbprint
-            if ($AuthenticationMethod.Contains('CertificateThumbprint') -and `
-                    $parameters.Contains('ApplicationId') -and `
-                    $parameters.Contains('CertificateThumbprint') -and `
-                    $parameters.Contains('TenantId'))
-            {
-                $Components += @{
-                    Resource   = $resource.Name -replace 'MSFT_', '' -replace '.psm1', ''
-                    AuthMethod = 'CertificateThumbprint'
-                }
-            }
-
-            # Case - Resource supports CertificatePath
-            elseif ($AuthenticationMethod.Contains('CertificatePath') -and `
-                    $parameters.Contains('ApplicationId') -and `
-                    $parameters.Contains('CertificatePath') -and `
-                    $parameters.Contains('TenantId'))
-            {
-                $Components += @{
-                    Resource   = $resource.Name -replace 'MSFT_', '' -replace '.psm1', ''
-                    AuthMethod = 'CertificatePath'
-                }
-            }
-
-            # Case - Resource supports ApplicationSecret
-            elseif ($AuthenticationMethod.Contains('ApplicationWithSecret') -and `
-                    $parameters.Contains('ApplicationId') -and `
-                    $parameters.Contains('ApplicationSecret') -and `
-                    $parameters.Contains('TenantId'))
-            {
-                $Components += @{
-                    Resource   = $resource.Name -replace 'MSFT_', '' -replace '.psm1', ''
-                    AuthMethod = 'ApplicationSecret'
-                }
-            }
-            # Case - Resource supports CredentialWithTenantId
-            elseif ($AuthenticationMethod.Contains('CredentialsWithTenantId') -and `
-                    $parameters.Contains('Credential') -and $parameters.Contains('TenantId') -and `
-                    -not $resource.Name.StartsWith('MSFT_SPO') -and `
-                    -not $resource.Name.StartsWith('MSFT_OD') -and `
-                    -not $resource.Name.StartsWith('MSFT_PP'))
-            {
-                $Components += @{
-                    Resource   = $resource.Name -replace 'MSFT_', '' -replace '.psm1', ''
-                    AuthMethod = 'CredentialsWithTenantId'
-                }
-            }
-            # Case - Resource supports Credential using CredentialsWithApplicationId
-            elseif ($AuthenticationMethod.Contains('CredentialsWithApplicationId') -and `
-                    $parameters.Contains('Credential'))
-            {
-                $Components += @{
-                    Resource   = $resource.Name -replace 'MSFT_', '' -replace '.psm1', ''
-                    AuthMethod = 'CredentialsWithApplicationId'
-                }
-            }
-            # Case - Resource supports Credential
-            elseif ($AuthenticationMethod.Contains('Credentials') -and `
-                    $parameters.Contains('Credential'))
-            {
-                $Components += @{
-                    Resource   = $resource.Name -replace 'MSFT_', '' -replace '.psm1', ''
-                    AuthMethod = 'Credentials'
-                }
-            }
-            elseif ($AuthenticationMethod.Contains('ManagedIdentity') -and `
-                    $parameters.Contains('ManagedIdentity'))
-            {
-                $Components += @{
-                    Resource   = $resource.Name -replace 'MSFT_', '' -replace '.psm1', ''
-                    AuthMethod = 'ManagedIdentity'
-                }
-            }
-            elseif ($AuthenticationMethod.Contains('AccessTokens') -and `
-                    $parameters.Contains('AccessTokens'))
-            {
-                $Components += @{
-                    Resource   = $resource.Name -replace 'MSFT_', '' -replace '.psm1', ''
-                    AuthMethod = 'AccessTokens'
-                }
-            }
-        }
-    }
-    return $Components
+    $dscResourcesPath = Join-Path -Path $PSScriptRoot -ChildPath '..\DSCResources'
+    return [Microsoft365DSC.Connection.ConnectionHelper]::GetComponentsWithMostSecureAuthenticationType(
+        $dscResourcesPath,
+        $AuthenticationMethod,
+        $Resources
+    )
 }
 
 <#
@@ -510,154 +425,10 @@ function Set-M365DSCTelemetryConnectionParameter
     $Script:M365DSCTelemetryConnectionToGraphParams = $Parameters.Clone()
 }
 
-<#
-.DESCRIPTION
-    This function returns the connection workloads for the specified DSC resources
-
-.PARAMETER ResourceNames
-    Specifies the resources for which the connection workloads should be determined.
-    Either a single string, an array of strings or an object with 'Name' and 'AuthenticationMethod' can be provided.
-
-.EXAMPLE
-    PS> Get-M365DSCConnectedWorkloadList -ResourceNames AADUser
-
-.EXAMPLE
-    PS> Get-M365DSCConnectedWorkloadList -ResourceNames @('AADUser', 'AADGroup')
-
-.EXAMPLE
-    PS> Get-M365DSCConnectedWorkloadList -ResourceNames @{Name = 'AADUser'; AuthenticationMethod = 'Credentials'}
-
-.FUNCTIONALITY
-    Public
-#>
-function Get-M365DSCConnectedWorkloadList
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable[]])]
-    param
-    (
-        [Parameter(Mandatory = $true, Position = 1)]
-        [System.Array]
-        $ResourceNames
-    )
-
-    [Array] $workloads = @()
-    foreach ($resource in $ResourceNames)
-    {
-        $resourceName = $resource.Name
-        $authMethod = $resource.AuthenticationMethod
-        if ([System.String]::IsNullOrEmpty($resourceName))
-        {
-            $resourceName = $resource
-        }
-        switch ($resourceName.Substring(0, 2).ToUpper())
-        {
-            'AA'
-            {
-                if (-not $workloads.Name -or -not $workloads.Name.Contains('MicrosoftGraph'))
-                {
-                    $workloads += @{
-                        Name                 = 'MicrosoftGraph'
-                        AuthenticationMethod = $authMethod
-                    }
-                }
-            }
-            'EX'
-            {
-                if (-not $workloads.Name -or -not $workloads.Name.Contains('ExchangeOnline'))
-                {
-                    $workloads += @{
-                        Name                 = 'ExchangeOnline'
-                        AuthenticationMethod = $authMethod
-                    }
-                }
-            }
-            'In'
-            {
-                if (-not $workloads.Name -or -not $workloads.Name.Contains('MicrosoftGraph'))
-                {
-                    $workloads += @{
-                        Name                 = 'MicrosoftGraph'
-                        AuthenticationMethod = $authMethod
-                    }
-                }
-            }
-            'O3'
-            {
-                if (-not $workloads.Name -or -not $workloads.Name.Contains('MicrosoftGraph') -and $resource.Name -eq 'O365Group')
-                {
-                    $workloads += @{
-                        Name                 = 'MicrosoftGraph'
-                        AuthenticationMethod = $authMethod
-                    }
-                }
-                elseif (-not $workloads.Name -or -not $workloads.Name.Contains('ExchangeOnline'))
-                {
-                    $workloads += @{
-                        Name                 = 'ExchangeOnline'
-                        AuthenticationMethod = $authMethod
-                    }
-                }
-            }
-            'OD'
-            {
-                if (-not $workloads.Name -or -not $workloads.Name.Contains('PnP'))
-                {
-                    $workloads += @{
-                        Name                 = 'PnP'
-                        AuthenticationMethod = $authMethod
-                    }
-                }
-            }
-            'Pl'
-            {
-                if (-not $workloads.Name -or -not $workloads.Name.Contains('MicrosoftGraph'))
-                {
-                    $workloads += @{
-                        Name                 = 'MicrosoftGraph'
-                        AuthenticationMethod = $authMethod
-                    }
-                }
-            }
-            'SP'
-            {
-                if (-not $workloads.Name -or -not $workloads.Name.Contains('PnP'))
-                {
-                    $workloads += @{
-                        Name                 = 'PnP'
-                        AuthenticationMethod = $authMethod
-                    }
-                }
-            }
-            'SC'
-            {
-                if (-not $workloads.Name -or -not $workloads.Name.Contains('SecurityComplianceCenter'))
-                {
-                    $workloads += @{
-                        Name                 = 'SecurityComplianceCenter'
-                        AuthenticationMethod = $authMethod
-                    }
-                }
-            }
-            'Te'
-            {
-                if (-not $workloads.Name -or -not $workloads.Name.Contains('MicrosoftTeams'))
-                {
-                    $workloads += @{
-                        Name                 = 'MicrosoftTeams'
-                        AuthenticationMethod = $authMethod
-                    }
-                }
-            }
-        }
-    }
-    return ($workloads | Sort-Object { $_.Name })
-}
-
 Export-ModuleMember -Function @(
     'Get-M365DSCAuthenticationMode',
     'Get-M365DSCComponentsWithMostSecureAuthenticationType',
-    'Get-M365DSCConnectedWorkloadList',
+    'Get-M365DSCFunctionParameterNamesByAST',
     'Get-M365DSCTelemetryConnectionParameter',
     'New-M365DSCConnection',
     'Set-M365DSCTelemetryConnectionParameter'

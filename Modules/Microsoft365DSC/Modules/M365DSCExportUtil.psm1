@@ -209,6 +209,8 @@ function Export-M365DSCConfiguration
     $Global:M365DSCExportInProgress = $true
     $Global:MaximumFunctionCount = 32767
 
+    Clear-M365DSCHostMessageCache
+
     # Define the exported resource instances' names Global variable
     $Global:M365DSCExportedResourceInstancesNames = @()
 

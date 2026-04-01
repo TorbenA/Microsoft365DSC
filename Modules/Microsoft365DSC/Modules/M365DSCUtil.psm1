@@ -1670,6 +1670,18 @@ function Initialize-PowerShellCoreSession
 }
 
 <#
+.DESCRIPTION
+    This function clears the cached messages stored for deferred writing.
+
+.FUNCTIONALITY
+    Internal
+#>
+function Clear-M365DSCHostMessageCache
+{
+    $Script:M365DSCHostMessages = @()
+}
+
+<#
 .Description
 This function writes messages to the console or verbose output.
 
@@ -2141,6 +2153,7 @@ function Update-M365DSCAuthenticationTargets
 
 Export-ModuleMember -Function @(
     'Assert-M365DSCBlueprint',
+    'Clear-M365DSCHostMessageCache',
     'Confirm-ImportedCmdletIsAvailable',
     'Convert-M365DscHashtableToString',
     'Get-AllSPOPackages',

@@ -68,7 +68,9 @@ function Initialize-M365DSCDllLoader
         $moduleRoot = Split-Path -Path $PSScriptRoot -Parent
         $dllsToLoad = @(
             'Microsoft365DSC.Compare.dll'
+            'Microsoft365DSC.Connection.dll'
             'Microsoft365DSC.Converter.dll'
+            'Microsoft365DSC.Intune.dll'
             'Microsoft365DSC.Utilities.dll'
         )
 
@@ -104,6 +106,7 @@ function Initialize-M365DSCDllLoader
         # Verify expected types are available
         $expectedTypes = @(
             'Microsoft365DSC.Compare.ComplexObjectComparer'
+            'Microsoft365DSC.Connection.ConnectionHelper'
             'Microsoft365DSC.Converter.ComplexObjectConverter'
             'Microsoft365DSC.Converter.SimpleObjectConverter'
             'Microsoft365DSC.Utilities.Utilities'
