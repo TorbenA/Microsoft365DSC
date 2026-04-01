@@ -530,13 +530,19 @@ function Export-TargetResource
     try
     {
         $policyTemplateID = '0385b795-0f2f-44ac-8602-9f65bf6adede_1'
-        [array]$policies = Get-MgBetaDeviceManagementConfigurationPolicy `
-            -All `
-            -Filter $Filter `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-            $_.TemplateReference.TemplateId -eq $policyTemplateID
+        $baseFilter = "templateReference/templateId eq '$policyTemplateID'"
+        if (-not [System.String]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($Filter) and ($baseFilter)"
         }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$policies = Get-MgBetaDeviceManagementConfigurationPolicy `
+            -Filter $Filter `
+            -All `
+            -ErrorAction Stop
 
         if ($policies.Length -eq 0)
         {

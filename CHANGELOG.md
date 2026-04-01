@@ -4,6 +4,8 @@
 
 * AADAccessReviewDefinition
   * [BREAKING CHANGE] Fixed the type definition of the `ScopeValue` property.
+  * Changed the export type from `Configuration` to `Data`. It now only appears in
+    the export file during a `Full` export.
 * AADApplication
   * Added name resolution for `AppId` and `PermissionIds` in preauthorized applications.
 * AADAuthenticationMethodPolicy
@@ -142,6 +144,7 @@
   * Added the parameter `UsePowerShellGet` to `Update-M365DSCDependencies` as an override
     fallback if `Install-PSResource` is not available or not working.
     FIXES [#7003](https://github.com/microsoft/Microsoft365DSC/issues/7003)
+  * Fixed an issue where an in-memory update of the module failed.
 * M365DSCPermissions
   * Removed internal function `Update-M365DSCResourcesSettingsJSON`.
 * M365DSCReport
@@ -160,6 +163,7 @@
   * Updated `ReverseDSC` to version 2.0.0.32.
 * MISC
   * Added CIM information about required properties to all resources where applicable.
+  * Improved filtering for Intune configuration policies during Export.
   * Refactored module structure to improve maintainability.
   * Removed duplicate complex hashtable conversions.
   * Updated documentation for different group types for AADGroup, EXOGroupSettings

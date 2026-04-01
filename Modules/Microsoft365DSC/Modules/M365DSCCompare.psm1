@@ -216,19 +216,36 @@ function Compare-M365DSCResourceState
                 }
 
                 # Filter all target objects that match the primary keys of the source object(s)
-                $target = $target | Where-Object -FilterScript {
-                    $match = $true
-                    foreach ($primaryKey in $CIMPrimaryKeys.Name)
-                    {
-                        # Because $source can be an array, we need to check if the
-                        # primary key value exists in any of the source objects
-                        $sourceValue = $source.$primaryKey | Select-Object -Unique
-                        if ($null -ne $_.$primaryKey -and $_.$primaryKey -notin @($sourceValue))
+                $noPrimaryKeyRemoval = $false
+                if ($source -is [array] -and $source.Count -gt 0)
+                {
+                    $target = $target | Where-Object -FilterScript {
+                        $match = $true
+                        foreach ($primaryKey in $CIMPrimaryKeys.Name)
                         {
-                            $match = $false
+                            # Because $source can be an array, we need to check if the
+                            # primary key value exists in any of the source objects
+                            # Address is a reserved property / method overload in Arrays
+                            if ($primaryKey -eq 'Address' -and $source.GetType().Name -like "*CimInstance*")
+                            {
+                                $sourceValue = $source.CimInstanceProperties.Where({ $_.Name -eq $primaryKey }).Value | Select-Object -Unique
+                            }
+                            else
+                            {
+                                $sourceValue = $source.$primaryKey | Select-Object -Unique
+                            }
+                            if ($sourceValue -is [array] -and $sourceValue.Count -gt 1)
+                            {
+                                Write-Verbose "Multiple values found for primary key $primaryKey in source object. Skipping primary key removal for this property."
+                                $noPrimaryKeyRemoval = $true
+                            }
+                            if ($null -ne $_.$primaryKey -and $_.$primaryKey -notin @($sourceValue))
+                            {
+                                $match = $false
+                            }
                         }
+                        return $match
                     }
-                    return $match
                 }
 
                 # For cases where $nullreturn is returned from a resource, the properties may
@@ -247,7 +264,7 @@ function Compare-M365DSCResourceState
                             continue
                         }
 
-                        if ($primaryKey -notin $IncludedProperties)
+                        if ($primaryKey -notin $IncludedProperties -and -not $noPrimaryKeyRemoval)
                         {
                             $targetObject.Remove($primaryKey) | Out-Null
                         }
