@@ -160,6 +160,7 @@
   * Updated `ReverseDSC` to version 2.0.0.32.
 * MISC
   * Added CIM information about required properties to all resources where applicable.
+  * Improved filtering for Intune configuration policies during Export.
   * Refactored module structure to improve maintainability.
   * Removed duplicate complex hashtable conversions.
   * Updated documentation for different group types for AADGroup, EXOGroupSettings

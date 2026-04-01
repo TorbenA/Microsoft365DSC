@@ -495,13 +495,19 @@ function Export-TargetResource
     {
         #region resource generator code
         $policyTemplateID = '43397174-2244-4006-b5ad-421b369e90d4_1'
+        $baseFilter = "templateReference/templateId eq '$policyTemplateID'"
+        if (-not [System.String]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($Filter) and ($baseFilter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
+        }
         [array]$getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
             -Filter $Filter `
             -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-            $_.TemplateReference.TemplateId -eq $policyTemplateID
-        }
+            -ErrorAction Stop
         #endregion
 
         $i = 1

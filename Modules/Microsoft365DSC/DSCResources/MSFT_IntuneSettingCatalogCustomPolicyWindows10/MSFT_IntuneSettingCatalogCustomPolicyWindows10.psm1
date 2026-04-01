@@ -532,12 +532,19 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        [array]$getValue = Get-MgBetaDeviceManagementConfigurationPolicy -Filter $Filter -All `
-            -ErrorAction Stop | Where-Object -FilterScript {
-                $_.Platforms -eq 'windows10' -and
-            $_.Technologies -eq 'mdm' -and
-            $_.TemplateReference.TemplateFamily -eq 'none'
+        $baseFilter = "platforms eq 'windows10' and technologies eq 'mdm' and templateReference/templateFamily eq 'none'"
+        if (-not [System.String]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($Filter) and ($baseFilter)"
         }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
+            -Filter $Filter `
+            -All `
+            -ErrorAction Stop
         #endregion
 
         $i = 1
