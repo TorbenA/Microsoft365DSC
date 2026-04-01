@@ -4,6 +4,8 @@
 
 * AADAccessReviewDefinition
   * [BREAKING CHANGE] Fixed the type definition of the `ScopeValue` property.
+  * Changed the export type from `Configuration` to `Data`. It now only appears in
+    the export file during a `Full` export.
 * AADApplication
   * Added name resolution for `AppId` and `PermissionIds` in preauthorized applications.
 * AADAuthenticationMethodPolicy
