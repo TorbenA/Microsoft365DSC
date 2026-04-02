@@ -34,7 +34,7 @@ namespace Microsoft365DSC.Converter
             else if (valueType == typeof(string))
             {
                 var stringValue = (string)value;
-                
+
                 // Handle special @odata.type key
                 if (key.Equals("@odata.type", StringComparison.OrdinalIgnoreCase))
                 {
@@ -61,10 +61,10 @@ namespace Microsoft365DSC.Converter
             {
                 var items = enumerable.Cast<object>().Where(item => item is not null).ToList();
                 _ = returnValue.Append($"{space}{key} = @(");
-                
+
                 string whitespace = string.Empty;
                 string newline = string.Empty;
-                
+
                 if (items.Count > 1)
                 {
                     _ = returnValue.Append("\r\n");
@@ -77,7 +77,7 @@ namespace Microsoft365DSC.Converter
                     if (item is null) continue;
 
                     var itemType = item.GetType();
-                    
+
                     if (itemType == typeof(string))
                     {
                         var itemString = ((string)item)

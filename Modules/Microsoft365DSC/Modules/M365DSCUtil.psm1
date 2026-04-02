@@ -470,13 +470,13 @@ function Test-M365DSCTargetResource
 
     # Retrieve the primary keys of the given resource and remove them from the list of values to check.
     $currentPath = $PSScriptRoot
-    if ($null -eq $Script:M365DSCSchema)
+    if (-not [Microsoft365DSC.Cache.CacheManager]::IsSchemaLoaded)
     {
         $schemaPath = Join-Path -Path $currentPath -ChildPath '..\SchemaDefinition.json'
-        $schemaJSON = Get-Content $schemaPath -Raw
-        $Script:M365DSCSchema = ConvertFrom-Json $schemaJSON
+        $schemaContent = [System.IO.File]::ReadAllText($schemaPath) | ConvertFrom-Json
+        [Microsoft365DSC.Cache.CacheManager]::LoadSchema($schemaContent)
     }
-    $resourceDefinition = $Script:M365DSCSchema | Where-Object -FilterScript { $_.ClassName -eq "MSFT_$ResourceName" }
+    $resourceDefinition = [Microsoft365DSC.Utilities.Utilities]::FilterLoadedCimClassesByName("MSFT_$ResourceName")
     $resourceKeys = $resourceDefinition.Parameters | Where-Object -FilterScript { $_.Option -eq 'Key' }
 
     $keyStrings = @()
@@ -1865,7 +1865,7 @@ function Get-M365DSCResourceComparisonMetadata
         {
             try
             {
-                $metadataContent = Get-Content -Path $metadataPath -Raw | ConvertFrom-Json
+                $metadataContent = [System.IO.File]::ReadAllText($metadataPath) | ConvertFrom-Json
                 $Script:M365DSCComparisonMetadata = @{}
                 foreach ($resource in $metadataContent.Resources.PSObject.Properties)
                 {

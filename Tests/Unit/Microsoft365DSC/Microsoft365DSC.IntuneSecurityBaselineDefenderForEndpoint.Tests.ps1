@@ -411,7 +411,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName = "My Test"
                     RoleScopeTagIds = @("FakeStringValue")
                     userSettings = (New-CimInstance -ClassName MSFT_MicrosoftGraphIntuneSettingsCatalogUserSettings_IntuneSecurityBaselineDefenderForEndpoint -Property @{
-                        DisableSafetyFilterOverrideForAppRepUnknown = 0
+                        DisableSafetyFilterOverrideForAppRepUnknown = 0 # Drift
                     } -ClientOnly)
                     Ensure = "Present"
                     Credential = $Credential;

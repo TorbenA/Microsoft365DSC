@@ -40,7 +40,8 @@ function Get-TargetResource
         $appSupportsOemConfig,
 
         [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
+        [ValidateSet('default', 'androidWorkProfile', 'androidDeviceOwner')]
+        [System.String]
         $profileApplicability,
 
         [Parameter()]
@@ -239,7 +240,8 @@ function Set-TargetResource
         $appSupportsOemConfig,
 
         [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
+        [ValidateSet('default', 'androidWorkProfile', 'androidDeviceOwner')]
+        [System.String]
         $profileApplicability,
 
         [Parameter()]
@@ -411,7 +413,8 @@ function Test-TargetResource
         $appSupportsOemConfig,
 
         [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
+        [ValidateSet('default', 'androidWorkProfile', 'androidDeviceOwner')]
+        [System.String]
         $profileApplicability,
 
         [Parameter()]

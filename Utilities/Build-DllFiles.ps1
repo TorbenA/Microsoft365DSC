@@ -136,8 +136,8 @@ function Build-Project {
 
     $filesToCopy = @(
         "$projectName.dll"
-        "$projectName.pdb"  # Include PDB for debugging
-        "$projectName.xml"  # Include XML documentation
+        "$projectName.pdb" # Include PDB for debugging
+        "$projectName.xml" # Include XML documentation
     )
 
     foreach ($fileName in $filesToCopy) {

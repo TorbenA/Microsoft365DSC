@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft365DSC.Connection"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft365DSC.Intune", "Microsoft365DSC.Intune\Microsoft365DSC.Intune.csproj", "{438CE330-0E88-4DA3-B32E-1EBBC562E8D3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft365DSC.Cache", "Microsoft365DSC.Cache\Microsoft365DSC.Cache.csproj", "{B72F417B-88D1-4B40-B8F6-2EFC88095ABB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{438CE330-0E88-4DA3-B32E-1EBBC562E8D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{438CE330-0E88-4DA3-B32E-1EBBC562E8D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{438CE330-0E88-4DA3-B32E-1EBBC562E8D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B72F417B-88D1-4B40-B8F6-2EFC88095ABB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B72F417B-88D1-4B40-B8F6-2EFC88095ABB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B72F417B-88D1-4B40-B8F6-2EFC88095ABB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B72F417B-88D1-4B40-B8F6-2EFC88095ABB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

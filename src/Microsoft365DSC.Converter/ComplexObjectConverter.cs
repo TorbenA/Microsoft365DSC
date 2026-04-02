@@ -32,6 +32,29 @@ namespace Microsoft365DSC.Converter
             if (complexObject is PSObject psObject && psObject.BaseObject is not null)
                 complexObject = psObject.BaseObject;
 
+            if (complexObject is PSObject psObject2)
+            {
+                var result = new Hashtable(StringComparer.OrdinalIgnoreCase);
+                foreach (PSPropertyInfo prop in psObject2.Properties)
+                {
+                    // Skip computed properties; only take NoteProperty and Property
+                    if (prop.MemberType != PSMemberTypes.NoteProperty &&
+                        prop.MemberType != PSMemberTypes.Property)
+                        continue;
+
+                    try
+                    {
+                        result[prop.Name] = ToHashtable(prop.Value);
+                    }
+                    catch
+                    {
+                        // Some properties may throw on access (ParameterizedProperty etc.)
+                        // Skip them silently
+                    }
+                }
+                return result;
+            }
+
             if (complexObject is Hashtable hashtable)
                 return hashtable;
 
@@ -56,27 +79,7 @@ namespace Microsoft365DSC.Converter
             }
             else if (complexObject.GetType().FullName.Contains("Microsoft.Graph."))
             {
-                var graphResult = new Hashtable(StringComparer.OrdinalIgnoreCase);
-                var type = complexObject.GetType();
-                PropertyInfo[] properties;
-                lock (_cacheLock)
-                {
-                    if (!_propertyCache.TryGetValue(type.FullName!, out properties))
-                    {
-                        // Exclude "EntityItem" property because it is a ParameterizedProperty and is not required
-                        properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                            .Where(property => !property.Name.Equals("EntityItem")).ToArray();
-                        _propertyCache[type.FullName!] = properties;
-                    }
-                }
-
-                foreach (var property in properties)
-                {
-                    var value = property.GetValue(complexObject);
-                    graphResult[property.Name] = GetValueFromObject(value);
-                }
-
-                return graphResult;
+                return GetValueFromGraphObject(complexObject);
             }
 
             return new Hashtable(StringComparer.OrdinalIgnoreCase);
@@ -143,7 +146,7 @@ namespace Microsoft365DSC.Converter
 
             // Check for CIM instance types
             // Because .Contains with a StringComparison is not available, we use IndexOf
-            if (typeName.IndexOf("CimInstance", StringComparison.OrdinalIgnoreCase) >= 0)
+            if (typeName.IndexOf("CimInstance", StringComparison.OrdinalIgnoreCase) > -1)
             {
                 return true;
             }
@@ -198,6 +201,45 @@ namespace Microsoft365DSC.Converter
                 return value;
             }
         }
+
+        /// <summary>
+        /// Creates a hashtable representation of the public and selected non-public properties of the specified complex
+        /// object.
+        /// </summary>
+        /// <remarks>Properties named "EntityItem" are excluded from the result. Non-public properties
+        /// containing "AdditionalProperties" in their name are also included. The method uses a cache to improve
+        /// performance when processing objects of the same type.</remarks>
+        /// <param name="complexObject">The object whose properties are to be extracted and represented in the resulting hashtable. Cannot be null.</param>
+        /// <returns>A hashtable containing the names and values of the object's properties. Property names are used as keys, and
+        /// their corresponding values are recursively processed. The hashtable is case-insensitive with respect to
+        /// keys.</returns>
+        private static Hashtable GetValueFromGraphObject(object complexObject)
+        {
+            var type = complexObject.GetType();
+            PropertyInfo[] properties;
+            lock (_cacheLock)
+            {
+                if (!_propertyCache.TryGetValue(type.FullName!, out properties))
+                {
+                    // Exclude "EntityItem" property because it is a ParameterizedProperty and is not required
+                    properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .Where(property => !property.Name.Equals("EntityItem")).ToArray();
+                    var additionalProperties = type.GetProperties(BindingFlags.NonPublic | BindingFlags.Instance)
+                        .Where(property => property.Name.Contains("AdditionalProperties")).ToArray();
+                    _propertyCache[type.FullName!] = properties.Concat(additionalProperties).ToArray();
+                }
+            }
+
+            var graphResult = new Hashtable(StringComparer.OrdinalIgnoreCase);
+            foreach (var property in properties)
+            {
+                var value = property.GetValue(complexObject);
+                graphResult[property.Name] = GetValueFromObject(value);
+            }
+
+            return graphResult;
+        }
+
 
         /// <summary>
         /// Clears the property reflection cache (primarily for testing purposes).

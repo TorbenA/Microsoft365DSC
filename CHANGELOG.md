@@ -151,6 +151,8 @@
   * Fixed an issue where comparing instances of `EXOTenantAllowBlockListItems` would
     use the wrong resource keys.
     FIXES [#6981](https://github.com/microsoft/Microsoft365DSC/issues/6981)
+  * Fixed an issue where incorrect resources were compared against each other if
+    the resource contains more than three key properties in `New-M365DSCDeltaReport`.
   * Removed the deprecated function `Compare-M365DSCConfigurations`.
     Use `New-M365DSCDeltaReport` as a replacement.
 * M365DSCStubsUtility
@@ -164,6 +166,7 @@
 * MISC
   * Added CIM information about required properties to all resources where applicable.
   * Improved filtering for Intune configuration policies during Export.
+  * Improved the accuracy of the comparison engine.
   * Refactored module structure to improve maintainability.
   * Removed duplicate complex hashtable conversions.
   * Updated documentation for different group types for AADGroup, EXOGroupSettings
