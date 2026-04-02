@@ -21,6 +21,12 @@
 * AADCrossTenantAccessPolicyConfigurationPartner
   * Fixed an issue where the schema was incorrect.
     FIXES [#6998](https://github.com/microsoft/Microsoft365DSC/issues/6998)
+* AADPIMGroupSetting
+  * [BREAKING CHANGE] Fix typo in use of Elegibility -> Eligibility
+    FIXES [#7021](https://github.com/microsoft/Microsoft365DSC/issues/7021)
+* AADRoleSetting
+  * [BREAKING CHANGE] Fix typo in use of Elegibility -> Eligibility
+    FIXES [#7021](https://github.com/microsoft/Microsoft365DSC/issues/7021)
 * AADTenantAppManagementPolicy
   * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Ensure` parameter.
 * EXOActiveSyncMailboxPolicy
