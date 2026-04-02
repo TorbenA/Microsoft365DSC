@@ -2,6 +2,12 @@
 .SYNOPSIS
     This module contains the comparison logic for M365DSC.
 #>
+
+$Script:IsPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
+
+# Automatically initialize accelerator on module import
+Initialize-M365DSCDllLoader -ErrorAction SilentlyContinue
+
 function Compare-M365DSCResourceState
 {
     [CmdletBinding()]
@@ -50,7 +56,14 @@ function Compare-M365DSCResourceState
     {
         $schemaPath = Join-Path -Path $currentPath -ChildPath '..\SchemaDefinition.json'
         $schemaJSON = Get-Content $schemaPath -Raw
-        $Script:M365DSCSchema = ConvertFrom-Json $schemaJSON
+        if ($Script:IsPowerShellCore)
+        {
+            $Script:M365DSCSchema = ConvertFrom-Json $schemaJSON -AsHashtable
+        }
+        else
+        {
+            $Script:M365DSCSchema = ConvertFrom-Json $schemaJSON
+        }
 
         $Script:ResourceDefinitionCache = @{}
         foreach ($schemaEntry in $Script:M365DSCSchema)
@@ -59,7 +72,6 @@ function Compare-M365DSCResourceState
         }
     }
     $resourceDefinition = $Script:ResourceDefinitionCache["MSFT_$ResourceName"]
-    $resourceKeys = $resourceDefinition.Parameters.Where({ $_.Option -eq 'Key' })
 
     # Create a cache for resource property lookups to improve performance
     $Script:ResourcePropertyCache = @{}
@@ -94,16 +106,14 @@ function Compare-M365DSCResourceState
     $null = $ValuesToCheck.Remove('Identity')
 
     # Remove the key parameters from the comparison
-    foreach ($keyToRemove in $resourceKeys)
-    {
-        $null = $ValuesToCheck.Remove($keyToRemove.Name)
-    }
-
     # Remove PSCredential object from the list of properties to be evaluated
-    $credentialProperties = $resourceDefinition.Parameters.Where({ $_.CIMType -eq 'MSFT_Credential' })
-    foreach ($property in $credentialProperties)
+    $resourceParameters = $resourceDefinition.Parameters
+    foreach ($resourceParameter in $resourceParameters)
     {
-        $null = $ValuesToCheck.Remove($property.Name)
+        if ($resourceParameter.CIMType -eq 'PSCredential' -or $resourceParameter.Option -eq 'Key')
+        {
+            $null = $ValuesToCheck.Remove($resourceParameter.Name)
+        }
     }
 
     # Remove the ExcludedProperties from the list of properties to be evaluated
@@ -152,14 +162,14 @@ function Compare-M365DSCResourceState
     }
 
     $testResult = $true
-    if ($testTargetResource -and -not $skipEvaluation)
+    if (-not $skipEvaluation)
     {
         # Compare Cim instances
         # Create property lookup hashtable for this resource type if not already cached
         if (-not $Script:ResourcePropertyCache.ContainsKey($ResourceName))
         {
             $propertyLookup = @{}
-            foreach ($prop in $resourceDefinition.Parameters)
+            foreach ($prop in $resourceParameters)
             {
                 $propertyLookup[$prop.Name] = $prop
             }
@@ -176,11 +186,15 @@ function Compare-M365DSCResourceState
             if ($null -ne $source -and ($source.GetType().Name -like '*CimInstance*' -or $parameterDefinition.CIMType -like 'MSFT_*'))
             {
                 Write-Verbose -Message "Comparing complex object property $key of resource $ResourceName"
-                $CIMProperty = $parameterDefinition
-                $CIMName = $CIMProperty.CIMType.Replace('[]', '')
-                $CIMDefinition = $Script:M365DSCSchema.Where({ $_.ClassName -eq $CIMName })
+                $CIMName = $parameterDefinition.CIMType.Replace('[]', '')
+                $CIMDefinition = [Microsoft365DSC.Utilities.Utilities]::FilterCimClassesByName($Script:M365DSCSchema, $CIMName)
                 # Can potentially be a single PSObject, therefore not using Where()
-                $CIMPrimaryKeys = $CIMDefinition.Parameters | Where-Object { $_.Option -eq 'Required' }
+                [array]$CIMPrimaryKeys = @()
+                $requiredParameters = $CIMDefinition.Parameters | Where-Object Option -EQ 'Required'
+                if ($requiredParameters.Count -gt 0)
+                {
+                    $CIMPrimaryKeys += $requiredParameters
+                }
 
                 $targetObjects = @{}
                 if ($source.GetType().Name -in @('CimInstance[]', 'Object[]'))
@@ -188,27 +202,69 @@ function Compare-M365DSCResourceState
                     $targetObjects = @()
                 }
 
-                # Filter all target objects that match the primary keys of the source object(s)
-                $target = $target | Where-Object -FilterScript {
-                    $match = $true
-                    foreach ($primaryKey in $CIMPrimaryKeys.Name)
+                $isIntunePolicyAssignment = $false
+                if (($CIMName -like "*Intune*PolicyAssignments" -or $CIMName -like "*DeviceManagementConfigurationPolicyAssignments") -and $CIMName -ne "MSFT_IntuneDeviceRemediationPolicyAssignments")
+                {
+                    $isIntunePolicyAssignment = $true
+                    if (($source.Count -gt 0 -and $source[0].dataType -notin @("#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget")) -or `
+                        ($target.Count -gt 0 -and $target[0].dataType -notin @("#microsoft.graph.allLicensedUsersAssignmentTarget","#microsoft.graph.allDevicesAssignmentTarget")))
                     {
-                        # Because $source can be an array, we need to check if the
-                        # primary key value exists in any of the source objects
-                        $sourceValue = $source.$primaryKey | Select-Object -Unique
-                        if ($_.$primaryKey -notin @($sourceValue))
-                        {
-                            $match = $false
+                        $CIMPrimaryKeys += @{
+                            Name = 'groupDisplayName'
                         }
                     }
-                    return $match
                 }
 
+                # Filter all target objects that match the primary keys of the source object(s)
+                $noPrimaryKeyRemoval = $false
+                if ($source -is [array] -and $source.Count -gt 0)
+                {
+                    $target = $target | Where-Object -FilterScript {
+                        $match = $true
+                        foreach ($primaryKey in $CIMPrimaryKeys.Name)
+                        {
+                            # Because $source can be an array, we need to check if the
+                            # primary key value exists in any of the source objects
+                            # Address is a reserved property / method overload in Arrays
+                            if ($primaryKey -eq 'Address' -and $source.GetType().Name -like "*CimInstance*")
+                            {
+                                $sourceValue = $source.CimInstanceProperties.Where({ $_.Name -eq $primaryKey }).Value | Select-Object -Unique
+                            }
+                            else
+                            {
+                                $sourceValue = $source.$primaryKey | Select-Object -Unique
+                            }
+                            if ($sourceValue -is [array] -and $sourceValue.Count -gt 1)
+                            {
+                                Write-Verbose "Multiple values found for primary key $primaryKey in source object. Skipping primary key removal for this property."
+                                $noPrimaryKeyRemoval = $true
+                            }
+                            if ($null -ne $_.$primaryKey -and $_.$primaryKey -notin @($sourceValue))
+                            {
+                                $match = $false
+                            }
+                        }
+                        return $match
+                    }
+                }
+
+                # For cases where $nullreturn is returned from a resource, the properties may
+                # contain or be CimInstances that need to be converted to hashtables first for comparison
+                if (($null -ne $target -and $target.GetType().Name -like 'CimInstance*') -or `
+                    ($target -is [array] -and $target.Count -gt 0 -and $target[0].GetType().Name -like 'CimInstance*'))
+                {
+                    $target = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $target
+                }
                 foreach ($targetObject in $target)
                 {
                     foreach ($primaryKey in $CIMPrimaryKeys.Name)
                     {
-                        if ($primaryKey -notin $IncludedProperties)
+                        if ($isIntunePolicyAssignment -and $primaryKey -eq 'dataType')
+                        {
+                            continue
+                        }
+
+                        if ($primaryKey -notin $IncludedProperties -and -not $noPrimaryKeyRemoval)
                         {
                             $targetObject.Remove($primaryKey) | Out-Null
                         }
