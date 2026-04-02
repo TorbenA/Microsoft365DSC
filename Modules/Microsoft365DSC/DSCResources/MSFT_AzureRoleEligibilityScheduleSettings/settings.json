@@ -2,8 +2,14 @@
   "resourceName": "AzureRoleEligibilityScheduleSettings",
   "description": "Configures Azure PIM (Privileged Identity Management) role eligibility schedule settings for Management Groups, Subscriptions, and Resource Groups.",
   "roles": {
-    "read": [],
-    "update": []
+    "read": [
+      "User Access Administrator",
+      "Owner"
+    ],
+    "update": [
+      "User Access Administrator",
+      "Owner"
+    ]
   },
   "permissions": {
     "Azure Service Management": {
@@ -20,8 +26,14 @@
         ]
       },
       "application": {
-        "read": [],
-        "update": []
+       "read": [
+          "User Access Administrator",
+          "Owner"
+        ],
+        "update": [
+          "User Access Administrator",
+          "Owner"
+        ]
       }
     },
     "graph": {
