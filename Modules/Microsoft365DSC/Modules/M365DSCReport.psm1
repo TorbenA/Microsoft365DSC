@@ -1440,6 +1440,12 @@ function New-M365DSCDeltaReport
                 [array]$destinationResource = $destinationResource.Where({ $_.($key[1]) -eq $resource.($key[1]) })
                 $sourceKeyValue = $resource.($key[0]), $resource.($key[1]) -join '\'
             }
+            # Filter on the third key
+            if ($key.Count -gt 2)
+            {
+                [array]$destinationResource = $destinationResource.Where({ $_.($key[2]) -eq $resource.($key[2]) })
+                $sourceKeyValue = $resource.($key[0]), $resource.($key[1]), $resource.($key[2]) -join '\'
+            }
             if ($null -eq $destinationResource -or $destinationResource.Count -eq 0)
             {
                 $Delta += @{
@@ -1550,6 +1556,12 @@ function New-M365DSCDeltaReport
             {
                 [array]$sourceResource = $sourceResource.Where({ $_.($key[1]) -eq $resource.($key[1]) })
                 $destinationKeyValue = $resource.($key[0]), $resource.($key[1]) -join '\'
+            }
+            # Filter on the third key
+            if ($key.Count -gt 2)
+            {
+                [array]$sourceResource = $sourceResource.Where({ $_.($key[2]) -eq $resource.($key[2]) })
+                $destinationKeyValue = $resource.($key[0]), $resource.($key[1]), $resource.($key[2]) -join '\'
             }
 
             if ($null -eq $sourceResource -or $sourceResource.Count -eq 0)

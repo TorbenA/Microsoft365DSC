@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
+using System.Management.Automation;
 
 namespace Microsoft365DSC.Cache
 {
@@ -52,21 +51,19 @@ namespace Microsoft365DSC.Cache
         /// the result. Subsequent calls are no-ops unless <paramref name="force"/>
         /// is <c>true</c>.
         /// </summary>
-        /// <param name="filePath">Absolute path to SchemaDefinition.json.</param>
+        /// <param name="schema">List of schema objects to cache.</param>
         /// <param name="force">When <c>true</c>, reloads even if already cached.</param>
-        public static void LoadSchema(string filePath, bool force = false)
+        public static void LoadSchema(List<object> schema, bool force = false)
         {
-            if (string.IsNullOrEmpty(filePath))
-                throw new ArgumentNullException(nameof(filePath));
+            List<object> newSchema = [];
+            foreach (object entry in schema)
+            {
+                newSchema.Add(ConvertObjectToHashtable(entry));
+            }
 
             lock (SchemaLock)
             {
-                if (_schema != null && !force)
-                    return;
-
-                string json = File.ReadAllText(filePath);
-                using JsonDocument doc = JsonDocument.Parse(json);
-                _schema = ConvertJsonArray(doc.RootElement);
+                _schema = newSchema;
             }
         }
 
@@ -82,63 +79,43 @@ namespace Microsoft365DSC.Cache
             }
         }
 
-        #region JSON to Hashtable conversion
+        private static object ConvertObjectToHashtable(object entry)
+        {
+            Hashtable result = new(StringComparer.OrdinalIgnoreCase);
 
-        /// <summary>
-        /// Converts a <see cref="JsonElement"/> array into a <see cref="List{Object}"/>
-        /// of Hashtables, preserving the structure expected by ResourceComparer's
-        /// GetProperty / GetStringProperty helpers.
-        /// </summary>
-        private static List<object> ConvertJsonArray(JsonElement element)
+            if (entry is PSObject psObject)
+            {
+                foreach (var prop in psObject.Properties)
+                {
+                    result[prop.Name] = ConvertObjectToHashtable(prop.Value);
+                }
+            }
+            else if (entry is IDictionary dict)
+            {
+                foreach (DictionaryEntry kvp in dict)
+                {
+                    result[kvp.Key.ToString()] = ConvertObjectToHashtable(kvp.Value);
+                }
+            }
+            else if (entry is IEnumerable enumerable && entry is not string)
+            {
+                return ConvertEnumerableToHashtableArray(enumerable);
+            }
+            else
+            {
+                return entry;
+            }
+            return result;
+        }
+
+        private static object[] ConvertEnumerableToHashtableArray(IEnumerable enumerable)
         {
             var list = new List<object>();
-            foreach (JsonElement item in element.EnumerateArray())
+            foreach (object item in enumerable)
             {
-                list.Add(ConvertJsonElement(item));
+                list.Add(ConvertObjectToHashtable(item));
             }
-            return list;
+            return list.ToArray();
         }
-
-        private static object ConvertJsonElement(JsonElement element)
-        {
-            switch (element.ValueKind)
-            {
-                case JsonValueKind.Object:
-                    var table = new Hashtable(StringComparer.OrdinalIgnoreCase);
-                    foreach (JsonProperty prop in element.EnumerateObject())
-                    {
-                        table[prop.Name] = ConvertJsonElement(prop.Value);
-                    }
-                    return table;
-
-                case JsonValueKind.Array:
-                    var items = new List<object>();
-                    foreach (JsonElement child in element.EnumerateArray())
-                    {
-                        items.Add(ConvertJsonElement(child));
-                    }
-                    return items;
-
-                case JsonValueKind.String:
-                    return element.GetString();
-
-                case JsonValueKind.Number:
-                    if (element.TryGetInt64(out long longVal))
-                        return longVal;
-                    return element.GetDouble();
-
-                case JsonValueKind.True:
-                    return true;
-
-                case JsonValueKind.False:
-                    return false;
-
-                case JsonValueKind.Null:
-                default:
-                    return null;
-            }
-        }
-
-        #endregion
     }
 }

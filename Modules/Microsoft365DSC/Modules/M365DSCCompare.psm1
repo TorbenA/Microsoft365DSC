@@ -55,7 +55,8 @@ function Compare-M365DSCResourceState
     if (-not [Microsoft365DSC.Cache.CacheManager]::IsSchemaLoaded)
     {
         $schemaPath = Join-Path -Path $currentPath -ChildPath '..\SchemaDefinition.json'
-        [Microsoft365DSC.Cache.CacheManager]::LoadSchema($schemaPath)
+        $schemaContent = [System.IO.File]::ReadAllText($schemaPath) | ConvertFrom-Json
+        [Microsoft365DSC.Cache.CacheManager]::LoadSchema($schemaContent)
     }
 
     # Apply custom post-processing callback if specified.

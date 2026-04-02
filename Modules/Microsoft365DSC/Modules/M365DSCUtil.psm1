@@ -473,7 +473,8 @@ function Test-M365DSCTargetResource
     if (-not [Microsoft365DSC.Cache.CacheManager]::IsSchemaLoaded)
     {
         $schemaPath = Join-Path -Path $currentPath -ChildPath '..\SchemaDefinition.json'
-        [Microsoft365DSC.Cache.CacheManager]::LoadSchema($schemaPath)
+        $schemaContent = [System.IO.File]::ReadAllText($schemaPath) | ConvertFrom-Json
+        [Microsoft365DSC.Cache.CacheManager]::LoadSchema($schemaContent)
     }
     $resourceDefinition = [Microsoft365DSC.Utilities.Utilities]::FilterLoadedCimClassesByName("MSFT_$ResourceName")
     $resourceKeys = $resourceDefinition.Parameters | Where-Object -FilterScript { $_.Option -eq 'Key' }

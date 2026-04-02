@@ -60,7 +60,7 @@ function Get-TargetResource
         $DLPRemovableMediaGroups,
 
         [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
+        [Microsoft.Management.Infrastructure.CimInstance]
         $EvidenceStoreSettings,
 
         [Parameter()]
@@ -638,7 +638,7 @@ function Set-TargetResource
         $DLPRemovableMediaGroups,
 
         [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
+        [Microsoft.Management.Infrastructure.CimInstance]
         $EvidenceStoreSettings,
 
         [Parameter()]
@@ -1167,7 +1167,7 @@ function Test-TargetResource
         $DLPRemovableMediaGroups,
 
         [Parameter()]
-        [Microsoft.Management.Infrastructure.CimInstance[]]
+        [Microsoft.Management.Infrastructure.CimInstance]
         $EvidenceStoreSettings,
 
         [Parameter()]
