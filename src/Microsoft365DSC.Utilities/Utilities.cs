@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft365DSC.Cache;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,15 +55,34 @@ namespace Microsoft365DSC.Utilities
             return results;
         }
 
+        public static object? FilterLoadedCimClassesByName(string className)
+        {
+            if (CacheManager.IsSchemaLoaded)
+            {
+                return FilterCimClassesByName(CacheManager.Schema, className);
+            }
+            return null;
+        }
+
         public static object? FilterCimClassesByName(IEnumerable<object> schemaObjects, string className)
         {
-            foreach (PSObject entry in schemaObjects.Cast<PSObject>())
+            foreach (object obj in schemaObjects)
             {
-                dynamic dyn = entry as dynamic;
-                string name = dyn.ClassName;
-                if (name == className)
+                if (obj is PSObject psObject)
                 {
-                    return entry;
+                    dynamic dyn = psObject as dynamic;
+                    string name = dyn.ClassName;
+                    if (name == className)
+                    {
+                        return psObject;
+                    }
+                }
+                else if (obj is IDictionary hashtable)
+                {
+                    if (hashtable["ClassName"]?.ToString() == className)
+                    {
+                        return hashtable;
+                    }
                 }
             }
             return null;

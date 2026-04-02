@@ -1,4 +1,3 @@
-# Automatically initialize accelerator on module import
 Initialize-M365DSCDllLoader -ErrorAction SilentlyContinue
 
 function Get-StringFirstCharacterToUpper
@@ -484,22 +483,6 @@ function Convert-M365DSCDRGComplexTypeToHashtable
         return @{}
     }
 
-    if ($ComplexObject.GetType().Fullname -like '*[[\]]')
-    {
-        $results = @()
-        foreach ($item in $ComplexObject)
-        {
-            $hash = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $item
-            $results += $hash
-        }
-
-        #Write-Verbose -Message ("Convert-M365DSCDRGComplexTypeToHashtable >>> results: "+(convertTo-JSON $results -Depth 20))
-        # PowerShell returns all non-captured stream output, not just the argument of the return statement.
-        #An empty array is mangled into $null in the process.
-        #However, an array can be preserved on return by prepending it with the array construction operator (,)
-        return ,[System.Collections.Hashtable[]]$results
-    }
-
     if ($SingleLevel)
     {
         $returnObject = @{}
@@ -517,34 +500,5 @@ function Convert-M365DSCDRGComplexTypeToHashtable
         return $returnObject
     }
 
-    $hashComplexObject = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject $ComplexObject
-
-    if ($null -ne $hashComplexObject)
-    {
-
-        $results = $hashComplexObject.Clone()
-
-        if ($SingleLevel)
-        {
-            return $results
-        }
-
-        $keys = $hashComplexObject.Keys | Where-Object -FilterScript { $_ -ne 'PSComputerName' }
-        foreach ($key in $keys)
-        {
-            if ($hashComplexObject[$key] -and $hashComplexObject[$key].GetType().Fullname -like '*CimInstance*')
-            {
-                $results[$key] = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $hashComplexObject[$key]
-            }
-            else
-            {
-                $propertyName = $key[0].ToString().ToLower() + $key.Substring(1, $key.Length - 1)
-                $propertyValue = $results[$key]
-                $results.Remove($key) | Out-Null
-                $results.Add($propertyName, $propertyValue)
-            }
-        }
-    }
-
-    return $results
+    return [Microsoft365DSC.Converter.ObjectNormalizer]::Normalize($ComplexObject)
 }

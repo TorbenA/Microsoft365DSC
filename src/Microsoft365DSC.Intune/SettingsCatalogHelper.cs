@@ -153,7 +153,7 @@ namespace Microsoft365DSC.Intune
             return TryGetPropertyRaw(obj, propertyName)?.ToString();
         }
 
-        private static object TryGetPropertyRaw(object obj, string propertyName)
+        private static object? TryGetPropertyRaw(object obj, string propertyName)
         {
             if (obj is null) return null;
 
@@ -168,7 +168,7 @@ namespace Microsoft365DSC.Intune
             return prop?.GetValue(obj);
         }
 
-        private static IEnumerable TryGetPropertyAsEnumerable(object obj, string propertyName)
+        private static IEnumerable? TryGetPropertyAsEnumerable(object obj, string propertyName)
         {
             if (obj is null) return null;
 
@@ -201,7 +201,7 @@ namespace Microsoft365DSC.Intune
         /// more maintainable - adding a new simplification rule requires only one line instead of a new
         /// switch case block.
         /// </summary>
-        private static readonly List<(string ExactMatch, string Prefix, string Suffix, string Search, string Replace)> NameSimplificationRules =
+        private static readonly List<(string? ExactMatch, string? Prefix, string? Suffix, string? Search, string Replace)> NameSimplificationRules =
             [
                 // Exact match: 'com.apple.managedclient.preferences_enforcementLevel' -> 'enforcementLevel'
                 ("com.apple.managedclient.preferences_enforcementLevel", null, null, null, "enforcementLevel"),

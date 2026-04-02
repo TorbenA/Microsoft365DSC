@@ -21,4 +21,8 @@
     <PackageReference Include="System.Management" Version="10.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft365DSC.Cache\Microsoft365DSC.Cache.csproj" />
+  </ItemGroup>
+
 </Project>

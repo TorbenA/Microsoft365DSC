@@ -67,6 +67,7 @@ function Initialize-M365DSCDllLoader
         # Locate the accelerator DLL
         $moduleRoot = Split-Path -Path $PSScriptRoot -Parent
         $dllsToLoad = @(
+            'Microsoft365DSC.Cache.dll'
             'Microsoft365DSC.Compare.dll'
             'Microsoft365DSC.Connection.dll'
             'Microsoft365DSC.Converter.dll'
