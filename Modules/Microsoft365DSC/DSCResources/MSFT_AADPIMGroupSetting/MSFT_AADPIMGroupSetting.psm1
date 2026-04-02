@@ -331,8 +331,8 @@ function Get-TargetResource
         $ExpireActiveAssignmentValue = ($role | Where-Object { $_.Id -eq 'Expiration_Admin_Assignment' }).maximumDuration
         $AssignmentReqMFAValue = (($role | Where-Object { $_.Id -eq 'Enablement_Admin_Assignment' }).enabledRules) -contains 'MultiFactorAuthentication'
         $AssignmentReqJustificationValue = (($role | Where-Object { $_.Id -eq 'Enablement_Admin_Assignment' }).enabledRules) -contains 'Justification'
-        $ElegibilityAssignmentReqMFAValue = (($role | Where-Object { $_.Id -eq 'Enablement_Admin_Eligibility' }).enabledRules) -contains 'MultiFactorAuthentication'
-        $ElegibilityAssignmentReqJustificationValue = (($role | Where-Object { $_.Id -eq 'Enablement_Admin_Eligibility' }).enabledRules) -contains 'Justification'
+        $EligibilityAssignmentReqMFAValue = (($role | Where-Object { $_.Id -eq 'Enablement_Admin_Eligibility' }).enabledRules) -contains 'MultiFactorAuthentication'
+        $EligibilityAssignmentReqJustificationValue = (($role | Where-Object { $_.Id -eq 'Enablement_Admin_Eligibility' }).enabledRules) -contains 'Justification'
         $EligibleAlertNotificationDefaultRecipientValue = ($role | Where-Object { $_.Id -eq 'Notification_Admin_Admin_Eligibility' }).isDefaultRecipientsEnabled
         [string[]]$EligibleAlertNotificationAdditionalRecipientValue = ($role | Where-Object { $_.Id -eq 'Notification_Admin_Admin_Eligibility' }).notificationRecipients
         $EligibleAlertNotificationOnlyCriticalValue = (($role | Where-Object { $_.Id -eq 'Notification_Admin_Admin_Eligibility' }).notificationLevel) -contains ('Critical')
@@ -366,8 +366,8 @@ function Get-TargetResource
         $ExpireActiveAssignmentValue = ($role | Where-Object { $_.Id -eq 'Expiration_Admin_Assignment' }).AdditionalProperties.maximumDuration
         $AssignmentReqMFAValue = (($role | Where-Object { $_.Id -eq 'Enablement_Admin_Assignment' }).AdditionalProperties.enabledRules) -contains 'MultiFactorAuthentication'
         $AssignmentReqJustificationValue = (($role | Where-Object { $_.Id -eq 'Enablement_Admin_Assignment' }).AdditionalProperties.enabledRules) -contains 'Justification'
-        $ElegibilityAssignmentReqMFAValue = (($role | Where-Object { $_.Id -eq 'Enablement_Admin_Eligibility' }).AdditionalProperties.enabledRules) -contains 'MultiFactorAuthentication'
-        $ElegibilityAssignmentReqJustificationValue = (($role | Where-Object { $_.Id -eq 'Enablement_Admin_Eligibility' }).AdditionalProperties.enabledRules) -contains 'Justification'
+        $EligibilityAssignmentReqMFAValue = (($role | Where-Object { $_.Id -eq 'Enablement_Admin_Eligibility' }).AdditionalProperties.enabledRules) -contains 'MultiFactorAuthentication'
+        $EligibilityAssignmentReqJustificationValue = (($role | Where-Object { $_.Id -eq 'Enablement_Admin_Eligibility' }).AdditionalProperties.enabledRules) -contains 'Justification'
         $EligibleAlertNotificationDefaultRecipientValue = ($role | Where-Object { $_.Id -eq 'Notification_Admin_Admin_Eligibility' }).AdditionalProperties.isDefaultRecipientsEnabled
         [string[]]$EligibleAlertNotificationAdditionalRecipientValue = ($role | Where-Object { $_.Id -eq 'Notification_Admin_Admin_Eligibility' }).AdditionalProperties.notificationRecipients
         $EligibleAlertNotificationOnlyCriticalValue = (($role | Where-Object { $_.Id -eq 'Notification_Admin_Admin_Eligibility' }).AdditionalProperties.notificationLevel) -contains ('Critical')
