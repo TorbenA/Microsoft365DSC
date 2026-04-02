@@ -1,4 +1,4 @@
-[ClassVersion("1.0.0.0"), FriendlyName("AADPIMGroupSetting")]
+[ClassVersion("1.0.0.1"), FriendlyName("AADPIMGroupSetting")]
 class MSFT_AADPIMGroupSetting : OMI_BaseResource
 {
     [Key, Description("RuleDefinition DisplayName")] String DisplayName;
