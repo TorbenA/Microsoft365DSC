@@ -114,7 +114,6 @@ When generating exported configuration:
 - Output objects in alphabetical parameter order
 - Avoid emitting default values
 - **Always include `$Filter` parameter support** for client-side filtering. See `ResourceGenerator/Templates/Module.Template.psm1` for the standard pattern.
-- **Use simple `Add-Member` for DomainId** instead of hashtable normalization routines. Example: `$result | Add-Member -NotePropertyName 'DomainId' -NotePropertyValue $domainId`
 
 It is always the same set of steps. Refer to `ResourceGenerator/Templates/Module.Template.psm1` with the function `Export-TargetResource`.
 
