@@ -21,7 +21,7 @@ Schema files (manually authored):
 2. **No status output from Test-TargetResource.** `Test-TargetResource` must return only `$true` or `$false`. Do not output status messages or results for the Test function.
 3. **No logging Get-TargetResource results.** Do not write the results of `Get-TargetResource` to the log or console. The caller handles result inspection.
 4. **Export must include `$Filter` support.** Every `Export-TargetResource` must accept and honour a `$Filter` parameter for client-side filtering. See `ResourceGenerator/Templates/Module.Template.psm1` for the pattern.
-5. **Export: use `Add-Member` for DomainId, not hashtable normalization.** In Export-TargetResource, use simple `Add-Member -NotePropertyName 'DomainId'` on the result object instead of hashtable normalization routines.
+5. **When creating a new hashtable, create it fresh rather than clearing an existing one.** Do not reuse a hashtable by removing all items; just instantiate a new `@{}`.
 6. **Standard error handling in catch blocks.** Do not add extra `Write-Verbose` in catch blocks. Use the standard `New-M365DSCLogEntry` + `throw` pattern aligned with other resources. Example:
    ```powershell
    catch
@@ -51,7 +51,6 @@ Schema files (manually authored):
 21. **Do not wrap Boolean values in quotes.** Use `$true`/`$false`, never `'true'`/`'false'` or `"true"`/`"false"`, including in example files and test params.
 22. **Use `($null -ne $var)` style (null on the left) for all null comparisons.** This is the enforced PowerShell best practice in this codebase (e.g., `($null -ne $Role)` not `($Role -ne $null)`).
 23. **Do not remove `Verbose` from `$PSBoundParameters` explicitly.** `Verbose` is never part of `$PSBoundParameters`, so removing it is unnecessary noise.
-24. **When creating a new hashtable, create it fresh rather than clearing an existing one.** Do not reuse a hashtable by removing all items; just instantiate a new `@{}`.
 
 Quick checklist:
 
