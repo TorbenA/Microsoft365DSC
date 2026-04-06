@@ -226,16 +226,9 @@ namespace Microsoft365DSC.Intune
         {
             var values = new List<string>();
 
-            IEnumerable items;
-            if (dscValue is IEnumerable enumerable && !(dscValue is string))
-            {
-                items = enumerable;
-            }
-            else
-            {
-                items = new[] { dscValue };
-            }
-
+            IEnumerable items = dscValue is IEnumerable enumerable && !(dscValue is string)
+                ? enumerable
+                : (new[] { dscValue });
             foreach (var value in items)
             {
                 string valueStr = value?.ToString() ?? string.Empty;
@@ -269,7 +262,7 @@ namespace Microsoft365DSC.Intune
         /// <summary>
         /// Case-insensitive key lookup in a Hashtable.
         /// </summary>
-        private static string FindKeyIgnoreCase(Hashtable hashtable, string key)
+        private static string? FindKeyIgnoreCase(Hashtable hashtable, string key)
         {
             foreach (var k in hashtable.Keys)
             {
