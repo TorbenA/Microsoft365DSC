@@ -178,6 +178,7 @@
   * Improved the accuracy of the comparison engine.
   * Refactored module structure to improve maintainability.
   * Removed duplicate complex hashtable conversions.
+  * [BREAKING CHANGE] Store error logs in $env:TEMP instead of current working directory.
   * Updated documentation for different group types for AADGroup, EXOGroupSettings
     and EXODistributionGroup.
 
