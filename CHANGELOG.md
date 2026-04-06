@@ -21,6 +21,9 @@
 * AADCrossTenantAccessPolicyConfigurationPartner
   * Fixed an issue where the schema was incorrect.
     FIXES [#6998](https://github.com/microsoft/Microsoft365DSC/issues/6998)
+* AADDomainFederation
+  * Initial Release
+    FIXES [#6995](https://github.com/microsoft/Microsoft365DSC/issues/6995)
 * AADPIMGroupSetting
   * [BREAKING CHANGE] Fix typo in use of Elegibility -> Eligibility
     FIXES [#7021](https://github.com/microsoft/Microsoft365DSC/issues/7021)
