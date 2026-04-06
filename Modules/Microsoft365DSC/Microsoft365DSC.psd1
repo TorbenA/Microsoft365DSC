@@ -57,6 +57,7 @@
   # Script files (.ps1) that are run in the caller's environment prior to importing this module.
   ScriptsToProcess = @(
     'Import-M365DSCDllLoaderModule.ps1',
+    'Show-PwshWarning.ps1',
     'Update-MaximumFunctionCount.ps1'
   )
 
