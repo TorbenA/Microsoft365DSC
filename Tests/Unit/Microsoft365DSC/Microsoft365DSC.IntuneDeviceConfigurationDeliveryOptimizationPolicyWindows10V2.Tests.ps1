@@ -95,17 +95,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             SettingInstanceTemplateReference = @{
                                 SettingInstanceTemplateId = '8e5ed494-b8fa-49cc-8b80-94e4149296fa'
                             }
-                            AdditionalProperties             = @(
-                                @{
-                                    '@odata.type'               = '#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance'
-                                    choiceSettingValue = @(
-                                        @{
-                                            children = @()
-                                            value = 'device_vendor_msft_policy_config_deliveryoptimization_dodownloadmode_0'
-                                        }
-                                    )
+                            AdditionalProperties             = @{
+                                '@odata.type'               = '#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance'
+                                choiceSettingValue = @{
+                                    children = @()
+                                    value = 'device_vendor_msft_policy_config_deliveryoptimization_dodownloadmode_0'
                                 }
-                            )
+                            }
                         }
                     }
                     @{
@@ -125,15 +121,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             SettingInstanceTemplateReference = @{
                                 SettingInstanceTemplateId = '1d9aa48a-2059-40eb-b211-5ad1d82cf27b'
                             }
-                            AdditionalProperties             = @(
-                                @{
-                                    '@odata.type'               = '#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance'
-                                    simpleSettingValue          = @{
-                                        '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
-                                        value         = 100
-                                    }
+                            AdditionalProperties             = @{
+                                '@odata.type'               = '#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance'
+                                simpleSettingValue          = @{
+                                    '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
+                                    value         = 100
                                 }
-                            )
+                            }
                         }
                     }
                     @{
@@ -155,21 +149,19 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             SettingInstanceTemplateReference = @{
                                 SettingInstanceTemplateId = '5ff7d429-fa5b-410f-b72e-91f6c8cadb31'
                             }
-                            AdditionalProperties             = @(
-                                @{
-                                    '@odata.type'               = '#microsoft.graph.deviceManagementConfigurationSimpleSettingCollectionInstance'
-                                    simpleSettingCollectionValue = @(
-                                        @{
-                                            '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
-                                            value         = 'CacheHost1'
-                                        },
-                                        @{
-                                            '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
-                                            value         = 'CacheHost2'
-                                        }
-                                    )
-                                }
-                            )
+                            AdditionalProperties             = @{
+                                '@odata.type'               = '#microsoft.graph.deviceManagementConfigurationSimpleSettingCollectionInstance'
+                                simpleSettingCollectionValue = @(
+                                    @{
+                                        '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                        value         = 'CacheHost1'
+                                    },
+                                    @{
+                                        '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                        value         = 'CacheHost2'
+                                    }
+                                )
+                            }
                         }
                     }
                 )

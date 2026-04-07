@@ -638,9 +638,10 @@ namespace Microsoft365DSC.Intune
             {
                 var childValues = new List<Hashtable>();
 
+                Hashtable? childHashtable = null;
                 foreach (var group in instance.GroupSettingCollectionValue)
                 {
-                    var childHashtable = new Hashtable(StringComparer.OrdinalIgnoreCase);
+                    childHashtable = new Hashtable(StringComparer.OrdinalIgnoreCase);
                     foreach (var child in group.Children)
                     {
                         ExportSettingInstance(child, settingDefinitions, allSettingDefinitions, childHashtable);
@@ -648,8 +649,6 @@ namespace Microsoft365DSC.Intune
                     childValues.Add(childHashtable);
                 }
 
-                if (childValues.Count == 1)
-                    return (childValues[0], true);
                 return (childValues.ToArray(), true);
             }
 

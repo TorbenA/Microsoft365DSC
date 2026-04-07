@@ -216,26 +216,28 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                         @{
                                             SettingDefinitionId = 'device_vendor_msft_policy_config_connectivity_hardeneduncpaths_pol_hardenedpaths'
                                             '@odata.type' = "#microsoft.graph.deviceManagementConfigurationGroupSettingCollectionInstance"
-                                            groupSettingCollectionValue = @{
-                                                children = @(
-                                                    @{
-                                                        '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance'
-                                                        settingDefinitionId = 'device_vendor_msft_policy_config_connectivity_hardeneduncpaths_pol_hardenedpaths_value'
-                                                        simpleSettingValue = @{
-                                                            '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
-                                                            value = 'RequireMutualAuthentication=1,RequireIntegrity=1'
+                                            groupSettingCollectionValue = @(
+                                                @{
+                                                    children = @(
+                                                        @{
+                                                            '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance'
+                                                            settingDefinitionId = 'device_vendor_msft_policy_config_connectivity_hardeneduncpaths_pol_hardenedpaths_value'
+                                                            simpleSettingValue = @{
+                                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                                                value = 'RequireMutualAuthentication=1,RequireIntegrity=1'
+                                                            }
+                                                        },
+                                                        @{
+                                                            '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance'
+                                                            settingDefinitionId = 'device_vendor_msft_policy_config_connectivity_hardeneduncpaths_pol_hardenedpaths_key'
+                                                            simpleSettingValue = @{
+                                                                '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
+                                                                value = '\\*\SYSVOL'
+                                                            }
                                                         }
-                                                    },
-                                                    @{
-                                                        '@odata.type' = '#microsoft.graph.deviceManagementConfigurationSimpleSettingInstance'
-                                                        settingDefinitionId = 'device_vendor_msft_policy_config_connectivity_hardeneduncpaths_pol_hardenedpaths_key'
-                                                        simpleSettingValue = @{
-                                                            '@odata.type' = '#microsoft.graph.deviceManagementConfigurationStringSettingValue'
-                                                            value = '\\*\SYSVOL'
-                                                        }
-                                                    }
-                                                 )
-                                             }
+                                                    )
+                                                }
+                                            )
                                         }
                                     )
                                     value = "device_vendor_msft_policy_config_connectivity_hardeneduncpaths_1"
