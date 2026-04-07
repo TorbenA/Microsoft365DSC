@@ -234,7 +234,14 @@ namespace Microsoft365DSC.Converter
             foreach (var property in properties)
             {
                 var value = property.GetValue(complexObject);
-                graphResult[property.Name] = GetValueFromObject(value);
+                if (property.Name.Equals("Microsoft.Graph.Beta.PowerShell.Runtime.IAssociativeArray<System.Object>.AdditionalProperties"))
+                {
+                    graphResult["AdditionalProperties"] = GetValueFromObject(value);
+                }
+                else
+                {
+                    graphResult[property.Name] = GetValueFromObject(value);
+                }
             }
 
             return graphResult;
