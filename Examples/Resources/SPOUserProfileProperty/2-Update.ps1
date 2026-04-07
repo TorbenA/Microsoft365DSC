@@ -21,7 +21,7 @@ Configuration Example
                 MSFT_SPOUserProfilePropertyInstance
                 {
                     Key   = "MyProperty"
-                    Value = "MyValue2" # Updated property
+                    Value = "MyValue"
                 }
             )
             Ensure     = "Present"
