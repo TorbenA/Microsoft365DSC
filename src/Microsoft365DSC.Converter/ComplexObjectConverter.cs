@@ -73,6 +73,9 @@ namespace Microsoft365DSC.Converter
                 var cimResult = new Hashtable(StringComparer.OrdinalIgnoreCase);
                 foreach (var property in cimInstance.CimInstanceProperties)
                 {
+                    if (property.Name.Equals("PSComputerName", StringComparison.OrdinalIgnoreCase) || !property.IsValueModified)
+                        continue;
+
                     cimResult[property.Name] = GetValueFromObject(property.Value);
                 }
                 return cimResult;
@@ -82,7 +85,7 @@ namespace Microsoft365DSC.Converter
                 return GetValueFromGraphObject(complexObject);
             }
 
-            return new Hashtable(StringComparer.OrdinalIgnoreCase);
+            return new(StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>
@@ -348,7 +351,9 @@ namespace Microsoft365DSC.Converter
             else if (complexObject is PSObject psObject && psObject.BaseObject is not null && psObject.BaseObject is CimInstance instance)
             {
                 cimInstance = instance;
-                keys = cimInstance.CimInstanceProperties.Select(p => p.Name);
+                keys = cimInstance.CimInstanceProperties
+                    .Where(p => p.IsValueModified && p.Name != "PSComputerName")
+                    .Select(p => p.Name);
             }
             else
             {
@@ -406,7 +411,7 @@ namespace Microsoft365DSC.Converter
 
                         if (isNestedArray && complexTypeMapping.Any(ctm => ctm.Name.Equals(key, StringComparison.OrdinalIgnoreCase)))
                         {
-                            if (itemValue is Array array && array.Length > 0)
+                            if (itemValue is Array array)
                             {
                                 _ = currentPropertyBuilder.Append($"{indent}{key} = @(");
                             }
@@ -446,10 +451,9 @@ namespace Microsoft365DSC.Converter
                             }
                             indentLevel--;
 
-                            if (arrayItems.Length > 0)
-                            {
-                                _ = currentPropertyBuilder.Append($"{indent})").AppendLine();
-                            }
+                            _ = arrayItems.Length > 0
+                                ? currentPropertyBuilder.Append($"{indent})").AppendLine()
+                                : currentPropertyBuilder.Append($")").AppendLine();
                         }
                         else
                         {

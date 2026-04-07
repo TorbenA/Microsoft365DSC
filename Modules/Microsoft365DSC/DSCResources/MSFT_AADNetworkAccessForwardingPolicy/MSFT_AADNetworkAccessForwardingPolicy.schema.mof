@@ -1,10 +1,10 @@
-[ClassVersion("1.0.0.1")]
+[ClassVersion("1.0.0.2")]
 class MSFT_MicrosoftGraphNetworkAccessForwardingPolicyRule
 {
     [Required, Description("Policy Rule Name. Required")] String Name;
     [Write, Description("Action value.")] String ActionValue;
     [Write, Description("Type of Rule")] String RuleType;
-    [Write, Description("List of Ports.")] UInt32 Ports[];
+    [Write, Description("List of Ports.")] SInt32 Ports[];
     [Write, Description("Protocol Value")] String Protocol;
     [Write, Description("List of destinations.")] String Destinations[];
 };
