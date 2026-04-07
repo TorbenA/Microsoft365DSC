@@ -130,6 +130,10 @@
 * SCSensitivityLabel
   * Fixed an issue where the CIM definition for `MSFT_LabelSetting` did not match.
     FIXES [#7002](https://github.com/microsoft/Microsoft365DSC/issues/7002)
+* SPOBrowserIdleSignout
+  * Updated the timespan comparison to allow a discrepancy of up to 30 seconds
+    for the `SignOutAfter` and `WarnAfter` properties.
+    FIXES [#7031](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7031)
 * TeamsClientConfiguration
   * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
 * TeamsFederationConfiguration
