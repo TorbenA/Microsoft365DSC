@@ -709,7 +709,7 @@ function Export-TargetResource
                 )
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.IdentitySynchronization `
-                    -CIMInstanceName 'AADCrossTenantIdentitySyncPolicyPartner' `
+                    -CIMInstanceName 'AADCrossTenantIdentitySyncPolicyPartnerInbound' `
                     -ComplexTypeMapping $complexMapping
 
                 if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))

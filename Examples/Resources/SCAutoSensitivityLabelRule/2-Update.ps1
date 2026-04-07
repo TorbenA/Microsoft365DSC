@@ -19,17 +19,14 @@ Configuration Example
         SCAutoSensitivityLabelRule 'TestRule'
         {
             Comment                             = 'Detects when 1 to 9 credit card numbers are contained in Exchange items'
-            ContentContainsSensitiveInformation = MSFT_SCDLPContainsSensitiveInformation
-            {
+            ContentContainsSensitiveInformation = MSFT_SCDLPContainsSensitiveInformation{
                 operator = 'And'
-                Groups   =
-                @(MSFT_SCDLPContainsSensitiveInformationGroup
-                    {
+                Groups   = @(
+                    MSFT_SCDLPContainsSensitiveInformationGroup{
                         operator             = 'And'
                         name                 = 'Default'
                         SensitiveInformation = @(
-                            MSFT_SCDLPSensitiveInformation
-                            {
+                            MSFT_SCDLPSensitiveInformation{
                                 name           = 'Credit Card Number'
                                 id             = '50842eb7-edc8-4019-85dd-5a5c1f2bb085'
                                 maxconfidence  = '100'
@@ -43,7 +40,7 @@ Configuration Example
                 )
             }
             Credential                          = $Credscredential
-            Disabled                            = $False
+            Disabled                            = $True # Updated property
             DocumentIsPasswordProtected         = $False
             DocumentIsUnsupported               = $False
             Ensure                              = 'Present'

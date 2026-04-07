@@ -352,6 +352,10 @@
       "HasCustomComparison": true,
       "Description": "Excludes properties: Path, Publish, Overwrite"
     },
+    "SPOBrowserIdleSignout": {
+      "HasCustomComparison": true,
+      "Description": "Uses PostProcessing scriptblock"
+    },
     "SPOSiteAuditSettings": {
       "HasCustomComparison": true,
       "Description": "Excludes properties: Url"

@@ -21,12 +21,5 @@ Configuration Example
             ExcludeRestrictedSiteClassifications = @()
             Credential                           = $Credscredential
         }
-        SPOTenantCDNPolicy 'PrivateCDNPolicy'
-        {
-            IncludeFileExtensions                = @('.gif')
-            CDNType                              = "Private"
-            ExcludeRestrictedSiteClassifications = @()
-            Credential                           = $Credscredential
-        }
     }
 }

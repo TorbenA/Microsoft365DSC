@@ -21,6 +21,9 @@
 * AADCrossTenantAccessPolicyConfigurationPartner
   * Fixed an issue where the schema was incorrect.
     FIXES [#6998](https://github.com/microsoft/Microsoft365DSC/issues/6998)
+* AADDomainFederation
+  * Initial Release
+    FIXES [#6995](https://github.com/microsoft/Microsoft365DSC/issues/6995)
 * AADPIMGroupSetting
   * [BREAKING CHANGE] Fix typo in use of Elegibility -> Eligibility
     FIXES [#7021](https://github.com/microsoft/Microsoft365DSC/issues/7021)
@@ -127,6 +130,10 @@
 * SCSensitivityLabel
   * Fixed an issue where the CIM definition for `MSFT_LabelSetting` did not match.
     FIXES [#7002](https://github.com/microsoft/Microsoft365DSC/issues/7002)
+* SPOBrowserIdleSignout
+  * Updated the timespan comparison to allow a discrepancy of up to 30 seconds
+    for the `SignOutAfter` and `WarnAfter` properties.
+    FIXES [#7031](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7031)
 * TeamsClientConfiguration
   * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
 * TeamsFederationConfiguration
@@ -171,10 +178,12 @@
   * Updated `ReverseDSC` to version 2.0.0.34.
 * MISC
   * Added CIM information about required properties to all resources where applicable.
+  * Added message about requiring PowerShell 7 starting Octoboer 2026.
   * Improved filtering for Intune configuration policies during Export.
   * Improved the accuracy of the comparison engine.
   * Refactored module structure to improve maintainability.
   * Removed duplicate complex hashtable conversions.
+  * [BREAKING CHANGE] Store error logs in $env:TEMP instead of current working directory.
   * Updated documentation for different group types for AADGroup, EXOGroupSettings
     and EXODistributionGroup.
 
