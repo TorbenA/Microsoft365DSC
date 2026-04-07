@@ -114,7 +114,7 @@ function Invoke-TestHarness
     {
         $Configuration.CodeCoverage.Enabled = $true
         $Configuration.CodeCoverage.Path = $testCoverageFiles
-        $Configuration.CodeCoverage.OutputPath = 'CodeCov.xml'
+        $Configuration.CodeCoverage.OutputPath = 'coverage.xml'
         $Configuration.CodeCoverage.OutputFormat = 'JaCoCo'
         $Configuration.CodeCoverage.UseBreakpoints = $false
     }

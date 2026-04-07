@@ -23,15 +23,5 @@ Configuration Example
             Ensure           = "Present"
             Credential       = $Credscredential
         }
-
-        SPOSiteGroup 'ConfigureTestSiteGroup2'
-        {
-            Url              = "https://contoso.sharepoint.com/sites/testsite1"
-            Identity         = "TestSiteGroup2"
-            Owner            = "admin@contoso.onmicrosoft.com"
-            PermissionLevels = @("Edit", "Read")
-            Ensure           = "Present"
-            Credential       = $Credscredential
-        }
     }
 }
