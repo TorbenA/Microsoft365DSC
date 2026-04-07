@@ -19,16 +19,7 @@ Configuration Example
             Identity   = "DemoApp"
             Path       = "C:\Demo\DemoApp.sppkg"
             Publish    = $true
-            Ensure     = "Present"
-            Credential = $Credscredential
-        }
-
-        SPOApp 'ConfigureDemoApp2'
-        {
-            Identity   = "DemoApp2"
-            Path       = "C:\Demo\DemoApp2.app"
-            Publish    = $true
-            Ensure     = "Present"
+            Ensure     = "Absent"
             Credential = $Credscredential
         }
     }

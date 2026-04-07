@@ -29,22 +29,5 @@ Configuration Example
             Operation               = @("CompromisedWarningAccount");
             Severity                = "Medium";
         }
-
-        SCProtectionAlert 'CustomEmailMessagesFromAcampaignRemovedAfterDelivery'
-        {
-            AggregationType         = "None";
-            Category                = "ThreatManagement";
-            Comment                 = "Emails messages from a campaign were delivered and later removed -V1.0.0.2";
-            Credential              = $Credscredential;
-            Disabled                = $False;
-            Ensure                  = "Present";
-            Filter                  = "(Mail.IsMailZAPSuccessful -eq 1) -and Mail.IsCampaignZapped -eq 1 -and (Mail.TenantPolicyFinalVerdictSource -ne 'PhishEdu') -and (Mail.TenantPolicyFinalVerdictSource -ne 'SecOps') -and (Mail.TenantPolicyFinalVerdictSource -ne 'ThirdPartyFiltering')";
-            Name                    = "Custom Email messages from a campaign removed after delivery​";
-            NotificationEnabled     = $False;
-            NotifyUser              = @("TenantAdmins");
-            NotifyUserOnFilterMatch = $False;
-            Severity                = "Informational";
-            ThreatType              = "Malicious";
-        }
     }
 }
