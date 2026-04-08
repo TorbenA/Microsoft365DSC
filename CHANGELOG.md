@@ -65,6 +65,8 @@
   * Updated several parameter types from String to Integer.
 * IntuneAppleMDMPushNotificationCertificate
   * [BREAKING CHANGE] Removed the `Id` parameter because it is random.
+* IntuneDerivedCredential
+  * Added support for `xTec` as an issuer.
 * IntuneDeviceCompliancePolicyAndroidWorkProfile
   * Updated the resource to use display names for `NotificationTemplateId`
     and `NotificationMessageCCList`.

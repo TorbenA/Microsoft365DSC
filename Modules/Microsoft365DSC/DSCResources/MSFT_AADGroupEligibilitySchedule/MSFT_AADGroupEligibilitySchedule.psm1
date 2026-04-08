@@ -26,6 +26,7 @@ function Get-TargetResource
         $MemberType,
 
         [Parameter()]
+        [ValidateSet('user', 'group')]
         [System.String]
         $PrincipalType,
 
@@ -344,6 +345,7 @@ function Set-TargetResource
         $MemberType,
 
         [Parameter()]
+        [ValidateSet('user', 'group')]
         [System.String]
         $PrincipalType,
 
@@ -659,6 +661,7 @@ function Test-TargetResource
         $MemberType,
 
         [Parameter()]
+        [ValidateSet('user', 'group')]
         [System.String]
         $PrincipalType,
 
