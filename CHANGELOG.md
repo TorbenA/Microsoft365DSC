@@ -24,6 +24,10 @@
 * AADDomainFederation
   * Initial Release
     FIXES [#6995](https://github.com/microsoft/Microsoft365DSC/issues/6995)
+* AADGroupEligibilityScheduleSettings
+  * Added the missing permission `RoleManagementPolicy.ReadWrite.AzureADGroup`.
+* AADNetworkAccessForwardingPolicy
+  * Fixed an issue with a property type declaration in the schema file.
 * AADPIMGroupSetting
   * [BREAKING CHANGE] Fix typo in use of Elegibility -> Eligibility
     FIXES [#7021](https://github.com/microsoft/Microsoft365DSC/issues/7021)
@@ -32,6 +36,8 @@
     FIXES [#7021](https://github.com/microsoft/Microsoft365DSC/issues/7021)
 * AADTenantAppManagementPolicy
   * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Ensure` parameter.
+* AADTokenLifetimePolicy
+  * Fixed an issue where `Definition` could contain multiple escaped characters.
 * EXOActiveSyncMailboxPolicy
   * Changed cmdlets from `*-ActiveSyncMailboxPolicy` to `*-MobileDeviceMailboxPolicy`.
   * [BREAKING CHANGE] Updated property names to match newly returned values and parameters.

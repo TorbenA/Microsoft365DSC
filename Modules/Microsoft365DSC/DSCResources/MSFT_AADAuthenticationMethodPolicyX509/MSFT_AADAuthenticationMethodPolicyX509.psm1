@@ -110,7 +110,7 @@ function Get-TargetResource
         #region resource generator code
         $complexAuthenticationModeConfiguration = [ordered]@{}
         $complexRules = @()
-        if ($getValue.AdditionalProperties.authenticationModeConfiguration.rules.Length -ne 0)
+        if ($getValue.AdditionalProperties.authenticationModeConfiguration.rules.Count -gt 0)
         {
             foreach ($currentRules in $getValue.AdditionalProperties.authenticationModeConfiguration.rules)
             {
@@ -128,17 +128,9 @@ function Get-TargetResource
                 {
                     $complexRules += $myRules
                 }
-                if ($complexRules.Length -le 0)
-                {
-                    $complexRules = $null
-                }
-                $complexAuthenticationModeConfiguration.Add('Rules', $complexRules)
             }
         }
-        else
-        {
-            $complexAuthenticationModeConfiguration.Add('Rules', @())
-        }
+        $complexAuthenticationModeConfiguration.Add('Rules', $complexRules)
 
         if ($null -ne $getValue.AdditionalProperties.authenticationModeConfiguration.x509CertificateAuthenticationDefaultMode)
         {
