@@ -67,6 +67,7 @@ BeforeAll {
             foreach ($property in $currentCimClass.CimClassProperties)
             {
                 $attributes += @{
+                    IsMandatory      = $true -eq $property.Qualifiers.Where( { $_.Name -eq 'Key' -or $_.Name -eq 'Required' }).Value
                     Name             = $property.Name
                     DataType         = $property.CimType
                     IsArray          = $property.CimType -gt 16
@@ -84,10 +85,10 @@ BeforeAll {
         }
     }
 
-    function Get-FunctionParameterNames
+    function Get-FunctionParameter
     {
         [CmdletBinding()]
-        [OutputType([System.String[]])]
+        [OutputType([System.Collections.Hashtable[]])]
         param(
             [Parameter(Mandatory = $true)]
             [System.String]
@@ -114,11 +115,22 @@ BeforeAll {
         {
             foreach ($p in $f.Body.ParamBlock.Parameters)
             {
-                $parameters += $p.Name.VariablePath.UserPath
+                $attributes = $p.Attributes | Where-Object { $_ -is [System.Management.Automation.Language.AttributeAst] }
+                $mandatoryAttribute = $attributes.NamedArguments | Where-Object { $_.ArgumentName -eq 'Mandatory' }
+
+                $isMandatory = $false
+                if ($null -ne $mandatoryAttribute)
+                {
+                    $isMandatory = $mandatoryAttribute.Argument.VariablePath.UserPath -eq 'true'
+                }
+                $parameters += @{
+                    Name = $p.Name.VariablePath.UserPath
+                    IsMandatory = $isMandatory
+                }
             }
         }
 
-        return ($parameters | Select-Object -Unique)
+        ,$parameters
     }
 }
 
@@ -133,6 +145,7 @@ Describe -Name "Validate TargetResource function parameters match schema for '<R
             }
 
             # Collect schema property names across classes
+            $schemaProperties = $mofSchemas | ForEach-Object { $_.Attributes } | ForEach-Object { $_ }
             $schemaPropertyNames = $mofSchemas | ForEach-Object { $_.Attributes } | ForEach-Object { $_.Name } | Select-Object -Unique
 
             # Functions to check
@@ -148,9 +161,9 @@ Describe -Name "Validate TargetResource function parameters match schema for '<R
         It 'All declared function parameters should be part of the resource schema or an allowed exception' {
             foreach ($func in $functionsToCheck)
             {
-                $params = Get-FunctionParameterNames -FilePath $psm1File -FunctionName $func
+                $params = Get-FunctionParameter -FilePath $psm1File -FunctionName $func
 
-                foreach ($p in $params)
+                foreach ($p in $params.Name)
                 {
                     # Skip common PowerShell parameters and empty names
                     if ([System.String]::IsNullOrEmpty($p)) { continue }
@@ -163,13 +176,32 @@ Describe -Name "Validate TargetResource function parameters match schema for '<R
             }
         }
 
+        It 'All declared function parameters should match their required type in the resource schema' {
+            foreach ($func in $functionsToCheck)
+            {
+                $params = Get-FunctionParameter -FilePath $psm1File -FunctionName $func
+
+                foreach ($property in $schemaProperties)
+                {
+                    $matchingParam = $params | Where-Object { $_.Name -eq $property.Name }
+                    if ($matchingParam.Count -eq 0) { continue }
+
+                    # For simplicity, we will just check if the parameter is mandatory when the schema property is required
+                    if ($property.IsMandatory)
+                    {
+                        $matchingParam.IsMandatory | Should -BeTrue -Because "Parameter '$($matchingParam.Name)' in function '$func' for resource $ResourceName should be mandatory as defined in the schema"
+                    }
+                }
+            }
+        }
+
         It 'All declared schema properties should be part of all of the TargetResource functions' {
             foreach ($func in $functionsToCheck)
             {
-                $params = Get-FunctionParameterNames -FilePath $psm1File -FunctionName $func
+                $params = Get-FunctionParameter -FilePath $psm1File -FunctionName $func
                 foreach ($property in $schemaPropertyNames)
                 {
-                    $inParams = $params -contains $property
+                    $inParams = $params.Name -contains $property
 
                     $inParams | Should -BeTrue -Because "Schema property '$property' is defined as a parameter for function '$func' in resource $ResourceName"
                 }
