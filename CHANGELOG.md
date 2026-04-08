@@ -42,6 +42,9 @@
   * Changed cmdlets from `*-ActiveSyncMailboxPolicy` to `*-MobileDeviceMailboxPolicy`.
   * [BREAKING CHANGE] Updated property names to match newly returned values and parameters.
     Added new properties `AllowGooglePushNotifications` and `AllowMicrosoftPushNotifications`.
+* EXOAvailabilityConfig
+  * [BREAKING CHANGE] Updated resource to be `IsSingleInstance`.
+  * Added support for `AllowedTenantIds`.
 * EXODkimSigningConfig
   * Fixed an issue to create new DkimSigningConfig
     FIXES [#6982](https://github.com/microsoft/Microsoft365DSC/issues/6982)
@@ -52,6 +55,8 @@
     to `System.String` instead of an implicit conversion to `System.Uri`.
 * EXOMigration
   * Fixed an issue where `UserEmails` could contain empty strings.
+* EXORoleGroup
+  * Fixed an issue where multiple role groups with the same Identity were checked.
 * EXOSharedMailbox
   * Added support for properties `MessageCopyForSendOnBehalfEnabled` and
     `MessageCopyForSentAsEnabled` and while here fixed several issues with this
