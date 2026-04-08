@@ -563,7 +563,7 @@ function Set-TargetResource
         $Assignments,
         #endregion
 
-        [Parameter(Mandatory = $true)]
+        [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
