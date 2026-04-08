@@ -147,6 +147,10 @@
   * Updated the timespan comparison to allow a discrepancy of up to 30 seconds
     for the `SignOutAfter` and `WarnAfter` properties.
     FIXES [#7031](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7031)
+* SPOHomeSite
+  * Fixed an issue where an empty / non-existant Home Site was exported.
+* SPOTheme
+  * Fixed an issue where `Palette` entries were not correctly compared.
 * TeamsClientConfiguration
   * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
 * TeamsFederationConfiguration
