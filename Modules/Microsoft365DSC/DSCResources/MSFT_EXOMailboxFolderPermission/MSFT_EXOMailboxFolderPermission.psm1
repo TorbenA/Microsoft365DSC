@@ -15,7 +15,7 @@ function Get-TargetResource
         $UserPermissions,
 
         [Parameter()]
-        [ValidateSet('Present', 'Absent')]
+        [ValidateSet('Present')]
         [System.String]
         $Ensure = 'Present',
 
@@ -134,7 +134,7 @@ function Set-TargetResource
         $UserPermissions,
 
         [Parameter()]
-        [ValidateSet('Present', 'Absent')]
+        [ValidateSet('Present')]
         [System.String]
         $Ensure = 'Present',
 
@@ -253,7 +253,7 @@ function Test-TargetResource
         $UserPermissions,
 
         [Parameter()]
-        [ValidateSet('Present', 'Absent')]
+        [ValidateSet('Present')]
         [System.String]
         $Ensure = 'Present',
 

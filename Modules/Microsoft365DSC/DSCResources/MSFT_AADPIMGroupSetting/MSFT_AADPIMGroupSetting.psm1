@@ -23,6 +23,7 @@ function Get-TargetResource
         $ActivationReqJustification,
 
         [Parameter(Mandatory = $true)]
+        [ValidateSet('owner', 'member')]
         [System.String]
         $RoleDefinitionId,
 
@@ -483,6 +484,7 @@ function Set-TargetResource
         $ActivationMaxDuration,
 
         [Parameter(Mandatory = $true)]
+        [ValidateSet('owner', 'member')]
         [System.String]
         $RoleDefinitionId,
 
@@ -1229,6 +1231,7 @@ function Test-TargetResource
         $ActivationMaxDuration,
 
         [Parameter(Mandatory = $true)]
+        [ValidateSet('owner', 'member')]
         [System.String]
         $RoleDefinitionId,
 
