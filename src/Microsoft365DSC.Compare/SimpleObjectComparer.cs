@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
+using System.Reflection;
 
 namespace Microsoft365DSC.Compare
 {
@@ -212,6 +213,9 @@ namespace Microsoft365DSC.Compare
                 return Array.CreateInstance(elementType, 0);
             }
 
+            if (value is PSObject psObject)
+                value = psObject.BaseObject;
+
             if (value is Array array)
             {
                 return array;
@@ -219,14 +223,22 @@ namespace Microsoft365DSC.Compare
 
             if (value is IList list)
             {
-                Array newArray = Array.CreateInstance(list.GetType().GetGenericArguments()[0], list.Count);
+                Type[] genericArguments = list.GetType().GetGenericArguments();
+                if (genericArguments.Length == 0)
+                {
+                    elementType = elementType ?? typeof(object);
+                }
+                else
+                {
+                    elementType = genericArguments[0];
+                }
+
+                Array newArray = Array.CreateInstance(elementType, list.Count);
                 list.CopyTo(newArray, 0);
                 return newArray;
             }
 
             // Single value (ValueType or String) - create array with that value
-            if (value is PSObject psObject)
-                value = psObject.BaseObject;
             elementType = elementType ?? value.GetType();
             Array result = Array.CreateInstance(elementType, 1);
             result.SetValue(value, 0);
