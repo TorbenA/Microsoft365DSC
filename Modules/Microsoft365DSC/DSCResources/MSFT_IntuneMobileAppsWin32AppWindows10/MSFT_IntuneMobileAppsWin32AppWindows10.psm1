@@ -68,6 +68,7 @@ function Get-TargetResource
         $UninstallCommandLine,
 
         [Parameter()]
+        [ValidateSet('none', 'x86', 'x64', 'arm64')]
         [System.String[]]
         $AllowedArchitectures,
 
@@ -453,6 +454,7 @@ function Set-TargetResource
         $UninstallCommandLine,
 
         [Parameter()]
+        [ValidateSet('none', 'x86', 'x64', 'arm64')]
         [System.String[]]
         $AllowedArchitectures,
 
@@ -785,6 +787,7 @@ function Test-TargetResource
         $UninstallCommandLine,
 
         [Parameter()]
+        [ValidateSet('none', 'x86', 'x64', 'arm64')]
         [System.String[]]
         $AllowedArchitectures,
 

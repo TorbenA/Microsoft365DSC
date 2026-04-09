@@ -68,9 +68,7 @@ namespace Microsoft365DSC.Compare
 
         private static bool ContainsItem(IEnumerable<object> collection, object item)
         {
-            return item is string stringItem
-                ? collection.Any(x => x is string s && string.Equals(s, stringItem, StringComparison.OrdinalIgnoreCase))
-                : collection.Contains(item);
+            return collection.Any(x => string.Equals(x.ToString(), item.ToString(), StringComparison.OrdinalIgnoreCase));
         }
     }
 }

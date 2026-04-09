@@ -20,19 +20,5 @@ Configuration Example
             Ensure             = "Present"
             Credential         = $Credscredential
         }
-
-        SCAuditConfigurationPolicy 'OneDriveAuditPolicy'
-        {
-            Workload           = "OneDriveForBusiness"
-            Ensure             = "Present"
-            Credential         = $Credscredential
-        }
-
-        SCAuditConfigurationPolicy 'SharePointAuditPolicy'
-        {
-            Workload           = "SharePoint"
-            Ensure             = "Present"
-            Credential         = $Credscredential
-        }
     }
 }

@@ -470,8 +470,8 @@ namespace Microsoft365DSC.Compare
             if (obj is CimInstance cimInstance)
             {
                 return cimInstance.CimInstanceProperties
-                    .Select(p => p.Name)
-                    .Where(n => n != "PSComputerName");
+                    .Where(p => p.IsValueModified && p.Name != "PSComputerName")
+                    .Select(p => p.Name);
             }
 
             return [];

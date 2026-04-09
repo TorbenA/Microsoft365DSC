@@ -225,6 +225,7 @@ function Get-TargetResource
         $EncryptionPromptUser,
 
         [Parameter()]
+        [ValidateSet('Template', 'RemoveProtection', 'UserDefined')]
         [System.String]
         $EncryptionProtectionType,
 
@@ -861,6 +862,7 @@ function Set-TargetResource
         $EncryptionPromptUser,
 
         [Parameter()]
+        [ValidateSet('Template', 'RemoveProtection', 'UserDefined')]
         [System.String]
         $EncryptionProtectionType,
 
@@ -1380,6 +1382,7 @@ function Test-TargetResource
         $EncryptionPromptUser,
 
         [Parameter()]
+        [ValidateSet('Template', 'RemoveProtection', 'UserDefined')]
         [System.String]
         $EncryptionProtectionType,
 

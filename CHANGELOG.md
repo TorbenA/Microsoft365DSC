@@ -24,18 +24,28 @@
 * AADDomainFederation
   * Initial Release
     FIXES [#6995](https://github.com/microsoft/Microsoft365DSC/issues/6995)
+* AADGroupEligibilityScheduleSettings
+  * Added the missing permission `RoleManagementPolicy.ReadWrite.AzureADGroup`.
+* AADNetworkAccessForwardingPolicy
+  * Fixed an issue with a property type declaration in the schema file.
 * AADPIMGroupSetting
   * [BREAKING CHANGE] Fix typo in use of Elegibility -> Eligibility
     FIXES [#7021](https://github.com/microsoft/Microsoft365DSC/issues/7021)
+  * Updated the export to be in sequential Entra group order to minimize Git changes.
 * AADRoleSetting
   * [BREAKING CHANGE] Fix typo in use of Elegibility -> Eligibility
     FIXES [#7021](https://github.com/microsoft/Microsoft365DSC/issues/7021)
 * AADTenantAppManagementPolicy
   * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Ensure` parameter.
+* AADTokenLifetimePolicy
+  * Fixed an issue where `Definition` could contain multiple escaped characters.
 * EXOActiveSyncMailboxPolicy
   * Changed cmdlets from `*-ActiveSyncMailboxPolicy` to `*-MobileDeviceMailboxPolicy`.
   * [BREAKING CHANGE] Updated property names to match newly returned values and parameters.
     Added new properties `AllowGooglePushNotifications` and `AllowMicrosoftPushNotifications`.
+* EXOAvailabilityConfig
+  * [BREAKING CHANGE] Updated resource to be `IsSingleInstance`.
+  * Added support for `AllowedTenantIds`.
 * EXODkimSigningConfig
   * Fixed an issue to create new DkimSigningConfig
     FIXES [#6982](https://github.com/microsoft/Microsoft365DSC/issues/6982)
@@ -46,6 +56,8 @@
     to `System.String` instead of an implicit conversion to `System.Uri`.
 * EXOMigration
   * Fixed an issue where `UserEmails` could contain empty strings.
+* EXORoleGroup
+  * Fixed an issue where multiple role groups with the same Identity were checked.
 * EXOSharedMailbox
   * Added support for properties `MessageCopyForSendOnBehalfEnabled` and
     `MessageCopyForSentAsEnabled` and while here fixed several issues with this
@@ -59,6 +71,8 @@
   * Updated several parameter types from String to Integer.
 * IntuneAppleMDMPushNotificationCertificate
   * [BREAKING CHANGE] Removed the `Id` parameter because it is random.
+* IntuneDerivedCredential
+  * Added support for `xTec` as an issuer.
 * IntuneDeviceCompliancePolicyAndroidWorkProfile
   * Updated the resource to use display names for `NotificationTemplateId`
     and `NotificationMessageCCList`.
@@ -130,6 +144,14 @@
 * SCSensitivityLabel
   * Fixed an issue where the CIM definition for `MSFT_LabelSetting` did not match.
     FIXES [#7002](https://github.com/microsoft/Microsoft365DSC/issues/7002)
+* SPOBrowserIdleSignout
+  * Updated the timespan comparison to allow a discrepancy of up to 30 seconds
+    for the `SignOutAfter` and `WarnAfter` properties.
+    FIXES [#7031](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7031)
+* SPOHomeSite
+  * Fixed an issue where an empty / non-existant Home Site was exported.
+* SPOTheme
+  * Fixed an issue where `Palette` entries were not correctly compared.
 * TeamsClientConfiguration
   * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Identity` parameter.
 * TeamsFederationConfiguration
@@ -179,6 +201,8 @@
   * Added message about requiring PowerShell 7 starting Octoboer 2026.
   * Improved filtering for Intune configuration policies during Export.
   * Improved the accuracy of the comparison engine.
+  * Improved the delta report to pinpoint the changes more exactly if multiple
+    complex objects were being compared against each other.
   * Refactored module structure to improve maintainability.
   * Removed duplicate complex hashtable conversions.
   * [BREAKING CHANGE] Store error logs in $env:TEMP instead of current working directory.

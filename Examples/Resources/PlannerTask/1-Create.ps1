@@ -4,6 +4,19 @@ This example creates a new Planner Task in a Plan.
 
 Configuration Example
 {
+    param(
+        [Parameter()]
+        [System.String]
+        $ApplicationId,
+
+        [Parameter()]
+        [System.String]
+        $TenantId,
+
+        [Parameter()]
+        [System.String]
+        $CertificateThumbprint
+    )
     Import-DscResource -ModuleName Microsoft365DSC
 
     node localhost
@@ -16,9 +29,9 @@ Configuration Example
             Priority              = 7
             PercentComplete       = 75
             Ensure                = "Present"
-            ApplicationId         = "12345-12345-12345-12345-12345"
-            TenantId              = "12345-12345-12345-12345-12345"
-            CertificateThumbprint = "1234567890"
+            ApplicationId         = $ApplicationId
+            TenantId              = $TenantId
+            CertificateThumbprint = $CertificateThumbprint
         }
     }
 }

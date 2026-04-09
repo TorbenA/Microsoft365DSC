@@ -59,6 +59,10 @@
       "HasCustomComparison": true,
       "Description": "Uses PostProcessing scriptblock"
     },
+    "EXOAvailabilityConfig": {
+      "HasCustomComparison": true,
+      "Description": "Uses PostProcessing scriptblock"
+    },
     "EXODistributionGroup": {
       "HasCustomComparison": true,
       "Description": "Uses PostProcessing scriptblock"
@@ -351,6 +355,10 @@
     "SPOApp": {
       "HasCustomComparison": true,
       "Description": "Excludes properties: Path, Publish, Overwrite"
+    },
+    "SPOBrowserIdleSignout": {
+      "HasCustomComparison": true,
+      "Description": "Uses PostProcessing scriptblock"
     },
     "SPOSiteAuditSettings": {
       "HasCustomComparison": true,

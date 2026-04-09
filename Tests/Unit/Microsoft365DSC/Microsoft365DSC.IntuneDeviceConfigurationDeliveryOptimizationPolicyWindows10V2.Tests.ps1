@@ -171,7 +171,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return "Credentials"
             }
 
-            Mock -ModuleName M365DSCDRGUtil -CommandName Get-MgGroup -MockWith {
+            Mock -ModuleName M365DSCIntuneUtil -CommandName Get-MgGroup -MockWith {
                 return @{
                     Id = '26d60dd1-fab6-47bf-8656-358194c1a49d'
                     DisplayName = 'Exclude'
