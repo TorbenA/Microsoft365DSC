@@ -81,8 +81,7 @@ function Get-TargetResource
             return $nullResult
         }
 
-        [Array]$permissionsObj = @()
-
+        $permissionsObj = @()
         foreach ($mailboxfolderPermission in $instances)
         {
             $currentPermission = @{}
@@ -97,7 +96,7 @@ function Get-TargetResource
 
         $results = @{
             Identity              = $Identity
-            UserPermissions       = [Array]$permissionsObj
+            UserPermissions       = $permissionsObj
             Ensure                = 'Present'
             Credential            = $Credential
             ApplicationId         = $ApplicationId

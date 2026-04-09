@@ -171,6 +171,8 @@
     FIXES [#6972](https://github.com/microsoft/Microsoft365DSC/issues/6972)
 * TeamsOnlineVoiceMailPolicy
   * [BREAKING CHANGE] Changed the type of `MaximumRecordingLength` from String to Int.
+* M365DSCIntuneUtil
+  * Removed function `Compare-M365DSCIntunePolicyAssignment`.
 * M365DSCModuleMgmt
   * Added the parameter `UsePowerShellGet` to `Update-M365DSCDependencies` as an override
     fallback if `Install-PSResource` is not available or not working.

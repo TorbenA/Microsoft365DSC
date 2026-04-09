@@ -630,7 +630,7 @@ function Set-TargetResource
         $HeaderMatchesPatternsValue = @{}
         $HeaderMatchesPatternsValue.Add($HeaderMatchesPatterns.Name, $HeaderMatchesPatterns.Values)
     }
-    if (('Present' -eq $Ensure) -and ('Absent' -eq $CurrentRule.Ensure))
+    if ($Ensure -eq 'Present' -and $CurrentRule.Ensure -eq 'Absent')
     {
         Write-Verbose "Rule {$($CurrentRule.Name)} doesn't exists but need to. Creating Rule."
         $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
@@ -687,7 +687,7 @@ function Set-TargetResource
         Write-Verbose -Message "Flipping the parent policy back to Mode $currentMode while we create the rule"
         Set-AutoSensitivityLabelPolicy -Identity $Policy -Mode $currentMode
     }
-    elseif (('Present' -eq $Ensure) -and ('Present' -eq $CurrentRule.Ensure))
+    elseif ($Ensure -eq 'Present' -and $CurrentRule.Ensure -eq 'Present')
     {
         Write-Verbose "Rule {$($CurrentRule.Name)} already exists and needs to. Updating Rule."
         $UpdateParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
@@ -743,13 +743,12 @@ function Set-TargetResource
         {
             $UpdateParams.HeaderMatchesPatterns = $HeaderMatchesPatternsValue
         }
-        Write-Verbose "Updating Rule with values: $(Convert-M365DscHashtableToString -Hashtable $UpdateParams)"
         Set-AutoSensitivityLabelRule @UpdateParams
 
         Write-Verbose -Message "Flipping the parent policy to Mode back to $currentMode while we create the rule"
         Set-AutoSensitivityLabelPolicy -Identity $Policy -Mode $currentMode
     }
-    elseif (('Absent' -eq $Ensure) -and ('Present' -eq $CurrentRule.Ensure))
+    elseif ($Ensure -eq 'Absent' -and $CurrentRule.Ensure -eq 'Present')
     {
         Write-Verbose "Rule {$($CurrentRule.Name)} already exists but shouldn't. Deleting Rule."
         Remove-AutoSensitivityLabelRule -Identity $CurrentRule.Name -Confirm:$false
@@ -994,9 +993,6 @@ function Test-TargetResource
     Write-Verbose -Message "Testing configuration of AutoSensitivityLabelRule for $Name"
 
     $CurrentValues = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message "Target Values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
-
     $ValuesToCheck = $PSBoundParameters
 
     #region Test Sensitive Information Type

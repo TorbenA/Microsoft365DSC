@@ -62,7 +62,7 @@ function Initialize-M365DSCDllLoader
             Write-Error -Message $errorMessage -ErrorAction Stop
         }
 
-        Write-Verbose ".NET Framework version check passed (Release: $releaseKey)"
+        Write-Verbose -Message ".NET Framework version check passed (Release: $releaseKey)"
 
         # Locate the accelerator DLL
         $moduleRoot = Split-Path -Path $PSScriptRoot -Parent
@@ -93,7 +93,7 @@ function Initialize-M365DSCDllLoader
                 }
             }
 
-            Write-Verbose "Loading dll from: $dllPath"
+            Write-Verbose -Message "Loading dll from: $dllPath"
         }
 
         # Load the assembly
@@ -123,7 +123,7 @@ function Initialize-M365DSCDllLoader
             }
             else
             {
-                Write-Verbose "Verified accelerator type: $typeName"
+                Write-Verbose -Message "Verified accelerator type: $typeName"
             }
         }
 
