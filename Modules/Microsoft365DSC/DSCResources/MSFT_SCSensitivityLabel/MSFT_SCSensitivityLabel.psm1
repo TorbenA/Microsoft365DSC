@@ -1106,7 +1106,7 @@ function Set-TargetResource
         Write-Verbose 'Completed generating required JSON string for AutoLabelingSettings'
     }
 
-    if (('Present' -eq $Ensure) -and ('Absent' -eq $label.Ensure))
+    if ($Ensure -eq 'Present' -and $label.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Label {$Name} doesn't already exist, creating it from the Set-TargetResource function."
         $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
@@ -1161,7 +1161,7 @@ function Set-TargetResource
             throw $_
         }
     }
-    elseif (('Present' -eq $Ensure) -and ('Present' -eq $label.Ensure))
+    elseif ($Ensure -eq 'Present' -and $label.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Label {$Name} already exist, updating it from the Set-TargetResource function."
         $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
@@ -1215,7 +1215,7 @@ function Set-TargetResource
             throw $_
         }
     }
-    elseif (('Absent' -eq $Ensure) -and ('Present' -eq $label.Ensure))
+    elseif ($Ensure -eq 'Absent' -and $label.Ensure -eq 'Present')
     {
         # If the label exists and it shouldn't, simply remove it;Need to force deletoion
         Write-Verbose -Message "Deleting Sensitivity label $Name."

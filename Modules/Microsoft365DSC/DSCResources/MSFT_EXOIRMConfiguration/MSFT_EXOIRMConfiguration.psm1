@@ -331,7 +331,7 @@ function Set-TargetResource
     $IRMConfigurationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $IRMConfigurationParams.Remove('IsSingleInstance') | Out-Null
 
-    if (('Present' -eq $Ensure ) -and ($null -ne $IRMConfigurationParams))
+    if ($Ensure -eq 'Present' -and $null -ne $IRMConfigurationParams)
     {
         Write-Verbose -Message "Setting IRM Configuration with values: $(Convert-M365DscHashtableToString -Hashtable $IRMConfigurationParams)"
         Set-IRMConfiguration @IRMConfigurationParams -Confirm:$false

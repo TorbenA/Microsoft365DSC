@@ -238,11 +238,11 @@ function Set-TargetResource
     $DataClassification = Get-DataClassification -Identity $Identity -ErrorAction SilentlyContinue
     $DataClassificationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-    if (('Present' -eq $Ensure ) -and ($null -eq $DataClassification))
+    if ($Ensure -eq 'Present' -and $null -eq $DataClassification)
     {
         Write-Verbose -Message 'Data Classification in Exchange Online are now deprecated in favor of Sensitive Information Types in Purview.'
     }
-    elseif (('Present' -eq $Ensure ) -and ($null -ne $DataClassification))
+    elseif ($Ensure -eq 'Present' -and $null -ne $DataClassification)
     {
         $verboseMessage = "Setting Data classification policy $($Identity) with values:" + `
             " $(Convert-M365DscHashtableToString -Hashtable $DataClassificationParams)"
@@ -259,7 +259,7 @@ function Set-TargetResource
         Set-DataClassification @DataClassificationParams -IsDefault:$IsDefault -Confirm:$false
         Write-Verbose -Message 'Data classification policy updated successfully.'
     }
-    elseif (('Absent' -eq $Ensure ) -and ($null -ne $DataClassification))
+    elseif ($Ensure -eq 'Absent' -and $null -ne $DataClassification)
     {
         Write-Verbose -Message "Removing Data classification policy $($Identity)"
         Remove-DataClassification -Identity $Identity -Confirm:$false
