@@ -153,7 +153,7 @@ function Get-TargetResource
             DeclineEventsForScheduledOOF     = [Boolean]$config.DeclineEventsForScheduledOOF
             DeclineMeetingMessage            = $config.DeclineMeetingMessage
             EndTime                          = $config.EndTime
-            EventsToDeleteIDs                = [Array]$config.EventsToDeleteIDs
+            EventsToDeleteIDs                = [System.String[]]$config.EventsToDeleteIDs
             ExternalAudience                 = $config.ExternalAudience
             ExternalMessage                  = $config.ExternalMessage
             InternalMessage                  = $config.InternalMessage

@@ -15,7 +15,7 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
-        [System.Collections.ArrayList]
+        [System.String[]]
         $Fingerprints,
 
         [Parameter()]
@@ -113,7 +113,7 @@ function Get-TargetResource
             $DataClassification = $Script:exportedInstance
         }
 
-        $currentDefaultCultureName = ([system.globalization.cultureinfo]$DataClassification.DefaultCulture).Name
+        $currentDefaultCultureName = ([System.Globalization.CultureInfo]$DataClassification.DefaultCulture).Name
         $DataClassificationLocale = $currentDefaultCultureName
         $DataClassificationIsDefault = $false
         if (([String]::IsNullOrEmpty($Locale)) -or ($Locale -eq $currentDefaultCultureName))
@@ -124,7 +124,7 @@ function Get-TargetResource
         $result = @{
             Identity              = $Identity
             Description           = $DataClassification.Description
-            Fingerprints          = $DataClassification.Fingerprints
+            Fingerprints          = [System.String[]]$DataClassification.Fingerprints
             IsDefault             = $DataClassificationIsDefault
             Locale                = $DataClassificationLocale
             Name                  = $DataClassification.Name
@@ -168,7 +168,7 @@ function Set-TargetResource
         $Description,
 
         [Parameter()]
-        [System.Collections.ArrayList]
+        [System.String[]]
         $Fingerprints,
 
         [Parameter()]
@@ -282,7 +282,7 @@ function Test-TargetResource
         $Description,
 
         [Parameter()]
-        [System.Collections.ArrayList]
+        [System.String[]]
         $Fingerprints,
 
         [Parameter()]

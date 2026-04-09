@@ -1852,13 +1852,13 @@ function Convert-CIMToLocaleSettings
     [OutputType([System.Collections.ArrayList])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [Microsoft.Management.Infrastructure.CimInstance[]]
-        $localeSettings
+        $LocaleSettings
     )
 
     $entry = [System.Collections.ArrayList]@()
-    foreach ($localset in $localeSettings)
+    foreach ($localset in $LocaleSettings)
     {
         $localeEntries = [ordered]@{
             localeKey = $localset.LocaleKey

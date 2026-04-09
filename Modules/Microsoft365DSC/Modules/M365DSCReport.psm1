@@ -1708,7 +1708,7 @@ function New-M365DSCDeltaReport
         if ($resourcesInDrift.Count -gt 0)
         {
             # Combine resources instances together to make sure multiple drifts within the same resource don't appear as separate entries
-            $combinedResourcesInDrift = [System.Collections.ArrayList]::new()
+            $combinedResourcesInDrift = [System.Collections.Generic.List[System.Object]]::new()
             foreach ($resource in $resourcesInDrift)
             {
                 $existingInstance = $combinedResourcesInDrift | `
@@ -1729,7 +1729,7 @@ function New-M365DSCDeltaReport
                             break
                         }
                     }
-                    $combinedResourcesInDrift = [System.Collections.ArrayList]$combinedResourcesInDrift
+                    $combinedResourcesInDrift = [System.Collections.Generic.List[System.Object]]$combinedResourcesInDrift
                     $combinedResourcesInDrift.RemoveAt($foundAt)
 
                     $existingInstance.Properties += $resource.Properties
