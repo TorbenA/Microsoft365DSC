@@ -31,6 +31,7 @@
 * AADPIMGroupSetting
   * [BREAKING CHANGE] Fix typo in use of Elegibility -> Eligibility
     FIXES [#7021](https://github.com/microsoft/Microsoft365DSC/issues/7021)
+  * Updated the export to be in sequential Entra group order to minimize Git changes.
 * AADRoleSetting
   * [BREAKING CHANGE] Fix typo in use of Elegibility -> Eligibility
     FIXES [#7021](https://github.com/microsoft/Microsoft365DSC/issues/7021)
@@ -198,6 +199,8 @@
   * Added message about requiring PowerShell 7 starting Octoboer 2026.
   * Improved filtering for Intune configuration policies during Export.
   * Improved the accuracy of the comparison engine.
+  * Improved the delta report to pinpoint the changes more exactly if multiple
+    complex objects were being compared against each other.
   * Refactored module structure to improve maintainability.
   * Removed duplicate complex hashtable conversions.
   * [BREAKING CHANGE] Store error logs in $env:TEMP instead of current working directory.
