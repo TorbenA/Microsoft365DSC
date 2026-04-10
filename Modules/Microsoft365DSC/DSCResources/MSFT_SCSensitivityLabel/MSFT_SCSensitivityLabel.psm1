@@ -1115,6 +1115,12 @@ function Set-TargetResource
         {
             $advanced = Convert-CIMToAdvancedSettings $AdvancedSettings
             $CreationParams['AdvancedSettings'] = $advanced
+            $isLabelGroup = $null -ne ($AdvancedSettings | Where-Object -FilterScript { $_.Key -eq 'islabelgroup' -and $_.Value -eq $true })
+            if ($isLabelGroup)
+            {
+                $CreationParams.Add('IsLabelGroup', $true)
+                $CreationParams.Remove('ContentType') | Out-Null
+            }
         }
 
         if ($PSBoundParameters.ContainsKey('LocaleSettings'))
@@ -1170,6 +1176,11 @@ function Set-TargetResource
         {
             $advanced = Convert-CIMToAdvancedSettings $AdvancedSettings
             $SetParams['AdvancedSettings'] = $advanced
+            $isLabelGroup = $null -ne ($AdvancedSettings | Where-Object -FilterScript { $_.Key -eq 'islabelgroup' -and $_.Value -eq $true })
+            if ($isLabelGroup)
+            {
+                $SetParams.Remove('ContentType') | Out-Null
+            }
         }
 
         if ($PSBoundParameters.ContainsKey('LocaleSettings'))

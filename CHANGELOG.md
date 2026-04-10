@@ -144,12 +144,17 @@
 * SCSensitivityLabel
   * Fixed an issue where the CIM definition for `MSFT_LabelSetting` did not match.
     FIXES [#7002](https://github.com/microsoft/Microsoft365DSC/issues/7002)
+  * Fixed an issue where creating sensitivity label groups would fail.
+    FIXES [#6994](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/6994)
 * SPOBrowserIdleSignout
   * Updated the timespan comparison to allow a discrepancy of up to 30 seconds
     for the `SignOutAfter` and `WarnAfter` properties.
     FIXES [#7031](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7031)
 * SPOHomeSite
   * Fixed an issue where an empty / non-existant Home Site was exported.
+* SPOSharingSettings
+  * Fixed an issue in determining the correct MySite.
+    FIXES [#6991](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/6991)
 * SPOTheme
   * Fixed an issue where `Palette` entries were not correctly compared.
 * TeamsClientConfiguration
