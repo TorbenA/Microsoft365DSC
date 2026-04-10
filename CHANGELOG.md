@@ -35,6 +35,10 @@
 * AADRoleSetting
   * [BREAKING CHANGE] Fix typo in use of Elegibility -> Eligibility
     FIXES [#7021](https://github.com/microsoft/Microsoft365DSC/issues/7021)
+* AADServicePrincipal
+  * Added the property `ClaimsPolicy` to the resource.
+    FIXES [#6448](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/6448)
+  * Fixed an issue when updating the policy.
 * AADTenantAppManagementPolicy
   * [BREAKING CHANGE] Added `IsSingleInstance` and removed `Ensure` parameter.
 * AADTokenLifetimePolicy
