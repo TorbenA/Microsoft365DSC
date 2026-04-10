@@ -53,6 +53,10 @@ function Get-TargetResource
         $Disabled,
 
         [Parameter()]
+        [System.Boolean]
+        $Quarantine,
+
+        [Parameter()]
         [System.String[]]
         $GenerateAlert,
 
@@ -434,6 +438,7 @@ function Get-TargetResource
             ExceptIfContentContainsSensitiveInformation  = $PolicyRule.ExceptIfContentContainsSensitiveInformation
             ContentPropertyContainsWords                 = $PolicyRule.ContentPropertyContainsWords
             Disabled                                     = $PolicyRule.Disabled
+            Quarantine                                   = $PolicyRule.Quarantine
             GenerateAlert                                = $PolicyRule.GenerateAlert
             GenerateIncidentReport                       = $PolicyRule.GenerateIncidentReport
             IncidentReportContent                        = $ArrayIncidentReportContent
@@ -574,6 +579,10 @@ function Set-TargetResource
         [Parameter()]
         [System.Boolean]
         $Disabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $Quarantine,
 
         [Parameter()]
         [System.String[]]
@@ -1045,6 +1054,10 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $Disabled,
+
+        [Parameter()]
+        [System.Boolean]
+        $Quarantine,
 
         [Parameter()]
         [System.String[]]

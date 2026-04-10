@@ -134,6 +134,9 @@
   * Changed type of `EnableDesktopFlowDataPolicyManagement` property from String to
     Boolean to avoid errors or warnings.
     FIXES [#6740](https://github.com/microsoft/Microsoft365DSC/issues/6740)
+* SCDLPComplianceRule
+  * Added property `Quarantine` to the resource.
+    FIXES [#7042](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7042)
 * SCPolicyConfig
   * Fixed an issue where `JustificationText` was exported as an array and could
     contain empty strings.
