@@ -2,6 +2,11 @@
 
 # UNRELEASED
 
+* AADB2BManagementPolicy
+  * Initial release.
+
+# UNRELEASED
+
 * AADAccessReviewDefinition
   * [BREAKING CHANGE] Fixed the type definition of the `ScopeValue` property.
   * Changed the export type from `Configuration` to `Data`. It now only appears in
