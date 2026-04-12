@@ -1,41 +1,48 @@
 # Intune Settings Catalog in Microsoft365DSC
 
+<img src="../../../images/FabienTschanz.jpg" style="width:75px;border-radius:50%;border:3px solid black;float:left;" />
+<div style="position:inherit;padding-top:15px;"><span style="float:left;padding-left:15px;"><b>by <a href="https://www.linkedin.com/in/fabien-tschanz">Fabien Tschanz</a><br />
+April 12th, 2026</b></span></div>
+
+<br/>
+<br/>
+
 ## Table of contents
 
 1. [Introduction](#introduction)
-1. [Settings Catalog](#settings-catalog)
+2. [Settings Catalog](#settings-catalog)
 
     1. [Settings Catalog Structure](#settings-catalog-structure)
     2. [Setting (Definition) Properties](#setting-definition-properties)
     3. [Setting Instances](#setting-instances)
     4. [Settings in even more detail!](#settings-in-even-more-detail)
 
-1. [Generating DSC Resources from the Settings Catalog](#generating-dsc-resources-from-the-settings-catalog)
+3. [Generating DSC Resources from the Settings Catalog](#generating-dsc-resources-from-the-settings-catalog)
 
     1. [Generating the DSC Resource](#generating-the-dsc-resource)
     2. [Issue #1: Uniqueness](#issue-1-uniqueness)
     3. [Issue #2: Groups of settings](#issue-2-groups-of-settings)
 
-1. [From Configuration back to the Settings Catalog](#from-configuration-back-to-the-settings-catalog)
+4. [From Configuration back to the Settings Catalog](#from-configuration-back-to-the-settings-catalog)
 
     1. [Build the settings body from the DSC properties](#build-the-settings-body-from-the-dsc-properties)
 
-1. [The C# Engine](#the-c-engine)
+5. [The C# Engine](#the-c-engine)
 
     1. [The Boundary Pattern](#the-boundary-pattern)
     2. [Building the API body from DSC parameters](#building-the-api-body-from-dsc-parameters)
     3. [Exporting Settings Catalog data back to DSC](#exporting-settings-catalog-data-back-to-dsc)
     4. [Policies with Device and User scopes](#policies-with-device-and-user-scopes)
 
-1. [Wrapping up](#wrapping-up)
+6. [Wrapping up](#wrapping-up)
 
 ## Introduction
 
-Microsoft365DSC covers many areas of Desired State Configuration for the Microsoft cloud. One of those areas is Microsoft Intune: Configuring and administrating devices, policies and associating users / groups with their respective settings, so that each and every user / device is correctly set up and ready to work in a secure and well defined environment.
+Microsoft365DSC covers many areas of Desired State Configuration for the Microsoft cloud, and one of those areas is Microsoft Intune: Configuring and administrating devices, policies and associating users / groups with their respective settings, so that each and every user / device is correctly set up and ready to work in a secure and well defined environment.
 
 There are many policies in Intune: From "normal" device configuration policies to Endpoint Security, reporting and so many more. As time goes, these policies are updated and groups of settings (summarized in so called "templates") are updated, deleted or newly added. Sometimes even the entire architecture changes, for example right now with the Settings Catalog. The Settings Catalog is the new, unified way of managing settings in Intune. It is a central place where all settings are stored and can be used in different policies.
 
-Not all settings are yet available in the Settings Catalog, but Microsoft is working on it. What's more important, is that current policies and templates are being replaced with the new settings in the Settings Catalog. For Microsoft365DSC, this means that previous resources must be updated or even entirely new resources must be created.
+Not all settings are yet available in the Settings Catalog, but Microsoft is working on it. What's more important is that current policies and templates are being replaced with the new settings in the Settings Catalog. For Microsoft365DSC, this means that previous resources have to be updated, rewritten or replaced with entirely new resources.
 
 In this blog post, we will cover the Settings Catalog in Microsoft365DSC and how it in itself is structured, how it is used and how it is implemented in the DSC resources.
 
@@ -43,18 +50,18 @@ In this blog post, we will cover the Settings Catalog in Microsoft365DSC and how
 
 The Settings Catalog is the new way of managing settings in Intune. There are two types of Settings Catalog policies:
 
-1. A general, "normal" policy, which is a collection of settings that you can pick and choose from. This policy is available in e.g. Devices > Configuration > Create > New policy, where you can select the platform and then "Settings catalog" in the Profile type dropdown.
-2. A pre-defined template, which is a collection of settings that are fixed and no settings can be added or removed. Such a policy is available in e.g. Endpoint Security > Firewall > Create policy. Be aware that there is not necessarily a visible way for you to tell if a policy is a template from the Settings Catalog or not.
+1. A general, "normal" policy, which is a collection of settings that you can pick and choose from. This policy is available in e.g. _Devices > Configuration > Create > New policy_, where you can select the platform and then "Settings catalog" in the Profile type dropdown.
+2. A pre-defined template, which is a collection of settings that are fixed and no settings can be added or removed. Such a policy is available in e.g. _Endpoint Security > Firewall > Create policy_. Be aware that there is not necessarily a visible way for you to tell if a policy is a template from the Settings Catalog or not.
 
 The Settings Catalog is structured in a way so that you can easily find the settings you are looking for. It is divided into many different categories, which then contain their corresponding settings. Each setting has a name, a description, (most of the times) a default value and either a list of possible values or a definition of what can be entered (e.g. a string or a number, ranging from x to y). This category structure makes it quite easy to find the setting we are looking for and to understand what it does. At least in the portal, that is.
 
-Following is a pre-defined template of the *Windows Firewall* policy in the Endpoint Security > Firewall part of Intune:
+Following is a pre-defined template of the **Windows Firewall** policy in the _Endpoint Security > Firewall_ part of Intune:
 
 ![Settings Catalog Example](image-1-settings-catalog-example.png)
 
 ### Settings Catalog Structure
 
-In general, the Settings Catalog is just a huge collection of settings. As already mentioned, it is  organized by categories, where each category might have subcategories and where the settings live. This looks like the following in the portal:
+In general, the Settings Catalog is just a huge collection of settings. As already mentioned, it is  organized by categories, where each category might have subcategories where settings live. This looks like the following in the portal:
 
 ![Settings Catalog Structure](image-2-settings-catalog-structure.png)
 
@@ -65,7 +72,7 @@ If we want to, we can fetch these categories ourselves like the following:
 $categories = Invoke-MgGraphRequest -Uri "https://graph.microsoft.com/beta/deviceManagement/configurationCategories" | Select-Object -ExpandProperty value
 ```
 
-At the moment, there are 943 of those categories. After selecting a category in the UI, the settings are listed at the bottom of the page. The settings are obtainable like the following (example for the "Above Lock" category):
+At the moment, there are 1013 (April 2026, up from 943 in mid 2024) of those categories. After selecting a category in the UI, the settings are listed at the bottom of the page. The settings are obtainable like the following (example for the "Above Lock" category):
 
 ```powershell
 $categoryId = $categories | Where-Object { $_.displayName -eq "Above Lock" } | Select-Object -ExpandProperty Id
@@ -83,7 +90,7 @@ Let's dig a bit deeper into the settings themselves.
 
 ### Setting (Definition) Properties
 
-We previously had a look at the settings, fetched directly from the Graph API. Those settings we got are so called "setting definitions", meaning they are just the definition of a setting, but they are not the actual setting. The actual setting is a so called "setting instance" with a corresponding value property, which is then applied to a device. This will be covered in the next section.
+We previously had a look at the settings, fetched directly from the Graph API. Those settings we got are so called **Setting Definitions**, meaning they are just the definition of a setting, but they are _not_ the actual setting. The actual setting is a so called **Setting Instance** with a corresponding value property, which is then applied to a device or user. This will be covered in the next section.
 
 Let's have a look at the properties of the setting definitions. A full list of them is available here: [Device Management Configuration Setting Definition](https://learn.microsoft.com/en-us/graph/api/resources/intune-deviceconfigv2-devicemanagementconfigurationsettingdefinition?view=graph-rest-beta)
 
@@ -115,11 +122,11 @@ This returns the following output (still our example for the "Above Lock" catego
 Those are the actual settings that are applied when the policy is assigned. As the first property, we have `SettingDefinitionId`, which is the fully qualified Id of the setting. It links to the setting definition with that id that can be fetched with the above call as well (using `-ExpandProperty settingDefinitions`). Next is (if available) the `SettingInstanceTemplateReference`. The template reference might not exist, as it is (most likely, not quite sure, but the name indicates it) only available for templates.
 In the `AdditionalProperties`, we have the representation of the value, in this case, both values are of type `#microsoft.graph.deviceManagementConfigurationChoiceSettingInstance`, are configured to "Enabled" (value 1 at the end), and have no children.
 
-*Note*: Setting instances aren't only used when fetching the settings (and their values), but also when we fetch a template. Then it's called a `SettingInstanceTemplate`. The template is built from these setting instance templates, where they represent a "top-level" setting or a group of settings. More on that later.
+*Note*: Setting instances are not only used when fetching the settings (and their values), but also when we fetch a template. Then it's called a `SettingInstanceTemplate`. The template is built from these setting instance templates, where they represent a "top-level" setting or a group of settings. More on that later.
 
-### Settings in even more detail!
+### Settings in even more detail
 
-There are many settings available, but if we have a closer look at them, we can quickly see similarities. Let's take the "Above Lock" category again, with the two settings `Allow Cortana Above Lock` and `Allow Toasts`. Both settings are "choice" settings, meaning they have a number of options to choose from.
+There are many settings available, but if we take a closer look at them, we can quickly see similarities. Let's take the "Above Lock" category again, with the two settings `Allow Cortana Above Lock` and `Allow Toasts`. Both settings are "choice" settings, which means they have a number of options to choose from.
 
 Following are all of the different types of settings that are available (from the point of the setting definition). To make it easier to read, the prefix `#microsoft.graph.deviceManagementConfiguration` was removed from all types.
 
@@ -134,7 +141,8 @@ Following are all of the different types of settings that are available (from th
 | `SimpleSettingCollectionDefinition` | Extends `SimpleSettingDefinition`. A collection of simple settings. | `minimumCount`, `maximumCount` | Collection of values like asdf, 1234 |
 
 Here's the inheritance tree of the setting types:
-```
+
+```text
 SettingDefinition
 ├───SettingGroupDefinition
 │   ├─── SettingGroupCollectionDefinition
@@ -146,7 +154,7 @@ SettingDefinition
 
 Pretty simple structure actually, we have a base type `SettingDefinition` and then three types that inherit from it. For each of those types, there is a corresponding collection type, which is used when multiple settings of that type are either selectable or can be entered.
 
-There is a bit more to some of the types. Let's have a look at them in more detail.
+There is a bit more to some of the types.
 
 #### Simple Settings
 
@@ -218,6 +226,7 @@ $template.SettingInstanceTemplate | Select-Object SettingDefinitionId, @{
     }
 } | Format-List
 ```
+
 ![Settings Catalog Group Setting with Children](image-8-settings-catalog-group-setting-with-children.png)
 
 As we can see, there are five settings in total, where the `Threat Severity Default Action` is the group setting and the other settings are the children. Those are `High Severity Threats`, `Low Severity Threats`, `Moderate Severity Threats` and `Severe Severity Threats`.
@@ -226,9 +235,9 @@ Now remember that we talked about `SettingInstance` and `SettingInstanceTemplate
 
 ## Generating DSC Resources from the Settings Catalog
 
-We have now seen that the Settings Catalog is quite complex due to the many different types of settings and their structure. This makes it very challenging to generate DSC resources from the Settings Catalog, because we can only represent a Settings Catalog template as a DSC resource due to its fixed settings and not an individual policy where all settings are configurable.
+We have now seen that the Settings Catalog is quite complex due to the many different types of settings and their structure. Unfortunately, this makes it quite challenging to generate DSC resources from the Settings Catalog because we can only represent a policy created from a template (the Firewall policy for example) as a DSC resource due to its fixed settings and not an individual policy where all settings are configurable (a generic Settings Catalog policy).
 
-In this section, we will take a look at how we can generate DSC resources from the Settings Catalog. We will use the `Microsoft Defender Antivirus` template as an example, visible in the portal under Endpoint Security > Antivirus > Create policy > Windows 10... > Microsoft Defender Antivirus.
+In the next section, we will take a look at how we can generate DSC resources from the Settings Catalog. We will use the `Microsoft Defender Antivirus` template as an example, visible in the portal under _Endpoint Security > Antivirus > Create policy > Windows 10... > Microsoft Defender Antivirus_.
 
 ### Generating the DSC Resource
 
@@ -259,7 +268,7 @@ But before that, there are a couple of issues we first need to discuss that appe
 
 ### Issue #1: Uniqueness
 
-The next problem we have is much more difficult to deal with: Inside of the Settings Catalog, the `Name` of a setting does not have to be unique, only the `Id`. This means that inside of a template, we need a more sophisticated way to uniquely identify a setting.
+The first problem we have is already tough to deal with: Inside of the Settings Catalog, the `Name` of a setting does not have to be unique, only the `Id`. This means that inside of a template, we need a more sophisticated way to uniquely identify a setting since several settings can have the same Name, just with different Ids.
 
 The name resolution in Microsoft365DSC lives in the C# class `SettingsCatalogHelper` (more on the C# engine later). The method `GetSettingName()` implements the following strategy:
 
@@ -341,11 +350,11 @@ For any setting out there, this will deterministically generate its name, either
 
 ### Issue #2: Groups of settings
 
-The third issue is simply the type `SettingGroupCollectionDefinition`. That type is difficult to handle if it can appear more than one time.
+The second issue is simply the type `SettingGroupCollectionDefinition`. That type is difficult to handle when it may appear more than one time.
 
-As an example: Let's take the group collection `Threat Severity Default Action` and its four settings. If that group only appears one time, we can directly add the four settings to the DSC resource, because the settings can never appear more than once. But what if that group could be added for e.g. multiple directories? Then adding the settings multiple times would not be possible, as the parameter names in the DSC resource must be unique.
+As an example: Let's take the group collection `Threat Severity Default Action` and its four settings. If that group only appears one time, we can directly add the four settings to the DSC resource, because the settings can never appear more than once. But what if that group could be added for multiple directories (hypothetically speaking)? Then adding the settings multiple times would not be possible, as the parameter names in the DSC resource must be unique.
 
-The solution Microsoft365DSC is using is to create a custom type for a group collection that can appear multiple times, adding the child settings to that type. That way, we can use the newly created type and specify that multiple times, without having any issues with uniqueness.
+The solution Microsoft365DSC is using is to create a custom type for a group collection that can appear multiple times, adding the child settings to that type. That way, we can use the newly created type and make it a collection, without having any issues with uniqueness.
 
 In the C# implementation, this multi-instance detection happens inside `SettingCatalogPolicySettingBuilder.BuildGroupSettingCollectionValue()`. The logic checks whether a group collection can have more than one instance and whether it has multiple child definitions:
 
@@ -418,7 +427,7 @@ As an example, the following is the JSON request for configuring parts of the Mi
 }
 ```
 
-Did somebody say complex? Well, at first glance it definitely is! But if we have a closer look, it's all well structured:
+Did somebody say complex? Well, at first glance it definitely is! But if we take a closer look, it is indeed all well structured:
 
 We have two settings: `excludedpaths` with the simple setting values `C:\temp` and `C:\temp2` (type `SimpleSettingCollection`), and `puaprotection` with the choice `1` (type `ChoiceSetting`). They are both in their `settingInstance`, and the eagle-eyed can see that the values are defined in a property with the name (type + `Value`). Additionally, some information about that setting instance is added (the `settingInstanceTemplateId`) and what its `settingDefinitionId` is. All of this information is obtainable by getting the policy template, as we did at the beginning of the blog post.
 
@@ -440,7 +449,7 @@ Now, all of this used to be pure PowerShell. But as the number of settings grew 
 
 ## The C# Engine
 
-When we first built the Settings Catalog support in Microsoft365DSC, everything was PowerShell. And honestly, that worked just fine - for a while. But as more templates were added and the recursive setting traversal got deeper and more complex, things started to slow down. We were doing a lot of reflection on Graph SDK objects, walking through `AdditionalProperties` dictionaries on every single recursive call, and the PowerShell pipeline overhead for 60+ setting definitions per template started to add up.
+When we first built the Settings Catalog support in Microsoft365DSC, everything was PowerShell. And honestly, that worked just fine - for a while. But as more templates were added and the recursive setting traversal got deeper and more complex, things started to slow down. PowerShell just isn't that efficient when iterating over large(r) collections and Security Baselines with tons of settings were taking some time. The pipeline overhead started to add up and it started to show in the export duration.
 
 So we made the call to move the core conversion logic to C#. The algorithm stays the same, the flow diagrams above are still accurate. But the implementation now lives in a dedicated `Microsoft365DSC.Intune` assembly (targeting `netstandard2.0` so it works everywhere PowerShell does). PowerShell still handles all the Graph API calls to fetch templates and policies. The C# code takes over for the heavy lifting: mapping the raw Graph objects, resolving names, building the API request body, and exporting settings back to DSC parameters.
 
@@ -616,9 +625,9 @@ Let's walk through the key pieces.
 
 ### The Boundary Pattern
 
-If you have ever worked with the Microsoft Graph SDK for PowerShell, you know that the interesting data on those objects is often buried inside `AdditionalProperties`. That property is not publicly accessible on the Graph SDK types - you need reflection with `BindingFlags.NonPublic | BindingFlags.Instance` to get to it. Doing that once is fine. Doing it hundreds of times during a recursive traversal? Not so much.
+If you have ever worked with the Microsoft Graph SDK for PowerShell, you know that the interesting data on those objects is often buried inside `AdditionalProperties`. That property is not publicly accessible on the Graph SDK types from C# - you need reflection with `BindingFlags.NonPublic | BindingFlags.Instance` to get to it. Doing that once is fine. Doing it hundreds of times during a recursive traversal? Not so much.
 
-The C# engine solves this with what we call the "boundary pattern": at the very edge where PowerShell hands off Graph SDK objects to C#, we map everything into strongly-typed C# models. All the reflection happens exactly once per object, right at that boundary. After that, the entire recursive traversal works with clean C# properties. No more reflection, no more dictionary lookups.
+We solved this with what we call the "boundary pattern": at the very edge where PowerShell hands off Graph SDK objects to C#, we map everything into strongly-typed C# models. All the reflection happens exactly once per object, right at that boundary. After that, the entire recursive traversal works with clean C# properties. No more reflection, no more dictionary lookups.
 
 There are three mapper classes that handle this boundary:
 
@@ -650,11 +659,11 @@ public static SettingDefinitionInfo FromGraphObject(object settingDefinition)
 }
 ```
 
-**`SettingInstanceTemplateMapper`** converts the raw template objects into `SettingInstanceTemplateInfo`. This one has a twist: root-level templates store their data in `AdditionalProperties`, while child templates (from the value template's `children` array) have the data at the top level. The mapper handles both cases through an `isRoot` parameter.
+**`SettingInstanceTemplateMapper`** converts the raw template objects into `SettingInstanceTemplateInfo`. This one has a twist: root-level templates store their data in `AdditionalProperties`, while child templates (from the value template's `children` array) have the data at the top level without an `AdditionalProperties` property. The mapper handles both cases through an `isRoot` parameter.
 
 It also pre-computes the `SettingValueName` (like `choiceSettingValue` or `groupSettingCollectionValue`) from the OData type, so the builder does not need to recompute that string manipulation on every recursive call.
 
-**`SettingInstanceMapper`** does the same for actual setting instances (as opposed to templates). It converts the Graph API response objects into `SettingInstanceInfo`, which holds the data in a type-specific way: `SimpleSettingValue` for simple settings, `ChoiceSettingValue` for choice settings, `GroupSettingCollectionValue` for groups, and so on. Again, root vs. child instances are handled differently because the Graph API formats them differently.
+**`SettingInstanceMapper`** does the same for actual setting instances (as opposed to templates). It converts the Graph API response objects into `SettingInstanceInfo`, which holds the data in a type-specific way: `SimpleSettingValue` for simple settings, `ChoiceSettingValue` for choice settings, `GroupSettingCollectionValue` for groups, and so on. Again, root vs. child instances are handled differently because the PowerShell Graph SDK formats them differently.
 
 ### Building the API body from DSC parameters
 
