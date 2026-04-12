@@ -2,6 +2,16 @@
 
 # UNRELEASED
 
+* TeamsTenantDialPlan
+  * Fixed issue so that `NormalizationRules` are always exported as an array even
+    when they only contain one entry
+* M365DSCModuleMgmt
+  * Fixed an issue when updating the module from a custom import.
+* M365DSCUtil
+  * Added retry logic for too many requests when invoking batch requests.
+
+# 1.26.408.1
+
 * AADAccessReviewDefinition
   * [BREAKING CHANGE] Fixed the type definition of the `ScopeValue` property.
   * Changed the export type from `Configuration` to `Data`. It now only appears in
