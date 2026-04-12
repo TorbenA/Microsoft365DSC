@@ -4,8 +4,15 @@
 
 * AADB2BManagementPolicy
   * Initial release.
+* TeamsTenantDialPlan
+  * Fixed issue so that `NormalizationRules` are always exported as an array even
+    when they only contain one entry
+* M365DSCModuleMgmt
+  * Fixed an issue when updating the module from a custom import.
+* M365DSCUtil
+  * Added retry logic for too many requests when invoking batch requests.
 
-# UNRELEASED
+# 1.26.408.1
 
 * AADAccessReviewDefinition
   * [BREAKING CHANGE] Fixed the type definition of the `ScopeValue` property.

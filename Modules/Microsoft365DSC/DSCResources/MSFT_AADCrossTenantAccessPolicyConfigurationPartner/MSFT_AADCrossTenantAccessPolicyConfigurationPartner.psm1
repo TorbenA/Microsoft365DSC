@@ -150,6 +150,14 @@ function Get-TargetResource
                     IsSyncAllowed = $getValue.IdentitySynchronization.UserSyncInbound.IsSyncAllowed
                 }
             }
+            if ($null -eq $getValue.IdentitySynchronization.GroupSyncInbound.IsSyncAllowed)
+            {
+                $IdentitySynchronizationValue.Remove('GroupSyncInbound') | Out-Null
+            }            
+            if ($null -eq $getValue.IdentitySynchronization.UserSyncInbound.IsSyncAllowed)
+            {
+                $IdentitySynchronizationValue.Remove('UserSyncInbound') | Out-Null
+            }
         }
         $results = @{
             PartnerTenantId              = $getValue.TenantId
