@@ -2,6 +2,8 @@
 
 # UNRELEASED
 
+* AADB2BManagementPolicy
+  * Initial release.
 * TeamsTenantDialPlan
   * Fixed issue so that `NormalizationRules` are always exported as an array even
     when they only contain one entry
