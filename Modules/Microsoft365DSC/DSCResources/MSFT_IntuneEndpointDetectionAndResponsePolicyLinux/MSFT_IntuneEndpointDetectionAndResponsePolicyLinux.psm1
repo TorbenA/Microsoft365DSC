@@ -268,7 +268,7 @@ function Set-TargetResource
 
     $templateReferenceId = '3514388a-d4d1-4aa8-bd64-c317776008f5_1'
     $platforms = 'linux'
-    $technologies = 'mdm,microsoftSense'
+    $technologies = 'microsoftSense'
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
