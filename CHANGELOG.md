@@ -9,6 +9,9 @@
     when they only contain one entry
 * M365DSCModuleMgmt
   * Fixed an issue when updating the module from a custom import.
+* M365DSCIntuneUtil
+  * Fixed an issue where a settings array was returned as a single element.
+    FIXES [#7055](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7055)
 * M365DSCUtil
   * Added retry logic for too many requests when invoking batch requests.
 
