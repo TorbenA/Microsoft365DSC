@@ -7,6 +7,10 @@
 * TeamsTenantDialPlan
   * Fixed issue so that `NormalizationRules` are always exported as an array even
     when they only contain one entry
+* TeamsOnlineVoicemailPolicy
+  * Fixed `MaximumRecordingLength` handling by aligning type to `Int32` and
+    converting values to `TimeSpan` seconds for Teams cmdlets.
+    FIXES [#7054](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7054)
 * M365DSCModuleMgmt
   * Fixed an issue when updating the module from a custom import.
 * M365DSCUtil
