@@ -332,13 +332,13 @@ function Get-TargetResource
             {
                 if ($null -eq $Script:AllLabels)
                 {
-                    [array]$Script:AllLabels = Get-Label -IncludeDetailedLabelActions
+                    [array]$Script:AllLabels = Invoke-M365DSCCommand -ScriptBlock { Get-Label -IncludeDetailedLabelActions }
                 }
                 $label = $Script:AllLabels | Where-Object { $_.Name -eq $Name }
 
                 if ($null -eq $label)
                 {
-                    $label = Get-Label -Identity $Name -IncludeDetailedLabelActions -ErrorAction SilentlyContinue
+                    $label = Invoke-M365DSCCommand -ScriptBlock { Get-Label -Identity $Name -IncludeDetailedLabelActions } -SuppressNotFoundError
                 }
             }
             catch
