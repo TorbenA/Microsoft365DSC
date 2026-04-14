@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADApplication
+  * Fixed an issue where the value of `Value` in `MSFT_MicrosoftGraphAppRole` was missing.
+    FIXES [#7064](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7064)
 * AADB2BManagementPolicy
   * Initial release.
 * TeamsTenantDialPlan
