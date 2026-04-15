@@ -10,6 +10,9 @@
 * AADPermissionsGrantPolicy
   * Fixed an issue when comparing `AADPermissionGrantConditionSet` instances.
     FIXES [#7062](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7062)
+* EXODataEncryptionPolicy
+  * Fixed an issue when comparing `AzureKeyIDs` elements.
+    FIXES [#7069](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7069)
 * TeamsTenantDialPlan
   * Fixed issue so that `NormalizationRules` are always exported as an array even
     when they only contain one entry

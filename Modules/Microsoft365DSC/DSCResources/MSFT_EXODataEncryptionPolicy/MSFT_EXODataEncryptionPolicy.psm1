@@ -11,7 +11,7 @@ function Get-TargetResource
         $Identity,
 
         [Parameter()]
-        [System.Uri[]]
+        [System.String[]]
         $AzureKeyIDs,
 
         [Parameter()]
@@ -112,6 +112,12 @@ function Get-TargetResource
 
         Write-Verbose -Message "Found Data encryption policy $($Identity)"
 
+        $azureKeyIdsValue = @()
+        foreach ($azureKeyId in $DataEncryptionPolicy.AzureKeyIDs)
+        {
+            $azureKeyIdsValue += $azureKeyId.ToString()
+        }
+
         $result = @{
             Identity                  = $Identity
             AzureKeyIDs               = $DataEncryptionPolicy.AzureKeyIDs
@@ -155,7 +161,7 @@ function Set-TargetResource
         $Identity,
 
         [Parameter()]
-        [System.Uri[]]
+        [System.String[]]
         $AzureKeyIDs,
 
         [Parameter()]
@@ -268,7 +274,7 @@ function Test-TargetResource
         $Identity,
 
         [Parameter()]
-        [System.Uri[]]
+        [System.String[]]
         $AzureKeyIDs,
 
         [Parameter()]
