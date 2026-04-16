@@ -10,6 +10,8 @@
 * AADPermissionsGrantPolicy
   * Fixed an issue when comparing `AADPermissionGrantConditionSet` instances.
     FIXES [#7062](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7062)
+* EXOCASMailboxPlan
+  * Fixed an issue where `Identity` was missing in the export.
 * TeamsTenantDialPlan
   * Fixed issue so that `NormalizationRules` are always exported as an array even
     when they only contain one entry
