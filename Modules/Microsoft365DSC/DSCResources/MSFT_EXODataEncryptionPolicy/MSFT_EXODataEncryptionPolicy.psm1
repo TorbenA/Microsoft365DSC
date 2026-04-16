@@ -112,15 +112,9 @@ function Get-TargetResource
 
         Write-Verbose -Message "Found Data encryption policy $($Identity)"
 
-        $azureKeyIdsValue = @()
-        foreach ($azureKeyId in $DataEncryptionPolicy.AzureKeyIDs)
-        {
-            $azureKeyIdsValue += $azureKeyId.ToString()
-        }
-
         $result = @{
             Identity                  = $Identity
-            AzureKeyIDs               = $DataEncryptionPolicy.AzureKeyIDs
+            AzureKeyIDs               = [System.String[]]$DataEncryptionPolicy.AzureKeyIDs
             Description               = $DataEncryptionPolicy.Description
             Enabled                   = $DataEncryptionPolicy.Enabled
             Name                      = $DataEncryptionPolicy.Name
