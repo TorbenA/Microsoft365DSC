@@ -1,6 +1,7 @@
 $Script:IsPowerShellCore = $PSVersionTable.PSEdition -eq 'Core'
 $Script:IsPsResourceGetAvailable = $null -ne (Get-Module -Name Microsoft.PowerShell.PSResourceGet -ListAvailable)
 $Script:M365DSCDependenciesValidated = $false
+$Script:M365DSCGraphShimLoaded = $false
 if ($null -eq $Script:M365DSCDependencies)
 {
     $Script:M365DSCDependencies = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new([System.StringComparer]::OrdinalIgnoreCase)
@@ -182,6 +183,35 @@ function Confirm-M365DSCLoadedModule
         [System.String]
         $ModuleName
     )
+
+    # Graph Shim intercept: when useGraphShim is enabled, replace typed Graph SDK
+    # sub-modules with the lightweight M365DSCGraphShim module that wraps
+    # Invoke-MgGraphRequest. Microsoft.Graph.Authentication is always loaded
+    # natively because it provides Connect-MgGraph and the underlying HTTP client.
+    if ($Script:CurrentConfiguration.useGraphShim -and
+        $ModuleName -like 'Microsoft.Graph.*' -and
+        $ModuleName -ne 'Microsoft.Graph.Authentication')
+    {
+        if (-not $Script:M365DSCGraphShimLoaded)
+        {
+            Write-Verbose -Message "Graph Shim enabled: importing M365DSCGraphShim instead of '$ModuleName'."
+            # Ensure Microsoft.Graph.Authentication is loaded first
+            Confirm-M365DSCLoadedModule -ModuleName 'Microsoft.Graph.Authentication'
+
+            Import-Module -Name "$PSScriptRoot/M365DSCGraphShim.psm1" -Global -Force -DisableNameChecking
+            $Script:M365DSCGraphShimLoaded = $true
+        }
+        else
+        {
+            Write-Verbose -Message "Graph Shim already loaded, skipping import for '$ModuleName'."
+        }
+
+        if (-not $Script:M365DSCValidatedDependencies.Contains($ModuleName))
+        {
+            $Script:M365DSCValidatedDependencies.Add($ModuleName)
+        }
+        return
+    }
 
     if ($Script:M365DSCValidatedDependencies.Contains($ModuleName))
     {

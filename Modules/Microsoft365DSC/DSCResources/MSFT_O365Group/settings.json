@@ -62,7 +62,7 @@
         "Get-MgGroupMember",
         "Get-MgGroupOwner",
         "New-MgGroup",
-        "New-MgGroupMember",
+        "New-MgGroupMemberByRef",
         "New-MgGroupOwnerByRef",
         "Remove-MgGroup"
       ]

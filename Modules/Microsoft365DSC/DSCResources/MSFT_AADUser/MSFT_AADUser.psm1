@@ -662,7 +662,7 @@ function Set-TargetResource
 
                         throw "Cannot add user $UserPrincipalName to group '$memberOfGroup' because it is a dynamic group"
                     }
-                    New-MgGroupMember -GroupId $group.Id -DirectoryObjectId $userId
+                    New-MgGroupMemberByRef -GroupId $group.Id -OdataId "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)v1.0/directoryObjects/$userId"
                 }
             }
             else
@@ -693,7 +693,7 @@ function Set-TargetResource
 
                             throw "Cannot add user $UserPrincipalName to group '$($_.InputObject)' because it is a dynamic group"
                         }
-                        New-MgGroupMember -GroupId $group.Id -DirectoryObjectId $userId
+                        New-MgGroupMemberByRef -GroupId $group.Id -OdataId "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)v1.0/directoryObjects/$userId"
                     }
                     else
                     {

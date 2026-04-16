@@ -116,7 +116,7 @@
       "module": "Microsoft.Graph.Groups",
       "cmdlets": [
         "Get-MgGroup",
-        "New-MgGroupMember",
+        "New-MgGroupMemberByRef",
         "Remove-MgGroupMemberDirectoryObjectByRef"
       ]
     },

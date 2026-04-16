@@ -161,7 +161,6 @@
       "module": "Microsoft.Graph.Groups",
       "cmdlets": [
         "New-MgGroup",
-        "New-MgGroupMember",
         "New-MgGroupMemberByRef",
         "New-MgGroupOwnerByRef",
         "Remove-MgGroup",

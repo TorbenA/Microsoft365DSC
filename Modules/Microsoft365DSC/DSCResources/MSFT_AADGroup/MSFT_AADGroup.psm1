@@ -842,17 +842,11 @@ function Set-TargetResource
                 if ($diff.SideIndicator -eq '=>')
                 {
                     Write-Verbose -Message "Adding new member {$($diff.InputObject)} to AAD Group {$($currentGroup.DisplayName)}"
-                    $memberObject = @{
-                        '@odata.id' = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "v1.0/directoryObjects/{$($directoryObject.Id)}"
-                    }
-                    New-MgGroupMemberByRef -GroupId ($currentGroup.Id) -BodyParameter $memberObject | Out-Null
+                    New-MgGroupMemberByRef -GroupId ($currentGroup.Id) -OdataId "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)v1.0/directoryObjects/$($directoryObject.Id)" | Out-Null
                 }
                 elseif ($diff.SideIndicator -eq '<=')
                 {
-                    Write-Verbose -Message "Removing new member {$($diff.InputObject)} to AAD Group {$($currentGroup.DisplayName)}"
-                    $memberObject = @{
-                        '@odata.id' = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "v1.0/directoryObjects/{$($directoryObject.Id)}"
-                    }
+                    Write-Verbose -Message "Removing new member {$($diff.InputObject)} from AAD Group {$($currentGroup.DisplayName)}"
                     Remove-MgGroupMemberDirectoryObjectByRef -GroupId ($currentGroup.Id) -DirectoryObjectId ($directoryObject.Id) | Out-Null
                 }
             }
@@ -945,7 +939,7 @@ function Set-TargetResource
                         if ($memberOfGroup.psobject.Typenames -match 'Group')
                         {
                             Write-Verbose -Message "Adding AAD group {$($currentGroup.DisplayName)} as member of AAD group {$($memberOfGroup.DisplayName)}"
-                            New-MgGroupMember -GroupId ($memberOfGroup.Id) -DirectoryObject ($currentGroup.Id) | Out-Null
+                            New-MgGroupMemberByRef -GroupId ($memberOfGroup.Id) -OdataId "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)v1.0/directoryObjects/$($currentGroup.Id)" | Out-Null
                         }
                         else
                         {

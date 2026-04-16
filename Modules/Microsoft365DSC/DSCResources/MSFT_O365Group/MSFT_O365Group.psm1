@@ -344,7 +344,7 @@ function Set-TargetResource
                 {
                     Write-Verbose "Adding members {$member}"
                     $userId = (Get-MgUser -UserId $member).Id
-                    New-MgGroupMember -GroupId $ADGroup[0].Id -DirectoryObjectId $userId
+                    New-MgGroupMemberByRef -GroupId $ADGroup[0].Id -OdataId "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)v1.0/directoryObjects/$userId" | Out-Null
                 }
 
                 foreach ($member in $membersToRemove)
