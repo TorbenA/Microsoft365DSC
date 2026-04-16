@@ -539,7 +539,7 @@ $($userDefinitionSettings.MOF -join "`r`n")
             $getAlternativeFilterString.AppendLine("                    -Filter `"$alternativeKey eq '`$(`$$alternativeKey -replace `"'`", `"''`")'`" ``") | Out-Null
             $getAlternativeFilterString.AppendLine("                        -ErrorAction SilentlyContinue | Where-Object ``") | Out-Null
             $getAlternativeFilterString.AppendLine("                        -FilterScript {") | Out-Null
-            $getAlternativeFilterString.AppendLine("                            `$_.AdditionalProperties.'@odata.type' -eq `"`#microsoft.graph.$SelectedODataType`"") | Out-Null
+            $getAlternativeFilterString.AppendLine("                            `$_.'@odata.type' -eq `"`#microsoft.graph.$SelectedODataType`"") | Out-Null
             $getAlternativeFilterString.Append("                        }") | Out-Null
         }
         else
@@ -547,7 +547,7 @@ $($userDefinitionSettings.MOF -join "`r`n")
             $getAlternativeFilterString.AppendLine("                    -ErrorAction SilentlyContinue | Where-Object ``") | Out-Null
             $getAlternativeFilterString.AppendLine("                    -FilterScript {") | Out-Null
             $getAlternativeFilterString.AppendLine("                        `$_.$alternativeKey -eq `"`$(`$$alternativeKey -replace `"'`", `"''`")`" ``") | Out-Null
-            $getAlternativeFilterString.AppendLine("                        -and `$_.AdditionalProperties.'@odata.type' -eq `"`#microsoft.graph.$SelectedODataType`"") | Out-Null
+            $getAlternativeFilterString.AppendLine("                        -and `$_.'@odata.type' -eq `"`#microsoft.graph.$SelectedODataType`"") | Out-Null
             $getAlternativeFilterString.Append("                    }") | Out-Null
         }
         Write-TokenReplacement -Token '<AlternativeFilter>' -Value $getAlternativeFilterString.ToString() -FilePath $moduleFilePath
@@ -718,7 +718,7 @@ $($userDefinitionSettings.MOF -join "`r`n")
         {
             $exportGetCommand.AppendLine("            -ErrorAction Stop | Where-Object ``") | Out-Null
             $exportGetCommand.AppendLine("            -FilterScript {") | Out-Null
-            $exportGetCommand.AppendLine("                `$_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.$($selectedODataType)'") | Out-Null
+            $exportGetCommand.AppendLine("                `$_.'@odata.type' -eq '#microsoft.graph.$($selectedODataType)'") | Out-Null
             $exportGetCommand.AppendLine("            }") | Out-Null
         }
         elseif ($CmdletNoun -like "*DeviceManagementConfigurationPolicy")
@@ -3843,20 +3843,20 @@ function Get-SettingsCatalogSettingDefinitionValueDefinition {
         $SettingDefinitionOdataTypeBase
     )
 
-    if (-not $SettingDefinition.AdditionalProperties.valueDefinition) {
+    if (-not $SettingDefinition.valueDefinition) {
         return $null
     }
 
     $description = ""
-    $type = $SettingDefinition.AdditionalProperties.valueDefinition.'@odata.type'.Replace($settingDefinitionOdataTypeBase, "").Replace("SettingValueDefinition", "")
+    $type = $SettingDefinition.valueDefinition.'@odata.type'.Replace($settingDefinitionOdataTypeBase, "").Replace("SettingValueDefinition", "")
     switch ($type) {
         "String" {
-            $max = $SettingDefinition.AdditionalProperties.valueDefinition.maximumLength
-            $min = $SettingDefinition.AdditionalProperties.valueDefinition.minimumLength
+            $max = $SettingDefinition.valueDefinition.maximumLength
+            $min = $SettingDefinition.valueDefinition.minimumLength
             $description = "Length must be between $min and $max characters."
         } "Integer" {
-            $max = $SettingDefinition.AdditionalProperties.valueDefinition.maximumValue
-            $min = $SettingDefinition.AdditionalProperties.valueDefinition.minimumValue
+            $max = $SettingDefinition.valueDefinition.maximumValue
+            $min = $SettingDefinition.valueDefinition.minimumValue
             $description = "Value must be between $min and $max."
         }
     }
@@ -3881,7 +3881,7 @@ function Get-SettingsCatalogSettingDefinitionValueOption {
     )
 
     $options = @()
-    foreach ($option in $SettingDefinition.AdditionalProperties.options) {
+    foreach ($option in $SettingDefinition.options) {
         $options += @{
             Name        = $option.name
             Id          = $option.optionValue.value
@@ -3910,7 +3910,7 @@ function Get-SettingsCatalogSettingDefinitionDefaultValue {
     # If they are a simple setting, they have a default value
     if ($type -like "Simple*") {
         # There might be a default value specified in the setting definition
-        $value = $SettingDefinition.AdditionalProperties.defaultValue.value
+        $value = $SettingDefinition.defaultValue.value
         $nullOrEmpty = [String]::IsNullOrEmpty($value)
 
         # If the value is not null or empty, return the value, otherwise return the default value for the type
@@ -3923,8 +3923,8 @@ function Get-SettingsCatalogSettingDefinitionDefaultValue {
         }
     } else {
         # If the setting is a choice setting, the default value is the default option id
-        if (-not [String]::IsNullOrEmpty($SettingDefinition.AdditionalProperties.defaultOptionId)) {
-            $SettingDefinition.AdditionalProperties.defaultOptionId.Split("_")[-1]
+        if (-not [String]::IsNullOrEmpty($SettingDefinition.defaultOptionId)) {
+            $SettingDefinition.defaultOptionId.Split("_")[-1]
         } else {
             $null
         }
@@ -3943,24 +3943,24 @@ function Get-SettingsCatalogSettingDefinitionValueType {
     )
 
     # Type can be Choice, Simple or *Collection
-    $type = $SettingDefinition.AdditionalProperties.'@odata.type'.Replace($SettingDefinitionOdataTypeBase, "").Replace("Setting", "").Replace("Definition", "")
+    $type = $SettingDefinition.'@odata.type'.Replace($SettingDefinitionOdataTypeBase, "").Replace("Setting", "").Replace("Definition", "")
     if ($type -eq 'Choice') {
-        $type += $SettingDefinition.AdditionalProperties.options[0].optionValue.'@odata.type'.Replace('#microsoft.graph.deviceManagementConfiguration', '').Replace("SettingValue", "")
+        $type += $SettingDefinition.options[0].optionValue.'@odata.type'.Replace('#microsoft.graph.deviceManagementConfiguration', '').Replace("SettingValue", "")
     } elseif ($type -eq 'Simple') {
-        $type += $SettingDefinition.AdditionalProperties.valueDefinition.'@odata.type'.Replace($settingDefinitionOdataTypeBase, "").Replace("SettingValueDefinition", "")
+        $type += $SettingDefinition.valueDefinition.'@odata.type'.Replace($settingDefinitionOdataTypeBase, "").Replace("SettingValueDefinition", "")
     } elseif ($type -eq 'SimpleCollection') {
-        if ($null -ne $SettingDefinition.AdditionalProperties.defaultValue) {
-            $type = $type.Replace("Collection", $SettingDefinition.AdditionalProperties.defaultValue.'@odata.type'.Replace($settingDefinitionOdataTypeBase, "").Replace("SettingValue", "") + "Collection")
+        if ($null -ne $SettingDefinition.defaultValue) {
+            $type = $type.Replace("Collection", $SettingDefinition.defaultValue.'@odata.type'.Replace($settingDefinitionOdataTypeBase, "").Replace("SettingValue", "") + "Collection")
         } else {
             $type = $type.Replace("Collection", "StringCollection")
         }
     } elseif ($type -eq 'ChoiceCollection') {
-        $valueType = $SettingDefinition.AdditionalProperties.options[0].optionValue.'@odata.type'.Replace("#microsoft.graph.deviceManagementConfiguration", "").Replace("SettingValue", "")
+        $valueType = $SettingDefinition.options[0].optionValue.'@odata.type'.Replace("#microsoft.graph.deviceManagementConfiguration", "").Replace("SettingValue", "")
         $type = $type.Replace("Collection", $valueType + "Collection")
     } else {
         # Type is GroupCollection and does not have a default value to narrow down the type
         # but we can check the maximum count to determine if it is a collection or not
-        if ($SettingDefinition.AdditionalProperties.maximumCount -gt 1) {
+        if ($SettingDefinition.maximumCount -gt 1) {
             $type += 'Collection'
         }
     }
@@ -4004,7 +4004,7 @@ function New-SettingsCatalogSettingDefinitionSettingsFromTemplate {
     if ($FromRoot) {
         $RootSettingDefinitions = $SettingTemplate.SettingDefinitions | Where-Object -FilterScript {
             $_.Id -eq $SettingTemplate.SettingInstanceTemplate.SettingDefinitionId -and `
-            ($_.AdditionalProperties.dependentOn.Count -eq 0 -and $_.AdditionalProperties.options.dependentOn.Count -eq 0)
+            ($_.dependentOn.Count -eq 0 -and $_.options.dependentOn.Count -eq 0)
         }
         $settingDefinitionIdPrefix = $SettingTemplate.SettingInstanceTemplate.SettingDefinitionId
         return New-SettingsCatalogSettingDefinitionSettingsFromTemplate `
@@ -4038,13 +4038,13 @@ function New-SettingsCatalogSettingDefinitionSettingsFromTemplate {
     $childSettings = @()
     $childSettings += $SettingTemplate.SettingDefinitions | Where-Object -FilterScript {
         $_.visibility -notlike "*none*" -and
-        (($_.AdditionalProperties.dependentOn.Count -gt 0 -and $_.AdditionalProperties.dependentOn.parentSettingId -contains $SettingDefinition.Id) -or
-        ($_.AdditionalProperties.options.dependentOn.Count -gt 0 -and $_.AdditionalProperties.options.dependentOn.parentSettingId -contains $SettingDefinition.Id))
+        (($_.dependentOn.Count -gt 0 -and $_.dependentOn.parentSettingId -contains $SettingDefinition.Id) -or
+        ($_.options.dependentOn.Count -gt 0 -and $_.options.dependentOn.parentSettingId -contains $SettingDefinition.Id))
     }
 
     $instanceName = "MSFT_MicrosoftGraphIntuneSettingsCatalog"
     if (($Level -gt 1 -and $type -like "GroupCollection*" -and $childSettings.Count -gt 1) -or
-        ($Level -eq 1 -and $type -eq "GroupCollectionCollection" -and $childSettings.Count -ge 1 -and $childSettings.AdditionalProperties.'@odata.type' -notcontains "#microsoft.graph.deviceManagementConfigurationSettingGroupCollectionDefinition"))
+        ($Level -eq 1 -and $type -eq "GroupCollectionCollection" -and $childSettings.Count -ge 1 -and $childSettings.'@odata.type' -notcontains "#microsoft.graph.deviceManagementConfigurationSettingGroupCollectionDefinition"))
     {
         $instanceName = $ParentInstanceName + $settingName
     }
@@ -4071,7 +4071,7 @@ function New-SettingsCatalogSettingDefinitionSettingsFromTemplate {
         ChildSettings    = $innerChildSettings
     }
 
-    if ($type -eq "GroupCollectionCollection" -and $childSettings.Count -eq 1 -and $SettingDefinition.AdditionalProperties.maximumCount -eq 1)
+    if ($type -eq "GroupCollectionCollection" -and $childSettings.Count -eq 1 -and $SettingDefinition.maximumCount -eq 1)
     {
         # Reset type and make child setting a collection
         $setting.Type = "GroupCollection"

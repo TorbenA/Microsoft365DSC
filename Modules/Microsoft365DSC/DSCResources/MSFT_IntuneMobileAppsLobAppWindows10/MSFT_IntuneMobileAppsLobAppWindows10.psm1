@@ -202,7 +202,7 @@ function Get-TargetResource
         $results = @{
             #region resource generator code
             Categories            = $complexCategories
-            FileName              = $getValue.AdditionalProperties.fileName
+            FileName              = $getValue.fileName
             Description           = $getValue.Description
             Developer             = $getValue.Developer
             DisplayName           = $getValue.DisplayName

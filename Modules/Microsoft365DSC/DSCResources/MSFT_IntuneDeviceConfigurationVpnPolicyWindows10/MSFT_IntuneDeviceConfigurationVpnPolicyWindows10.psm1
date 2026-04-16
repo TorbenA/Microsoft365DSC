@@ -215,7 +215,7 @@ function Get-TargetResource
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue | Where-Object `
                         -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10VpnConfiguration' `
+                            $_.'@odata.type' -eq '#microsoft.graph.windows10VpnConfiguration' `
                     }
                 }
             }
@@ -235,7 +235,7 @@ function Get-TargetResource
 
         #region resource generator code
         $complexAssociatedApps = @()
-        foreach ($currentassociatedApps in $getValue.AdditionalProperties.associatedApps)
+        foreach ($currentassociatedApps in $getValue.associatedApps)
         {
             $myassociatedApps = [ordered]@{}
             if ($null -ne $currentassociatedApps.appType)
@@ -250,29 +250,29 @@ function Get-TargetResource
         }
 
         $complexCryptographySuite = [ordered]@{}
-        if ($null -ne $getValue.AdditionalProperties.cryptographySuite.authenticationTransformConstants)
+        if ($null -ne $getValue.cryptographySuite.authenticationTransformConstants)
         {
-            $complexCryptographySuite.Add('AuthenticationTransformConstants', $getValue.AdditionalProperties.cryptographySuite.authenticationTransformConstants.ToString())
+            $complexCryptographySuite.Add('AuthenticationTransformConstants', $getValue.cryptographySuite.authenticationTransformConstants.ToString())
         }
-        if ($null -ne $getValue.AdditionalProperties.cryptographySuite.cipherTransformConstants)
+        if ($null -ne $getValue.cryptographySuite.cipherTransformConstants)
         {
-            $complexCryptographySuite.Add('CipherTransformConstants', $getValue.AdditionalProperties.cryptographySuite.cipherTransformConstants.ToString())
+            $complexCryptographySuite.Add('CipherTransformConstants', $getValue.cryptographySuite.cipherTransformConstants.ToString())
         }
-        if ($null -ne $getValue.AdditionalProperties.cryptographySuite.dhGroup)
+        if ($null -ne $getValue.cryptographySuite.dhGroup)
         {
-            $complexCryptographySuite.Add('DhGroup', $getValue.AdditionalProperties.cryptographySuite.dhGroup.ToString())
+            $complexCryptographySuite.Add('DhGroup', $getValue.cryptographySuite.dhGroup.ToString())
         }
-        if ($null -ne $getValue.AdditionalProperties.cryptographySuite.encryptionMethod)
+        if ($null -ne $getValue.cryptographySuite.encryptionMethod)
         {
-            $complexCryptographySuite.Add('EncryptionMethod', $getValue.AdditionalProperties.cryptographySuite.encryptionMethod.ToString())
+            $complexCryptographySuite.Add('EncryptionMethod', $getValue.cryptographySuite.encryptionMethod.ToString())
         }
-        if ($null -ne $getValue.AdditionalProperties.cryptographySuite.integrityCheckMethod)
+        if ($null -ne $getValue.cryptographySuite.integrityCheckMethod)
         {
-            $complexCryptographySuite.Add('IntegrityCheckMethod', $getValue.AdditionalProperties.cryptographySuite.integrityCheckMethod.ToString())
+            $complexCryptographySuite.Add('IntegrityCheckMethod', $getValue.cryptographySuite.integrityCheckMethod.ToString())
         }
-        if ($null -ne $getValue.AdditionalProperties.cryptographySuite.pfsGroup)
+        if ($null -ne $getValue.cryptographySuite.pfsGroup)
         {
-            $complexCryptographySuite.Add('PfsGroup', $getValue.AdditionalProperties.cryptographySuite.pfsGroup.ToString())
+            $complexCryptographySuite.Add('PfsGroup', $getValue.cryptographySuite.pfsGroup.ToString())
         }
         if ($complexCryptographySuite.values.Where({ $null -ne $_ }).Count -eq 0)
         {
@@ -280,7 +280,7 @@ function Get-TargetResource
         }
 
         $complexDnsRules = @()
-        foreach ($currentdnsRules in $getValue.AdditionalProperties.dnsRules)
+        foreach ($currentdnsRules in $getValue.dnsRules)
         {
             $mydnsRules = [ordered]@{}
             $mydnsRules.Add('AutoTrigger', $currentdnsRules.autoTrigger)
@@ -295,14 +295,14 @@ function Get-TargetResource
         }
 
         $complexProxyServer = [ordered]@{}
-        $complexProxyServer.Add('BypassProxyServerForLocalAddress', $getValue.AdditionalProperties.proxyServer.bypassProxyServerForLocalAddress)
-        $complexProxyServer.Add('Address', $getValue.AdditionalProperties.proxyServer.address)
-        $complexProxyServer.Add('AutomaticConfigurationScriptUrl', $getValue.AdditionalProperties.proxyServer.automaticConfigurationScriptUrl)
-        $complexProxyServer.Add('Port', $getValue.AdditionalProperties.proxyServer.port)
-        $complexProxyServer.Add('AutomaticallyDetectProxySettings', $getValue.AdditionalProperties.proxyServer.automaticallyDetectProxySettings)
-        if ($null -ne $getValue.AdditionalProperties.proxyServer.'@odata.type')
+        $complexProxyServer.Add('BypassProxyServerForLocalAddress', $getValue.proxyServer.bypassProxyServerForLocalAddress)
+        $complexProxyServer.Add('Address', $getValue.proxyServer.address)
+        $complexProxyServer.Add('AutomaticConfigurationScriptUrl', $getValue.proxyServer.automaticConfigurationScriptUrl)
+        $complexProxyServer.Add('Port', $getValue.proxyServer.port)
+        $complexProxyServer.Add('AutomaticallyDetectProxySettings', $getValue.proxyServer.automaticallyDetectProxySettings)
+        if ($null -ne $getValue.proxyServer.'@odata.type')
         {
-            $complexProxyServer.Add('odataType', $getValue.AdditionalProperties.proxyServer.'@odata.type'.ToString())
+            $complexProxyServer.Add('odataType', $getValue.proxyServer.'@odata.type'.ToString())
         }
         if ($complexProxyServer.values.Where({ $null -ne $_ }).Count -eq 0)
         {
@@ -310,7 +310,7 @@ function Get-TargetResource
         }
 
         $complexRoutes = @()
-        foreach ($currentroutes in $getValue.AdditionalProperties.routes)
+        foreach ($currentroutes in $getValue.routes)
         {
             $myroutes = [ordered]@{}
             $myroutes.Add('DestinationPrefix', $currentroutes.destinationPrefix)
@@ -322,15 +322,15 @@ function Get-TargetResource
         }
 
         $complexSingleSignOnEku = [ordered]@{}
-        $complexSingleSignOnEku.Add('Name', $getValue.AdditionalProperties.singleSignOnEku.name)
-        $complexSingleSignOnEku.Add('ObjectIdentifier', $getValue.AdditionalProperties.singleSignOnEku.objectIdentifier)
+        $complexSingleSignOnEku.Add('Name', $getValue.singleSignOnEku.name)
+        $complexSingleSignOnEku.Add('ObjectIdentifier', $getValue.singleSignOnEku.objectIdentifier)
         if ($complexSingleSignOnEku.values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexSingleSignOnEku = $null
         }
 
         $complexTrafficRules = @()
-        foreach ($currenttrafficRules in $getValue.AdditionalProperties.trafficRules)
+        foreach ($currenttrafficRules in $getValue.trafficRules)
         {
             $mytrafficRules = [ordered]@{}
             $mytrafficRules.Add('AppId', $currenttrafficRules.appId)
@@ -414,7 +414,7 @@ function Get-TargetResource
         }
 
         $complexServers = @()
-        foreach ($currentservers in $getValue.AdditionalProperties.servers)
+        foreach ($currentservers in $getValue.servers)
         {
             $myservers = [ordered]@{}
             $myservers.Add('Address', $currentservers.address)
@@ -429,21 +429,21 @@ function Get-TargetResource
 
         #region resource generator code
         $enumAuthenticationMethod = $null
-        if ($null -ne $getValue.AdditionalProperties.authenticationMethod)
+        if ($null -ne $getValue.authenticationMethod)
         {
-            $enumAuthenticationMethod = $getValue.AdditionalProperties.authenticationMethod.ToString()
+            $enumAuthenticationMethod = $getValue.authenticationMethod.ToString()
         }
 
         $enumConnectionType = $null
-        if ($null -ne $getValue.AdditionalProperties.connectionType)
+        if ($null -ne $getValue.connectionType)
         {
-            $enumConnectionType = $getValue.AdditionalProperties.connectionType.ToString()
+            $enumConnectionType = $getValue.connectionType.ToString()
         }
 
         $enumProfileTarget = $null
-        if ($null -ne $getValue.AdditionalProperties.profileTarget)
+        if ($null -ne $getValue.profileTarget)
         {
-            $enumProfileTarget = $getValue.AdditionalProperties.profileTarget.ToString()
+            $enumProfileTarget = $getValue.profileTarget.ToString()
         }
         #endregion
 
@@ -454,27 +454,27 @@ function Get-TargetResource
             ConnectionType                             = $enumConnectionType
             CryptographySuite                          = $complexCryptographySuite
             DnsRules                                   = $complexDnsRules
-            DnsSuffixes                                = $getValue.AdditionalProperties.dnsSuffixes
-            EapXml                                     = $getValue.AdditionalProperties.eapXml
-            EnableAlwaysOn                             = $getValue.AdditionalProperties.enableAlwaysOn
-            EnableConditionalAccess                    = $getValue.AdditionalProperties.enableConditionalAccess
-            EnableDeviceTunnel                         = $getValue.AdditionalProperties.enableDeviceTunnel
-            EnableDnsRegistration                      = $getValue.AdditionalProperties.enableDnsRegistration
-            EnableSingleSignOnWithAlternateCertificate = $getValue.AdditionalProperties.enableSingleSignOnWithAlternateCertificate
-            EnableSplitTunneling                       = $getValue.AdditionalProperties.enableSplitTunneling
-            MicrosoftTunnelSiteId                      = $getValue.AdditionalProperties.microsoftTunnelSiteId
-            OnlyAssociatedAppsCanUseConnection         = $getValue.AdditionalProperties.onlyAssociatedAppsCanUseConnection
+            DnsSuffixes                                = $getValue.dnsSuffixes
+            EapXml                                     = $getValue.eapXml
+            EnableAlwaysOn                             = $getValue.enableAlwaysOn
+            EnableConditionalAccess                    = $getValue.enableConditionalAccess
+            EnableDeviceTunnel                         = $getValue.enableDeviceTunnel
+            EnableDnsRegistration                      = $getValue.enableDnsRegistration
+            EnableSingleSignOnWithAlternateCertificate = $getValue.enableSingleSignOnWithAlternateCertificate
+            EnableSplitTunneling                       = $getValue.enableSplitTunneling
+            MicrosoftTunnelSiteId                      = $getValue.microsoftTunnelSiteId
+            OnlyAssociatedAppsCanUseConnection         = $getValue.onlyAssociatedAppsCanUseConnection
             ProfileTarget                              = $enumProfileTarget
             ProxyServer                                = $complexProxyServer
-            RememberUserCredentials                    = $getValue.AdditionalProperties.rememberUserCredentials
+            RememberUserCredentials                    = $getValue.rememberUserCredentials
             Routes                                     = $complexRoutes
             SingleSignOnEku                            = $complexSingleSignOnEku
-            SingleSignOnIssuerHash                     = $getValue.AdditionalProperties.singleSignOnIssuerHash
+            SingleSignOnIssuerHash                     = $getValue.singleSignOnIssuerHash
             TrafficRules                               = $complexTrafficRules
-            TrustedNetworkDomains                      = $getValue.AdditionalProperties.trustedNetworkDomains
-            WindowsInformationProtectionDomain         = $getValue.AdditionalProperties.windowsInformationProtectionDomain
-            ConnectionName                             = $getValue.AdditionalProperties.connectionName
-            CustomXml                                  = $getValue.AdditionalProperties.customXml
+            TrustedNetworkDomains                      = $getValue.trustedNetworkDomains
+            WindowsInformationProtectionDomain         = $getValue.windowsInformationProtectionDomain
+            ConnectionName                             = $getValue.connectionName
+            CustomXml                                  = $getValue.customXml
             ServerCollection                           = $complexServers
             Description                                = $getValue.Description
             DisplayName                                = $getValue.DisplayName
@@ -1004,7 +1004,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10VpnConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.windows10VpnConfiguration' `
         }
         #endregion
 

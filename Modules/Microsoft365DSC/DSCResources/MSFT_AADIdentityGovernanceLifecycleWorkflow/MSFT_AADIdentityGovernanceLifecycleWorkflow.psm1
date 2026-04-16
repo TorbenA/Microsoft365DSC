@@ -715,7 +715,7 @@ function Get-M365DSCIdentityGovernanceWorkflowExecutionConditions
 
     if ($null -ne $instance -and $null -ne $instance.ExecutionConditions)
     {
-        $executionConditions = $instance.ExecutionConditions.AdditionalProperties
+        $executionConditions = $instance.ExecutionConditions
         $executionConditionsResult = @{
             ScopeValue   = @{
                 Rule      = $ExecutionConditions['scope']['rule']

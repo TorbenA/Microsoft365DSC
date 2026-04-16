@@ -195,8 +195,8 @@ function Get-TargetResource
         $results = @{
             #region resource generator code
             Categories             = $complexCategories
-            CommandLine            = $getValue.AdditionalProperties.commandLine
-            FileName               = $getValue.AdditionalProperties.fileName
+            CommandLine            = $getValue.commandLine
+            FileName               = $getValue.fileName
             Description            = $getValue.Description
             Developer              = $getValue.Developer
             DisplayName            = $getValue.DisplayName
@@ -206,10 +206,10 @@ function Get-TargetResource
             Notes                  = $getValue.Notes
             Owner                  = $getValue.Owner
             PrivacyInformationUrl  = $getValue.PrivacyInformationUrl
-            IgnoreVersionDetection = $getValue.AdditionalProperties.ignoreVersionDetection
+            IgnoreVersionDetection = $getValue.ignoreVersionDetection
             Publisher              = $getValue.Publisher
             RoleScopeTagIds        = $getValue.RoleScopeTagIds
-            UseDeviceContext       = $getValue.AdditionalProperties.useDeviceContext
+            UseDeviceContext       = $getValue.useDeviceContext
             Id                     = $getValue.Id
             Ensure                 = 'Present'
             Credential             = $Credential

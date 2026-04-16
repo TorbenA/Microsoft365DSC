@@ -267,22 +267,22 @@ function Get-TargetResource
 
         if (-not $getValue.ContainsKey('PrincipalType'))
         {
-            $getValue.Add('PrincipalType', $objectInfo.AdditionalProperties['@odata.type'].Split('.')[2])
+            $getValue.Add('PrincipalType', $objectInfo['@odata.type'].Split('.')[2])
         }
         else
         {
-            $getValue.PrincipalType = $objectInfo.AdditionalProperties['@odata.type'].Split('.')[2]
+            $getValue.PrincipalType = $objectInfo['@odata.type'].Split('.')[2]
         }
 
         switch ($getValue.PrincipalType)
         {
        	    'user'
             {
-                $PrincipalValue = $objectInfo.AdditionalProperties['userPrincipalName']
+                $PrincipalValue = $objectInfo['userPrincipalName']
             }
        	    default
             {
-                $PrincipalValue = $objectInfo.AdditionalProperties['displayName']
+                $PrincipalValue = $objectInfo['displayName']
             }
         }
 
@@ -436,7 +436,7 @@ function Set-TargetResource
             $p = Get-MgBetaPolicyRoleManagementPolicyAssignment -Filter $("scopeId eq '{0}' and scopeType eq 'Group' and RoleDefinitionId eq '{1}'" -f $GroupId, $accessid)
             $unifiedRoleManagementPolicyId = $p.PolicyId
             $unifiedRoleManagementPolicyRuleId = 'Expiration_Admin_Eligibility'
-            $isExpirationRequired = (Get-MgBetaPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $unifiedRoleManagementPolicyId -UnifiedRoleManagementPolicyRuleId $unifiedRoleManagementPolicyRuleId).AdditionalProperties.isExpirationRequired
+            $isExpirationRequired = (Get-MgBetaPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $unifiedRoleManagementPolicyId -UnifiedRoleManagementPolicyRuleId $unifiedRoleManagementPolicyRuleId).isExpirationRequired
             if ($isExpirationRequired)
             {
                 $params = @{
@@ -459,7 +459,7 @@ function Set-TargetResource
             $p = Get-MgBetaPolicyRoleManagementPolicyAssignment -Filter $("scopeId eq '{0}' and scopeType eq 'Group' and RoleDefinitionId eq '{1}'" -f $GroupId, $accessid)
             $unifiedRoleManagementPolicyId = $p.PolicyId
             $unifiedRoleManagementPolicyRuleId = 'Expiration_Admin_Eligibility'
-            $isExpirationRequired = (Get-MgBetaPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $unifiedRoleManagementPolicyId -UnifiedRoleManagementPolicyRuleId $unifiedRoleManagementPolicyRuleId).AdditionalProperties.isExpirationRequired
+            $isExpirationRequired = (Get-MgBetaPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $unifiedRoleManagementPolicyId -UnifiedRoleManagementPolicyRuleId $unifiedRoleManagementPolicyRuleId).isExpirationRequired
             if (-not $isExpirationRequired)
             {
                 $params = @{
@@ -529,7 +529,7 @@ function Set-TargetResource
             $p = Get-MgBetaPolicyRoleManagementPolicyAssignment -Filter $("scopeId eq '{0}' and scopeType eq 'Group' and RoleDefinitionId eq '{1}'" -f $GroupId, $accessid)
             $unifiedRoleManagementPolicyId = $p.PolicyId
             $unifiedRoleManagementPolicyRuleId = 'Expiration_Admin_Eligibility'
-            $isExpirationRequired = (Get-MgBetaPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $unifiedRoleManagementPolicyId -UnifiedRoleManagementPolicyRuleId $unifiedRoleManagementPolicyRuleId).AdditionalProperties.isExpirationRequired
+            $isExpirationRequired = (Get-MgBetaPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $unifiedRoleManagementPolicyId -UnifiedRoleManagementPolicyRuleId $unifiedRoleManagementPolicyRuleId).isExpirationRequired
             if ($isExpirationRequired)
             {
                 $params = @{
@@ -557,7 +557,7 @@ function Set-TargetResource
             $p = Get-MgBetaPolicyRoleManagementPolicyAssignment -Filter $("scopeId eq '{0}' and scopeType eq 'Group' and RoleDefinitionId eq '{1}'" -f $GroupId, $accessid)
             $unifiedRoleManagementPolicyId = $p.PolicyId
             $unifiedRoleManagementPolicyRuleId = 'Expiration_Admin_Eligibility'
-            $isExpirationRequired = (Get-MgBetaPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $unifiedRoleManagementPolicyId -UnifiedRoleManagementPolicyRuleId $unifiedRoleManagementPolicyRuleId).AdditionalProperties.isExpirationRequired
+            $isExpirationRequired = (Get-MgBetaPolicyRoleManagementPolicyRule -UnifiedRoleManagementPolicyId $unifiedRoleManagementPolicyId -UnifiedRoleManagementPolicyRuleId $unifiedRoleManagementPolicyRuleId).isExpirationRequired
             if (-not $isExpirationRequired)
             {
                 $params = @{
@@ -874,16 +874,16 @@ function Export-TargetResource
                 # Find the Principal Type
                 Write-Verbose "Looking up ObjectId $($config.PrincipalId)"
                 $PrincipalInfo = Get-MgBetaDirectoryObjectById -Ids $config.PrincipalId -ErrorAction SilentlyContinue
-                $principalType = $PrincipalInfo.AdditionalProperties['@odata.type'].Split('.')[2]
+                $principalType = $PrincipalInfo['@odata.type'].Split('.')[2]
 
                 Write-Verbose "Got PrincipalType $PrincipalType back for ObjectID"
                 $PrincipalValue = if ($principalType -eq 'user' )
                 {
-                    $PrincipalInfo.AdditionalProperties['userPrincipalName']
+                    $PrincipalInfo['userPrincipalName']
                 }
                 else
                 {
-                    $PrincipalInfo.AdditionalProperties['displayName']
+                    $PrincipalInfo['displayName']
                 }
                 Write-Verbose "PrincipalValue for object is $PrincipalValue"
 

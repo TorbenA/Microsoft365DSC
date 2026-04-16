@@ -55051,7 +55051,7 @@ function New-MgBetaPolicyFeatureRolloutPolicy
     )
 }
 
-function Remove-MgBetaPolicyFeatureRolloutPolicyApplyToByRef
+function Remove-MgBetaPolicyFeatureRolloutPolicyApplyToDirectoryObjectByRef
 {
     [CmdletBinding()]
     param

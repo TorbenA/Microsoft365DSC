@@ -457,16 +457,16 @@ function Get-MicrosoftGraphNetworkAccessForwardingPolicyRules
     foreach ($rule in $PolicyRules)
     {
         [System.String[]]$destinations = @()
-        foreach ($destination in $rule.AdditionalProperties.destinations)
+        foreach ($destination in $rule.destinations)
         {
             $destinations += $destination.value
         }
         $newPolicyRules += [ordered]@{
             Name         = $rule.Name
-            ActionValue  = $rule.AdditionalProperties.action
-            RuleType     = $rule.AdditionalProperties.ruleType
-            Ports        = [System.Int32[]]$rule.AdditionalProperties.ports
-            Protocol     = $rule.AdditionalProperties.protocol
+            ActionValue  = $rule.action
+            RuleType     = $rule.ruleType
+            Ports        = [System.Int32[]]$rule.ports
+            Protocol     = $rule.protocol
             Destinations = $destinations
         }
     }

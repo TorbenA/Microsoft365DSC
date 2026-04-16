@@ -137,7 +137,7 @@ function Get-TargetResource
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue | Where-Object `
                         -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10SecureAssessmentConfiguration' `
+                            $_.'@odata.type' -eq '#microsoft.graph.windows10SecureAssessmentConfiguration' `
                     }
                 }
             }
@@ -157,22 +157,22 @@ function Get-TargetResource
 
         #region resource generator code
         $enumConfigurationAccountType = $null
-        if ($null -ne $getValue.AdditionalProperties.configurationAccountType)
+        if ($null -ne $getValue.configurationAccountType)
         {
-            $enumConfigurationAccountType = $getValue.AdditionalProperties.configurationAccountType.ToString()
+            $enumConfigurationAccountType = $getValue.configurationAccountType.ToString()
         }
         #endregion
 
         $results = @{
             #region resource generator code
-            AllowPrinting            = $getValue.AdditionalProperties.allowPrinting
-            AllowScreenCapture       = $getValue.AdditionalProperties.allowScreenCapture
-            AllowTextSuggestion      = $getValue.AdditionalProperties.allowTextSuggestion
-            AssessmentAppUserModelId = $getValue.AdditionalProperties.assessmentAppUserModelId
-            ConfigurationAccount     = $getValue.AdditionalProperties.configurationAccount
+            AllowPrinting            = $getValue.allowPrinting
+            AllowScreenCapture       = $getValue.allowScreenCapture
+            AllowTextSuggestion      = $getValue.allowTextSuggestion
+            AssessmentAppUserModelId = $getValue.assessmentAppUserModelId
+            ConfigurationAccount     = $getValue.configurationAccount
             ConfigurationAccountType = $enumConfigurationAccountType
-            LaunchUri                = $getValue.AdditionalProperties.launchUri
-            LocalGuestAccountName    = $getValue.AdditionalProperties.localGuestAccountName
+            LaunchUri                = $getValue.launchUri
+            LocalGuestAccountName    = $getValue.localGuestAccountName
             Description              = $getValue.Description
             DisplayName              = $getValue.DisplayName
             Id                       = $getValue.Id
@@ -541,7 +541,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10SecureAssessmentConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.windows10SecureAssessmentConfiguration' `
         }
         #endregion
 

@@ -132,7 +132,7 @@ function Get-TargetResource
             #region resource generator code
             Description              = $getValue.Description
             DisplayName              = $getValue.DisplayName
-            IsIntuneManagedInstaller = $getValue.DetectionScriptParameters[0].AdditionalProperties.defaultValue -eq 'true'
+            IsIntuneManagedInstaller = $getValue.DetectionScriptParameters[0].defaultValue -eq 'true'
             RoleScopeTagIds          = $getValue.RoleScopeTagIds
             Id                       = $getValue.Id
             Ensure                   = 'Present'

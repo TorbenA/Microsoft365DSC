@@ -135,7 +135,7 @@ function Get-TargetResource
 
         Write-Verbose -Message 'Processing IncludeTargets'
         $complexIncludeTargets = @()
-        foreach ($currentIncludeTargets in $getValue.AdditionalProperties.includeTargets)
+        foreach ($currentIncludeTargets in $getValue.includeTargets)
         {
             $myIncludeTargets = [ordered]@{}
             if ($currentIncludeTargets.id -ne 'all_users')

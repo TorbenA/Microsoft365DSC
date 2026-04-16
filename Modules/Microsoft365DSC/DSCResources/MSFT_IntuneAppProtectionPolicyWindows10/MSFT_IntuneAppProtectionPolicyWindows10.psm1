@@ -214,7 +214,7 @@ function Get-TargetResource
         $appsArray = @()
         foreach ($app in $policyApps)
         {
-            $appsArray += $app.MobileAppIdentifier.AdditionalProperties.windowsAppId
+            $appsArray += $app.MobileAppIdentifier.windowsAppId
         }
 
         #region resource generator code
@@ -275,8 +275,8 @@ function Get-TargetResource
             MinimumWipeOsVersion                    = $getValue.minimumWipeOsVersion
             MinimumWipeSdkVersion                   = $getValue.minimumWipeSdkVersion
             MobileThreatDefenseRemediationAction    = $enumMobileThreatDefenseRemediationAction
-            PeriodOfflineBeforeAccessCheck          = [System.Xml.XmlConvert]::ToString($getValue.periodOfflineBeforeAccessCheck)
-            PeriodOfflineBeforeWipeIsEnforced       = [System.Xml.XmlConvert]::ToString($getValue.periodOfflineBeforeWipeIsEnforced)
+            PeriodOfflineBeforeAccessCheck          = $getValue.periodOfflineBeforeAccessCheck
+            PeriodOfflineBeforeWipeIsEnforced       = $getValue.periodOfflineBeforeWipeIsEnforced
             PrintBlocked                            = $getValue.printBlocked
             Description                             = $getValue.Description
             DisplayName                             = $getValue.DisplayName
@@ -291,7 +291,7 @@ function Get-TargetResource
             ManagedIdentity                         = $ManagedIdentity.IsPresent
             #endregion
         }
-        $assignmentsValues = Get-MgBetaDeviceAppManagementWindowsManagedAppProtectionAssignment -WindowsManagedAppProtectionId $Id
+        $assignmentsValues = Get-MgBetaDeviceAppManagementWindowsManagedAppProtectionAssignment -WindowsManagedAppProtectionId $Id -All
         $assignmentResult = @()
         if ($assignmentsValues.Count -gt 0)
         {

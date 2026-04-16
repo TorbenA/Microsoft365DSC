@@ -137,7 +137,7 @@ function Get-TargetResource
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue | Where-Object `
                         -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10ImportedPFXCertificateProfile' `
+                            $_.'@odata.type' -eq '#microsoft.graph.windows10ImportedPFXCertificateProfile' `
                     }
                 }
             }
@@ -157,33 +157,33 @@ function Get-TargetResource
 
         #region resource generator code
         $enumIntendedPurpose = $null
-        if ($null -ne $getValue.AdditionalProperties.intendedPurpose)
+        if ($null -ne $getValue.intendedPurpose)
         {
-            $enumIntendedPurpose = $getValue.AdditionalProperties.intendedPurpose.ToString()
+            $enumIntendedPurpose = $getValue.intendedPurpose.ToString()
         }
 
         $enumCertificateValidityPeriodScale = $null
-        if ($null -ne $getValue.AdditionalProperties.certificateValidityPeriodScale)
+        if ($null -ne $getValue.certificateValidityPeriodScale)
         {
-            $enumCertificateValidityPeriodScale = $getValue.AdditionalProperties.certificateValidityPeriodScale.ToString()
+            $enumCertificateValidityPeriodScale = $getValue.certificateValidityPeriodScale.ToString()
         }
 
         $enumKeyStorageProvider = $null
-        if ($null -ne $getValue.AdditionalProperties.keyStorageProvider)
+        if ($null -ne $getValue.keyStorageProvider)
         {
-            $enumKeyStorageProvider = $getValue.AdditionalProperties.keyStorageProvider.ToString()
+            $enumKeyStorageProvider = $getValue.keyStorageProvider.ToString()
         }
 
         $enumSubjectAlternativeNameType = $null
-        if ($null -ne $getValue.AdditionalProperties.subjectAlternativeNameType)
+        if ($null -ne $getValue.subjectAlternativeNameType)
         {
-            $enumSubjectAlternativeNameType = $getValue.AdditionalProperties.subjectAlternativeNameType.ToString()
+            $enumSubjectAlternativeNameType = $getValue.subjectAlternativeNameType.ToString()
         }
 
         $enumSubjectNameFormat = $null
-        if ($null -ne $getValue.AdditionalProperties.subjectNameFormat)
+        if ($null -ne $getValue.subjectNameFormat)
         {
-            $enumSubjectNameFormat = $getValue.AdditionalProperties.subjectNameFormat.ToString()
+            $enumSubjectNameFormat = $getValue.subjectNameFormat.ToString()
         }
         #endregion
 
@@ -191,9 +191,9 @@ function Get-TargetResource
             #region resource generator code
             IntendedPurpose                = $enumIntendedPurpose
             CertificateValidityPeriodScale = $enumCertificateValidityPeriodScale
-            CertificateValidityPeriodValue = $getValue.AdditionalProperties.certificateValidityPeriodValue
+            CertificateValidityPeriodValue = $getValue.certificateValidityPeriodValue
             KeyStorageProvider             = $enumKeyStorageProvider
-            RenewalThresholdPercentage     = $getValue.AdditionalProperties.renewalThresholdPercentage
+            RenewalThresholdPercentage     = $getValue.renewalThresholdPercentage
             SubjectAlternativeNameType     = $enumSubjectAlternativeNameType
             SubjectNameFormat              = $enumSubjectNameFormat
             Description                    = $getValue.Description
@@ -564,7 +564,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10ImportedPFXCertificateProfile' `
+                $_.'@odata.type' -eq '#microsoft.graph.windows10ImportedPFXCertificateProfile' `
         }
         #endregion
 

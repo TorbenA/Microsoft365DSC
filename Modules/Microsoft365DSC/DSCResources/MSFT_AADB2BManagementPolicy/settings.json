@@ -43,8 +43,6 @@
       "module": "Microsoft.Graph.Beta.Identity.SignIns",
       "cmdlets": [
         "Get-MgBetaPolicyB2BManagementPolicy",
-        "New-MgBetaPolicyB2BManagementPolicy",
-        "Remove-MgBetaPolicyB2BManagementPolicy",
         "Update-MgBetaPolicyB2BManagementPolicy"
       ]
     }

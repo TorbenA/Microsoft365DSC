@@ -129,7 +129,7 @@ function Get-TargetResource
         $assignmentsValue = @()
         if ($null -ne $taskResponse.Assignments)
         {
-            foreach ($assignmentKey in $taskResponse.Assignments.AdditionalProperties.Keys)
+            foreach ($assignmentKey in $taskResponse.Assignments.Keys)
             {
                 $assignedUser = Get-MgUser -UserId $assignmentKey -ErrorAction SilentlyContinue
                 if ($null -eq $assignedUser)
@@ -146,9 +146,9 @@ function Get-TargetResource
         $attachmentsValue = @()
         if ($null -ne $taskDetailsResponse.References)
         {
-            foreach ($attachment in $taskDetailsResponse.References.AdditionalProperties.Keys)
+            foreach ($attachment in $taskDetailsResponse.References.Keys)
             {
-                $entry = $taskDetailsResponse.References.AdditionalProperties."$attachment"
+                $entry = $taskDetailsResponse.References."$attachment"
                 $hashEntry = @{
                     Uri   = $attachment
                     Alias = $entry.alias
@@ -163,7 +163,7 @@ function Get-TargetResource
         $categoriesValue = @()
         if ($null -ne $taskResponse.appliedCategories)
         {
-            foreach ($category in $taskResponse.appliedCategories.AdditionalProperties.Keys)
+            foreach ($category in $taskResponse.appliedCategories.Keys)
             {
                 $categoryValue = $Script:AppliedCategories.$category
                 if ([String]::IsNullOrEmpty($categoryValue))
@@ -179,11 +179,11 @@ function Get-TargetResource
         $checklistValue = @()
         if ($null -ne $taskDetailsResponse.CheckList)
         {
-            foreach ($checkListItem in $taskDetailsResponse.CheckList.AdditionalProperties.Keys)
+            foreach ($checkListItem in $taskDetailsResponse.CheckList.Keys)
             {
                 $hashEntry = @{
-                    Title     = $taskDetailsResponse.CheckList.AdditionalProperties."$checkListItem".title
-                    Completed = [bool]$taskDetailsResponse.CheckList.AdditionalProperties."$checkListItem".isChecked
+                    Title     = $taskDetailsResponse.CheckList."$checkListItem".title
+                    Completed = [bool]$taskDetailsResponse.CheckList."$checkListItem".isChecked
                 }
                 $checklistValue += $hashEntry
             }
@@ -517,7 +517,7 @@ function Set-TargetResource
             Desired State. Updating it."
         $currentTask = Get-MgPlannerTask -PlannerTaskId $taskId
         $Headers = @{}
-        $etag = $currentTask.AdditionalProperties.'@odata.etag'
+        $etag = $currentTask.'@odata.etag'
 
         $Headers.Add('If-Match', $etag)
         $JSONDetails = (ConvertTo-Json $setParams)
@@ -531,7 +531,7 @@ function Set-TargetResource
         # Update Details
         $Headers = @{}
         $currentTaskDetails = Get-MgPlannerTaskDetail -PlannerTaskId $taskId
-        $Headers.Add('If-Match', $currentTaskDetails.AdditionalProperties.'@odata.etag')
+        $Headers.Add('If-Match', $currentTaskDetails.'@odata.etag')
         $details.Remove('id') | Out-Null
         $JSONDetails = (ConvertTo-Json $details)
         Write-Verbose -Message "Updating Task's details with:`r`n$JSONDetails"

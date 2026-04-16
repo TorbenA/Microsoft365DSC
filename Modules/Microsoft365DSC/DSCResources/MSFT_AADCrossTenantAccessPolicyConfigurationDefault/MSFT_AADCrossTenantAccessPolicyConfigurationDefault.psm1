@@ -137,14 +137,17 @@ function Get-TargetResource
                 }
                 if ($valueEntry.TargetType -eq 'user')
                 {
-                    $user = Get-MgUser -UserId $valueEntry.Target -ErrorAction SilentlyContinue
-                    if ($null -ne $user)
+                    if ($valueEntry.Target -ne 'AllUsers')
                     {
-                        $currentEntry.Target = $user.UserPrincipalName
-                    }
-                    else
-                    {
-                        $currentEntry.Target = $valueEntry.Target
+                        $user = Get-MgUser -UserId $valueEntry.Target -ErrorAction SilentlyContinue
+                        if ($null -ne $user)
+                        {
+                            $currentEntry.Target = $user.UserPrincipalName
+                        }
+                        else
+                        {
+                            $currentEntry.Target = $valueEntry.Target
+                        }
                     }
                 }
                 else
@@ -196,14 +199,17 @@ function Get-TargetResource
                 }
                 if ($valueEntry.TargetType -eq 'user')
                 {
-                    $user = Get-MgUser -UserId $valueEntry.Target -ErrorAction SilentlyContinue
-                    if ($null -ne $user)
+                    if ($valueEntry.Target -ne 'AllUsers')
                     {
-                        $currentEntry.Target = $user.UserPrincipalName
-                    }
-                    else
-                    {
-                        $currentEntry.Target = $valueEntry.Target
+                        $user = Get-MgUser -UserId $valueEntry.Target -ErrorAction SilentlyContinue
+                        if ($null -ne $user)
+                        {
+                            $currentEntry.Target = $user.UserPrincipalName
+                        }
+                        else
+                        {
+                            $currentEntry.Target = $valueEntry.Target
+                        }
                     }
                 }
                 else
@@ -277,14 +283,17 @@ function Get-TargetResource
                 }
                 if ($valueEntry.TargetType -eq 'user')
                 {
-                    $user = Get-MgUser -UserId $valueEntry.Target -ErrorAction SilentlyContinue
-                    if ($null -ne $user)
+                    if ($valueEntry.Target -ne 'AllUsers')
                     {
-                        $currentEntry.Target = $user.UserPrincipalName
-                    }
-                    else
-                    {
-                        $currentEntry.Target = $valueEntry.Target
+                        $user = Get-MgUser -UserId $valueEntry.Target -ErrorAction SilentlyContinue
+                        if ($null -ne $user)
+                        {
+                            $currentEntry.Target = $user.UserPrincipalName
+                        }
+                        else
+                        {
+                            $currentEntry.Target = $valueEntry.Target
+                        }
                     }
                 }
                 else

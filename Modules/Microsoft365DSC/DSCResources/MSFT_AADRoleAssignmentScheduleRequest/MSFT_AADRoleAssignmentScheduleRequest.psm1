@@ -232,7 +232,7 @@ function Get-TargetResource
             }
             if ($null -ne $schedule.ScheduleInfo.Expiration.EndDateTime)
             {
-                $expirationValue.Add('endDateTime', $schedule.ScheduleInfo.Expiration.EndDateTime.ToString('yyyy-MM-ddThh:mm:ssZ'))
+                $expirationValue.Add('endDateTime', $schedule.ScheduleInfo.Expiration.EndDateTime.ToString('yyyy-MM-ddTHH:mm:ssZ'))
             }
             $ScheduleInfoValue.Add('expiration', $expirationValue)
         }
@@ -749,14 +749,14 @@ function Export-TargetResource
             # Find the Principal Type
             $principalType = 'User'
             $userInfo = Get-MgBetaDirectoryObjectById -Ids $request.PrincipalId -ErrorAction SilentlyContinue
-            $principalType = $userInfo.AdditionalProperties['@odata.type'].Split('.')[2]
+            $principalType = $userInfo['@odata.type'].Split('.')[2]
             $PrincipalValue = if ($principalType -eq 'user')
             {
-                $userInfo.AdditionalProperties['userPrincipalName']
+                $userInfo['userPrincipalName']
             }
             else
             {
-                $userInfo.AdditionalProperties['displayName']
+                $userInfo['displayName']
             }
 
             if ($null -ne $PrincipalValue)

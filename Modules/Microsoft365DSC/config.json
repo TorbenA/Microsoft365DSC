@@ -8,6 +8,5 @@
       "Get-MgBetaRoleManagementDirectoryRoleDefinition"
     ]
   },
-  "skipModuleDependencyValidation": false,
-  "useGraphShim": false
+  "skipModuleDependencyValidation": false
 }

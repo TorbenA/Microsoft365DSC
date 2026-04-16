@@ -164,7 +164,7 @@ function Get-TargetResource
             {
                 $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
                     -FilterScript {
-                        $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsWifiConfiguration'
+                        $_.'@odata.type' -eq '#microsoft.graph.windowsWifiConfiguration'
                     }
             }
             #endregion
@@ -205,22 +205,22 @@ function Get-TargetResource
             Id                                         = $getValue.Id
             Description                                = $getValue.Description
             DisplayName                                = $getValue.DisplayName
-            ConnectAutomatically                       = $getValue.AdditionalProperties.connectAutomatically
-            ConnectToPreferredNetwork                  = $getValue.AdditionalProperties.connectToPreferredNetwork
-            ConnectWhenNetworkNameIsHidden             = $getValue.AdditionalProperties.connectWhenNetworkNameIsHidden
+            ConnectAutomatically                       = $getValue.connectAutomatically
+            ConnectToPreferredNetwork                  = $getValue.connectToPreferredNetwork
+            ConnectWhenNetworkNameIsHidden             = $getValue.connectWhenNetworkNameIsHidden
             DeviceManagementApplicabilityRuleOsEdition = $complexDeviceManagementApplicabilityRuleOsEdition
             DeviceManagementApplicabilityRuleOsVersion = $complexDeviceManagementApplicabilityRuleOsVersion
-            ForceFIPSCompliance                        = $getValue.AdditionalProperties.forceFIPSCompliance
-            MeteredConnectionLimit                     = $getValue.AdditionalProperties.meteredConnectionLimit
-            NetworkName                                = $getValue.AdditionalProperties.networkName
-            PreSharedKey                               = $getValue.AdditionalProperties.preSharedKey
-            ProxyAutomaticConfigurationUrl             = $getValue.AdditionalProperties.proxyAutomaticConfigurationUrl
-            ProxyManualAddress                         = $getValue.AdditionalProperties.proxyManualAddress
-            ProxyManualPort                            = $getValue.AdditionalProperties.proxyManualPort
-            ProxySetting                               = $getValue.AdditionalProperties.proxySetting
+            ForceFIPSCompliance                        = $getValue.forceFIPSCompliance
+            MeteredConnectionLimit                     = $getValue.meteredConnectionLimit
+            NetworkName                                = $getValue.networkName
+            PreSharedKey                               = $getValue.preSharedKey
+            ProxyAutomaticConfigurationUrl             = $getValue.proxyAutomaticConfigurationUrl
+            ProxyManualAddress                         = $getValue.proxyManualAddress
+            ProxyManualPort                            = $getValue.proxyManualPort
+            ProxySetting                               = $getValue.proxySetting
             RoleScopeTagIds                            = $getValue.RoleScopeTagIds
-            Ssid                                       = $getValue.AdditionalProperties.ssid
-            WifiSecurityType                           = $getValue.AdditionalProperties.wifiSecurityType
+            Ssid                                       = $getValue.ssid
+            WifiSecurityType                           = $getValue.wifiSecurityType
             Ensure                                     = 'Present'
             Credential                                 = $Credential
             ApplicationId                              = $ApplicationId
@@ -721,7 +721,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsWifiConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.windowsWifiConfiguration' `
         }
         #endregion
 

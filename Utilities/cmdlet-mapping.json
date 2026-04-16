@@ -357,6 +357,22 @@
       }
     ]
   },
+  "Get-MgBetaDeviceAppManagementWindowsManagedAppProtectionApp": {
+    "SourceModule": "Microsoft.Graph.Beta.Devices.CorporateManagement",
+    "ApiVersion": "beta",
+    "Variants": [
+      {
+        "Method": "GET",
+        "URI": "/deviceAppManagement/windowsManagedAppProtections/{windowsManagedAppProtection-id}/apps/{managedMobileApp-id}",
+        "ApiVersion": "beta"
+      },
+      {
+        "Method": "GET",
+        "URI": "/deviceAppManagement/windowsManagedAppProtections/{windowsManagedAppProtection-id}/apps",
+        "ApiVersion": "beta"
+      }
+    ]
+  },
   "Get-MgBetaDeviceAppManagementWindowsManagedAppProtectionAssignment": {
     "SourceModule": "Microsoft.Graph.Beta.Devices.CorporateManagement",
     "ApiVersion": "beta",
@@ -2447,38 +2463,6 @@
       }
     ]
   },
-  "Get-MgBetaPolicyPermissionGrantPolicyExclude": {
-    "SourceModule": "Microsoft.Graph.Beta.Identity.SignIns",
-    "ApiVersion": "beta",
-    "Variants": [
-      {
-        "Method": "GET",
-        "URI": "/policies/permissionGrantPolicies/{permissionGrantPolicy-id}/excludes/{permissionGrantConditionSet-id}",
-        "ApiVersion": "beta"
-      },
-      {
-        "Method": "GET",
-        "URI": "/policies/permissionGrantPolicies/{permissionGrantPolicy-id}/excludes",
-        "ApiVersion": "beta"
-      }
-    ]
-  },
-  "Get-MgBetaPolicyPermissionGrantPolicyInclude": {
-    "SourceModule": "Microsoft.Graph.Beta.Identity.SignIns",
-    "ApiVersion": "beta",
-    "Variants": [
-      {
-        "Method": "GET",
-        "URI": "/policies/permissionGrantPolicies/{permissionGrantPolicy-id}/includes/{permissionGrantConditionSet-id}",
-        "ApiVersion": "beta"
-      },
-      {
-        "Method": "GET",
-        "URI": "/policies/permissionGrantPolicies/{permissionGrantPolicy-id}/includes",
-        "ApiVersion": "beta"
-      }
-    ]
-  },
   "Get-MgBetaPolicyRoleManagementPolicy": {
     "SourceModule": "Microsoft.Graph.Beta.Identity.SignIns",
     "ApiVersion": "beta",
@@ -4085,17 +4069,6 @@
       }
     ]
   },
-  "New-MgBetaPolicyB2BManagementPolicy": {
-    "SourceModule": "Microsoft.Graph.Beta.Identity.SignIns",
-    "ApiVersion": "beta",
-    "Variants": [
-      {
-        "Method": "POST",
-        "URI": "/policies/b2bManagementPolicies",
-        "ApiVersion": "beta"
-      }
-    ]
-  },
   "New-MgBetaPolicyClaimMappingPolicy": {
     "SourceModule": "Microsoft.Graph.Beta.Identity.SignIns",
     "ApiVersion": "beta",
@@ -4492,7 +4465,7 @@
       }
     ]
   },
-  "Remove-MgApplicationTokenLifetimePolicyByRef": {
+  "Remove-MgApplicationTokenLifetimePolicyTokenLifetimePolicyByRef": {
     "SourceModule": "Microsoft.Graph.Applications",
     "ApiVersion": "v1.0",
     "Variants": [
@@ -5394,17 +5367,6 @@
       }
     ]
   },
-  "Remove-MgBetaPolicyB2BManagementPolicy": {
-    "SourceModule": "Microsoft.Graph.Beta.Identity.SignIns",
-    "ApiVersion": "beta",
-    "Variants": [
-      {
-        "Method": "DELETE",
-        "URI": "/policies/b2bManagementPolicies/{b2bManagementPolicy-id}",
-        "ApiVersion": "beta"
-      }
-    ]
-  },
   "Remove-MgBetaPolicyClaimMappingPolicy": {
     "SourceModule": "Microsoft.Graph.Beta.Identity.SignIns",
     "ApiVersion": "beta",
@@ -5449,7 +5411,7 @@
       }
     ]
   },
-  "Remove-MgBetaPolicyFeatureRolloutPolicyApplyToByRef": {
+  "Remove-MgBetaPolicyFeatureRolloutPolicyApplyToDirectoryObjectByRef": {
     "SourceModule": "Microsoft.Graph.Beta.Identity.SignIns",
     "ApiVersion": "beta",
     "Variants": [

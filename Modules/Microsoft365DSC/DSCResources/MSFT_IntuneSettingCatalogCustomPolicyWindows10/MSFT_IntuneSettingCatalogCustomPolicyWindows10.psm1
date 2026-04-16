@@ -143,9 +143,9 @@ function Get-TargetResource
         foreach ($currentSettings in $getValue.settings)
         {
             $complexSettingInstance = [hashtable]@{}
-            if (-not([string]::IsNullOrEmpty($currentSettings.SettingInstance.AdditionalProperties.'@odata.type')) )
+            if (-not([string]::IsNullOrEmpty($currentSettings.SettingInstance.'@odata.type')) )
             {
-                $complexSettingInstance['odataType'] = $currentSettings.SettingInstance.AdditionalProperties.'@odata.type'
+                $complexSettingInstance['odataType'] = $currentSettings.SettingInstance.'@odata.type'
             }
             if (-not([string]::IsNullOrEmpty($currentSettings.SettingInstance.settingDefinitionId)) )
             {
@@ -157,9 +157,9 @@ function Get-TargetResource
                     'SettingInstanceTemplateId' = "$($currentSettings.settingInstance.SettingInstanceTemplateReference.SettingInstanceTemplateId)"
                 } -ClientOnly
             }
-            $valueName = $currentSettings.settingInstance.AdditionalProperties.keys | Where-Object { @('ChoiceSettingCollectionValue', 'ChoiceSettingValue', 'GroupSettingCollectionValue', 'GroupSettingValue', 'SimpleSettingCollectionValue', 'SimpleSettingValue') -contains $_ }
-            $rawValue = $currentSettings.settingInstance.AdditionalProperties.$valueName
-            $complexValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $currentSettings.settingInstance.AdditionalProperties.'@odata.type'
+            $valueName = $currentSettings.settingInstance.keys | Where-Object { @('ChoiceSettingCollectionValue', 'ChoiceSettingValue', 'GroupSettingCollectionValue', 'GroupSettingValue', 'SimpleSettingCollectionValue', 'SimpleSettingValue') -contains $_ }
+            $rawValue = $currentSettings.settingInstance.$valueName
+            $complexValue = Get-SettingValue -SettingValue $rawValue -SettingValueType $currentSettings.settingInstance.'@odata.type'
             if (('ChoiceSettingCollectionValue', 'GroupSettingCollectionValue', 'SimpleSettingCollectionValue') -contains $valueName )
             {
                 $complexSettingInstance[$valueName] = [CimInstance[]]$complexValue

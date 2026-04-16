@@ -108,7 +108,7 @@ function Get-TargetResource
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue | Where-Object `
                         -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10CustomConfiguration' `
+                            $_.'@odata.type' -eq '#microsoft.graph.windows10CustomConfiguration' `
                     }
 
                     if ($null -eq $getValue)
@@ -134,7 +134,7 @@ function Get-TargetResource
 
         #region resource generator code
         $complexOmaSettings = @()
-        foreach ($currentomaSettings in $getValue.AdditionalProperties.omaSettings)
+        foreach ($currentomaSettings in $getValue.omaSettings)
         {
             $myomaSettings = [ordered]@{}
 
@@ -512,7 +512,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10CustomConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.windows10CustomConfiguration' `
         }
         #endregion
 

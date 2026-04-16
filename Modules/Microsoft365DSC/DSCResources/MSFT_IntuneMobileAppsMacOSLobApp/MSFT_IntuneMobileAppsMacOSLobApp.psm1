@@ -193,7 +193,7 @@ function Get-TargetResource
         }
 
         $complexChildApps = @()
-        foreach ($childApp in $instance.AdditionalProperties.childApps)
+        foreach ($childApp in $instance.childApps)
         {
             $myChildApp = [ordered]@{}
             $myChildApp.Add('BundleId', $childApp.bundleId)
@@ -210,9 +210,9 @@ function Get-TargetResource
         }
 
         $complexMinimumSupportedOperatingSystem = [ordered]@{}
-        if ($null -ne $instance.AdditionalProperties.minimumSupportedOperatingSystem)
+        if ($null -ne $instance.minimumSupportedOperatingSystem)
         {
-            $instance.AdditionalProperties.minimumSupportedOperatingSystem.GetEnumerator() | ForEach-Object {
+            $instance.minimumSupportedOperatingSystem.GetEnumerator() | ForEach-Object {
                 if ($_.Value) # Values are either true or false. Only export the true value.
                 {
                     $complexMinimumSupportedOperatingSystem.Add($_.Key, $_.Value)
@@ -222,17 +222,17 @@ function Get-TargetResource
 
         $results = @{
             Id                              = $instance.Id
-            BundleId                        = $instance.AdditionalProperties.bundleId
-            BuildNumber                     = $instance.AdditionalProperties.buildNumber
+            BundleId                        = $instance.bundleId
+            BuildNumber                     = $instance.buildNumber
             Categories                      = $complexCategories
             ChildApps                       = $complexChildApps
             Description                     = $instance.Description
             Developer                       = $instance.Developer
             DisplayName                     = $instance.DisplayName
-            IgnoreVersionDetection          = $instance.AdditionalProperties.ignoreVersionDetection
+            IgnoreVersionDetection          = $instance.ignoreVersionDetection
             InformationUrl                  = $instance.InformationUrl
             IsFeatured                      = $instance.IsFeatured
-            InstallAsManaged                = $instance.AdditionalProperties.installAsManaged
+            InstallAsManaged                = $instance.installAsManaged
             LargeIcon                       = $complexLargeIcon
             MinimumSupportedOperatingSystem = $complexMinimumSupportedOperatingSystem
             Notes                           = $instance.Notes
@@ -240,7 +240,7 @@ function Get-TargetResource
             PrivacyInformationUrl           = $instance.PrivacyInformationUrl
             Publisher                       = $instance.Publisher
             RoleScopeTagIds                 = $instance.RoleScopeTagIds
-            VersionNumber                   = $instance.AdditionalProperties.versionNumber
+            VersionNumber                   = $instance.versionNumber
             Ensure                          = 'Present'
             Credential                      = $Credential
             ApplicationId                   = $ApplicationId

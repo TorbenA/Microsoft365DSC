@@ -126,7 +126,7 @@ function Get-TargetResource
             {
                 $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
                     -FilterScript {
-                        $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.aospDeviceOwnerWiFiConfiguration' `
+                        $_.'@odata.type' -eq '#microsoft.graph.aospDeviceOwnerWiFiConfiguration' `
                 }
             }
             #endregion
@@ -149,13 +149,13 @@ function Get-TargetResource
             Description                    = $getValue.Description
             DisplayName                    = $getValue.DisplayName
             RoleScopeTagIds                = $getValue.RoleScopeTagIds
-            ConnectAutomatically           = $getValue.AdditionalProperties.connectAutomatically
-            ConnectWhenNetworkNameIsHidden = $getValue.AdditionalProperties.connectWhenNetworkNameIsHidden
-            NetworkName                    = $getValue.AdditionalProperties.networkName
-            PreSharedKey                   = $getValue.AdditionalProperties.preSharedKey
-            PreSharedKeyIsSet              = $getValue.AdditionalProperties.preSharedKeyIsSet
-            Ssid                           = $getValue.AdditionalProperties.ssid
-            WiFiSecurityType               = $getValue.AdditionalProperties.wiFiSecurityType
+            ConnectAutomatically           = $getValue.connectAutomatically
+            ConnectWhenNetworkNameIsHidden = $getValue.connectWhenNetworkNameIsHidden
+            NetworkName                    = $getValue.networkName
+            PreSharedKey                   = $getValue.preSharedKey
+            PreSharedKeyIsSet              = $getValue.preSharedKeyIsSet
+            Ssid                           = $getValue.ssid
+            WiFiSecurityType               = $getValue.wiFiSecurityType
             Ensure                         = 'Present'
             Credential                     = $Credential
             ApplicationId                  = $ApplicationId
@@ -540,7 +540,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.aospDeviceOwnerWiFiConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.aospDeviceOwnerWiFiConfiguration' `
         }
         #endregion
 

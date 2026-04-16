@@ -150,24 +150,24 @@ function Get-TargetResource
             {
                 if ($null -ne $currentValue)
                 {
-                    if ($null -ne $currentValue.mobileAppIdentifier.AdditionalProperties.bundleId)
+                    if ($null -ne $currentValue.mobileAppIdentifier.bundleId)
                     {
                         $complexMobileAppIdentifier = @{
-                            bundleID = $currentValue.mobileAppIdentifier.AdditionalProperties.bundleId
+                            bundleID = $currentValue.mobileAppIdentifier.bundleId
                         }
                     }
 
-                    if ($null -ne $currentValue.mobileAppIdentifier.AdditionalProperties.packageId)
+                    if ($null -ne $currentValue.mobileAppIdentifier.packageId)
                     {
                         $complexMobileAppIdentifier = @{
-                            packageId = $currentValue.mobileAppIdentifier.AdditionalProperties.packageId
+                            packageId = $currentValue.mobileAppIdentifier.packageId
                         }
                     }
 
-                    if ($null -ne $currentValue.mobileAppIdentifier.AdditionalProperties.windowsAppId)
+                    if ($null -ne $currentValue.mobileAppIdentifier.windowsAppId)
                     {
                         $complexMobileAppIdentifier = @{
-                            windowsAppId = $currentValue.mobileAppIdentifier.AdditionalProperties.windowsAppId
+                            windowsAppId = $currentValue.mobileAppIdentifier.windowsAppId
                         }
                     }
                     $complexAppsHash = [ordered]@{}

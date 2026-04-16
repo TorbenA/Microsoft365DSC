@@ -32,7 +32,7 @@ function ConvertFrom-IntunePolicyAssignment
         }
         else
         {
-            $dataType = $assignment.Target.AdditionalProperties.'@odata.type'
+            $dataType = $assignment.Target.'@odata.type'
         }
 
         if ($null -ne $assignment.Target.groupId)
@@ -41,7 +41,7 @@ function ConvertFrom-IntunePolicyAssignment
         }
         else
         {
-            $groupId = $assignment.Target.AdditionalProperties.groupId
+            $groupId = $assignment.Target.groupId
         }
 
         if ($null -ne $assignment.Target.collectionId)
@@ -50,7 +50,7 @@ function ConvertFrom-IntunePolicyAssignment
         }
         else
         {
-            $collectionId = $assignment.Target.AdditionalProperties.collectionId
+            $collectionId = $assignment.Target.collectionId
         }
 
         $hashAssignment.Add('dataType', $dataType)
@@ -237,7 +237,7 @@ function ConvertFrom-IntuneMobileAppAssignment
         }
         else
         {
-            $dataType = $assignment.Target.AdditionalProperties.'@odata.type'
+            $dataType = $assignment.Target.'@odata.type'
         }
 
         if ($null -ne $assignment.Target.groupId)
@@ -246,7 +246,7 @@ function ConvertFrom-IntuneMobileAppAssignment
         }
         else
         {
-            $groupId = $assignment.Target.AdditionalProperties.groupId
+            $groupId = $assignment.Target.groupId
         }
 
         $hashAssignment.Add('dataType', $dataType)
@@ -290,9 +290,9 @@ function ConvertFrom-IntuneMobileAppAssignment
             }
         }
 
-        if ($null -ne $assignment.settings -and $assignment.settings.AdditionalProperties.Count -gt 0)
+        if ($null -ne $assignment.settings -and $assignment.settings.Count -gt 0)
         {
-            $settings = (Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $assignment.settings.AdditionalProperties)
+            $settings = (Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $assignment.settings)
             $hashAssignment.Add('assignmentSettings', $settings)
         }
 
@@ -781,7 +781,7 @@ function Get-M365DSCIntuneDeviceConfigurationSettings
     foreach ($setting in $templateSettings)
     {
         $result = @{}
-        $settingType = $setting.AdditionalProperties.'@odata.type'
+        $settingType = $setting.'@odata.type'
         $settingValue = $null
         $currentValueKey = $Properties.keys | Where-Object -FilterScript { $setting.DefinitionId -like "*$_" }
         if ($null -ne $currentValueKey)

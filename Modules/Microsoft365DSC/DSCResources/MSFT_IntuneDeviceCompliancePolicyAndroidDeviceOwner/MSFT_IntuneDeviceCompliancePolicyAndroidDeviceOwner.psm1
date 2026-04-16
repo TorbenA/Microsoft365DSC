@@ -193,7 +193,7 @@ function Get-TargetResource
                 -ExpandProperty 'scheduledActionsForRule($expand=scheduledActionConfigurations)' `
                 -ErrorAction Stop | Where-Object `
                 -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerCompliancePolicy' -and `
+                $_.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerCompliancePolicy' -and `
                     $_.displayName -eq $($DisplayName)
             }
 
@@ -245,32 +245,32 @@ function Get-TargetResource
         $results = @{
             DisplayName                                        = $devicePolicy.DisplayName
             Description                                        = $devicePolicy.Description
-            MinAndroidSecurityPatchLevel                       = $devicePolicy.AdditionalProperties.minAndroidSecurityPatchLevel
-            PasswordMinimumLetterCharacters                    = $devicePolicy.AdditionalProperties.passwordMinimumLetterCharacters
-            PasswordMinimumLowerCaseCharacters                 = $devicePolicy.AdditionalProperties.passwordMinimumLowerCaseCharacters
-            PasswordMinimumNonLetterCharacters                 = $devicePolicy.AdditionalProperties.passwordMinimumNonLetterCharacters
-            PasswordMinimumNumericCharacters                   = $devicePolicy.AdditionalProperties.passwordMinimumNumericCharacters
-            PasswordMinimumSymbolCharacters                    = $devicePolicy.AdditionalProperties.passwordMinimumSymbolCharacters
-            PasswordMinimumUpperCaseCharacters                 = $devicePolicy.AdditionalProperties.passwordMinimumUpperCaseCharacters
-            RequireNoPendingSystemUpdates                      = $devicePolicy.AdditionalProperties.requireNoPendingSystemUpdates
-            SecurityRequiredAndroidSafetyNetEvaluationType     = $devicePolicy.AdditionalProperties.securityRequiredAndroidSafetyNetEvaluationType
+            MinAndroidSecurityPatchLevel                       = $devicePolicy.minAndroidSecurityPatchLevel
+            PasswordMinimumLetterCharacters                    = $devicePolicy.passwordMinimumLetterCharacters
+            PasswordMinimumLowerCaseCharacters                 = $devicePolicy.passwordMinimumLowerCaseCharacters
+            PasswordMinimumNonLetterCharacters                 = $devicePolicy.passwordMinimumNonLetterCharacters
+            PasswordMinimumNumericCharacters                   = $devicePolicy.passwordMinimumNumericCharacters
+            PasswordMinimumSymbolCharacters                    = $devicePolicy.passwordMinimumSymbolCharacters
+            PasswordMinimumUpperCaseCharacters                 = $devicePolicy.passwordMinimumUpperCaseCharacters
+            RequireNoPendingSystemUpdates                      = $devicePolicy.requireNoPendingSystemUpdates
+            SecurityRequiredAndroidSafetyNetEvaluationType     = $devicePolicy.securityRequiredAndroidSafetyNetEvaluationType
             ScheduledActionsForRule                            = $complexScheduledActionsForRule
-            DeviceThreatProtectionEnabled                      = $devicePolicy.AdditionalProperties.deviceThreatProtectionEnabled
-            DeviceThreatProtectionRequiredSecurityLevel        = $devicePolicy.AdditionalProperties.deviceThreatProtectionRequiredSecurityLevel
-            AdvancedThreatProtectionRequiredSecurityLevel      = $devicePolicy.AdditionalProperties.advancedThreatProtectionRequiredSecurityLevel
-            SecurityRequireSafetyNetAttestationBasicIntegrity  = $devicePolicy.AdditionalProperties.securityRequireSafetyNetAttestationBasicIntegrity
-            SecurityRequireSafetyNetAttestationCertifiedDevice = $devicePolicy.AdditionalProperties.securityRequireSafetyNetAttestationCertifiedDevice
-            OsMinimumVersion                                   = $devicePolicy.AdditionalProperties.osMinimumVersion
-            OsMaximumVersion                                   = $devicePolicy.AdditionalProperties.osMaximumVersion
-            PasswordRequired                                   = $devicePolicy.AdditionalProperties.passwordRequired
-            PasswordMinimumLength                              = $devicePolicy.AdditionalProperties.passwordMinimumLength
-            PasswordRequiredType                               = $devicePolicy.AdditionalProperties.passwordRequiredType
-            PasswordMinutesOfInactivityBeforeLock              = $devicePolicy.AdditionalProperties.passwordMinutesOfInactivityBeforeLock
-            PasswordExpirationDays                             = $devicePolicy.AdditionalProperties.passwordExpirationDays
-            PasswordPreviousPasswordCountToBlock               = $devicePolicy.AdditionalProperties.passwordPreviousPasswordCountToBlock
-            StorageRequireEncryption                           = $devicePolicy.AdditionalProperties.storageRequireEncryption
-            SecurityRequireIntuneAppIntegrity                  = $devicePolicy.AdditionalProperties.securityRequireIntuneAppIntegrity
-            SecurityBlockJailbrokenDevices                     = $devicePolicy.AdditionalProperties.securityBlockJailbrokenDevices
+            DeviceThreatProtectionEnabled                      = $devicePolicy.deviceThreatProtectionEnabled
+            DeviceThreatProtectionRequiredSecurityLevel        = $devicePolicy.deviceThreatProtectionRequiredSecurityLevel
+            AdvancedThreatProtectionRequiredSecurityLevel      = $devicePolicy.advancedThreatProtectionRequiredSecurityLevel
+            SecurityRequireSafetyNetAttestationBasicIntegrity  = $devicePolicy.securityRequireSafetyNetAttestationBasicIntegrity
+            SecurityRequireSafetyNetAttestationCertifiedDevice = $devicePolicy.securityRequireSafetyNetAttestationCertifiedDevice
+            OsMinimumVersion                                   = $devicePolicy.osMinimumVersion
+            OsMaximumVersion                                   = $devicePolicy.osMaximumVersion
+            PasswordRequired                                   = $devicePolicy.passwordRequired
+            PasswordMinimumLength                              = $devicePolicy.passwordMinimumLength
+            PasswordRequiredType                               = $devicePolicy.passwordRequiredType
+            PasswordMinutesOfInactivityBeforeLock              = $devicePolicy.passwordMinutesOfInactivityBeforeLock
+            PasswordExpirationDays                             = $devicePolicy.passwordExpirationDays
+            PasswordPreviousPasswordCountToBlock               = $devicePolicy.passwordPreviousPasswordCountToBlock
+            StorageRequireEncryption                           = $devicePolicy.storageRequireEncryption
+            SecurityRequireIntuneAppIntegrity                  = $devicePolicy.securityRequireIntuneAppIntegrity
+            SecurityBlockJailbrokenDevices                     = $devicePolicy.securityBlockJailbrokenDevices
             RoleScopeTagIds                                    = $devicePolicy.roleScopeTagIds
             Ensure                                             = 'Present'
             Credential                                         = $Credential
@@ -565,7 +565,7 @@ function Set-TargetResource
         $configDeviceAndroidPolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerCompliancePolicy' -and `
+            $_.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerCompliancePolicy' -and `
                 $_.displayName -eq $($DisplayName)
         }
 
@@ -599,7 +599,7 @@ function Set-TargetResource
         $configDeviceAndroidPolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerCompliancePolicy' -and `
+            $_.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerCompliancePolicy' -and `
                 $_.displayName -eq $($DisplayName)
         }
 
@@ -850,7 +850,7 @@ function Export-TargetResource
             -ExpandProperty 'scheduledActionsForRule($expand=scheduledActionConfigurations)' `
             -ErrorAction Stop -All:$true -Filter $Filter | Where-Object `
             -FilterScript {
-            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerCompliancePolicy'
+            $_.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerCompliancePolicy'
         }
         $configDeviceAndroidPolicies = Find-GraphDataUsingComplexFunctions -ComplexFunctions $complexFunctions -Policies $configDeviceAndroidPolicies
 

@@ -731,7 +731,7 @@ function Get-M365DSCRoleManagementPolicyRuleObject
     {
         $values = [ordered]@{
             id       = $Rule.id
-            ruleType = $Rule.AdditionalProperties.'@odata.type'
+            ruleType = $Rule.'@odata.type'
         }
     }
 
@@ -747,8 +747,8 @@ function Get-M365DSCRoleManagementPolicyRuleObject
         else
         {
             $expirationRule = [ordered]@{
-                isExpirationRequired = $Rule.AdditionalProperties.isExpirationRequired
-                maximumDuration      = $Rule.AdditionalProperties.maximumDuration
+                isExpirationRequired = $Rule.isExpirationRequired
+                maximumDuration      = $Rule.maximumDuration
             }
         }
 
@@ -770,11 +770,11 @@ function Get-M365DSCRoleManagementPolicyRuleObject
         else
         {
             $notificationRule = [ordered]@{
-                notificationType           = $Rule.AdditionalProperties.notificationType
-                recipientType              = $Rule.AdditionalProperties.recipientType
-                notificationLevel          = $Rule.AdditionalProperties.notificationLevel
-                isDefaultRecipientsEnabled = $Rule.AdditionalProperties.isDefaultRecipientsEnabled
-                notificationRecipients     = [array]$Rule.AdditionalProperties.notificationRecipients
+                notificationType           = $Rule.notificationType
+                recipientType              = $Rule.recipientType
+                notificationLevel          = $Rule.notificationLevel
+                isDefaultRecipientsEnabled = $Rule.isDefaultRecipientsEnabled
+                notificationRecipients     = [array]$Rule.notificationRecipients
             }
         }
         $values.Add('notificationRule', $notificationRule)
@@ -791,7 +791,7 @@ function Get-M365DSCRoleManagementPolicyRuleObject
         else
         {
             $enablementRule = @{
-                enabledRules = [array]$Rule.AdditionalProperties.enabledRules
+                enabledRules = [array]$Rule.enabledRules
             }
         }
         $values.Add('enablementRule', $enablementRule)
@@ -806,7 +806,7 @@ function Get-M365DSCRoleManagementPolicyRuleObject
         }
         else
         {
-            $foreachApprovalStages = $Rule.AdditionalProperties.setting.approvalStages
+            $foreachApprovalStages = $Rule.setting.approvalStages
         }
         foreach ($stage in $foreachApprovalStages)
         {
@@ -853,10 +853,10 @@ function Get-M365DSCRoleManagementPolicyRuleObject
         else
         {
             $setting = [ordered]@{
-                approvalMode                     = $Rule.AdditionalProperties.setting.approvalMode
-                isApprovalRequired               = $Rule.AdditionalProperties.setting.isApprovalRequired
-                isApprovalRequiredForExtension   = $Rule.AdditionalProperties.setting.isApprovalRequiredForExtension
-                isRequestorJustificationRequired = $Rule.AdditionalProperties.setting.isRequestorJustificationRequired
+                approvalMode                     = $Rule.setting.approvalMode
+                isApprovalRequired               = $Rule.setting.isApprovalRequired
+                isApprovalRequiredForExtension   = $Rule.setting.isApprovalRequiredForExtension
+                isRequestorJustificationRequired = $Rule.setting.isRequestorJustificationRequired
                 approvalStages                   = [array]$approvalStages
             }
         }
@@ -878,8 +878,8 @@ function Get-M365DSCRoleManagementPolicyRuleObject
         else
         {
             $authenticationContextRule = [ordered]@{
-                isEnabled  = $Rule.AdditionalProperties.isEnabled
-                claimValue = $Rule.AdditionalProperties.claimValue
+                isEnabled  = $Rule.isEnabled
+                claimValue = $Rule.claimValue
             }
         }
         $values.Add('authenticationContextRule', $authenticationContextRule)

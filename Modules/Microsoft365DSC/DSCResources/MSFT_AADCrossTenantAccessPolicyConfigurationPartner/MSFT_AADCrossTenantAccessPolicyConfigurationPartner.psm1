@@ -76,7 +76,7 @@ function Get-TargetResource
 
     try
     {
-        if (-not $Script:exportedInstance -or $Script:exportedInstance.PartnerTenantId -ne $PartnerTenantId)
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.TenantId -ne $PartnerTenantId)
         {
             $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
                 -InboundParameters $PSBoundParameters
@@ -153,7 +153,7 @@ function Get-TargetResource
             if ($null -eq $getValue.IdentitySynchronization.GroupSyncInbound.IsSyncAllowed)
             {
                 $IdentitySynchronizationValue.Remove('GroupSyncInbound') | Out-Null
-            }            
+            }
             if ($null -eq $getValue.IdentitySynchronization.UserSyncInbound.IsSyncAllowed)
             {
                 $IdentitySynchronizationValue.Remove('UserSyncInbound') | Out-Null

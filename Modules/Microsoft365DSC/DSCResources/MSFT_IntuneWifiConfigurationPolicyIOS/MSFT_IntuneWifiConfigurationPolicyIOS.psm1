@@ -147,7 +147,7 @@ function Get-TargetResource
             {
                 $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
                     -FilterScript {
-                        $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.iosWiFiConfiguration' `
+                        $_.'@odata.type' -eq '#microsoft.graph.iosWiFiConfiguration' `
                 }
             }
             #endregion
@@ -170,18 +170,18 @@ function Get-TargetResource
             Id                             = $getValue.Id
             Description                    = $getValue.Description
             DisplayName                    = $getValue.DisplayName
-            ConnectAutomatically           = $getValue.AdditionalProperties.connectAutomatically
-            ConnectWhenNetworkNameIsHidden = $getValue.AdditionalProperties.connectWhenNetworkNameIsHidden
-            DisableMacAddressRandomization = $getValue.AdditionalProperties.disableMacAddressRandomization
-            NetworkName                    = $getValue.AdditionalProperties.networkName
-            PreSharedKey                   = $getValue.AdditionalProperties.preSharedKey
-            ProxyAutomaticConfigurationUrl = $getValue.AdditionalProperties.proxyAutomaticConfigurationUrl
-            ProxyManualAddress             = $getValue.AdditionalProperties.proxyManualAddress
-            ProxyManualPort                = $getValue.AdditionalProperties.proxyManualPort
-            ProxySettings                  = $getValue.AdditionalProperties.proxySettings
+            ConnectAutomatically           = $getValue.connectAutomatically
+            ConnectWhenNetworkNameIsHidden = $getValue.connectWhenNetworkNameIsHidden
+            DisableMacAddressRandomization = $getValue.disableMacAddressRandomization
+            NetworkName                    = $getValue.networkName
+            PreSharedKey                   = $getValue.preSharedKey
+            ProxyAutomaticConfigurationUrl = $getValue.proxyAutomaticConfigurationUrl
+            ProxyManualAddress             = $getValue.proxyManualAddress
+            ProxyManualPort                = $getValue.proxyManualPort
+            ProxySettings                  = $getValue.proxySettings
             RoleScopeTagIds                = $getValue.RoleScopeTagIds
-            Ssid                           = $getValue.AdditionalProperties.ssid
-            WiFiSecurityType               = $getValue.AdditionalProperties.wiFiSecurityType
+            Ssid                           = $getValue.ssid
+            WiFiSecurityType               = $getValue.wiFiSecurityType
             Ensure                         = 'Present'
             Credential                     = $Credential
             ApplicationId                  = $ApplicationId
@@ -647,7 +647,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.iosWiFiConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.iosWiFiConfiguration' `
         }
         #endregion
 

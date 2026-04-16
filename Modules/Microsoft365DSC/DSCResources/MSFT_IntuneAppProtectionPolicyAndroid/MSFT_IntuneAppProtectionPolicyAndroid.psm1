@@ -453,7 +453,7 @@ function Get-TargetResource
         {
             foreach ($app in $policyApps)
             {
-                $appsArray += $app.MobileAppIdentifier.AdditionalProperties.packageId
+                $appsArray += $app.MobileAppIdentifier.packageId
             }
         }
 
@@ -536,10 +536,10 @@ function Get-TargetResource
             MobileThreatDefenseRemediationAction               = [string]$policy.MobileThreatDefenseRemediationAction
             NotificationRestriction                            = [string]$policy.NotificationRestriction
             OrganizationalCredentialsRequired                  = $policy.OrganizationalCredentialsRequired
-            PeriodBeforePinReset                               = [System.Xml.XmlConvert]::ToString($policy.PeriodBeforePinReset)
-            PeriodOfflineBeforeAccessCheck                     = [System.Xml.XmlConvert]::ToString($policy.PeriodOfflineBeforeAccessCheck)
-            PeriodOfflineBeforeWipeIsEnforced                  = [System.Xml.XmlConvert]::ToString($policy.PeriodOfflineBeforeWipeIsEnforced)
-            PeriodOnlineBeforeAccessCheck                      = [System.Xml.XmlConvert]::ToString($policy.PeriodOnlineBeforeAccessCheck)
+            PeriodBeforePinReset                               = $policy.PeriodBeforePinReset
+            PeriodOfflineBeforeAccessCheck                     = $policy.PeriodOfflineBeforeAccessCheck
+            PeriodOfflineBeforeWipeIsEnforced                  = $policy.PeriodOfflineBeforeWipeIsEnforced
+            PeriodOnlineBeforeAccessCheck                      = $policy.PeriodOnlineBeforeAccessCheck
             PinCharacterSet                                    = [string]$policy.PinCharacterSet
             PinRequired                                        = $policy.PinRequired
             PreviousPinBlockCount                              = $policy.PreviousPinBlockCount
@@ -1649,7 +1649,7 @@ function Get-IntuneAppProtectionPolicyAndroidAppsToHashtable
     )
 
     $formattedApps = @()
-    $allApps = (Get-MgBetaDeviceAppManagementManagedAppStatus -ManagedAppStatusId managedAppList).AdditionalProperties.content.appList | Where-Object {
+    $allApps = (Get-MgBetaDeviceAppManagementManagedAppStatus -ManagedAppStatusId managedAppList).content.appList | Where-Object {
         $_.appIdentifier.'@odata.type' -eq '#microsoft.graph.androidMobileAppIdentifier'
     }
 

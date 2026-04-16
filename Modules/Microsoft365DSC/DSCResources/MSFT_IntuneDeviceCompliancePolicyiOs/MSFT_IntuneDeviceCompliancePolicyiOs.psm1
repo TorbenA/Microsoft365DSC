@@ -162,7 +162,7 @@ function Get-TargetResource
             $devicePolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
                 -All `
                 -ErrorAction SilentlyContinue | Where-Object `
-                -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.iosCompliancePolicy' -and `
+                -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.iosCompliancePolicy' -and `
                     $_.displayName -eq $($DisplayName) }
             if (([array]$devicePolicy).Count -gt 1)
             {
@@ -184,25 +184,25 @@ function Get-TargetResource
             DisplayName                                    = $devicePolicy.DisplayName
             Description                                    = $devicePolicy.Description
             RoleScopeTagIds                                = $devicePolicy.RoleScopeTagIds
-            PasscodeBlockSimple                            = $devicePolicy.AdditionalProperties.passcodeBlockSimple
-            PasscodeExpirationDays                         = $devicePolicy.AdditionalProperties.passcodeExpirationDays
-            PasscodeMinimumLength                          = $devicePolicy.AdditionalProperties.passcodeMinimumLength
-            PasscodeMinutesOfInactivityBeforeLock          = $devicePolicy.AdditionalProperties.passcodeMinutesOfInactivityBeforeLock
-            PasscodeMinutesOfInactivityBeforeScreenTimeout = $devicePolicy.AdditionalProperties.passcodeMinutesOfInactivityBeforeScreenTimeout
-            PasscodePreviousPasscodeBlockCount             = $devicePolicy.AdditionalProperties.passcodePreviousPasscodeBlockCount
-            PasscodeMinimumCharacterSetCount               = $devicePolicy.AdditionalProperties.passcodeMinimumCharacterSetCount
-            PasscodeRequiredType                           = $devicePolicy.AdditionalProperties.passcodeRequiredType
-            PasscodeRequired                               = $devicePolicy.AdditionalProperties.passcodeRequired
-            OsMinimumVersion                               = $devicePolicy.AdditionalProperties.osMinimumVersion
-            OsMaximumVersion                               = $devicePolicy.AdditionalProperties.osMaximumVersion
-            OsMinimumBuildVersion                          = $devicePolicy.AdditionalProperties.osMinimumBuildVersion
-            OsMaximumBuildVersion                          = $devicePolicy.AdditionalProperties.osMaximumBuildVersion
-            SecurityBlockJailbrokenDevices                 = $devicePolicy.AdditionalProperties.securityBlockJailbrokenDevices
-            DeviceThreatProtectionEnabled                  = $devicePolicy.AdditionalProperties.deviceThreatProtectionEnabled
-            DeviceThreatProtectionRequiredSecurityLevel    = $devicePolicy.AdditionalProperties.deviceThreatProtectionRequiredSecurityLevel
-            AdvancedThreatProtectionRequiredSecurityLevel  = $devicePolicy.AdditionalProperties.advancedThreatProtectionRequiredSecurityLevel
-            ManagedEmailProfileRequired                    = $devicePolicy.AdditionalProperties.managedEmailProfileRequired
-            RestrictedApps                                 = $devicePolicy.AdditionalProperties.restrictedApps
+            PasscodeBlockSimple                            = $devicePolicy.passcodeBlockSimple
+            PasscodeExpirationDays                         = $devicePolicy.passcodeExpirationDays
+            PasscodeMinimumLength                          = $devicePolicy.passcodeMinimumLength
+            PasscodeMinutesOfInactivityBeforeLock          = $devicePolicy.passcodeMinutesOfInactivityBeforeLock
+            PasscodeMinutesOfInactivityBeforeScreenTimeout = $devicePolicy.passcodeMinutesOfInactivityBeforeScreenTimeout
+            PasscodePreviousPasscodeBlockCount             = $devicePolicy.passcodePreviousPasscodeBlockCount
+            PasscodeMinimumCharacterSetCount               = $devicePolicy.passcodeMinimumCharacterSetCount
+            PasscodeRequiredType                           = $devicePolicy.passcodeRequiredType
+            PasscodeRequired                               = $devicePolicy.passcodeRequired
+            OsMinimumVersion                               = $devicePolicy.osMinimumVersion
+            OsMaximumVersion                               = $devicePolicy.osMaximumVersion
+            OsMinimumBuildVersion                          = $devicePolicy.osMinimumBuildVersion
+            OsMaximumBuildVersion                          = $devicePolicy.osMaximumBuildVersion
+            SecurityBlockJailbrokenDevices                 = $devicePolicy.securityBlockJailbrokenDevices
+            DeviceThreatProtectionEnabled                  = $devicePolicy.deviceThreatProtectionEnabled
+            DeviceThreatProtectionRequiredSecurityLevel    = $devicePolicy.deviceThreatProtectionRequiredSecurityLevel
+            AdvancedThreatProtectionRequiredSecurityLevel  = $devicePolicy.advancedThreatProtectionRequiredSecurityLevel
+            ManagedEmailProfileRequired                    = $devicePolicy.managedEmailProfileRequired
+            RestrictedApps                                 = $devicePolicy.restrictedApps
             Ensure                                         = 'Present'
             Credential                                     = $Credential
             ApplicationId                                  = $ApplicationId
@@ -436,7 +436,7 @@ function Set-TargetResource
         Write-Verbose -Message "Updating Intune Device Compliance iOS Policy {$DisplayName}"
         $configDevicePolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
             -ErrorAction Stop | Where-Object `
-            -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.iosCompliancePolicy' -and `
+            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.iosCompliancePolicy' -and `
                 $_.displayName -eq $($DisplayName) }
 
         $boundParameters.Remove('DisplayName') | Out-Null
@@ -466,7 +466,7 @@ function Set-TargetResource
         Write-Verbose -Message "Removing Intune Device Compliance iOS Policy {$DisplayName}"
         $configDevicePolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
             -ErrorAction Stop | Where-Object `
-            -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.iosCompliancePolicy' -and `
+            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.iosCompliancePolicy' -and `
                 $_.displayName -eq $($DisplayName) }
 
         Remove-MgBetaDeviceManagementDeviceCompliancePolicy -DeviceCompliancePolicyId $configDevicePolicy.Id
@@ -685,7 +685,7 @@ function Export-TargetResource
         }
         [array]$configDeviceiOsPolicies = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
             -ErrorAction Stop -All:$true -Filter $Filter | Where-Object `
-            -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.iosCompliancePolicy' }
+            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.iosCompliancePolicy' }
         $configDeviceiOsPolicies = Find-GraphDataUsingComplexFunctions -ComplexFunctions $complexFunctions -Policies $configDeviceiOsPolicies
 
         $i = 1

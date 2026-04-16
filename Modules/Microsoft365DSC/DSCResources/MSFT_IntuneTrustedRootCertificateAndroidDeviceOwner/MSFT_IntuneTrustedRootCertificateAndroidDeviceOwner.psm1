@@ -104,7 +104,7 @@ function Get-TargetResource
             {
                 $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
                     -FilterScript {
-                        $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerTrustedRootCertificate' `
+                        $_.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerTrustedRootCertificate' `
                     }
             }
             #endregion
@@ -130,8 +130,8 @@ function Get-TargetResource
             Description            = $getValue.Description
             DisplayName            = $getValue.DisplayName
             RoleScopeTagIds        = $getValue.RoleScopeTagIds
-            certFileName           = $getValue.AdditionalProperties.certFileName
-            trustedRootCertificate = $getValue.AdditionalProperties.trustedRootCertificate
+            certFileName           = $getValue.certFileName
+            trustedRootCertificate = $getValue.trustedRootCertificate
             Ensure                 = 'Present'
             Credential             = $Credential
             ApplicationId          = $ApplicationId
@@ -140,7 +140,6 @@ function Get-TargetResource
             CertificateThumbprint  = $CertificateThumbprint
             ManagedIdentity        = $ManagedIdentity.IsPresent
             AccessTokens           = $AccessTokens
-            version                = $getValue.AdditionalProperties.version
         }
 
         $assignmentsValues = Get-MgBetaDeviceManagementDeviceConfigurationAssignment -DeviceConfigurationId $Results.Id
@@ -478,7 +477,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerTrustedRootCertificate' `
+                $_.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerTrustedRootCertificate' `
         }
         #endregion
 

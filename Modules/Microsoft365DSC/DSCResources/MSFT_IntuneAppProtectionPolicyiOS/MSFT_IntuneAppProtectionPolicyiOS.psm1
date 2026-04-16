@@ -427,7 +427,7 @@ function Get-TargetResource
         {
             foreach ($app in $policyApps)
             {
-                $appsArray += $app.mobileAppIdentifier.additionalProperties.bundleId
+                $appsArray += $app.mobileAppIdentifier.bundleId
             }
         }
 
@@ -503,8 +503,8 @@ function Get-TargetResource
             PreviousPinBlockCount                          = $policy.previousPinBlockCount
             ProtectedMessagingRedirectAppType              = [string]$policy.protectedMessagingRedirectAppType
             thirdPartyKeyboardsBlocked                     = $policy.thirdPartyKeyboardsBlocked
-            PeriodOfflineBeforeAccessCheck                 = [System.Xml.XmlConvert]::ToString($policy.PeriodOfflineBeforeAccessCheck)
-            PeriodOnlineBeforeAccessCheck                  = [System.Xml.XmlConvert]::ToString($policy.PeriodOnlineBeforeAccessCheck)
+            PeriodOfflineBeforeAccessCheck                 = $policy.PeriodOfflineBeforeAccessCheck
+            PeriodOnlineBeforeAccessCheck                  = $policy.PeriodOnlineBeforeAccessCheck
             AllowedInboundDataTransferSources              = [String]$policy.AllowedInboundDataTransferSources
             AllowedOutboundDataTransferDestinations        = [String]$policy.AllowedOutboundDataTransferDestinations
             OrganizationalCredentialsRequired              = $policy.OrganizationalCredentialsRequired
@@ -519,7 +519,7 @@ function Get-TargetResource
             MinimumWarningOSVersion                        = $policy.MinimumWarningOSVersion
             ManagedBrowserToOpenLinksRequired              = $policy.ManagedBrowserToOpenLinksRequired
             SaveAsBlocked                                  = $policy.SaveAsBlocked
-            PeriodOfflineBeforeWipeIsEnforced              = [System.Xml.XmlConvert]::ToString($policy.PeriodOfflineBeforeWipeIsEnforced)
+            PeriodOfflineBeforeWipeIsEnforced              = $policy.PeriodOfflineBeforeWipeIsEnforced
             PinRequired                                    = $policy.PinRequired
             DisableAppPinIfDevicePinIsSet                  = $policy.disableAppPinIfDevicePinIsSet
             MaximumPinRetries                              = $policy.MaximumPinRetries
@@ -528,7 +528,7 @@ function Get-TargetResource
             PinCharacterSet                                = [String]$policy.PinCharacterSet
             AllowedDataStorageLocations                    = $AllowedDataStorageLocations
             ContactSyncBlocked                             = $policy.ContactSyncBlocked
-            PeriodBeforePinReset                           = [System.Xml.XmlConvert]::ToString($policy.PeriodBeforePinReset)
+            PeriodBeforePinReset                           = $policy.PeriodBeforePinReset
             FaceIdBlocked                                  = $policy.FaceIdBlocked
             PrintBlocked                                   = $policy.PrintBlocked
             FingerprintBlocked                             = $policy.FingerprintBlocked
@@ -540,7 +540,7 @@ function Get-TargetResource
             MinimumWipeAppVersion                          = $policy.MinimumWipeAppVersion
             AppActionIfDeviceComplianceRequired            = [String]$policy.AppActionIfDeviceComplianceRequired
             AppActionIfMaximumPinRetriesExceeded           = [String]$policy.AppActionIfMaximumPinRetriesExceeded
-            PinRequiredInsteadOfBiometricTimeout           = [System.Xml.XmlConvert]::ToString($policy.PinRequiredInsteadOfBiometricTimeout)
+            PinRequiredInsteadOfBiometricTimeout           = $policy.PinRequiredInsteadOfBiometricTimeout
             AllowedOutboundClipboardSharingExceptionLength = $policy.AllowedOutboundClipboardSharingExceptionLength
             NotificationRestriction                        = [String]$policy.NotificationRestriction
             TargetedAppManagementLevels                    = [String[]]$policy.TargetedAppManagementLevels.ToString().Split(',')
@@ -1589,7 +1589,7 @@ function Get-IntuneAppProtectionPolicyiOSAppsToHashtable
     )
 
     $formattedApps = @()
-    $allApps = (Get-MgBetaDeviceAppManagementManagedAppStatus -ManagedAppStatusId managedAppList).AdditionalProperties.content.appList | Where-Object {
+    $allApps = (Get-MgBetaDeviceAppManagementManagedAppStatus -ManagedAppStatusId managedAppList).content.appList | Where-Object {
         $_.appIdentifier.'@odata.type' -eq '#microsoft.graph.iosMobileAppIdentifier'
     }
 

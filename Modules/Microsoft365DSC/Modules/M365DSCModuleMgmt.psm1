@@ -184,12 +184,11 @@ function Confirm-M365DSCLoadedModule
         $ModuleName
     )
 
-    # Graph Shim intercept: when useGraphShim is enabled, replace typed Graph SDK
+    # Graph Shim intercept: Replace typed Graph SDK
     # sub-modules with the lightweight M365DSCGraphShim module that wraps
     # Invoke-MgGraphRequest. Microsoft.Graph.Authentication is always loaded
     # natively because it provides Connect-MgGraph and the underlying HTTP client.
-    if ($Script:CurrentConfiguration.useGraphShim -and
-        $ModuleName -like 'Microsoft.Graph.*' -and
+    if ($ModuleName -like 'Microsoft.Graph.*' -and
         $ModuleName -ne 'Microsoft.Graph.Authentication')
     {
         if (-not $Script:M365DSCGraphShimLoaded)

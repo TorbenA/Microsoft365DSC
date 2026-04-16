@@ -211,9 +211,9 @@ function Get-TargetResource
         }
 
         $complexExcludedApps = [ordered]@{}
-        if ($null -ne $instance.AdditionalProperties.excludedApps)
+        if ($null -ne $instance.excludedApps)
         {
-            $instance.AdditionalProperties.excludedApps.GetEnumerator() | ForEach-Object {
+            $instance.excludedApps.GetEnumerator() | ForEach-Object {
                 $complexExcludedApps.Add($_.Key, $_.Value)
             }
         }
@@ -238,18 +238,18 @@ function Get-TargetResource
             InformationUrl                       = $instance.InformationUrl
             Notes                                = $instance.Notes
             RoleScopeTagIds                      = $instance.RoleScopeTagIds
-            AutoAcceptEula                       = $instance.AdditionalProperties.autoAcceptEula
-            ProductIds                           = $instance.AdditionalProperties.productIds
-            UseSharedComputerActivation          = $instance.AdditionalProperties.useSharedComputerActivation
-            UpdateChannel                        = $instance.AdditionalProperties.updateChannel
-            OfficeSuiteAppDefaultFileFormat      = $instance.AdditionalProperties.officeSuiteAppDefaultFileFormat
-            OfficePlatformArchitecture           = $instance.AdditionalProperties.officePlatformArchitecture
-            LocalesToInstall                     = $instance.AdditionalProperties.localesToInstall
-            InstallProgressDisplayLevel          = $instance.AdditionalProperties.installProgressDisplayLevel
-            ShouldUninstallOlderVersionsOfOffice = $instance.AdditionalProperties.shouldUninstallOlderVersionsOfOffice
-            TargetVersion                        = $instance.AdditionalProperties.targetVersion
-            UpdateVersion                        = $instance.AdditionalProperties.updateVersion
-            OfficeConfigurationXml               = $instance.AdditionalProperties.officeConfigurationXml
+            AutoAcceptEula                       = $instance.autoAcceptEula
+            ProductIds                           = $instance.productIds
+            UseSharedComputerActivation          = $instance.useSharedComputerActivation
+            UpdateChannel                        = $instance.updateChannel
+            OfficeSuiteAppDefaultFileFormat      = $instance.officeSuiteAppDefaultFileFormat
+            OfficePlatformArchitecture           = $instance.officePlatformArchitecture
+            LocalesToInstall                     = $instance.localesToInstall
+            InstallProgressDisplayLevel          = $instance.installProgressDisplayLevel
+            ShouldUninstallOlderVersionsOfOffice = $instance.shouldUninstallOlderVersionsOfOffice
+            TargetVersion                        = $instance.targetVersion
+            UpdateVersion                        = $instance.updateVersion
+            OfficeConfigurationXml               = $instance.officeConfigurationXml
             # LargeIcon                       = $complexLargeIcon
             ExcludedApps                         = $complexExcludedApps
             Categories                           = $complexCategories

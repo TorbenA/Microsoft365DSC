@@ -82,7 +82,7 @@ function Get-TargetResource
             $nullResult.Ensure = 'Absent'
 
             $getValue = Get-MgBetaIdentityProvider -Filter "Id eq '$ClientId'" `
-                -ErrorAction SilentlyContinue | Where-Object -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.socialIdentityProvider' }
+                -ErrorAction SilentlyContinue | Where-Object -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.socialIdentityProvider' }
 
             if ($null -eq $getValue)
             {
@@ -98,15 +98,15 @@ function Get-TargetResource
         Write-Verbose -Message "Social Identity Provider with ClientId {$ClientId} was found."
 
         $ClientSecretValue = $null
-        if ($getValue.AdditionalProperties.clientSecret)
+        if ($getValue.clientSecret)
         {
-            $ClientSecretValue = $getValue.AdditionalProperties.clientSecret
+            $ClientSecretValue = $getValue.clientSecret
         }
         $results = @{
             ClientId              = $getValue.Id
             ClientSecret          = $ClientSecretValue
             DisplayName           = $getValue.DisplayName
-            IdentityProviderType  = $getValue.AdditionalProperties.identityProviderType
+            IdentityProviderType  = $getValue.identityProviderType
             Ensure                = 'Present'
             Credential            = $Credential
             ApplicationId         = $ApplicationId
@@ -210,12 +210,12 @@ function Set-TargetResource
     $BoundParameters.Remove('IdentityProviderType') | Out-Null
     if ($ClientId)
     {
-        $BoundParameters.AdditionalProperties.Add('ClientId', $ClientId)
+        $BoundParameters.Add('ClientId', $ClientId)
         $BoundParameters.Remove('ClientId') | Out-Null
     }
     if ($ClientSecret)
     {
-        $BoundParameters.AdditionalProperties.Add('ClientSecret', $ClientSecret)
+        $BoundParameters.Add('ClientSecret', $ClientSecret)
         $BoundParameters.Remove('ClientSecret') | Out-Null
     }
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
@@ -226,7 +226,7 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         $BoundParameters.Add('IdentityProviderBaseId', $ClientId)
-        $BoundParameters.AdditionalProperties.Remove('IdentityProviderType') | Out-Null
+        $BoundParameters.Remove('IdentityProviderType') | Out-Null
         Write-Verbose -Message "Updating the Social Identity Provider with Client Id {$ClientId}"
         Update-MgBetaIdentityProvider @BoundParameters | Out-Null
     }

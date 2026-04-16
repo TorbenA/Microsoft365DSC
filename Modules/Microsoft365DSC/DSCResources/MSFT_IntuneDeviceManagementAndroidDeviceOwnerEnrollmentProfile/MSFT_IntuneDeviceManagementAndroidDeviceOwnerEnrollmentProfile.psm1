@@ -157,7 +157,7 @@ function Get-TargetResource
             EnrollmentTokenType     = $androidDeviceOwnerEnrollmentProfile.EnrollmentTokenType.ToString()
             IsTeamsDeviceProfile    = $androidDeviceOwnerEnrollmentProfile.IsTeamsDeviceProfile
             RoleScopeTagIds         = $androidDeviceOwnerEnrollmentProfile.RoleScopeTagIds
-            TokenExpirationDateTime = $androidDeviceOwnerEnrollmentProfile.TokenExpirationDateTime.ToString()
+            TokenExpirationDateTime = $androidDeviceOwnerEnrollmentProfile.TokenExpirationDateTime.ToString('yyyy-MM-ddTHH:mm:ssZ')
             WifiHidden              = $androidDeviceOwnerEnrollmentProfile.WifiHidden
             WifiPassword            = $androidDeviceOwnerEnrollmentProfile.WifiPassword
             WifiSecurityType        = $androidDeviceOwnerEnrollmentProfile.WifiSecurityType.ToString()

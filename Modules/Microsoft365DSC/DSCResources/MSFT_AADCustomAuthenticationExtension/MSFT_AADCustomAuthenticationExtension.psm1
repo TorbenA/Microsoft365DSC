@@ -149,9 +149,9 @@ function Get-TargetResource
             AccessTokens          = $AccessTokens
         }
 
-        if ($null -ne $instance.AdditionalProperties)
+        if ($null -ne $instance)
         {
-            $results.Add('CustomAuthenticationExtensionType', $instance.AdditionalProperties['@odata.type'])
+            $results.Add('CustomAuthenticationExtensionType', $instance['@odata.type'])
         }
 
         if ($null -ne $instance.AuthenticationConfiguration)
@@ -167,27 +167,27 @@ function Get-TargetResource
         }
 
         $endpointConfigurationInstance = @{}
-        if ($null -ne $instance.EndPointConfiguration -and $null -ne $instance.EndPointConfiguration.AdditionalProperties)
+        if ($null -ne $instance.EndPointConfiguration -and $null -ne $instance.EndPointConfiguration)
         {
-            $endpointConfigurationInstance.Add('EndpointType', $instance.EndPointConfiguration.AdditionalProperties['@odata.type'])
+            $endpointConfigurationInstance.Add('EndpointType', $instance.EndPointConfiguration['@odata.type'])
 
             if ($endpointConfigurationInstance['EndpointType'] -eq '#microsoft.graph.httpRequestEndpoint')
             {
-                $endpointConfigurationInstance.Add('TargetUrl', $instance.EndPointConfiguration.AdditionalProperties['targetUrl'])
+                $endpointConfigurationInstance.Add('TargetUrl', $instance.EndPointConfiguration['targetUrl'])
             }
 
             if ($endpointConfigurationInstance['EndpointType'] -eq '#microsoft.graph.logicAppTriggerEndpointConfiguration')
             {
-                $endpointConfigurationInstance.Add('SubscriptionId', $instance.EndPointConfiguration.AdditionalProperties['subscriptionId'])
-                $endpointConfigurationInstance.Add('ResourceGroupName', $instance.EndPointConfiguration.AdditionalProperties['resourceGroupName'])
-                $endpointConfigurationInstance.Add('LogicAppWorkflowName', $instance.EndPointConfiguration.AdditionalProperties['logicAppWorkflowName'])
+                $endpointConfigurationInstance.Add('SubscriptionId', $instance.EndPointConfiguration['subscriptionId'])
+                $endpointConfigurationInstance.Add('ResourceGroupName', $instance.EndPointConfiguration['resourceGroupName'])
+                $endpointConfigurationInstance.Add('LogicAppWorkflowName', $instance.EndPointConfiguration['logicAppWorkflowName'])
             }
         }
 
         $ClaimsForTokenConfigurationInstance = @()
-        if ($null -ne $instance.AdditionalProperties -and $null -ne $instance.AdditionalProperties['claimsForTokenConfiguration'])
+        if ($null -ne $instance -and $null -ne $instance['claimsForTokenConfiguration'])
         {
-            foreach ($claim in $instance.AdditionalProperties['claimsForTokenConfiguration'])
+            foreach ($claim in $instance['claimsForTokenConfiguration'])
             {
                 $c = @{
                     ClaimIdInApiResponse = $claim.claimIdInApiResponse

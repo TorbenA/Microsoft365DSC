@@ -214,9 +214,9 @@ function Get-TargetResource
             {
                 $myDomainJoinConfigurations.Add('Type', $currentDomainJoinConfigurations.type.ToString())
             }
-            if ($null -ne $currentDomainJoinConfigurations.AdditionalProperties.geographicLocationType)
+            if ($null -ne $currentDomainJoinConfigurations.geographicLocationType)
             {
-                $myDomainJoinConfigurations.Add('GeographicLocationType', $currentDomainJoinConfigurations.AdditionalProperties.geographicLocationType)
+                $myDomainJoinConfigurations.Add('GeographicLocationType', $currentDomainJoinConfigurations.geographicLocationType)
             }
             if ($myDomainJoinConfigurations.values.Where({ $null -ne $_ }).Count -gt 0)
             {

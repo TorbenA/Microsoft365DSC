@@ -122,7 +122,7 @@ function Get-TargetResource
             {
                 # Need to cast as an array for the test to properly compare cases with
                 # a single owner;
-                $ownersUPN = [System.String[]]$owners.AdditionalProperties.userPrincipalName
+                $ownersUPN = [System.String[]]$owners.userPrincipalName
 
                 # Also need to remove the owners from the members list for Test
                 # to handle the validation properly;
@@ -131,10 +131,10 @@ function Get-TargetResource
                 foreach ($member in $membersList)
                 {
                     if ($null -ne $ownersUPN -and $ownersUPN.Length -ge 1 -and `
-                            -not [System.String]::IsNullOrEmpty($member.AdditionalProperties.userPrincipalName) -and `
-                            -not $ownersUPN.Contains($member.AdditionalProperties.sserPrincipalName))
+                            -not [System.String]::IsNullOrEmpty($member.userPrincipalName) -and `
+                            -not $ownersUPN.Contains($member.sserPrincipalName))
                     {
-                        $newMemberList += $member.AdditionalProperties.userPrincipalName
+                        $newMemberList += $member.userPrincipalName
                     }
                 }
             }
@@ -309,7 +309,7 @@ function Set-TargetResource
         $curMembers = @()
         foreach ($member in $membersList)
         {
-            $curMembers += $member.AdditionalProperties.userPrincipalName
+            $curMembers += $member.userPrincipalName
         }
 
         if ($null -ne $CurrentParameters.Members)
@@ -366,7 +366,7 @@ function Set-TargetResource
         $curOwners = @()
         foreach ($owner in $ownersList)
         {
-            $curOwners += $owner.AdditionalProperties.userPrincipalName
+            $curOwners += $owner.userPrincipalName
         }
 
         if ($null -ne $CurrentParameters.ManagedBy)

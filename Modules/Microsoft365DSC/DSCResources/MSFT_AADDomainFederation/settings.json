@@ -55,8 +55,8 @@
         "Get-MgBetaDomain",
         "Get-MgBetaDomainFederationConfiguration",
         "New-MgBetaDomainFederationConfiguration",
-        "Update-MgBetaDomainFederationConfiguration",
-        "Remove-MgBetaDomainFederationConfiguration"
+        "Remove-MgBetaDomainFederationConfiguration",
+        "Update-MgBetaDomainFederationConfiguration"
       ]
     }
   ]

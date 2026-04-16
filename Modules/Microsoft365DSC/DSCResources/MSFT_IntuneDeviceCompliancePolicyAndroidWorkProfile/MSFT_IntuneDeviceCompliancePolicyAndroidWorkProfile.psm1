@@ -231,7 +231,7 @@ function Get-TargetResource
                 -All `
                 -ExpandProperty 'scheduledActionsForRule($expand=scheduledActionConfigurations)' `
                 -ErrorAction SilentlyContinue | Where-Object `
-                -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileCompliancePolicy' -and `
+                -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.androidWorkProfileCompliancePolicy' -and `
                     $_.displayName -eq $($DisplayName) }
             if (([array]$devicePolicy).Count -gt 1)
             {
@@ -281,42 +281,42 @@ function Get-TargetResource
         $results = @{
             DisplayName                                        = $devicePolicy.DisplayName
             Description                                        = $devicePolicy.Description
-            RequiredPasswordComplexity                         = $devicePolicy.AdditionalProperties.requiredPasswordComplexity
-            SecurityBlockDeviceAdministratorManagedDevices     = $devicePolicy.AdditionalProperties.securityBlockDeviceAdministratorManagedDevices
-            RestrictedApps                                     = $devicePolicy.AdditionalProperties.restrictedApps
-            WorkProfilePasswordRequiredType                    = $devicePolicy.AdditionalProperties.workProfilePasswordRequiredType
-            WorkProfileRequiredPasswordComplexity              = $devicePolicy.AdditionalProperties.workProfileRequiredPasswordComplexity
-            WorkProfileRequirePassword                         = $devicePolicy.AdditionalProperties.workProfileRequirePassword
-            WorkProfilePreviousPasswordBlockCount              = $devicePolicy.AdditionalProperties.workProfilePreviousPasswordBlockCount
-            WorkProfileInactiveBeforeScreenLockInMinutes       = $devicePolicy.AdditionalProperties.workProfileInactiveBeforeScreenLockInMinutes
-            WorkProfilePasswordMinimumLength                   = $devicePolicy.AdditionalProperties.workProfilePasswordMinimumLength
-            WorkProfilePasswordExpirationInDays                = $devicePolicy.AdditionalProperties.workProfilePasswordExpirationInDays
+            RequiredPasswordComplexity                         = $devicePolicy.requiredPasswordComplexity
+            SecurityBlockDeviceAdministratorManagedDevices     = $devicePolicy.securityBlockDeviceAdministratorManagedDevices
+            RestrictedApps                                     = $devicePolicy.restrictedApps
+            WorkProfilePasswordRequiredType                    = $devicePolicy.workProfilePasswordRequiredType
+            WorkProfileRequiredPasswordComplexity              = $devicePolicy.workProfileRequiredPasswordComplexity
+            WorkProfileRequirePassword                         = $devicePolicy.workProfileRequirePassword
+            WorkProfilePreviousPasswordBlockCount              = $devicePolicy.workProfilePreviousPasswordBlockCount
+            WorkProfileInactiveBeforeScreenLockInMinutes       = $devicePolicy.workProfileInactiveBeforeScreenLockInMinutes
+            WorkProfilePasswordMinimumLength                   = $devicePolicy.workProfilePasswordMinimumLength
+            WorkProfilePasswordExpirationInDays                = $devicePolicy.workProfilePasswordExpirationInDays
             ScheduledActionsForRule                            = $complexScheduledActionsForRule
-            PasswordRequired                                   = $devicePolicy.AdditionalProperties.passwordRequired
-            PasswordMinimumLength                              = $devicePolicy.AdditionalProperties.passwordMinimumLength
-            PasswordRequiredType                               = $devicePolicy.AdditionalProperties.passwordRequiredType
-            PasswordMinutesOfInactivityBeforeLock              = $devicePolicy.AdditionalProperties.passwordMinutesOfInactivityBeforeLock
-            PasswordExpirationDays                             = $devicePolicy.AdditionalProperties.passwordExpirationDays
-            PasswordPreviousPasswordBlockCount                 = $devicePolicy.AdditionalProperties.passwordPreviousPasswordBlockCount
-            PasswordSignInFailureCountBeforeFactoryReset       = $devicePolicy.AdditionalProperties.passwordSignInFailureCountBeforeFactoryReset
-            SecurityPreventInstallAppsFromUnknownSources       = $devicePolicy.AdditionalProperties.securityPreventInstallAppsFromUnknownSources
-            SecurityDisableUsbDebugging                        = $devicePolicy.AdditionalProperties.securityDisableUsbDebugging
-            SecurityRequireVerifyApps                          = $devicePolicy.AdditionalProperties.securityRequireVerifyApps
-            DeviceThreatProtectionEnabled                      = $devicePolicy.AdditionalProperties.deviceThreatProtectionEnabled
-            DeviceThreatProtectionRequiredSecurityLevel        = $devicePolicy.AdditionalProperties.deviceThreatProtectionRequiredSecurityLevel
-            AdvancedThreatProtectionRequiredSecurityLevel      = $devicePolicy.AdditionalProperties.advancedThreatProtectionRequiredSecurityLevel
-            SecurityBlockJailbrokenDevices                     = $devicePolicy.AdditionalProperties.securityBlockJailbrokenDevices
-            OsMinimumVersion                                   = $devicePolicy.AdditionalProperties.osMinimumVersion
-            OsMaximumVersion                                   = $devicePolicy.AdditionalProperties.osMaximumVersion
-            MinAndroidSecurityPatchLevel                       = $devicePolicy.AdditionalProperties.minAndroidSecurityPatchLevel
-            StorageRequireEncryption                           = $devicePolicy.AdditionalProperties.storageRequireEncryption
-            SecurityRequireSafetyNetAttestationBasicIntegrity  = $devicePolicy.AdditionalProperties.securityRequireSafetyNetAttestationBasicIntegrity
-            SecurityRequireSafetyNetAttestationCertifiedDevice = $devicePolicy.AdditionalProperties.securityRequireSafetyNetAttestationCertifiedDevice
-            SecurityRequireGooglePlayServices                  = $devicePolicy.AdditionalProperties.securityRequireGooglePlayServices
-            SecurityRequireUpToDateSecurityProviders           = $devicePolicy.AdditionalProperties.securityRequireUpToDateSecurityProviders
-            SecurityRequireCompanyPortalAppIntegrity           = $devicePolicy.AdditionalProperties.securityRequireCompanyPortalAppIntegrity
-            SecurityRequiredAndroidSafetyNetEvaluationType     = $devicePolicy.AdditionalProperties.securityRequiredAndroidSafetyNetEvaluationType
-            RoleScopeTagIds                                    = $devicePolicy.AdditionalProperties.roleScopeTagIds
+            PasswordRequired                                   = $devicePolicy.passwordRequired
+            PasswordMinimumLength                              = $devicePolicy.passwordMinimumLength
+            PasswordRequiredType                               = $devicePolicy.passwordRequiredType
+            PasswordMinutesOfInactivityBeforeLock              = $devicePolicy.passwordMinutesOfInactivityBeforeLock
+            PasswordExpirationDays                             = $devicePolicy.passwordExpirationDays
+            PasswordPreviousPasswordBlockCount                 = $devicePolicy.passwordPreviousPasswordBlockCount
+            PasswordSignInFailureCountBeforeFactoryReset       = $devicePolicy.passwordSignInFailureCountBeforeFactoryReset
+            SecurityPreventInstallAppsFromUnknownSources       = $devicePolicy.securityPreventInstallAppsFromUnknownSources
+            SecurityDisableUsbDebugging                        = $devicePolicy.securityDisableUsbDebugging
+            SecurityRequireVerifyApps                          = $devicePolicy.securityRequireVerifyApps
+            DeviceThreatProtectionEnabled                      = $devicePolicy.deviceThreatProtectionEnabled
+            DeviceThreatProtectionRequiredSecurityLevel        = $devicePolicy.deviceThreatProtectionRequiredSecurityLevel
+            AdvancedThreatProtectionRequiredSecurityLevel      = $devicePolicy.advancedThreatProtectionRequiredSecurityLevel
+            SecurityBlockJailbrokenDevices                     = $devicePolicy.securityBlockJailbrokenDevices
+            OsMinimumVersion                                   = $devicePolicy.osMinimumVersion
+            OsMaximumVersion                                   = $devicePolicy.osMaximumVersion
+            MinAndroidSecurityPatchLevel                       = $devicePolicy.minAndroidSecurityPatchLevel
+            StorageRequireEncryption                           = $devicePolicy.storageRequireEncryption
+            SecurityRequireSafetyNetAttestationBasicIntegrity  = $devicePolicy.securityRequireSafetyNetAttestationBasicIntegrity
+            SecurityRequireSafetyNetAttestationCertifiedDevice = $devicePolicy.securityRequireSafetyNetAttestationCertifiedDevice
+            SecurityRequireGooglePlayServices                  = $devicePolicy.securityRequireGooglePlayServices
+            SecurityRequireUpToDateSecurityProviders           = $devicePolicy.securityRequireUpToDateSecurityProviders
+            SecurityRequireCompanyPortalAppIntegrity           = $devicePolicy.securityRequireCompanyPortalAppIntegrity
+            SecurityRequiredAndroidSafetyNetEvaluationType     = $devicePolicy.securityRequiredAndroidSafetyNetEvaluationType
+            RoleScopeTagIds                                    = $devicePolicy.roleScopeTagIds
             Ensure                                             = 'Present'
             Credential                                         = $Credential
             ApplicationId                                      = $ApplicationId
@@ -644,7 +644,7 @@ function Set-TargetResource
         Write-Verbose -Message "Updating Intune Android Work Profile Device Compliance Policy {$DisplayName}"
         $configDeviceAndroidPolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
             -ErrorAction Stop | Where-Object `
-            -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileCompliancePolicy' -and `
+            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.androidWorkProfileCompliancePolicy' -and `
                 $_.displayName -eq $($DisplayName) }
 
         $boundParameters.Remove('DisplayName') | Out-Null
@@ -674,7 +674,7 @@ function Set-TargetResource
         Write-Verbose -Message "Removing Intune Android Work Profile Device Compliance Policy {$DisplayName}"
         $configDeviceAndroidPolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
             -ErrorAction Stop | Where-Object `
-            -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileCompliancePolicy' -and `
+            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.androidWorkProfileCompliancePolicy' -and `
                 $_.displayName -eq $($DisplayName) }
 
         Remove-MgBetaDeviceManagementDeviceCompliancePolicy -DeviceCompliancePolicyId $configDeviceAndroidPolicy.Id
@@ -962,7 +962,7 @@ function Export-TargetResource
         [array]$configDeviceAndroidPolicies = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
             -ExpandProperty 'scheduledActionsForRule($expand=scheduledActionConfigurations)' `
             -ErrorAction Stop -All:$true -Filter $Filter | Where-Object `
-            -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileCompliancePolicy' }
+            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.androidWorkProfileCompliancePolicy' }
         $configDeviceAndroidPolicies = Find-GraphDataUsingComplexFunctions -ComplexFunctions $complexFunctions -Policies $configDeviceAndroidPolicies
 
         $i = 1

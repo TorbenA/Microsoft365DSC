@@ -171,7 +171,7 @@ function Get-TargetResource
             $devicePolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
                 -All `
                 -ErrorAction Stop | Where-Object `
-                -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.macOSCompliancePolicy' -and `
+                -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.macOSCompliancePolicy' -and `
                     $_.displayName -eq $($DisplayName) }
             if (([array]$devicePolicy).Count -gt 1)
             {
@@ -193,27 +193,27 @@ function Get-TargetResource
             DisplayName                                   = $devicePolicy.DisplayName
             Description                                   = $devicePolicy.Description
             RoleScopeTagIds                               = $devicePolicy.RoleScopeTagIds
-            PasswordRequired                              = $devicePolicy.AdditionalProperties.passwordRequired
-            PasswordBlockSimple                           = $devicePolicy.AdditionalProperties.passwordBlockSimple
-            PasswordExpirationDays                        = $devicePolicy.AdditionalProperties.passwordExpirationDays
-            PasswordMinimumLength                         = $devicePolicy.AdditionalProperties.passwordMinimumLength
-            PasswordMinutesOfInactivityBeforeLock         = $devicePolicy.AdditionalProperties.passwordMinutesOfInactivityBeforeLock
-            PasswordPreviousPasswordBlockCount            = $devicePolicy.AdditionalProperties.passwordPreviousPasswordBlockCount
-            PasswordMinimumCharacterSetCount              = $devicePolicy.AdditionalProperties.passwordMinimumCharacterSetCount
-            PasswordRequiredType                          = $devicePolicy.AdditionalProperties.passwordRequiredType
-            OsMinimumVersion                              = $devicePolicy.AdditionalProperties.osMinimumVersion
-            OsMaximumVersion                              = $devicePolicy.AdditionalProperties.osMaximumVersion
-            OsMinimumBuildVersion                         = $devicePolicy.AdditionalProperties.osMinimumBuildVersion
-            OsMaximumBuildVersion                         = $devicePolicy.AdditionalProperties.osMaximumBuildVersion
-            SystemIntegrityProtectionEnabled              = $devicePolicy.AdditionalProperties.systemIntegrityProtectionEnabled
-            DeviceThreatProtectionEnabled                 = $devicePolicy.AdditionalProperties.deviceThreatProtectionEnabled
-            DeviceThreatProtectionRequiredSecurityLevel   = $devicePolicy.AdditionalProperties.deviceThreatProtectionRequiredSecurityLevel
-            AdvancedThreatProtectionRequiredSecurityLevel = $devicePolicy.AdditionalProperties.advancedThreatProtectionRequiredSecurityLevel
-            StorageRequireEncryption                      = $devicePolicy.AdditionalProperties.storageRequireEncryption
-            GatekeeperAllowedAppSource                    = $devicePolicy.AdditionalProperties.gatekeeperAllowedAppSource
-            FirewallEnabled                               = $devicePolicy.AdditionalProperties.firewallEnabled
-            FirewallBlockAllIncoming                      = $devicePolicy.AdditionalProperties.firewallBlockAllIncoming
-            FirewallEnableStealthMode                     = $devicePolicy.AdditionalProperties.firewallEnableStealthMode
+            PasswordRequired                              = $devicePolicy.passwordRequired
+            PasswordBlockSimple                           = $devicePolicy.passwordBlockSimple
+            PasswordExpirationDays                        = $devicePolicy.passwordExpirationDays
+            PasswordMinimumLength                         = $devicePolicy.passwordMinimumLength
+            PasswordMinutesOfInactivityBeforeLock         = $devicePolicy.passwordMinutesOfInactivityBeforeLock
+            PasswordPreviousPasswordBlockCount            = $devicePolicy.passwordPreviousPasswordBlockCount
+            PasswordMinimumCharacterSetCount              = $devicePolicy.passwordMinimumCharacterSetCount
+            PasswordRequiredType                          = $devicePolicy.passwordRequiredType
+            OsMinimumVersion                              = $devicePolicy.osMinimumVersion
+            OsMaximumVersion                              = $devicePolicy.osMaximumVersion
+            OsMinimumBuildVersion                         = $devicePolicy.osMinimumBuildVersion
+            OsMaximumBuildVersion                         = $devicePolicy.osMaximumBuildVersion
+            SystemIntegrityProtectionEnabled              = $devicePolicy.systemIntegrityProtectionEnabled
+            DeviceThreatProtectionEnabled                 = $devicePolicy.deviceThreatProtectionEnabled
+            DeviceThreatProtectionRequiredSecurityLevel   = $devicePolicy.deviceThreatProtectionRequiredSecurityLevel
+            AdvancedThreatProtectionRequiredSecurityLevel = $devicePolicy.advancedThreatProtectionRequiredSecurityLevel
+            StorageRequireEncryption                      = $devicePolicy.storageRequireEncryption
+            GatekeeperAllowedAppSource                    = $devicePolicy.gatekeeperAllowedAppSource
+            FirewallEnabled                               = $devicePolicy.firewallEnabled
+            FirewallBlockAllIncoming                      = $devicePolicy.firewallBlockAllIncoming
+            FirewallEnableStealthMode                     = $devicePolicy.firewallEnableStealthMode
             Ensure                                        = 'Present'
             Credential                                    = $Credential
             ApplicationId                                 = $ApplicationId
@@ -452,7 +452,7 @@ function Set-TargetResource
         Write-Verbose -Message "Updating Intune Device Compliance MacOS Policy {$DisplayName}"
         $configDevicePolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
             -ErrorAction Stop | Where-Object `
-            -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.macOSCompliancePolicy' -and `
+            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.macOSCompliancePolicy' -and `
                 $_.displayName -eq $($DisplayName) }
 
         $boundParameters.Remove('DisplayName') | Out-Null
@@ -476,7 +476,7 @@ function Set-TargetResource
         Write-Verbose -Message "Removing Intune Device Compliance MacOS Policy {$DisplayName}"
         $configDevicePolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
             -ErrorAction Stop | Where-Object `
-            -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.macOSCompliancePolicy' -and `
+            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.macOSCompliancePolicy' -and `
                 $_.displayName -eq $($DisplayName) }
 
         Remove-MgBetaDeviceManagementDeviceCompliancePolicy -DeviceCompliancePolicyId $configDevicePolicy.Id
@@ -704,7 +704,7 @@ function Export-TargetResource
         }
         [array]$configDeviceMacOsPolicies = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
             -ErrorAction Stop -All:$true -Filter $Filter | Where-Object `
-            -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.macOSCompliancePolicy' }
+            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.macOSCompliancePolicy' }
         $configDeviceMacOsPolicies = Find-GraphDataUsingComplexFunctions -ComplexFunctions $complexFunctions -Policies $configDeviceMacOsPolicies
 
         $i = 1

@@ -219,7 +219,7 @@ function Get-TargetResource
         $disableNotificationsInstance = $settings | Where-Object { $_.SettingInstance.SettingDefinitionId -like '*_disablenotifications' }
         if ($null -ne $disableNotificationsInstance)
         {
-            $policySettings.DisableNotifications = [int]$disableNotificationsInstance.SettingInstance.AdditionalProperties.choiceSettingValue.value.Split('_')[-1]
+            $policySettings.DisableNotifications = [int]$disableNotificationsInstance.SettingInstance.choiceSettingValue.value.Split('_')[-1]
         }
 
         $results = @{

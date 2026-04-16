@@ -37,7 +37,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $settingsFiles = Get-ChildItem -Path "$PSScriptRoot\..\Modules\Microsoft365DSC\DSCResources" -Filter 'settings.json' -Recurse
-$map = @{}
+$map = [ordered]@{}
 foreach ($file in $settingsFiles)
 {
     $json = Get-Content $file.FullName -Raw | ConvertFrom-Json -AsHashtable
@@ -60,9 +60,9 @@ foreach ($file in $settingsFiles)
 }
 $map | ConvertTo-Json -Depth 10 | Out-File -FilePath "$PSScriptRoot\cmdlet-source-modules.json" -Encoding UTF8
 
-& "$PSScriptRoot\Build-CmdletMapping.ps1" -CmdletSourceModulesPath "$PSScriptRoot\cmdlet-source-modules.json" -OutputPath $CmdletMappingPath
+#& "$PSScriptRoot\Build-CmdletMapping.ps1" -CmdletSourceModulesPath "$PSScriptRoot\cmdlet-source-modules.json" -OutputPath $CmdletMappingPath
 
-& "$PSScriptRoot\Extract-FunctionSignatures.ps1" -CmdletSourceModulesPath "$PSScriptRoot\cmdlet-source-modules.json" -OutputPath $FunctionSignaturesPath
+#& "$PSScriptRoot\Extract-FunctionSignatures.ps1" -CmdletSourceModulesPath "$PSScriptRoot\cmdlet-source-modules.json" -OutputPath $FunctionSignaturesPath
 
 #region Load data sources
 Write-Host 'Loading cmdlet mapping...'
@@ -197,7 +197,11 @@ function Invoke-M365DSCGraphShimRequest
 
         [Parameter()]
         [System.String]
-        $OutputType
+        $OutputType,
+
+        [Parameter()]
+        [Switch]
+        $PassThru
     )
 
     $invokeParams = @{
@@ -209,7 +213,7 @@ function Invoke-M365DSCGraphShimRequest
         $invokeParams['Body'] = $Body
         $invokeParams['ContentType'] = 'application/json'
     }
-    if ($PSBoundParameters.ContainsKey('Headers') -and $null -ne $Headers)
+    if ($PSBoundParameters.ContainsKey('Headers') -and $Headers.Keys.Count -gt 0)
     {
         $invokeParams['Headers'] = $Headers
     }
@@ -217,13 +221,26 @@ function Invoke-M365DSCGraphShimRequest
     {
         $invokeParams['OutputType'] = $OutputType
     }
+    if ($ErrorActionPreference -eq 'SilentlyContinue')
+    {
+        $invokeParams['SkipHttpErrorCheck'] = $true
+    }
 
     $maxRetries = 5
     for ($attempt = 1; $attempt -le $maxRetries; $attempt++)
     {
         try
         {
-            return Invoke-MgGraphRequest @invokeParams
+            $returnValue = Invoke-MgGraphRequest @invokeParams
+            if ($returnValue.ContainsKey('value') -and -not $PassThru)
+            {
+                $returnValue = $returnValue.value
+            }
+            elseif ($returnValue.ContainsKey('error'))
+            {
+                $returnValue = $null
+            }
+            return $returnValue
         }
         catch
         {
@@ -290,15 +307,15 @@ function Get-M365DSCGraphShimAllPages
         Method = 'GET'
         Uri    = $currentUri
     }
-    if ($PSBoundParameters.ContainsKey('Headers') -and $null -ne $Headers)
+    if ($PSBoundParameters.ContainsKey('Headers') -and $Headers.Keys.Count -gt 0)
     {
         $requestParams['Headers'] = $Headers
     }
 
     do
     {
-        $response = Invoke-M365DSCGraphShimRequest @requestParams
-        if ($response.value)
+        $response = Invoke-M365DSCGraphShimRequest @requestParams -PassThru
+        if ($response.ContainsKey('value'))
         {
             $allResults.AddRange([array]$response.value)
         }
@@ -313,12 +330,12 @@ function Get-M365DSCGraphShimAllPages
         }
 
         $nextLink = $response.'@odata.nextLink'
-        if ($nextLink)
+        if (-not [System.String]::IsNullOrEmpty($nextLink))
         {
             $requestParams['Uri'] = $nextLink
         }
     }
-    while ($nextLink)
+    while (-not [System.String]::IsNullOrEmpty($nextLink))
 
     return $allResults
 }
@@ -333,15 +350,7 @@ function ConvertTo-M365DSCGraphShimUri
     param(
         [Parameter(Mandatory = $true)]
         [System.String]
-        $ApiVersion,
-
-        [Parameter(Mandatory = $true)]
-        [System.String]
         $UriTemplate,
-
-        [Parameter()]
-        [System.Collections.Hashtable]
-        $IdentityParams = @{},
 
         [Parameter()]
         [System.String]
@@ -377,16 +386,10 @@ function ConvertTo-M365DSCGraphShimUri
     )
 
     $uri = $UriTemplate
-    foreach ($entry in $IdentityParams.GetEnumerator())
-    {
-        $uri = $uri -replace [regex]::Escape("{$($entry.Value)}"), $entry.Key
-    }
-    $uri = "/$ApiVersion$uri"
-
     $queryParts = [System.Collections.Generic.List[System.String]]::new()
     if (-not [System.String]::IsNullOrEmpty($Filter))
     {
-        $queryParts.Add("`$filter=$Filter")
+        $queryParts.Add("`$filter=$([System.Web.HttpUtility]::UrlEncode($Filter))")
     }
     if ($Property -and $Property.Count -gt 0)
     {
@@ -406,7 +409,7 @@ function ConvertTo-M365DSCGraphShimUri
     }
     if (-not [System.String]::IsNullOrEmpty($Search))
     {
-        $queryParts.Add("`$search=$Search")
+        $queryParts.Add("`$search=$([System.Web.HttpUtility]::UrlEncode($Search))")
     }
     if ($Sort -and $Sort.Count -gt 0)
     {
@@ -511,46 +514,40 @@ foreach ($cmdletName in $cmdletNames) {
     $apiVersion = $mapEntry.ApiVersion
     $method = $variants[0].Method
 
-    # Classify: determine verb type
-    $verbType = switch -Regex ($cmdletName) {
-        '^Get-'    { 'GET' }
-        '^New-'    { 'POST' }
-        '^Update-' { 'PATCH' }
-        '^Remove-' { 'DELETE' }
-        '^Set-'    { 'PUT' }
-        '^Invoke-' { $method }  # Use the actual method from mapping
-        '^Add-'    { 'POST' }
-        '^Restore-' { 'POST' }
-        default    { $method }
-    }
-
     # Find the appropriate URI templates
-    $listUri = ($variants | Where-Object { $_.URI -notmatch '\{[^}]+\}' } | Select-Object -First 1)?.URI
-    $singleUri = ($variants | Where-Object { $_.URI -match '\{[^}]+\}' } | Select-Object -First 1)?.URI
+    $listUri = ($variants | Where-Object { $_.URI.Split('/')[-1] -notmatch '\{[^}]+\}' } | Select-Object -First 1)?.URI # The Uri that does not end with a placeholder is likely the list endpoint
+    $singleUri = ($variants | Where-Object { $_.URI.Split('/')[-1] -match '\{[^}]+\}' } | Select-Object -First 1)?.URI # The Uri that ends with a placeholder is likely the single-item endpoint
     $primaryUri = if ($singleUri) { $singleUri } else { $listUri }
     if (-not $primaryUri) { $primaryUri = $variants[0].URI }
 
     # Determine identity parameter mappings
     $identityMapping = [ordered]@{}
+    $placeholders = @()
     if ($singleUri) {
         $placeholders = [regex]::Matches($singleUri, '\{([^}]+)\}') | ForEach-Object { $_.Groups[1].Value }
-        foreach ($ph in $placeholders) {
-            # Convert {placeholder-id} to PascalCaseId param name
-            $parts = ($ph -replace '-id$', '') -split '-'
-            $pascalParts = $parts | ForEach-Object { $_.Substring(0, 1).ToUpper() + $_.Substring(1) }
-            $paramName = ($pascalParts -join '') + 'Id'
+    } elseif ($listUri) {
+        $placeholders = [regex]::Matches($listUri, '\{([^}]+)\}') | ForEach-Object { $_.Groups[1].Value }
+    } else {
+        # No URI with placeholders, try to find any placeholders in the primary URI
+        $placeholders = [regex]::Matches($primaryUri, '\{([^}]+)\}') | ForEach-Object { $_.Groups[1].Value }
+    }
 
-            # Verify it exists in function params
-            $match = $functionEntry | Where-Object { $_.Name -eq $paramName }
-            if ($match) {
-                $identityMapping[$paramName] = $ph
-            }
-            else {
-                # Try just 'Id'
-                $idMatch = $functionEntry | Where-Object { $_.Name -eq 'Id' }
-                if ($idMatch) {
-                    $identityMapping['Id'] = $ph
-                }
+    foreach ($ph in $placeholders) {
+        # Convert {placeholder-id} to PascalCaseId param name
+        $parts = $ph.Split('-')
+        $pascalParts = $parts | ForEach-Object { $_.Substring(0, 1).ToUpper() + $_.Substring(1) }
+        $paramName = $pascalParts -join ''
+
+        # Verify it exists in function params
+        $match = $functionEntry | Where-Object { $_.Name -eq $paramName }
+        if ($match) {
+            $identityMapping[$paramName] = $ph
+        }
+        else {
+            # Try just 'Id'
+            $idMatch = $functionEntry | Where-Object { $_.Name -eq 'Id' }
+            if ($idMatch) {
+                $identityMapping['Id'] = $ph
             }
         }
     }
@@ -580,11 +577,8 @@ foreach ($cmdletName in $cmdletNames) {
     # Determine which params are identity, OData, body-meta, and infrastructure
     $identityParamNames = @($identityMapping.Keys)
     $allExcludeFromBody = $infrastructureParams + $odataParams + $bodyMetaParams + $identityParamNames + @('Confirm', 'WhatIf')
-    $namedBodyParams = @($functionEntry | Where-Object {
-        $_.Name -notin $allExcludeFromBody -and -not $_.IsSwitch
-    } | ForEach-Object { $_.Name })
 
-    switch ($verbType) {
+    switch ($method) {
         'GET' {
             # GET requests: support both single-item and list patterns
             $hasListUri = $null -ne $listUri
@@ -598,8 +592,8 @@ foreach ($cmdletName in $cmdletNames) {
             [void]$bodyLines.AppendLine('')
 
             if ($hasSingleUri -and $identityParamNames.Count -gt 0) {
-                $firstIdParam = $identityParamNames[0]
-                [void]$bodyLines.AppendLine("    if (`$PSBoundParameters.ContainsKey('$firstIdParam') -and -not [System.String]::IsNullOrEmpty(`$$firstIdParam))")
+                $lastIdParam = $identityParamNames[-1]
+                [void]$bodyLines.AppendLine("    if (`$PSBoundParameters.ContainsKey('$lastIdParam') -and -not [System.String]::IsNullOrEmpty(`$$lastIdParam))")
                 [void]$bodyLines.AppendLine('    {')
                 [void]$bodyLines.AppendLine('        # Single-item retrieval')
 
@@ -616,7 +610,7 @@ foreach ($cmdletName in $cmdletNames) {
                 [void]$bodyLines.AppendLine('        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join '','')" }')
                 [void]$bodyLines.AppendLine('        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join ''&'')" }')
                 [void]$bodyLines.AppendLine('')
-                [void]$bodyLines.AppendLine('        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders')
+                [void]$bodyLines.AppendLine('        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference')
                 [void]$bodyLines.AppendLine('    }')
 
                 if ($hasListUri) {
@@ -635,9 +629,11 @@ foreach ($cmdletName in $cmdletNames) {
 
                 [void]$bodyLines.AppendLine("$indent# Collection retrieval")
                 $listUriExpr = "/$apiVersion$listUri"
+                foreach ($entry in $identityMapping.GetEnumerator()) {
+                    $listUriExpr = $listUriExpr -replace [regex]::Escape("{$($entry.Value)}"), "`$(`$$($entry.Key))"
+                }
                 [void]$bodyLines.AppendLine("$indent`$uri = ConvertTo-M365DSCGraphShimUri ``")
-                [void]$bodyLines.AppendLine("$indent    -ApiVersion '$apiVersion' ``")
-                [void]$bodyLines.AppendLine("$indent    -UriTemplate '$listUri' ``")
+                [void]$bodyLines.AppendLine("$indent    -UriTemplate `"$listUriExpr`" ``")
                 [void]$bodyLines.AppendLine("$indent    -Filter `$Filter ``")
                 [void]$bodyLines.AppendLine("$indent    -Property `$Property ``")
                 [void]$bodyLines.AppendLine("$indent    -ExpandProperty `$ExpandProperty ``")
@@ -649,12 +645,12 @@ foreach ($cmdletName in $cmdletNames) {
                 [void]$bodyLines.AppendLine('')
                 [void]$bodyLines.AppendLine("${indent}if (`$All)")
                 [void]$bodyLines.AppendLine("$indent{")
-                [void]$bodyLines.AppendLine("$indent    return Get-M365DSCGraphShimAllPages -Uri `$uri -Headers `$requestHeaders")
+                [void]$bodyLines.AppendLine("$indent    return Get-M365DSCGraphShimAllPages -Uri `$uri -Headers `$requestHeaders -ErrorAction `$ErrorActionPreference")
                 [void]$bodyLines.AppendLine("$indent}")
                 [void]$bodyLines.AppendLine("${indent}else")
                 [void]$bodyLines.AppendLine("$indent{")
-                [void]$bodyLines.AppendLine("$indent    `$response = Invoke-M365DSCGraphShimRequest -Method GET -Uri `$uri -Headers `$requestHeaders")
-                [void]$bodyLines.AppendLine("$indent    if (`$response.value) { return `$response.value } else { return `$response }")
+                [void]$bodyLines.AppendLine("$indent    `$response = Invoke-M365DSCGraphShimRequest -Method GET -Uri `$uri -Headers `$requestHeaders -ErrorAction `$ErrorActionPreference")
+                [void]$bodyLines.AppendLine("$indent    if (`$null -ne `$response -and `$response -is [hashtable] -and `$response.ContainsKey('value')) { return `$response.value } else { return `$response }")
                 [void]$bodyLines.AppendLine("$indent}")
 
                 if ($hasSingleUri -and $identityParamNames.Count -gt 0) {
@@ -664,12 +660,15 @@ foreach ($cmdletName in $cmdletNames) {
             elseif (-not $hasSingleUri) {
                 # No list URI and no single URI with id — singleton resource
                 $uriExpr = "/$apiVersion$primaryUri"
+                foreach ($entry in $identityMapping.GetEnumerator()) {
+                    $uriExpr = $uriExpr -replace [regex]::Escape("{$($entry.Value)}"), "`$(`$$($entry.Key))"
+                }
                 [void]$bodyLines.AppendLine("    `$uri = `"$uriExpr`"")
                 [void]$bodyLines.AppendLine('    $queryParts = @()')
                 [void]$bodyLines.AppendLine('    if ($Property) { $queryParts += "`$select=$($Property -join '','')" }')
                 [void]$bodyLines.AppendLine('    if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join '','')" }')
                 [void]$bodyLines.AppendLine('    if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join ''&'')" }')
-                [void]$bodyLines.AppendLine('    return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders')
+                [void]$bodyLines.AppendLine('    return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference')
             }
         }
 
@@ -707,8 +706,8 @@ foreach ($cmdletName in $cmdletNames) {
             [void]$bodyLines.AppendLine('        -NamedParams $namedParams `')
             [void]$bodyLines.AppendLine("        -ExcludeParams `$excludeFromBody")
             [void]$bodyLines.AppendLine('')
-            $httpMethod = if ($verbType -eq 'PUT') { 'PUT' } else { 'POST' }
-            [void]$bodyLines.AppendLine("    return Invoke-M365DSCGraphShimRequest -Method '$httpMethod' -Uri `$uri -Body `$body -Headers `$requestHeaders")
+            $httpMethod = if ($method -eq 'PUT') { 'PUT' } else { 'POST' }
+            [void]$bodyLines.AppendLine("    return Invoke-M365DSCGraphShimRequest -Method '$httpMethod' -Uri `$uri -Body `$body -Headers `$requestHeaders -ErrorAction `$ErrorActionPreference")
         }
 
         'PATCH' {
@@ -742,7 +741,7 @@ foreach ($cmdletName in $cmdletNames) {
             [void]$bodyLines.AppendLine('        -NamedParams $namedParams `')
             [void]$bodyLines.AppendLine("        -ExcludeParams `$excludeFromBody")
             [void]$bodyLines.AppendLine('')
-            [void]$bodyLines.AppendLine("    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri `$uri -Body `$body -Headers `$requestHeaders")
+            [void]$bodyLines.AppendLine("    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri `$uri -Body `$body -Headers `$requestHeaders -ErrorAction `$ErrorActionPreference")
         }
 
         'DELETE' {
@@ -757,7 +756,7 @@ foreach ($cmdletName in $cmdletNames) {
             [void]$bodyLines.AppendLine("    `$uri = `"$uriExpr`"")
             [void]$bodyLines.AppendLine('    $requestHeaders = @{}')
             [void]$bodyLines.AppendLine('    if ($PSBoundParameters.ContainsKey(''Headers'')) { $requestHeaders = $Headers }')
-            [void]$bodyLines.AppendLine("    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri `$uri -Headers `$requestHeaders")
+            [void]$bodyLines.AppendLine("    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri `$uri -Headers `$requestHeaders -ErrorAction `$ErrorActionPreference")
         }
     }
 
@@ -798,6 +797,7 @@ $manifestParams = @{
     CmdletsToExport   = @()
     AliasesToExport   = @()
     RequiredModules   = @('Microsoft.Graph.Authentication')
+    Guid              = '730f252e-c4a5-4290-b1da-5d410df44e2d'
 }
 New-ModuleManifest @manifestParams
 

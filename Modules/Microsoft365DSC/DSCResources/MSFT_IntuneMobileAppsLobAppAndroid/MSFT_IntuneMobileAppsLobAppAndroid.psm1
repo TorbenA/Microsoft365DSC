@@ -184,26 +184,26 @@ function Get-TargetResource
         }
 
         $complexMinimumSupportedOperatingSystem = [ordered]@{}
-        $complexMinimumSupportedOperatingSystem.Add('V4_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v4_0)
-        $complexMinimumSupportedOperatingSystem.Add('V4_0_3', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v4_0_3)
-        $complexMinimumSupportedOperatingSystem.Add('V4_1', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v4_1)
-        $complexMinimumSupportedOperatingSystem.Add('V4_2', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v4_2)
-        $complexMinimumSupportedOperatingSystem.Add('V4_3', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v4_3)
-        $complexMinimumSupportedOperatingSystem.Add('V4_4', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v4_4)
-        $complexMinimumSupportedOperatingSystem.Add('V5_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v5_0)
-        $complexMinimumSupportedOperatingSystem.Add('V5_1', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v5_1)
-        $complexMinimumSupportedOperatingSystem.Add('V6_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v6_0)
-        $complexMinimumSupportedOperatingSystem.Add('V7_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v7_0)
-        $complexMinimumSupportedOperatingSystem.Add('V7_1', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v7_1)
-        $complexMinimumSupportedOperatingSystem.Add('V8_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v8_0)
-        $complexMinimumSupportedOperatingSystem.Add('V8_1', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v8_1)
-        $complexMinimumSupportedOperatingSystem.Add('V9_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v9_0)
-        $complexMinimumSupportedOperatingSystem.Add('V10_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v10_0)
-        $complexMinimumSupportedOperatingSystem.Add('V11_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v11_0)
-        $complexMinimumSupportedOperatingSystem.Add('V12_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v12_0)
-        $complexMinimumSupportedOperatingSystem.Add('V13_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v13_0)
-        $complexMinimumSupportedOperatingSystem.Add('V14_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v14_0)
-        $complexMinimumSupportedOperatingSystem.Add('V15_0', $getValue.AdditionalProperties.minimumSupportedOperatingSystem.v15_0)
+        $complexMinimumSupportedOperatingSystem.Add('V4_0', $getValue.minimumSupportedOperatingSystem.v4_0)
+        $complexMinimumSupportedOperatingSystem.Add('V4_0_3', $getValue.minimumSupportedOperatingSystem.v4_0_3)
+        $complexMinimumSupportedOperatingSystem.Add('V4_1', $getValue.minimumSupportedOperatingSystem.v4_1)
+        $complexMinimumSupportedOperatingSystem.Add('V4_2', $getValue.minimumSupportedOperatingSystem.v4_2)
+        $complexMinimumSupportedOperatingSystem.Add('V4_3', $getValue.minimumSupportedOperatingSystem.v4_3)
+        $complexMinimumSupportedOperatingSystem.Add('V4_4', $getValue.minimumSupportedOperatingSystem.v4_4)
+        $complexMinimumSupportedOperatingSystem.Add('V5_0', $getValue.minimumSupportedOperatingSystem.v5_0)
+        $complexMinimumSupportedOperatingSystem.Add('V5_1', $getValue.minimumSupportedOperatingSystem.v5_1)
+        $complexMinimumSupportedOperatingSystem.Add('V6_0', $getValue.minimumSupportedOperatingSystem.v6_0)
+        $complexMinimumSupportedOperatingSystem.Add('V7_0', $getValue.minimumSupportedOperatingSystem.v7_0)
+        $complexMinimumSupportedOperatingSystem.Add('V7_1', $getValue.minimumSupportedOperatingSystem.v7_1)
+        $complexMinimumSupportedOperatingSystem.Add('V8_0', $getValue.minimumSupportedOperatingSystem.v8_0)
+        $complexMinimumSupportedOperatingSystem.Add('V8_1', $getValue.minimumSupportedOperatingSystem.v8_1)
+        $complexMinimumSupportedOperatingSystem.Add('V9_0', $getValue.minimumSupportedOperatingSystem.v9_0)
+        $complexMinimumSupportedOperatingSystem.Add('V10_0', $getValue.minimumSupportedOperatingSystem.v10_0)
+        $complexMinimumSupportedOperatingSystem.Add('V11_0', $getValue.minimumSupportedOperatingSystem.v11_0)
+        $complexMinimumSupportedOperatingSystem.Add('V12_0', $getValue.minimumSupportedOperatingSystem.v12_0)
+        $complexMinimumSupportedOperatingSystem.Add('V13_0', $getValue.minimumSupportedOperatingSystem.v13_0)
+        $complexMinimumSupportedOperatingSystem.Add('V14_0', $getValue.minimumSupportedOperatingSystem.v14_0)
+        $complexMinimumSupportedOperatingSystem.Add('V15_0', $getValue.minimumSupportedOperatingSystem.v15_0)
         if ($complexMinimumSupportedOperatingSystem.Values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexMinimumSupportedOperatingSystem = $null
@@ -220,9 +220,9 @@ function Get-TargetResource
 
         #region resource generator code
         $enumTargetedPlatforms = $null
-        if ($null -ne $getValue.AdditionalProperties.targetedPlatforms)
+        if ($null -ne $getValue.targetedPlatforms)
         {
-            $enumTargetedPlatforms = $getValue.AdditionalProperties.targetedPlatforms.ToString()
+            $enumTargetedPlatforms = $getValue.targetedPlatforms.ToString()
         }
         #endregion
 
@@ -230,9 +230,9 @@ function Get-TargetResource
             #region resource generator code
             Categories                      = $complexCategories
             MinimumSupportedOperatingSystem = $complexMinimumSupportedOperatingSystem
-            PackageId                       = $getValue.AdditionalProperties.packageId
+            PackageId                       = $getValue.packageId
             TargetedPlatforms               = $enumTargetedPlatforms
-            FileName                        = $getValue.AdditionalProperties.fileName
+            FileName                        = $getValue.fileName
             Description                     = $getValue.Description
             Developer                       = $getValue.Developer
             DisplayName                     = $getValue.DisplayName

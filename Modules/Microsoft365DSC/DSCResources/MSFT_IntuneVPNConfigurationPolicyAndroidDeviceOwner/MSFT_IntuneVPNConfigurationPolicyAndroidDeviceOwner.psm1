@@ -159,7 +159,7 @@ function Get-TargetResource
             {
                 $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
                     -FilterScript {
-                        $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerVpnConfiguration' `
+                        $_.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerVpnConfiguration' `
                     }
             }
             #endregion
@@ -180,7 +180,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune VPN Policy for Android Device Owner with id {$Id} and DisplayName {$DisplayName} was found"
 
         $complexServers = @()
-        foreach ($currentservers in $getValue.AdditionalProperties.servers)
+        foreach ($currentservers in $getValue.servers)
         {
             $myservers = [ordered]@{}
             $myservers.Add('address', $currentservers.address)
@@ -193,7 +193,7 @@ function Get-TargetResource
         }
 
         $complexProxyServers = @()
-        foreach ($currentservers in $getValue.AdditionalProperties.proxyServer)
+        foreach ($currentservers in $getValue.proxyServer)
         {
             $myservers = [ordered]@{}
             $myservers.Add('automaticConfigurationScriptUrl', $currentservers.automaticConfigurationScriptUrl)
@@ -206,7 +206,7 @@ function Get-TargetResource
         }
 
         $complexCustomData = @()
-        foreach ($value in $getValue.AdditionalProperties.customData)
+        foreach ($value in $getValue.customData)
         {
             $myCustomdata = [ordered]@{}
             $myCustomdata.Add('key', $value.key)
@@ -218,7 +218,7 @@ function Get-TargetResource
         }
 
         $complexCustomKeyValueData = @()
-        foreach ($value in $getValue.AdditionalProperties.customKeyValueData)
+        foreach ($value in $getValue.customKeyValueData)
         {
             $myCVdata = [ordered]@{}
             $myCVdata.Add('name', $value.name)
@@ -230,7 +230,7 @@ function Get-TargetResource
         }
 
         $complexTargetedMobileApps = @()
-        foreach ($value in $getValue.AdditionalProperties.targetedMobileApps)
+        foreach ($value in $getValue.targetedMobileApps)
         {
             $myTMAdata = [ordered]@{}
             $myTMAdata.Add('name', $value.name)
@@ -249,19 +249,19 @@ function Get-TargetResource
             Description           = $getValue.Description
             DisplayName           = $getValue.DisplayName
             RoleScopeTagIds       = $getValue.RoleScopeTagIds
-            authenticationMethod  = $getValue.AdditionalProperties.authenticationMethod
-            connectionName        = $getValue.AdditionalProperties.connectionName
-            role                  = $getValue.AdditionalProperties.role
-            realm                 = $getValue.AdditionalProperties.realm
+            authenticationMethod  = $getValue.authenticationMethod
+            connectionName        = $getValue.connectionName
+            role                  = $getValue.role
+            realm                 = $getValue.realm
             servers               = $complexServers
-            connectionType        = $getValue.AdditionalProperties.connectionType
+            connectionType        = $getValue.connectionType
             proxyServer           = $complexProxyServers
-            targetedPackageIds    = $getValue.AdditionalProperties.targetedPackageIds
+            targetedPackageIds    = $getValue.targetedPackageIds
             targetedMobileApps    = $complexTargetedMobileApps
-            alwaysOn              = $getValue.AdditionalProperties.alwaysOn
-            alwaysOnLockdown      = $getValue.AdditionalProperties.alwaysOnLockdown
-            microsoftTunnelSiteId = $getValue.AdditionalProperties.microsoftTunnelSiteId
-            proxyExclusionList    = $getValue.AdditionalProperties.proxyExclusionList
+            alwaysOn              = $getValue.alwaysOn
+            alwaysOnLockdown      = $getValue.alwaysOnLockdown
+            microsoftTunnelSiteId = $getValue.microsoftTunnelSiteId
+            proxyExclusionList    = $getValue.proxyExclusionList
             customData            = $complexCustomData
             customKeyValueData    = $complexCustomKeyValueData
             Ensure                = 'Present'
@@ -743,7 +743,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerVpnConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerVpnConfiguration' `
         }
         #endregion
 

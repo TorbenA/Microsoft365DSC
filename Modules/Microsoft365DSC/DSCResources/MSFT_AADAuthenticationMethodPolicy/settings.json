@@ -53,6 +53,12 @@
         "Get-MgBetaPolicyAuthenticationMethodPolicy",
         "Update-MgBetaPolicyAuthenticationMethodPolicy"
       ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
+      ]
     }
   ]
 }

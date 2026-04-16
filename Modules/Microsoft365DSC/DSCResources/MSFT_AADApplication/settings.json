@@ -71,7 +71,7 @@
         "New-MgApplicationTokenLifetimePolicyByRef",
         "Remove-MgApplication",
         "Remove-MgApplicationOwnerDirectoryObjectByRef",
-        "Remove-MgApplicationTokenLifetimePolicyByRef",
+        "Remove-MgApplicationTokenLifetimePolicyTokenLifetimePolicyByRef",
         "Update-MgApplication"
       ]
     },

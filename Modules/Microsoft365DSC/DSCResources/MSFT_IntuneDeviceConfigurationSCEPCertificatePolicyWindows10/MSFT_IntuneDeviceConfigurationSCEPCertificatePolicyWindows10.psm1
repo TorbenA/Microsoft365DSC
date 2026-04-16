@@ -180,7 +180,7 @@ function Get-TargetResource
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue | Where-Object `
                         -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows81SCEPCertificateProfile' `
+                            $_.'@odata.type' -eq '#microsoft.graph.windows81SCEPCertificateProfile' `
                     }
                 }
             }
@@ -200,7 +200,7 @@ function Get-TargetResource
 
         #region resource generator code
         $complexCustomSubjectAlternativeNames = @()
-        foreach ($currentcustomSubjectAlternativeNames in $getValue.AdditionalProperties.customSubjectAlternativeNames)
+        foreach ($currentcustomSubjectAlternativeNames in $getValue.customSubjectAlternativeNames)
         {
             $mycustomSubjectAlternativeNames = [ordered]@{}
             $mycustomSubjectAlternativeNames.Add('Name', $currentcustomSubjectAlternativeNames.name)
@@ -215,7 +215,7 @@ function Get-TargetResource
         }
 
         $complexExtendedKeyUsages = @()
-        foreach ($currentextendedKeyUsages in $getValue.AdditionalProperties.extendedKeyUsages)
+        foreach ($currentextendedKeyUsages in $getValue.extendedKeyUsages)
         {
             $myextendedKeyUsages = [ordered]@{}
             $myextendedKeyUsages.Add('Name', $currentextendedKeyUsages.name)
@@ -229,51 +229,51 @@ function Get-TargetResource
 
         #region resource generator code
         $enumCertificateStore = $null
-        if ($null -ne $getValue.AdditionalProperties.certificateStore)
+        if ($null -ne $getValue.certificateStore)
         {
-            $enumCertificateStore = $getValue.AdditionalProperties.certificateStore.ToString()
+            $enumCertificateStore = $getValue.certificateStore.ToString()
         }
 
         $enumHashAlgorithm = $null
-        if ($null -ne $getValue.AdditionalProperties.hashAlgorithm)
+        if ($null -ne $getValue.hashAlgorithm)
         {
-            $enumHashAlgorithm = $getValue.AdditionalProperties.hashAlgorithm.ToString()
+            $enumHashAlgorithm = $getValue.hashAlgorithm.ToString()
         }
 
         $enumKeySize = $null
-        if ($null -ne $getValue.AdditionalProperties.keySize)
+        if ($null -ne $getValue.keySize)
         {
-            $enumKeySize = $getValue.AdditionalProperties.keySize.ToString()
+            $enumKeySize = $getValue.keySize.ToString()
         }
 
         $enumKeyUsage = $null
-        if ($null -ne $getValue.AdditionalProperties.keyUsage)
+        if ($null -ne $getValue.keyUsage)
         {
-            $enumKeyUsage = $getValue.AdditionalProperties.keyUsage.ToString()
+            $enumKeyUsage = $getValue.keyUsage.ToString()
         }
 
         $enumCertificateValidityPeriodScale = $null
-        if ($null -ne $getValue.AdditionalProperties.certificateValidityPeriodScale)
+        if ($null -ne $getValue.certificateValidityPeriodScale)
         {
-            $enumCertificateValidityPeriodScale = $getValue.AdditionalProperties.certificateValidityPeriodScale.ToString()
+            $enumCertificateValidityPeriodScale = $getValue.certificateValidityPeriodScale.ToString()
         }
 
         $enumKeyStorageProvider = $null
-        if ($null -ne $getValue.AdditionalProperties.keyStorageProvider)
+        if ($null -ne $getValue.keyStorageProvider)
         {
-            $enumKeyStorageProvider = $getValue.AdditionalProperties.keyStorageProvider.ToString()
+            $enumKeyStorageProvider = $getValue.keyStorageProvider.ToString()
         }
 
         $enumSubjectAlternativeNameType = $null
-        if ($null -ne $getValue.AdditionalProperties.subjectAlternativeNameType)
+        if ($null -ne $getValue.subjectAlternativeNameType)
         {
-            $enumSubjectAlternativeNameType = $getValue.AdditionalProperties.subjectAlternativeNameType.ToString()
+            $enumSubjectAlternativeNameType = $getValue.subjectAlternativeNameType.ToString()
         }
 
         $enumSubjectNameFormat = $null
-        if ($null -ne $getValue.AdditionalProperties.subjectNameFormat)
+        if ($null -ne $getValue.subjectNameFormat)
         {
-            $enumSubjectNameFormat = $getValue.AdditionalProperties.subjectNameFormat.ToString()
+            $enumSubjectNameFormat = $getValue.subjectNameFormat.ToString()
         }
         #endregion
 
@@ -287,15 +287,15 @@ function Get-TargetResource
             HashAlgorithm                      = $enumHashAlgorithm
             KeySize                            = $enumKeySize
             KeyUsage                           = $enumKeyUsage.Split(',')
-            ScepServerUrls                     = $getValue.AdditionalProperties.scepServerUrls
-            SubjectAlternativeNameFormatString = $getValue.AdditionalProperties.subjectAlternativeNameFormatString
-            SubjectNameFormatString            = $getValue.AdditionalProperties.subjectNameFormatString
+            ScepServerUrls                     = $getValue.scepServerUrls
+            SubjectAlternativeNameFormatString = $getValue.subjectAlternativeNameFormatString
+            SubjectNameFormatString            = $getValue.subjectNameFormatString
             CustomSubjectAlternativeNames      = $complexCustomSubjectAlternativeNames
             ExtendedKeyUsages                  = $complexExtendedKeyUsages
             CertificateValidityPeriodScale     = $enumCertificateValidityPeriodScale
-            CertificateValidityPeriodValue     = $getValue.AdditionalProperties.certificateValidityPeriodValue
+            CertificateValidityPeriodValue     = $getValue.certificateValidityPeriodValue
             KeyStorageProvider                 = $enumKeyStorageProvider
-            RenewalThresholdPercentage         = $getValue.AdditionalProperties.renewalThresholdPercentage
+            RenewalThresholdPercentage         = $getValue.renewalThresholdPercentage
             SubjectAlternativeNameType         = $enumSubjectAlternativeNameType
             SubjectNameFormat                  = $enumSubjectNameFormat
             RootCertificateId                  = $RootCertificateId
@@ -507,7 +507,7 @@ function Set-TargetResource
             -DeviceConfigurationId $RootCertificateId `
             -ErrorAction SilentlyContinue | `
                 Where-Object -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate'
+                $_.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate'
             }
 
         if ($null -eq $RootCertificate)
@@ -518,7 +518,7 @@ function Set-TargetResource
                 -Filter "DisplayName eq '$($RootCertificateDisplayName -replace "'", "''")'" `
                 -ErrorAction SilentlyContinue | `
                     Where-Object -FilterScript {
-                    $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate'
+                    $_.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate'
                 }
             $RootCertificateId = $RootCertificate.Id
 
@@ -577,7 +577,7 @@ function Set-TargetResource
             -DeviceConfigurationId $RootCertificateId `
             -ErrorAction SilentlyContinue | `
                 Where-Object -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate'
+                $_.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate'
             }
 
         if ($null -eq $RootCertificate)
@@ -588,7 +588,7 @@ function Set-TargetResource
                 -Filter "DisplayName eq '$($RootCertificateDisplayName -replace "'", "''")'" `
                 -ErrorAction SilentlyContinue | `
                     Where-Object -FilterScript {
-                    $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate'
+                    $_.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate'
                 }
             $RootCertificateId = $RootCertificate.Id
 
@@ -835,7 +835,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows81SCEPCertificateProfile' `
+                $_.'@odata.type' -eq '#microsoft.graph.windows81SCEPCertificateProfile' `
         }
         #endregion
 

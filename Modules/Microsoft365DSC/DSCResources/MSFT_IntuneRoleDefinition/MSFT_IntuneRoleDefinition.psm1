@@ -462,7 +462,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementRoleDefinition -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.deviceAndAppManagementRoleDefinition' `
+                $_.'@odata.type' -eq '#microsoft.graph.deviceAndAppManagementRoleDefinition' `
         }
 
         if (-not $getValue)

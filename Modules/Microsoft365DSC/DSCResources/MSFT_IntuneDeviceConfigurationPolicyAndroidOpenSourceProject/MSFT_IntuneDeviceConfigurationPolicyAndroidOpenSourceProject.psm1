@@ -154,7 +154,7 @@ function Get-TargetResource
             {
                 $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
                     -FilterScript {
-                        $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.aospDeviceOwnerDeviceConfiguration' `
+                        $_.'@odata.type' -eq '#microsoft.graph.aospDeviceOwnerDeviceConfiguration' `
                 }
             }
             #endregion
@@ -186,20 +186,20 @@ function Get-TargetResource
             Description                                    = $getValue.Description
             DisplayName                                    = $getValue.DisplayName
             RoleScopeTagIds                                = $getValue.RoleScopeTagIds
-            AppsBlockInstallFromUnknownSources             = $getValue.AdditionalProperties.appsBlockInstallFromUnknownSources
-            BluetoothBlockConfiguration                    = $getValue.AdditionalProperties.bluetoothBlockConfiguration
-            BluetoothBlocked                               = $getValue.AdditionalProperties.bluetoothBlocked
-            CameraBlocked                                  = $getValue.AdditionalProperties.cameraBlocked
-            FactoryResetBlocked                            = $getValue.AdditionalProperties.factoryResetBlocked
-            PasswordMinimumLength                          = $getValue.AdditionalProperties.passwordMinimumLength
-            PasswordMinutesOfInactivityBeforeScreenTimeout = $getValue.AdditionalProperties.passwordMinutesOfInactivityBeforeScreenTimeout
-            PasswordRequiredType                           = $getValue.AdditionalProperties.passwordRequiredType
-            PasswordSignInFailureCountBeforeFactoryReset   = $getValue.AdditionalProperties.passwordSignInFailureCountBeforeFactoryReset
-            ScreenCaptureBlocked                           = $getValue.AdditionalProperties.screenCaptureBlocked
-            SecurityAllowDebuggingFeatures                 = $getValue.AdditionalProperties.securityAllowDebuggingFeatures
-            StorageBlockExternalMedia                      = $getValue.AdditionalProperties.storageBlockExternalMedia
-            StorageBlockUsbFileTransfer                    = $getValue.AdditionalProperties.storageBlockUsbFileTransfer
-            WifiBlockEditConfigurations                    = $getValue.AdditionalProperties.wifiBlockEditConfigurations
+            AppsBlockInstallFromUnknownSources             = $getValue.appsBlockInstallFromUnknownSources
+            BluetoothBlockConfiguration                    = $getValue.bluetoothBlockConfiguration
+            BluetoothBlocked                               = $getValue.bluetoothBlocked
+            CameraBlocked                                  = $getValue.cameraBlocked
+            FactoryResetBlocked                            = $getValue.factoryResetBlocked
+            PasswordMinimumLength                          = $getValue.passwordMinimumLength
+            PasswordMinutesOfInactivityBeforeScreenTimeout = $getValue.passwordMinutesOfInactivityBeforeScreenTimeout
+            PasswordRequiredType                           = $getValue.passwordRequiredType
+            PasswordSignInFailureCountBeforeFactoryReset   = $getValue.passwordSignInFailureCountBeforeFactoryReset
+            ScreenCaptureBlocked                           = $getValue.screenCaptureBlocked
+            SecurityAllowDebuggingFeatures                 = $getValue.securityAllowDebuggingFeatures
+            StorageBlockExternalMedia                      = $getValue.storageBlockExternalMedia
+            StorageBlockUsbFileTransfer                    = $getValue.storageBlockUsbFileTransfer
+            WifiBlockEditConfigurations                    = $getValue.wifiBlockEditConfigurations
             Ensure                                         = 'Present'
             Credential                                     = $Credential
             ApplicationId                                  = $ApplicationId
@@ -640,7 +640,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.aospDeviceOwnerDeviceConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.aospDeviceOwnerDeviceConfiguration' `
         }
         #endregion
 

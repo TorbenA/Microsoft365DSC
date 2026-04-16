@@ -195,9 +195,9 @@ function Get-TargetResource
             $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($getValue.LargeIcon.Value))
         }
         $enumChannel = $null
-        if ($null -ne $getValue.AdditionalProperties.channel)
+        if ($null -ne $getValue.channel)
         {
-            $enumChannel = $getValue.AdditionalProperties.channel.ToString()
+            $enumChannel = $getValue.channel.ToString()
         }
         #endregion
 
@@ -205,7 +205,7 @@ function Get-TargetResource
             #region resource generator code
             Categories            = $complexCategories
             Channel               = $enumChannel
-            DisplayLanguageLocale = $getValue.AdditionalProperties.displayLanguageLocale
+            DisplayLanguageLocale = $getValue.displayLanguageLocale
             Description           = $getValue.Description
             Developer             = $getValue.Developer
             DisplayName           = $getValue.DisplayName
@@ -217,7 +217,7 @@ function Get-TargetResource
             PrivacyInformationUrl = $getValue.PrivacyInformationUrl
             Publisher             = $getValue.Publisher
             RoleScopeTagIds       = $getValue.RoleScopeTagIds
-            TargetPlatform        = $getValue.AdditionalProperties.'@odata.type'.Replace('#microsoft.graph.', '').Replace('MicrosoftEdgeApp', '')
+            TargetPlatform        = $getValue.'@odata.type'.Replace('#microsoft.graph.', '').Replace('MicrosoftEdgeApp', '')
             Id                    = $getValue.Id
             Ensure                = 'Present'
             Credential            = $Credential
@@ -673,7 +673,7 @@ function Export-TargetResource
             $params = @{
                 Id                    = $config.Id
                 DisplayName           = $config.DisplayName
-                TargetPlatform        = $config.AdditionalProperties.'@odata.type'.Replace('#microsoft.graph.', '').Replace('MicrosoftEdgeApp', '')
+                TargetPlatform        = $config.'@odata.type'.Replace('#microsoft.graph.', '').Replace('MicrosoftEdgeApp', '')
                 Ensure                = 'Present'
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId

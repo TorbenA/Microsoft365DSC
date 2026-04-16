@@ -109,7 +109,7 @@ function Get-TargetResource
                     $config = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration `
                         -All `
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" | Where-Object -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.deviceEnrollmentLimitConfiguration'
+                            $_.'@odata.type' -eq '#microsoft.graph.deviceEnrollmentLimitConfiguration'
                         }
                 }
             }
@@ -131,7 +131,7 @@ function Get-TargetResource
             Id                    = $config.Id
             DisplayName           = $config.DisplayName
             Description           = $config.Description
-            Limit                 = $config.AdditionalProperties.limit
+            Limit                 = $config.limit
             Priority              = $config.Priority
             RoleScopeTagIds       = $config.RoleScopeTagIds
             Ensure                = 'Present'
@@ -482,7 +482,7 @@ function Export-TargetResource
     try
     {
         [array]$configs = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -All:$true -Filter $Filter -ErrorAction Stop `
-        | Where-Object -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.deviceEnrollmentLimitConfiguration' }
+        | Where-Object -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.deviceEnrollmentLimitConfiguration' }
         $i = 1
         $dscContent = ''
         if ($configs.Length -eq 0)

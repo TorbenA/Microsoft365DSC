@@ -117,7 +117,7 @@ function Get-TargetResource
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue | Where-Object `
                         -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate' `
+                            $_.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate' `
                     }
                 }
             }
@@ -137,17 +137,17 @@ function Get-TargetResource
 
         #region resource generator code
         $enumDestinationStore = $null
-        if ($null -ne $getValue.AdditionalProperties.destinationStore)
+        if ($null -ne $getValue.destinationStore)
         {
-            $enumDestinationStore = $getValue.AdditionalProperties.destinationStore.ToString()
+            $enumDestinationStore = $getValue.destinationStore.ToString()
         }
         #endregion
 
         $results = @{
             #region resource generator code
-            CertFileName           = $getValue.AdditionalProperties.certFileName
+            CertFileName           = $getValue.certFileName
             DestinationStore       = $enumDestinationStore
-            TrustedRootCertificate = $getValue.AdditionalProperties.trustedRootCertificate
+            TrustedRootCertificate = $getValue.trustedRootCertificate
             Description            = $getValue.Description
             DisplayName            = $getValue.DisplayName
             Id                     = $getValue.Id
@@ -476,7 +476,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate' `
+                $_.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate' `
         }
         #endregion
 

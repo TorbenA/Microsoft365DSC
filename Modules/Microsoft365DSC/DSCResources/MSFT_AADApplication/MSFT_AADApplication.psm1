@@ -328,7 +328,7 @@ function Get-TargetResource
             $mykeyCredentials = [ordered]@{}
             if ($null -ne $currentkeyCredentials.customKeyIdentifier)
             {
-                $mykeyCredentials.Add('CustomKeyIdentifier', [convert]::ToBase64String($currentkeyCredentials.customKeyIdentifier))
+                $mykeyCredentials.Add('CustomKeyIdentifier', $currentkeyCredentials.customKeyIdentifier)
             }
             $mykeyCredentials.Add('DisplayName', $currentkeyCredentials.displayName)
             if ($null -ne $currentkeyCredentials.endDateTime)
@@ -340,7 +340,7 @@ function Get-TargetResource
 
             if ($null -ne $currentkeyCredentials.Key)
             {
-                $mykeyCredentials.Add('Key', [convert]::ToBase64String($currentkeyCredentials.key))
+                $mykeyCredentials.Add('Key', $currentkeyCredentials.Key)
             }
 
             if ($null -ne $currentkeyCredentials.startDateTime)
@@ -410,9 +410,9 @@ function Get-TargetResource
         $OwnersValues = @()
         foreach ($Owner in $($AADApp.Owners | Where-Object { -not $_.DeletedDateTime }))
         {
-            if ($Owner.AdditionalProperties.userPrincipalName)
+            if ($Owner.userPrincipalName)
             {
-                $OwnersValues += $Owner.AdditionalProperties.userPrincipalName
+                $OwnersValues += $Owner.userPrincipalName
             }
             else
             {
@@ -550,7 +550,7 @@ function Get-TargetResource
             AppRoles                 = $complexAppRoles
             Permissions              = $permissionsObj
             OnPremisesPublishing     = $onPremisesPublishingValue
-            ApplicationTemplateId    = $AADApp.AdditionalProperties.applicationTemplateId
+            ApplicationTemplateId    = $AADApp.applicationTemplateId
             Spa                      = $SpaValue
             TokenLifetimePolicy      = $lifetimePolicy.displayName
             PublicClientRedirectUris = $PublicClientRedirectUrisValue
@@ -975,9 +975,9 @@ function Set-TargetResource
                 $ownersValues = @()
                 foreach ($owner in $($restoredApp.Owners | Where-Object { -not $_.DeletedDateTime }))
                 {
-                    if ($owner.AdditionalProperties.userPrincipalName)
+                    if ($owner.userPrincipalName)
                     {
-                        $ownersValues += $owner.AdditionalProperties.userPrincipalName
+                        $ownersValues += $owner.userPrincipalName
                     }
                     else
                     {
@@ -1425,7 +1425,7 @@ function Set-TargetResource
         {
             Write-Verbose -Message "Removing Token Lifetime Policy with DisplayName [$policyToRemove] from Application [$($currentAADApp.DisplayName)]"
             $policy = $allTokenLifetimePolicies | Where-Object { $_.DisplayName -eq $policyToRemove }
-            Remove-MgApplicationTokenLifetimePolicyByRef -ApplicationId $currentAADApp.Id -TokenLifetimePolicyId $policy.Id
+            Remove-MgApplicationTokenLifetimePolicyTokenLifetimePolicyByRef -ApplicationId $currentAADApp.Id -TokenLifetimePolicyId $policy.Id
         }
 
         if ($null -ne $policyToAdd)
@@ -1985,6 +1985,15 @@ function Get-M365DSCAzureADAppPermissions
         $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
 
         $SourceAPI = ($batchResponses | Where-Object -FilterScript { $_.id -eq 'SourceAPI' }).body.value
+        if ([System.String]::IsNullOrEmpty($SourceAPI))
+        {
+            Write-Warning -Message "Could not find the Service Principal for API with AppId {$($requiredAccess.ResourceAppId)}. Using ResourceAppId as the identifier in the exported configuration."
+            $SourceAPI = @{
+                AppId = $requiredAccess.ResourceAppId
+                DisplayName = $requiredAccess.ResourceAppId
+                Id = $requiredAccess.ResourceAppId
+            }
+        }
         $appServicePrincipal = ($batchResponses | Where-Object -FilterScript { $_.id -eq 'AppServicePrincipal' }).body.value
         if ($null -ne $appServicePrincipal)
         {

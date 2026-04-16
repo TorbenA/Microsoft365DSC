@@ -122,7 +122,7 @@ function Get-TargetResource
             {
                 $getValue = Get-MgBetaDeviceAppManagementMobileAppConfiguration -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
                     -FilterScript {
-                        $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidManagedStoreAppConfiguration' `
+                        $_.'@odata.type' -eq '#microsoft.graph.androidManagedStoreAppConfiguration' `
                 }
             }
             #endregion
@@ -142,7 +142,7 @@ function Get-TargetResource
 
         #need to convert dictionary object into a hashtable array so we can work with it
         $complexPermissionActions = @()
-        foreach ($setting in $getValue.AdditionalProperties.permissionActions)
+        foreach ($setting in $getValue.permissionActions)
         {
             $mySettings = [ordered]@{}
             $mySettings.Add('action', $setting['action'])
@@ -160,11 +160,11 @@ function Get-TargetResource
             Description           = $getValue.Description
             DisplayName           = $getValue.DisplayName
             targetedMobileApps    = $getValue.TargetedMobileApps
-            packageId             = $getValue.AdditionalProperties.packageId
-            payloadJson           = $getValue.AdditionalProperties.payloadJson
-            appSupportsOemConfig  = $getValue.AdditionalProperties.appSupportsOemConfig
-            profileApplicability  = $getValue.AdditionalProperties.profileApplicability
-            connectedAppsEnabled  = $getValue.AdditionalProperties.connectedAppsEnabled
+            packageId             = $getValue.packageId
+            payloadJson           = $getValue.payloadJson
+            appSupportsOemConfig  = $getValue.appSupportsOemConfig
+            profileApplicability  = $getValue.profileApplicability
+            connectedAppsEnabled  = $getValue.connectedAppsEnabled
             permissionActions     = $complexPermissionActions
             Ensure                = 'Present'
             Credential            = $Credential
@@ -174,7 +174,6 @@ function Get-TargetResource
             CertificateThumbprint = $CertificateThumbprint
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
-            version               = $getValue.AdditionalProperties.version
         }
 
         $assignmentsValues = Get-MgBetaDeviceAppManagementMobileAppConfigurationAssignment -ManagedDeviceMobileAppConfigurationId $Results.Id
@@ -535,7 +534,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceAppManagementMobileAppConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidManagedStoreAppConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.androidManagedStoreAppConfiguration' `
         }
         #endregion
 

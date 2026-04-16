@@ -217,7 +217,7 @@ function Get-TargetResource
             {
                 $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
                     -FilterScript {
-                        $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.iosVpnConfiguration' `
+                        $_.'@odata.type' -eq '#microsoft.graph.iosVpnConfiguration' `
                     }
             }
             #endregion
@@ -238,7 +238,7 @@ function Get-TargetResource
         Write-Verbose -Message "An Intune VPN Policy for iOS with id {$Id} and DisplayName {$DisplayName} was found"
 
         $complexServers = @()
-        foreach ($currentservers in $getValue.AdditionalProperties.server)
+        foreach ($currentservers in $getValue.server)
         {
             $myservers = [ordered]@{}
             $myservers.Add('address', $currentservers.address)
@@ -251,7 +251,7 @@ function Get-TargetResource
         }
 
         $complexProxyServers = @()
-        foreach ($currentservers in $getValue.AdditionalProperties.proxyServer)
+        foreach ($currentservers in $getValue.proxyServer)
         {
             $myservers = [ordered]@{}
             $myservers.Add('automaticConfigurationScriptUrl', $currentservers.automaticConfigurationScriptUrl)
@@ -264,7 +264,7 @@ function Get-TargetResource
         }
 
         $complexCustomData = @()
-        foreach ($value in $getValue.AdditionalProperties.customData)
+        foreach ($value in $getValue.customData)
         {
             $myCustomdata = [ordered]@{}
             $myCustomdata.Add('key', $value.key)
@@ -276,7 +276,7 @@ function Get-TargetResource
         }
 
         $complexCustomKeyValueData = @()
-        foreach ($value in $getValue.AdditionalProperties.customKeyValueData)
+        foreach ($value in $getValue.customKeyValueData)
         {
             $myCVdata = [ordered]@{}
             $myCVdata.Add('name', $value.name)
@@ -288,7 +288,7 @@ function Get-TargetResource
         }
 
         $complexTargetedMobileApps = @()
-        foreach ($value in $getValue.AdditionalProperties.targetedMobileApps)
+        foreach ($value in $getValue.targetedMobileApps)
         {
             $myTMAdata = [ordered]@{}
             $myTMAdata.Add('name', $value.name)
@@ -307,21 +307,21 @@ function Get-TargetResource
             Description                    = $getValue.Description
             DisplayName                    = $getValue.DisplayName
             RoleScopeTagIds                = $getValue.RoleScopeTagIds
-            connectionName                 = $getValue.AdditionalProperties.connectionName
-            connectionType                 = $getValue.AdditionalProperties.connectionType
-            enableSplitTunneling           = $getValue.AdditionalProperties.enableSplitTunneling
-            authenticationMethod           = $getValue.AdditionalProperties.authenticationMethod
-            safariDomains                  = $getValue.AdditionalProperties.safariDomains
-            associatedDomains              = $getValue.AdditionalProperties.associatedDomains
-            excludedDomains                = $getValue.AdditionalProperties.excludedDomains
-            optInToDeviceIdSharing         = $getValue.AdditionalProperties.optInToDeviceIdSharing
-            excludeList                    = $getValue.AdditionalProperties.excludeList
+            connectionName                 = $getValue.connectionName
+            connectionType                 = $getValue.connectionType
+            enableSplitTunneling           = $getValue.enableSplitTunneling
+            authenticationMethod           = $getValue.authenticationMethod
+            safariDomains                  = $getValue.safariDomains
+            associatedDomains              = $getValue.associatedDomains
+            excludedDomains                = $getValue.excludedDomains
+            optInToDeviceIdSharing         = $getValue.optInToDeviceIdSharing
+            excludeList                    = $getValue.excludeList
             server                         = $complexServers
-            customData                     = $complexCustomData #$getValue.AdditionalProperties.customData
-            customKeyValueData             = $complexCustomKeyValueData #$getValue.AdditionalProperties.customKeyValueData
-            onDemandRules                  = $getValue.AdditionalProperties.onDemandRules
+            customData                     = $complexCustomData #$getValue.customData
+            customKeyValueData             = $complexCustomKeyValueData #$getValue.customKeyValueData
+            onDemandRules                  = $getValue.onDemandRules
             proxyServer                    = $complexProxyServers
-            targetedMobileApps             = $complexTargetedMobileApps #$getValue.AdditionalProperties.targetedMobileApps
+            targetedMobileApps             = $complexTargetedMobileApps #$getValue.targetedMobileApps
             Ensure                         = 'Present'
             Credential                     = $Credential
             ApplicationId                  = $ApplicationId
@@ -330,20 +330,19 @@ function Get-TargetResource
             CertificateThumbprint          = $CertificateThumbprint
             ManagedIdentity                = $ManagedIdentity.IsPresent
             AccessTokens                   = $AccessTokens
-            version                        = $getValue.AdditionalProperties.version
-            loginGroupOrDomain             = $getValue.AdditionalProperties.loginGroupOrDomain
-            role                           = $getValue.AdditionalProperties.role
-            realm                          = $getValue.AdditionalProperties.realm
-            identifier                     = $getValue.AdditionalProperties.identifier
-            enablePerApp                   = $getValue.AdditionalProperties.enablePerApp
-            providerType                   = $getValue.AdditionalProperties.providerType
-            disableOnDemandUserOverride    = $getValue.AdditionalProperties.disableOnDemandUserOverride
-            disconnectOnIdle               = $getValue.AdditionalProperties.disconnectOnIdle
-            disconnectOnIdleTimerInSeconds = $getValue.AdditionalProperties.disconnectOnIdleTimerInSeconds
-            microsoftTunnelSiteId          = $getValue.AdditionalProperties.microsoftTunnelSiteId
-            cloudName                      = $getValue.AdditionalProperties.cloudName
-            strictEnforcement              = $getValue.AdditionalProperties.strictEnforcement
-            userDomain                     = $getValue.AdditionalProperties.userDomain
+            loginGroupOrDomain             = $getValue.loginGroupOrDomain
+            role                           = $getValue.role
+            realm                          = $getValue.realm
+            identifier                     = $getValue.identifier
+            enablePerApp                   = $getValue.enablePerApp
+            providerType                   = $getValue.providerType
+            disableOnDemandUserOverride    = $getValue.disableOnDemandUserOverride
+            disconnectOnIdle               = $getValue.disconnectOnIdle
+            disconnectOnIdleTimerInSeconds = $getValue.disconnectOnIdleTimerInSeconds
+            microsoftTunnelSiteId          = $getValue.microsoftTunnelSiteId
+            cloudName                      = $getValue.cloudName
+            strictEnforcement              = $getValue.strictEnforcement
+            userDomain                     = $getValue.userDomain
 
         }
 
@@ -956,7 +955,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.iosVpnConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.iosVpnConfiguration' `
         }
         #endregion
 

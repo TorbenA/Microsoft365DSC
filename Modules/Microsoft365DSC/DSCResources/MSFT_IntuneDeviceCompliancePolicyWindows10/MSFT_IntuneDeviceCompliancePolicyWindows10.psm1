@@ -242,7 +242,7 @@ function Get-TargetResource
         }
 
         $complexValidOperatingSystemBuildRanges = @()
-        foreach ($currentValidOperatingSystemBuildRanges in $devicePolicy.AdditionalProperties.validOperatingSystemBuildRanges)
+        foreach ($currentValidOperatingSystemBuildRanges in $devicePolicy.validOperatingSystemBuildRanges)
         {
             $myValidOperatingSystemBuildRanges = [ordered]@{}
             if ($null -ne $currentValidOperatingSystemBuildRanges.lowestVersion)
@@ -264,12 +264,12 @@ function Get-TargetResource
         }
 
         $complexDeviceCompliancePolicyScript = [ordered]@{}
-        if ($null -ne $devicePolicy.AdditionalProperties.deviceCompliancePolicyScript)
+        if ($null -ne $devicePolicy.deviceCompliancePolicyScript)
         {
-            Write-Verbose -Message "Resolving Device Compliance Policy Script with Id {$($devicePolicy.AdditionalProperties.deviceCompliancePolicyScript.deviceComplianceScriptId)}"
-            $policyScript = Invoke-MgGraphRequest -Uri "/beta/deviceManagement/deviceComplianceScripts/$($devicePolicy.AdditionalProperties.deviceCompliancePolicyScript.deviceComplianceScriptId)" -Method GET
+            Write-Verbose -Message "Resolving Device Compliance Policy Script with Id {$($devicePolicy.deviceCompliancePolicyScript.deviceComplianceScriptId)}"
+            $policyScript = Invoke-MgGraphRequest -Uri "/beta/deviceManagement/deviceComplianceScripts/$($devicePolicy.deviceCompliancePolicyScript.deviceComplianceScriptId)" -Method GET
             $complexDeviceCompliancePolicyScript.Add('DisplayName', $policyScript.displayName)
-            $complexDeviceCompliancePolicyScript.Add('RulesContent', [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($devicePolicy.AdditionalProperties.deviceCompliancePolicyScript.rulesContent)))
+            $complexDeviceCompliancePolicyScript.Add('RulesContent', [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($devicePolicy.deviceCompliancePolicyScript.rulesContent)))
         }
         if ($complexDeviceCompliancePolicyScript.Keys.Count -eq 0)
         {
@@ -310,36 +310,36 @@ function Get-TargetResource
             DisplayName                                 = $devicePolicy.DisplayName
             Description                                 = $devicePolicy.Description
             RoleScopeTagIds                             = $devicePolicy.RoleScopeTagIds
-            PasswordRequired                            = $devicePolicy.AdditionalProperties.passwordRequired
-            PasswordBlockSimple                         = $devicePolicy.AdditionalProperties.passwordBlockSimple
-            PasswordRequiredToUnlockFromIdle            = $devicePolicy.AdditionalProperties.passwordRequiredToUnlockFromIdle
-            PasswordMinutesOfInactivityBeforeLock       = $devicePolicy.AdditionalProperties.passwordMinutesOfInactivityBeforeLock
-            PasswordExpirationDays                      = $devicePolicy.AdditionalProperties.passwordExpirationDays
-            PasswordMinimumLength                       = $devicePolicy.AdditionalProperties.passwordMinimumLength
-            PasswordMinimumCharacterSetCount            = $devicePolicy.AdditionalProperties.passwordMinimumCharacterSetCount
-            PasswordRequiredType                        = $devicePolicy.AdditionalProperties.passwordRequiredType
-            PasswordPreviousPasswordBlockCount          = $devicePolicy.AdditionalProperties.passwordPreviousPasswordBlockCount
-            RequireHealthyDeviceReport                  = $devicePolicy.AdditionalProperties.requireHealthyDeviceReport
-            OsMinimumVersion                            = $devicePolicy.AdditionalProperties.osMinimumVersion
-            OsMaximumVersion                            = $devicePolicy.AdditionalProperties.osMaximumVersion
-            MobileOsMinimumVersion                      = $devicePolicy.AdditionalProperties.mobileOsMinimumVersion
-            MobileOsMaximumVersion                      = $devicePolicy.AdditionalProperties.mobileOsMaximumVersion
-            EarlyLaunchAntiMalwareDriverEnabled         = $devicePolicy.AdditionalProperties.earlyLaunchAntiMalwareDriverEnabled
-            BitLockerEnabled                            = $devicePolicy.AdditionalProperties.bitLockerEnabled
-            SecureBootEnabled                           = $devicePolicy.AdditionalProperties.secureBootEnabled
-            CodeIntegrityEnabled                        = $devicePolicy.AdditionalProperties.codeIntegrityEnabled
-            StorageRequireEncryption                    = $devicePolicy.AdditionalProperties.storageRequireEncryption
-            ActiveFirewallRequired                      = $devicePolicy.AdditionalProperties.activeFirewallRequired
-            DefenderEnabled                             = $devicePolicy.AdditionalProperties.defenderEnabled
-            DefenderVersion                             = $devicePolicy.AdditionalProperties.defenderVersion
-            SignatureOutOfDate                          = $devicePolicy.AdditionalProperties.signatureOutOfDate
-            RTPEnabled                                  = $devicePolicy.AdditionalProperties.rtpEnabled
-            AntivirusRequired                           = $devicePolicy.AdditionalProperties.antivirusRequired
-            AntiSpywareRequired                         = $devicePolicy.AdditionalProperties.antiSpywareRequired
-            DeviceThreatProtectionEnabled               = $devicePolicy.AdditionalProperties.deviceThreatProtectionEnabled
-            DeviceThreatProtectionRequiredSecurityLevel = $devicePolicy.AdditionalProperties.deviceThreatProtectionRequiredSecurityLevel
-            ConfigurationManagerComplianceRequired      = $devicePolicy.AdditionalProperties.configurationManagerComplianceRequired
-            TpmRequired                                 = $devicePolicy.AdditionalProperties.tpmRequired
+            PasswordRequired                            = $devicePolicy.passwordRequired
+            PasswordBlockSimple                         = $devicePolicy.passwordBlockSimple
+            PasswordRequiredToUnlockFromIdle            = $devicePolicy.passwordRequiredToUnlockFromIdle
+            PasswordMinutesOfInactivityBeforeLock       = $devicePolicy.passwordMinutesOfInactivityBeforeLock
+            PasswordExpirationDays                      = $devicePolicy.passwordExpirationDays
+            PasswordMinimumLength                       = $devicePolicy.passwordMinimumLength
+            PasswordMinimumCharacterSetCount            = $devicePolicy.passwordMinimumCharacterSetCount
+            PasswordRequiredType                        = $devicePolicy.passwordRequiredType
+            PasswordPreviousPasswordBlockCount          = $devicePolicy.passwordPreviousPasswordBlockCount
+            RequireHealthyDeviceReport                  = $devicePolicy.requireHealthyDeviceReport
+            OsMinimumVersion                            = $devicePolicy.osMinimumVersion
+            OsMaximumVersion                            = $devicePolicy.osMaximumVersion
+            MobileOsMinimumVersion                      = $devicePolicy.mobileOsMinimumVersion
+            MobileOsMaximumVersion                      = $devicePolicy.mobileOsMaximumVersion
+            EarlyLaunchAntiMalwareDriverEnabled         = $devicePolicy.earlyLaunchAntiMalwareDriverEnabled
+            BitLockerEnabled                            = $devicePolicy.bitLockerEnabled
+            SecureBootEnabled                           = $devicePolicy.secureBootEnabled
+            CodeIntegrityEnabled                        = $devicePolicy.codeIntegrityEnabled
+            StorageRequireEncryption                    = $devicePolicy.storageRequireEncryption
+            ActiveFirewallRequired                      = $devicePolicy.activeFirewallRequired
+            DefenderEnabled                             = $devicePolicy.defenderEnabled
+            DefenderVersion                             = $devicePolicy.defenderVersion
+            SignatureOutOfDate                          = $devicePolicy.signatureOutOfDate
+            RTPEnabled                                  = $devicePolicy.rtpEnabled
+            AntivirusRequired                           = $devicePolicy.antivirusRequired
+            AntiSpywareRequired                         = $devicePolicy.antiSpywareRequired
+            DeviceThreatProtectionEnabled               = $devicePolicy.deviceThreatProtectionEnabled
+            DeviceThreatProtectionRequiredSecurityLevel = $devicePolicy.deviceThreatProtectionRequiredSecurityLevel
+            ConfigurationManagerComplianceRequired      = $devicePolicy.configurationManagerComplianceRequired
+            TpmRequired                                 = $devicePolicy.tpmRequired
             ScheduledActionsForRule                     = $complexScheduledActionsForRule
             DeviceCompliancePolicyScript                = $complexDeviceCompliancePolicyScript
             ValidOperatingSystemBuildRanges             = $complexValidOperatingSystemBuildRanges
@@ -981,7 +981,7 @@ function Export-TargetResource
         }
         [array]$configDeviceWindowsPolicies = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
             -ErrorAction Stop -All:$true -Filter $Filter | Where-Object `
-            -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10CompliancePolicy' }
+            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.windows10CompliancePolicy' }
         $configDeviceWindowsPolicies = Find-GraphDataUsingComplexFunctions -ComplexFunctions $complexFunctions -Policies $configDeviceWindowsPolicies
 
         $i = 1

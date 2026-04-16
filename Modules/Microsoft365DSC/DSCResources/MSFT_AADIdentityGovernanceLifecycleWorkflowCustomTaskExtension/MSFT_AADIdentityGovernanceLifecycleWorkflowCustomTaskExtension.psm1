@@ -137,7 +137,7 @@ function Get-TargetResource
                 AuthorizedApps  = @()
             }
 
-            foreach ($app in $instance.CallbackConfiguration.AdditionalProperties.authorizedApps)
+            foreach ($app in $instance.CallbackConfiguration.authorizedApps)
             {
                 $appInstance = Get-MgApplication -Filter "AppId eq '$($app['id'])'" -ErrorAction SilentlyContinue
                 if ($null -ne $appInstance)
@@ -155,10 +155,10 @@ function Get-TargetResource
 
         # EndpointConfiguration
         $EndpointConfigurationValue = @{
-            SubscriptionId       = $instance.EndpointConfiguration.AdditionalProperties.subscriptionId
-            resourceGroupName    = $instance.EndpointConfiguration.AdditionalProperties.resourceGroupName
-            logicAppWorkflowName = $instance.EndpointConfiguration.AdditionalProperties.logicAppWorkflowName
-            url                  = $instance.EndpointConfiguration.AdditionalProperties.url
+            SubscriptionId       = $instance.EndpointConfiguration.subscriptionId
+            resourceGroupName    = $instance.EndpointConfiguration.resourceGroupName
+            logicAppWorkflowName = $instance.EndpointConfiguration.logicAppWorkflowName
+            url                  = $instance.EndpointConfiguration.url
         }
 
         $results = @{

@@ -65,6 +65,7 @@
         "Get-MgBetaDeviceManagementAssignmentFilter",
         "Get-MgBetaDeviceManagementDeviceCompliancePolicy",
         "Get-MgBetaDeviceManagementDeviceCompliancePolicyAssignment",
+        "Get-MgBetaDeviceManagementNotificationMessageTemplate",
         "New-MgBetaDeviceManagementDeviceCompliancePolicy",
         "Remove-MgBetaDeviceManagementDeviceCompliancePolicy",
         "Update-MgBetaDeviceManagementDeviceCompliancePolicy"

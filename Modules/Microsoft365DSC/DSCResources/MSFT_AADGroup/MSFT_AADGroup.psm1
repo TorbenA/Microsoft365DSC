@@ -248,25 +248,25 @@ function Get-TargetResource
             }
             foreach ($member in $groupMembers)
             {
-                if ($null -ne $member.AdditionalProperties)
+                if ($null -ne $member)
                 {
-                    switch ($member.AdditionalProperties.'@odata.type')
+                    switch ($member.'@odata.type')
                     {
                         '#microsoft.graph.user'
                         {
-                            $MembersValues.Add($member.AdditionalProperties.userPrincipalName)
+                            $MembersValues.Add($member.userPrincipalName)
                         }
                         '#microsoft.graph.servicePrincipal'
                         {
-                            $MembersValues.Add($member.AdditionalProperties.displayName)
+                            $MembersValues.Add($member.displayName)
                         }
                         '#microsoft.graph.device'
                         {
-                            $MembersValues.Add($member.AdditionalProperties.displayName)
+                            $MembersValues.Add($member.displayName)
                         }
                         '#microsoft.graph.group'
                         {
-                            $GroupAsMembersValues.Add($member.AdditionalProperties.displayName)
+                            $GroupAsMembersValues.Add($member.displayName)
                         }
                     }
                 }

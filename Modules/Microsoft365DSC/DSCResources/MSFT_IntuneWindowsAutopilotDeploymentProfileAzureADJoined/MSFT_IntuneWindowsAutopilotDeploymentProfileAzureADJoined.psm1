@@ -412,7 +412,7 @@ function Set-TargetResource
         }
         foreach ($assignment in $intuneAssignments)
         {
-            if ( $null -eq ($currentAssignments | Where-Object { $_.Target.AdditionalProperties.groupId -eq $assignment.Target.groupId -and $_.Target.AdditionalProperties.'@odata.type' -eq $assignment.Target.'@odata.type' }))
+            if ( $null -eq ($currentAssignments | Where-Object { $_.Target.groupId -eq $assignment.Target.groupId -and $_.Target.'@odata.type' -eq $assignment.Target.'@odata.type' }))
             {
                 New-MgBetaDeviceManagementWindowsAutopilotDeploymentProfileAssignment `
                     -WindowsAutopilotDeploymentProfileId $currentInstance.id `
@@ -420,7 +420,7 @@ function Set-TargetResource
             }
             else
             {
-                $currentAssignments = $currentAssignments | Where-Object { -not($_.Target.AdditionalProperties.groupId -eq $assignment.Target.groupId -and $_.Target.AdditionalProperties.'@odata.type' -eq $assignment.Target.'@odata.type') }
+                $currentAssignments = $currentAssignments | Where-Object { -not($_.Target.groupId -eq $assignment.Target.groupId -and $_.Target.'@odata.type' -eq $assignment.Target.'@odata.type') }
             }
         }
         if ($currentAssignments.Count -gt 0)
@@ -619,7 +619,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.azureADWindowsAutopilotDeploymentProfile' `
+                $_.'@odata.type' -eq '#microsoft.graph.azureADWindowsAutopilotDeploymentProfile' `
         }
         #endregion
 

@@ -160,14 +160,14 @@ function Get-TargetResource
                 AttributeSource                = @{
                     odataType = '#microsoft.graph.accessPackageResourceAttributeQuestion'
                     Question  = @{
-                        odataType               = $attribute.attributeSource.additionalProperties.question.'@odata.type'
-                        Id                      = $attribute.attributeSource.additionalProperties.question.id
-                        IsRequired              = $attribute.attributeSource.additionalProperties.question.isRequired
-                        Sequence                = $attribute.attributeSource.additionalProperties.question.sequence
-                        IsSingleLine            = $attribute.attributeSource.additionalProperties.question.isSingleLine
-                        QuestionText            = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject ($attribute.attributeSource.additionalProperties.question.text)
-                        AllowsMultipleSelection = $attribute.attributeSource.additionalProperties.question.allowsMultipleSelection
-                        Choices                 = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject ([Array]$attribute.attributeSource.additionalProperties.question.choices)
+                        odataType               = $attribute.attributeSource.question.'@odata.type'
+                        Id                      = $attribute.attributeSource.question.id
+                        IsRequired              = $attribute.attributeSource.question.isRequired
+                        Sequence                = $attribute.attributeSource.question.sequence
+                        IsSingleLine            = $attribute.attributeSource.question.isSingleLine
+                        QuestionText            = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject ($attribute.attributeSource.question.text)
+                        AllowsMultipleSelection = $attribute.attributeSource.question.allowsMultipleSelection
+                        Choices                 = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject ([Array]$attribute.attributeSource.question.choices)
                     }
                 }
                 AttributeDestination           = @{

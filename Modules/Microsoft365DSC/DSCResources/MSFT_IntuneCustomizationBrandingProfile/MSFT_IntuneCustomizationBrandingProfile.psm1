@@ -961,7 +961,7 @@ function Export-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        return ''
+        throw
     }
 }
 

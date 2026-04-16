@@ -183,7 +183,7 @@ function Get-TargetResource
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue | Where-Object `
                         -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.sharedPCConfiguration' `
+                            $_.'@odata.type' -eq '#microsoft.graph.sharedPCConfiguration' `
                     }
                 }
             }
@@ -203,13 +203,13 @@ function Get-TargetResource
 
         #region resource generator code
         $complexAccountManagerPolicy = [ordered]@{}
-        if ($null -ne $getValue.AdditionalProperties.accountManagerPolicy.accountDeletionPolicy)
+        if ($null -ne $getValue.accountManagerPolicy.accountDeletionPolicy)
         {
-            $complexAccountManagerPolicy.Add('AccountDeletionPolicy', $getValue.AdditionalProperties.accountManagerPolicy.accountDeletionPolicy.ToString())
+            $complexAccountManagerPolicy.Add('AccountDeletionPolicy', $getValue.accountManagerPolicy.accountDeletionPolicy.ToString())
         }
-        $complexAccountManagerPolicy.Add('CacheAccountsAboveDiskFreePercentage', $getValue.AdditionalProperties.accountManagerPolicy.cacheAccountsAboveDiskFreePercentage)
-        $complexAccountManagerPolicy.Add('InactiveThresholdDays', $getValue.AdditionalProperties.accountManagerPolicy.inactiveThresholdDays)
-        $complexAccountManagerPolicy.Add('RemoveAccountsBelowDiskFreePercentage', $getValue.AdditionalProperties.accountManagerPolicy.removeAccountsBelowDiskFreePercentage)
+        $complexAccountManagerPolicy.Add('CacheAccountsAboveDiskFreePercentage', $getValue.accountManagerPolicy.cacheAccountsAboveDiskFreePercentage)
+        $complexAccountManagerPolicy.Add('InactiveThresholdDays', $getValue.accountManagerPolicy.inactiveThresholdDays)
+        $complexAccountManagerPolicy.Add('RemoveAccountsBelowDiskFreePercentage', $getValue.accountManagerPolicy.removeAccountsBelowDiskFreePercentage)
         if ($complexAccountManagerPolicy.values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexAccountManagerPolicy = $null
@@ -218,9 +218,9 @@ function Get-TargetResource
 
         #region resource generator code
         $enumAllowedAccounts = @()
-        if ($null -ne $getValue.AdditionalProperties.allowedAccounts)
+        if ($null -ne $getValue.allowedAccounts)
         {
-            $allowedAccounts = $getValue.AdditionalProperties.allowedAccounts.ToString().Split(',')
+            $allowedAccounts = $getValue.allowedAccounts.ToString().Split(',')
             foreach ($allowedAccount in $allowedAccounts)
             {
                 $enumAllowedAccounts += $allowedAccount
@@ -228,47 +228,47 @@ function Get-TargetResource
         }
 
         $enumFastFirstSignIn = $null
-        if ($null -ne $getValue.AdditionalProperties.fastFirstSignIn)
+        if ($null -ne $getValue.fastFirstSignIn)
         {
-            $enumFastFirstSignIn = $getValue.AdditionalProperties.fastFirstSignIn.ToString()
+            $enumFastFirstSignIn = $getValue.fastFirstSignIn.ToString()
         }
 
         $enumLocalStorage = $null
-        if ($null -ne $getValue.AdditionalProperties.localStorage)
+        if ($null -ne $getValue.localStorage)
         {
-            $enumLocalStorage = $getValue.AdditionalProperties.localStorage.ToString()
+            $enumLocalStorage = $getValue.localStorage.ToString()
         }
 
         $enumSetAccountManager = $null
-        if ($null -ne $getValue.AdditionalProperties.setAccountManager)
+        if ($null -ne $getValue.setAccountManager)
         {
-            $enumSetAccountManager = $getValue.AdditionalProperties.setAccountManager.ToString()
+            $enumSetAccountManager = $getValue.setAccountManager.ToString()
         }
 
         $enumSetEduPolicies = $null
-        if ($null -ne $getValue.AdditionalProperties.setEduPolicies)
+        if ($null -ne $getValue.setEduPolicies)
         {
-            $enumSetEduPolicies = $getValue.AdditionalProperties.setEduPolicies.ToString()
+            $enumSetEduPolicies = $getValue.setEduPolicies.ToString()
         }
 
         $enumSetPowerPolicies = $null
-        if ($null -ne $getValue.AdditionalProperties.setPowerPolicies)
+        if ($null -ne $getValue.setPowerPolicies)
         {
-            $enumSetPowerPolicies = $getValue.AdditionalProperties.setPowerPolicies.ToString()
+            $enumSetPowerPolicies = $getValue.setPowerPolicies.ToString()
         }
 
         $enumSignInOnResume = $null
-        if ($null -ne $getValue.AdditionalProperties.signInOnResume)
+        if ($null -ne $getValue.signInOnResume)
         {
-            $enumSignInOnResume = $getValue.AdditionalProperties.signInOnResume.ToString()
+            $enumSignInOnResume = $getValue.signInOnResume.ToString()
         }
         #endregion
 
         #region resource generator code
         $timeMaintenanceStartTime = $null
-        if ($null -ne $getValue.AdditionalProperties.maintenanceStartTime)
+        if ($null -ne $getValue.maintenanceStartTime)
         {
-            $timeMaintenanceStartTime = ([TimeSpan]$getValue.AdditionalProperties.maintenanceStartTime).ToString()
+            $timeMaintenanceStartTime = ([TimeSpan]$getValue.maintenanceStartTime).ToString()
         }
         #endregion
 
@@ -276,16 +276,16 @@ function Get-TargetResource
             #region resource generator code
             AccountManagerPolicy         = $complexAccountManagerPolicy
             AllowedAccounts              = $enumAllowedAccounts
-            AllowLocalStorage            = $getValue.AdditionalProperties.allowLocalStorage
-            DisableAccountManager        = $getValue.AdditionalProperties.disableAccountManager
-            DisableEduPolicies           = $getValue.AdditionalProperties.disableEduPolicies
-            DisablePowerPolicies         = $getValue.AdditionalProperties.disablePowerPolicies
-            DisableSignInOnResume        = $getValue.AdditionalProperties.disableSignInOnResume
-            Enabled                      = $getValue.AdditionalProperties.enabled
+            AllowLocalStorage            = $getValue.allowLocalStorage
+            DisableAccountManager        = $getValue.disableAccountManager
+            DisableEduPolicies           = $getValue.disableEduPolicies
+            DisablePowerPolicies         = $getValue.disablePowerPolicies
+            DisableSignInOnResume        = $getValue.disableSignInOnResume
+            Enabled                      = $getValue.enabled
             FastFirstSignIn              = $enumFastFirstSignIn
-            IdleTimeBeforeSleepInSeconds = $getValue.AdditionalProperties.idleTimeBeforeSleepInSeconds
-            KioskAppDisplayName          = $getValue.AdditionalProperties.kioskAppDisplayName
-            KioskAppUserModelId          = $getValue.AdditionalProperties.kioskAppUserModelId
+            IdleTimeBeforeSleepInSeconds = $getValue.idleTimeBeforeSleepInSeconds
+            KioskAppDisplayName          = $getValue.kioskAppDisplayName
+            KioskAppUserModelId          = $getValue.kioskAppUserModelId
             LocalStorage                 = $enumLocalStorage
             MaintenanceStartTime         = $timeMaintenanceStartTime
             SetAccountManager            = $enumSetAccountManager
@@ -764,7 +764,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.sharedPCConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.sharedPCConfiguration' `
         }
         #endregion
 

@@ -26,7 +26,7 @@
         ]
       },
       "application": {
-       "read": [
+        "read": [
           "User Access Administrator",
           "Owner"
         ],
@@ -68,5 +68,25 @@
     "Microsoft.Graph.Groups",
     "Microsoft.Graph.Users"
   ],
-  "mode": "Configuration"
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Microsoft.Graph.Beta.DirectoryObjects",
+      "cmdlets": [
+        "Get-MgBetaDirectoryObjectById"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Users",
+      "cmdlets": [
+        "Get-MgUser"
+      ]
+    }
+  ]
 }

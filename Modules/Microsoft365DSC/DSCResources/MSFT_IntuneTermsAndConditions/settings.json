@@ -53,6 +53,12 @@
   "mode": "Configuration",
   "commands": [
     {
+      "module": "Microsoft.Graph.Beta.DeviceManagement",
+      "cmdlets": [
+        "Get-MgBetaDeviceManagementAssignmentFilter"
+      ]
+    },
+    {
       "module": "Microsoft.Graph.Beta.DeviceManagement.Administration",
       "cmdlets": [
         "Get-MgBetaDeviceManagementTermAndCondition",

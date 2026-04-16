@@ -132,7 +132,7 @@ function Get-TargetResource
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue | Where-Object `
                         -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsDefenderAdvancedThreatProtectionConfiguration' `
+                            $_.'@odata.type' -eq '#microsoft.graph.windowsDefenderAdvancedThreatProtectionConfiguration' `
                     }
                     if ($null -eq $getValue)
                     {
@@ -157,13 +157,13 @@ function Get-TargetResource
 
         $results = @{
             #region resource generator code
-            AdvancedThreatProtectionAutoPopulateOnboardingBlob = $getValue.AdditionalProperties.advancedThreatProtectionAutoPopulateOnboardingBlob
-            AdvancedThreatProtectionOffboardingBlob            = $getValue.AdditionalProperties.advancedThreatProtectionOffboardingBlob
-            AdvancedThreatProtectionOffboardingFilename        = $getValue.AdditionalProperties.advancedThreatProtectionOffboardingFilename
-            AdvancedThreatProtectionOnboardingBlob             = $getValue.AdditionalProperties.advancedThreatProtectionOnboardingBlob
-            AdvancedThreatProtectionOnboardingFilename         = $getValue.AdditionalProperties.advancedThreatProtectionOnboardingFilename
-            AllowSampleSharing                                 = $getValue.AdditionalProperties.allowSampleSharing
-            EnableExpeditedTelemetryReporting                  = $getValue.AdditionalProperties.enableExpeditedTelemetryReporting
+            AdvancedThreatProtectionAutoPopulateOnboardingBlob = $getValue.advancedThreatProtectionAutoPopulateOnboardingBlob
+            AdvancedThreatProtectionOffboardingBlob            = $getValue.advancedThreatProtectionOffboardingBlob
+            AdvancedThreatProtectionOffboardingFilename        = $getValue.advancedThreatProtectionOffboardingFilename
+            AdvancedThreatProtectionOnboardingBlob             = $getValue.advancedThreatProtectionOnboardingBlob
+            AdvancedThreatProtectionOnboardingFilename         = $getValue.advancedThreatProtectionOnboardingFilename
+            AllowSampleSharing                                 = $getValue.allowSampleSharing
+            EnableExpeditedTelemetryReporting                  = $getValue.enableExpeditedTelemetryReporting
             Description                                        = $getValue.Description
             DisplayName                                        = $getValue.DisplayName
             Id                                                 = $getValue.Id
@@ -535,7 +535,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsDefenderAdvancedThreatProtectionConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.windowsDefenderAdvancedThreatProtectionConfiguration' `
         }
         #endregion
 

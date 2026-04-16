@@ -218,13 +218,13 @@ function Get-TargetResource
 
         $results = @{
             #region resource generator code
-            TargetType                        = $getValue.AdditionalProperties.'@odata.type'.Replace('#microsoft.graph.', '')
-            AppUrl                            = $getValue.AdditionalProperties.appUrl
-            UseManagedBrowser                 = $getValue.AdditionalProperties.useManagedBrowser
-            FullScreenEnabled                 = $getValue.AdditionalProperties.fullScreenEnabled
-            PreComposedIconEnabled            = $getValue.AdditionalProperties.preComposedIconEnabled
-            IgnoreManifestScope               = $getValue.AdditionalProperties.ignoreManifestScope
-            TargetApplicationBundleIdentifier = $getValue.AdditionalProperties.targetApplicationBundleIdentifier
+            TargetType                        = $getValue.'@odata.type'.Replace('#microsoft.graph.', '')
+            AppUrl                            = $getValue.appUrl
+            UseManagedBrowser                 = $getValue.useManagedBrowser
+            FullScreenEnabled                 = $getValue.fullScreenEnabled
+            PreComposedIconEnabled            = $getValue.preComposedIconEnabled
+            IgnoreManifestScope               = $getValue.ignoreManifestScope
+            TargetApplicationBundleIdentifier = $getValue.targetApplicationBundleIdentifier
             Categories                        = $complexCategories
             Description                       = $getValue.Description
             Developer                         = $getValue.Developer
@@ -737,7 +737,7 @@ function Export-TargetResource
             $params = @{
                 Id                    = $config.Id
                 DisplayName           = $config.DisplayName
-                TargetType            = $config.AdditionalProperties.'@odata.type'.Replace('#microsoft.graph.', '')
+                TargetType            = $config.'@odata.type'.Replace('#microsoft.graph.', '')
                 Ensure                = 'Present'
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId

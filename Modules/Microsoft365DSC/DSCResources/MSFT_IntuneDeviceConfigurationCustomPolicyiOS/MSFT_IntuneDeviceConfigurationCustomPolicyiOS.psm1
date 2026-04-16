@@ -109,7 +109,7 @@ function Get-TargetResource
             {
                 $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
                     -FilterScript {
-                        $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.iosCustomConfiguration' `
+                        $_.'@odata.type' -eq '#microsoft.graph.iosCustomConfiguration' `
                     }
             }
             #endregion
@@ -134,9 +134,9 @@ function Get-TargetResource
             Id                    = $getValue.Id
             Description           = $getValue.Description
             DisplayName           = $getValue.DisplayName
-            PayloadName           = $getValue.AdditionalProperties.payloadName
-            PayloadFileName       = $getValue.AdditionalProperties.payloadFileName
-            Payload               = $getValue.AdditionalProperties.payload
+            PayloadName           = $getValue.payloadName
+            PayloadFileName       = $getValue.payloadFileName
+            Payload               = $getValue.payload
             Ensure                = 'Present'
             Credential            = $Credential
             ApplicationId         = $ApplicationId
@@ -459,7 +459,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.iosCustomConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.iosCustomConfiguration' `
         }
         #endregion
 

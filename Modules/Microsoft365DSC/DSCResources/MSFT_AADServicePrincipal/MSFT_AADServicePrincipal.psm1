@@ -264,8 +264,8 @@ function Get-TargetResource
         if ($claimsPolicyResponse -and $claimsPolicyResponse.status -eq 200 -and $claimsPolicyResponse.body)
         {
             $claimsPolicyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $claimsPolicyResponse.body
-            $claimsPolicyValue.Remove('Id') | Out-Null
             $claimsPolicyValue.Remove('@odata.context') | Out-Null
+            $claimsPolicyValue.Remove('id') | Out-Null
         }
 
         #Managed Identities in AzureGov return exception when pulling delegatedPermissionClassifications
@@ -294,7 +294,7 @@ function Get-TargetResource
             $mykeyCredentials = [ordered]@{}
             if ($null -ne $currentkeyCredentials.customKeyIdentifier)
             {
-                $mykeyCredentials.Add('CustomKeyIdentifier', [convert]::ToBase64String($currentkeyCredentials.customKeyIdentifier))
+                $mykeyCredentials.Add('CustomKeyIdentifier', $currentkeyCredentials.customKeyIdentifier)
             }
             $mykeyCredentials.Add('DisplayName', $currentkeyCredentials.displayName)
             if ($null -ne $currentkeyCredentials.endDateTime)
@@ -306,7 +306,7 @@ function Get-TargetResource
 
             if ($null -ne $currentkeyCredentials.Key)
             {
-                $mykeyCredentials.Add('Key', [convert]::ToBase64String($currentkeyCredentials.key))
+                $mykeyCredentials.Add('Key', $currentkeyCredentials.Key)
             }
 
             if ($null -ne $currentkeyCredentials.startDateTime)

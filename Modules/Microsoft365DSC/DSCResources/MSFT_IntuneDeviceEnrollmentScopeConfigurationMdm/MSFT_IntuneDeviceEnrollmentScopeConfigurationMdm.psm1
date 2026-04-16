@@ -100,7 +100,7 @@ function Get-TargetResource
         $results = @{
             #region resource generator code
             IsSingleInstance                          = 'Yes'
-            IsMdmEnrollmentDuringRegistrationDisabled = $getValue.AdditionalProperties.isMdmEnrollmentDuringRegistrationDisabled
+            IsMdmEnrollmentDuringRegistrationDisabled = $getValue.isMdmEnrollmentDuringRegistrationDisabled
             AppliesTo                                 = $enumAppliesTo
             ComplianceUrl                             = $getValue.ComplianceUrl
             DiscoveryUrl                              = $getValue.DiscoveryUrl

@@ -108,7 +108,7 @@ function Get-TargetResource
                     $getValue = Get-MgBetaDeviceAppManagementMobileApp `
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.androidManagedStoreApp')" `
                         -ErrorAction SilentlyContinue | Where-Object -FilterScript {
-                            $_.AdditionalProperties.isSystemApp -eq $true
+                            $_.isSystemApp -eq $true
                         }
                 }
             }
@@ -130,7 +130,7 @@ function Get-TargetResource
 
         $results = @{
             #region resource generator code
-            AppIdentifier         = $getValue.AdditionalProperties.appIdentifier
+            AppIdentifier         = $getValue.appIdentifier
             DisplayName           = $getValue.DisplayName
             Publisher             = $getValue.Publisher
             RoleScopeTagIds       = $getValue.RoleScopeTagIds
@@ -454,7 +454,7 @@ function Export-TargetResource
             -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.isSystemApp -eq $true
+                $_.isSystemApp -eq $true
             }
         #endregion
 
@@ -483,7 +483,7 @@ function Export-TargetResource
             $params = @{
                 Id                    = $config.Id
                 DisplayName           = $config.DisplayName
-                AppIdentifier         = $config.AdditionalProperties.appIdentifier
+                AppIdentifier         = $config.appIdentifier
                 Publisher             = $config.Publisher
                 Ensure                = 'Present'
                 Credential            = $Credential

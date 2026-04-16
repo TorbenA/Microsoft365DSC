@@ -135,15 +135,15 @@ function Get-TargetResource
 
         #region resource generator code
         $enumAllowDeviceHealthMonitoring = $null
-        if ($null -ne $getValue.AdditionalProperties.allowDeviceHealthMonitoring)
+        if ($null -ne $getValue.allowDeviceHealthMonitoring)
         {
-            $enumAllowDeviceHealthMonitoring = $getValue.AdditionalProperties.allowDeviceHealthMonitoring.ToString()
+            $enumAllowDeviceHealthMonitoring = $getValue.allowDeviceHealthMonitoring.ToString()
         }
 
         $enumConfigDeviceHealthMonitoringScope = @()
-        if ($null -ne $getValue.AdditionalProperties.configDeviceHealthMonitoringScope)
+        if ($null -ne $getValue.configDeviceHealthMonitoringScope)
         {
-            $enumConfigDeviceHealthMonitoringScope = $getValue.AdditionalProperties.configDeviceHealthMonitoringScope.ToString().Split(',')
+            $enumConfigDeviceHealthMonitoringScope = $getValue.configDeviceHealthMonitoringScope.ToString().Split(',')
 
         }
         #endregion
@@ -151,7 +151,7 @@ function Get-TargetResource
         $results = @{
             #region resource generator code
             AllowDeviceHealthMonitoring             = $enumAllowDeviceHealthMonitoring
-            ConfigDeviceHealthMonitoringCustomScope = $getValue.AdditionalProperties.configDeviceHealthMonitoringCustomScope
+            ConfigDeviceHealthMonitoringCustomScope = $getValue.configDeviceHealthMonitoringCustomScope
             ConfigDeviceHealthMonitoringScope       = $enumConfigDeviceHealthMonitoringScope
             Description                             = $getValue.Description
             DisplayName                             = $getValue.DisplayName
@@ -493,7 +493,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsHealthMonitoringConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.windowsHealthMonitoringConfiguration' `
         }
         #endregion
 

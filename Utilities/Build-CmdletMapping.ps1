@@ -79,7 +79,7 @@ foreach ($cmdletName in $cmdletNames)
 }
 
 Write-Host "`nSaving mapping for $($mapping.Count) cmdlets to: $OutputPath"
-$mapping | ConvertTo-Json -Depth 5 | Set-Content $OutputPath -Encoding utf8
+$mapping | ConvertTo-Json -Depth 5 | Set-Content $OutputPath -Encoding utf8 -Force
 
 if ($failed.Count -gt 0)
 {

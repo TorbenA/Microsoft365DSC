@@ -150,10 +150,10 @@ function Get-TargetResource
                 Write-Verbose -Message "Could not find an Intune Device Enrollment Platform Restriction with Id {$Identity}"
                 $config = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -All -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                     -ErrorAction SilentlyContinue | Where-Object -FilterScript {
-                    $_.AdditionalProperties.'@odata.type' -like '#microsoft.graph.deviceEnrollmentPlatformRestriction*Configuration' -and
-                    $(if ($null -ne $_.AdditionalProperties.platformType)
+                    $_.'@odata.type' -like '#microsoft.graph.deviceEnrollmentPlatformRestriction*Configuration' -and
+                    $(if ($null -ne $_.platformType)
                         {
-                            $_.AdditionalProperties.platformType -eq $PlatformType
+                            $_.platformType -eq $PlatformType
                         }
                         else
                         {
@@ -191,7 +191,7 @@ function Get-TargetResource
             AccessTokens                      = $AccessTokens
         }
 
-        $results += Get-DevicePlatformRestrictionSetting -Properties $config.AdditionalProperties
+        $results += Get-DevicePlatformRestrictionSetting -Properties $config
 
         if ($null -ne $results.WindowsMobileRestriction)
         {
@@ -861,7 +861,6 @@ function Get-DevicePlatformRestrictionSetting
     )
 
     $results = @{}
-
     if ($null -ne $Properties.platformType)
     {
         $keyName = ($Properties.platformType).Substring(0, 1).ToUpper() + ($Properties.platformType).Substring(1, $Properties.platformType.length - 1) + 'Restriction'
@@ -901,10 +900,14 @@ function Get-DevicePlatformRestrictionSetting
         $platformRestrictions = $Properties
         $platformRestrictions.Remove('@odata.type')
         $platformRestrictions.Remove('@odata.context')
-        foreach ($key in $platformRestrictions.Keys)
+        foreach ($key in $($platformRestrictions.Keys | Where-Object { $_ -like "*Restriction" }))
         {
             $keyName = $key.Substring(0, 1).ToUpper() + $key.Substring(1, $key.Length - 1)
             $keyValue = $platformRestrictions.$key
+            if ($null -eq $keyValue)
+            {
+                continue
+            }
             $hash = @{}
             foreach ($key in $keyValue.Keys)
             {

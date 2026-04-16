@@ -110,15 +110,15 @@ function Get-TargetResource
         $AzureADAllowedToJoin = 'None'
         $AzureADAllowedToJoinUsers = @()
         $AzureADAllowedToJoinGroups = @()
-        if ($getValue.AzureADJoin.AllowedToJoin.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.allDeviceRegistrationMembership')
+        if ($getValue.AzureADJoin.AllowedToJoin.'@odata.type' -eq '#microsoft.graph.allDeviceRegistrationMembership')
         {
             $AzureADAllowedToJoin = 'All'
         }
-        elseif ($getValue.AzureADJoin.AllowedToJoin.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.enumeratedDeviceRegistrationMembership')
+        elseif ($getValue.AzureADJoin.AllowedToJoin.'@odata.type' -eq '#microsoft.graph.enumeratedDeviceRegistrationMembership')
         {
             $AzureADAllowedToJoin = 'Selected'
 
-            foreach ($userId in $getValue.AzureAdJoin.AllowedToJoin.AdditionalProperties.users)
+            foreach ($userId in $getValue.AzureAdJoin.AllowedToJoin.users)
             {
                 try
                 {
@@ -137,7 +137,7 @@ function Get-TargetResource
                 }
             }
 
-            foreach ($groupId in $getValue.AzureAdJoin.AllowedToJoin.AdditionalProperties.groups)
+            foreach ($groupId in $getValue.AzureAdJoin.AllowedToJoin.groups)
             {
                 try
                 {
@@ -161,14 +161,14 @@ function Get-TargetResource
         $AzureAdJoinLocalAdminsRegisteringGroups = @()
         $AzureAdJoinLocalAdminsRegisteringMode = 'All'
 
-        if ($getValue.AzureAdJoin.LocalAdmins.RegisteringUsers.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.noDeviceRegistrationMembership')
+        if ($getValue.AzureAdJoin.LocalAdmins.RegisteringUsers.'@odata.type' -eq '#microsoft.graph.noDeviceRegistrationMembership')
         {
             $AzureAdJoinLocalAdminsRegisteringMode = 'None'
         }
-        elseif ($getValue.AzureAdJoin.LocalAdmins.RegisteringUsers.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.enumeratedDeviceRegistrationMembership')
+        elseif ($getValue.AzureAdJoin.LocalAdmins.RegisteringUsers.'@odata.type' -eq '#microsoft.graph.enumeratedDeviceRegistrationMembership')
         {
             $AzureAdJoinLocalAdminsRegisteringMode = 'Selected'
-            foreach ($userId in $getValue.AzureAdJoin.LocalAdmins.RegisteringUsers.AdditionalProperties.users)
+            foreach ($userId in $getValue.AzureAdJoin.LocalAdmins.RegisteringUsers.users)
             {
                 try
                 {
@@ -187,7 +187,7 @@ function Get-TargetResource
                 }
             }
 
-            foreach ($groupId in $getValue.AzureAdJoin.LocalAdmins.RegisteringUsers.AdditionalProperties.groups)
+            foreach ($groupId in $getValue.AzureAdJoin.LocalAdmins.RegisteringUsers.groups)
             {
                 try
                 {

@@ -181,24 +181,24 @@ function Get-TargetResource
                 foreach ($auMember in $auMembers)
                 {
                     $member = [ordered]@{}
-                    if ($auMember.AdditionalProperties.'@odata.type' -match 'user')
+                    if ($auMember.'@odata.type' -match 'user')
                     {
-                        $member.Add('Identity', $auMember.AdditionalProperties.userPrincipalName)
+                        $member.Add('Identity', $auMember.userPrincipalName)
                         $member.Add('Type', 'User')
                     }
-                    elseif ($auMember.AdditionalProperties.'@odata.type' -match 'group')
+                    elseif ($auMember.'@odata.type' -match 'group')
                     {
-                        $member.Add('Identity', $auMember.AdditionalProperties.displayName)
+                        $member.Add('Identity', $auMember.displayName)
                         $member.Add('Type', 'Group')
                     }
-                    elseif ($auMember.AdditionalProperties.'@odata.type' -match 'device')
+                    elseif ($auMember.'@odata.type' -match 'device')
                     {
-                        $member.Add('Identity', $auMember.AdditionalProperties.displayName)
+                        $member.Add('Identity', $auMember.displayName)
                         $member.Add('Type', 'Device')
                     }
                     else
                     {
-                        throw "AU {$DisplayName}: member {$($auMember.Id)} has invalid type {$($auMember.AdditionalProperties.'@odata.type')}"
+                        throw "AU {$DisplayName}: member {$($auMember.Id)} has invalid type {$($auMember.'@odata.type')}"
                     }
                     $memberSpec += $member
                 }
@@ -245,8 +245,8 @@ function Get-TargetResource
                 Write-Verbose -Message "AU {$DisplayName} @odata.Type={$($memberObject.'@odata.type')}"
                 if (($memberObject.'@odata.type') -match 'user')
                 {
-                    Write-Verbose -Message "AU {$DisplayName} UPN = {$($auScopedRoleMember.RoleMemberInfo.AdditionalProperties.userPrincipalName)}"
-                    $scopedRoleMember.RoleMemberInfo.Identity = $auScopedRoleMember.RoleMemberInfo.AdditionalProperties.userPrincipalName
+                    Write-Verbose -Message "AU {$DisplayName} UPN = {$($auScopedRoleMember.RoleMemberInfo.userPrincipalName)}"
+                    $scopedRoleMember.RoleMemberInfo.Identity = $auScopedRoleMember.RoleMemberInfo.userPrincipalName
                     $scopedRoleMember.RoleMemberInfo.Type = 'User'
                 }
                 elseif (($memberObject.'@odata.type') -match 'group')

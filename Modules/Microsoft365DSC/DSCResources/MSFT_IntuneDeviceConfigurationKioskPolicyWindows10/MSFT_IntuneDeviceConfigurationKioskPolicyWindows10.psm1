@@ -144,7 +144,7 @@ function Get-TargetResource
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue | Where-Object `
                         -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsKioskConfiguration' `
+                            $_.'@odata.type' -eq '#microsoft.graph.windowsKioskConfiguration' `
                     }
                 }
             }
@@ -164,7 +164,7 @@ function Get-TargetResource
 
         #region resource generator code
         $complexKioskProfiles = @()
-        foreach ($currentkioskProfiles in $getValue.AdditionalProperties.kioskProfiles)
+        foreach ($currentkioskProfiles in $getValue.kioskProfiles)
         {
             $mykioskProfiles = [ordered]@{}
             $complexAppConfiguration = [ordered]@{}
@@ -315,19 +315,19 @@ function Get-TargetResource
         }
 
         $complexWindowsKioskForceUpdateSchedule = [ordered]@{}
-        $complexWindowsKioskForceUpdateSchedule.Add('DayofMonth', $getValue.AdditionalProperties.windowsKioskForceUpdateSchedule.dayofMonth)
-        if ($null -ne $getValue.AdditionalProperties.windowsKioskForceUpdateSchedule.dayofWeek)
+        $complexWindowsKioskForceUpdateSchedule.Add('DayofMonth', $getValue.windowsKioskForceUpdateSchedule.dayofMonth)
+        if ($null -ne $getValue.windowsKioskForceUpdateSchedule.dayofWeek)
         {
-            $complexWindowsKioskForceUpdateSchedule.Add('DayofWeek', $getValue.AdditionalProperties.windowsKioskForceUpdateSchedule.dayofWeek.ToString())
+            $complexWindowsKioskForceUpdateSchedule.Add('DayofWeek', $getValue.windowsKioskForceUpdateSchedule.dayofWeek.ToString())
         }
-        if ($null -ne $getValue.AdditionalProperties.windowsKioskForceUpdateSchedule.recurrence)
+        if ($null -ne $getValue.windowsKioskForceUpdateSchedule.recurrence)
         {
-            $complexWindowsKioskForceUpdateSchedule.Add('Recurrence', $getValue.AdditionalProperties.windowsKioskForceUpdateSchedule.recurrence.ToString())
+            $complexWindowsKioskForceUpdateSchedule.Add('Recurrence', $getValue.windowsKioskForceUpdateSchedule.recurrence.ToString())
         }
-        $complexWindowsKioskForceUpdateSchedule.Add('RunImmediatelyIfAfterStartDateTime', $getValue.AdditionalProperties.windowsKioskForceUpdateSchedule.runImmediatelyIfAfterStartDateTime)
-        if ($null -ne $getValue.AdditionalProperties.windowsKioskForceUpdateSchedule.startDateTime)
+        $complexWindowsKioskForceUpdateSchedule.Add('RunImmediatelyIfAfterStartDateTime', $getValue.windowsKioskForceUpdateSchedule.runImmediatelyIfAfterStartDateTime)
+        if ($null -ne $getValue.windowsKioskForceUpdateSchedule.startDateTime)
         {
-            $complexWindowsKioskForceUpdateSchedule.Add('StartDateTime', ([DateTimeOffset]$getValue.AdditionalProperties.windowsKioskForceUpdateSchedule.startDateTime).ToString('o'))
+            $complexWindowsKioskForceUpdateSchedule.Add('StartDateTime', ([DateTimeOffset]$getValue.windowsKioskForceUpdateSchedule.startDateTime).ToString('o'))
         }
         if ($complexWindowsKioskForceUpdateSchedule.values.Where({ $null -ne $_ }).Count -eq 0)
         {
@@ -337,14 +337,14 @@ function Get-TargetResource
 
         $results = @{
             #region resource generator code
-            EdgeKioskEnablePublicBrowsing          = $getValue.AdditionalProperties.edgeKioskEnablePublicBrowsing
-            KioskBrowserBlockedUrlExceptions       = $getValue.AdditionalProperties.kioskBrowserBlockedUrlExceptions
-            KioskBrowserBlockedURLs                = $getValue.AdditionalProperties.kioskBrowserBlockedURLs
-            KioskBrowserDefaultUrl                 = $getValue.AdditionalProperties.kioskBrowserDefaultUrl
-            KioskBrowserEnableEndSessionButton     = $getValue.AdditionalProperties.kioskBrowserEnableEndSessionButton
-            KioskBrowserEnableHomeButton           = $getValue.AdditionalProperties.kioskBrowserEnableHomeButton
-            KioskBrowserEnableNavigationButtons    = $getValue.AdditionalProperties.kioskBrowserEnableNavigationButtons
-            KioskBrowserRestartOnIdleTimeInMinutes = $getValue.AdditionalProperties.kioskBrowserRestartOnIdleTimeInMinutes
+            EdgeKioskEnablePublicBrowsing          = $getValue.edgeKioskEnablePublicBrowsing
+            KioskBrowserBlockedUrlExceptions       = $getValue.kioskBrowserBlockedUrlExceptions
+            KioskBrowserBlockedURLs                = $getValue.kioskBrowserBlockedURLs
+            KioskBrowserDefaultUrl                 = $getValue.kioskBrowserDefaultUrl
+            KioskBrowserEnableEndSessionButton     = $getValue.kioskBrowserEnableEndSessionButton
+            KioskBrowserEnableHomeButton           = $getValue.kioskBrowserEnableHomeButton
+            KioskBrowserEnableNavigationButtons    = $getValue.kioskBrowserEnableNavigationButtons
+            KioskBrowserRestartOnIdleTimeInMinutes = $getValue.kioskBrowserRestartOnIdleTimeInMinutes
             KioskProfiles                          = $complexKioskProfiles
             WindowsKioskForceUpdateSchedule        = $complexWindowsKioskForceUpdateSchedule
             Description                            = $getValue.Description
@@ -729,7 +729,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsKioskConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.windowsKioskConfiguration' `
         }
         #endregion
 

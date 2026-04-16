@@ -267,7 +267,7 @@ function Get-TargetResource
             $nullResult.Ensure = 'Absent'
 
             $policy = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                -ErrorAction Stop | Where-Object -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration' }
+                -ErrorAction Stop | Where-Object -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration' }
 
             if ($null -eq $policy)
             {
@@ -285,51 +285,51 @@ function Get-TargetResource
             Description                                               = $policy.Description
             DisplayName                                               = $policy.DisplayName
             RoleScopeTagIds                                           = $policy.RoleScopeTagIds
-            PasswordBlockFaceUnlock                                   = $policy.AdditionalProperties.passwordBlockFaceUnlock
-            PasswordBlockFingerprintUnlock                            = $policy.AdditionalProperties.passwordBlockFingerprintUnlock
-            PasswordBlockIrisUnlock                                   = $policy.AdditionalProperties.passwordBlockIrisUnlock
-            PasswordBlockTrustAgents                                  = $policy.AdditionalProperties.passwordBlockTrustAgents
-            PasswordExpirationDays                                    = $policy.AdditionalProperties.passwordExpirationDays
-            PasswordMinimumLength                                     = $policy.AdditionalProperties.passwordMinimumLength
-            PasswordMinutesOfInactivityBeforeScreenTimeout            = $policy.AdditionalProperties.passwordMinutesOfInactivityBeforeScreenTimeout
-            PasswordPreviousPasswordBlockCount                        = $policy.AdditionalProperties.passwordPreviousPasswordBlockCount
-            PasswordSignInFailureCountBeforeFactoryReset              = $policy.AdditionalProperties.passwordSignInFailureCountBeforeFactoryReset
-            PasswordRequiredType                                      = $policy.AdditionalProperties.passwordRequiredType
-            RequiredPasswordComplexity                                = $policy.AdditionalProperties.requiredPasswordComplexity
-            WorkProfileAllowAppInstallsFromUnknownSources             = $policy.AdditionalProperties.workProfileAllowAppInstallsFromUnknownSources
-            WorkProfileDataSharingType                                = $policy.AdditionalProperties.workProfileDataSharingType
-            WorkProfileBlockNotificationsWhileDeviceLocked            = $policy.AdditionalProperties.workProfileBlockNotificationsWhileDeviceLocked
-            WorkProfileBlockAddingAccounts                            = $policy.AdditionalProperties.workProfileBlockAddingAccounts
-            WorkProfileBluetoothEnableContactSharing                  = $policy.AdditionalProperties.workProfileBluetoothEnableContactSharing
-            WorkProfileBlockScreenCapture                             = $policy.AdditionalProperties.workProfileBlockScreenCapture
-            WorkProfileBlockCrossProfileCallerId                      = $policy.AdditionalProperties.workProfileBlockCrossProfileCallerId
-            WorkProfileBlockCamera                                    = $policy.AdditionalProperties.workProfileBlockCamera
-            WorkProfileBlockCrossProfileContactsSearch                = $policy.AdditionalProperties.workProfileBlockCrossProfileContactsSearch
-            WorkProfileBlockCrossProfileCopyPaste                     = $policy.AdditionalProperties.workProfileBlockCrossProfileCopyPaste
-            WorkProfileDefaultAppPermissionPolicy                     = $policy.AdditionalProperties.workProfileDefaultAppPermissionPolicy
-            WorkProfilePasswordBlockFaceUnlock                        = $policy.AdditionalProperties.workProfilePasswordBlockFaceUnlock
-            WorkProfilePasswordBlockFingerprintUnlock                 = $policy.AdditionalProperties.workProfilePasswordBlockFingerprintUnlock
-            WorkProfilePasswordBlockIrisUnlock                        = $policy.AdditionalProperties.workProfilePasswordBlockIrisUnlock
-            WorkProfilePasswordBlockTrustAgents                       = $policy.AdditionalProperties.workProfilePasswordBlockTrustAgents
-            WorkProfilePasswordExpirationDays                         = $policy.AdditionalProperties.workProfilePasswordExpirationDays
-            WorkProfilePasswordMinimumLength                          = $policy.AdditionalProperties.workProfilePasswordMinimumLength
-            WorkProfilePasswordMinNumericCharacters                   = $policy.AdditionalProperties.workProfilePasswordMinNumericCharacters
-            WorkProfilePasswordMinNonLetterCharacters                 = $policy.AdditionalProperties.workProfilePasswordMinNonLetterCharacters
-            WorkProfilePasswordMinLetterCharacters                    = $policy.AdditionalProperties.workProfilePasswordMinLetterCharacters
-            WorkProfilePasswordMinLowerCaseCharacters                 = $policy.AdditionalProperties.workProfilePasswordMinLowerCaseCharacters
-            WorkProfilePasswordMinUpperCaseCharacters                 = $policy.AdditionalProperties.workProfilePasswordMinUpperCaseCharacters
-            WorkProfilePasswordMinSymbolCharacters                    = $policy.AdditionalProperties.workProfilePasswordMinSymbolCharacters
-            WorkProfilePasswordMinutesOfInactivityBeforeScreenTimeout = $policy.AdditionalProperties.workProfilePasswordMinutesOfInactivityBeforeScreenTimeout
-            WorkProfilePasswordPreviousPasswordBlockCount             = $policy.AdditionalProperties.workProfilePasswordPreviousPasswordBlockCount
-            WorkProfilePasswordSignInFailureCountBeforeFactoryReset   = $policy.AdditionalProperties.workProfilePasswordSignInFailureCountBeforeFactoryReset
-            WorkProfilePasswordRequiredType                           = $policy.AdditionalProperties.workProfilePasswordRequiredType
-            WorkProfileRequiredPasswordComplexity                     = $policy.AdditionalProperties.workProfileRequiredPasswordComplexity
-            WorkProfileRequirePassword                                = $policy.AdditionalProperties.workProfileRequirePassword
-            SecurityRequireVerifyApps                                 = $policy.AdditionalProperties.securityRequireVerifyApps
-            VpnAlwaysOnPackageIdentifier                              = $policy.AdditionalProperties.vpnAlwaysOnPackageIdentifier
-            VpnEnableAlwaysOnLockdownMode                             = $policy.AdditionalProperties.vpnEnableAlwaysOnLockdownMode
-            WorkProfileAllowWidgets                                   = $policy.AdditionalProperties.workProfileAllowWidgets
-            WorkProfileBlockPersonalAppInstallsFromUnknownSources     = $policy.AdditionalProperties.workProfileBlockPersonalAppInstallsFromUnknownSources
+            PasswordBlockFaceUnlock                                   = $policy.passwordBlockFaceUnlock
+            PasswordBlockFingerprintUnlock                            = $policy.passwordBlockFingerprintUnlock
+            PasswordBlockIrisUnlock                                   = $policy.passwordBlockIrisUnlock
+            PasswordBlockTrustAgents                                  = $policy.passwordBlockTrustAgents
+            PasswordExpirationDays                                    = $policy.passwordExpirationDays
+            PasswordMinimumLength                                     = $policy.passwordMinimumLength
+            PasswordMinutesOfInactivityBeforeScreenTimeout            = $policy.passwordMinutesOfInactivityBeforeScreenTimeout
+            PasswordPreviousPasswordBlockCount                        = $policy.passwordPreviousPasswordBlockCount
+            PasswordSignInFailureCountBeforeFactoryReset              = $policy.passwordSignInFailureCountBeforeFactoryReset
+            PasswordRequiredType                                      = $policy.passwordRequiredType
+            RequiredPasswordComplexity                                = $policy.requiredPasswordComplexity
+            WorkProfileAllowAppInstallsFromUnknownSources             = $policy.workProfileAllowAppInstallsFromUnknownSources
+            WorkProfileDataSharingType                                = $policy.workProfileDataSharingType
+            WorkProfileBlockNotificationsWhileDeviceLocked            = $policy.workProfileBlockNotificationsWhileDeviceLocked
+            WorkProfileBlockAddingAccounts                            = $policy.workProfileBlockAddingAccounts
+            WorkProfileBluetoothEnableContactSharing                  = $policy.workProfileBluetoothEnableContactSharing
+            WorkProfileBlockScreenCapture                             = $policy.workProfileBlockScreenCapture
+            WorkProfileBlockCrossProfileCallerId                      = $policy.workProfileBlockCrossProfileCallerId
+            WorkProfileBlockCamera                                    = $policy.workProfileBlockCamera
+            WorkProfileBlockCrossProfileContactsSearch                = $policy.workProfileBlockCrossProfileContactsSearch
+            WorkProfileBlockCrossProfileCopyPaste                     = $policy.workProfileBlockCrossProfileCopyPaste
+            WorkProfileDefaultAppPermissionPolicy                     = $policy.workProfileDefaultAppPermissionPolicy
+            WorkProfilePasswordBlockFaceUnlock                        = $policy.workProfilePasswordBlockFaceUnlock
+            WorkProfilePasswordBlockFingerprintUnlock                 = $policy.workProfilePasswordBlockFingerprintUnlock
+            WorkProfilePasswordBlockIrisUnlock                        = $policy.workProfilePasswordBlockIrisUnlock
+            WorkProfilePasswordBlockTrustAgents                       = $policy.workProfilePasswordBlockTrustAgents
+            WorkProfilePasswordExpirationDays                         = $policy.workProfilePasswordExpirationDays
+            WorkProfilePasswordMinimumLength                          = $policy.workProfilePasswordMinimumLength
+            WorkProfilePasswordMinNumericCharacters                   = $policy.workProfilePasswordMinNumericCharacters
+            WorkProfilePasswordMinNonLetterCharacters                 = $policy.workProfilePasswordMinNonLetterCharacters
+            WorkProfilePasswordMinLetterCharacters                    = $policy.workProfilePasswordMinLetterCharacters
+            WorkProfilePasswordMinLowerCaseCharacters                 = $policy.workProfilePasswordMinLowerCaseCharacters
+            WorkProfilePasswordMinUpperCaseCharacters                 = $policy.workProfilePasswordMinUpperCaseCharacters
+            WorkProfilePasswordMinSymbolCharacters                    = $policy.workProfilePasswordMinSymbolCharacters
+            WorkProfilePasswordMinutesOfInactivityBeforeScreenTimeout = $policy.workProfilePasswordMinutesOfInactivityBeforeScreenTimeout
+            WorkProfilePasswordPreviousPasswordBlockCount             = $policy.workProfilePasswordPreviousPasswordBlockCount
+            WorkProfilePasswordSignInFailureCountBeforeFactoryReset   = $policy.workProfilePasswordSignInFailureCountBeforeFactoryReset
+            WorkProfilePasswordRequiredType                           = $policy.workProfilePasswordRequiredType
+            WorkProfileRequiredPasswordComplexity                     = $policy.workProfileRequiredPasswordComplexity
+            WorkProfileRequirePassword                                = $policy.workProfileRequirePassword
+            SecurityRequireVerifyApps                                 = $policy.securityRequireVerifyApps
+            VpnAlwaysOnPackageIdentifier                              = $policy.vpnAlwaysOnPackageIdentifier
+            VpnEnableAlwaysOnLockdownMode                             = $policy.vpnEnableAlwaysOnLockdownMode
+            WorkProfileAllowWidgets                                   = $policy.workProfileAllowWidgets
+            WorkProfileBlockPersonalAppInstallsFromUnknownSources     = $policy.workProfileBlockPersonalAppInstallsFromUnknownSources
             Ensure                                                    = 'Present'
             Credential                                                = $Credential
             ApplicationId                                             = $ApplicationId
@@ -647,7 +647,7 @@ function Set-TargetResource
         Write-Verbose -Message "Updating existing Device Configuration Policy {$DisplayName}"
         $configDevicePolicy = Get-MgBetaDeviceManagementDeviceConfiguration -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
             -FilterScript {
-            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration'
+            $_.'@odata.type' -eq '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration'
         }
 
         $boundParameters.Remove('DisplayName') | Out-Null
@@ -672,7 +672,7 @@ function Set-TargetResource
         Write-Verbose -Message "Removing Device Configuration Policy {$DisplayName}"
         $configDevicePolicy = Get-MgBetaDeviceManagementDeviceConfiguration -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
             -FilterScript {
-            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration' `
+            $_.'@odata.type' -eq '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration' `
         }
 
         Remove-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $configDevicePolicy.Id
@@ -993,7 +993,7 @@ function Export-TargetResource
     {
         [array]$policies = Get-MgBetaDeviceManagementDeviceConfiguration `
             -ErrorAction Stop -All:$true -Filter $Filter | Where-Object `
-            -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration' }
+            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration' }
         $i = 1
         $dscContent = ''
         if ($policies.Length -eq 0)

@@ -641,9 +641,9 @@ function Get-TargetResource
         }
 
         $ProtocolFlowsValue = @()
-        if ($null -ne $Policy.Conditions.AuthenticationFlows.AdditionalProperties.protocolFlows)
+        if ($null -ne $Policy.Conditions.AuthenticationFlows.protocolFlows)
         {
-            $ProtocolFlowsValue = $Policy.Conditions.AuthenticationFlows.AdditionalProperties.protocolFlows.Split(',')
+            $ProtocolFlowsValue = $Policy.Conditions.AuthenticationFlows.protocolFlows.Split(',')
         }
 
         $DisableResilienceDefaultsIsEnabledValue = $null
@@ -722,11 +722,11 @@ function Get-TargetResource
             ExcludeRoles                             = $ExcludeRoles
             IncludeGuestOrExternalUserTypes          = [System.String[]]$IncludeGuestOrExternalUserTypes
             IncludeExternalTenantsMembershipKind     = [System.String]$Policy.Conditions.Users.IncludeGuestsOrExternalUsers.ExternalTenants.MembershipKind
-            IncludeExternalTenantsMembers            = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.Users.IncludeGuestsOrExternalUsers.ExternalTenants.AdditionalProperties.members -ElementType ([System.String])
+            IncludeExternalTenantsMembers            = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.Users.IncludeGuestsOrExternalUsers.ExternalTenants.members -ElementType ([System.String])
 
             ExcludeGuestOrExternalUserTypes          = [System.String[]]$ExcludeGuestOrExternalUserTypes
             ExcludeExternalTenantsMembershipKind     = [System.String]$Policy.Conditions.Users.ExcludeGuestsOrExternalUsers.ExternalTenants.MembershipKind
-            ExcludeExternalTenantsMembers            = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.Users.ExcludeGuestsOrExternalUsers.ExternalTenants.AdditionalProperties.members -ElementType ([System.String])
+            ExcludeExternalTenantsMembers            = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.Users.ExcludeGuestsOrExternalUsers.ExternalTenants.members -ElementType ([System.String])
 
             IncludeServicePrincipals                 = $Policy.Conditions.ClientApplications.IncludeServicePrincipals
             ExcludeServicePrincipals                 = $Policy.Conditions.ClientApplications.ExcludeServicePrincipals

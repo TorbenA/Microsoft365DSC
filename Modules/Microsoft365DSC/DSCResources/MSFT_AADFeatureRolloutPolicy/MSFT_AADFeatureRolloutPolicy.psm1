@@ -290,7 +290,7 @@ function Set-TargetResource
         foreach ($groupToRemove in $groupIdsToRemove)
         {
             Write-Verbose -Message "Removing Group with Id [$groupToRemove] from AAD Feature Rollout Policy [$DisplayName]"
-            Remove-MgBetaPolicyFeatureRolloutPolicyApplyToByRef `
+            Remove-MgBetaPolicyFeatureRolloutPolicyApplyToDirectoryObjectByRef `
                 -FeatureRolloutPolicyId $currentInstance.Id `
                 -DirectoryObjectId $groupToRemove
         }

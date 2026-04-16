@@ -120,7 +120,7 @@ function Get-TargetResource
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue | Where-Object `
                         -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsDomainJoinConfiguration' `
+                            $_.'@odata.type' -eq '#microsoft.graph.windowsDomainJoinConfiguration' `
                     }
                     if ($null -eq $getValue)
                     {
@@ -145,10 +145,10 @@ function Get-TargetResource
 
         $results = @{
             #region resource generator code
-            ActiveDirectoryDomainName         = $getValue.AdditionalProperties.activeDirectoryDomainName
-            ComputerNameStaticPrefix          = $getValue.AdditionalProperties.computerNameStaticPrefix
-            ComputerNameSuffixRandomCharCount = $getValue.AdditionalProperties.computerNameSuffixRandomCharCount
-            OrganizationalUnit                = $getValue.AdditionalProperties.organizationalUnit
+            ActiveDirectoryDomainName         = $getValue.activeDirectoryDomainName
+            ComputerNameStaticPrefix          = $getValue.computerNameStaticPrefix
+            ComputerNameSuffixRandomCharCount = $getValue.computerNameSuffixRandomCharCount
+            OrganizationalUnit                = $getValue.organizationalUnit
             Description                       = $getValue.Description
             DisplayName                       = $getValue.DisplayName
             Id                                = $getValue.Id
@@ -482,7 +482,7 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsDomainJoinConfiguration' `
+                $_.'@odata.type' -eq '#microsoft.graph.windowsDomainJoinConfiguration' `
         }
         #endregion
 

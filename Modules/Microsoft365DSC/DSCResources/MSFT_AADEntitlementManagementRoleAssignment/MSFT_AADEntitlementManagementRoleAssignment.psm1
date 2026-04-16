@@ -113,7 +113,7 @@ function Get-TargetResource
 
                 Write-Verbose -Message "Getting role assignment for Principal {$Principal}"
                 $getValue = $Script:AllRoleAssignments | Where-Object {
-                    ($_.Principal.AdditionalProperties.displayName -eq $Principal -or $_.Principal.AdditionalProperties.userPrincipalName -eq $Principal -or $_.Principal.Id -eq $Principal) `
+                    ($_.Principal.displayName -eq $Principal -or $_.Principal.userPrincipalName -eq $Principal -or $_.Principal.Id -eq $Principal) `
                         -and ($_.RoleDefinitionId -eq $($Script:AllRoleDefinitions | Where-Object { $_.DisplayName -eq $RoleDefinition }).Id)
                 }
             }
@@ -123,11 +123,11 @@ function Get-TargetResource
             $getValue = $Script:exportedInstance
         }
 
-        switch ($getValue.Principal.AdditionalProperties)
+        switch ($getValue.Principal)
         {
             '#microsoft.graph.user'
             {
-                $principalName = $getValue.Principal.AdditionalProperties.userPrincipalName
+                $principalName = $getValue.Principal.userPrincipalName
             }
             '#microsoft.graph.group'
             {
@@ -135,7 +135,7 @@ function Get-TargetResource
             }
             '#microsoft.graph.servicePrincipal'
             {
-                $principalName = $getValue.Principal.AdditionalProperties.displayName
+                $principalName = $getValue.Principal.displayName
             }
         }
 
@@ -481,11 +481,11 @@ function Export-TargetResource
             }
             Write-M365DSCHost -Message "    |---[$i/$($getValue.Count)] $displayedKey" -DeferWrite
             $roleInfo = $Script:AllRoleDefinitions | Where-Object { $_.Id -eq $config.RoleDefinitionId }
-            switch ($config.Principal.AdditionalProperties.'@odata.type')
+            switch ($config.Principal.'@odata.type')
             {
                 '#microsoft.graph.user'
                 {
-                    $principalName = $config.Principal.AdditionalProperties.userPrincipalName
+                    $principalName = $config.Principal.userPrincipalName
                 }
                 $null
                 {
@@ -493,7 +493,7 @@ function Export-TargetResource
                 }
                 '#microsoft.graph.servicePrincipal'
                 {
-                    $principalName = $config.Principal.AdditionalProperties.displayName
+                    $principalName = $config.Principal.displayName
                 }
             }
             $params = @{

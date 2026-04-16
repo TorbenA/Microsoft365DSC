@@ -106,15 +106,15 @@ function Get-TargetResource
         }
 
         $DestinationsValue = @()
-        foreach ($destination in $instance.AdditionalProperties.destinations)
+        foreach ($destination in $instance.destinations)
         {
-            if ($instance.AdditionalProperties.ruleType -eq 'fqdn')
+            if ($instance.ruleType -eq 'fqdn')
             {
                 $DestinationsValue += @{
                     value = $destination.value
                 }
             }
-            elseif ($instance.AdditionalProperties.ruleType -eq 'webCategory')
+            elseif ($instance.ruleType -eq 'webCategory')
             {
                 $DestinationsValue += @{
                     name = $destination.name
@@ -126,7 +126,7 @@ function Get-TargetResource
             Name                  = $instance.Name
             Policy                = $Policy
             Id                    = $instance.Id
-            RuleType              = $instance.AdditionalProperties.ruleType
+            RuleType              = $instance.ruleType
             Destinations          = $DestinationsValue
             Ensure                = 'Present'
             Credential            = $Credential

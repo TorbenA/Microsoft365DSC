@@ -124,7 +124,6 @@ function Get-TargetResource
                     else
                     {
                         $getValue = Get-MgBetaDeviceAppManagementPolicySet -PolicySetId $getValue.Id -ExpandProperty * -ErrorAction SilentlyContinue
-
                     }
                 }
             }
@@ -177,7 +176,7 @@ function Get-TargetResource
         foreach ($itemEntry in $itemsValues)
         {
             $itemValue = @{
-                dataType             = $itemEntry.AdditionalProperties.'@odata.type'
+                dataType             = $itemEntry.'@odata.type'
                 payloadId            = $itemEntry.PayloadId
                 itemType             = $itemEntry.ItemType
                 displayName          = $itemEntry.displayName

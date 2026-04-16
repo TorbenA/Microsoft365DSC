@@ -134,12 +134,12 @@ function Get-TargetResource
 
         #region resource generator code
         $complexScope = [ordered]@{}
-        $complexScope.Add('Query', $getValue.Scope.AdditionalProperties.query)
-        $complexScope.Add('QueryRoot', $getValue.Scope.AdditionalProperties.queryRoot)
-        $complexScope.Add('QueryType', $getValue.Scope.AdditionalProperties.queryType)
+        $complexScope.Add('Query', $getValue.Scope.query)
+        $complexScope.Add('QueryRoot', $getValue.Scope.queryRoot)
+        $complexScope.Add('QueryType', $getValue.Scope.queryType)
 
         $complexPrincipalScopes = @()
-        foreach ($currentPrincipalScopes in $getValue.Scope.AdditionalProperties.principalScopes)
+        foreach ($currentPrincipalScopes in $getValue.Scope.principalScopes)
         {
             $myPrincipalScopes = [ordered]@{}
             $myPrincipalScopes.Add('Query', $currentPrincipalScopes.query)
@@ -157,7 +157,7 @@ function Get-TargetResource
         }
         $complexScope.Add('PrincipalScopes', $complexPrincipalScopes)
         $complexResourceScopes = @()
-        foreach ($currentResourceScopes in $getValue.Scope.AdditionalProperties.resourceScopes)
+        foreach ($currentResourceScopes in $getValue.Scope.resourceScopes)
         {
             $myResourceScopes = [ordered]@{}
             $myResourceScopes.Add('Query', $currentResourceScopes.query)
@@ -177,9 +177,9 @@ function Get-TargetResource
         }
         $complexScope.Add('ResourceScopes', $complexResourceScopes)
 
-        if ($null -ne $getValue.Scope.AdditionalProperties.'@odata.type')
+        if ($null -ne $getValue.Scope.'@odata.type')
         {
-            $complexScope.Add('odataType', $getValue.Scope.AdditionalProperties.'@odata.type'.ToString())
+            $complexScope.Add('odataType', $getValue.Scope.'@odata.type'.ToString())
         }
         if ($complexScope.values.Where({ $null -ne $_ }).Count -eq 0)
         {
@@ -191,9 +191,9 @@ function Get-TargetResource
         foreach ($currentApplyActions in $getValue.Settings.applyActions)
         {
             $myApplyActions = [ordered]@{}
-            if ($null -ne $currentApplyActions.AdditionalProperties.'@odata.type')
+            if ($null -ne $currentApplyActions.'@odata.type')
             {
-                $myApplyActions.Add('odataType', $currentApplyActions.AdditionalProperties.'@odata.type'.ToString())
+                $myApplyActions.Add('odataType', $currentApplyActions.'@odata.type'.ToString())
             }
             if ($myApplyActions.values.Where({ $null -ne $_ }).Count -gt 0)
             {
@@ -212,14 +212,14 @@ function Get-TargetResource
         foreach ($currentRecommendationInsightSettings in $getValue.Settings.recommendationInsightSettings)
         {
             $myRecommendationInsightSettings = [ordered]@{}
-            $myRecommendationInsightSettings.Add('RecommendationLookBackDuration', $currentRecommendationInsightSettings.AdditionalProperties.recommendationLookBackDuration)
-            if ($null -ne $currentRecommendationInsightSettings.AdditionalProperties.signInScope)
+            $myRecommendationInsightSettings.Add('RecommendationLookBackDuration', $currentRecommendationInsightSettings.recommendationLookBackDuration)
+            if ($null -ne $currentRecommendationInsightSettings.signInScope)
             {
-                $myRecommendationInsightSettings.Add('SignInScope', $currentRecommendationInsightSettings.AdditionalProperties.signInScope.ToString())
+                $myRecommendationInsightSettings.Add('SignInScope', $currentRecommendationInsightSettings.signInScope.ToString())
             }
-            if ($null -ne $currentRecommendationInsightSettings.AdditionalProperties.'@odata.type')
+            if ($null -ne $currentRecommendationInsightSettings.'@odata.type')
             {
-                $myRecommendationInsightSettings.Add('odataType', $currentRecommendationInsightSettings.AdditionalProperties.'@odata.type'.ToString())
+                $myRecommendationInsightSettings.Add('odataType', $currentRecommendationInsightSettings.'@odata.type'.ToString())
             }
             if ($myRecommendationInsightSettings.values.Where({ $null -ne $_ }).Count -gt 0)
             {
@@ -366,7 +366,7 @@ function Get-TargetResource
                 }
                 $myFallbackReviewer = [ordered]@{}
                 $myFallbackReviewer.Add('DisplayName', $currentQuery.body.displayName)
-                $myFallbackReviewer.Add('ScopeType', $currentFallbackReviewer.AdditionalProperties.scopeType)
+                $myFallbackReviewer.Add('ScopeType', $currentFallbackReviewer.scopeType)
                 $myFallbackReviewer.Add('Type', $reviewerType)
                 $complexFallbackReviewers += $myFallbackReviewer
             }
@@ -417,7 +417,7 @@ function Get-TargetResource
             }
             $myReviewer = [ordered]@{}
             $myReviewer.Add('DisplayName', $currentQuery.body.displayName)
-            $myReviewer.Add('ScopeType', $currentReviewer.AdditionalProperties.scopeType)
+            $myReviewer.Add('ScopeType', $currentReviewer.scopeType)
             $myReviewer.Add('Type', $reviewerType)
             $complexReviewers += $myReviewer
         }

@@ -52,7 +52,7 @@
         "New-MgBetaPolicyFeatureRolloutPolicy",
         "New-MgBetaPolicyFeatureRolloutPolicyApplyToByRef",
         "Remove-MgBetaPolicyFeatureRolloutPolicy",
-        "Remove-MgBetaPolicyFeatureRolloutPolicyApplyToByRef",
+        "Remove-MgBetaPolicyFeatureRolloutPolicyApplyToDirectoryObjectByRef",
         "Update-MgBetaPolicyFeatureRolloutPolicy"
       ]
     }

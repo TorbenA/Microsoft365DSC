@@ -329,17 +329,17 @@ function Get-TargetResource
                     $directoryObject = Get-MgBetaDirectoryObjectById -Ids $approver.id -ErrorAction SilentlyContinue
                     if ($null -ne $directoryObject)
                     {
-                        $odataType = $directoryObject.AdditionalProperties['@odata.type']
+                        $odataType = $directoryObject['@odata.type']
                         if (-not [System.String]::IsNullOrEmpty($odataType) -and $odataType.Split('.').Count -ge 3)
                         {
                             $objectType = $odataType.Split('.')[2]
                             if ($objectType -eq 'user')
                             {
-                                $ActivateApprover += $directoryObject.AdditionalProperties['userPrincipalName']
+                                $ActivateApprover += $directoryObject['userPrincipalName']
                             }
                             else
                             {
-                                $ActivateApprover += $directoryObject.AdditionalProperties['displayName']
+                                $ActivateApprover += $directoryObject['displayName']
                             }
                         }
                         else
