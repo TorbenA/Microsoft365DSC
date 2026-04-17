@@ -1108,7 +1108,8 @@ function Set-TargetResource
         Write-Verbose -Message "Set-Targetresource: Policy $Displayname Ensure Present"
         $NewParameters = @{}
         $NewParameters.Add('displayName', $DisplayName)
-        if ($State) {
+        if ($State)
+        {
             $NewParameters.Add('state', $State)
         }
         #create Conditions object
@@ -1160,7 +1161,8 @@ function Set-TargetResource
         }
         if ($currentParameters.ContainsKey('ExcludeApplications'))
         {
-            if (-not $conditions.ContainsKey('applications')) {
+            if (-not $conditions.ContainsKey('applications'))
+            {
                 $conditions.Add('applications', @{})
             }
             $ExcludeApplicationsValue = @()
@@ -1202,7 +1204,8 @@ function Set-TargetResource
         }
         if ($ApplicationsFilter -and $ApplicationsFilterMode)
         {
-            if (-not $conditions.ContainsKey('applications')) {
+            if (-not $conditions.ContainsKey('applications'))
+            {
                 $conditions.Add('applications', @{})
             }
             $appFilterValue = @{
@@ -1213,14 +1216,16 @@ function Set-TargetResource
         }
         if ($IncludeUserActions)
         {
-            if (-not $conditions.ContainsKey('applications')) {
+            if (-not $conditions.ContainsKey('applications'))
+            {
                 $conditions.Add('applications', @{})
             }
             $conditions.Applications.Add('includeUserActions', $IncludeUserActions)
         }
         if ($AuthenticationContexts)
         {
-            if (-not $conditions.ContainsKey('applications')) {
+            if (-not $conditions.ContainsKey('applications'))
+            {
                 $conditions.Add('applications', @{})
             }
             # Retrieve the class reference based on display name.
