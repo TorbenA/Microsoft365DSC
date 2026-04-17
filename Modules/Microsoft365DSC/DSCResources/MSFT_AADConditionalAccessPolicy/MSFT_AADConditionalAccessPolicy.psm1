@@ -15,8 +15,8 @@ function Get-TargetResource
         $DisplayName,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('disabled', 'enabled', 'enabledForReportingButNotEnforced')]
+        [System.String]
         $State,
 
         #ConditionalAccessApplicationCondition
@@ -823,8 +823,8 @@ function Set-TargetResource
         $DisplayName,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('disabled', 'enabled', 'enabledForReportingButNotEnforced')]
+        [System.String]
         $State,
 
         #ConditionalAccessApplicationCondition
@@ -1974,8 +1974,8 @@ function Test-TargetResource
         $DisplayName,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('disabled', 'enabled', 'enabledForReportingButNotEnforced')]
+        [System.String]
         $State,
 
         #ConditionalAccessApplicationCondition

@@ -7,6 +7,8 @@
     FIXES [#7064](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7064)
 * AADB2BManagementPolicy
   * Initial release.
+* AADPasswordRuleSettings
+  * Fixed an issue where invalid condition checks were in-place.
 * AADPermissionsGrantPolicy
   * Fixed an issue when comparing `AADPermissionGrantConditionSet` instances.
     FIXES [#7062](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7062)
