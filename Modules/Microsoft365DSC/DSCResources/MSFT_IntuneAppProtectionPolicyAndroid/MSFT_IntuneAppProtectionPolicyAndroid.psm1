@@ -88,7 +88,7 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String[]]
-        $Alloweddataingestionlocations,
+        $AllowedDataIngestionLocations,
 
         [Parameter()]
         [System.String]
@@ -480,18 +480,18 @@ function Get-TargetResource
             AllowedAndroidDeviceModels                         = $policy.AllowedAndroidDeviceModels
             AllowedDataIngestionLocations                      = [string[]]$policy.AllowedDataIngestionLocations
             AllowedDataStorageLocations                        = [string[]]$policy.AllowedDataStorageLocations
-            AllowedInboundDataTransferSources                  = [string]$policy.AllowedInboundDataTransferSources
+            AllowedInboundDataTransferSources                  = $policy.AllowedInboundDataTransferSources
             AllowedOutboundClipboardSharingExceptionLength     = $policy.AllowedOutboundClipboardSharingExceptionLength
-            AllowedOutboundClipboardSharingLevel               = [string]$policy.AllowedOutboundClipboardSharingLevel
-            AllowedOutboundDataTransferDestinations            = [string]$policy.AllowedOutboundDataTransferDestinations
-            AppActionIfAndroidDeviceManufacturerNotAllowed     = [string]$policy.AppActionIfAndroidDeviceManufacturerNotAllowed
-            AppActionIfAndroidDeviceModelNotAllowed            = [string]$policy.AppActionIfAndroidDeviceModelNotAllowed
-            AppActionIfAndroidSafetyNetAppsVerificationFailed  = [string]$policy.AppActionIfAndroidSafetyNetAppsVerificationFailed
-            AppActionIfAndroidSafetyNetDeviceAttestationFailed = [string]$policy.AppActionIfAndroidSafetyNetDeviceAttestationFailed
-            AppActionIfDeviceComplianceRequired                = [string]$policy.AppActionIfDeviceComplianceRequired
-            AppActionIfDeviceLockNotSet                        = [string]$policy.AppActionIfDeviceLockNotSet
-            AppActionIfMaximumPinRetriesExceeded               = [string]$policy.AppActionIfMaximumPinRetriesExceeded
-            AppActionIfUnableToAuthenticateUser                = [string]$policy.AppActionIfUnableToAuthenticateUser
+            AllowedOutboundClipboardSharingLevel               = $policy.AllowedOutboundClipboardSharingLevel
+            AllowedOutboundDataTransferDestinations            = $policy.AllowedOutboundDataTransferDestinations
+            AppActionIfAndroidDeviceManufacturerNotAllowed     = $policy.AppActionIfAndroidDeviceManufacturerNotAllowed
+            AppActionIfAndroidDeviceModelNotAllowed            = $policy.AppActionIfAndroidDeviceModelNotAllowed
+            AppActionIfAndroidSafetyNetAppsVerificationFailed  = $policy.AppActionIfAndroidSafetyNetAppsVerificationFailed
+            AppActionIfAndroidSafetyNetDeviceAttestationFailed = $policy.AppActionIfAndroidSafetyNetDeviceAttestationFailed
+            AppActionIfDeviceComplianceRequired                = $policy.AppActionIfDeviceComplianceRequired
+            AppActionIfDeviceLockNotSet                        = $policy.AppActionIfDeviceLockNotSet
+            AppActionIfMaximumPinRetriesExceeded               = $policy.AppActionIfMaximumPinRetriesExceeded
+            AppActionIfUnableToAuthenticateUser                = $policy.AppActionIfUnableToAuthenticateUser
             AppGroupType                                       = $policy.AppGroupType.ToString()
             ApprovedKeyboards                                  = $approvedKeyboardArray
             Apps                                               = $appsArray
@@ -509,7 +509,7 @@ function Get-TargetResource
             Description                                        = $policy.Description
             DeviceComplianceRequired                           = $policy.DeviceComplianceRequired
             DeviceLockRequired                                 = $policy.DeviceLockRequired
-            DialerRestrictionLevel                             = [string]$policy.DialerRestrictionLevel
+            DialerRestrictionLevel                             = $policy.DialerRestrictionLevel
             DisableAppEncryptionIfDeviceEncryptionIsEnabled    = $policy.DisableAppEncryptionIfDeviceEncryptionIsEnabled
             DisableAppPinIfDevicePinIsSet                      = $policy.DisableAppPinIfDevicePinIsSet
             DisplayName                                        = $policy.DisplayName
@@ -521,7 +521,7 @@ function Get-TargetResource
             KeyboardsRestricted                                = $policy.KeyboardsRestricted
             ManagedBrowser                                     = $policy.ManagedBrowser.ToString()
             ManagedBrowserToOpenLinksRequired                  = $policy.ManagedBrowserToOpenLinksRequired
-            MaximumAllowedDeviceThreatLevel                    = [string]$policy.MaximumAllowedDeviceThreatLevel
+            MaximumAllowedDeviceThreatLevel                    = $policy.MaximumAllowedDeviceThreatLevel
             MaximumPinRetries                                  = $policy.MaximumPinRetries
             MessagingRedirectAppDisplayName                    = $policy.MessagingRedirectAppDisplayName
             MessagingRedirectAppPackageId                      = $policy.MessagingRedirectAppPackageId
@@ -533,28 +533,28 @@ function Get-TargetResource
             MinimumWarningOSVersion                            = $policy.MinimumWarningOSVersion
             MinimumWarningPatchVersion                         = $policy.MinimumWarningPatchVersion
             MinimumWipePatchVersion                            = $policy.MinimumWipePatchVersion
-            MobileThreatDefenseRemediationAction               = [string]$policy.MobileThreatDefenseRemediationAction
-            NotificationRestriction                            = [string]$policy.NotificationRestriction
+            MobileThreatDefenseRemediationAction               = $policy.MobileThreatDefenseRemediationAction
+            NotificationRestriction                            = $policy.NotificationRestriction
             OrganizationalCredentialsRequired                  = $policy.OrganizationalCredentialsRequired
             PeriodBeforePinReset                               = $policy.PeriodBeforePinReset
             PeriodOfflineBeforeAccessCheck                     = $policy.PeriodOfflineBeforeAccessCheck
             PeriodOfflineBeforeWipeIsEnforced                  = $policy.PeriodOfflineBeforeWipeIsEnforced
             PeriodOnlineBeforeAccessCheck                      = $policy.PeriodOnlineBeforeAccessCheck
-            PinCharacterSet                                    = [string]$policy.PinCharacterSet
+            PinCharacterSet                                    = $policy.PinCharacterSet
             PinRequired                                        = $policy.PinRequired
             PreviousPinBlockCount                              = $policy.PreviousPinBlockCount
             PrintBlocked                                       = $policy.PrintBlocked
-            ProtectedMessagingRedirectAppType                  = [string]$policy.ProtectedMessagingRedirectAppType
+            ProtectedMessagingRedirectAppType                  = $policy.ProtectedMessagingRedirectAppType
             RequireClass3Biometrics                            = $policy.RequireClass3Biometrics
-            RequiredAndroidSafetyNetAppsVerificationType       = [string]$policy.RequiredAndroidSafetyNetAppsVerificationType
-            RequiredAndroidSafetyNetDeviceAttestationType      = [string]$policy.RequiredAndroidSafetyNetDeviceAttestationType
-            RequiredAndroidSafetyNetEvaluationType             = [string]$policy.RequiredAndroidSafetyNetEvaluationType
+            RequiredAndroidSafetyNetAppsVerificationType       = $policy.RequiredAndroidSafetyNetAppsVerificationType
+            RequiredAndroidSafetyNetDeviceAttestationType      = $policy.RequiredAndroidSafetyNetDeviceAttestationType
+            RequiredAndroidSafetyNetEvaluationType             = $policy.RequiredAndroidSafetyNetEvaluationType
             RequirePinAfterBiometricChange                     = $policy.RequirePinAfterBiometricChange
             RoleScopeTagIds                                    = $policy.RoleScopeTagIds
             SaveAsBlocked                                      = $policy.SaveAsBlocked
             ScreenCaptureBlocked                               = $policy.ScreenCaptureBlocked
             SimplePinBlocked                                   = $policy.SimplePinBlocked
-            TargetedAppManagementLevels                        = [string]$policy.TargetedAppManagementLevels
+            TargetedAppManagementLevels                        = $policy.TargetedAppManagementLevels
             WarnAfterCompanyPortalUpdateDeferralInDays         = $policy.WarnAfterCompanyPortalUpdateDeferralInDays
             WipeAfterCompanyPortalUpdateDeferralInDays         = $policy.WipeAfterCompanyPortalUpdateDeferralInDays
             Ensure                                             = 'Present'
@@ -666,7 +666,7 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String[]]
-        $Alloweddataingestionlocations,
+        $AllowedDataIngestionLocations,
 
         [Parameter()]
         [System.String]
@@ -976,7 +976,6 @@ function Set-TargetResource
     #endregion
 
     $currentPolicy = Get-TargetResource @PSBoundParameters
-
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     #rebuild array as a MicrosoftGraphKeyValuePair hash table for ApprovedKeyboards
@@ -999,28 +998,6 @@ function Set-TargetResource
         }
     }
 
-    $durationParameters = @(
-        'PeriodOfflineBeforeAccessCheck',
-        'PeriodOnlineBeforeAccessCheck',
-        'PeriodOfflineBeforeWipeIsEnforced',
-        'PeriodBeforePinReset'
-    )
-    foreach ($duration in $durationParameters)
-    {
-        if (-not [String]::IsNullOrEmpty($BoundParameters.$duration))
-        {
-            if ($BoundParameters.$duration.Startswith('P'))
-            {
-                $timespan = [System.Xml.XmlConvert]::ToTimeSpan($BoundParameters.$duration)
-            }
-            else
-            {
-                $timespan = [TimeSpan]$BoundParameters.$duration
-            }
-            $BoundParameters.$duration = $timespan
-        }
-    }
-
     # Set the managedbrowser values
     $ManagedBrowserValuesHash = Set-ManagedBrowserValues @BoundParameters
     $BoundParameters.ManagedBrowser = $ManagedBrowserValuesHash.ManagedBrowser
@@ -1030,13 +1007,13 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Absent')
     {
-        $createParameters = ([Hashtable]$BoundParameters).Clone()
+        $createParameters = Rename-M365DSCCimInstanceParameter -Properties $BoundParameters
         $createParameters.Remove('Id') | Out-Null
         $createParameters.Remove('Assignments') | Out-Null
         $createParameters.Remove('Apps') | Out-Null
 
         Write-Verbose -Message "Creating new Android App Protection Policy {$DisplayName}"
-        $newpolicy = New-MgBetaDeviceAppManagementAndroidManagedAppProtection @createParameters
+        $newpolicy = New-MgBetaDeviceAppManagementAndroidManagedAppProtection -BodyParameter $createParameters
 
         if ($newPolicy.Id)
         {
@@ -1054,7 +1031,7 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Present')
     {
-        $updateParameters = ([Hashtable]$BoundParameters).Clone()
+        $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $BoundParameters
         $updateParameters.Remove('Id') | Out-Null
         $updateParameters.Remove('Assignments') | Out-Null
         $updateParameters.Remove('Apps') | Out-Null
@@ -1168,7 +1145,7 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String[]]
-        $Alloweddataingestionlocations,
+        $AllowedDataIngestionLocations,
 
         [Parameter()]
         [System.String]
@@ -1742,7 +1719,7 @@ function Set-ManagedBrowserValues
 
     $ManagedBrowserHash = @{
         'ManagedBrowser'                    = $ManagedBrowser
-        'ManagedBrowserToOpenLinksRequired' = $ManagedBrowserToOpenLinksRequired
+        'ManagedBrowserToOpenLinksRequired' = $ManagedBrowserToOpenLinksRequired.IsPresent
         'CustomBrowserDisplayName'          = $CustomBrowserDisplayName
         'CustomBrowserPackageId'            = $CustomBrowserPackageId
     }

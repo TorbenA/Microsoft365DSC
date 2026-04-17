@@ -121,10 +121,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return @(
                         @{
                             Target = @{
-                                AdditionalProperties = @{
-                                    '@odata.type' = '#microsoft.graph.groupAssignmentTarget'
-                                    groupId       = '123456789'
-                                }
+                                '@odata.type' = '#microsoft.graph.groupAssignmentTarget'
+                                groupId       = '123456789'
                                 DeviceAndAppManagementAssignmentFilterType = 'include'
                                 DeviceAndAppManagementAssignmentFilterId   = '123456789'
                             }
@@ -184,10 +182,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return @(
                         @{
                             Target = @{
-                                AdditionalProperties = @{
-                                    '@odata.type' = '#microsoft.graph.groupAssignmentTarget'
-                                    groupId       = '123456789'
-                                }
+                                '@odata.type' = '#microsoft.graph.groupAssignmentTarget'
+                                groupId       = '123456789'
                                 DeviceAndAppManagementAssignmentFilterType = 'include'
                                 DeviceAndAppManagementAssignmentFilterId   = '123456789'
                             }
@@ -238,10 +234,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return @(
                         @{
                             Target = @{
-                                AdditionalProperties = @{
-                                    '@odata.type' = '#microsoft.graph.groupAssignmentTarget'
-                                    groupId       = '123456789'
-                                }
+                                '@odata.type' = '#microsoft.graph.groupAssignmentTarget'
+                                groupId       = '123456789'
                                 DeviceAndAppManagementAssignmentFilterType = 'include'
                                 DeviceAndAppManagementAssignmentFilterId   = '123456789'
                             }
@@ -294,10 +288,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return @(
                         @{
                             Target = @{
-                                AdditionalProperties = @{
-                                    '@odata.type' = '#microsoft.graph.groupAssignmentTarget'
-                                    groupId       = '123456789'
-                                }
+                                '@odata.type' = '#microsoft.graph.groupAssignmentTarget'
+                                groupId       = '123456789'
                                 DeviceAndAppManagementAssignmentFilterType = 'include'
                                 DeviceAndAppManagementAssignmentFilterId   = '123456789'
                             }

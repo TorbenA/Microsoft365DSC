@@ -49,20 +49,18 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        ProxyManualPort                = 25
-                        '@odata.type'                  = '#microsoft.graph.iosWifiConfiguration'
-                        NetworkName                    = 'FakeStringValue'
-                        WiFiSecurityType               = 'open'
-                        DisableMacAddressRandomization = $True
-                        ConnectAutomatically           = $True
-                        ProxyAutomaticConfigurationUrl = 'FakeStringValue'
-                        PreSharedKey                   = 'FakeStringValue'
-                        ConnectWhenNetworkNameIsHidden = $True
-                        ProxySettings                  = 'automatic'
-                        Ssid                           = 'FakeStringValue'
-                        ProxyManualAddress             = 'FakeStringValue'
-                    }
+                    ProxyManualPort                = 25
+                    '@odata.type'                  = '#microsoft.graph.iosWifiConfiguration'
+                    NetworkName                    = 'FakeStringValue'
+                    WiFiSecurityType               = 'open'
+                    DisableMacAddressRandomization = $True
+                    ConnectAutomatically           = $True
+                    ProxyAutomaticConfigurationUrl = 'FakeStringValue'
+                    PreSharedKey                   = 'FakeStringValue'
+                    ConnectWhenNetworkNameIsHidden = $True
+                    ProxySettings                  = 'automatic'
+                    Ssid                           = 'FakeStringValue'
+                    ProxyManualAddress             = 'FakeStringValue'
                     Description          = 'FakeStringValue'
                     DisplayName          = 'FakeStringValue'
                     Id                   = 'FakeStringValue'

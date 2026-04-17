@@ -53,9 +53,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaPolicyFeatureRolloutPolicy -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = "#microsoft.graph.FeatureRolloutPolicy"
-                    }
+                    '@odata.type' = "#microsoft.graph.FeatureRolloutPolicy"
                     Description = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     Feature = "passthroughAuthentication"

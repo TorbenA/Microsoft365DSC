@@ -141,6 +141,7 @@ function Get-TargetResource
         {
             $getValue = $Script:exportedInstance
         }
+        $Id = $getValue.Id
 
         Write-Verbose -Message "Found an Intune Wifi Configuration Policy Android Open Source Project with id {$Id}"
         $results = @{
@@ -303,25 +304,11 @@ function Set-TargetResource
 
         $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
-
-        $AdditionalProperties = Get-M365DSCAdditionalProperties -Properties ($CreateParameters)
-        foreach ($key in $AdditionalProperties.keys)
-        {
-            if ($key -ne '@odata.type')
-            {
-                $keyName = $key.Substring(0, 1).ToUpper() + $key.Substring(1, $key.Length - 1)
-                $CreateParameters.Remove($keyName)
-            }
-        }
         $CreateParameters.Remove('Id') | Out-Null
 
-        if ($AdditionalProperties)
-        {
-            $CreateParameters.Add('AdditionalProperties', $AdditionalProperties)
-        }
-
         #region resource generator code
-        $policy = New-MgBetaDeviceManagementDeviceConfiguration @CreateParameters
+        $CreateParameters.Add('@odata.type', '#microsoft.graph.aospDeviceOwnerWiFiConfiguration')
+        $policy = New-MgBetaDeviceManagementDeviceConfiguration -BodyParameter $CreateParameters
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
 
         if ($policy.id)
@@ -339,25 +326,11 @@ function Set-TargetResource
 
         $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
-
-        $AdditionalProperties = Get-M365DSCAdditionalProperties -Properties ($UpdateParameters)
-        foreach ($key in $AdditionalProperties.keys)
-        {
-            if ($key -ne '@odata.type')
-            {
-                $keyName = $key.Substring(0, 1).ToUpper() + $key.Substring(1, $key.Length - 1)
-                $UpdateParameters.Remove($keyName)
-            }
-        }
         $UpdateParameters.Remove('Id') | Out-Null
 
-        if ($AdditionalProperties)
-        {
-            $UpdateParameters.Add('AdditionalProperties', $AdditionalProperties)
-        }
-
         #region resource generator code
-        Update-MgBetaDeviceManagementDeviceConfiguration @UpdateParameters `
+        $UpdateParameters.Add('@odata.type', '#microsoft.graph.aospDeviceOwnerWiFiConfiguration')
+        Update-MgBetaDeviceManagementDeviceConfiguration -BodyParameter $UpdateParameters `
             -DeviceConfigurationId $currentInstance.Id
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
         Update-DeviceConfigurationPolicyAssignment `
@@ -624,67 +597,6 @@ function Export-TargetResource
             throw
         }
     }
-}
-function Get-M365DSCAdditionalProperties
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-        [Parameter(Mandatory = 'true')]
-        [System.Collections.Hashtable]
-        $Properties
-    )
-
-    $additionalProperties = @(
-        'ConnectAutomatically'
-        'ConnectWhenNetworkNameIsHidden'
-        'NetworkName'
-        'PreSharedKey'
-        'PreSharedKeyIsSet'
-        'Ssid'
-        'WiFiSecurityType'
-    )
-
-    $results = @{'@odata.type' = '#microsoft.graph.aospDeviceOwnerWiFiConfiguration' }
-    $cloneProperties = $Properties.Clone()
-    foreach ($property in $cloneProperties.Keys)
-    {
-        if ($property -in ($additionalProperties) )
-        {
-            $propertyName = $property[0].ToString().ToLower() + $property.Substring(1, $property.Length - 1)
-            if ($properties.$property -and $properties.$property.GetType().FullName -like '*CIMInstance*')
-            {
-                if ($properties.$property.GetType().FullName -like '*[[\]]')
-                {
-                    $array = @()
-                    foreach ($item in $properties.$property)
-                    {
-                        $array += Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $item
-
-                    }
-                    $propertyValue = $array
-                }
-                else
-                {
-                    $propertyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $properties.$property
-                }
-
-            }
-            else
-            {
-                $propertyValue = $properties.$property
-            }
-
-            $results.Add($propertyName, $propertyValue)
-
-        }
-    }
-    if ($results.Count -eq 1)
-    {
-        return $null
-    }
-    return $results
 }
 
 Export-ModuleMember -Function *-TargetResource

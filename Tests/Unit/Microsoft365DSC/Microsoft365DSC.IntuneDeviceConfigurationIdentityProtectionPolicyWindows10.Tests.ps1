@@ -48,23 +48,21 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        pinRecoveryEnabled                           = $True
-                        pinExpirationInDays                          = 25
-                        pinMinimumLength                             = 25
-                        securityDeviceRequired                       = $True
-                        useCertificatesForOnPremisesAuthEnabled      = $True
-                        unlockWithBiometricsEnabled                  = $True
-                        '@odata.type'                                = '#microsoft.graph.windowsIdentityProtectionConfiguration'
-                        pinLowercaseCharactersUsage                  = 'blocked'
-                        pinPreviousBlockCount                        = 25
-                        windowsHelloForBusinessBlocked               = $True
-                        useSecurityKeyForSignin                      = $True
-                        pinSpecialCharactersUsage                    = 'blocked'
-                        pinMaximumLength                             = 25
-                        enhancedAntiSpoofingForFacialFeaturesEnabled = $True
-                        pinUppercaseCharactersUsage                  = 'blocked'
-                    }
+                    pinRecoveryEnabled                           = $True
+                    pinExpirationInDays                          = 25
+                    pinMinimumLength                             = 25
+                    securityDeviceRequired                       = $True
+                    useCertificatesForOnPremisesAuthEnabled      = $True
+                    unlockWithBiometricsEnabled                  = $True
+                    '@odata.type'                                = '#microsoft.graph.windowsIdentityProtectionConfiguration'
+                    pinLowercaseCharactersUsage                  = 'blocked'
+                    pinPreviousBlockCount                        = 25
+                    windowsHelloForBusinessBlocked               = $True
+                    useSecurityKeyForSignin                      = $True
+                    pinSpecialCharactersUsage                    = 'blocked'
+                    pinMaximumLength                             = 25
+                    enhancedAntiSpoofingForFacialFeaturesEnabled = $True
+                    pinUppercaseCharactersUsage                  = 'blocked'
                     Description          = 'FakeStringValue'
                     DisplayName          = 'FakeStringValue'
                     Id                   = 'FakeStringValue'

@@ -44,66 +44,64 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Id                                          = 'FakeStringValue'
                     DisplayName                                 = 'FakeStringValue'
                     Description                                 = 'FakeStringValue'
-                    AdditionalProperties                        = @{
-                        '@odata.type'                           = '#microsoft.graph.iosVpnConfiguration'
-                        authenticationMethod                    = 'usernameAndPassword'
-                        connectionName                          = 'FakeStringValue'
-                        connectionType                          = 'ciscoAnyConnectV2'
-                        enableSplitTunneling                    = $False
-                        enablePerApp                            = $False
-                        optInToDeviceIdSharing                  = $True
-                        proxyServer                             = @(
-                            @{
-                                port                            = 80
-                                automaticConfigurationScriptUrl = 'https://www.test.com'
-                                address                         = 'proxy.test.com'
-                            }
-                        )
-                        server                                  = @(
-                            @{
-                                isDefaultServer                 = $True
-                                description                     = 'server'
-                                address                         = 'vpn.test.com'
-                            }
-                        )
-                        customData                              = @(
-                            @{
-                                key                             = 'FakeStringValue'
-                                value                           = 'FakeStringValue'
-                            }
-                        )
-                        customKeyValueData                      = @(
-                            @{
-                                name                            = 'FakeStringValue'
-                                value                           = 'FakeStringValue'
-                            }
-                        )
-                        onDemandRules                           = @(
-                            @{
-                                ssids                           = 'FakeStringValue'
-                                dnsSearchDomains                = 'FakeStringValue'
-                                probeUrl                        = 'FakeStringValue'
-                                action                          = 'ignore'
-                                domainAction                    = 'neverConnect'
-                                domains                         = 'FakeStringValue'
-                                probeRequiredUrl                = 'FakeStringValue'
-                                interfaceTypeMatch              = 'notConfigured'
-                                dnsServerAddressMatch           = 'FakeStringValue'
-                            }
-                        )
-                        targetedMobileApps                    = @(
-                            @{
-                                name                            = 'FakeStringValue'
-                                publisher                       = 'FakeStringValue'
-                                appStoreUrl                     = 'FakeStringValue'
-                                appId                           = 'FakeStringValue'
-                            }
-                        )
-                        safariDomains                           = @()
-                        associatedDomains                       = @()
-                        excludedDomains                         = @()
-                        excludeList                             = @()
-                    }
+                    '@odata.type'                           = '#microsoft.graph.iosVpnConfiguration'
+                    authenticationMethod                    = 'usernameAndPassword'
+                    connectionName                          = 'FakeStringValue'
+                    connectionType                          = 'ciscoAnyConnectV2'
+                    enableSplitTunneling                    = $False
+                    enablePerApp                            = $False
+                    optInToDeviceIdSharing                  = $True
+                    proxyServer                             = @(
+                        @{
+                            port                            = 80
+                            automaticConfigurationScriptUrl = 'https://www.test.com'
+                            address                         = 'proxy.test.com'
+                        }
+                    )
+                    server                                  = @(
+                        @{
+                            isDefaultServer                 = $True
+                            description                     = 'server'
+                            address                         = 'vpn.test.com'
+                        }
+                    )
+                    customData                              = @(
+                        @{
+                            key                             = 'FakeStringValue'
+                            value                           = 'FakeStringValue'
+                        }
+                    )
+                    customKeyValueData                      = @(
+                        @{
+                            name                            = 'FakeStringValue'
+                            value                           = 'FakeStringValue'
+                        }
+                    )
+                    onDemandRules                           = @(
+                        @{
+                            ssids                           = 'FakeStringValue'
+                            dnsSearchDomains                = 'FakeStringValue'
+                            probeUrl                        = 'FakeStringValue'
+                            action                          = 'ignore'
+                            domainAction                    = 'neverConnect'
+                            domains                         = 'FakeStringValue'
+                            probeRequiredUrl                = 'FakeStringValue'
+                            interfaceTypeMatch              = 'notConfigured'
+                            dnsServerAddressMatch           = 'FakeStringValue'
+                        }
+                    )
+                    targetedMobileApps                    = @(
+                        @{
+                            name                            = 'FakeStringValue'
+                            publisher                       = 'FakeStringValue'
+                            appStoreUrl                     = 'FakeStringValue'
+                            appId                           = 'FakeStringValue'
+                        }
+                    )
+                    safariDomains                           = @()
+                    associatedDomains                       = @()
+                    excludedDomains                         = @()
+                    excludeList                             = @()
                 }
             }
 

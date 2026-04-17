@@ -51,9 +51,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementScript -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = "#microsoft.graph.DeviceManagementScript"
-                    }
+                    '@odata.type' = "#microsoft.graph.DeviceManagementScript"
                     Description = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     EnforceSignatureCheck = $True

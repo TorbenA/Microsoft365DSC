@@ -51,9 +51,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementRoleScopeTag -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = '#microsoft.graph.RoleScopeTag'
-                    }
+                    '@odata.type' = '#microsoft.graph.RoleScopeTag'
                     Description          = 'FakeStringValue'
                     DisplayName          = 'FakeStringValue'
                     Id                   = 'FakeStringValue'

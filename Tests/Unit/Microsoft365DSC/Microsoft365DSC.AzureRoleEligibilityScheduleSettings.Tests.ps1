@@ -611,10 +611,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     {
                         return @{
                             Id                   = '11111111-1111-1111-1111-111111111111'
-                            AdditionalProperties = @{
-                                '@odata.type'     = '#microsoft.graph.user'
-                                userPrincipalName = 'approver@contoso.com'
-                            }
+                            '@odata.type'     = '#microsoft.graph.user'
+                            userPrincipalName = 'approver@contoso.com'
                         }
                     }
                     return $null
@@ -721,20 +719,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     {
                         return @{
                             Id                   = '22222222-2222-2222-2222-222222222222'
-                            AdditionalProperties = @{
-                                '@odata.type'     = '#microsoft.graph.user'
-                                userPrincipalName = 'approver@contoso.com'
-                            }
+                            '@odata.type'     = '#microsoft.graph.user'
+                            userPrincipalName = 'approver@contoso.com'
                         }
                     }
                     elseif ($Ids -contains '33333333-3333-3333-3333-333333333333')
                     {
                         return @{
                             Id                   = '33333333-3333-3333-3333-333333333333'
-                            AdditionalProperties = @{
-                                '@odata.type'  = '#microsoft.graph.group'
-                                displayName    = 'PIM Approvers'
-                            }
+                            '@odata.type'  = '#microsoft.graph.group'
+                            displayName    = 'PIM Approvers'
                         }
                     }
                     return $null

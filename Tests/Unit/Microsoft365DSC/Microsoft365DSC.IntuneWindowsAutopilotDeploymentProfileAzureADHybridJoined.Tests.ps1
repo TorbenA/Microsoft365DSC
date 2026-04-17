@@ -48,10 +48,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile -MockWith {
                 return @{
-                    AdditionalProperties           = @{
-                        hybridAzureADJoinSkipConnectivityCheck = $True
-                        '@odata.type'                          = '#microsoft.graph.activeDirectoryWindowsAutopilotDeploymentProfile'
-                    }
+                    hybridAzureADJoinSkipConnectivityCheck = $True
+                    '@odata.type'                          = '#microsoft.graph.activeDirectoryWindowsAutopilotDeploymentProfile'
                     Description                    = 'FakeStringValue'
                     DeviceNameTemplate             = 'FakeStringValue'
                     DeviceType                     = 'windowsPc'

@@ -102,18 +102,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         RunRemediationScript = $False
                         RunSchedule = @{
                             Interval = 1
-                            AdditionalProperties = @{
-                                '@odata.type' = "#microsoft.graph.deviceHealthScriptRunOnceSchedule"
-                                useUtc = $false
-                                time = "01:00:00.0000000"
-                                date = "2024-01-01"
-                            }
+                            '@odata.type' = "#microsoft.graph.deviceHealthScriptRunOnceSchedule"
+                            useUtc = $false
+                            time = "01:00:00.0000000"
+                            date = "2024-01-01"
                         }
                         Target = @{
-                            AdditionalProperties = @{
-                                '@odata.type' = "#microsoft.graph.groupAssignmentTarget"
-                                groupId = "FakeStringValue"
-                            }
+                            '@odata.type' = "#microsoft.graph.groupAssignmentTarget"
+                            groupId = "FakeStringValue"
                             "DeviceAndAppManagementAssignmentFilterId" = "FakeStringValue"
                             "DeviceAndAppManagementAssignmentFilterType" = "none"
                         }

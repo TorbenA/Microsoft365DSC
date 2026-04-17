@@ -65,14 +65,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DueDateTime     = '2020-06-10'
                     BucketId        = 'Bucket12345'
                     Assignments     = @{
-                        AdditionalProperties = @{
-                            'john.smith@contoso.com' = @{}
-                        }
+                        'john.smith@contoso.com' = @{}
                     }
                     AppliedCategories = @{
-                        AdditionalProperties = @{
-                            Category1 = $true
-                        }
+                        Category1 = $true
                     }
                 }
             }

@@ -100,8 +100,7 @@ function Get-TargetResource
             }
             if ($null -ne $passwordCred.MaxLifetime)
             {
-                $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $passwordCred.MaxLifetime.Days, $passwordCred.MaxLifetime.Hours, $passwordCred.MaxLifetime.Minutes, $passwordCred.MaxLifetime.Seconds
-                $newItem.Add('maxLifetime', $iso8601Duration)
+                $newItem.Add('maxLifetime', $passwordCred.MaxLifetime)
             }
             $appRestrictionsValue.passwordCredentials += $newItem
         }
@@ -115,8 +114,7 @@ function Get-TargetResource
             }
             if ($null -ne $keyCred.MaxLifetime)
             {
-                $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $keyCred.MaxLifetime.Days, $keyCred.MaxLifetime.Hours, $keyCred.MaxLifetime.Minutes, $keyCred.MaxLifetime.Seconds
-                $newItem.Add('maxLifetime', $iso8601Duration)
+                $newItem.Add('maxLifetime', $keyCred.MaxLifetime)
             }
             if ($null -ne $keyCred.CertificateBasedApplicationConfigurationIds -and $keyCred.CertificateBasedApplicationConfigurationIds.Count -gt 0)
             {
@@ -141,8 +139,7 @@ function Get-TargetResource
             }
             if ($null -ne $passwordCred.MaxLifetime)
             {
-                $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $passwordCred.MaxLifetime.Days, $passwordCred.MaxLifetime.Hours, $passwordCred.MaxLifetime.Minutes, $passwordCred.MaxLifetime.Seconds
-                $newItem.Add('maxLifetime', $iso8601Duration)
+                $newItem.Add('maxLifetime', $passwordCred.MaxLifetime)
             }
             $spnRestrictionsValue.passwordCredentials += $newItem
         }
@@ -156,8 +153,7 @@ function Get-TargetResource
             }
             if ($null -ne $keyCred.MaxLifetime)
             {
-                $iso8601Duration = 'P{0}DT{1}H{2}M{3}S' -f $keyCred.MaxLifetime.Days, $keyCred.MaxLifetime.Hours, $keyCred.MaxLifetime.Minutes, $keyCred.MaxLifetime.Seconds
-                $newItem.Add('maxLifetime', $iso8601Duration)
+                $newItem.Add('maxLifetime', $keyCred.MaxLifetime)
             }
             if ($null -ne $keyCred.CertificateBasedApplicationConfigurationIds -and $keyCred.CertificateBasedApplicationConfigurationIds.Count -gt 0)
             {

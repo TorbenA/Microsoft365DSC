@@ -16514,15 +16514,15 @@
     },
     {
       "Name": "AllowedDataIngestionLocations",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataIngestionLocation[]"
+      "Type": "System.Object[]"
     },
     {
       "Name": "AllowedDataStorageLocations",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataStorageLocation[]"
+      "Type": "System.Object[]"
     },
     {
       "Name": "AllowedInboundDataTransferSources",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AllowedOutboundClipboardSharingExceptionLength",
@@ -16530,67 +16530,67 @@
     },
     {
       "Name": "AllowedOutboundClipboardSharingLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppClipboardSharingLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AllowedOutboundDataTransferDestinations",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfAccountIsClockedOut",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfAndroidDeviceManufacturerNotAllowed",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfAndroidDeviceModelNotAllowed",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfAndroidSafetyNetAppsVerificationFailed",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfAndroidSafetyNetDeviceAttestationFailed",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfDeviceComplianceRequired",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfDeviceLockNotSet",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfDevicePasscodeComplexityLessThanHigh",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfDevicePasscodeComplexityLessThanLow",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfDevicePasscodeComplexityLessThanMedium",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfMaximumPinRetriesExceeded",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfSamsungKnoxAttestationRequired",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfUnableToAuthenticateUser",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppGroupType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.TargetedManagedAppGroupType"
+      "Type": "System.Object"
     },
     {
       "Name": "ApprovedKeyboards",
@@ -16670,7 +16670,7 @@
     },
     {
       "Name": "DialerRestrictionLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPhoneNumberRedirectLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "DisableAppEncryptionIfDeviceEncryptionIsEnabled",
@@ -16722,7 +16722,7 @@
     },
     {
       "Name": "ManagedBrowser",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedBrowserType"
+      "Type": "System.Object"
     },
     {
       "Name": "ManagedBrowserToOpenLinksRequired",
@@ -16730,7 +16730,7 @@
     },
     {
       "Name": "MaximumAllowedDeviceThreatLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDeviceThreatLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "MaximumPinRetries",
@@ -16810,15 +16810,15 @@
     },
     {
       "Name": "MobileThreatDefensePartnerPriority",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.MobileThreatDefensePartnerPriority"
+      "Type": "System.Object"
     },
     {
       "Name": "MobileThreatDefenseRemediationAction",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "NotificationRestriction",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppNotificationRestriction"
+      "Type": "System.Object"
     },
     {
       "Name": "OrganizationalCredentialsRequired",
@@ -16842,7 +16842,7 @@
     },
     {
       "Name": "PinCharacterSet",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPinCharacterSet"
+      "Type": "System.Object"
     },
     {
       "Name": "PinRequired",
@@ -16862,7 +16862,7 @@
     },
     {
       "Name": "ProtectedMessagingRedirectAppType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.MessagingRedirectAppType"
+      "Type": "System.Object"
     },
     {
       "Name": "RequireClass3Biometrics",
@@ -16874,15 +16874,15 @@
     },
     {
       "Name": "RequiredAndroidSafetyNetAppsVerificationType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AndroidManagedAppSafetyNetAppsVerificationType"
+      "Type": "System.Object"
     },
     {
       "Name": "RequiredAndroidSafetyNetDeviceAttestationType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AndroidManagedAppSafetyNetDeviceAttestationType"
+      "Type": "System.Object"
     },
     {
       "Name": "RequiredAndroidSafetyNetEvaluationType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AndroidManagedAppSafetyNetEvaluationType"
+      "Type": "System.Object"
     },
     {
       "Name": "RoleScopeTagIds",
@@ -16902,7 +16902,7 @@
     },
     {
       "Name": "TargetedAppManagementLevels",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AppManagementLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "Version",
@@ -16964,15 +16964,15 @@
     },
     {
       "Name": "AllowedDataIngestionLocations",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataIngestionLocation[]"
+      "Type": "System.Object[]"
     },
     {
       "Name": "AllowedDataStorageLocations",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataStorageLocation[]"
+      "Type": "System.Object[]"
     },
     {
       "Name": "AllowedInboundDataTransferSources",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AllowedIosDeviceModels",
@@ -16984,39 +16984,39 @@
     },
     {
       "Name": "AllowedOutboundClipboardSharingLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppClipboardSharingLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AllowedOutboundDataTransferDestinations",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfAccountIsClockedOut",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfDeviceComplianceRequired",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfIosDeviceModelNotAllowed",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfMaximumPinRetriesExceeded",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfUnableToAuthenticateUser",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppDataEncryptionType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataEncryptionType"
+      "Type": "System.Object"
     },
     {
       "Name": "AppGroupType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.TargetedManagedAppGroupType"
+      "Type": "System.Object"
     },
     {
       "Name": "Apps",
@@ -17068,7 +17068,7 @@
     },
     {
       "Name": "DialerRestrictionLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPhoneNumberRedirectLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "DisableAppPinIfDevicePinIsSet",
@@ -17104,7 +17104,7 @@
     },
     {
       "Name": "GenmojiConfigurationState",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.GenmojiIosManagedAppConfigurationState"
+      "Type": "System.Object"
     },
     {
       "Name": "GracePeriodToBlockAppsDuringOffClockHours",
@@ -17124,7 +17124,7 @@
     },
     {
       "Name": "ManagedBrowser",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedBrowserType"
+      "Type": "System.Object"
     },
     {
       "Name": "ManagedBrowserToOpenLinksRequired",
@@ -17136,7 +17136,7 @@
     },
     {
       "Name": "MaximumAllowedDeviceThreatLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDeviceThreatLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "MaximumPinRetries",
@@ -17200,15 +17200,15 @@
     },
     {
       "Name": "MobileThreatDefensePartnerPriority",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.MobileThreatDefensePartnerPriority"
+      "Type": "System.Object"
     },
     {
       "Name": "MobileThreatDefenseRemediationAction",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "NotificationRestriction",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppNotificationRestriction"
+      "Type": "System.Object"
     },
     {
       "Name": "OrganizationalCredentialsRequired",
@@ -17232,7 +17232,7 @@
     },
     {
       "Name": "PinCharacterSet",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPinCharacterSet"
+      "Type": "System.Object"
     },
     {
       "Name": "PinRequired",
@@ -17256,7 +17256,7 @@
     },
     {
       "Name": "ProtectedMessagingRedirectAppType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.MessagingRedirectAppType"
+      "Type": "System.Object"
     },
     {
       "Name": "RoleScopeTagIds",
@@ -17268,7 +17268,7 @@
     },
     {
       "Name": "ScreenCaptureConfigurationState",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ScreenCaptureIosManagedAppConfigurationState"
+      "Type": "System.Object"
     },
     {
       "Name": "SimplePinBlocked",
@@ -17276,7 +17276,7 @@
     },
     {
       "Name": "TargetedAppManagementLevels",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AppManagementLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "ThirdPartyKeyboardsBlocked",
@@ -17288,7 +17288,7 @@
     },
     {
       "Name": "WritingToolsConfigurationState",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.WritingToolsIosManagedAppConfigurationState"
+      "Type": "System.Object"
     },
     {
       "Name": "Break",
@@ -17358,7 +17358,7 @@
     },
     {
       "Name": "EnforcementLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.WindowsInformationProtectionEnforcementLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "EnterpriseDomain",
@@ -17556,7 +17556,7 @@
     },
     {
       "Name": "PublishingState",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.MobileAppPublishingState"
+      "Type": "System.Object"
     },
     {
       "Name": "Relationships",
@@ -17770,7 +17770,7 @@
     },
     {
       "Name": "ErrorCode",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ErrorCode"
+      "Type": "System.Object"
     },
     {
       "Name": "GuidedDeploymentTags",
@@ -17794,7 +17794,7 @@
     },
     {
       "Name": "Status",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.PolicySetStatus"
+      "Type": "System.Object"
     },
     {
       "Name": "Break",
@@ -17840,7 +17840,7 @@
     },
     {
       "Name": "AppGroupType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.TargetedManagedAppGroupType"
+      "Type": "System.Object"
     },
     {
       "Name": "Apps",
@@ -17896,7 +17896,7 @@
     },
     {
       "Name": "TargetedAppManagementLevels",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AppManagementLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "Version",
@@ -17946,19 +17946,19 @@
     },
     {
       "Name": "AllowedInboundDataTransferSources",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.WindowsManagedAppDataTransferLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AllowedOutboundClipboardSharingLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.WindowsManagedAppClipboardSharingLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AllowedOutboundDataTransferDestinations",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.WindowsManagedAppDataTransferLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfUnableToAuthenticateUser",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "Apps",
@@ -18002,7 +18002,7 @@
     },
     {
       "Name": "MaximumAllowedDeviceThreatLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDeviceThreatLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "MaximumRequiredOSVersion",
@@ -18050,7 +18050,7 @@
     },
     {
       "Name": "MobileThreatDefenseRemediationAction",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "PeriodOfflineBeforeAccessCheck",
@@ -18144,11 +18144,11 @@
     },
     {
       "Name": "EnrollmentMode",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AndroidDeviceOwnerEnrollmentMode"
+      "Type": "System.Object"
     },
     {
       "Name": "EnrollmentTokenType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AndroidDeviceOwnerEnrollmentTokenType"
+      "Type": "System.Object"
     },
     {
       "Name": "EnrollmentTokenUsageCount",
@@ -18200,7 +18200,7 @@
     },
     {
       "Name": "WifiSecurityType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AospWifiSecurityType"
+      "Type": "System.Object"
     },
     {
       "Name": "WifiSsid",
@@ -18250,7 +18250,7 @@
     },
     {
       "Name": "AssignmentFilterManagementType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AssignmentFilterManagementType"
+      "Type": "System.Object"
     },
     {
       "Name": "CreatedDateTime",
@@ -18278,7 +18278,7 @@
     },
     {
       "Name": "Platform",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DevicePlatformType"
+      "Type": "System.Object"
     },
     {
       "Name": "RoleScopeTags",
@@ -18364,7 +18364,7 @@
     },
     {
       "Name": "Platforms",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DeviceManagementConfigurationPlatforms"
+      "Type": "System.Object"
     },
     {
       "Name": "PriorityMetaData",
@@ -18384,7 +18384,7 @@
     },
     {
       "Name": "Technologies",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DeviceManagementConfigurationTechnologies"
+      "Type": "System.Object"
     },
     {
       "Name": "TemplateReference",
@@ -18446,11 +18446,11 @@
     },
     {
       "Name": "Issuer",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DeviceManagementDerivedCredentialIssuer"
+      "Type": "System.Object"
     },
     {
       "Name": "NotificationType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DeviceManagementDerivedCredentialNotificationType"
+      "Type": "System.Object"
     },
     {
       "Name": "RenewalThresholdPercentage",
@@ -18778,11 +18778,11 @@
     },
     {
       "Name": "Intent",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DeviceConfigAssignmentIntent"
+      "Type": "System.Object"
     },
     {
       "Name": "Source",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DeviceAndAppManagementAssignmentSource"
+      "Type": "System.Object"
     },
     {
       "Name": "Target",
@@ -18844,7 +18844,7 @@
     },
     {
       "Name": "DeviceEnrollmentConfigurationType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DeviceEnrollmentConfigurationType"
+      "Type": "System.Object"
     },
     {
       "Name": "DisplayName",
@@ -18930,7 +18930,7 @@
     },
     {
       "Name": "DeviceHealthScriptType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DeviceHealthScriptType"
+      "Type": "System.Object"
     },
     {
       "Name": "DeviceRunStates",
@@ -18978,7 +18978,7 @@
     },
     {
       "Name": "RunAsAccount",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.RunAsAccountType"
+      "Type": "System.Object"
     },
     {
       "Name": "RunSummary",
@@ -19076,7 +19076,7 @@
     },
     {
       "Name": "RunAsAccount",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.RunAsAccountType"
+      "Type": "System.Object"
     },
     {
       "Name": "RunSummary",
@@ -19162,7 +19162,7 @@
     },
     {
       "Name": "PolicyConfigurationIngestionType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.GroupPolicyConfigurationIngestionType"
+      "Type": "System.Object"
     },
     {
       "Name": "RoleScopeTagIds",
@@ -19370,7 +19370,7 @@
     },
     {
       "Name": "EnrollmentAvailability",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.EnrollmentAvailabilityOptions"
+      "Type": "System.Object"
     },
     {
       "Name": "Id",
@@ -19504,7 +19504,7 @@
     },
     {
       "Name": "DeviceCleanupRulePlatformType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DeviceCleanupRulePlatformType"
+      "Type": "System.Object"
     },
     {
       "Name": "DeviceInactivityBeforeRetirementInDays",
@@ -19614,7 +19614,7 @@
     },
     {
       "Name": "PartnerState",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.MobileThreatPartnerTenantState"
+      "Type": "System.Object"
     },
     {
       "Name": "PartnerUnresponsivenessThresholdInDays",
@@ -19762,7 +19762,7 @@
     },
     {
       "Name": "BrandingOptions",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.NotificationTemplateBrandingOptions"
+      "Type": "System.Object"
     },
     {
       "Name": "DefaultLocale",
@@ -19942,7 +19942,7 @@
     },
     {
       "Name": "ScopeType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.RoleAssignmentScopeType"
+      "Type": "System.Object"
     },
     {
       "Name": "Break",
@@ -20164,7 +20164,7 @@
     },
     {
       "Name": "RunAsAccount",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.RunAsAccountType"
+      "Type": "System.Object"
     },
     {
       "Name": "RunSummary",
@@ -20740,7 +20740,7 @@
     },
     {
       "Name": "DeviceType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.WindowsAutopilotDeviceType"
+      "Type": "System.Object"
     },
     {
       "Name": "DisplayName",
@@ -20854,7 +20854,7 @@
     },
     {
       "Name": "Source",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DeviceAndAppManagementAssignmentSource"
+      "Type": "System.Object"
     },
     {
       "Name": "SourceId",
@@ -35306,15 +35306,15 @@
     },
     {
       "Name": "AllowedDataIngestionLocations",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataIngestionLocation[]"
+      "Type": "System.Object[]"
     },
     {
       "Name": "AllowedDataStorageLocations",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataStorageLocation[]"
+      "Type": "System.Object[]"
     },
     {
       "Name": "AllowedInboundDataTransferSources",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AllowedOutboundClipboardSharingExceptionLength",
@@ -35322,67 +35322,67 @@
     },
     {
       "Name": "AllowedOutboundClipboardSharingLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppClipboardSharingLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AllowedOutboundDataTransferDestinations",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfAccountIsClockedOut",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfAndroidDeviceManufacturerNotAllowed",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfAndroidDeviceModelNotAllowed",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfAndroidSafetyNetAppsVerificationFailed",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfAndroidSafetyNetDeviceAttestationFailed",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfDeviceComplianceRequired",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfDeviceLockNotSet",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfDevicePasscodeComplexityLessThanHigh",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfDevicePasscodeComplexityLessThanLow",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfDevicePasscodeComplexityLessThanMedium",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfMaximumPinRetriesExceeded",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfSamsungKnoxAttestationRequired",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfUnableToAuthenticateUser",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppGroupType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.TargetedManagedAppGroupType"
+      "Type": "System.Object"
     },
     {
       "Name": "ApprovedKeyboards",
@@ -35462,7 +35462,7 @@
     },
     {
       "Name": "DialerRestrictionLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPhoneNumberRedirectLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "DisableAppEncryptionIfDeviceEncryptionIsEnabled",
@@ -35514,7 +35514,7 @@
     },
     {
       "Name": "ManagedBrowser",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedBrowserType"
+      "Type": "System.Object"
     },
     {
       "Name": "ManagedBrowserToOpenLinksRequired",
@@ -35522,7 +35522,7 @@
     },
     {
       "Name": "MaximumAllowedDeviceThreatLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDeviceThreatLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "MaximumPinRetries",
@@ -35602,15 +35602,15 @@
     },
     {
       "Name": "MobileThreatDefensePartnerPriority",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.MobileThreatDefensePartnerPriority"
+      "Type": "System.Object"
     },
     {
       "Name": "MobileThreatDefenseRemediationAction",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "NotificationRestriction",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppNotificationRestriction"
+      "Type": "System.Object"
     },
     {
       "Name": "OrganizationalCredentialsRequired",
@@ -35634,7 +35634,7 @@
     },
     {
       "Name": "PinCharacterSet",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPinCharacterSet"
+      "Type": "System.Object"
     },
     {
       "Name": "PinRequired",
@@ -35654,7 +35654,7 @@
     },
     {
       "Name": "ProtectedMessagingRedirectAppType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.MessagingRedirectAppType"
+      "Type": "System.Object"
     },
     {
       "Name": "RequireClass3Biometrics",
@@ -35666,15 +35666,15 @@
     },
     {
       "Name": "RequiredAndroidSafetyNetAppsVerificationType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AndroidManagedAppSafetyNetAppsVerificationType"
+      "Type": "System.Object"
     },
     {
       "Name": "RequiredAndroidSafetyNetDeviceAttestationType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AndroidManagedAppSafetyNetDeviceAttestationType"
+      "Type": "System.Object"
     },
     {
       "Name": "RequiredAndroidSafetyNetEvaluationType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AndroidManagedAppSafetyNetEvaluationType"
+      "Type": "System.Object"
     },
     {
       "Name": "RoleScopeTagIds",
@@ -35694,7 +35694,7 @@
     },
     {
       "Name": "TargetedAppManagementLevels",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AppManagementLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "Version",
@@ -35764,15 +35764,15 @@
     },
     {
       "Name": "AllowedDataIngestionLocations",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataIngestionLocation[]"
+      "Type": "System.Object[]"
     },
     {
       "Name": "AllowedDataStorageLocations",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataStorageLocation[]"
+      "Type": "System.Object[]"
     },
     {
       "Name": "AllowedInboundDataTransferSources",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AllowedIosDeviceModels",
@@ -35784,39 +35784,39 @@
     },
     {
       "Name": "AllowedOutboundClipboardSharingLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppClipboardSharingLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AllowedOutboundDataTransferDestinations",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfAccountIsClockedOut",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfDeviceComplianceRequired",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfIosDeviceModelNotAllowed",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfMaximumPinRetriesExceeded",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfUnableToAuthenticateUser",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "AppDataEncryptionType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataEncryptionType"
+      "Type": "System.Object"
     },
     {
       "Name": "AppGroupType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.TargetedManagedAppGroupType"
+      "Type": "System.Object"
     },
     {
       "Name": "Apps",
@@ -35868,7 +35868,7 @@
     },
     {
       "Name": "DialerRestrictionLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPhoneNumberRedirectLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "DisableAppPinIfDevicePinIsSet",
@@ -35904,7 +35904,7 @@
     },
     {
       "Name": "GenmojiConfigurationState",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.GenmojiIosManagedAppConfigurationState"
+      "Type": "System.Object"
     },
     {
       "Name": "GracePeriodToBlockAppsDuringOffClockHours",
@@ -35924,7 +35924,7 @@
     },
     {
       "Name": "ManagedBrowser",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedBrowserType"
+      "Type": "System.Object"
     },
     {
       "Name": "ManagedBrowserToOpenLinksRequired",
@@ -35936,7 +35936,7 @@
     },
     {
       "Name": "MaximumAllowedDeviceThreatLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDeviceThreatLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "MaximumPinRetries",
@@ -36000,15 +36000,15 @@
     },
     {
       "Name": "MobileThreatDefensePartnerPriority",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.MobileThreatDefensePartnerPriority"
+      "Type": "System.Object"
     },
     {
       "Name": "MobileThreatDefenseRemediationAction",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "NotificationRestriction",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppNotificationRestriction"
+      "Type": "System.Object"
     },
     {
       "Name": "OrganizationalCredentialsRequired",
@@ -36032,7 +36032,7 @@
     },
     {
       "Name": "PinCharacterSet",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPinCharacterSet"
+      "Type": "System.Object"
     },
     {
       "Name": "PinRequired",
@@ -36056,7 +36056,7 @@
     },
     {
       "Name": "ProtectedMessagingRedirectAppType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.MessagingRedirectAppType"
+      "Type": "System.Object"
     },
     {
       "Name": "RoleScopeTagIds",
@@ -36068,7 +36068,7 @@
     },
     {
       "Name": "ScreenCaptureConfigurationState",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ScreenCaptureIosManagedAppConfigurationState"
+      "Type": "System.Object"
     },
     {
       "Name": "SimplePinBlocked",
@@ -36076,7 +36076,7 @@
     },
     {
       "Name": "TargetedAppManagementLevels",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AppManagementLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "ThirdPartyKeyboardsBlocked",
@@ -36088,7 +36088,7 @@
     },
     {
       "Name": "WritingToolsConfigurationState",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.WritingToolsIosManagedAppConfigurationState"
+      "Type": "System.Object"
     },
     {
       "Name": "Break",
@@ -36166,7 +36166,7 @@
     },
     {
       "Name": "EnforcementLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.WindowsInformationProtectionEnforcementLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "EnterpriseDomain",
@@ -36372,7 +36372,7 @@
     },
     {
       "Name": "PublishingState",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.MobileAppPublishingState"
+      "Type": "System.Object"
     },
     {
       "Name": "Relationships",
@@ -36610,7 +36610,7 @@
     },
     {
       "Name": "ErrorCode",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ErrorCode"
+      "Type": "System.Object"
     },
     {
       "Name": "GuidedDeploymentTags",
@@ -36634,7 +36634,7 @@
     },
     {
       "Name": "Status",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.PolicySetStatus"
+      "Type": "System.Object"
     },
     {
       "Name": "Break",
@@ -36688,7 +36688,7 @@
     },
     {
       "Name": "AppGroupType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.TargetedManagedAppGroupType"
+      "Type": "System.Object"
     },
     {
       "Name": "Apps",
@@ -36744,7 +36744,7 @@
     },
     {
       "Name": "TargetedAppManagementLevels",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AppManagementLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "Version",
@@ -36802,19 +36802,19 @@
     },
     {
       "Name": "AllowedInboundDataTransferSources",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.WindowsManagedAppDataTransferLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AllowedOutboundClipboardSharingLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.WindowsManagedAppClipboardSharingLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AllowedOutboundDataTransferDestinations",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.WindowsManagedAppDataTransferLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "AppActionIfUnableToAuthenticateUser",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "Apps",
@@ -36858,7 +36858,7 @@
     },
     {
       "Name": "MaximumAllowedDeviceThreatLevel",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDeviceThreatLevel"
+      "Type": "System.Object"
     },
     {
       "Name": "MaximumRequiredOSVersion",
@@ -36906,7 +36906,7 @@
     },
     {
       "Name": "MobileThreatDefenseRemediationAction",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction"
+      "Type": "System.Object"
     },
     {
       "Name": "PeriodOfflineBeforeAccessCheck",
@@ -37440,11 +37440,11 @@
     },
     {
       "Name": "SubscriptionState",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DeviceManagementSubscriptionState"
+      "Type": "System.Object"
     },
     {
       "Name": "Subscriptions",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DeviceManagementSubscriptions"
+      "Type": "System.Object"
     },
     {
       "Name": "TemplateInsights",
@@ -37848,7 +37848,7 @@
     },
     {
       "Name": "AssignmentFilterManagementType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.AssignmentFilterManagementType"
+      "Type": "System.Object"
     },
     {
       "Name": "CreatedDateTime",
@@ -37876,7 +37876,7 @@
     },
     {
       "Name": "Platform",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DevicePlatformType"
+      "Type": "System.Object"
     },
     {
       "Name": "RoleScopeTags",
@@ -38240,7 +38240,7 @@
     },
     {
       "Name": "DeviceEnrollmentConfigurationType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DeviceEnrollmentConfigurationType"
+      "Type": "System.Object"
     },
     {
       "Name": "DisplayName",
@@ -38334,7 +38334,7 @@
     },
     {
       "Name": "DeviceHealthScriptType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DeviceHealthScriptType"
+      "Type": "System.Object"
     },
     {
       "Name": "DeviceRunStates",
@@ -38382,7 +38382,7 @@
     },
     {
       "Name": "RunAsAccount",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.RunAsAccountType"
+      "Type": "System.Object"
     },
     {
       "Name": "RunSummary",
@@ -38488,7 +38488,7 @@
     },
     {
       "Name": "RunAsAccount",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.RunAsAccountType"
+      "Type": "System.Object"
     },
     {
       "Name": "RunSummary",
@@ -38582,7 +38582,7 @@
     },
     {
       "Name": "PolicyConfigurationIngestionType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.GroupPolicyConfigurationIngestionType"
+      "Type": "System.Object"
     },
     {
       "Name": "RoleScopeTagIds",
@@ -38806,7 +38806,7 @@
     },
     {
       "Name": "EnrollmentAvailability",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.EnrollmentAvailabilityOptions"
+      "Type": "System.Object"
     },
     {
       "Name": "Id",
@@ -38948,7 +38948,7 @@
     },
     {
       "Name": "DeviceCleanupRulePlatformType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.DeviceCleanupRulePlatformType"
+      "Type": "System.Object"
     },
     {
       "Name": "DeviceInactivityBeforeRetirementInDays",
@@ -39066,7 +39066,7 @@
     },
     {
       "Name": "PartnerState",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.MobileThreatPartnerTenantState"
+      "Type": "System.Object"
     },
     {
       "Name": "PartnerUnresponsivenessThresholdInDays",
@@ -39230,7 +39230,7 @@
     },
     {
       "Name": "BrandingOptions",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.NotificationTemplateBrandingOptions"
+      "Type": "System.Object"
     },
     {
       "Name": "DefaultLocale",
@@ -39422,7 +39422,7 @@
     },
     {
       "Name": "ScopeType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.RoleAssignmentScopeType"
+      "Type": "System.Object"
     },
     {
       "Name": "Break",
@@ -39668,7 +39668,7 @@
     },
     {
       "Name": "RunAsAccount",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.RunAsAccountType"
+      "Type": "System.Object"
     },
     {
       "Name": "RunSummary",
@@ -40226,7 +40226,7 @@
     },
     {
       "Name": "DeviceType",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.WindowsAutopilotDeviceType"
+      "Type": "System.Object"
     },
     {
       "Name": "DisplayName",
@@ -42966,7 +42966,7 @@
     },
     {
       "Name": "MobileDeviceManagementAuthority",
-      "Type": "Microsoft.Graph.Beta.PowerShell.Support.MdmAuthority"
+      "Type": "System.Object"
     },
     {
       "Name": "OnPremisesLastPasswordSyncDateTime",

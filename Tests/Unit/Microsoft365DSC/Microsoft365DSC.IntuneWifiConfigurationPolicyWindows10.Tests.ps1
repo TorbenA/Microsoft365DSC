@@ -49,22 +49,20 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        ForceFIPSCompliance            = $True
-                        NetworkName                    = 'FakeStringValue'
-                        MeteredConnectionLimit         = 'unrestricted'
-                        '@odata.type'                  = '#microsoft.graph.windowsWifiConfiguration'
-                        PreSharedKey                   = 'FakeStringValue'
-                        WifiSecurityType               = 'open'
-                        ProxyManualPort                = 25
-                        ProxyManualAddress             = 'FakeStringValue'
-                        ConnectWhenNetworkNameIsHidden = $True
-                        ProxySetting                   = 'automatic'
-                        ProxyAutomaticConfigurationUrl = 'FakeStringValue'
-                        ConnectAutomatically           = $True
-                        ConnectToPreferredNetwork      = $True
-                        Ssid                           = 'FakeStringValue'
-                    }
+                    ForceFIPSCompliance            = $True
+                    NetworkName                    = 'FakeStringValue'
+                    MeteredConnectionLimit         = 'unrestricted'
+                    '@odata.type'                  = '#microsoft.graph.windowsWifiConfiguration'
+                    PreSharedKey                   = 'FakeStringValue'
+                    WifiSecurityType               = 'open'
+                    ProxyManualPort                = 25
+                    ProxyManualAddress             = 'FakeStringValue'
+                    ConnectWhenNetworkNameIsHidden = $True
+                    ProxySetting                   = 'automatic'
+                    ProxyAutomaticConfigurationUrl = 'FakeStringValue'
+                    ConnectAutomatically           = $True
+                    ConnectToPreferredNetwork      = $True
+                    Ssid                           = 'FakeStringValue'
                     Description          = 'FakeStringValue'
                     DisplayName          = 'FakeStringValue'
                     Id                   = 'FakeStringValue'

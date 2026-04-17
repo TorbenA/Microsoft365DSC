@@ -51,9 +51,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementGroupPolicyConfiguration -MockWith {
                 return @{
-                    AdditionalProperties             = @{
-                        '@odata.type' = '#microsoft.graph.GroupPolicyConfiguration'
-                    }
+                    '@odata.type' = '#microsoft.graph.GroupPolicyConfiguration'
                     Description                      = 'FakeStringValue'
                     DisplayName                      = 'FakeStringValue'
                     Id                               = 'FakeStringValue'
@@ -85,14 +83,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementGroupPolicyConfigurationDefinitionValuePresentationValue -MockWith {
                 return @{
-                    AdditionalProperties             = @{
-                        '@odata.type' = '#microsoft.graph.groupPolicyPresentationValueList'
-                        values        = @(
-                            @{
-                                name = "`"hosted_app`""
-                            }
-                        )
-                    }
+                    '@odata.type' = '#microsoft.graph.groupPolicyPresentationValueList'
+                    values        = @(
+                        @{
+                            name = "`"hosted_app`""
+                        }
+                    )
                     Id                               = 'fakePresentationId'
                     Presentation                     = @{
                         Id    = 'fakePresentationDefinitionId'
@@ -106,8 +102,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return @(@{
                         target = @{
                             deviceAndAppManagementAssignmentFilterType = 'none'
-                            AdditionalProperties                       = @{'@odata.type' = '#microsoft.graph.allDevicesAssignmentTarget' }
-                        }
                     })
             }
             Mock -CommandName Update-DeviceConfigurationPolicyAssignment -MockWith {

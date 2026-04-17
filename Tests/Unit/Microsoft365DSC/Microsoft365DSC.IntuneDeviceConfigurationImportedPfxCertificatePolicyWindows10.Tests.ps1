@@ -48,16 +48,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        intendedPurpose = "unassigned"
-                        subjectAlternativeNameType = "none"
-                        certificateValidityPeriodScale = "days"
-                        '@odata.type' = "#microsoft.graph.windows10ImportedPFXCertificateProfile"
-                        keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
-                        subjectNameFormat = "commonName"
-                        certificateValidityPeriodValue = 25
-                        renewalThresholdPercentage = 25
-                    }
+                    intendedPurpose = "unassigned"
+                    subjectAlternativeNameType = "none"
+                    certificateValidityPeriodScale = "days"
+                    '@odata.type' = "#microsoft.graph.windows10ImportedPFXCertificateProfile"
+                    keyStorageProvider = "useTpmKspOtherwiseUseSoftwareKsp"
+                    subjectNameFormat = "commonName"
+                    certificateValidityPeriodValue = 25
+                    renewalThresholdPercentage = 25
                     Description = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"

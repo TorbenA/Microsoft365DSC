@@ -202,22 +202,7 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-    $AdditionalProperties = @{
-        '@odata.type'        = 'microsoft.graph.socialIdentityProvider'
-        identityProviderType = $IdentityProviderType
-    }
-    $BoundParameters.Add('AdditionalProperties', $AdditionalProperties)
-    $BoundParameters.Remove('IdentityProviderType') | Out-Null
-    if ($ClientId)
-    {
-        $BoundParameters.Add('ClientId', $ClientId)
-        $BoundParameters.Remove('ClientId') | Out-Null
-    }
-    if ($ClientSecret)
-    {
-        $BoundParameters.Add('ClientSecret', $ClientSecret)
-        $BoundParameters.Remove('ClientSecret') | Out-Null
-    }
+    $BoundParameters.Add('@odata.type', 'microsoft.graph.socialIdentityProvider')
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating new Social Identity Provider with Client Id {$ClientId}"

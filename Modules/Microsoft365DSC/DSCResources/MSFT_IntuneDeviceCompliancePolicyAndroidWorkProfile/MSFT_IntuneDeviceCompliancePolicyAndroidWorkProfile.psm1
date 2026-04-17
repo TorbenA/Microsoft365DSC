@@ -12,6 +12,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
+        $Id,
+
+        [Parameter()]
+        [System.String]
         $Description,
 
         [Parameter()]
@@ -247,6 +251,7 @@ function Get-TargetResource
         {
             $devicePolicy = $Script:exportedInstance
         }
+        $Id = $devicePolicy.Id
 
         Write-Verbose -Message "Found Intune Android Work Profile Device Compliance Policy with displayName {$DisplayName}"
 
@@ -263,7 +268,7 @@ function Get-TargetResource
                 [System.String[]]$groups = @()
                 foreach ($group in $actionConfiguration.NotificationMessageCCList)
                 {
-                    $groups += Get-MgGroup -GroupId $group -ErrorAction SilentlyContinue | Select-Object -ExpandProperty DisplayName
+                    $groups += (Get-MgGroup -GroupId $group -ErrorAction SilentlyContinue).DisplayName
                 }
                 $scheduledAction.Add('NotificationMessageCCList', $groups)
             }
@@ -280,6 +285,7 @@ function Get-TargetResource
 
         $results = @{
             DisplayName                                        = $devicePolicy.DisplayName
+            Id                                                 = $devicePolicy.Id
             Description                                        = $devicePolicy.Description
             RequiredPasswordComplexity                         = $devicePolicy.requiredPasswordComplexity
             SecurityBlockDeviceAdministratorManagedDevices     = $devicePolicy.securityBlockDeviceAdministratorManagedDevices
@@ -359,6 +365,10 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
+
+        [Parameter()]
+        [System.String]
+        $Id,
 
         [Parameter()]
         [System.String]
@@ -619,21 +629,17 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentDeviceAndroidPolicy.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating new Intune Android Work Profile Device Compliance Policy {$DisplayName}"
-        $boundParameters.Remove('DisplayName') | Out-Null
-        $boundParameters.Remove('Description') | Out-Null
         $boundParameters.Remove('Assignments') | Out-Null
-
-        $AdditionalProperties = Get-M365DSCIntuneDeviceCompliancePolicyAndroidWorkProfileAdditionalProperties -Properties ([System.Collections.Hashtable]$boundParameters)
-        $policy = New-MgBetaDeviceManagementDeviceCompliancePolicy -DisplayName $DisplayName `
-            -Description $Description `
-            -AdditionalProperties $AdditionalProperties `
-            -ScheduledActionsForRule $complexScheduledActionsForRule
+        $createParameters = Rename-M365DSCCimInstanceParameter -Properties $boundParameters
+        $createParameters.Add('@odata.type', '#microsoft.graph.androidWorkProfileCompliancePolicy')
+        $createParameters.Add('scheduledActionsForRule', $complexScheduledActionsForRule)
+        $policy = New-MgBetaDeviceManagementDeviceCompliancePolicy -BodyParameter $createParameters
 
         #region Assignments
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
-        if ($policy.id)
+        if ($policy.Id)
         {
-            Update-DeviceConfigurationPolicyAssignment -DeviceConfigurationPolicyId $policy.id `
+            Update-DeviceConfigurationPolicyAssignment -DeviceConfigurationPolicyId $policy.Id `
                 -Targets $assignmentsHash `
                 -Repository 'deviceManagement/deviceCompliancePolicies'
         }
@@ -642,21 +648,13 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentDeviceAndroidPolicy.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating Intune Android Work Profile Device Compliance Policy {$DisplayName}"
-        $configDeviceAndroidPolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.androidWorkProfileCompliancePolicy' -and `
-                $_.displayName -eq $($DisplayName) }
-
-        $boundParameters.Remove('DisplayName') | Out-Null
-        $boundParameters.Remove('Description') | Out-Null
         $boundParameters.Remove('Assignments') | Out-Null
+        $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $boundParameters
+        $updateParameters.Add('@odata.type', '#microsoft.graph.androidWorkProfileCompliancePolicy')
+        Update-MgBetaDeviceManagementDeviceCompliancePolicy -BodyParameter $updateParameters `
+            -DeviceCompliancePolicyId $currentDeviceAndroidPolicy.Id
 
-        $AdditionalProperties = Get-M365DSCIntuneDeviceCompliancePolicyAndroidWorkProfileAdditionalProperties -Properties ([System.Collections.Hashtable]$boundParameters)
-        Update-MgBetaDeviceManagementDeviceCompliancePolicy -AdditionalProperties $AdditionalProperties `
-            -Description $Description `
-            -DeviceCompliancePolicyId $configDeviceAndroidPolicy.Id
-
-        $Uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceManagement/deviceCompliancePolicies/$($configDeviceAndroidPolicy.Id)/scheduleActionsForRules"
+        $Uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceManagement/deviceCompliancePolicies/$($currentDeviceAndroidPolicy.Id)/scheduleActionsForRules"
         $mgGraphScheduledActionForRules = @{
             deviceComplianceScheduledActionForRules = $complexScheduledActionsForRule
         }
@@ -664,7 +662,7 @@ function Set-TargetResource
 
         #region Assignments
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
-        Update-DeviceConfigurationPolicyAssignment -DeviceConfigurationPolicyId $configDeviceAndroidPolicy.id `
+        Update-DeviceConfigurationPolicyAssignment -DeviceConfigurationPolicyId $currentDeviceAndroidPolicy.Id `
             -Targets $assignmentsHash `
             -Repository 'deviceManagement/deviceCompliancePolicies'
         #endregion
@@ -672,12 +670,7 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Absent' -and $currentDeviceAndroidPolicy.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Removing Intune Android Work Profile Device Compliance Policy {$DisplayName}"
-        $configDeviceAndroidPolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.androidWorkProfileCompliancePolicy' -and `
-                $_.displayName -eq $($DisplayName) }
-
-        Remove-MgBetaDeviceManagementDeviceCompliancePolicy -DeviceCompliancePolicyId $configDeviceAndroidPolicy.Id
+        Remove-MgBetaDeviceManagementDeviceCompliancePolicy -DeviceCompliancePolicyId $currentDeviceAndroidPolicy.Id
     }
 }
 
@@ -690,6 +683,10 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
+
+        [Parameter()]
+        [System.String]
+        $Id,
 
         [Parameter()]
         [System.String]
@@ -1060,29 +1057,6 @@ function Export-TargetResource
             throw
         }
     }
-}
-
-function Get-M365DSCIntuneDeviceCompliancePolicyAndroidWorkProfileAdditionalProperties
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param(
-        [Parameter(Mandatory = 'true')]
-        [System.Collections.Hashtable]
-        $Properties
-    )
-
-    $results = @{'@odata.type' = '#microsoft.graph.androidWorkProfileCompliancePolicy' }
-    foreach ($property in $properties.Keys)
-    {
-        if ($property -ne 'Verbose')
-        {
-            $propertyName = $property[0].ToString().ToLower() + $property.Substring(1, $property.Length - 1)
-            $propertyValue = $properties.$property
-            $results.Add($propertyName, $propertyValue)
-        }
-    }
-    return $results
 }
 
 Export-ModuleMember -Function *-TargetResource

@@ -50,19 +50,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Invoke-MgGraphRequest -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = "#microsoft.graph.macOSDmgApp"
-                        fileName = "FakeStringValue"
-                        ignoreVersionDetection = $true
-                        includedApps = @(
-                            @{
-                                bundleId = "FakeStringValue"
-                                bundleVersion = "FakeStringValue"
-                            }
-                        )
-                        minimumSupportedOperatingSystem = @{
-                            v10_15 = $true
+                    '@odata.type' = "#microsoft.graph.macOSDmgApp"
+                    fileName = "FakeStringValue"
+                    ignoreVersionDetection = $true
+                    includedApps = @(
+                        @{
+                            bundleId = "FakeStringValue"
+                            bundleVersion = "FakeStringValue"
                         }
+                    )
+                    minimumSupportedOperatingSystem = @{
+                        v10_15 = $true
                     }
                     CommittedContentVersion = "FakeStringValue"
                     DependentAppCount = 25
@@ -93,19 +91,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceAppManagementMobileApp -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = "#microsoft.graph.macOSDmgApp"
-                        fileName = "FakeStringValue"
-                        ignoreVersionDetection = $true
-                        includedApps = @(
-                            @{
-                                bundleId = "FakeStringValue"
-                                bundleVersion = "FakeStringValue"
-                            }
-                        )
-                        minimumSupportedOperatingSystem = @{
-                            v10_15 = $true
+                    '@odata.type' = "#microsoft.graph.macOSDmgApp"
+                    fileName = "FakeStringValue"
+                    ignoreVersionDetection = $true
+                    includedApps = @(
+                        @{
+                            bundleId = "FakeStringValue"
+                            bundleVersion = "FakeStringValue"
                         }
+                    )
+                    minimumSupportedOperatingSystem = @{
+                        v10_15 = $true
                     }
                     Categories = @(
                         @{

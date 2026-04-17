@@ -35,62 +35,60 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        IncludeTargets        = @(
-                            @{
-                                TargetType = 'group'
-                                Id         = '00000000-0000-0000-0000-000000000001'
+                    IncludeTargets        = @(
+                        @{
+                            TargetType = 'group'
+                            Id         = '00000000-0000-0000-0000-000000000001'
+                        }
+                    )
+                    featureSettings       = @{
+                        companionAppAllowedState                = @{
+                            state         = 'default'
+                            includeTarget = @{
+                                targetType = 'group'
+                                id         = '00000000-0000-0000-0000-000000000001'
                             }
-                        )
-                        featureSettings       = @{
-                            companionAppAllowedState                = @{
-                                state         = 'default'
-                                includeTarget = @{
-                                    targetType = 'group'
-                                    id         = '00000000-0000-0000-0000-000000000001'
-                                }
-                                excludeTarget = @{
-                                    targetType = 'group'
-                                    id         = '00000000-0000-0000-0000-000000000001'
-                                }
-                            }
-                            displayAppInformationRequiredState      = @{
-                                state         = 'default'
-                                includeTarget = @{
-                                    targetType = 'group'
-                                    id         = '00000000-0000-0000-0000-000000000001'
-                                }
-                                excludeTarget = @{
-                                    targetType = 'group'
-                                    id         = '00000000-0000-0000-0000-000000000001'
-                                }
-                            }
-                            displayLocationInformationRequiredState = @{
-                                state         = 'default'
-                                includeTarget = @{
-                                    targetType = 'group'
-                                    id         = '00000000-0000-0000-0000-000000000001'
-                                }
-                                excludeTarget = @{
-                                    targetType = 'group'
-                                    id         = '00000000-0000-0000-0000-000000000001'
-                                }
-                            }
-                            numberMatchingRequiredState             = @{
-                                state         = 'default'
-                                includeTarget = @{
-                                    targetType = 'group'
-                                    id         = '00000000-0000-0000-0000-000000000001'
-                                }
-                                excludeTarget = @{
-                                    targetType = 'group'
-                                    id         = '00000000-0000-0000-0000-000000000001'
-                                }
+                            excludeTarget = @{
+                                targetType = 'group'
+                                id         = '00000000-0000-0000-0000-000000000001'
                             }
                         }
-                        '@odata.type'         = '#microsoft.graph.microsoftAuthenticatorAuthenticationMethodConfiguration'
-                        isSoftwareOathEnabled = $True
+                        displayAppInformationRequiredState      = @{
+                            state         = 'default'
+                            includeTarget = @{
+                                targetType = 'group'
+                                id         = '00000000-0000-0000-0000-000000000001'
+                            }
+                            excludeTarget = @{
+                                targetType = 'group'
+                                id         = '00000000-0000-0000-0000-000000000001'
+                            }
+                        }
+                        displayLocationInformationRequiredState = @{
+                            state         = 'default'
+                            includeTarget = @{
+                                targetType = 'group'
+                                id         = '00000000-0000-0000-0000-000000000001'
+                            }
+                            excludeTarget = @{
+                                targetType = 'group'
+                                id         = '00000000-0000-0000-0000-000000000001'
+                            }
+                        }
+                        numberMatchingRequiredState             = @{
+                            state         = 'default'
+                            includeTarget = @{
+                                targetType = 'group'
+                                id         = '00000000-0000-0000-0000-000000000001'
+                            }
+                            excludeTarget = @{
+                                targetType = 'group'
+                                id         = '00000000-0000-0000-0000-000000000001'
+                            }
+                        }
                     }
+                    '@odata.type'         = '#microsoft.graph.microsoftAuthenticatorAuthenticationMethodConfiguration'
+                    isSoftwareOathEnabled = $True
                     ExcludeTargets       = @(
                         @{
                             TargetType = 'group'

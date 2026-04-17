@@ -360,7 +360,6 @@ function Set-TargetResource
             $c = @{
                 'claimIdInApiResponse' = $claim.claimIdInApiResponse
             }
-
             $params.claimsForTokenConfiguration += $c
         }
 
@@ -373,19 +372,16 @@ function Set-TargetResource
     # UPDATE
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        $params.Add('CustomAuthenticationExtensionId', $currentInstance.Id)
+        $params.Add('customAuthenticationExtensionId', $currentInstance.Id)
         $params.Remove('Id') | Out-Null
 
-        $params.Add('AdditionalProperties', @{})
-        $params['AdditionalProperties'].Add('ClaimsForTokenConfiguration', @())
-
+        $params.Add('claimsForTokenConfiguration', @())
         foreach ($claim in $setParameters['ClaimsForTokenConfiguration'])
         {
             $c = @{
                 'claimIdInApiResponse' = $claim['ClaimIdInApiResponse']
             }
-
-            $params['AdditionalProperties']['claimsForTokenConfiguration'] += $c
+            $params['claimsForTokenConfiguration'] += $c
         }
 
         Write-Verbose -Message "Updating custom authentication extension {$DisplayName} with:`r`n$(ConvertTo-Json $params -Depth 10)"

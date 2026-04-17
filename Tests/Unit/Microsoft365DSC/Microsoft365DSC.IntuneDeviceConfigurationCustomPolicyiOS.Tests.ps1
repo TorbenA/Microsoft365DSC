@@ -44,12 +44,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName          = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
                     Description          = 'Test IntuneDeviceConfigurationCustomPolicyiOS Description'
                     Id                   = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
-                    AdditionalProperties = @{
-                        Payload         = 'PHJvb3Q+PC9yb290Pg=='
-                        PayloadFileName = 'simple.xml'
-                        PayloadName     = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
-                        '@odata.type'   = '#microsoft.graph.iosCustomConfiguration'
-                    }
+                    Payload         = 'PHJvb3Q+PC9yb290Pg=='
+                    PayloadFileName = 'simple.xml'
+                    PayloadName     = 'Test IntuneDeviceConfigurationCustomPolicyiOS'
+                    '@odata.type'   = '#microsoft.graph.iosCustomConfiguration'
                 }
             }
 

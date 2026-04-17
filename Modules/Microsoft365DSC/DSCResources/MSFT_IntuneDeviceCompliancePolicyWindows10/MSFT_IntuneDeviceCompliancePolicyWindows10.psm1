@@ -289,7 +289,7 @@ function Get-TargetResource
                 [System.String[]]$groups = @()
                 foreach ($group in $actionConfiguration.NotificationMessageCCList)
                 {
-                    $groups += Get-MgGroup -GroupId $group -ErrorAction SilentlyContinue | Select-Object -ExpandProperty DisplayName
+                    $groups += (Get-MgGroup -GroupId $group -ErrorAction SilentlyContinue).DisplayName
                 }
                 $scheduledAction.Add('NotificationMessageCCList', $groups)
             }
@@ -660,17 +660,13 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentDeviceWindows10Policy.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating new Intune Device Compliance Windows 10 Policy {$DisplayName}"
-        $BoundParameters.Remove('DisplayName') | Out-Null
-        $BoundParameters.Remove('Description') | Out-Null
         $BoundParameters.Remove('Assignments') | Out-Null
+        $createParameters = Rename-M365DSCCimInstanceParameter -Properties $BoundParameters
+        $createParameters.Add('@odata.type', '#microsoft.graph.windows10CompliancePolicy')
+        $createParameters.Add('scheduledActionsForRule', $complexScheduledActionsForRule)
+        $policy = New-MgBetaDeviceManagementDeviceCompliancePolicy -BodyParameter $createParameters
 
-        $AdditionalProperties = Get-M365DSCIntuneDeviceCompliancePolicyWindows10AdditionalProperties -Properties ([System.Collections.Hashtable]$BoundParameters)
-        $policy = New-MgBetaDeviceManagementDeviceCompliancePolicy -DisplayName $DisplayName `
-            -Description $Description `
-            -AdditionalProperties $AdditionalProperties `
-            -ScheduledActionsForRule $complexScheduledActionsForRule
-
-        if ($Assignments.Count -gt 0)
+        if ($policy.Id)
         {
             $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
             Update-DeviceConfigurationPolicyAssignment -DeviceConfigurationPolicyId $policy.id `
@@ -681,13 +677,10 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentDeviceWindows10Policy.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating Intune Device Compliance Windows 10 Policy {$DisplayName}"
-        $BoundParameters.Remove('DisplayName') | Out-Null
-        $BoundParameters.Remove('Description') | Out-Null
         $BoundParameters.Remove('Assignments') | Out-Null
-
-        $AdditionalProperties = Get-M365DSCIntuneDeviceCompliancePolicyWindows10AdditionalProperties -Properties ([System.Collections.Hashtable]$BoundParameters)
-        Update-MgBetaDeviceManagementDeviceCompliancePolicy -AdditionalProperties $AdditionalProperties `
-            -Description $Description `
+        $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $BoundParameters
+        $updateParameters.Add('@odata.type', '#microsoft.graph.windows10CompliancePolicy')
+        Update-MgBetaDeviceManagementDeviceCompliancePolicy -BodyParameter $updateParameters `
             -DeviceCompliancePolicyId $currentDeviceWindows10Policy.Id
 
         $body = @{
@@ -695,13 +688,10 @@ function Set-TargetResource
         } | ConvertTo-Json -Depth 10
         Invoke-MgGraphRequest -Method POST -Uri "beta/deviceManagement/deviceCompliancePolicies/$($currentDeviceWindows10Policy.Id)/scheduleActionsForRules" -Body $body
 
-        if ($Assignments.Count -gt 0)
-        {
-            $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
-            Update-DeviceConfigurationPolicyAssignment -DeviceConfigurationPolicyId $currentDeviceWindows10Policy.id `
-                -Targets $assignmentsHash `
-                -Repository 'deviceManagement/deviceCompliancePolicies'
-        }
+        $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
+        Update-DeviceConfigurationPolicyAssignment -DeviceConfigurationPolicyId $currentDeviceWindows10Policy.id `
+            -Targets $assignmentsHash `
+            -Repository 'deviceManagement/deviceCompliancePolicies'
     }
     elseif ($Ensure -eq 'Absent' -and $currentDeviceWindows10Policy.Ensure -eq 'Present')
     {
@@ -1119,34 +1109,6 @@ function Export-TargetResource
             throw
         }
     }
-}
-
-function Get-M365DSCIntuneDeviceCompliancePolicyWindows10AdditionalProperties
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param(
-        [Parameter(Mandatory = 'true')]
-        [System.Collections.Hashtable]
-        $Properties
-    )
-
-    $results = @{ '@odata.type' = '#microsoft.graph.windows10CompliancePolicy' }
-    foreach ($property in $properties.Keys)
-    {
-        if ($property -ne 'Verbose')
-        {
-            $propertyName = $property[0].ToString().ToLower() + $property.Substring(1, $property.Length - 1)
-            $propertyValue = $properties.$property
-            if ($null -ne $propertyValue -and $propertyValue.GetType().Name -like '*cimInstance*')
-            {
-                $propertyValue = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $propertyValue
-            }
-            $results.Add($propertyName, $propertyValue)
-        }
-    }
-    Write-Verbose -Message ($results | Out-String)
-    return $results
 }
 
 Export-ModuleMember -Function *-TargetResource

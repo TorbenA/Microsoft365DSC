@@ -20,10 +20,11 @@ class MSFT_scheduledActionConfigurations
     [Write, Description("A list of group IDs to specify who to CC this notification message to.")] String notificationMessageCCList[];
 };
 
-[ClassVersion("1.0.0.0"), FriendlyName("IntuneDeviceCompliancePolicyAndroidDeviceOwner")]
+[ClassVersion("1.0.0.1"), FriendlyName("IntuneDeviceCompliancePolicyAndroidDeviceOwner")]
 class MSFT_IntuneDeviceCompliancePolicyAndroidDeviceOwner : OMI_BaseResource
 {
     [Key, Description("Display name of the Android Device Owner device compliance policy.")] String DisplayName;
+    [Write, Description("The Id of the Android Device Owner device compliance policy.")] String Id;
     [Write, Description("Description of the Android Device Owner device compliance policy.")] String Description;
     [Write, Description("Assignments of the Intune Policy."), EmbeddedInstance("MSFT_DeviceManagementConfigurationPolicyAssignments")] String Assignments[];
     [Write, Description("Minimum Android security patch level.")] String MinAndroidSecurityPatchLevel;

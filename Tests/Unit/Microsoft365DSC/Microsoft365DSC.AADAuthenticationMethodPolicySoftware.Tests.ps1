@@ -35,15 +35,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        IncludeTargets        = @(
-                            @{
-                                TargetType = 'group'
-                                Id         = 'Fakegroup'
-                            }
-                        )
-                        '@odata.type' = "#microsoft.graph.softwareOathAuthenticationMethodConfiguration"
-                    }
+                    IncludeTargets        = @(
+                        @{
+                            TargetType = 'group'
+                            Id         = 'Fakegroup'
+                        }
+                    )
+                    '@odata.type' = "#microsoft.graph.softwareOathAuthenticationMethodConfiguration"
                     ExcludeTargets = @(
                         @{
                             TargetType = "group"

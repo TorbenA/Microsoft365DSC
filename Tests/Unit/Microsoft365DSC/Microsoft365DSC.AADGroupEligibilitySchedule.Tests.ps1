@@ -45,9 +45,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaPolicyRoleManagementPolicyRule -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        isExpirationRequired = $true
-                    }
+                    isExpirationRequired = $true
                 }
             }
 
@@ -76,10 +74,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDirectoryObjectById -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = '#microsoft.graph.group'
-                        displayName = 'FakePrincipal'
-                    }
+                    '@odata.type' = '#microsoft.graph.group'
+                    displayName = 'FakePrincipal'
                 }
             }
 
@@ -136,9 +132,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
                 Mock -CommandName Get-MgBetaPolicyRoleManagementPolicyRule -MockWith {
                     return @{
-                        AdditionalProperties = @{
-                            isExpirationRequired = $false
-                        }
+                        isExpirationRequired = $false
                     }
                 }
 
@@ -166,10 +160,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 Mock -CommandName Get-MgBetaDirectoryObjectById -MockWith {
                     return @{
                         Id                   = "FakeId"
-                        AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.user'
-                            userPrincipalName = 'John.Smith@contoso.com'
-                        }
+                        '@odata.type' = '#microsoft.graph.user'
+                        userPrincipalName = 'John.Smith@contoso.com'
                     }
                 }
 
@@ -261,10 +253,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
                 Mock -CommandName Get-MgBetaDirectoryObjectById -MockWith {
                     return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.user'
-                            userPrincipalName = 'John.Smith@contoso.com'
-                        }
+                        '@odata.type' = '#microsoft.graph.user'
+                        userPrincipalName = 'John.Smith@contoso.com'
                     }
                 }
 
@@ -379,10 +369,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
                 Mock -CommandName Get-MgBetaDirectoryObjectById -MockWith {
                     return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.user'
-                            userPrincipalName = 'John.Smith@contoso.com'
-                        }
+                        '@odata.type' = '#microsoft.graph.user'
+                        userPrincipalName = 'John.Smith@contoso.com'
                     }
                 }
 
@@ -400,9 +388,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
                 Mock -CommandName Get-MgBetaPolicyRoleManagementPolicyRule -MockWith {
                     return @{
-                        AdditionalProperties = @{
-                            isExpirationRequired = $true
-                        }
+                        isExpirationRequired = $true
                     }
                 }
 
@@ -457,10 +443,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
                 Mock -CommandName Get-MgBetaDirectoryObjectById -MockWith {
                     return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.user'
-                            userPrincipalName = 'John.Smith@contoso.com'
-                        }
+                        '@odata.type' = '#microsoft.graph.user'
+                        userPrincipalName = 'John.Smith@contoso.com'
                     }
                 }
 
@@ -497,9 +481,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
                 Mock -CommandName Get-MgBetaPolicyRoleManagementPolicyRule -MockWith {
                     return @{
-                        AdditionalProperties = @{
-                            isExpirationRequired = $true
-                        }
+                        isExpirationRequired = $true
                     }
                 }
 
@@ -611,10 +593,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
                 Mock -CommandName Get-MgBetaDirectoryObjectById -MockWith {
                     return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.user'
-                            userPrincipalName = 'John.Smith@contoso.com'
-                        }
+                        '@odata.type' = '#microsoft.graph.user'
+                        userPrincipalName = 'John.Smith@contoso.com'
                     }
                 }
             }

@@ -61,21 +61,19 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Id                   = 'FakeStringValue'
                     DisplayName          = 'FakeStringValue'
                     Description          = 'FakeStringValue'
-                    AdditionalProperties = @{
-                        trackInstallProgressForAutopilotOnly    = $True
-                        '@odata.type'                           = '#microsoft.graph.windows10EnrollmentCompletionPageConfiguration'
-                        disableUserStatusTrackingAfterFirstUser = $True
-                        installQualityUpdates                   = $True
-                        showInstallationProgress                = $True
-                        selectedMobileAppIds                    = @('FakeGuidValue')
-                        blockDeviceSetupRetryByUser             = $True
-                        allowDeviceUseOnInstallFailure          = $True
-                        customErrorMessage                      = 'FakeStringValue'
-                        allowNonBlockingAppInstallation         = $True
-                        allowLogCollectionOnInstallFailure      = $True
-                        allowDeviceResetOnInstallFailure        = $True
-                        installProgressTimeoutInMinutes         = 25
-                    }
+                    trackInstallProgressForAutopilotOnly    = $True
+                    '@odata.type'                           = '#microsoft.graph.windows10EnrollmentCompletionPageConfiguration'
+                    disableUserStatusTrackingAfterFirstUser = $True
+                    installQualityUpdates                   = $True
+                    showInstallationProgress                = $True
+                    selectedMobileAppIds                    = @('FakeGuidValue')
+                    blockDeviceSetupRetryByUser             = $True
+                    allowDeviceUseOnInstallFailure          = $True
+                    customErrorMessage                      = 'FakeStringValue'
+                    allowNonBlockingAppInstallation         = $True
+                    allowLogCollectionOnInstallFailure      = $True
+                    allowDeviceResetOnInstallFailure        = $True
+                    installProgressTimeoutInMinutes         = 25
                 }
             }
 

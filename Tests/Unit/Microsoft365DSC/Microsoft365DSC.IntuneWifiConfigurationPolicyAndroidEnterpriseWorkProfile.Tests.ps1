@@ -49,14 +49,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type'                  = '#microsoft.graph.androidWorkProfileWifiConfiguration'
-                        NetworkName                    = 'FakeStringValue'
-                        WiFiSecurityType               = 'open'
-                        ConnectAutomatically           = $True
-                        ConnectWhenNetworkNameIsHidden = $True
-                        Ssid                           = 'FakeStringValue'
-                    }
+                    '@odata.type'                  = '#microsoft.graph.androidWorkProfileWifiConfiguration'
+                    NetworkName                    = 'FakeStringValue'
+                    WiFiSecurityType               = 'open'
+                    ConnectAutomatically           = $True
+                    ConnectWhenNetworkNameIsHidden = $True
+                    Ssid                           = 'FakeStringValue'
                     Description          = 'FakeStringValue'
                     DisplayName          = 'FakeStringValue'
                     Id                   = 'FakeStringValue'

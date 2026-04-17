@@ -38,9 +38,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaOrganizationCertificateBasedAuthConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = "#microsoft.graph.CertificateBasedAuthConfiguration"
-                    }
+                    '@odata.type' = "#microsoft.graph.CertificateBasedAuthConfiguration"
                     CertificateAuthorities = @(
                         @{
                             IssuerSki = "FakeStringValue"

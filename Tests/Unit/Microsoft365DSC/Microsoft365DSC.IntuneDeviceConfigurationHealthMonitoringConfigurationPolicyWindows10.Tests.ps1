@@ -51,12 +51,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type'                           = '#microsoft.graph.windowsHealthMonitoringConfiguration'
-                        configDeviceHealthMonitoringCustomScope = 'FakeStringValue'
-                        allowDeviceHealthMonitoring             = 'notConfigured'
-                        configDeviceHealthMonitoringScope       = 'undefined'
-                    }
+                    '@odata.type'                           = '#microsoft.graph.windowsHealthMonitoringConfiguration'
+                    configDeviceHealthMonitoringCustomScope = 'FakeStringValue'
+                    allowDeviceHealthMonitoring             = 'notConfigured'
+                    configDeviceHealthMonitoringScope       = 'undefined'
                     Description          = 'FakeStringValue'
                     DisplayName          = 'FakeStringValue'
                     Id                   = 'FakeStringValue'

@@ -140,7 +140,6 @@ function Get-TargetResource
         $formattedAccessReviewSettings = Get-M365DSCDRGComplexTypeToHashtable -ComplexObject $getValue.AccessReviewSettings
         if ($null -ne $formattedAccessReviewSettings -and $formattedAccessReviewSettings.Count -ne 0)
         {
-            $formattedAccessReviewSettings.Remove('additionalProperties') | Out-Null
             if (-not [System.String]::IsNullOrEmpty($formattedAccessReviewSettings.StartDateTime))
             {
                 $formattedAccessReviewSettings.StartDateTime = $getValue.AccessReviewSettings.StartDateTime.ToString("o")

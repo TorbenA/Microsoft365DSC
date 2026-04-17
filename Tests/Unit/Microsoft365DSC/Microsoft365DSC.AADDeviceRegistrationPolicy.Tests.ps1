@@ -46,11 +46,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         LocalAdmins = @{
                             EnableGlobalAdmins = $true
                             RegisteringUsers = @{
-                                AdditionalProperties = @{
-                                    "@odata.type" = "#microsoft.graph.enumeratedDeviceRegistrationMembership"
-                                    users = @('12345-12345-12345-12345-12345')
-                                    groups = @()
-                                }
+                                "@odata.type" = "#microsoft.graph.enumeratedDeviceRegistrationMembership"
+                                users = @('12345-12345-12345-12345-12345')
+                                groups = @()
                             }
                         }
                     }

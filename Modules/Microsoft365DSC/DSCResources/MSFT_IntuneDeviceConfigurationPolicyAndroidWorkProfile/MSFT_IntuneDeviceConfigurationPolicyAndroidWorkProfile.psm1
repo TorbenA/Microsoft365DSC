@@ -12,6 +12,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
+        $Id,
+
+        [Parameter()]
+        [System.String]
         $Description,
 
         [Parameter()]
@@ -279,10 +283,12 @@ function Get-TargetResource
         {
             $policy = $Script:exportedInstance
         }
+        $Id = $policy.Id
 
         Write-Verbose -Message "An Intune Device Configuration Policy Android for Work Profile with {$DisplayName} was found"
         $results = @{
             Description                                               = $policy.Description
+            Id                                                        = $policy.Id
             DisplayName                                               = $policy.DisplayName
             RoleScopeTagIds                                           = $policy.RoleScopeTagIds
             PasswordBlockFaceUnlock                                   = $policy.passwordBlockFaceUnlock
@@ -372,6 +378,10 @@ function Set-TargetResource
         [Parameter(Mandatory = $True)]
         [System.String]
         $DisplayName,
+
+        [Parameter()]
+        [System.String]
+        $Id,
 
         [Parameter()]
         [System.String]
@@ -623,14 +633,10 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating new Device Configuration Policy {$DisplayName}"
-        $boundParameters.Remove('DisplayName') | Out-Null
-        $boundParameters.Remove('Description') | Out-Null
         $boundParameters.Remove('Assignments') | Out-Null
-
-        $AdditionalProperties = Get-M365DSCIntuneDeviceConfigurationPolicyAndroidWorkProfileAdditionalProperties -Properties $boundParameters
-        $policy = New-MgBetaDeviceManagementDeviceConfiguration -DisplayName $DisplayName `
-            -Description $Description `
-            -AdditionalProperties $AdditionalProperties
+        $createParameters = Rename-M365DSCCimInstanceParameter -Properties $boundParameters
+        $createParameters.Add('@odata.type', '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration')
+        $policy = New-MgBetaDeviceManagementDeviceConfiguration -BodyParameter $createParameters
 
         #region Assignments
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
@@ -645,24 +651,16 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentPolicy.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating existing Device Configuration Policy {$DisplayName}"
-        $configDevicePolicy = Get-MgBetaDeviceManagementDeviceConfiguration -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
-            -FilterScript {
-            $_.'@odata.type' -eq '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration'
-        }
-
-        $boundParameters.Remove('DisplayName') | Out-Null
-        $boundParameters.Remove('Description') | Out-Null
         $boundParameters.Remove('Assignments') | Out-Null
-
-        $AdditionalProperties = Get-M365DSCIntuneDeviceConfigurationPolicyAndroidWorkProfileAdditionalProperties -Properties $boundParameters
-        Update-MgBetaDeviceManagementDeviceConfiguration -AdditionalProperties $AdditionalProperties `
-            -Description $Description `
-            -DeviceConfigurationId $configDevicePolicy.Id
+        $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $boundParameters
+        $updateParameters.Add('@odata.type', '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration')
+        Update-MgBetaDeviceManagementDeviceConfiguration -BodyParameter $updateParameters `
+            -DeviceConfigurationId $currentPolicy.Id
 
         #region Assignments
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
         Update-DeviceConfigurationPolicyAssignment `
-            -DeviceConfigurationPolicyId $configDevicePolicy.id `
+            -DeviceConfigurationPolicyId $currentPolicy.Id `
             -Targets $assignmentsHash `
             -Repository 'deviceManagement/deviceConfigurations'
         #endregion
@@ -670,12 +668,7 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Absent' -and $currentPolicy.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Removing Device Configuration Policy {$DisplayName}"
-        $configDevicePolicy = Get-MgBetaDeviceManagementDeviceConfiguration -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
-            -FilterScript {
-            $_.'@odata.type' -eq '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration' `
-        }
-
-        Remove-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $configDevicePolicy.Id
+        Remove-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $currentPolicy.Id
     }
 }
 
@@ -688,6 +681,10 @@ function Test-TargetResource
         [Parameter(Mandatory = $True)]
         [System.String]
         $DisplayName,
+
+        [Parameter()]
+        [System.String]
+        $Id,
 
         [Parameter()]
         [System.String]
@@ -1040,7 +1037,6 @@ function Export-TargetResource
                 }
             }
 
-
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
                 -ModulePath $PSScriptRoot `
@@ -1074,30 +1070,6 @@ function Export-TargetResource
             throw
         }
     }
-}
-
-function Get-M365DSCIntuneDeviceConfigurationPolicyAndroidWorkProfileAdditionalProperties
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param
-    (
-        [Parameter(Mandatory = 'true')]
-        [System.Collections.Hashtable]
-        $Properties
-    )
-
-    $results = @{'@odata.type' = '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration' }
-    foreach ($property in $properties.Keys)
-    {
-        if ($property -ne 'Verbose')
-        {
-            $propertyName = $property[0].ToString().ToLower() + $property.Substring(1, $property.Length - 1)
-            $propertyValue = $properties.$property
-            $results.Add($propertyName, $propertyValue)
-        }
-    }
-    return $results
 }
 
 Export-ModuleMember -Function *-TargetResource

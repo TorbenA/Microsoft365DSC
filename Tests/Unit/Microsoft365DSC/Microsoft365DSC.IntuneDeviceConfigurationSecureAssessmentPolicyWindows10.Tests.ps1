@@ -43,17 +43,15 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        configurationAccountType = "azureADAccount"
-                        '@odata.type' = "#microsoft.graph.windows10SecureAssessmentConfiguration"
-                        allowTextSuggestion = $True
-                        launchUri = "FakeStringValue"
-                        assessmentAppUserModelId = "FakeStringValue"
-                        allowScreenCapture = $True
-                        localGuestAccountName = "FakeStringValue"
-                        configurationAccount = "FakeStringValue"
-                        allowPrinting = $True
-                    }
+                    configurationAccountType = "azureADAccount"
+                    '@odata.type' = "#microsoft.graph.windows10SecureAssessmentConfiguration"
+                    allowTextSuggestion = $True
+                    launchUri = "FakeStringValue"
+                    assessmentAppUserModelId = "FakeStringValue"
+                    allowScreenCapture = $True
+                    localGuestAccountName = "FakeStringValue"
+                    configurationAccount = "FakeStringValue"
+                    allowPrinting = $True
                     Description = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"

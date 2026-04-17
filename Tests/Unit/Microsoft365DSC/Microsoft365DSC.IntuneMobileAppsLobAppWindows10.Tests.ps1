@@ -56,19 +56,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Invoke-MgGraphRequest -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = "#microsoft.graph.windowsUniversalAppX"
-                        applicableArchitectures = "x86"
-                        applicableDeviceTypes = "desktop"
-                        committedContentVersion = 1
-                        fileName = "FakeStringValue.appx"
-                        identityName = "FakeStringValue"
-                        identityPublisherHash = "FakeStringValue"
-                        identityVersion = "FakeStringValue"
-                        isBundle = $false
-                        minimumSupportedOperatingSystem = @{
-                            v10_0 = $true
-                        }
+                    '@odata.type' = "#microsoft.graph.windowsUniversalAppX"
+                    applicableArchitectures = "x86"
+                    applicableDeviceTypes = "desktop"
+                    committedContentVersion = 1
+                    fileName = "FakeStringValue.appx"
+                    identityName = "FakeStringValue"
+                    identityPublisherHash = "FakeStringValue"
+                    identityVersion = "FakeStringValue"
+                    isBundle = $false
+                    minimumSupportedOperatingSystem = @{
+                        v10_0 = $true
                     }
                     Categories = @(
                         @{
@@ -101,19 +99,17 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceAppManagementMobileApp -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = "#microsoft.graph.windowsUniversalAppX"
-                        applicableArchitectures = "x86"
-                        applicableDeviceTypes = "desktop"
-                        committedContentVersion = 1
-                        fileName = "FakeStringValue.appx"
-                        identityName = "FakeStringValue"
-                        identityPublisherHash = "FakeStringValue"
-                        identityVersion = "FakeStringValue"
-                        isBundle = $false
-                        minimumSupportedOperatingSystem = @{
-                            v10_0 = $true
-                        }
+                    '@odata.type' = "#microsoft.graph.windowsUniversalAppX"
+                    applicableArchitectures = "x86"
+                    applicableDeviceTypes = "desktop"
+                    committedContentVersion = 1
+                    fileName = "FakeStringValue.appx"
+                    identityName = "FakeStringValue"
+                    identityPublisherHash = "FakeStringValue"
+                    identityVersion = "FakeStringValue"
+                    isBundle = $false
+                    minimumSupportedOperatingSystem = @{
+                        v10_0 = $true
                     }
                     Categories = @(
                         @{
@@ -162,18 +158,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Source = "direct"
                         SourceId = "12345-12345-12345-12345-12345"
                         Target = @{
-                            AdditionalProperties = @{
-                                "@odata.type" = "#microsoft.graph.groupAssignmentTarget"
-                                groupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
-                            }
+                            "@odata.type" = "#microsoft.graph.groupAssignmentTarget"
+                            groupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
                             "deviceAndAppManagementAssignmentFilterId" = '12345-12345-12345-12345-12345'
                             "deviceAndAppManagementAssignmentFilterType" = "none"
                         }
                         Settings = @{
-                            AdditionalProperties = @{
-                                "@odata.type" = "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"
-                                useDeviceContext = $false
-                            }
+                            "@odata.type" = "#microsoft.graph.windowsUniversalAppXAppAssignmentSettings"
+                            useDeviceContext = $false
                         }
                     }
                 )

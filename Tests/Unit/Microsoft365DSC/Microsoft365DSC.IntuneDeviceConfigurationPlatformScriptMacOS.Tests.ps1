@@ -51,9 +51,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementDeviceShellScript -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = "#microsoft.graph.DeviceShellScript"
-                    }
+                    '@odata.type' = "#microsoft.graph.DeviceShellScript"
                     BlockExecutionNotifications = $True
                     Description = "FakeStringValue"
                     DisplayName = "FakeStringValue"

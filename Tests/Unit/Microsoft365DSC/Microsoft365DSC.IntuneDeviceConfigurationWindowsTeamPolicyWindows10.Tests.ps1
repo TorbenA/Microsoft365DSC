@@ -47,29 +47,27 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        settingsDefaultVolume = 25
-                        welcomeScreenMeetingInformation = "userDefined"
-                        settingsScreenTimeoutInMinutes = 25
-                        settingsBlockMyMeetingsAndFiles = $True
-                        '@odata.type' = "#microsoft.graph.windows10TeamGeneralConfiguration"
-                        maintenanceWindowDurationInHours = 25
-                        azureOperationalInsightsBlockTelemetry = $True
-                        miracastChannel = "userDefined"
-                        welcomeScreenBackgroundImageUrl = "FakeStringValue"
-                        settingsBlockSessionResume = $True
-                        settingsSessionTimeoutInMinutes = 25
-                        azureOperationalInsightsWorkspaceKey = "FakeStringValue"
-                        welcomeScreenBlockAutomaticWakeUp = $True
-                        miracastRequirePin = $True
-                        maintenanceWindowStartTime = "00:00:00"
-                        settingsBlockSigninSuggestions = $True
-                        maintenanceWindowBlocked = $True
-                        miracastBlocked = $True
-                        settingsSleepTimeoutInMinutes = 25
-                        azureOperationalInsightsWorkspaceId = "FakeStringValue"
-                        connectAppBlockAutoLaunch = $True
-                    }
+                    settingsDefaultVolume = 25
+                    welcomeScreenMeetingInformation = "userDefined"
+                    settingsScreenTimeoutInMinutes = 25
+                    settingsBlockMyMeetingsAndFiles = $True
+                    '@odata.type' = "#microsoft.graph.windows10TeamGeneralConfiguration"
+                    maintenanceWindowDurationInHours = 25
+                    azureOperationalInsightsBlockTelemetry = $True
+                    miracastChannel = "userDefined"
+                    welcomeScreenBackgroundImageUrl = "FakeStringValue"
+                    settingsBlockSessionResume = $True
+                    settingsSessionTimeoutInMinutes = 25
+                    azureOperationalInsightsWorkspaceKey = "FakeStringValue"
+                    welcomeScreenBlockAutomaticWakeUp = $True
+                    miracastRequirePin = $True
+                    maintenanceWindowStartTime = "00:00:00"
+                    settingsBlockSigninSuggestions = $True
+                    maintenanceWindowBlocked = $True
+                    miracastBlocked = $True
+                    settingsSleepTimeoutInMinutes = 25
+                    azureOperationalInsightsWorkspaceId = "FakeStringValue"
+                    connectAppBlockAutoLaunch = $True
                     Description = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"

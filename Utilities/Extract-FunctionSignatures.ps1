@@ -47,6 +47,14 @@ foreach ($fn in $allFunctionsList) {
         {
             $pType = 'System.Object[]'
         }
+        if ($pType -like 'Microsoft.Graph.Beta.PowerShell.Support.*`[`]' -or $pType -like 'Microsoft.Graph.PowerShell.Support.*`[`]')
+        {
+            $pType = 'System.Object[]'
+        }
+        if ($pType -like 'Microsoft.Graph.Beta.PowerShell.Support.*' -or $pType -like 'Microsoft.Graph.PowerShell.Support.*')
+        {
+            $pType = 'System.Object'
+        }
         if ($pType -like 'Microsoft.Graph.PowerShell.Models.*' -or $pType -like 'Microsoft.Graph.Beta.PowerShell.Models.*')
         {
             $pType = 'System.Object'

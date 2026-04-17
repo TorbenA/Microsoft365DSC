@@ -57,9 +57,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgbetaDeviceAppManagementPolicySet -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = "#microsoft.graph.PolicySet"
-                    }
+                    '@odata.type' = "#microsoft.graph.PolicySet"
                     CreatedDateTime = "2023-01-01T00:00:00.0000000+00:00"
                     Description = "FakeStringValue"
                     DisplayName = "FakeStringValue"
@@ -71,30 +69,23 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Status = "unknown"
                     Assignments = @(
                         [pscustomobject]@{
-                                        Target = [pscustomobject]@{
-                                                    AdditionalProperties = [pscustomobject]@{
-                                                                            '@odata.type' = '#microsoft.graph.GroupAssignmentTarget'
-                                                                            groupId = '12345678-1234-1234-1234-1234567890ab'
-                                                                            }
-                                                    DeviceAndAppManagementAssignmentFilterType = 'none'
-                                                    DeviceAndAppManagementAssignmentFilterId = $null
-
-                                                }
-                                        }
-                                    )
+                            Target = [pscustomobject]@{
+                                '@odata.type' = '#microsoft.graph.GroupAssignmentTarget'
+                                groupId = '12345678-1234-1234-1234-1234567890ab'
+                                DeviceAndAppManagementAssignmentFilterType = 'none'
+                                DeviceAndAppManagementAssignmentFilterId = $null
+                            }
+                        }
+                    )
                     Items = @(
                         [pscustomobject]@{
-
-                                        AdditionalProperties = [pscustomobject]@{
-                                                                '@odata.type' = '#microsoft.graph.managedAppProtectionPolicySetItem'
-                                                                }
-                                        payloadId = 'T_12345678-1234-1234-1234-1234567890ab'
-                                        itemType = '#microsoft.graph.androidManagedAppProtection'
-                                        displayName = 'FakeStringValue'
-                                        guidedDeploymentTags = @('FakeStringValue')
-
-                                        }
-                                    )
+                            '@odata.type' = '#microsoft.graph.managedAppProtectionPolicySetItem'
+                            payloadId = 'T_12345678-1234-1234-1234-1234567890ab'
+                            itemType = '#microsoft.graph.androidManagedAppProtection'
+                            displayName = 'FakeStringValue'
+                            guidedDeploymentTags = @('FakeStringValue')
+                        }
+                    )
                 }
             }
 

@@ -49,16 +49,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type'                  = '#microsoft.graph.aospDeviceOwnerWifiConfiguration'
-                        NetworkName                    = 'FakeStringValue'
-                        WiFiSecurityType               = 'open'
-                        ConnectAutomatically           = $True
-                        PreSharedKey                   = 'FakeStringValue'
-                        ConnectWhenNetworkNameIsHidden = $True
-                        Ssid                           = 'FakeStringValue'
-                        PreSharedKeyIsSet              = $True
-                    }
+                    '@odata.type'                  = '#microsoft.graph.aospDeviceOwnerWifiConfiguration'
+                    NetworkName                    = 'FakeStringValue'
+                    WiFiSecurityType               = 'open'
+                    ConnectAutomatically           = $True
+                    PreSharedKey                   = 'FakeStringValue'
+                    ConnectWhenNetworkNameIsHidden = $True
+                    Ssid                           = 'FakeStringValue'
+                    PreSharedKeyIsSet              = $True
                     Description          = 'FakeStringValue'
                     DisplayName          = 'FakeStringValue'
                     Id                   = 'FakeStringValue'

@@ -34,20 +34,18 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        IncludeTargets        = @(
-                            @{
-                                TargetType = 'group'
-                                Id         = 'Fakegroup'
-                            }
-                        )
-                        minimumLifetimeInMinutes = 25
-                        defaultLifetimeInMinutes = 25
-                        isUsableOnce = $True
-                        '@odata.type' = "#microsoft.graph.temporaryAccessPassAuthenticationMethodConfiguration"
-                        maximumLifetimeInMinutes = 25
-                        defaultLength = 25
-                    }
+                    IncludeTargets        = @(
+                        @{
+                            TargetType = 'group'
+                            Id         = 'Fakegroup'
+                        }
+                    )
+                    minimumLifetimeInMinutes = 25
+                    defaultLifetimeInMinutes = 25
+                    isUsableOnce = $True
+                    '@odata.type' = "#microsoft.graph.temporaryAccessPassAuthenticationMethodConfiguration"
+                    maximumLifetimeInMinutes = 25
+                    defaultLength = 25
                     ExcludeTargets = @(
                         @{
                             TargetType = "group"

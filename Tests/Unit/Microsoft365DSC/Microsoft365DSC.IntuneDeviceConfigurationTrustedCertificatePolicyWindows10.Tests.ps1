@@ -43,11 +43,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        destinationStore = "computerCertStoreRoot"
-                        certFileName = "FakeStringValue"
-                        '@odata.type' = "#microsoft.graph.windows81TrustedRootCertificate"
-                    }
+                    destinationStore = "computerCertStoreRoot"
+                    certFileName = "FakeStringValue"
+                    '@odata.type' = "#microsoft.graph.windows81TrustedRootCertificate"
                     Description = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"

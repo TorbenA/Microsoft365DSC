@@ -51,12 +51,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"
                     Scope = @{
-                        AdditionalProperties = @{
-                            QueryType = "FakeStringValue"
-                            QueryRoot = "FakeStringValue"
-                            '@odata.type' = "#microsoft.graph.accessReviewQueryScope"
-                            Query = "FakeStringValue"
-                        }
+                        QueryType = "FakeStringValue"
+                        QueryRoot = "FakeStringValue"
+                        '@odata.type' = "#microsoft.graph.accessReviewQueryScope"
+                        Query = "FakeStringValue"
                     }
                 }
             }

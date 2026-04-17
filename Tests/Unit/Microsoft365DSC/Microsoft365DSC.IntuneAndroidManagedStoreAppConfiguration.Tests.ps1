@@ -120,21 +120,19 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Description                      = 'Different Value'
                         Id                               = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
                         targetedMobileApps               = "{FakeStringValue}"
-                        AdditionalProperties             = @{
-                            permissionActions = @(
-                               @{
-                                    permission      = "android.permission.READ_SMS"
-                                    action          = "prompt"
+                        permissionActions = @(
+                           @{
+                                permission      = "android.permission.READ_SMS"
+                                action          = "prompt"
 
-                                }
-                            )
-                            appSupportsOemConfig      = $False
-                            connectedAppsEnabled      = $False
-                            packageId                 = "app:org.mozilla.firefox"
-                            payloadJson               = ""
-                            profileApplicability      = "androidDeviceOwner"
-                            '@odata.type'             = '#microsoft.graph.androidManagedStoreAppConfiguration'
-                        }
+                            }
+                        )
+                        appSupportsOemConfig      = $False
+                        connectedAppsEnabled      = $False
+                        packageId                 = "app:org.mozilla.firefox"
+                        payloadJson               = ""
+                        profileApplicability      = "androidDeviceOwner"
+                        '@odata.type'             = '#microsoft.graph.androidManagedStoreAppConfiguration'
                     }
                 }
             }
@@ -181,20 +179,18 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Description                             = 'Test Android Managed Store App Configuration Policy Description'
                         Id                                      = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
                         targetedMobileApps                      = "{FakeStringValue}"
-                        AdditionalProperties             = @{
-                            permissionActions = @(
-                               @{
-                                    permission      = "android.permission.READ_SMS"
-                                    action          = "prompt"
-                                }
-                            )
-                            appSupportsOemConfig      = $False
-                            connectedAppsEnabled      = $False
-                            packageId                 = "app:org.mozilla.firefox"
-                            payloadJson               = ""
-                            profileApplicability      = "androidDeviceOwner"
-                            '@odata.type'             = '#microsoft.graph.androidManagedStoreAppConfiguration'
-                        }
+                        permissionActions = @(
+                           @{
+                                permission      = "android.permission.READ_SMS"
+                                action          = "prompt"
+                            }
+                        )
+                        appSupportsOemConfig      = $False
+                        connectedAppsEnabled      = $False
+                        packageId                 = "app:org.mozilla.firefox"
+                        payloadJson               = ""
+                        profileApplicability      = "androidDeviceOwner"
+                        '@odata.type'             = '#microsoft.graph.androidManagedStoreAppConfiguration'
                     }
                 }
             }
@@ -230,21 +226,19 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         DisplayName          = 'Test Android Managed Store App Configuration Policy'
                         Description          = 'Test Android Managed Store App Configuration Policy Description'
                         Id                   = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
-                        AdditionalProperties             = @{
-                            permissionActions = @(
-                               @{
-                                    permission      = "android.permission.READ_SMS"
-                                    action          = "prompt"
+                        permissionActions = @(
+                           @{
+                                permission      = "android.permission.READ_SMS"
+                                action          = "prompt"
 
-                                }
-                            )
-                            appSupportsOemConfig      = $False
-                            connectedAppsEnabled      = $False
-                            packageId                 = "app:org.mozilla.firefox"
-                            payloadJson               = ""
-                            profileApplicability      = "androidDeviceOwner"
-                            '@odata.type'             = '#microsoft.graph.androidManagedStoreAppConfiguration'
-                        }
+                            }
+                        )
+                        appSupportsOemConfig      = $False
+                        connectedAppsEnabled      = $False
+                        packageId                 = "app:org.mozilla.firefox"
+                        payloadJson               = ""
+                        profileApplicability      = "androidDeviceOwner"
+                        '@odata.type'             = '#microsoft.graph.androidManagedStoreAppConfiguration'
                     }
                 }
             }
@@ -277,21 +271,19 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         Description                   = 'Test Android Managed Store App Configuration Policy Description'
                         Id                            = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
                         targetedMobileApps            = "{FakeStringValue}"
-                        AdditionalProperties          = @{
-                            permissionActions = @(
-                               @{
-                                    permission        = "android.permission.READ_SMS"
-                                    action            = "prompt"
+                        permissionActions = @(
+                           @{
+                                permission        = "android.permission.READ_SMS"
+                                action            = "prompt"
 
-                                }
-                            )
-                            appSupportsOemConfig      = $False
-                            connectedAppsEnabled      = $False
-                            packageId                 = "app:org.mozilla.firefox"
-                            payloadJson               = ""
-                            profileApplicability      = "androidDeviceOwner"
-                            '@odata.type'             = '#microsoft.graph.androidManagedStoreAppConfiguration'
-                        }
+                            }
+                        )
+                        appSupportsOemConfig      = $False
+                        connectedAppsEnabled      = $False
+                        packageId                 = "app:org.mozilla.firefox"
+                        payloadJson               = ""
+                        profileApplicability      = "androidDeviceOwner"
+                        '@odata.type'             = '#microsoft.graph.androidManagedStoreAppConfiguration'
                     }
                 }
             }

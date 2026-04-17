@@ -64,11 +64,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Publisher             = "Contoso"
                     RoleScopeTagIds       = @()
                     IgnoreVersionDetection = $True
-                    AdditionalProperties   = @{
-                        '@odata.type' = '#microsoft.graph.macOSLobApp'
-                        minimumSupportedOperatingSystem = @{
-                            v11_0 = $true
-                        }
+                    '@odata.type' = '#microsoft.graph.macOSLobApp'
+                    minimumSupportedOperatingSystem = @{
+                        v11_0 = $true
                     }
                 }
             }
@@ -92,11 +90,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Publisher             = "Contoso"
                     RoleScopeTagIds       = @()
                     IgnoreVersionDetection = $True
-                    AdditionalProperties   = @{
-                        '@odata.type' = '#microsoft.graph.macOSLobApp'
-                        minimumSupportedOperatingSystem = @{
-                            v11_0 = $true
-                        }
+                    '@odata.type' = '#microsoft.graph.macOSLobApp'
+                    minimumSupportedOperatingSystem = @{
+                        v11_0 = $true
                     }
                     Ensure                = 'Present'
                 }

@@ -50,9 +50,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Invoke-MgGraphRequest -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = "#microsoft.graph.managedAndroidStoreApp"
-                    }
+                    '@odata.type' = "#microsoft.graph.managedAndroidStoreApp"
                     DependentAppCount = 25
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
@@ -81,11 +79,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceAppManagementMobileApp -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = "#microsoft.graph.managedAndroidStoreApp"
-                        packageId = "FakeStringValue"
-                        appStoreUrl = "FakeStringValue"
-                    }
+                    '@odata.type' = "#microsoft.graph.managedAndroidStoreApp"
+                    packageId = "FakeStringValue"
+                    appStoreUrl = "FakeStringValue"
                     Categories = @(
                         @{
                             Id = "FakeStringValue"

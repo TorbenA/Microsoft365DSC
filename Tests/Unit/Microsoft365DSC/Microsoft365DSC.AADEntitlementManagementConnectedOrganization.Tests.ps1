@@ -106,27 +106,21 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Get-MgBetaDirectoryObject -ParameterFilter { $DirectoryObjectId -eq '12345678-1234-1234-1234-234567890123' } -MockWith {
                 return @{
                     Id                   = '12345678-1234-1234-1234-234567890123'
-                    AdditionalProperties = @{
-                        '@odata.type' = '#microsoft.graph.user'
-                    }
+                    '@odata.type' = '#microsoft.graph.user'
                 }
             }
 
             Mock -CommandName Get-MgBetaDirectoryObject -ParameterFilter { $DirectoryObjectId -eq '12345678-1234-1234-1234-123456789012' } -MockWith {
                 return @{
                     Id                   = '12345678-1234-1234-1234-123456789012'
-                    AdditionalProperties = @{
-                        '@odata.type' = '#microsoft.graph.user'
-                    }
+                    '@odata.type' = '#microsoft.graph.user'
                 }
             }
 
             Mock -CommandName Get-MgBetaDirectoryObject -ParameterFilter { $DirectoryObjectId -eq '12345678-1234-1234-1234-12345678903' } -MockWith {
                 return @{
                     Id                   = '12345678-1234-1234-1234-12345678903'
-                    AdditionalProperties = @{
-                        '@odata.type' = '#microsoft.graph.user'
-                    }
+                    '@odata.type' = '#microsoft.graph.user'
                 }
             }
 
@@ -137,11 +131,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Id              = 'ConnectedOrganization_Id'
                     IdentitySources = @(
                         @{
-                            AdditionalProperties = @{
-                                '@odata.type' = '#microsoft.graph.azureActiveDirectoryTenant'
-                                tenantId      = 'IdentitySource_TenantId'
-                                displayName   = 'IdentitySource_DisplayName'
-                            }
+                            '@odata.type' = '#microsoft.graph.azureActiveDirectoryTenant'
+                            tenantId      = 'IdentitySource_TenantId'
+                            displayName   = 'IdentitySource_DisplayName'
                         }
                     )
                     State           = 'configured'

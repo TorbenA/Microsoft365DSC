@@ -270,14 +270,7 @@ function Set-TargetResource
         $BoundParameters.Remove('Assignments') | Out-Null
         $BoundParameters.Add('@odata.type', '#microsoft.graph.deviceEnrollmentLimitConfiguration')
 
-        $policy = New-MgBetaDeviceManagementDeviceEnrollmentConfiguration `
-            -DisplayName $DisplayName `
-            -Description $Description `
-            -RoleScopeTagIds $RoleScopeTagIds `
-            -AdditionalProperties @{
-                '@odata.type' = '#microsoft.graph.deviceEnrollmentLimitConfiguration'
-                limit         = $Limit
-            }
+        $policy = New-MgBetaDeviceManagementDeviceEnrollmentConfiguration -BodyParameter $BoundParameters
 
         # Assignments from DefaultPolicy are not editable and will raise an alert
         if ($policy.Id -notlike '*_DefaultLimit')
@@ -305,15 +298,9 @@ function Set-TargetResource
 
         $BoundParameters.Remove('Assignments') | Out-Null
         $BoundParameters.Add('@odata.type', '#microsoft.graph.deviceEnrollmentLimitConfiguration')
-
         Update-MgBetaDeviceManagementDeviceEnrollmentConfiguration `
             -DeviceEnrollmentConfigurationId $currentInstance.Id `
-            -Description $Description `
-            -RoleScopeTagIds $RoleScopeTagIds `
-            -AdditionalProperties @{
-                '@odata.type' = '#microsoft.graph.deviceEnrollmentLimitConfiguration'
-                limit         = $Limit
-            }
+            -BodyParameter $BoundParameters
 
         # Assignments from DefaultPolicy are not editable and will raise an alert
         if ($currentInstance.Id -notlike '*_DefaultLimit')

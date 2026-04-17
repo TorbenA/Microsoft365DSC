@@ -50,11 +50,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName New-MgBetaDeviceAppManagementMobileApp -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        appUrl = "FakeStringValue"
-                        useManagedBrowser = $True
-                        '@odata.type' = "#microsoft.graph.webApp"
-                    }
+                    appUrl = "FakeStringValue"
+                    useManagedBrowser = $True
+                    '@odata.type' = "#microsoft.graph.webApp"
                     DependentAppCount = 25
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
@@ -83,11 +81,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceAppManagementMobileApp -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        appUrl = "FakeStringValue"
-                        useManagedBrowser = $True
-                        '@odata.type' = "#microsoft.graph.webApp"
-                    }
+                    appUrl = "FakeStringValue"
+                    useManagedBrowser = $True
+                    '@odata.type' = "#microsoft.graph.webApp"
                     Categories = @(
                         @{
                             Id = "FakeStringValue"

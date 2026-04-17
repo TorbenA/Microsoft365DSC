@@ -46,10 +46,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
              Mock -CommandName Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = '#microsoft.graph.deviceEnrollmentLimitConfiguration'
-                        Limit         = 15
-                    }
+                    '@odata.type' = '#microsoft.graph.deviceEnrollmentLimitConfiguration'
+                    Limit         = 15
                     Id                   = '12345-12345-12345-12345-12345_Limit'
                     Priority             = 1
                     DisplayName          = 'My DSC Restriction'
@@ -84,10 +82,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
                 Mock -CommandName New-MgBetaDeviceManagementDeviceEnrollmentConfiguration -MockWith {
                     return @{
-                        AdditionalProperties = @{
-                            '@odata.type' = '#microsoft.graph.deviceEnrollmentLimitConfiguration'
-                            Limit         = 15
-                        }
+                        '@odata.type' = '#microsoft.graph.deviceEnrollmentLimitConfiguration'
+                        Limit         = 15
                         Id                   = '12345-12345-12345-12345-12345_Limit'
                         Priority             = 1
                         DisplayName          = 'My DSC Restriction';

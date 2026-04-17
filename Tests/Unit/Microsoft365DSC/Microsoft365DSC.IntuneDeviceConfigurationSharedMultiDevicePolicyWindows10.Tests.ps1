@@ -41,32 +41,30 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             }
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        kioskAppDisplayName = "FakeStringValue"
-                        fastFirstSignIn = "notConfigured"
-                        disableEduPolicies = $True
-                        disableAccountManager = $True
-                        accountManagerPolicy = @{
-                            inactiveThresholdDays = 25
-                            cacheAccountsAboveDiskFreePercentage = 25
-                            accountDeletionPolicy = "immediate"
-                            removeAccountsBelowDiskFreePercentage = 25
-                        }
-                        signInOnResume = "notConfigured"
-                        setAccountManager = "notConfigured"
-                        disableSignInOnResume = $True
-                        localStorage = "notConfigured"
-                        setEduPolicies = "notConfigured"
-                        maintenanceStartTime = "00:00:00"
-                        allowedAccounts = "notConfigured"
-                        setPowerPolicies = "notConfigured"
-                        '@odata.type' = "#microsoft.graph.sharedPCConfiguration"
-                        allowLocalStorage = $True
-                        kioskAppUserModelId = "FakeStringValue"
-                        idleTimeBeforeSleepInSeconds = 25
-                        disablePowerPolicies = $True
-                        enabled = $True
+                    kioskAppDisplayName = "FakeStringValue"
+                    fastFirstSignIn = "notConfigured"
+                    disableEduPolicies = $True
+                    disableAccountManager = $True
+                    accountManagerPolicy = @{
+                        inactiveThresholdDays = 25
+                        cacheAccountsAboveDiskFreePercentage = 25
+                        accountDeletionPolicy = "immediate"
+                        removeAccountsBelowDiskFreePercentage = 25
                     }
+                    signInOnResume = "notConfigured"
+                    setAccountManager = "notConfigured"
+                    disableSignInOnResume = $True
+                    localStorage = "notConfigured"
+                    setEduPolicies = "notConfigured"
+                    maintenanceStartTime = "00:00:00"
+                    allowedAccounts = "notConfigured"
+                    setPowerPolicies = "notConfigured"
+                    '@odata.type' = "#microsoft.graph.sharedPCConfiguration"
+                    allowLocalStorage = $True
+                    kioskAppUserModelId = "FakeStringValue"
+                    idleTimeBeforeSleepInSeconds = 25
+                    disablePowerPolicies = $True
+                    enabled = $True
                     description = "FakeStringValue"
                     displayName = "FakeStringValue"
                     id = "FakeStringValue"

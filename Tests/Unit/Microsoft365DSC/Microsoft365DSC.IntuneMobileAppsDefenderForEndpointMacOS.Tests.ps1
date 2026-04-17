@@ -50,9 +50,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Invoke-MgGraphRequest -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = "#microsoft.graph.macOSMicrosoftDefenderApp"
-                    }
+                    '@odata.type' = "#microsoft.graph.macOSMicrosoftDefenderApp"
                     DependentAppCount = 25
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
@@ -81,9 +79,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceAppManagementMobileApp -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = "#microsoft.graph.macOSMicrosoftDefenderApp"
-                    }
+                    '@odata.type' = "#microsoft.graph.macOSMicrosoftDefenderApp"
                     Categories = @(
                         @{
                             Id = "FakeStringValue"

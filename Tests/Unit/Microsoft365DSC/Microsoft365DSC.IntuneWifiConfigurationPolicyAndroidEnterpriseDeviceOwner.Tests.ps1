@@ -49,21 +49,19 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        NetworkName                    = 'FakeStringValue'
-                        '@odata.type'                  = '#microsoft.graph.androidDeviceOwnerEnterpriseWiFiConfiguration'
-                        PreSharedKey                   = 'FakeStringValue'
-                        WiFiSecurityType               = 'open'
-                        ConnectAutomatically           = $True
-                        Ssid                           = 'FakeStringValue'
-                        ProxyManualAddress             = 'FakeStringValue'
-                        ProxySettings                  = 'none'
-                        ConnectWhenNetworkNameIsHidden = $True
-                        ProxyAutomaticConfigurationUrl = 'FakeStringValue'
-                        PreSharedKeyIsSet              = $True
-                        ProxyExclusionList             = 'FakeStringValue'
-                        ProxyManualPort                = 25
-                    }
+                    NetworkName                    = 'FakeStringValue'
+                    '@odata.type'                  = '#microsoft.graph.androidDeviceOwnerEnterpriseWiFiConfiguration'
+                    PreSharedKey                   = 'FakeStringValue'
+                    WiFiSecurityType               = 'open'
+                    ConnectAutomatically           = $True
+                    Ssid                           = 'FakeStringValue'
+                    ProxyManualAddress             = 'FakeStringValue'
+                    ProxySettings                  = 'none'
+                    ConnectWhenNetworkNameIsHidden = $True
+                    ProxyAutomaticConfigurationUrl = 'FakeStringValue'
+                    PreSharedKeyIsSet              = $True
+                    ProxyExclusionList             = 'FakeStringValue'
+                    ProxyManualPort                = 25
                     Description          = 'FakeStringValue'
                     DisplayName          = 'FakeStringValue'
                     Id                   = 'FakeStringValue'

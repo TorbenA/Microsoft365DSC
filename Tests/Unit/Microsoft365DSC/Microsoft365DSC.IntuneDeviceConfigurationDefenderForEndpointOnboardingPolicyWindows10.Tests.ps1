@@ -38,16 +38,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             Mock -CommandName Get-MgBetaDeviceManagementDeviceConfiguration -MockWith {
                 return @{
-                    AdditionalProperties = @{
-                        '@odata.type' = "#microsoft.graph.windowsDefenderAdvancedThreatProtectionConfiguration"
-                        advancedThreatProtectionOffboardingBlob = "FakeStringValue"
-                        allowSampleSharing = $True
-                        advancedThreatProtectionOffboardingFilename = "FakeStringValue"
-                        enableExpeditedTelemetryReporting = $True
-                        advancedThreatProtectionAutoPopulateOnboardingBlob = $True
-                        advancedThreatProtectionOnboardingBlob = "FakeStringValue"
-                        advancedThreatProtectionOnboardingFilename = "FakeStringValue"
-                    }
+                    '@odata.type' = "#microsoft.graph.windowsDefenderAdvancedThreatProtectionConfiguration"
+                    advancedThreatProtectionOffboardingBlob = "FakeStringValue"
+                    allowSampleSharing = $True
+                    advancedThreatProtectionOffboardingFilename = "FakeStringValue"
+                    enableExpeditedTelemetryReporting = $True
+                    advancedThreatProtectionAutoPopulateOnboardingBlob = $True
+                    advancedThreatProtectionOnboardingBlob = "FakeStringValue"
+                    advancedThreatProtectionOnboardingFilename = "FakeStringValue"
                     Description = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     Id = "FakeStringValue"

@@ -72,11 +72,11 @@ function Invoke-M365DSCGraphShimRequest
         try
         {
             $returnValue = Invoke-MgGraphRequest @invokeParams
-            if ($returnValue.ContainsKey('value') -and -not $PassThru)
+            if ($null -ne $returnValue -and $returnValue.ContainsKey('value') -and -not $PassThru)
             {
                 $returnValue = $returnValue.value
             }
-            elseif ($returnValue.ContainsKey('error'))
+            elseif ($null -ne $returnValue -and $returnValue.ContainsKey('error'))
             {
                 $returnValue = $null
             }
@@ -25608,15 +25608,15 @@ function New-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $AllowedAndroidDeviceModels,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataIngestionLocation[]]
+        [System.Object[]]
         $AllowedDataIngestionLocations,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataStorageLocation[]]
+        [System.Object[]]
         $AllowedDataStorageLocations,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel]
+        [System.Object]
         $AllowedInboundDataTransferSources,
 
         [Parameter()]
@@ -25624,67 +25624,67 @@ function New-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $AllowedOutboundClipboardSharingExceptionLength,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppClipboardSharingLevel]
+        [System.Object]
         $AllowedOutboundClipboardSharingLevel,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel]
+        [System.Object]
         $AllowedOutboundDataTransferDestinations,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfAccountIsClockedOut,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfAndroidDeviceManufacturerNotAllowed,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfAndroidDeviceModelNotAllowed,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfAndroidSafetyNetAppsVerificationFailed,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfAndroidSafetyNetDeviceAttestationFailed,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfDeviceComplianceRequired,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfDeviceLockNotSet,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfDevicePasscodeComplexityLessThanHigh,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfDevicePasscodeComplexityLessThanLow,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfDevicePasscodeComplexityLessThanMedium,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfMaximumPinRetriesExceeded,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfSamsungKnoxAttestationRequired,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfUnableToAuthenticateUser,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.TargetedManagedAppGroupType]
+        [System.Object]
         $AppGroupType,
 
         [Parameter()]
@@ -25764,7 +25764,7 @@ function New-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $DeviceLockRequired,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPhoneNumberRedirectLevel]
+        [System.Object]
         $DialerRestrictionLevel,
 
         [Parameter()]
@@ -25816,7 +25816,7 @@ function New-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $LastModifiedDateTime,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedBrowserType]
+        [System.Object]
         $ManagedBrowser,
 
         [Parameter()]
@@ -25824,7 +25824,7 @@ function New-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $ManagedBrowserToOpenLinksRequired,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDeviceThreatLevel]
+        [System.Object]
         $MaximumAllowedDeviceThreatLevel,
 
         [Parameter()]
@@ -25904,15 +25904,15 @@ function New-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $MinimumWipePatchVersion,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.MobileThreatDefensePartnerPriority]
+        [System.Object]
         $MobileThreatDefensePartnerPriority,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $MobileThreatDefenseRemediationAction,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppNotificationRestriction]
+        [System.Object]
         $NotificationRestriction,
 
         [Parameter()]
@@ -25936,7 +25936,7 @@ function New-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $PeriodOnlineBeforeAccessCheck,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPinCharacterSet]
+        [System.Object]
         $PinCharacterSet,
 
         [Parameter()]
@@ -25956,7 +25956,7 @@ function New-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $PrintBlocked,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.MessagingRedirectAppType]
+        [System.Object]
         $ProtectedMessagingRedirectAppType,
 
         [Parameter()]
@@ -25968,15 +25968,15 @@ function New-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $RequirePinAfterBiometricChange,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AndroidManagedAppSafetyNetAppsVerificationType]
+        [System.Object]
         $RequiredAndroidSafetyNetAppsVerificationType,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AndroidManagedAppSafetyNetDeviceAttestationType]
+        [System.Object]
         $RequiredAndroidSafetyNetDeviceAttestationType,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AndroidManagedAppSafetyNetEvaluationType]
+        [System.Object]
         $RequiredAndroidSafetyNetEvaluationType,
 
         [Parameter()]
@@ -25996,7 +25996,7 @@ function New-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $SimplePinBlocked,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AppManagementLevel]
+        [System.Object]
         $TargetedAppManagementLevels,
 
         [Parameter()]
@@ -26084,15 +26084,15 @@ function New-MgBetaDeviceAppManagementiOSManagedAppProtection
         $AllowWidgetContentSync,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataIngestionLocation[]]
+        [System.Object[]]
         $AllowedDataIngestionLocations,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataStorageLocation[]]
+        [System.Object[]]
         $AllowedDataStorageLocations,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel]
+        [System.Object]
         $AllowedInboundDataTransferSources,
 
         [Parameter()]
@@ -26104,39 +26104,39 @@ function New-MgBetaDeviceAppManagementiOSManagedAppProtection
         $AllowedOutboundClipboardSharingExceptionLength,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppClipboardSharingLevel]
+        [System.Object]
         $AllowedOutboundClipboardSharingLevel,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel]
+        [System.Object]
         $AllowedOutboundDataTransferDestinations,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfAccountIsClockedOut,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfDeviceComplianceRequired,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfIosDeviceModelNotAllowed,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfMaximumPinRetriesExceeded,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfUnableToAuthenticateUser,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataEncryptionType]
+        [System.Object]
         $AppDataEncryptionType,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.TargetedManagedAppGroupType]
+        [System.Object]
         $AppGroupType,
 
         [Parameter()]
@@ -26188,7 +26188,7 @@ function New-MgBetaDeviceAppManagementiOSManagedAppProtection
         $DeviceComplianceRequired,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPhoneNumberRedirectLevel]
+        [System.Object]
         $DialerRestrictionLevel,
 
         [Parameter()]
@@ -26224,7 +26224,7 @@ function New-MgBetaDeviceAppManagementiOSManagedAppProtection
         $FingerprintBlocked,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.GenmojiIosManagedAppConfigurationState]
+        [System.Object]
         $GenmojiConfigurationState,
 
         [Parameter()]
@@ -26244,7 +26244,7 @@ function New-MgBetaDeviceAppManagementiOSManagedAppProtection
         $LastModifiedDateTime,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedBrowserType]
+        [System.Object]
         $ManagedBrowser,
 
         [Parameter()]
@@ -26256,7 +26256,7 @@ function New-MgBetaDeviceAppManagementiOSManagedAppProtection
         $ManagedUniversalLinks,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDeviceThreatLevel]
+        [System.Object]
         $MaximumAllowedDeviceThreatLevel,
 
         [Parameter()]
@@ -26320,15 +26320,15 @@ function New-MgBetaDeviceAppManagementiOSManagedAppProtection
         $MinimumWipeSdkVersion,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.MobileThreatDefensePartnerPriority]
+        [System.Object]
         $MobileThreatDefensePartnerPriority,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $MobileThreatDefenseRemediationAction,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppNotificationRestriction]
+        [System.Object]
         $NotificationRestriction,
 
         [Parameter()]
@@ -26352,7 +26352,7 @@ function New-MgBetaDeviceAppManagementiOSManagedAppProtection
         $PeriodOnlineBeforeAccessCheck,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPinCharacterSet]
+        [System.Object]
         $PinCharacterSet,
 
         [Parameter()]
@@ -26376,7 +26376,7 @@ function New-MgBetaDeviceAppManagementiOSManagedAppProtection
         $ProtectInboundDataFromUnknownSources,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.MessagingRedirectAppType]
+        [System.Object]
         $ProtectedMessagingRedirectAppType,
 
         [Parameter()]
@@ -26388,7 +26388,7 @@ function New-MgBetaDeviceAppManagementiOSManagedAppProtection
         $SaveAsBlocked,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ScreenCaptureIosManagedAppConfigurationState]
+        [System.Object]
         $ScreenCaptureConfigurationState,
 
         [Parameter()]
@@ -26396,7 +26396,7 @@ function New-MgBetaDeviceAppManagementiOSManagedAppProtection
         $SimplePinBlocked,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AppManagementLevel]
+        [System.Object]
         $TargetedAppManagementLevels,
 
         [Parameter()]
@@ -26408,7 +26408,7 @@ function New-MgBetaDeviceAppManagementiOSManagedAppProtection
         $Version,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.WritingToolsIosManagedAppConfigurationState]
+        [System.Object]
         $WritingToolsConfigurationState,
 
         [Parameter()]
@@ -26504,7 +26504,7 @@ function New-MgBetaDeviceAppManagementMdmWindowsInformationProtectionPolicy
         $DisplayName,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.WindowsInformationProtectionEnforcementLevel]
+        [System.Object]
         $EnforcementLevel,
 
         [Parameter()]
@@ -26728,7 +26728,7 @@ function New-MgBetaDeviceAppManagementMobileApp
         $Publisher,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.MobileAppPublishingState]
+        [System.Object]
         $PublishingState,
 
         [Parameter()]
@@ -27020,7 +27020,7 @@ function New-MgBetaDeviceAppManagementPolicySet
         $DisplayName,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ErrorCode]
+        [System.Object]
         $ErrorCode,
 
         [Parameter()]
@@ -27044,7 +27044,7 @@ function New-MgBetaDeviceAppManagementPolicySet
         $RoleScopeTags,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.PolicySetStatus]
+        [System.Object]
         $Status,
 
         [Parameter()]
@@ -27116,7 +27116,7 @@ function New-MgBetaDeviceAppManagementTargetedManagedAppConfiguration
         $AdditionalProperties,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.TargetedManagedAppGroupType]
+        [System.Object]
         $AppGroupType,
 
         [Parameter()]
@@ -27172,7 +27172,7 @@ function New-MgBetaDeviceAppManagementTargetedManagedAppConfiguration
         $Settings,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AppManagementLevel]
+        [System.Object]
         $TargetedAppManagementLevels,
 
         [Parameter()]
@@ -27248,19 +27248,19 @@ function New-MgBetaDeviceAppManagementWindowsManagedAppProtection
         $AdditionalProperties,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.WindowsManagedAppDataTransferLevel]
+        [System.Object]
         $AllowedInboundDataTransferSources,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.WindowsManagedAppClipboardSharingLevel]
+        [System.Object]
         $AllowedOutboundClipboardSharingLevel,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.WindowsManagedAppDataTransferLevel]
+        [System.Object]
         $AllowedOutboundDataTransferDestinations,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfUnableToAuthenticateUser,
 
         [Parameter()]
@@ -27304,7 +27304,7 @@ function New-MgBetaDeviceAppManagementWindowsManagedAppProtection
         $LastModifiedDateTime,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDeviceThreatLevel]
+        [System.Object]
         $MaximumAllowedDeviceThreatLevel,
 
         [Parameter()]
@@ -27352,7 +27352,7 @@ function New-MgBetaDeviceAppManagementWindowsManagedAppProtection
         $MinimumWipeSdkVersion,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $MobileThreatDefenseRemediationAction,
 
         [Parameter()]
@@ -27472,11 +27472,11 @@ function New-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile
         $EnrolledDeviceCount,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AndroidDeviceOwnerEnrollmentMode]
+        [System.Object]
         $EnrollmentMode,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AndroidDeviceOwnerEnrollmentTokenType]
+        [System.Object]
         $EnrollmentTokenType,
 
         [Parameter()]
@@ -27528,7 +27528,7 @@ function New-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile
         $WifiPassword,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AospWifiSecurityType]
+        [System.Object]
         $WifiSecurityType,
 
         [Parameter()]
@@ -27604,7 +27604,7 @@ function New-MgBetaDeviceManagementAssignmentFilter
         $AdditionalProperties,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AssignmentFilterManagementType]
+        [System.Object]
         $AssignmentFilterManagementType,
 
         [Parameter()]
@@ -27632,7 +27632,7 @@ function New-MgBetaDeviceManagementAssignmentFilter
         $Payloads,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DevicePlatformType]
+        [System.Object]
         $Platform,
 
         [Parameter()]
@@ -27744,7 +27744,7 @@ function New-MgBetaDeviceManagementConfigurationPolicy
         $Name,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DeviceManagementConfigurationPlatforms]
+        [System.Object]
         $Platforms,
 
         [Parameter()]
@@ -27764,7 +27764,7 @@ function New-MgBetaDeviceManagementConfigurationPolicy
         $Settings,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DeviceManagementConfigurationTechnologies]
+        [System.Object]
         $Technologies,
 
         [Parameter()]
@@ -27852,11 +27852,11 @@ function New-MgBetaDeviceManagementDerivedCredential
         $Id,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DeviceManagementDerivedCredentialIssuer]
+        [System.Object]
         $Issuer,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DeviceManagementDerivedCredentialNotificationType]
+        [System.Object]
         $NotificationType,
 
         [Parameter()]
@@ -28288,11 +28288,11 @@ function New-MgBetaDeviceManagementDeviceConfigurationAssignment
         $Id,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DeviceConfigAssignmentIntent]
+        [System.Object]
         $Intent,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DeviceAndAppManagementAssignmentSource]
+        [System.Object]
         $Source,
 
         [Parameter()]
@@ -28380,7 +28380,7 @@ function New-MgBetaDeviceManagementDeviceEnrollmentConfiguration
         $Description,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DeviceEnrollmentConfigurationType]
+        [System.Object]
         $DeviceEnrollmentConfigurationType,
 
         [Parameter()]
@@ -28492,7 +28492,7 @@ function New-MgBetaDeviceManagementDeviceHealthScript
         $DetectionScriptParameters,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DeviceHealthScriptType]
+        [System.Object]
         $DeviceHealthScriptType,
 
         [Parameter()]
@@ -28540,7 +28540,7 @@ function New-MgBetaDeviceManagementDeviceHealthScript
         $RunAs32Bit,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.RunAsAccountType]
+        [System.Object]
         $RunAsAccount,
 
         [Parameter()]
@@ -28664,7 +28664,7 @@ function New-MgBetaDeviceManagementDeviceShellScript
         $RoleScopeTagIds,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.RunAsAccountType]
+        [System.Object]
         $RunAsAccount,
 
         [Parameter()]
@@ -28776,7 +28776,7 @@ function New-MgBetaDeviceManagementGroupPolicyConfiguration
         $LastModifiedDateTime,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.GroupPolicyConfigurationIngestionType]
+        [System.Object]
         $PolicyConfigurationIngestionType,
 
         [Parameter()]
@@ -29036,7 +29036,7 @@ function New-MgBetaDeviceManagementIntuneBrandingProfile
         $DisplayName,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.EnrollmentAvailabilityOptions]
+        [System.Object]
         $EnrollmentAvailability,
 
         [Parameter()]
@@ -29196,7 +29196,7 @@ function New-MgBetaDeviceManagementManagedDeviceCleanupRule
         $Description,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DeviceCleanupRulePlatformType]
+        [System.Object]
         $DeviceCleanupRulePlatformType,
 
         [Parameter()]
@@ -29332,7 +29332,7 @@ function New-MgBetaDeviceManagementMobileThreatDefenseConnector
         $MicrosoftDefenderForEndpointAttachEnabled,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.MobileThreatPartnerTenantState]
+        [System.Object]
         $PartnerState,
 
         [Parameter()]
@@ -29532,7 +29532,7 @@ function New-MgBetaDeviceManagementNotificationMessageTemplate
         $AdditionalProperties,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.NotificationTemplateBrandingOptions]
+        [System.Object]
         $BrandingOptions,
 
         [Parameter()]
@@ -29764,7 +29764,7 @@ function New-MgBetaDeviceManagementRoleAssignment
         $ScopeMembers,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.RoleAssignmentScopeType]
+        [System.Object]
         $ScopeType,
 
         [Parameter()]
@@ -30064,7 +30064,7 @@ function New-MgBetaDeviceManagementScript
         $RunAs32Bit,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.RunAsAccountType]
+        [System.Object]
         $RunAsAccount,
 
         [Parameter()]
@@ -30796,7 +30796,7 @@ function New-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile
         $DeviceNameTemplate,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.WindowsAutopilotDeviceType]
+        [System.Object]
         $DeviceType,
 
         [Parameter()]
@@ -30936,7 +30936,7 @@ function New-MgBetaDeviceManagementWindowsAutopilotDeploymentProfileAssignment
         $Id,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DeviceAndAppManagementAssignmentSource]
+        [System.Object]
         $Source,
 
         [Parameter()]
@@ -48823,15 +48823,15 @@ function Update-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $AllowedAndroidDeviceModels,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataIngestionLocation[]]
+        [System.Object[]]
         $AllowedDataIngestionLocations,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataStorageLocation[]]
+        [System.Object[]]
         $AllowedDataStorageLocations,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel]
+        [System.Object]
         $AllowedInboundDataTransferSources,
 
         [Parameter()]
@@ -48839,67 +48839,67 @@ function Update-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $AllowedOutboundClipboardSharingExceptionLength,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppClipboardSharingLevel]
+        [System.Object]
         $AllowedOutboundClipboardSharingLevel,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel]
+        [System.Object]
         $AllowedOutboundDataTransferDestinations,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfAccountIsClockedOut,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfAndroidDeviceManufacturerNotAllowed,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfAndroidDeviceModelNotAllowed,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfAndroidSafetyNetAppsVerificationFailed,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfAndroidSafetyNetDeviceAttestationFailed,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfDeviceComplianceRequired,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfDeviceLockNotSet,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfDevicePasscodeComplexityLessThanHigh,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfDevicePasscodeComplexityLessThanLow,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfDevicePasscodeComplexityLessThanMedium,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfMaximumPinRetriesExceeded,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfSamsungKnoxAttestationRequired,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfUnableToAuthenticateUser,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.TargetedManagedAppGroupType]
+        [System.Object]
         $AppGroupType,
 
         [Parameter()]
@@ -48979,7 +48979,7 @@ function Update-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $DeviceLockRequired,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPhoneNumberRedirectLevel]
+        [System.Object]
         $DialerRestrictionLevel,
 
         [Parameter()]
@@ -49031,7 +49031,7 @@ function Update-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $LastModifiedDateTime,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedBrowserType]
+        [System.Object]
         $ManagedBrowser,
 
         [Parameter()]
@@ -49039,7 +49039,7 @@ function Update-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $ManagedBrowserToOpenLinksRequired,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDeviceThreatLevel]
+        [System.Object]
         $MaximumAllowedDeviceThreatLevel,
 
         [Parameter()]
@@ -49119,15 +49119,15 @@ function Update-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $MinimumWipePatchVersion,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.MobileThreatDefensePartnerPriority]
+        [System.Object]
         $MobileThreatDefensePartnerPriority,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $MobileThreatDefenseRemediationAction,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppNotificationRestriction]
+        [System.Object]
         $NotificationRestriction,
 
         [Parameter()]
@@ -49151,7 +49151,7 @@ function Update-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $PeriodOnlineBeforeAccessCheck,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPinCharacterSet]
+        [System.Object]
         $PinCharacterSet,
 
         [Parameter()]
@@ -49171,7 +49171,7 @@ function Update-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $PrintBlocked,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.MessagingRedirectAppType]
+        [System.Object]
         $ProtectedMessagingRedirectAppType,
 
         [Parameter()]
@@ -49183,15 +49183,15 @@ function Update-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $RequirePinAfterBiometricChange,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AndroidManagedAppSafetyNetAppsVerificationType]
+        [System.Object]
         $RequiredAndroidSafetyNetAppsVerificationType,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AndroidManagedAppSafetyNetDeviceAttestationType]
+        [System.Object]
         $RequiredAndroidSafetyNetDeviceAttestationType,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AndroidManagedAppSafetyNetEvaluationType]
+        [System.Object]
         $RequiredAndroidSafetyNetEvaluationType,
 
         [Parameter()]
@@ -49211,7 +49211,7 @@ function Update-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $SimplePinBlocked,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AppManagementLevel]
+        [System.Object]
         $TargetedAppManagementLevels,
 
         [Parameter()]
@@ -49307,15 +49307,15 @@ function Update-MgBetaDeviceAppManagementiOSManagedAppProtection
         $AllowWidgetContentSync,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataIngestionLocation[]]
+        [System.Object[]]
         $AllowedDataIngestionLocations,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataStorageLocation[]]
+        [System.Object[]]
         $AllowedDataStorageLocations,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel]
+        [System.Object]
         $AllowedInboundDataTransferSources,
 
         [Parameter()]
@@ -49327,39 +49327,39 @@ function Update-MgBetaDeviceAppManagementiOSManagedAppProtection
         $AllowedOutboundClipboardSharingExceptionLength,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppClipboardSharingLevel]
+        [System.Object]
         $AllowedOutboundClipboardSharingLevel,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataTransferLevel]
+        [System.Object]
         $AllowedOutboundDataTransferDestinations,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfAccountIsClockedOut,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfDeviceComplianceRequired,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfIosDeviceModelNotAllowed,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfMaximumPinRetriesExceeded,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfUnableToAuthenticateUser,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDataEncryptionType]
+        [System.Object]
         $AppDataEncryptionType,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.TargetedManagedAppGroupType]
+        [System.Object]
         $AppGroupType,
 
         [Parameter()]
@@ -49411,7 +49411,7 @@ function Update-MgBetaDeviceAppManagementiOSManagedAppProtection
         $DeviceComplianceRequired,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPhoneNumberRedirectLevel]
+        [System.Object]
         $DialerRestrictionLevel,
 
         [Parameter()]
@@ -49447,7 +49447,7 @@ function Update-MgBetaDeviceAppManagementiOSManagedAppProtection
         $FingerprintBlocked,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.GenmojiIosManagedAppConfigurationState]
+        [System.Object]
         $GenmojiConfigurationState,
 
         [Parameter()]
@@ -49467,7 +49467,7 @@ function Update-MgBetaDeviceAppManagementiOSManagedAppProtection
         $LastModifiedDateTime,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedBrowserType]
+        [System.Object]
         $ManagedBrowser,
 
         [Parameter()]
@@ -49479,7 +49479,7 @@ function Update-MgBetaDeviceAppManagementiOSManagedAppProtection
         $ManagedUniversalLinks,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDeviceThreatLevel]
+        [System.Object]
         $MaximumAllowedDeviceThreatLevel,
 
         [Parameter()]
@@ -49543,15 +49543,15 @@ function Update-MgBetaDeviceAppManagementiOSManagedAppProtection
         $MinimumWipeSdkVersion,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.MobileThreatDefensePartnerPriority]
+        [System.Object]
         $MobileThreatDefensePartnerPriority,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $MobileThreatDefenseRemediationAction,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppNotificationRestriction]
+        [System.Object]
         $NotificationRestriction,
 
         [Parameter()]
@@ -49575,7 +49575,7 @@ function Update-MgBetaDeviceAppManagementiOSManagedAppProtection
         $PeriodOnlineBeforeAccessCheck,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppPinCharacterSet]
+        [System.Object]
         $PinCharacterSet,
 
         [Parameter()]
@@ -49599,7 +49599,7 @@ function Update-MgBetaDeviceAppManagementiOSManagedAppProtection
         $ProtectInboundDataFromUnknownSources,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.MessagingRedirectAppType]
+        [System.Object]
         $ProtectedMessagingRedirectAppType,
 
         [Parameter()]
@@ -49611,7 +49611,7 @@ function Update-MgBetaDeviceAppManagementiOSManagedAppProtection
         $SaveAsBlocked,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ScreenCaptureIosManagedAppConfigurationState]
+        [System.Object]
         $ScreenCaptureConfigurationState,
 
         [Parameter()]
@@ -49619,7 +49619,7 @@ function Update-MgBetaDeviceAppManagementiOSManagedAppProtection
         $SimplePinBlocked,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AppManagementLevel]
+        [System.Object]
         $TargetedAppManagementLevels,
 
         [Parameter()]
@@ -49631,7 +49631,7 @@ function Update-MgBetaDeviceAppManagementiOSManagedAppProtection
         $Version,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.WritingToolsIosManagedAppConfigurationState]
+        [System.Object]
         $WritingToolsConfigurationState,
 
         [Parameter()]
@@ -49735,7 +49735,7 @@ function Update-MgBetaDeviceAppManagementMdmWindowsInformationProtectionPolicy
         $DisplayName,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.WindowsInformationProtectionEnforcementLevel]
+        [System.Object]
         $EnforcementLevel,
 
         [Parameter()]
@@ -49967,7 +49967,7 @@ function Update-MgBetaDeviceAppManagementMobileApp
         $Publisher,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.MobileAppPublishingState]
+        [System.Object]
         $PublishingState,
 
         [Parameter()]
@@ -50283,7 +50283,7 @@ function Update-MgBetaDeviceAppManagementPolicySet
         $DisplayName,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ErrorCode]
+        [System.Object]
         $ErrorCode,
 
         [Parameter()]
@@ -50307,7 +50307,7 @@ function Update-MgBetaDeviceAppManagementPolicySet
         $RoleScopeTags,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.PolicySetStatus]
+        [System.Object]
         $Status,
 
         [Parameter()]
@@ -50387,7 +50387,7 @@ function Update-MgBetaDeviceAppManagementTargetedManagedAppConfiguration
         $AdditionalProperties,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.TargetedManagedAppGroupType]
+        [System.Object]
         $AppGroupType,
 
         [Parameter()]
@@ -50443,7 +50443,7 @@ function Update-MgBetaDeviceAppManagementTargetedManagedAppConfiguration
         $Settings,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AppManagementLevel]
+        [System.Object]
         $TargetedAppManagementLevels,
 
         [Parameter()]
@@ -50527,19 +50527,19 @@ function Update-MgBetaDeviceAppManagementWindowsManagedAppProtection
         $AdditionalProperties,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.WindowsManagedAppDataTransferLevel]
+        [System.Object]
         $AllowedInboundDataTransferSources,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.WindowsManagedAppClipboardSharingLevel]
+        [System.Object]
         $AllowedOutboundClipboardSharingLevel,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.WindowsManagedAppDataTransferLevel]
+        [System.Object]
         $AllowedOutboundDataTransferDestinations,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $AppActionIfUnableToAuthenticateUser,
 
         [Parameter()]
@@ -50583,7 +50583,7 @@ function Update-MgBetaDeviceAppManagementWindowsManagedAppProtection
         $LastModifiedDateTime,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppDeviceThreatLevel]
+        [System.Object]
         $MaximumAllowedDeviceThreatLevel,
 
         [Parameter()]
@@ -50631,7 +50631,7 @@ function Update-MgBetaDeviceAppManagementWindowsManagedAppProtection
         $MinimumWipeSdkVersion,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.ManagedAppRemediationAction]
+        [System.Object]
         $MobileThreatDefenseRemediationAction,
 
         [Parameter()]
@@ -51191,11 +51191,11 @@ function Update-MgBetaDeviceManagement
         $SoftwareUpdateStatusSummary,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DeviceManagementSubscriptionState]
+        [System.Object]
         $SubscriptionState,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DeviceManagementSubscriptions]
+        [System.Object]
         $Subscriptions,
 
         [Parameter()]
@@ -51651,7 +51651,7 @@ function Update-MgBetaDeviceManagementAssignmentFilter
         $AdditionalProperties,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.AssignmentFilterManagementType]
+        [System.Object]
         $AssignmentFilterManagementType,
 
         [Parameter()]
@@ -51679,7 +51679,7 @@ function Update-MgBetaDeviceManagementAssignmentFilter
         $Payloads,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DevicePlatformType]
+        [System.Object]
         $Platform,
 
         [Parameter()]
@@ -52147,7 +52147,7 @@ function Update-MgBetaDeviceManagementDeviceEnrollmentConfiguration
         $Description,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DeviceEnrollmentConfigurationType]
+        [System.Object]
         $DeviceEnrollmentConfigurationType,
 
         [Parameter()]
@@ -52267,7 +52267,7 @@ function Update-MgBetaDeviceManagementDeviceHealthScript
         $DetectionScriptParameters,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DeviceHealthScriptType]
+        [System.Object]
         $DeviceHealthScriptType,
 
         [Parameter()]
@@ -52315,7 +52315,7 @@ function Update-MgBetaDeviceManagementDeviceHealthScript
         $RunAs32Bit,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.RunAsAccountType]
+        [System.Object]
         $RunAsAccount,
 
         [Parameter()]
@@ -52447,7 +52447,7 @@ function Update-MgBetaDeviceManagementDeviceShellScript
         $RoleScopeTagIds,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.RunAsAccountType]
+        [System.Object]
         $RunAsAccount,
 
         [Parameter()]
@@ -52567,7 +52567,7 @@ function Update-MgBetaDeviceManagementGroupPolicyConfiguration
         $LastModifiedDateTime,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.GroupPolicyConfigurationIngestionType]
+        [System.Object]
         $PolicyConfigurationIngestionType,
 
         [Parameter()]
@@ -52843,7 +52843,7 @@ function Update-MgBetaDeviceManagementIntuneBrandingProfile
         $DisplayName,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.EnrollmentAvailabilityOptions]
+        [System.Object]
         $EnrollmentAvailability,
 
         [Parameter()]
@@ -53011,7 +53011,7 @@ function Update-MgBetaDeviceManagementManagedDeviceCleanupRule
         $Description,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.DeviceCleanupRulePlatformType]
+        [System.Object]
         $DeviceCleanupRulePlatformType,
 
         [Parameter()]
@@ -53155,7 +53155,7 @@ function Update-MgBetaDeviceManagementMobileThreatDefenseConnector
         $MicrosoftDefenderForEndpointAttachEnabled,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.MobileThreatPartnerTenantState]
+        [System.Object]
         $PartnerState,
 
         [Parameter()]
@@ -53371,7 +53371,7 @@ function Update-MgBetaDeviceManagementNotificationMessageTemplate
         $AdditionalProperties,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.NotificationTemplateBrandingOptions]
+        [System.Object]
         $BrandingOptions,
 
         [Parameter()]
@@ -53615,7 +53615,7 @@ function Update-MgBetaDeviceManagementRoleAssignment
         $ScopeMembers,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.RoleAssignmentScopeType]
+        [System.Object]
         $ScopeType,
 
         [Parameter()]
@@ -53939,7 +53939,7 @@ function Update-MgBetaDeviceManagementScript
         $RunAs32Bit,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.RunAsAccountType]
+        [System.Object]
         $RunAsAccount,
 
         [Parameter()]
@@ -54627,7 +54627,7 @@ function Update-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile
         $DeviceNameTemplate,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.WindowsAutopilotDeviceType]
+        [System.Object]
         $DeviceType,
 
         [Parameter()]
@@ -58199,7 +58199,7 @@ function Update-MgBetaOrganization
         $MarketingNotificationEmails,
 
         [Parameter()]
-        [Microsoft.Graph.Beta.PowerShell.Support.MdmAuthority]
+        [System.Object]
         $MobileDeviceManagementAuthority,
 
         [Parameter()]

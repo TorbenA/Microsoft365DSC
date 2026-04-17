@@ -135,28 +135,22 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     @{
                         id                  = 'com.cisco.jabberimintune.ios.ios'
                         mobileAppIdentifier = @{
-                            additionalProperties = @{
-                                '@odata.type' = '#microsoft.graph.iosMobileAppIdentifier'
-                                bundleId      = 'com.cisco.jabberimintune.ios'
-                            }
+                            '@odata.type' = '#microsoft.graph.iosMobileAppIdentifier'
+                            bundleId      = 'com.cisco.jabberimintune.ios'
                         }
                     },
                     @{
                         id                  = 'com.pervasent.boardpapers.ios.ios'
                         mobileAppIdentifier = @{
-                            additionalProperties = @{
-                                '@odata.type' = '#microsoft.graph.iosMobileAppIdentifier'
-                                bundleId      = 'com.pervasent.boardpapers.ios'
-                            }
+                            '@odata.type' = '#microsoft.graph.iosMobileAppIdentifier'
+                            bundleId      = 'com.pervasent.boardpapers.ios'
                         }
                     },
                     @{
                         id                  = 'com.sharefile.mobile.intune.ios.ios'
                         mobileAppIdentifier = @{
-                            additionalProperties = @{
-                                '@odata.type' = '#microsoft.graph.iosMobileAppIdentifier'
-                                bundleId      = 'com.sharefile.mobile.intune.ios'
-                            }
+                            '@odata.type' = '#microsoft.graph.iosMobileAppIdentifier'
+                            bundleId      = 'com.sharefile.mobile.intune.ios'
                         }
                     }
                 )

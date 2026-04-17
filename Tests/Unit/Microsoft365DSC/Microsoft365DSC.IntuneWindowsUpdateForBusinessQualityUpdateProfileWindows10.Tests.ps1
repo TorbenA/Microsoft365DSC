@@ -76,12 +76,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Target   = @{
                         DeviceAndAppManagementAssignmentFilterId   = $null
                         DeviceAndAppManagementAssignmentFilterType = 'none'
-                        AdditionalProperties                       = @(
-                            @{
-                                '@odata.type' = '#microsoft.graph.exclusionGroupAssignmentTarget'
-                                groupId       = '26d60dd1-fab6-47bf-8656-358194c1a49d'
-                            }
-                        )
+                        '@odata.type' = '#microsoft.graph.exclusionGroupAssignmentTarget'
+                        groupId       = '26d60dd1-fab6-47bf-8656-358194c1a49d'
                     }
                 })
             }

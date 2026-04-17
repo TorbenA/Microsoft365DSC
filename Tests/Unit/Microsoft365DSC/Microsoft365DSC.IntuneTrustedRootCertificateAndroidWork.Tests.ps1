@@ -44,11 +44,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName                             = 'Test IntuneTrustedRootCertificateAndroidWork'
                     Description                             = 'Test IntuneTrustedRootCertificateAndroidWork Description'
                     Id                                      = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
-                    AdditionalProperties                    = @{
-                        certFileName                        = "FakeStringValue"
-                        trustedRootCertificate              = "fakestringvalue0"
-                        '@odata.type'                       = '#microsoft.graph.androidWorkProfileTrustedRootCertificate'
-                    }
+                    certFileName                        = "FakeStringValue"
+                    trustedRootCertificate              = "fakestringvalue0"
+                    '@odata.type'                       = '#microsoft.graph.androidWorkProfileTrustedRootCertificate'
                 }
             }
 
@@ -154,11 +152,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         DisplayName                 = 'Test IntuneTrustedRootCertificateAndroidWork'
                         Description                 = 'Test IntuneTrustedRootCertificateAndroidWork Description'
                         Id                          = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
-                        AdditionalProperties        = @{
-                            certFileName            = "FakeStringValue"
-                            trustedRootCertificate  = "fakestringvalue0"
-                            '@odata.type'           = '#microsoft.graph.androidWorkProfileTrustedRootCertificate'
-                        }
+                        certFileName            = "FakeStringValue"
+                        trustedRootCertificate  = "fakestringvalue0"
+                        '@odata.type'           = '#microsoft.graph.androidWorkProfileTrustedRootCertificate'
                     }
                 }
             }

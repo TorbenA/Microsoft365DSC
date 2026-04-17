@@ -232,11 +232,11 @@ function Invoke-M365DSCGraphShimRequest
         try
         {
             $returnValue = Invoke-MgGraphRequest @invokeParams
-            if ($returnValue.ContainsKey('value') -and -not $PassThru)
+            if ($null -ne $returnValue -and $returnValue.ContainsKey('value') -and -not $PassThru)
             {
                 $returnValue = $returnValue.value
             }
-            elseif ($returnValue.ContainsKey('error'))
+            elseif ($null -ne $returnValue -and $returnValue.ContainsKey('error'))
             {
                 $returnValue = $null
             }
