@@ -7,6 +7,8 @@
     FIXES [#7064](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7064)
 * AADB2BManagementPolicy
   * Initial release.
+* AADConditionalAccessPolicy
+  * Fixes an issue when applying a configuration where some settings are not specified to an existing policy
 * AADPermissionsGrantPolicy
   * Fixed an issue when comparing `AADPermissionGrantConditionSet` instances.
     FIXES [#7062](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7062)
