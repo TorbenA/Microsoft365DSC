@@ -82,7 +82,7 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            $RuleObject = Get-SupervisoryReviewRule -Identity $Name -ErrorAction SilentlyContinue
+            $RuleObject = Invoke-M365DSCCommand -ScriptBlock { Get-SupervisoryReviewRule -Identity $Name -ErrorAction Stop } -SuppressNotFoundError
 
             if ($null -eq $RuleObject)
             {
@@ -201,18 +201,18 @@ function Set-TargetResource
 
     $CurrentRule = Get-TargetResource @PSBoundParameters
 
-    if (('Present' -eq $Ensure) -and ('Absent' -eq $CurrentRule.Ensure))
+    if ($Ensure -eq 'Present' -and $CurrentRule.Ensure -eq 'Absent')
     {
         $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         New-SupervisoryReviewRule @CreationParams
     }
-    elseif (('Present' -eq $Ensure) -and ('Present' -eq $CurrentRule.Ensure))
+    elseif ($Ensure -eq 'Present' -and $CurrentRule.Ensure -eq 'Present')
     {
         Set-SupervisoryReviewRule -Identity $CurrentRule.Name `
             -Condition $CurrentRule.Condition `
             -SamplingRate $CurrentRule.SamplingRate
     }
-    elseif ('Absent' -eq $Ensure)
+    elseif ($Ensure -eq 'Absent' -and $CurrentRule.Ensure -eq 'Present')
     {
         throw ("The SCSupervisoryReviewRule resource doesn't not support deleting Rules. " + `
                 'Instead try removing the associated policy, or modifying the existing rule.')

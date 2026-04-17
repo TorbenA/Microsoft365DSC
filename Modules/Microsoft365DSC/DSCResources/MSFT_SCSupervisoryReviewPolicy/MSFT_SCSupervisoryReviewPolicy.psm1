@@ -78,7 +78,7 @@ function Get-TargetResource
             $nullReturn.Ensure = 'Absent'
         }
 
-        $PolicyObject = Get-SupervisoryReviewPolicyV2 $Name -ErrorAction SilentlyContinue
+        $PolicyObject = Invoke-M365DSCCommand -ScriptBlock { Get-SupervisoryReviewPolicyV2 -Identity $Name -ErrorAction Stop } -SuppressNotFoundError
 
         if ($null -eq $PolicyObject)
         {
@@ -102,7 +102,6 @@ function Get-TargetResource
                 AccessTokens          = $AccessTokens
             }
 
-            Write-Verbose -Message "Found SupervisoryReviewPolicy $($Name)"
             return $result
         }
     }
@@ -186,12 +185,12 @@ function Set-TargetResource
 
     $CurrentPolicy = Get-TargetResource @PSBoundParameters
 
-    if (('Present' -eq $Ensure) -and ('Absent' -eq $CurrentPolicy.Ensure))
+    if ($Ensure -eq 'Present' -and $CurrentPolicy.Ensure -eq 'Absent')
     {
         $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         New-SupervisoryReviewPolicyV2 @CreationParams
     }
-    elseif (('Present' -eq $Ensure) -and ('Present' -eq $CurrentPolicy.Ensure))
+    elseif ($Ensure -eq 'Present' -and $CurrentPolicy.Ensure -eq 'Present')
     {
         $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $CreationParams.Remove('Name')
@@ -229,7 +228,7 @@ function Set-TargetResource
 
         Set-SupervisoryReviewPolicyV2 @CreationParams
     }
-    elseif (('Absent' -eq $Ensure) -and ('Present' -eq $CurrentPolicy.Ensure))
+    elseif ($Ensure -eq 'Absent' -and $CurrentPolicy.Ensure -eq 'Present')
     {
         # If the Policy exists and it shouldn't, simply remove it;
         Remove-SupervisoryReviewPolicyV2 -Identity $Name

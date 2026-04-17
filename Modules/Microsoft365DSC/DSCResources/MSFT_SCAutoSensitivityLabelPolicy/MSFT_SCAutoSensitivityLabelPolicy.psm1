@@ -159,16 +159,10 @@ function Get-TargetResource
                 Ensure = 'Absent'
                 Name   = $Name
             }
-            try
-            {
-                # There is a bug with the Get-AutoSensitivityLabelPolicy where if you get by Identity, the priority is an invalid number.
-                # Threfore we get it by name.
-                $policy = Get-AutoSensitivityLabelPolicy | Where-Object -FilterScript { $_.Name -eq $Name }
-            }
-            catch
-            {
-                throw $_
-            }
+
+            # There is a bug with the Get-AutoSensitivityLabelPolicy where if you get by Identity, the priority is an invalid number.
+            # Threfore we get it by name.
+            $policy = Invoke-M365DSCCommand -ScriptBlock { Get-AutoSensitivityLabelPolicy -ErrorAction Stop | Where-Object { $_.Name -eq $Name } } -SuppressNotFoundError
 
             if ($null -eq $policy)
             {
@@ -406,7 +400,7 @@ function Set-TargetResource
         }
     }
 
-    if (('Present' -eq $Ensure) -and ('Absent' -eq $CurrentPolicy.Ensure))
+    if ($Ensure -eq 'Present' -and $CurrentPolicy.Ensure -eq 'Absent')
     {
         Write-Verbose "Creating new Auto Sensitivity label policy $Name."
 
@@ -453,7 +447,7 @@ function Set-TargetResource
             Write-Warning "Set-AutoSensitivityLabelPolicy is not available in tenant $($Credential.UserName.Split('@')[0])"
         }
     }
-    elseif (('Present' -eq $Ensure) -and ('Present' -eq $CurrentPolicy.Ensure))
+    elseif ($Ensure -eq 'Present' -and $CurrentPolicy.Ensure -eq 'Present')
     {
         $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
@@ -475,7 +469,7 @@ function Set-TargetResource
             Write-Warning "Set-AutoSensitivityLabelPolicy is not available in tenant $($Credential.UserName.Split('@')[0])"
         }
     }
-    elseif (('Absent' -eq $Ensure) -and ('Present' -eq $CurrentPolicy.Ensure))
+    elseif ($Ensure -eq 'Absent' -and $CurrentPolicy.Ensure -eq 'Present')
     {
         # If the label exists and it shouldn't, simply remove it;Need to force deletoion
         Write-Verbose -Message "Deleting Auto Sensitivity label policy $Name."

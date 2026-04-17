@@ -23,9 +23,9 @@ namespace Microsoft365DSC.Compare
         // Properties that are always excluded from comparison
         private static readonly HashSet<string> AlwaysExcludedProperties = new(StringComparer.OrdinalIgnoreCase)
         {
-            "Verbose", "Credential", "ApplicationId", "CertificateThumbprint",
-            "CertificatePath", "CertificatePassword", "TenantId",
-            "ApplicationSecret", "ManagedIdentity", "AccessTokens"
+            "Id", "Identity", "Verbose", "Credential", "ApplicationId",
+            "CertificateThumbprint","CertificatePath", "CertificatePassword",
+            "TenantId", "ApplicationSecret", "ManagedIdentity", "AccessTokens"
         };
 
         /// <summary>
@@ -34,6 +34,7 @@ namespace Microsoft365DSC.Compare
         /// </summary>
         /// <param name="desiredValues">Desired state hashtable (from PSBoundParameters)</param>
         /// <param name="currentValues">Current state hashtable (from Get-TargetResource)</param>
+        /// <param name="valuesToCheck">Subset of keys from desiredValues to check (after filtering out keys/credentials/excluded)</param>
         /// <param name="schema">The full schema array (deserialized SchemaDefinition.json)</param>
         /// <param name="resourceName">Resource name without MSFT_ prefix (e.g. "AADUser")</param>
         /// <param name="excludedProperties">Properties to skip during comparison</param>
@@ -60,12 +61,12 @@ namespace Microsoft365DSC.Compare
             // Transform schema elements from PSObject to their BaseObject if needed for easier access
             var result = new CompareResult();
             var excludedSet = new HashSet<string>(AlwaysExcludedProperties, StringComparer.OrdinalIgnoreCase);
-            if (excludedProperties != null)
+            if (excludedProperties is not null)
             {
                 foreach (string prop in excludedProperties)
                     excludedSet.Add(prop);
             }
-            var includedSet = includedProperties != null
+            var includedSet = includedProperties is not null
                 ? new HashSet<string>(includedProperties, StringComparer.OrdinalIgnoreCase)
                 : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -179,35 +180,67 @@ namespace Microsoft365DSC.Compare
                         }
                     }
 
-                    // Align: filter current array to only items whose primary keys match any desired item
-                    object[] alignedCurrent = AlignArrayByPrimaryKeys(desiredArray, currentArray, primaryKeyNames);
-
-                    // Remove primary keys from target items before comparison (unless force-included)
-                    // to avoid false positives when primary keys differ in casing etc.
-                    if (!isIntunePolicyAssignment || primaryKeyNames.Count > 0)
+                    if (primaryKeyNames.Count > 0)
                     {
-                        bool noPrimaryKeyRemoval = ShouldSkipPrimaryKeyRemoval(desiredArray, primaryKeyNames);
-                        if (!noPrimaryKeyRemoval)
+                        // 1:1 primary key matching: pair desired and current elements by their
+                        // primary key values, then compare only matched pairs as single objects.
+                        var (pairs, extras) = PairByPrimaryKeys(desiredArray, currentArray, primaryKeyNames);
+
+                        foreach (var (desiredItem, currentItem, idx) in pairs)
                         {
-                            RemovePrimaryKeysFromTargets(alignedCurrent, primaryKeyNames, includedSet, isIntunePolicyAssignment);
+                            if (currentItem is null)
+                            {
+                                // Desired element not found in current
+                                result.AddDrift($"{key}[{idx}]", null, desiredItem);
+                                result.TestResult = false;
+                                continue;
+                            }
+
+                            // Clone both sides to avoid mutating normalized data
+                            var desiredCopy = CloneHashtable((Hashtable)desiredItem);
+                            var currentCopy = CloneHashtable((Hashtable)currentItem);
+
+                            // Remove PKs from both sides to avoid false casing drifts
+                            RemovePrimaryKeysFromHashtable(desiredCopy, primaryKeyNames, includedSet, isIntunePolicyAssignment);
+                            RemovePrimaryKeysFromHashtable(currentCopy, primaryKeyNames, includedSet, isIntunePolicyAssignment);
+
+                            // Compare as single objects
+                            var compResult = ComplexObjectComparer.Compare(desiredCopy, currentCopy, $"{key}[{idx}]", excludedSet);
+                            if (!compResult.Item2)
+                            {
+                                result.TestResult = false;
+                                foreach (var drift in compResult.Item1)
+                                {
+                                    result.DriftInfo.Add(ConvertDriftDict(drift));
+                                }
+                            }
+                        }
+
+                        // Report extra current elements not present in desired
+                        foreach (var (extraItem, idx) in extras)
+                        {
+                            result.AddDrift($"{key}[extra:{idx}]", extraItem, null);
+                            result.TestResult = false;
                         }
                     }
-
-                    // Delegate to ComplexObjectComparer
-                    var compResult = ComplexObjectComparer.Compare(desiredArray, alignedCurrent, key);
-                    if (!compResult.Item2)
+                    else
                     {
-                        result.TestResult = false;
-                        foreach (var drift in compResult.Item1)
+                        // No primary keys: fall back to full array comparison
+                        var compResult = ComplexObjectComparer.Compare(desiredArray, currentArray, key, excludedSet);
+                        if (!compResult.Item2)
                         {
-                            result.DriftInfo.Add(ConvertDriftDict(drift));
+                            result.TestResult = false;
+                            foreach (var drift in compResult.Item1)
+                            {
+                                result.DriftInfo.Add(ConvertDriftDict(drift));
+                            }
                         }
                     }
                 }
                 else
                 {
                     // Single complex object (not array)
-                    var compResult = ComplexObjectComparer.Compare(normalizedDesired, normalizedCurrent, key);
+                    var compResult = ComplexObjectComparer.Compare(normalizedDesired, normalizedCurrent, key, excludedSet);
                     if (!compResult.Item2)
                     {
                         result.TestResult = false;
@@ -388,7 +421,7 @@ namespace Microsoft365DSC.Compare
 
             IEnumerable<object> paramList = parameters is IEnumerable<object> list
                 ? list
-                : (parameters is IEnumerable enumerable ? enumerable.Cast<object>() : Enumerable.Empty<object>());
+                : (parameters is IEnumerable enumerable ? enumerable.Cast<object>() : []);
 
             foreach (object param in paramList)
             {
@@ -409,113 +442,109 @@ namespace Microsoft365DSC.Compare
         #region Array alignment
 
         /// <summary>
-        /// Filters the current array to only include items whose primary key values
-        /// match any of the desired items' primary key values.
-        /// This is the C# equivalent of the PowerShell Where-Object block that previously
-        /// suffered from the Address property workaround. Since we work with normalized
-        /// Hashtables here, we simply do case-insensitive dictionary lookups.
+        /// Pairs desired and current array elements 1:1 by matching their primary key values.
+        /// Each desired element is matched to the first unconsumed current element where all
+        /// primary key values match (case-insensitive). Unmatched desired elements are paired
+        /// with null. Unconsumed current elements are returned as extras.
         /// </summary>
-        private static object[] AlignArrayByPrimaryKeys(
-            object[] desired,
-            object[] current,
-            List<string> primaryKeyNames)
+        private static (
+            List<(Hashtable desired, Hashtable? matched, int desiredIndex)> pairs,
+            List<(Hashtable extra, int currentIndex)> extras)
+            PairByPrimaryKeys(
+                object[] desired,
+                object[] current,
+                List<string> primaryKeyNames)
         {
-            if (primaryKeyNames.Count == 0 || desired.Length == 0)
-                return current;
+            List<(Hashtable desired, Hashtable? matched, int desiredIndex)> pairs = [];
+            var consumed = new bool[current.Length];
 
-            // Collect all primary key values from desiredarray per key name
-            var desiredKeyValues = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
-            foreach (string pk in primaryKeyNames)
+            for (int i = 0; i < desired.Length; i++)
             {
-                var values = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                foreach (object item in desired)
-                {
-                    string val = GetHashtableStringValue(item as Hashtable, pk);
-                    if (val != null)
-                        values.Add(val);
-                }
-                desiredKeyValues[pk] = values;
-            }
-
-            var aligned = new List<object>();
-            foreach (object currentItem in current)
-            {
-                if (currentItem is not Hashtable currentHash)
+                if (desired[i] is not Hashtable desiredHash)
                     continue;
 
-                bool match = true;
-                foreach (string pk in primaryKeyNames)
+                Hashtable? match = null;
+                for (int j = 0; j < current.Length; j++)
                 {
-                    string currentVal = GetHashtableStringValue(currentHash, pk);
-                    if (currentVal != null && desiredKeyValues.TryGetValue(pk, out var allowedValues))
+                    if (consumed[j])
+                        continue;
+
+                    if (current[j] is not Hashtable currentHash)
+                        continue;
+
+                    bool allMatch = true;
+                    foreach (string pk in primaryKeyNames)
                     {
-                        if (!allowedValues.Contains(currentVal))
+                        string? desiredVal = GetHashtableStringValue(desiredHash, pk);
+                        string? currentVal = GetHashtableStringValue(currentHash, pk);
+
+                        if (desiredVal is null && currentVal is null)
+                            continue;
+
+                        if (!string.Equals(desiredVal, currentVal, StringComparison.OrdinalIgnoreCase))
                         {
-                            match = false;
+                            allMatch = false;
                             break;
                         }
                     }
+
+                    if (allMatch)
+                    {
+                        match = currentHash;
+                        consumed[j] = true;
+                        break;
+                    }
                 }
 
-                if (match)
-                    aligned.Add(currentItem);
+                pairs.Add((desiredHash, match, i));
             }
 
-            return aligned.ToArray();
+            // Collect unconsumed current elements as extras
+            List<(Hashtable extra, int currentIndex)> extras = [];
+            for (int j = 0; j < current.Length; j++)
+            {
+                if (!consumed[j] && current[j] is Hashtable extraHash)
+                {
+                    extras.Add((extraHash, j));
+                }
+            }
+
+            return (pairs, extras);
         }
 
         /// <summary>
-        /// Removes primary key entries from each target Hashtable so they do not
-        /// cause false-positive drifts. Skips removal for explicitly included properties
-        /// and for the dataType key on Intune policy assignments.
+        /// Removes primary key entries from a single Hashtable to avoid false-positive drifts.
+        /// Skips removal for explicitly included properties and for dataType on Intune assignments.
         /// </summary>
-        private static void RemovePrimaryKeysFromTargets(
-            object[] targets,
+        private static void RemovePrimaryKeysFromHashtable(
+            Hashtable hash,
             List<string> primaryKeyNames,
             HashSet<string> includedSet,
             bool isIntunePolicyAssignment)
         {
-            foreach (object item in targets)
+            foreach (string pk in primaryKeyNames)
             {
-                if (item is not Hashtable hash)
+                if (isIntunePolicyAssignment &&
+                    string.Equals(pk, "dataType", StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                foreach (string pk in primaryKeyNames)
-                {
-                    // Keep dataType on Intune assignments (needed by IntunePolicyAssignmentComparer)
-                    if (isIntunePolicyAssignment &&
-                        string.Equals(pk, "dataType", StringComparison.OrdinalIgnoreCase))
-                        continue;
+                if (includedSet.Contains(pk))
+                    continue;
 
-                    // Keep if explicitly included
-                    if (includedSet.Contains(pk))
-                        continue;
-
-                    hash.Remove(pk);
-                }
+                hash.Remove(pk);
             }
         }
 
         /// <summary>
-        /// Checks if we should skip primary key removal.
-        /// This happens when a primary key has multiple distinct values across source items
-        /// (meaning it is not truly a "primary key" for matching but rather a data field).
+        /// Creates a shallow clone of a Hashtable with case-insensitive keys.
+        /// Used to avoid mutating normalized data when removing primary keys before comparison.
         /// </summary>
-        private static bool ShouldSkipPrimaryKeyRemoval(object[] desired, List<string> primaryKeyNames)
+        private static Hashtable CloneHashtable(Hashtable source)
         {
-            foreach (string pk in primaryKeyNames)
-            {
-                var values = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                foreach (object item in desired)
-                {
-                    string val = GetHashtableStringValue(item as Hashtable, pk);
-                    if (val != null)
-                        values.Add(val);
-                }
-                if (values.Count > 1)
-                    return true;
-            }
-            return false;
+            var clone = new Hashtable(source.Count, StringComparer.OrdinalIgnoreCase);
+            foreach (DictionaryEntry entry in source)
+                clone[entry.Key] = entry.Value;
+            return clone;
         }
 
         #endregion

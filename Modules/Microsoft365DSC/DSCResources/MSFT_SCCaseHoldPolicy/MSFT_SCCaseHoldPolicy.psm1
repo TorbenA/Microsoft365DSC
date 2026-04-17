@@ -91,7 +91,7 @@ function Get-TargetResource
 
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
-            $PolicyObject = Get-CaseHoldPolicy -Case $Case -Identity $Name -ErrorAction SilentlyContinue
+            $PolicyObject = Invoke-M365DSCCommand -ScriptBlock { Get-CaseHoldPolicy -Case $Case -Identity $Name -ErrorAction Stop } -SuppressNotFoundError
 
             if ($null -eq $PolicyObject)
             {
@@ -105,6 +105,7 @@ function Get-TargetResource
         }
 
         Write-Verbose "Found existing SCCaseHoldPolicy $($Name)"
+
         $result = @{
             Ensure                = 'Present'
             Name                  = $PolicyObject.Name
@@ -221,12 +222,12 @@ function Set-TargetResource
 
     $CurrentPolicy = Get-TargetResource @PSBoundParameters
 
-    if (('Present' -eq $Ensure) -and ('Absent' -eq $CurrentPolicy.Ensure))
+    if ($Ensure -eq 'Present' -and $CurrentPolicy.Ensure -eq 'Absent')
     {
         $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         New-CaseHoldPolicy @CreationParams
     }
-    elseif (('Present' -eq $Ensure) -and ('Present' -eq $CurrentPolicy.Ensure))
+    elseif ($Ensure -eq 'Present' -and $CurrentPolicy.Ensure -eq 'Present')
     {
         $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $CreationParams.Remove('Name')
@@ -303,7 +304,7 @@ function Set-TargetResource
         Write-Verbose "Updating Policy with values: $(Convert-M365DscHashtableToString -Hashtable $CreationParams)"
         Set-CaseHoldPolicy @CreationParams
     }
-    elseif (('Absent' -eq $Ensure) -and ('Present' -eq $CurrentPolicy.Ensure))
+    elseif ($Ensure -eq 'Absent' -and $CurrentPolicy.Ensure -eq 'Present')
     {
         # If the Policy exists and it shouldn't, simply remove it;
         $policy = Get-CaseHoldPolicy -Identity $Name -Case $Case

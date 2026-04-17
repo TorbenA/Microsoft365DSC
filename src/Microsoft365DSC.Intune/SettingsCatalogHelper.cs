@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace Microsoft365DSC.Intune
@@ -25,6 +27,36 @@ namespace Microsoft365DSC.Intune
         /// Flattened list of unique parentSettingId values from AdditionalProperties.options[].dependentOn[].parentSettingId.
         /// </summary>
         public List<string> OptionsDependentOnParentSettingIds { get; set; } = [];
+
+        /// <summary>
+        /// The OData type from AdditionalProperties['@odata.type'].
+        /// Used to determine the setting type (e.g., ChoiceSettingDefinition, GroupSettingCollectionDefinition).
+        /// </summary>
+        public string ODataType { get; set; }
+
+        /// <summary>
+        /// Maximum number of instances allowed for this setting (from AdditionalProperties.maximumCount).
+        /// Used in GroupSettingCollection logic to determine single vs. multi-instance handling.
+        /// </summary>
+        public int MaximumCount { get; set; }
+
+        /// <summary>
+        /// Child setting definition IDs (from AdditionalProperties.childIds).
+        /// Used in Export to find child definitions of a GroupSettingCollection.
+        /// </summary>
+        public List<string> ChildIds { get; set; } = [];
+
+        /// <summary>
+        /// Options for ChoiceSetting definitions (from AdditionalProperties.options[]).
+        /// Each option has an itemId and an optionValue with a value and OData type.
+        /// </summary>
+        public List<SettingDefinitionOption> Options { get; set; } = [];
+
+        /// <summary>
+        /// Value definition metadata (from AdditionalProperties.valueDefinition).
+        /// Contains the OData type and isSecret flag.
+        /// </summary>
+        public SettingValueDefinition ValueDefinition { get; set; }
     }
 
     /// <summary>
@@ -33,6 +65,8 @@ namespace Microsoft365DSC.Intune
     /// </summary>
     public static class SettingDefinitionMapper
     {
+        private static BindingFlags _publicIgnoreCaseInstanceFlags = BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance;
+
         /// <summary>
         /// Maps a single Graph SettingDefinition (typically a PSObject or Hashtable) to <see cref="SettingDefinitionInfo"/>.
         /// Extracts Id, Name, OffsetUri, and the parentSettingId collections from AdditionalProperties.
@@ -84,6 +118,44 @@ namespace Microsoft365DSC.Intune
             {
                 info.DependentOnParentSettingIds = ExtractParentSettingIds(additionalProperties, "dependentOn");
                 info.OptionsDependentOnParentSettingIds = ExtractOptionsParentSettingIds(additionalProperties);
+
+                // Extract OData type
+                if (additionalProperties.TryGetValue("@odata.type", out object? odataTypeValue))
+                {
+                    info.ODataType = odataTypeValue?.ToString();
+                }
+
+                // Extract maximumCount
+                if (additionalProperties.TryGetValue("maximumCount", out object? maxCountValue))
+                {
+                    if (maxCountValue is int maxInt)
+                        info.MaximumCount = maxInt;
+                    else if (int.TryParse(maxCountValue?.ToString(), out int parsed))
+                        info.MaximumCount = parsed;
+                }
+
+                // Extract childIds
+                if (additionalProperties.TryGetValue("childIds", out object? childIdsValue) && childIdsValue is IEnumerable childIdsEnumerable)
+                {
+                    foreach (var childId in childIdsEnumerable)
+                    {
+                        if (childId is not null)
+                            info.ChildIds.Add(childId.ToString());
+                    }
+                }
+
+                // Extract options
+                info.Options = ExtractOptions(additionalProperties);
+
+                // Extract valueDefinition
+                if (additionalProperties.TryGetValue("valueDefinition", out object? valueDefValue) && valueDefValue is not null)
+                {
+                    info.ValueDefinition = new SettingValueDefinition
+                    {
+                        ODataType = TryGetProperty(valueDefValue, "@odata.type"),
+                        IsSecret = string.Equals(TryGetProperty(valueDefValue, "isSecret"), "True", StringComparison.OrdinalIgnoreCase)
+                    };
+                }
             }
 
             return info;
@@ -148,14 +220,18 @@ namespace Microsoft365DSC.Intune
             return result.Distinct().ToList();
         }
 
-        private static string TryGetProperty(object obj, string propertyName)
+        internal static string TryGetProperty(object obj, string propertyName)
         {
             return TryGetPropertyRaw(obj, propertyName)?.ToString();
         }
 
-        private static object? TryGetPropertyRaw(object obj, string propertyName)
+        internal static object? TryGetPropertyRaw(object obj, string propertyName)
         {
-            if (obj is null) return null;
+            if (obj is null)
+                return null;
+
+            if (obj is PSObject psobject)
+                obj = psobject.BaseObject;
 
             // Try dictionary access (Hashtable / IDictionary)
             if (obj is IDictionary<string, object> dict && dict.TryGetValue(propertyName, out object? value))
@@ -164,21 +240,77 @@ namespace Microsoft365DSC.Intune
                 return ht[propertyName];
 
             // Try reflection
-            var prop = obj.GetType().GetProperty(propertyName);
+            var prop = obj.GetType().GetProperty(propertyName, _publicIgnoreCaseInstanceFlags);
             return prop?.GetValue(obj);
         }
 
-        private static IEnumerable? TryGetPropertyAsEnumerable(object obj, string propertyName)
+        internal static IEnumerable<object>? TryGetPropertyAsEnumerable(object obj, string propertyName)
         {
-            if (obj is null) return null;
+            if (obj is null)
+                return null;
 
+            if (obj is PSObject psobject)
+                obj = psobject.BaseObject;
+    
             if (obj is IDictionary<string, object> dict && dict.TryGetValue(propertyName, out object? value))
-                return value as IEnumerable;
+                return value as IEnumerable<object>;
             if (obj is Hashtable ht && ht.ContainsKey(propertyName))
-                return ht[propertyName] as IEnumerable;
+                return ht[propertyName] as IEnumerable<object>;
 
-            var prop = obj.GetType().GetProperty(propertyName);
-            return prop?.GetValue(obj) as IEnumerable;
+            var prop = obj.GetType().GetProperty(propertyName, _publicIgnoreCaseInstanceFlags);
+            return prop?.GetValue(obj) as IEnumerable<object>;
+        }
+
+        /// <summary>
+        /// Extracts the options array from AdditionalProperties.
+        /// Each option has an itemId, optionValue (with @odata.type and value), and dependentOn parent setting IDs.
+        /// </summary>
+        private static List<SettingDefinitionOption> ExtractOptions(IDictionary<string, object> additionalProperties)
+        {
+            var options = new List<SettingDefinitionOption>();
+
+            if (!additionalProperties.TryGetValue("options", out object? optionsValue))
+                return options;
+
+            if (optionsValue is not IEnumerable optionsCollection)
+                return options;
+
+            foreach (var option in optionsCollection)
+            {
+                if (option is null) continue;
+
+                var opt = new SettingDefinitionOption
+                {
+                    ItemId = TryGetProperty(option, "itemId")
+                };
+
+                // Extract optionValue
+                var optionValueRaw = TryGetPropertyRaw(option, "optionValue");
+                if (optionValueRaw is not null)
+                {
+                    opt.OptionValue = new OptionValue
+                    {
+                        ODataType = TryGetProperty(optionValueRaw, "@odata.type"),
+                        Value = TryGetProperty(optionValueRaw, "value")
+                    };
+                }
+
+                // Extract dependentOn for this option
+                var dependentOnList = TryGetPropertyAsEnumerable(option, "dependentOn");
+                if (dependentOnList is not null)
+                {
+                    foreach (var dep in dependentOnList)
+                    {
+                        string parentSettingId = TryGetProperty(dep, "parentSettingId");
+                        if (!string.IsNullOrEmpty(parentSettingId))
+                            opt.DependentOnParentSettingIds.Add(parentSettingId);
+                    }
+                }
+
+                options.Add(opt);
+            }
+
+            return options;
         }
     }
 
@@ -245,12 +377,22 @@ namespace Microsoft365DSC.Intune
         /// <summary>
         /// Port of Get-SettingsCatalogSettingName.
         /// Resolves a unique, human-readable setting name for a given setting definition.
+        /// Accepts raw Graph SDK objects and maps them internally.
         /// </summary>
         public static string GetSettingName(object settingDefinitionAsGraph, List<object> allSettingDefinitionsAsGraph)
         {
             var settingDefinition = SettingDefinitionMapper.FromGraphObject(settingDefinitionAsGraph);
-
             var allSettingDefinitions = SettingDefinitionMapper.FromGraphObjects(allSettingDefinitionsAsGraph);
+            return GetSettingName(settingDefinition, allSettingDefinitions);
+        }
+
+        /// <summary>
+        /// Port of Get-SettingsCatalogSettingName.
+        /// Resolves a unique, human-readable setting name for a given setting definition.
+        /// Accepts pre-mapped <see cref="SettingDefinitionInfo"/> objects to avoid repeated reflection.
+        /// </summary>
+        public static string GetSettingName(SettingDefinitionInfo settingDefinition, List<SettingDefinitionInfo> allSettingDefinitions)
+        {
 
             // Remove invalid characters and replace spaces with underscores
             string settingName = Regex.Replace(settingDefinition.Name, @"[\{\}\$]", "");
@@ -470,12 +612,9 @@ namespace Microsoft365DSC.Intune
             }
 
             // PS: if ($splittedOffsetUri.Length -gt 1) { $splittedOffsetUri[-1] + '_' + $SettingName } else { $SettingName }
-            if (effectiveLength > 1)
-            {
-                return segments[effectiveLength - 1] + "_" + settingName;
-            }
-
-            return settingName;
+            return effectiveLength > 1
+                ? segments[effectiveLength - 1] + "_" + settingName
+                : settingName;
         }
 
         /// <summary>

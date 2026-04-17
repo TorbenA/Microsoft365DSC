@@ -61,7 +61,6 @@ class MSFT_AADRoleManagementPolicyAuthenticationContextRule
     [Write, Description("Claim value associated with the rule.")] String claimValue;
 };
 
-
 [ClassVersion("1.0.0.0"), FriendlyName("AADGroupEligibilityScheduleSettings")]
 class MSFT_AADGroupEligibilityScheduleSettings : OMI_BaseResource
 {

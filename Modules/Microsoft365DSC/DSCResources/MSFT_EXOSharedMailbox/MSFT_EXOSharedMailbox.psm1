@@ -135,8 +135,8 @@ function Get-TargetResource
         }
 
         #region EmailAddresses
-        $CurrentEmailAddresses = $mailbox.EmailAddresses.Split(':') | Where-Object { $_ -ne "smtp" }
-        if ($null -ne $PrimarySMTPAddress)
+        $CurrentEmailAddresses = $mailbox.EmailAddresses | Foreach-Object { $_.Split(':') } | Where-Object { $_ -ne 'smtp' }
+        if (-not [System.String]::IsNullOrEmpty($PrimarySMTPAddress))
         {
             $CurrentEmailAddresses = $CurrentEmailAddresses | Where-Object { $_ -ne $PrimarySMTPAddress }
         }
@@ -152,7 +152,7 @@ function Get-TargetResource
             PrimarySMTPAddress                = $mailbox.PrimarySMTPAddress.ToString()
             Alias                             = $mailbox.Alias
             AuditEnabled                      = $mailbox.AuditEnabled
-            EmailAddresses                    = $CurrentEmailAddresses
+            EmailAddresses                    = Get-M365DSCArrayFromProperty -PropertyValue $CurrentEmailAddresses -ElementType ([System.String])
             MessageCopyForSendOnBehalfEnabled = $mailbox.MessageCopyForSendOnBehalfEnabled
             MessageCopyForSentAsEnabled       = $mailbox.MessageCopyForSentAsEnabled
             Ensure                            = 'Present'

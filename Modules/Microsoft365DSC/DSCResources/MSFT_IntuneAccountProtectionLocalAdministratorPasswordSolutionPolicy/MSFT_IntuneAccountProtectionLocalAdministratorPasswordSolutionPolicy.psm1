@@ -24,7 +24,7 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Int32]
-        [ValidateRange(0, 2)]
+        [ValidateSet(0, 1, 2)]
         $BackupDirectory,
 
         [Parameter()]
@@ -286,7 +286,7 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Int32]
-        [ValidateRange(0, 2)]
+        [ValidateSet(0, 1, 2)]
         $BackupDirectory,
 
         [Parameter()]
@@ -517,7 +517,7 @@ function Test-TargetResource
 
         [Parameter()]
         [System.Int32]
-        [ValidateRange(0, 2)]
+        [ValidateSet(0, 1, 2)]
         $BackupDirectory,
 
         [Parameter()]

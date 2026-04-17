@@ -225,6 +225,7 @@ function Get-TargetResource
         $EncryptionPromptUser,
 
         [Parameter()]
+        [ValidateSet('Template', 'RemoveProtection', 'UserDefined')]
         [System.String]
         $EncryptionProtectionType,
 
@@ -331,13 +332,13 @@ function Get-TargetResource
             {
                 if ($null -eq $Script:AllLabels)
                 {
-                    [array]$Script:AllLabels = Get-Label -IncludeDetailedLabelActions
+                    [array]$Script:AllLabels = Invoke-M365DSCCommand -ScriptBlock { Get-Label -IncludeDetailedLabelActions }
                 }
                 $label = $Script:AllLabels | Where-Object { $_.Name -eq $Name }
 
                 if ($null -eq $label)
                 {
-                    $label = Get-Label -Identity $Name -IncludeDetailedLabelActions -ErrorAction SilentlyContinue
+                    $label = Invoke-M365DSCCommand -ScriptBlock { Get-Label -Identity $Name -IncludeDetailedLabelActions } -SuppressNotFoundError
                 }
             }
             catch
@@ -861,6 +862,7 @@ function Set-TargetResource
         $EncryptionPromptUser,
 
         [Parameter()]
+        [ValidateSet('Template', 'RemoveProtection', 'UserDefined')]
         [System.String]
         $EncryptionProtectionType,
 
@@ -1104,7 +1106,7 @@ function Set-TargetResource
         Write-Verbose 'Completed generating required JSON string for AutoLabelingSettings'
     }
 
-    if (('Present' -eq $Ensure) -and ('Absent' -eq $label.Ensure))
+    if ($Ensure -eq 'Present' -and $label.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Label {$Name} doesn't already exist, creating it from the Set-TargetResource function."
         $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
@@ -1113,6 +1115,12 @@ function Set-TargetResource
         {
             $advanced = Convert-CIMToAdvancedSettings $AdvancedSettings
             $CreationParams['AdvancedSettings'] = $advanced
+            $isLabelGroup = $null -ne ($AdvancedSettings | Where-Object -FilterScript { $_.Key -eq 'islabelgroup' -and $_.Value -eq $true })
+            if ($isLabelGroup)
+            {
+                $CreationParams.Add('IsLabelGroup', $true)
+                $CreationParams.Remove('ContentType') | Out-Null
+            }
         }
 
         if ($PSBoundParameters.ContainsKey('LocaleSettings'))
@@ -1159,7 +1167,7 @@ function Set-TargetResource
             throw $_
         }
     }
-    elseif (('Present' -eq $Ensure) -and ('Present' -eq $label.Ensure))
+    elseif ($Ensure -eq 'Present' -and $label.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Label {$Name} already exist, updating it from the Set-TargetResource function."
         $SetParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
@@ -1168,6 +1176,11 @@ function Set-TargetResource
         {
             $advanced = Convert-CIMToAdvancedSettings $AdvancedSettings
             $SetParams['AdvancedSettings'] = $advanced
+            $isLabelGroup = $null -ne ($AdvancedSettings | Where-Object -FilterScript { $_.Key -eq 'islabelgroup' -and $_.Value -eq $true })
+            if ($isLabelGroup)
+            {
+                $SetParams.Remove('ContentType') | Out-Null
+            }
         }
 
         if ($PSBoundParameters.ContainsKey('LocaleSettings'))
@@ -1213,7 +1226,7 @@ function Set-TargetResource
             throw $_
         }
     }
-    elseif (('Absent' -eq $Ensure) -and ('Present' -eq $label.Ensure))
+    elseif ($Ensure -eq 'Absent' -and $label.Ensure -eq 'Present')
     {
         # If the label exists and it shouldn't, simply remove it;Need to force deletoion
         Write-Verbose -Message "Deleting Sensitivity label $Name."
@@ -1380,6 +1393,7 @@ function Test-TargetResource
         $EncryptionPromptUser,
 
         [Parameter()]
+        [ValidateSet('Template', 'RemoveProtection', 'UserDefined')]
         [System.String]
         $EncryptionProtectionType,
 
@@ -1849,13 +1863,13 @@ function Convert-CIMToLocaleSettings
     [OutputType([System.Collections.ArrayList])]
     param
     (
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true)]
         [Microsoft.Management.Infrastructure.CimInstance[]]
-        $localeSettings
+        $LocaleSettings
     )
 
     $entry = [System.Collections.ArrayList]@()
-    foreach ($localset in $localeSettings)
+    foreach ($localset in $LocaleSettings)
     {
         $localeEntries = [ordered]@{
             localeKey = $localset.LocaleKey

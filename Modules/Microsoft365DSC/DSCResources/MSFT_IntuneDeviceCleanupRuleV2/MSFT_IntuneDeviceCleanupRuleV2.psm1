@@ -171,7 +171,7 @@ function Set-TargetResource
         $Description,
 
         [Parameter()]
-        [ValidateSet('all', 'androidAOSP', 'androidDeviceAdministrator', 'androidDedicatedAndFullyManagedCorporateOwnedWorkProfile', 'chromeOS', 'androidPersonallyOwnedWorkProfile', 'ios', 'macOS', 'windows', 'windowsHolographic', 'unknownFutureValue', 'visionOS', 'tvOS')]
+        [ValidateSet('all', 'androidAOSP', 'androidDeviceAdministrator', 'androidDedicatedAndFullyManagedCorporateOwnedWorkProfile', 'chromeOS', 'androidPersonallyOwnedWorkProfile', 'ios', 'macOS', 'windows', 'windowsHolographic', 'visionOS', 'tvOS')]
         [System.String]
         $DeviceCleanupRulePlatformType,
 
@@ -290,7 +290,7 @@ function Test-TargetResource
         $Description,
 
         [Parameter()]
-        [ValidateSet('all', 'androidAOSP', 'androidDeviceAdministrator', 'androidDedicatedAndFullyManagedCorporateOwnedWorkProfile', 'chromeOS', 'androidPersonallyOwnedWorkProfile', 'ios', 'macOS', 'windows', 'windowsHolographic', 'unknownFutureValue', 'visionOS', 'tvOS')]
+        [ValidateSet('all', 'androidAOSP', 'androidDeviceAdministrator', 'androidDedicatedAndFullyManagedCorporateOwnedWorkProfile', 'chromeOS', 'androidPersonallyOwnedWorkProfile', 'ios', 'macOS', 'windows', 'windowsHolographic', 'visionOS', 'tvOS')]
         [System.String]
         $DeviceCleanupRulePlatformType,
 

@@ -18,6 +18,11 @@ namespace Microsoft365DSC.Compare
             IEnumerable<object> currentObjects = Utilities.Utilities.UnwrapArray(currentArray).Cast<object>();
             IEnumerable<object> desiredObjects = Utilities.Utilities.UnwrapArray(desiredArray).Cast<object>();
 
+            if (!currentObjects.Any() && !desiredObjects.Any())
+            {
+                return compareResults; // Both arrays are empty, return empty results
+            }
+
             // Find items in desired but not in current
             foreach (var item in desiredObjects)
             {
@@ -68,9 +73,7 @@ namespace Microsoft365DSC.Compare
 
         private static bool ContainsItem(IEnumerable<object> collection, object item)
         {
-            return item is string stringItem
-                ? collection.Any(x => x is string s && string.Equals(s, stringItem, StringComparison.OrdinalIgnoreCase))
-                : collection.Contains(item);
+            return collection.Any(x => string.Equals(x.ToString(), item.ToString(), StringComparison.OrdinalIgnoreCase));
         }
     }
 }

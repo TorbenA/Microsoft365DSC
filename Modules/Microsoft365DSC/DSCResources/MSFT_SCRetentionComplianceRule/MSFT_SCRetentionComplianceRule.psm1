@@ -104,8 +104,7 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            $RuleObject = Get-RetentionComplianceRule -Identity $Name `
-                -ErrorAction SilentlyContinue
+            $RuleObject = Invoke-M365DSCCommand -ScriptBlock { Get-RetentionComplianceRule -Identity $Name -ErrorAction Stop } -SuppressNotFoundError
 
             if ($null -eq $RuleObject)
             {
@@ -119,7 +118,7 @@ function Get-TargetResource
         }
 
         Write-Verbose "Found existing RetentionComplianceRule $($Name)"
-        $AssociatedPolicy = Get-RetentionCompliancePolicy $RuleObject.Policy
+        $AssociatedPolicy = Invoke-M365DSCCommand -ScriptBlock { Get-RetentionCompliancePolicy -Identity $RuleObject.Policy -ErrorAction Stop }
         $RetentionComplianceActionValue = $null
         if (-not [System.String]::IsNullOrEmpty($ruleObject.RetentionComplianceAction))
         {
@@ -257,7 +256,7 @@ function Set-TargetResource
 
     $CurrentRule = Get-TargetResource @PSBoundParameters
 
-    if (('Present' -eq $Ensure) -and ('Absent' -eq $CurrentRule.Ensure))
+    if ($Ensure -eq 'Present' -and $CurrentRule.Ensure -eq 'Absent')
     {
         $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
@@ -302,7 +301,7 @@ function Set-TargetResource
         Write-Verbose -Message "Creating new RetentionComplianceRule with values:`r`n$(Convert-M365DscHashtableToString -Hashtable $CreationParams)"
         New-RetentionComplianceRule @CreationParams
     }
-    elseif (('Present' -eq $Ensure) -and ('Present' -eq $CurrentRule.Ensure))
+    elseif ($Ensure -eq 'Present' -and $CurrentRule.Ensure -eq 'Present')
     {
         $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $CreationParams.Remove('Name')
@@ -374,7 +373,7 @@ function Set-TargetResource
             $retries++
         }
     }
-    elseif (('Absent' -eq $Ensure) -and ('Present' -eq $CurrentPolicy.Ensure))
+    elseif ($Ensure -eq 'Absent' -and $CurrentPolicy.Ensure -eq 'Present')
     {
         # If the Rule exists and it shouldn't, simply remove it;
         Remove-RetentionComplianceRule -Identity $Name

@@ -76,8 +76,7 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            $PolicyObject = Get-DeviceConfigurationPolicy -Identity $Name `
-                -ErrorAction SilentlyContinue
+            $PolicyObject = Invoke-M365DSCCommand -ScriptBlock { Get-DeviceConfigurationPolicy -Identity $Name -ErrorAction Stop } -SuppressNotFoundError
 
             if ($null -eq $PolicyObject)
             {
@@ -193,12 +192,12 @@ function Set-TargetResource
 
     $CurrentPolicy = Get-TargetResource @PSBoundParameters
 
-    if (('Present' -eq $Ensure) -and ('Absent' -eq $CurrentPolicy.Ensure))
+    if ($Ensure -eq 'Present' -and $CurrentPolicy.Ensure -eq 'Absent')
     {
         $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         New-DeviceConfigurationPolicy @CreationParams
     }
-    elseif (('Present' -eq $Ensure) -and ('Present' -eq $CurrentPolicy.Ensure))
+    elseif ($Ensure -eq 'Present' -and $CurrentPolicy.Ensure -eq 'Present')
     {
         $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $CreationParams.Remove('Name')
@@ -207,7 +206,7 @@ function Set-TargetResource
         Write-Verbose "Updating Policy with values: $(Convert-M365DscHashtableToString -Hashtable $CreationParams)"
         Set-DeviceConfigurationPolicy @CreationParams
     }
-    elseif (('Absent' -eq $Ensure) -and ('Present' -eq $CurrentPolicy.Ensure))
+    elseif ($Ensure -eq 'Absent' -and $CurrentPolicy.Ensure -eq 'Present')
     {
         # If the Policy exists and it shouldn't, simply remove it;
         Remove-DeviceConfigurationPolicy -Identity $Name

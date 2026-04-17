@@ -23,6 +23,7 @@ function Get-TargetResource
         $ActivationReqJustification,
 
         [Parameter(Mandatory = $true)]
+        [ValidateSet('owner', 'member')]
         [System.String]
         $RoleDefinitionId,
 
@@ -483,6 +484,7 @@ function Set-TargetResource
         $ActivationMaxDuration,
 
         [Parameter(Mandatory = $true)]
+        [ValidateSet('owner', 'member')]
         [System.String]
         $RoleDefinitionId,
 
@@ -1229,6 +1231,7 @@ function Test-TargetResource
         $ActivationMaxDuration,
 
         [Parameter(Mandatory = $true)]
+        [ValidateSet('owner', 'member')]
         [System.String]
         $RoleDefinitionId,
 
@@ -1541,13 +1544,13 @@ function Export-TargetResource
             }
         }
 
-        $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
+        $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests -AsList
 
         $dscContent = ''
-        foreach ($response in $batchResponses)
+        foreach ($group in $Script:exportedGroups)
         {
+            $response = $batchResponses.Where({ $_.id -eq $group.Id })
             $getValue = $response.body.value
-            $group = $Script:exportedGroups | Where-Object -FilterScript { $_.Id -eq $response.id }
             Write-M365DSCHost -Message "    |---[$j/$($Script:exportedGroups.Count)] $($group.DisplayName)" -DeferWrite
 
             $i = 1

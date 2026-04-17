@@ -246,7 +246,7 @@ function Set-TargetResource
         }
         Set-PnPPropertyBagValue @CreationParams
     }
-    elseif (('Absent' -eq $Ensure) -and ('Present' -eq $CurrentPolicy.Ensure))
+    elseif ($Ensure -eq 'Absent' -and $CurrentPolicy.Ensure -eq 'Present')
     {
         Remove-PnPPropertyBagValue -Key $Key
     }

@@ -97,7 +97,8 @@ function New-M365DSCResource
     $graphWorkloads = @('MicrosoftGraph','Intune')
     if ($Workload -in $graphWorkloads)
     {
-        Write-Verbose "Import Intune Settings Catalog Helper module"
+        Write-Verbose -Message "Import Intune Settings Catalog Helper module"
+        Import-Module Microsoft365DSC -Force
         Import-Module ..\Modules\Microsoft365DSC\Modules\M365DSCIntuneSettingsCatalogUtil.psm1 -Force
 
         $Global:CIMInstancesAlreadyFound = @()

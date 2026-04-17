@@ -31,6 +31,10 @@
       "HasCustomComparison": true,
       "Description": "Excludes properties: Password"
     },
+    "AADPermissionGrantPolicy": {
+      "HasCustomComparison": true,
+      "Description": "Uses PostProcessing scriptblock"
+    },
     "AADRoleAssignmentScheduleRequest": {
       "HasCustomComparison": true,
       "Description": "Excludes properties: Action, IsValidationOnly, Justification, TicketInfo; Uses PostProcessing scriptblock"
@@ -56,6 +60,10 @@
       "Description": "Excludes properties: ScanAuthenticationParams"
     },
     "EXOATPBuiltInProtectionRule": {
+      "HasCustomComparison": true,
+      "Description": "Uses PostProcessing scriptblock"
+    },
+    "EXOAvailabilityConfig": {
       "HasCustomComparison": true,
       "Description": "Uses PostProcessing scriptblock"
     },

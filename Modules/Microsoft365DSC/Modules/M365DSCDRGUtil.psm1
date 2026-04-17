@@ -340,7 +340,16 @@ function Compare-M365DSCComplexObject
         $PropertyName
     )
 
-    $tuple = [Microsoft365DSC.Compare.ComplexObjectComparer]::Compare($Source, $Target, $PropertyName)
+    if ($null -eq $Global:AllDrifts)
+    {
+        $Global:AllDrifts = @{
+            DriftInfo     = @()
+            CurrentValues = @{}
+            DesiredValues = @{}
+        }
+    }
+
+    $tuple = [Microsoft365DSC.Compare.ComplexObjectComparer]::Compare($Source, $Target, $PropertyName, $null)
     if ($tuple.Item1.Count -gt 0)
     {
         $Global:AllDrifts.DriftInfo += $tuple.Item1

@@ -103,8 +103,8 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            $currentAction = Get-CurrentAction -SearchName $SearchName -Action $Action `
-                -ErrorAction Stop
+            $currentAction = Invoke-M365DSCCommand -ScriptBlock { Get-CurrentAction -SearchName $SearchName -Action $Action `
+                -ErrorAction Stop } -SuppressNotFoundError
 
             if ($null -eq $currentAction)
             {
@@ -389,7 +389,7 @@ function Set-TargetResource
             }
         }
     }
-    elseif (('Absent' -eq $Ensure) -and ('Present' -eq $CurrentTag.Ensure))
+    elseif ($Ensure -eq 'Absent' -and $CurrentAction.Ensure -eq 'Present')
     {
         $currentAction = Get-CurrentAction -Action $Action -SearchName $SearchName
 

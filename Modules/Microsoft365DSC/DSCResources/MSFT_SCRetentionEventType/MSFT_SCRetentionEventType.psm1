@@ -73,8 +73,7 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            $EventTypeObject = Get-ComplianceRetentionEventType -Identity $Name `
-                -ErrorAction SilentlyContinue
+            $EventTypeObject = Invoke-M365DSCCommand -ScriptBlock { Get-ComplianceRetentionEventType -Identity $Name -ErrorAction Stop } -SuppressNotFoundError
 
             if ($null -eq $EventTypeObject)
             {
@@ -88,6 +87,7 @@ function Get-TargetResource
         }
 
         Write-Verbose "Found existing RetentionComplianceEventType $($Name)"
+
         $result = @{
             Name                  = $EventTypeObject.Name
             Comment               = $EventTypeObject.Comment
@@ -179,12 +179,12 @@ function Set-TargetResource
 
     $CurrentEventType = Get-TargetResource @PSBoundParameters
 
-    if (('Present' -eq $Ensure) -and ('Absent' -eq $CurrentEventType.Ensure))
+    if ($Ensure -eq 'Present' -and $CurrentEventType.Ensure -eq 'Absent')
     {
         $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         New-ComplianceRetentionEventType @CreationParams
     }
-    elseif (('Present' -eq $Ensure) -and ('Present' -eq $CurrentEventType.Ensure))
+    elseif ($Ensure -eq 'Present' -and $CurrentEventType.Ensure -eq 'Present')
     {
         $CreationParams = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $CreationParams.Remove('Name') | Out-Null
@@ -192,7 +192,7 @@ function Set-TargetResource
 
         Set-ComplianceRetentionEventType @CreationParams
     }
-    elseif (('Absent' -eq $Ensure) -and ('Present' -eq $CurrentEventType.Ensure))
+    elseif ($Ensure -eq 'Absent' -and $CurrentEventType.Ensure -eq 'Present')
     {
         # If the Event Type exists and it shouldn't, simply remove it;
         Remove-ComplianceRetentionEventType -Identity $Name -confirm:$false
