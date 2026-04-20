@@ -1108,14 +1108,12 @@ function Set-TargetResource
         Write-Verbose -Message "Set-Targetresource: Policy $Displayname Ensure Present"
         $NewParameters = @{}
         $NewParameters.Add('displayName', $DisplayName)
-        if ($State)
+        if (-not [system.string]::IsNullOrEmpty($State))
         {
             $NewParameters.Add('state', $State)
         }
         #create Conditions object
-        $conditions = @{
-            #applications = @{}
-        }
+        $conditions = @{}
         #create and provision Application Condition object
         Write-Verbose -Message 'Set-Targetresource: create Application Condition object'
         if ($currentParameters.ContainsKey('IncludeApplications'))
@@ -1798,7 +1796,6 @@ function Set-TargetResource
                 {
                     $authenticationStrengthInstance = @{
                         id            = $strengthPolicy.Id
-                        #'@odata.type' = '#microsoft.graph.authenticationStrengthPolicy'
                     }
                     $GrantControls.Add('authenticationStrength', $authenticationStrengthInstance)
                 }
