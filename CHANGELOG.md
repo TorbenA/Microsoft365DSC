@@ -9,9 +9,14 @@
   * Initial release.
 * AADConditionalAccessPolicy
   * Fixes an issue when applying a configuration where some settings are not specified to an existing policy
+* AADPasswordRuleSettings
+  * Fixed an issue where invalid condition checks were in-place.
 * AADPermissionsGrantPolicy
   * Fixed an issue when comparing `AADPermissionGrantConditionSet` instances.
     FIXES [#7062](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7062)
+* AADServicePrincipal
+  * Fixed an issue where `odataType` and `userType` were missing from the
+    `MSFT_AADServicePrincipalCustomClaimCondition` instances.
 * EXOCASMailboxPlan
   * Fixed an issue where `Identity` was missing in the export.
 * EXODataEncryptionPolicy
