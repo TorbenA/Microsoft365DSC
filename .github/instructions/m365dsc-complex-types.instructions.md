@@ -185,7 +185,7 @@ $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
 return $result
 ```
 
-The framework (`Test-M365DSCTargetResource` → `Compare-M365DSCResourceState`) handles complex type comparison automatically using C# delegates (`[Microsoft365DSC.Compare.ResourceComparer]`).
+The framework (`Test-M365DSCTargetResource` -> `Compare-M365DSCResourceState`) handles complex type comparison automatically using C# delegates (`[Microsoft365DSC.Compare.ResourceComparer]`).
 
 ### PostProcessing Callback
 
