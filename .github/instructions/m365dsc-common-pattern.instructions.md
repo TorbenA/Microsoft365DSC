@@ -65,7 +65,7 @@ throw
 
 ## Set-TargetResource Rules
 
-- **Never call `Test-TargetResource` inside `Set-TargetResource`.** The DSC engine handles the Test→Set flow automatically. The Set function must only implement the configuration changes.
+- **Never call `Test-TargetResource` inside `Set-TargetResource`.** The DSC engine handles the Test -> Set flow automatically. The Set function must only implement the configuration changes.
 
 ## Endpoint URLs
 
