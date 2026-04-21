@@ -651,7 +651,7 @@ function Set-TargetResource
             try
             {
                 Write-Verbose -Message "Creating Group with Values: $(Convert-M365DscHashtableToString -Hashtable $currentParameters)"
-                $currentGroup = New-MgGroup @currentParameters
+                $currentGroup = New-MgGroup -BodyParameter $currentParameters
                 Write-Verbose -Message "Created Group $($currentGroup.id)"
             }
             catch
@@ -677,14 +677,13 @@ function Set-TargetResource
 
             if ($false -eq $currentParameters.ContainsKey('Id'))
             {
-                Update-MgGroup @currentParameters -GroupId $currentGroup.Id | Out-Null
+                Update-MgGroup -BodyParameter $currentParameters -GroupId $currentGroup.Id | Out-Null
             }
             else
             {
                 $currentParameters.Remove('Id') | Out-Null
-                $currentParameters.Add('GroupId', $currentGroup.Id)
                 Write-Verbose -Message "Updating Group with Values: $(Convert-M365DscHashtableToString -Hashtable $currentParameters)"
-                Update-MgGroup @currentParameters | Out-Null
+                Update-MgGroup -GroupId $currentGroup.Id -BodyParameter $currentParameters | Out-Null
             }
 
             if (($licensesToAdd.Length -gt 0 -or $licensesToRemove.Length -gt 0) -and $PSBoundParameters.ContainsKey('AssignedLicenses'))

@@ -197,14 +197,14 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Creating an Intune App Category with DisplayName {$DisplayName}"
 
-        New-MgBetaDeviceAppManagementMobileAppCategory @SetParameters
+        New-MgBetaDeviceAppManagementMobileAppCategory -BodyParameter $SetParameters
     }
     # UPDATE
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Intune App Category with DisplayName {$DisplayName}"
 
-        Update-MgBetaDeviceAppManagementMobileAppCategory -MobileAppCategoryId $currentInstance.Id @SetParameters
+        Update-MgBetaDeviceAppManagementMobileAppCategory -MobileAppCategoryId $currentInstance.Id -BodyParameter $SetParameters
     }
     # REMOVE
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')

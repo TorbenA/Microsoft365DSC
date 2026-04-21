@@ -299,14 +299,14 @@ function Set-TargetResource
         Write-Verbose -Message "Create AndroidDeviceOwnerEnrollmentProfile: $DisplayName with Enrollment Mode: $EnrollmentMode"
 
         $setParameters.Remove('Id') | Out-Null
-        $null = New-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile @setParameters
+        $null = New-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile -BodyParameter $setParameters
     }
     # UPDATE
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating AndroidDeviceOwnerEnrollmentProfile: $DisplayName"
         Remove-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile -AndroidDeviceOwnerEnrollmentProfileId $currentInstance.Id -Confirm:$false
-        $null = New-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile @setParameters
+        $null = New-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile -BodyParameter $setParameters
     }
     # REMOVE
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')

@@ -208,12 +208,11 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Creating new Azure AD AuthenticationStrengthPolicy {$DisplayName}"
         $BoundParameters.Remove('Id') | Out-Null
-        New-MgBetaPolicyAuthenticationStrengthPolicy @BoundParameters
+        New-MgBetaPolicyAuthenticationStrengthPolicy -BodyParameter $BoundParameters | Out-Null
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Azure AD Authentication Strength Policy with DisplayName {$DisplayName}"
-        $BoundParameters.Add('AuthenticationStrengthPolicyId', $currentInstance.Id)
         $BoundParameters.Remove('Id') | Out-Null
         $combinations = $BoundParameters.AllowedCombinations
         $BoundParameters.Remove('AllowedCombinations') | Out-Null
@@ -226,7 +225,7 @@ function Set-TargetResource
         }
         else
         {
-            Update-MgBetaPolicyAuthenticationStrengthPolicy @BoundParameters
+            Update-MgBetaPolicyAuthenticationStrengthPolicy -AuthenticationStrengthPolicyId $currentInstance.Id -BodyParameter $BoundParameters
 
             Write-Verbose -Message "Updating the Azure AD Authentication Strength Policy allowed combination with DisplayName {$DisplayName}"
             Update-MgBetaPolicyAuthenticationStrengthPolicyAllowedCombination -AuthenticationStrengthPolicyId $currentInstance.Id `

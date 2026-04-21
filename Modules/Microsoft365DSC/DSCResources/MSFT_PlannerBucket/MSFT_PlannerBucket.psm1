@@ -189,7 +189,8 @@ function Set-TargetResource
     {
         Write-Verbose -Message ("Planner Bucket {$Bucket} already exists, but is not in the " + `
                 'Desired State. Updating it.')
-        Update-MgPlannerPlan @SetParams
+        $SetParams.Remove('PlanId') | Out-Null
+        Update-MgPlannerPlan -PlannerPlanId $currentValues.PlanId -BodyParameter $SetParams
     }
     elseif ($Ensure -eq 'Absent' -and $currentValues.Ensure -eq 'Present')
     {

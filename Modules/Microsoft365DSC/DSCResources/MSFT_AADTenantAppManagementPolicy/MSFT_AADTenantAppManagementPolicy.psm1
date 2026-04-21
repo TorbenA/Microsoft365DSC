@@ -343,7 +343,7 @@ function Set-TargetResource
     $setParameters.Remove('IsSingleInstance') | Out-Null
 
     Write-Verbose -Message 'Updating the Default App Management Policy'
-    Update-MgBetaPolicyDefaultAppManagementPolicy @setParameters
+    Update-MgBetaPolicyDefaultAppManagementPolicy -BodyParameter $setParameters
 }
 
 function Test-TargetResource

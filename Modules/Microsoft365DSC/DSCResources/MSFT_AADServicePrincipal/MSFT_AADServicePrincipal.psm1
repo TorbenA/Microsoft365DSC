@@ -616,8 +616,7 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentAADServicePrincipal.Ensure -eq 'Absent')
     {
         Write-Verbose -Message 'Creating new Service Principal'
-        Write-Verbose -Message "With Values: $(Convert-M365DscHashtableToString -Hashtable $currentParameters)"
-        $newSP = New-MgServicePrincipal @currentParameters
+        $newSP = New-MgServicePrincipal -BodyParameter $currentParameters
 
         # Assign Owners
         foreach ($owner in $Owners)
@@ -705,7 +704,7 @@ function Set-TargetResource
             Invoke-MgGraphRequest -Uri ((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/servicePrincipals(appId='$($currentParameters.AppId)')") -Method Patch -Body $CSAParams
         }
 
-        Update-MgServicePrincipal -ServicePrincipalId $currentAADServicePrincipal.ObjectID @currentParameters
+        Update-MgServicePrincipal -ServicePrincipalId $currentAADServicePrincipal.ObjectID -BodyParameter $currentParameters
 
         if ($PSBoundParameters.ContainsKey('ClaimsPolicy'))
         {

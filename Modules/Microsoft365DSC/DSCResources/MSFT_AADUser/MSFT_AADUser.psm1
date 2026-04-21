@@ -557,8 +557,7 @@ function Set-TargetResource
                 Write-Verbose -Message 'PasswordProfile property will not be updated'
             }
 
-            $creationParams.Add('UserId', $UserPrincipalName)
-            Update-MgUser @creationParams
+            Update-MgUser -UserId $UserPrincipalName -BodyParameter $creationParams
             $userId = (Get-MgUser -UserId $UserPrincipalName).Id
         }
         else
@@ -608,7 +607,7 @@ function Set-TargetResource
             }
             $creationParams.Add('MailNickName', $UserPrincipalName.Split('@')[0])
             Write-Verbose -Message "Creating new user with values: $(Convert-M365DscHashtableToString -Hashtable $creationParams)"
-            $user = New-MgUser @creationParams
+            $user = New-MgUser -BodyParameter $creationParams
             $userId = $user.Id
         }
 

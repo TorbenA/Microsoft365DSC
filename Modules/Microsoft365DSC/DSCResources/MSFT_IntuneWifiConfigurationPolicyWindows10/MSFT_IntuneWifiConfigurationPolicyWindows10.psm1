@@ -182,7 +182,7 @@ function Get-TargetResource
 
         $complexDeviceManagementApplicabilityRuleOsEdition = [ordered]@{}
         $complexDeviceManagementApplicabilityRuleOsEdition.Add('OsEditionTypes', [string[]]$getValue.DeviceManagementApplicabilityRuleOSEdition.OsEditionTypes)
-        $complexDeviceManagementApplicabilityRuleOsEdition.Add('RuleType', [string]$getValue.DeviceManagementApplicabilityRuleOSEdition.RuleType)
+        $complexDeviceManagementApplicabilityRuleOsEdition.Add('RuleType', $getValue.DeviceManagementApplicabilityRuleOSEdition.RuleType)
         if ($complexDeviceManagementApplicabilityRuleOsEdition.values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexDeviceManagementApplicabilityRuleOsEdition = $null
@@ -191,7 +191,7 @@ function Get-TargetResource
         $complexDeviceManagementApplicabilityRuleOsVersion = [ordered]@{}
         $complexDeviceManagementApplicabilityRuleOsVersion.Add('MaxOSVersion', $getValue.DeviceManagementApplicabilityRuleOSVersion.MaxOSVersion)
         $complexDeviceManagementApplicabilityRuleOsVersion.Add('MinOSVersion', $getValue.DeviceManagementApplicabilityRuleOSVersion.MinOSVersion)
-        $complexDeviceManagementApplicabilityRuleOsVersion.Add('RuleType', [string]$getValue.DeviceManagementApplicabilityRuleOSVersion.RuleType)
+        $complexDeviceManagementApplicabilityRuleOsVersion.Add('RuleType', $getValue.DeviceManagementApplicabilityRuleOSVersion.RuleType)
         if ($complexDeviceManagementApplicabilityRuleOsVersion.values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexDeviceManagementApplicabilityRuleOsVersion = $null

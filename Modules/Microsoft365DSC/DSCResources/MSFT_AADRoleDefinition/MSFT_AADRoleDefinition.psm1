@@ -259,15 +259,14 @@ function Set-TargetResource
         Write-Verbose -Message "Creating New AzureAD role defition {$DisplayName} with parameters:"
         Write-Verbose -Message (Convert-M365DscHashtableToString -Hashtable $currentParameters)
         $currentParameters.Remove('Id') | Out-Null
-        New-MgBetaRoleManagementDirectoryRoleDefinition @currentParameters
+        New-MgBetaRoleManagementDirectoryRoleDefinition -BodyParameter $currentParameters
     }
     # Role definition should exist and will be configured to desired state
     if ($Ensure -eq 'Present' -and $currentAADRoleDef.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating existing AzureAD role definition {$DisplayName}"
-        $currentParameters.Add('UnifiedRoleDefinitionId', $currentAADRoleDef.Id)
         $currentParameters.Remove('Id') | Out-Null
-        Update-MgBetaRoleManagementDirectoryRoleDefinition @currentParameters
+        Update-MgBetaRoleManagementDirectoryRoleDefinition -UnifiedRoleDefinitionId $currentAADRoleDef.Id -BodyParameter $currentParameters
     }
     # Role definition exists but should not
     elseif ($Ensure -eq 'Absent' -and $currentAADRoleDef.Ensure -eq 'Present')

@@ -233,10 +233,9 @@ function Set-TargetResource
             [Array]$AllGroups = Get-MgGroup -Search $OwnerGroup
         }
         $plan = Get-MgGroupPlannerPlan -GroupId $AllGroups[0].Id | Where-Object -FilterScript { $_.Title -eq $Title }
-        $SetParams.Add('PlannerPlanId', $plan.Id)
         $SetParams.Add('Owner', $AllGroups[0].Id)
         $SetParams.Remove('OwnerGroup') | Out-Null
-        Update-MgPlannerPlan @SetParams
+        Update-MgPlannerPlan -PlannerPlanId $plan.Id -BodyParameter $SetParams
     }
     elseif ($Ensure -eq 'Absent' -and $currentValues.Ensure -eq 'Present')
     {

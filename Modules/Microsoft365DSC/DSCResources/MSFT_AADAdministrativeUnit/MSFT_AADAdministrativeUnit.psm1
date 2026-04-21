@@ -545,8 +545,7 @@ function Set-TargetResource
 
         #region resource generator code
         Write-Verbose -Message "Creating new Administrative Unit with: $(Convert-M365DscHashtableToString -Hashtable $CreateParameters)"
-
-        $policy = New-MgDirectoryAdministrativeUnit @CreateParameters
+        $policy = New-MgDirectoryAdministrativeUnit -BodyParameter $CreateParameters
 
         if ($MembershipType -ne 'Dynamic')
         {
@@ -581,8 +580,7 @@ function Set-TargetResource
         $UpdateParameters.Remove('ScopedRoleMembers') | Out-Null
 
         #region resource generator code
-        Update-MgDirectoryAdministrativeUnit @UpdateParameters `
-            -AdministrativeUnitId $currentInstance.Id
+        Update-MgDirectoryAdministrativeUnit -AdministrativeUnitId $currentInstance.Id -BodyParameter $UpdateParameters
         #endregion
 
         if ($MembershipType -ne 'Dynamic')

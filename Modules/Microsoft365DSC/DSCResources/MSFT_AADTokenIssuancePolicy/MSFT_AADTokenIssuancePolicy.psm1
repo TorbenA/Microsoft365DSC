@@ -208,14 +208,14 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating new token issuance policy {$DisplayName} with:`r`n$(ConvertTo-Json $SetParameters -Depth 10)"
-        New-MgBetaPolicyTokenIssuancePolicy @SetParameters
+        New-MgBetaPolicyTokenIssuancePolicy -BodyParameter $SetParameters
     }
     # UPDATE
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating token issuance policy {$DisplayName} with:`r`n$(ConvertTo-Json $SetParameters -Depth 10)"
         $setParameters.Remove('Id') | Out-Null
-        Update-MgBetaPolicyTokenIssuancePolicy @SetParameters -TokenIssuancePolicyId $currentInstance.Id
+        Update-MgBetaPolicyTokenIssuancePolicy -TokenIssuancePolicyId $currentInstance.Id -BodyParameter $SetParameters
     }
     # REMOVE
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')

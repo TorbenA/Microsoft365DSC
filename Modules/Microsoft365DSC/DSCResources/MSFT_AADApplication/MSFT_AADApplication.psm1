@@ -930,15 +930,7 @@ function Set-TargetResource
     $currentParameters.Remove('LogoutURL') | Out-Null
     $currentParameters.Remove('Homepage') | Out-Null
     $currentParameters.Remove('OnPremisesPublishing') | Out-Null
-
-    $keys = (([Hashtable]$currentParameters).Clone()).Keys
-    foreach ($key in $keys)
-    {
-        if ($null -ne $currentParameters.$key -and $currentParameters.$key.GetType().Name -like '*cimInstance*')
-        {
-            $currentParameters.$key = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $currentParameters.$key
-        }
-    }
+    $currentParameters = Rename-M365DSCCimInstanceParameter -Properties $currentParameters
 
     $skipToUpdate = $false
     if ($Ensure -eq 'Present' -and $currentAADApp.Ensure -eq 'Absent')
@@ -1030,7 +1022,7 @@ function Set-TargetResource
         Write-Verbose -Message "Creating New AzureAD Application {$DisplayName} with values:`r`n$($currentParameters | Out-String)"
 
         Write-Verbose -Message "Parameters with API: $(ConvertTo-Json $currentParameters -Depth 10)"
-        $currentAADApp = New-MgApplication @currentParameters
+        $currentAADApp = New-MgApplication -BodyParameter $currentParameters
         $currentAADApp = @{
             AppId       = $currentAADApp.AppId
             Id          = $currentAADApp.Id
@@ -1058,13 +1050,11 @@ function Set-TargetResource
     {
         $currentParameters.Remove('ObjectId') | Out-Null
         $currentParameters.Remove('ApplicationTemplateId') | Out-Null
-
-        $currentParameters.Add('ApplicationId', $currentAADApp.ObjectId)
         $currentParameters.Remove('AppRoles') | Out-Null
         $currentParameters.Remove('TokenLifetimePolicy') | Out-Null
 
         Write-Verbose -Message "Updating existing AzureAD Application {$DisplayName} with values:`r`n$($currentParameters | Out-String)"
-        Update-MgApplication @currentParameters
+        Update-MgApplication -ApplicationId $currentAADApp.ObjectId -BodyParameter $currentParameters
 
         if (-not $currentAADApp.ContainsKey('Id'))
         {

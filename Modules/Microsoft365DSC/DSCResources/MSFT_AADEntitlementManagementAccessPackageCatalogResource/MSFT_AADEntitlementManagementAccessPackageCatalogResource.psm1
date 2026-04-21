@@ -361,13 +361,13 @@ function Set-TargetResource
 
         #Preparing parameter splat
         $resourceRequest = @{
-            CatalogId             = $CatalogId
-            RequestType           = 'AdminAdd'
-            AccessPackageresource = $resource
+            catalogId             = $CatalogId
+            requestType           = 'AdminAdd'
+            accessPackageresource = $resource
         }
         #region resource generator code
-        Write-Verbose -Message "Creating with Values: $(Convert-M365DscHashtableToString -Hashtable $resourceRequest)"
-        New-MgBetaEntitlementManagementAccessPackageResourceRequest @resourceRequest
+        Write-Verbose -Message "Creating a new AAD Entitlement Management Access Package Catalog Resource"
+        New-MgBetaEntitlementManagementAccessPackageResourceRequest -BodyParameter $resourceRequest
 
         #endregion
     }
@@ -399,20 +399,17 @@ function Set-TargetResource
 
         #region resource generator code
         $resourceRequest = @{
-            CatalogId             = $CatalogId
-            RequestType           = 'AdminUpdate'
-            AccessPackageresource = $resource
+            catalogId             = $CatalogId
+            requestType           = 'AdminUpdate'
+            accessPackageresource = $resource
         }
         #region resource generator code
-        #write-verbose ($resourceRequest|convertTo-Json -depth 20)
-        New-MgBetaEntitlementManagementAccessPackageResourceRequest @resourceRequest
-
+        New-MgBetaEntitlementManagementAccessPackageResourceRequest -BodyParameter $resourceRequest
         #endregion
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Removing resource {$DisplayName} from catalog {$CatalogId}"
-
         $resource = ([Hashtable]$PSBoundParameters).Clone()
 
         $resource.Remove('Id') | Out-Null
@@ -427,12 +424,11 @@ function Set-TargetResource
             -KeyMapping $mapping
 
         $resourceRequest = @{
-            CatalogId             = $CatalogId
-            RequestType           = 'AdminRemove'
-            AccessPackageresource = $resource
+            catalogId             = $CatalogId
+            requestType           = 'AdminRemove'
+            accessPackageresource = $resource
         }
-        New-MgBetaEntitlementManagementAccessPackageResourceRequest @resourceRequest
-
+        New-MgBetaEntitlementManagementAccessPackageResourceRequest -BodyParameter $resourceRequest
     }
 }
 

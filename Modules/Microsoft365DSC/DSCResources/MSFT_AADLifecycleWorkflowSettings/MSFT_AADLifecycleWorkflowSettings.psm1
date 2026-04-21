@@ -182,14 +182,14 @@ function Set-TargetResource
     #endregion
 
     $updateSettings = @{
-        WorkflowScheduleIntervalInHours = $WorkflowScheduleIntervalInHours
-        EmailSettings                   = @{
-            SenderDomain       = $SenderDomain
-            UseCompanyBranding = $UseCompanyBranding
+        workflowScheduleIntervalInHours = $WorkflowScheduleIntervalInHours
+        emailSettings                   = @{
+            senderDomain       = $SenderDomain
+            useCompanyBranding = $UseCompanyBranding
         }
     }
     Write-Verbose -Message "Updating the lifecycle workflow settings with payload: $payload"
-    Update-MgBetaIdentityGovernanceLifecycleWorkflowSetting @updateSettings
+    Update-MgBetaIdentityGovernanceLifecycleWorkflowSetting -BodyParameter $updateSettings
 }
 
 function Test-TargetResource

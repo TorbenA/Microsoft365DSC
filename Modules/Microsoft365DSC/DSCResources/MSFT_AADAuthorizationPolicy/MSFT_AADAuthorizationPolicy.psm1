@@ -291,22 +291,14 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    Write-Verbose -Message 'Set-Targetresource: Running Get-TargetResource'
     $currentPolicy = Get-TargetResource @PSBoundParameters
-
-    Write-Verbose -Message 'Set-Targetresource: Cleaning up parameters'
     $desiredParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $desiredParameters.Remove('IsSingleInstance') | Out-Null
 
-    Write-Verbose -Message 'Set-Targetresource: Authorization Policy Ensure Present'
-    $UpdateParameters = @{
-        AuthorizationPolicyId = 'authorizationPolicy'
-    }
-    # update policy with supplied parameters that are different from existing policy
+    $UpdateParameters = @{}
 
     # prepare object for default user role permissions
     $defaultUserRolePermissions = @{}
-
     foreach ($param in $desiredParameters.Keys)
     {
         $desiredParam = $desiredParameters.$param
@@ -322,12 +314,10 @@ function Set-TargetResource
                 if ($param -like 'Permission*')
                 {
                     $UpdateParameters.Add($param, $desiredParam)
-                    Write-Verbose -Message "Added '$param' to UpdateParameters"
                 }
                 else
                 {
                     $defaultUserRolePermissions.Add(($param -replace '^DefaultUserRole'), $desiredParam)
-                    Write-Verbose -Message "Added '$($param -replace '^DefaultUserRole')' ($param) to defaultUserRolePermissions"
                 }
             }
             else
@@ -336,33 +326,25 @@ function Set-TargetResource
                 {
                     # translate displayvalue to corresponding GUID
                     $guestUserRoleId = Get-GuestUserRoleIdFromName -GuestUserRole $desiredParam
-                    Write-Verbose -Message "Translated GuestUserRole '$param' to '$guestUserRoleId'"
                     $UpdateParameters.Add($param, $guestUserRoleId)
-                    Write-Verbose -Message "Added '$param' to UpdateParameters"
                 }
                 else
                 {
                     $UpdateParameters.Add($param, $desiredParam)
-                    Write-Verbose -Message "added '$param' to UpdateParameters"
                 }
             }
-        }
-        else
-        {
-            Write-Verbose -Message "'$param' is unchanged"
         }
     }
 
     if ($defaultUserRolePermissions.Keys.Count -gt 0)
     {
-        Write-Verbose -Message "Add 'DefaultUserRolePermissions' to UpdateParameters"
         $UpdateParameters.Add('DefaultUserRolePermissions', $defaultUserRolePermissions.Clone())
     }
 
     try
     {
-        Write-Verbose -Message "Updating existing authorization policy with values: $(Convert-M365DscHashtableToString -Hashtable $UpdateParameters)"
-        $null = Update-MgBetaPolicyAuthorizationPolicy @updateParameters -ErrorAction Stop
+        Write-Verbose -Message "Updating existing authorization policy"
+        $null = Update-MgBetaPolicyAuthorizationPolicy -AuthorizationPolicyId 'authorizationPolicy' -BodyParameter $UpdateParameters -ErrorAction Stop
     }
     catch
     {
@@ -372,10 +354,8 @@ function Set-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        Write-Verbose -Message "Set-Targetresource: Failed change policy $DisplayName"
         throw $_
     }
-    Write-Verbose -Message "Set-Targetresource: finished processing Policy $Displayname"
 }
 
 function Test-TargetResource

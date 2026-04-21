@@ -232,15 +232,14 @@ function Set-TargetResource
         Write-Verbose -Message "Creating new AzureAD Token Lifetime Policy {$Displayname)}"
         Write-Verbose -Message "Parameters: $($currentParameters | Out-String)}"
         $currentParameters.Remove('Id') | Out-Null
-        New-MgBetaPolicyTokenLifetimePolicy @currentParameters
+        New-MgBetaPolicyTokenLifetimePolicy -BodyParameter $currentParameters
     }
     # Policy should exist and will be configured to desire state
     elseif ($Ensure -eq 'Present' -and $CurrentAADPolicy.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating existing AzureAD Policy {$Displayname)}"
-        $currentParameters.Add('TokenLifetimePolicyId', $currentAADPolicy.ID)
         $currentParameters.Remove('Id') | Out-Null
-        Update-MgBetaPolicyTokenLifetimePolicy @currentParameters
+        Update-MgBetaPolicyTokenLifetimePolicy -TokenLifetimePolicyId $currentAADPolicy.ID -BodyParameter $currentParameters
     }
     # Policy exist but should not
     elseif ($Ensure -eq 'Absent' -and $CurrentAADPolicy.Ensure -eq 'Present')

@@ -700,7 +700,7 @@ function Set-TargetResource
 
     if ($spoGraphParametersSplat.Keys.Count -gt 0)
     {
-        $null = Update-MgAdminSharepointSetting @spoGraphParametersSplat -ErrorAction Stop
+        $null = Update-MgAdminSharepointSetting -BodyParameter $spoGraphParametersSplat -ErrorAction Stop
     }
 
     # Updating via REST

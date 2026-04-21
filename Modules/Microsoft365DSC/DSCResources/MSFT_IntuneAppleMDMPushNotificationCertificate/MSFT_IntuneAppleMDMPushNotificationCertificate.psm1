@@ -219,13 +219,13 @@ function Set-TargetResource
         }
 
         # There is only PATCH request hence using Update cmdlet to post the certificate
-        Update-MgBetaDeviceManagementApplePushNotificationCertificate @SetParameters
+        Update-MgBetaDeviceManagementApplePushNotificationCertificate -BodyParameter $SetParameters
     }
     # UPDATE
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Intune Apple Push Notification Certificate with Apple ID: '$AppleIdentifier'."
-        Update-MgBetaDeviceManagementApplePushNotificationCertificate @SetParameters
+        Update-MgBetaDeviceManagementApplePushNotificationCertificate -BodyParameter $SetParameters
     }
     # REMOVE
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')

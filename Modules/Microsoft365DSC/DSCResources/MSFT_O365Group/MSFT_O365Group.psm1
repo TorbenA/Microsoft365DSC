@@ -279,7 +279,8 @@ function Set-TargetResource
             Write-Verbose -Message 'Initiating Group Creation'
             Write-Verbose -Message "Owner = $($groupParams.Owners)"
             Write-Verbose -Message "Creating New Group with values: $(Convert-M365DscHashtableToString -Hashtable $groupParams)"
-            New-MgGroup @groupParams -GroupTypes @('Unified')
+            $groupParams.Add('GroupTypes', @('Unified'))
+            New-MgGroup -BodyParameter $groupParams | Out-Null
             Write-Verbose -Message 'Group Created'
         }
 

@@ -316,17 +316,15 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating new Cross Tenant Access Policy Configuration Partner entry for TenantId {$PartnerTenantId}"
-        Write-Verbose -Message (Convert-M365DscHashtableToString -Hashtable $OperationParams)
         $OperationParams.Add('TenantId', $PartnerTenantId)
         $OperationParams.Remove('PartnerTenantId') | Out-Null
-        New-MgBetaPolicyCrossTenantAccessPolicyPartner @OperationParams
+        New-MgBetaPolicyCrossTenantAccessPolicyPartner -BodyParameter $OperationParams
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating Cross Tenant Access Policy Configuration Partner entry with TenantId {$PartnerTenantId}"
-        $OperationParams.Add('-CrossTenantAccessPolicyConfigurationPartnerTenantId', $PartnerTenantId)
         $OperationParams.Remove('PartnerTenantId') | Out-Null
-        Update-MgBetaPolicyCrossTenantAccessPolicyPartner @OperationParams
+        Update-MgBetaPolicyCrossTenantAccessPolicyPartner -CrossTenantAccessPolicyConfigurationPartnerTenantId $PartnerTenantId -BodyParameter $OperationParams
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {

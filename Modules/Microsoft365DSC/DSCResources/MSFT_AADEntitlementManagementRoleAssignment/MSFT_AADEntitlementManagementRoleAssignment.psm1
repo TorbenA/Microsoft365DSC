@@ -295,8 +295,8 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         $setParameters.Remove('Id') | Out-Null
-        Write-Verbose -Message "Creating a new Entitlement Management Role Assignment with:`r`n$($setParameters | Out-String)"
-        New-MgBetaRoleManagementEntitlementManagementRoleAssignment @setParameters
+        Write-Verbose -Message "Creating a new Entitlement Management Role Assignment for Principal {$Principal} with Role {$RoleDefinition}"
+        New-MgBetaRoleManagementEntitlementManagementRoleAssignment -BodyParameter $setParameters
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {

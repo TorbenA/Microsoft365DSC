@@ -20,7 +20,7 @@ class MSFT_appListItem
 };
 
 [ClassVersion("1.0.0.0")]
-class MSFT_scheduledActionConfigurations
+class MSFT_ScheduledActionConfigurations
 {
     [Write, Description("The unique identifier of the action configuration.")] String id;
     [Write, Description("Number of hours to wait till the action will be enforced. Valid values 0 to 8760.")] Uint32 gracePeriodHours;
@@ -29,7 +29,7 @@ class MSFT_scheduledActionConfigurations
     [Write, Description("A list of group IDs to specify who to CC this notification message to.")] String notificationMessageCCList[];
 };
 
-[ClassVersion("1.0.0.0"), FriendlyName("IntuneDeviceCompliancePolicyiOs")]
+[ClassVersion("1.0.0.1"), FriendlyName("IntuneDeviceCompliancePolicyiOs")]
 class MSFT_IntuneDeviceCompliancePolicyiOs : OMI_BaseResource
 {
     [Key, Description("Display name of the iOS device compliance policy.")] String DisplayName;
@@ -50,7 +50,7 @@ class MSFT_IntuneDeviceCompliancePolicyiOs : OMI_BaseResource
     [Write, Description("OsMaximumVersion of the iOS device compliance policy.")] String OsMaximumVersion;
     [Write, Description("Minimum IOS build version.")] String OsMinimumBuildVersion;
     [Write, Description("Maximum IOS build version.")] String OsMaximumBuildVersion;
-    [Write, Description("Specifies the non-compliance actions."), EmbeddedInstance("MSFT_scheduledActionConfigurations")] String ScheduledActionsForRule[];
+    [Write, Description("Specifies the non-compliance actions."), EmbeddedInstance("MSFT_ScheduledActionConfigurations")] String ScheduledActionsForRule[];
     [Write, Description("SecurityBlockJailbrokenDevices of the iOS device compliance policy.")] Boolean SecurityBlockJailbrokenDevices;
     [Write, Description("DeviceThreatProtectionEnabled of the iOS device compliance policy.")] Boolean DeviceThreatProtectionEnabled;
     [Write, Description("Require Mobile Threat Protection minimum risk level to report noncompliance."), ValueMap{"unavailable", "secured", "low", "medium", "high", "notSet"}, Values{"unavailable", "secured", "low", "medium", "high", "notSet"}] String DeviceThreatProtectionRequiredSecurityLevel;

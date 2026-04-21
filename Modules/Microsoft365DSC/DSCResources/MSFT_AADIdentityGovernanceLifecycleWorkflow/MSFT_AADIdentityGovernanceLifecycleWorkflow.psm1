@@ -295,7 +295,7 @@ function Set-TargetResource
     {
         try
         {
-            New-MgBetaIdentityGovernanceLifecycleWorkflow @SetParameters -ErrorAction Stop
+            New-MgBetaIdentityGovernanceLifecycleWorkflow -BodyParameter $SetParameters -ErrorAction Stop
         }
         catch
         {
@@ -323,10 +323,6 @@ function Set-TargetResource
             $instance = Get-MgBetaIdentityGovernanceLifecycleWorkflow -WorkflowId $instance.Id
 
             New-MgBetaIdentityGovernanceLifecycleWorkflowNewVersion -WorkflowId $instance.Id -BodyParameter $newParams -ErrorAction Stop
-
-            # the below implementation of Update cmdlet can't be used for updating parameters other than basic parameters like display name,
-            # description, isEnabled, isSchedulingEnabled. Hence using the new version cmdlet for exhaustive update scenarios.
-            # Update-MgBetaIdentityGovernanceLifecycleWorkflow @setParameters
         }
         catch
         {

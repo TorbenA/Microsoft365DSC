@@ -368,7 +368,7 @@ function Set-TargetResource
             $creationParams.Add('apps', $appsArray)
         }
 
-        $policy = New-MgBetaDeviceAppManagementTargetedManagedAppConfiguration @creationParams
+        $policy = New-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -BodyParameter $creationParams
 
         #region Assignments
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
@@ -386,7 +386,6 @@ function Set-TargetResource
         Write-Verbose -Message "Updating Intune App Configuration Policy {$DisplayName}"
 
         $updateParams = @{
-            targetedManagedAppConfigurationId = $currentconfigPolicy.Id
             displayName                       = $DisplayName
             description                       = $Description
         }
@@ -440,7 +439,7 @@ function Set-TargetResource
             Invoke-MgGraphRequest -Method POST -Uri $Uri -Body $($appsBody | ConvertTo-Json -Depth 10)
         }
 
-        Update-MgBetaDeviceAppManagementTargetedManagedAppConfiguration @updateParams
+        Update-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -TargetedManagedAppConfigurationId $currentconfigPolicy.Id -BodyParameter $updateParams
 
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
         Update-DeviceConfigurationPolicyAssignment -DeviceConfigurationPolicyId $currentconfigPolicy.Id `

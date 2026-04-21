@@ -491,7 +491,7 @@ function Set-TargetResource
         $instanceParams.Add('action', 'AdminAssign')
         $instanceParams.Add('justification', 'AdminAssign by Microsoft365DSC')
         Write-Verbose -Message "Creating new role eligibility Schedule with parameters:`r`n$(ConvertTo-Json $instanceParams -Depth 10)"
-        New-MgBetaRoleManagementDirectoryRoleEligibilityScheduleRequest @instanceParams
+        New-MgBetaRoleManagementDirectoryRoleEligibilityScheduleRequest -BodyParameter $instanceParams
     }
     # UPDATE
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
@@ -499,7 +499,7 @@ function Set-TargetResource
         $instanceParams.Add('action', 'AdminUpdate')
         $instanceParams.Add('justification', 'AdminUpdate by Microsoft365DSC')
         Write-Verbose -Message "Updating role eligibility Schedule with parameters:`r`n$(ConvertTo-Json $instanceParams -Depth 10)"
-        New-MgBetaRoleManagementDirectoryRoleEligibilityScheduleRequest @instanceParams
+        New-MgBetaRoleManagementDirectoryRoleEligibilityScheduleRequest -BodyParameter $instanceParams
     }
     # REMOVE
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
@@ -507,7 +507,7 @@ function Set-TargetResource
         $instanceParams.Add('action', 'AdminRemove')
         $instanceParams.Add('justification', 'AdminRemove by Microsoft365DSC')
         Write-Verbose -Message "Removing role eligibility Schedule with parameters:`r`n$(ConvertTo-Json $instanceParams -Depth 10)"
-        New-MgBetaRoleManagementDirectoryRoleEligibilityScheduleRequest @instanceParams
+        New-MgBetaRoleManagementDirectoryRoleEligibilityScheduleRequest -BodyParameter $instanceParams
         if ($Script:AllSchedules.Count -gt 0)
         {
             # Remove the instance from the cached list to avoid re-processing

@@ -243,14 +243,13 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Creating an Intune Derived Credential with DisplayName {$DisplayName}"
 
-        New-MgBetaDeviceManagementDerivedCredential @SetParameters
+        New-MgBetaDeviceManagementDerivedCredential -BodyParameter $setParameters
     }
     # UPDATE is not supported API, it always creates a new Derived Credential instance
     # REMOVE
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Removing the Intune Derived Credential with DisplayName {$DisplayName}"
-
         Remove-MgBetaDeviceManagementDerivedCredential -DeviceManagementDerivedCredentialSettingsId $currentInstance.Id -Confirm:$false
     }
 }

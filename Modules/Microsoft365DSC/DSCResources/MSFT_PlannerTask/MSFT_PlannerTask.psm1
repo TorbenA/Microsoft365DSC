@@ -473,7 +473,7 @@ function Set-TargetResource
     {
         $setParams.Remove('TaskId') | Out-Null
         Write-Verbose -Message "Planner Task {$Title} doesn't already exist. Creating it with`r`n:$(Convert-M365DscHashtableToString -Hashtable $setParams)"
-        $newTask = New-MgPlannerTask @setParams
+        $newTask = New-MgPlannerTask -BodyParameter $setParams
     }
     elseif ($Ensure -eq 'Present' -and $currentValues.Ensure -eq 'Present')
     {

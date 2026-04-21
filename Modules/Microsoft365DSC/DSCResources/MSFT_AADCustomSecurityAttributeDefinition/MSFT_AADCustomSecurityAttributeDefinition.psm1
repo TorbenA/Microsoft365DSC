@@ -273,7 +273,7 @@ function Set-TargetResource
     {
         $setParameters.Remove('Id') | Out-Null
         Write-Verbose -Message "Creating new Atribute Definition {$Name}"
-        $attributeDefinition = New-MgBetaDirectoryCustomSecurityAttributeDefinition @SetParameters
+        $attributeDefinition = New-MgBetaDirectoryCustomSecurityAttributeDefinition -BodyParameter $setParameters
 
         foreach ($allowedValue in $AllowedValues)
         {
@@ -287,7 +287,6 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating Atribute Definition {$Name}"
-        $setParameters.Add('CustomSecurityAttributeDefinitionId', $currentInstance.Id)
         $setParameters.Remove('Id') | Out-Null
         $setParameters.Remove('AttributeSet') | Out-Null
         $setParameters.Remove('IsCollection') | Out-Null
@@ -298,7 +297,7 @@ function Set-TargetResource
         {
             $setParameters.Remove('UsePreDefinedValuesOnly') | Out-Null
         }
-        Update-MgBetaDirectoryCustomSecurityAttributeDefinition @SetParameters
+        Update-MgBetaDirectoryCustomSecurityAttributeDefinition -CustomSecurityAttributeDefinitionId $currentInstance.Id -BodyParameter $setParameters
 
         # Allowed values cannot be removed, therefore we only need to add new ones or update existing ones
         foreach ($allowedValue in $AllowedValues)

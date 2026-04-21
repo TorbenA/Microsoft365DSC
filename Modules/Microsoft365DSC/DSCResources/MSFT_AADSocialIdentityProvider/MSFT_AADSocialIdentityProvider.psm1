@@ -204,14 +204,13 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating new Social Identity Provider with Client Id {$ClientId}"
-        New-MgBetaIdentityProvider @BoundParameters | Out-Null
+        New-MgBetaIdentityProvider -BodyParameter $BoundParameters | Out-Null
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        $BoundParameters.Add('IdentityProviderBaseId', $ClientId)
         $BoundParameters.Remove('IdentityProviderType') | Out-Null
         Write-Verbose -Message "Updating the Social Identity Provider with Client Id {$ClientId}"
-        Update-MgBetaIdentityProvider @BoundParameters | Out-Null
+        Update-MgBetaIdentityProvider -IdentityProviderBaseId $ClientId -BodyParameter $BoundParameters | Out-Null
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {

@@ -188,10 +188,10 @@ function Set-TargetResource
     }
 
     $UpdateParameters = @{
-        Id        = $DisplayName
-        IsEnabled = $IsEnabled
+        id        = $DisplayName
+        isEnabled = $IsEnabled
     }
-    Update-MgBetaPolicyIdentitySecurityDefaultEnforcementPolicy @UpdateParameters | Out-Null
+    Update-MgBetaPolicyIdentitySecurityDefaultEnforcementPolicy -BodyParameter $UpdateParameters | Out-Null
 }
 
 function Test-TargetResource

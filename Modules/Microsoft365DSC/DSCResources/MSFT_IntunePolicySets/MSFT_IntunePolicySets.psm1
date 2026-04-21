@@ -312,7 +312,7 @@ function Set-TargetResource
         $CreateParameters.Add('Items', $itemsHash)
 
         Write-Verbose -Message ($CreateParameters | Out-String)
-        $policy = New-MgBetaDeviceAppManagementPolicySet @CreateParameters
+        $policy = New-MgBetaDeviceAppManagementPolicySet -BodyParameter $CreateParameters
 
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
@@ -328,9 +328,7 @@ function Set-TargetResource
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
 
         #region resource generator code
-        $UpdateParameters.Add('PolicySetId', $currentInstance.Id)
-
-        Update-MgBetaDeviceAppManagementPolicySet @UpdateParameters
+        Update-MgBetaDeviceAppManagementPolicySet -PolicySetId $currentInstance.Id -BodyParameter $UpdateParameters
 
         $Url = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceAppManagement/policySets/$($currentInstance.Id)/update"
         if ($null -ne ($itemamendments = Get-ItemsAmendmentsObject -currentObjectItems $currentInstance.Items -targetObjectItems $items))

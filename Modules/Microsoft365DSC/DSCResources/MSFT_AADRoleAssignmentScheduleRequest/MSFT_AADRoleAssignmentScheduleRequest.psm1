@@ -514,21 +514,21 @@ function Set-TargetResource
         Write-Verbose -Message "Creating a Role Assignment Schedule Request for principal {$Principal} and role {$RoleDefinition}"
         $ParametersOps.Remove('Id') | Out-Null
         $ParametersOps.Action = 'AdminAssign'
-        New-MgBetaRoleManagementDirectoryRoleAssignmentScheduleRequest @ParametersOps
+        New-MgBetaRoleManagementDirectoryRoleAssignmentScheduleRequest -BodyParameter $ParametersOps
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Role Assignment Schedule Request for principal {$Principal} and role {$RoleDefinition}"
         $ParametersOps.Remove('Id') | Out-Null
         $ParametersOps.Action = 'AdminUpdate'
-        New-MgBetaRoleManagementDirectoryRoleAssignmentScheduleRequest @ParametersOps
+        New-MgBetaRoleManagementDirectoryRoleAssignmentScheduleRequest -BodyParameter $ParametersOps
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Removing the Role Assignment Schedule Request for principal {$Principal} and role {$RoleDefinition}"
         $ParametersOps.Remove('Id') | Out-Null
         $ParametersOps.Action = 'AdminRemove'
-        New-MgBetaRoleManagementDirectoryRoleAssignmentScheduleRequest @ParametersOps
+        New-MgBetaRoleManagementDirectoryRoleAssignmentScheduleRequest -BodyParameter $ParametersOps
         if ($Script:AllSchedules.Count -gt 0)
         {
             # Remove the instance from the cached list to avoid re-processing

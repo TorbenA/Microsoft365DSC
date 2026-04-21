@@ -195,14 +195,13 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating new Attribute Set with Id {$Id}"
-        New-MgBetaDirectoryAttributeSet @BoundParameters | Out-Null
+        New-MgBetaDirectoryAttributeSet -BodyParameter $BoundParameters | Out-Null
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Attribute Set with Id {$($currentInstance.Id)}"
-        $BoundParameters.Add('AttributeSetId', $Id)
         $BoundParameters.Remove('Id') | Out-Null
-        Update-MgBetaDirectoryAttributeSet @BoundParameters | Out-Null
+        Update-MgBetaDirectoryAttributeSet -AttributeSetId $currentInstance.Id -BodyParameter $BoundParameters | Out-Null
     }
 }
 

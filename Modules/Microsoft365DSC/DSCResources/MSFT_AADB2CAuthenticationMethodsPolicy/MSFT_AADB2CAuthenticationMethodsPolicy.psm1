@@ -181,7 +181,7 @@ function Set-TargetResource
     $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $setParameters.Remove('IsSingleInstance') | Out-Null
     Write-Verbose -Message 'Updating B2C Authentication Methods Policy'
-    Update-MgBetaPolicyB2CAuthenticationMethodPolicy @setParameters
+    Update-MgBetaPolicyB2CAuthenticationMethodPolicy -BodyParameter $setParameters
 }
 
 function Test-TargetResource
