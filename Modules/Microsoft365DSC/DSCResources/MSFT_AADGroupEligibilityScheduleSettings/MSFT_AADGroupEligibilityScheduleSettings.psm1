@@ -102,7 +102,7 @@ function Get-TargetResource
                 $GroupDisplayName = $GroupDisplayName -replace "'", "''"
             }
             $filter = "DisplayName eq '$GroupDisplayName'"
-            $Group = Get-MgGroup -Filter $filter -ErrorAction Stop
+            [array]$Group = Get-MgGroup -Filter $filter -ErrorAction Stop
             if ($Group.Count -gt 1)
             {
                 throw "Duplicate AzureAD Groups named $GroupDisplayName exist in tenant"
@@ -317,8 +317,8 @@ function Set-TargetResource
         $GroupDisplayName = $GroupDisplayName -replace "'", "''"
     }
     $filter = "DisplayName eq '$GroupDisplayName'"
-    $Group = Get-MgGroup -Filter $filter -ErrorAction Stop
-    if ($Group.Length -gt 1)
+    [array]$Group = Get-MgGroup -Filter $filter -ErrorAction Stop
+    if ($Group.Count -gt 1)
     {
         throw "Duplicate AzureAD Groups named $GroupDisplayName exist in tenant"
     }

@@ -154,8 +154,8 @@ function Get-TargetResource
                 catch
                 {
                     Write-Verbose -Message "Couldn't get group by ID, trying by name"
-                    $Group = Get-MgBetaGroup -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ExpandProperty 'members' -ErrorAction Stop
-                    if ($Group.Length -gt 1)
+                    [array]$Group = Get-MgBetaGroup -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ExpandProperty 'members' -ErrorAction Stop
+                    if ($Group.Count -gt 1)
                     {
                         throw "Duplicate AzureAD Groups named $DisplayName exist in tenant"
                     }
@@ -165,8 +165,8 @@ function Get-TargetResource
             {
                 Write-Verbose -Message 'Id was NOT specified'
                 ## Can retreive multiple AAD Groups since displayname is not unique
-                $Group = Get-MgBetaGroup -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ExpandProperty 'members' -ErrorAction Stop
-                if ($Group.Length -gt 1)
+                [array]$Group = Get-MgBetaGroup -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ExpandProperty 'members' -ErrorAction Stop
+                if ($Group.Count -gt 1)
                 {
                     throw "Duplicate AzureAD Groups named $DisplayName exist in tenant"
                 }
