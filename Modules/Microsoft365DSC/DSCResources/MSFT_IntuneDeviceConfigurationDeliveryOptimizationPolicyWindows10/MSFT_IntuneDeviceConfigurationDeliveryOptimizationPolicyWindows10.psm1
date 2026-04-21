@@ -744,11 +744,17 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.'@odata.type' -eq '#microsoft.graph.windowsDeliveryOptimizationConfiguration' `
+        $baseFilter = "isof('microsoft.graph.windowsDeliveryOptimizationConfiguration')"
+        if (-not [string]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
         }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
+            -ErrorAction Stop
         #endregion
 
         $i = 1

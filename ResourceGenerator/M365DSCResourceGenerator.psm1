@@ -533,14 +533,11 @@ $($userDefinitionSettings.MOF -join "`r`n")
 
         $getDefaultParameterSet = $getCmdlet.ParameterSets | Where-Object -FilterScript { $_.Name -eq 'List' }
         $getListIdentifier = $getDefaultParameterSet.Parameters.Name
-        $getAlternativeFilterString = [System.Text.StringBuilder]::New()
+        $getAlternativeFilterString = [System.Text.StringBuilder]::new()
         if ($getListIdentifier -contains 'Filter')
         {
-            $getAlternativeFilterString.AppendLine("                    -Filter `"$alternativeKey eq '`$(`$$alternativeKey -replace `"'`", `"''`")'`" ``") | Out-Null
-            $getAlternativeFilterString.AppendLine("                        -ErrorAction SilentlyContinue | Where-Object ``") | Out-Null
-            $getAlternativeFilterString.AppendLine("                        -FilterScript {") | Out-Null
-            $getAlternativeFilterString.AppendLine("                            `$_.'@odata.type' -eq `"`#microsoft.graph.$SelectedODataType`"") | Out-Null
-            $getAlternativeFilterString.Append("                        }") | Out-Null
+            $getAlternativeFilterString.AppendLine("                    -Filter `"$alternativeKey eq '`$(`$$alternativeKey -replace `"'`", `"''`")'`" and isof('microsoft.graph.$SelectedODataType')``") | Out-Null
+            $getAlternativeFilterString.AppendLine("                        -ErrorAction SilentlyContinue") | Out-Null
         }
         else
         {
@@ -700,7 +697,7 @@ $($userDefinitionSettings.MOF -join "`r`n")
         Write-TokenReplacement -Token '<ResourceDescription>' -Value $resourceDescription -FilePath $moduleFilePath
 
         Write-TokenReplacement -Token '<FilterKey>' -Value $alternativeKey -FilePath $moduleFilePath
-        $exportGetCommand = [System.Text.StringBuilder]::New()
+        $exportGetCommand = [System.Text.StringBuilder]::new()
         if ($CmdLetNoun -like "*DeviceManagementConfigurationPolicy")
         {
             $exportGetCommand.AppendLine("        `$policyTemplateID = `"<TemplateId>`"") | Out-Null

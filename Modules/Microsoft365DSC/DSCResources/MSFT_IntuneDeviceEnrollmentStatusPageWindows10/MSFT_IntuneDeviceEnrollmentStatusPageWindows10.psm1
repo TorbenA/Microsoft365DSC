@@ -166,8 +166,8 @@ function Get-TargetResource
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue | Where-Object `
                         -FilterScript {
-                            $_.'@odata.type' -eq '#microsoft.graph.windows10EnrollmentCompletionPageConfiguration' `
-                    } | Where-Object -FilterScript { $null -ne $_.DisplayName }
+                            $_.'@odata.type' -eq '#microsoft.graph.windows10EnrollmentCompletionPageConfiguration' -and $null -ne $_.DisplayName
+                    }
                 }
             }
             #endregion
@@ -704,10 +704,8 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        [array]$getValue = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -Filter $Filter -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.'@odata.type' -eq '#microsoft.graph.windows10EnrollmentCompletionPageConfiguration' `
+        [array]$getValue = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -Filter $Filter -All -ErrorAction Stop | Where-Object {
+            $_.'@odata.type' -eq "#microsoft.graph.windows10EnrollmentCompletionPageConfiguration"
         }
         #endregion
 

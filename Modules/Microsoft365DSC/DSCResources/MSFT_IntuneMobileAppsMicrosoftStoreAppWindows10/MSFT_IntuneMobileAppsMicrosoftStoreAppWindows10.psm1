@@ -185,7 +185,7 @@ function Get-TargetResource
         {
             $complexLargeIcon = @{}
             $complexLargeIcon.Add('Type', $getValue.LargeIcon.Type)
-            $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($getValue.LargeIcon.Value))
+            $complexLargeIcon.Add('Value', $getValue.LargeIcon.Value)
         }
         #endregion
 

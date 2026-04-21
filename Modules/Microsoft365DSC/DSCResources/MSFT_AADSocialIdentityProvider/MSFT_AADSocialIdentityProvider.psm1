@@ -81,9 +81,7 @@ function Get-TargetResource
             $nullResult = $PSBoundParameters
             $nullResult.Ensure = 'Absent'
 
-            $getValue = Get-MgBetaIdentityProvider -Filter "Id eq '$ClientId'" `
-                -ErrorAction SilentlyContinue | Where-Object -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.socialIdentityProvider' }
-
+            $getValue = Get-MgBetaIdentityProvider -Filter "Id eq '$ClientId' and isof('microsoft.graph.socialIdentityProvider')" -ErrorAction SilentlyContinue
             if ($null -eq $getValue)
             {
                 Write-Verbose -Message "Could not find Social Identity Provider Client Id {$ClientId}"

@@ -964,14 +964,19 @@ function Export-TargetResource
 
     try
     {
+        $baseFilter = "isof('microsoft.graph.windows10CompliancePolicy')"
         if (-not [string]::IsNullOrEmpty($Filter))
         {
             $complexFunctions = Get-ComplexFunctionsFromFilterQuery -FilterQuery $Filter
             $Filter = Remove-ComplexFunctionsFromFilterQuery -FilterQuery $Filter
+            $baseFilter = "($baseFilter) and ($Filter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
         }
         [array]$configDeviceWindowsPolicies = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
-            -ErrorAction Stop -All:$true -Filter $Filter | Where-Object `
-            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.windows10CompliancePolicy' }
+            -ErrorAction Stop -All -Filter $Filter
         $configDeviceWindowsPolicies = Find-GraphDataUsingComplexFunctions -ComplexFunctions $complexFunctions -Policies $configDeviceWindowsPolicies
 
         $i = 1

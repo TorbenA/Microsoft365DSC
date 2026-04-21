@@ -205,8 +205,8 @@ function Get-TargetResource
         $complexLargeIcon = [ordered]@{}
         if ($null -ne $instance.LargeIcon.Value)
         {
-            $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($instance.LargeIcon.Value))
             $complexLargeIcon.Add('Type', $instance.LargeIcon.Type)
+            $complexLargeIcon.Add('Value', $instance.LargeIcon.Value)
         }
 
         $complexMinimumSupportedOperatingSystem = [ordered]@{}

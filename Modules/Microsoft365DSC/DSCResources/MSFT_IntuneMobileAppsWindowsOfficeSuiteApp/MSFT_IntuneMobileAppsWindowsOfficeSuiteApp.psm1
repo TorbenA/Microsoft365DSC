@@ -222,13 +222,6 @@ function Get-TargetResource
             $complexExcludedApps = $null
         }
 
-        # $complexLargeIcon = @{}
-        # if ($null -ne $instance.LargeIcon.Value)
-        # {
-        #     $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($instance.LargeIcon.Value))
-        #     $complexLargeIcon.Add('Type', $instance.LargeIcon.Type)
-        # }
-
         $results = @{
             Id                                   = $instance.Id
             DisplayName                          = $instance.DisplayName

@@ -200,7 +200,7 @@ function Get-TargetResource
         {
             $complexLargeIcon = [ordered]@{}
             $complexLargeIcon.Add('Type', $getValue.LargeIcon.Type)
-            $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($getValue.LargeIcon.Value))
+            $complexLargeIcon.Add('Value', $getValue.LargeIcon.Value)
         }
         $complexApplicableDeviceType = [ordered]@{}
         $complexApplicableDeviceType.Add('IPad', $getValue.applicableDeviceType.iPad)
@@ -473,9 +473,7 @@ function Set-TargetResource
             $guid = [System.Guid]::Empty
             if (-not [System.Guid]::TryParse($assignment.assignmentSettings.vpnConfigurationId, [ref]$guid))
             {
-                $vpnConfiguration = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "displayName eq '$($assignment.assignmentSettings.vpnConfigurationId)'" | Where-Object -FilterScript {
-                    $_.'@odata.type' -like '#microsoft.graph.*VpnConfiguration'
-                }
+                $vpnConfiguration = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "displayName eq '$($assignment.assignmentSettings.vpnConfigurationId)' and isof('microsoft.graph.vpnConfiguration')"
                 if ($null -eq $vpnConfiguration)
                 {
                     throw "Could not find a VPN Configuration Policy with DisplayName '$($assignment.assignmentSettings.vpnConfigurationId)'."

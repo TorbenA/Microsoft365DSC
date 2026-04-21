@@ -24,6 +24,8 @@
     FIXES [#7055](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7055)
 * M365DSCUtil
   * Added retry logic for too many requests when invoking batch requests.
+* MISC
+  * Refactored filters on Graph calls to be done on the server side instead of locally.
 * Dependencies
   * Updated `DSCParser` to version 3.0.0.4.
     FIXES [#7056](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7056)

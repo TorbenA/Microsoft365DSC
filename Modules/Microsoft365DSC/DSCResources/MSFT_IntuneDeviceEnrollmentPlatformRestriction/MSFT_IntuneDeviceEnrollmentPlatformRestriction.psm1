@@ -148,17 +148,16 @@ function Get-TargetResource
             if ($null -eq $config)
             {
                 Write-Verbose -Message "Could not find an Intune Device Enrollment Platform Restriction with Id {$Identity}"
-                $config = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -All -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
+                $config = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -All -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.deviceEnrollmentPlatformRestrictionConfiguration')" `
                     -ErrorAction SilentlyContinue | Where-Object -FilterScript {
-                    $_.'@odata.type' -like '#microsoft.graph.deviceEnrollmentPlatformRestriction*Configuration' -and
-                    $(if ($null -ne $_.platformType)
-                        {
-                            $_.platformType -eq $PlatformType
-                        }
-                        else
-                        {
-                            $true
-                        })
+                    if ($null -ne $_.platformType)
+                    {
+                        $_.platformType -eq $PlatformType
+                    }
+                    else
+                    {
+                        $true
+                    }
                 }
 
                 if ($null -eq $config)

@@ -470,8 +470,8 @@ function Export-TargetResource
     try
     {
         #region resource generator code
+        $getPolicy = Get-MgBetaPolicyAuthenticationMethodPolicy
         $desiredType = '#microsoft.graph.externalAuthenticationMethodConfiguration'
-        $getPolicy = Invoke-MgGraphRequest -Method Get -Uri ((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + 'beta/policies/authenticationMethodsPolicy/')
         $getValue = $getPolicy.AuthenticationMethodConfigurations | Where-Object -FilterScript { $_.'@odata.type' -eq $desiredType }
         #endregion
 

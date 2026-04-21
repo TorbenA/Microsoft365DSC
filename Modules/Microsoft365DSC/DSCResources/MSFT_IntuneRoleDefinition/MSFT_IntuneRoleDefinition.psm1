@@ -459,11 +459,16 @@ function Export-TargetResource
 
     try
     {
-        [array]$getValue = Get-MgBetaDeviceManagementRoleDefinition -Filter $Filter -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.'@odata.type' -eq '#microsoft.graph.deviceAndAppManagementRoleDefinition' `
+        $baseFilter = "isof('microsoft.graph.deviceAndAppManagementRoleDefinition')"
+        if (-not [string]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
         }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = Get-MgBetaDeviceManagementRoleDefinition -Filter $Filter -All -ErrorAction Stop
 
         if (-not $getValue)
         {

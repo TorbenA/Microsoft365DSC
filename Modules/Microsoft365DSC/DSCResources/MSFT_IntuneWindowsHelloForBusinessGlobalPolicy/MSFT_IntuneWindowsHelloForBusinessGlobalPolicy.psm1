@@ -526,9 +526,7 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        [array]$getValue = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
+        [array]$getValue = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -Filter $Filter -All -ErrorAction Stop | Where-Object {
             $_.'@odata.type' -eq '#microsoft.graph.deviceEnrollmentWindowsHelloForBusinessConfiguration'
         }
         #endregion

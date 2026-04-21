@@ -177,11 +177,8 @@ function Get-TargetResource
                 {
                     $getValue = Get-MgBetaDeviceManagementDeviceConfiguration `
                         -All `
-                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                        -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript {
-                            $_.'@odata.type' -eq '#microsoft.graph.windows81SCEPCertificateProfile' `
-                    }
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.windows81SCEPCertificateProfile')" `
+                        -ErrorAction SilentlyContinue
                 }
             }
             #endregion
@@ -505,21 +502,15 @@ function Set-TargetResource
 
         $RootCertificate = Get-MgBetaDeviceManagementDeviceConfiguration `
             -DeviceConfigurationId $RootCertificateId `
-            -ErrorAction SilentlyContinue | `
-                Where-Object -FilterScript {
-                $_.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate'
-            }
+            -ErrorAction SilentlyContinue
 
         if ($null -eq $RootCertificate)
         {
             Write-Verbose -Message "Could not find trusted root certificate with Id {$RootCertificateId}, searching by display name {$RootCertificateDisplayName}"
 
             $RootCertificate = Get-MgBetaDeviceManagementDeviceConfiguration `
-                -Filter "DisplayName eq '$($RootCertificateDisplayName -replace "'", "''")'" `
-                -ErrorAction SilentlyContinue | `
-                    Where-Object -FilterScript {
-                    $_.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate'
-                }
+                -Filter "DisplayName eq '$($RootCertificateDisplayName -replace "'", "''")' and isof('microsoft.graph.windows81TrustedRootCertificate')" `
+                -ErrorAction SilentlyContinue
             $RootCertificateId = $RootCertificate.Id
 
             if ($null -eq $RootCertificate)
@@ -832,11 +823,16 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.'@odata.type' -eq '#microsoft.graph.windows81SCEPCertificateProfile' `
+        $baseFilter = "isof('microsoft.graph.windows81SCEPCertificateProfile')"
+        if (-not [string]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
         }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All -ErrorAction Stop
         #endregion
 
         $i = 1

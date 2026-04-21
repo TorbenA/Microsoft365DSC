@@ -192,7 +192,7 @@ function Get-TargetResource
         {
             $complexLargeIcon = [ordered]@{}
             $complexLargeIcon.Add('Type', $getValue.LargeIcon.Type)
-            $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($getValue.LargeIcon.Value))
+            $complexLargeIcon.Add('Value', $getValue.LargeIcon.Value)
         }
         $enumChannel = $null
         if ($null -ne $getValue.channel)

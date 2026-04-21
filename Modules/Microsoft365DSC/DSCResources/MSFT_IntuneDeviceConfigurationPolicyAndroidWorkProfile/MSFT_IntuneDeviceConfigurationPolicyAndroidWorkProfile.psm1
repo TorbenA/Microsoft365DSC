@@ -270,8 +270,8 @@ function Get-TargetResource
             $nullResult = $PSBoundParameters
             $nullResult.Ensure = 'Absent'
 
-            $policy = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                -ErrorAction Stop | Where-Object -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration' }
+            $policy = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.androidWorkProfileGeneralDeviceConfiguration')" `
+                -ErrorAction Stop
 
             if ($null -eq $policy)
             {
@@ -988,9 +988,16 @@ function Export-TargetResource
 
     try
     {
-        [array]$policies = Get-MgBetaDeviceManagementDeviceConfiguration `
-            -ErrorAction Stop -All:$true -Filter $Filter | Where-Object `
-            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration' }
+        $baseFilter = "isof('microsoft.graph.androidWorkProfileGeneralDeviceConfiguration')"
+        if (-not [string]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$policies = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All -ErrorAction Stop
         $i = 1
         $dscContent = ''
         if ($policies.Length -eq 0)

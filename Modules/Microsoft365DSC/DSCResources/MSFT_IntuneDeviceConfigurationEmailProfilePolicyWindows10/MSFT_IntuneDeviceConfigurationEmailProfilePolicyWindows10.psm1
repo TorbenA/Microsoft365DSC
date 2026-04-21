@@ -159,12 +159,8 @@ function Get-TargetResource
                 {
                     $getValue = Get-MgBetaDeviceManagementDeviceConfiguration `
                         -All `
-                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                        -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript {
-                            $_.'@odata.type' -eq '#microsoft.graph.windows10EasEmailProfileConfiguration' `
-                    }
-
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.windows10EasEmailProfileConfiguration')" `
+                        -ErrorAction SilentlyContinue
                     if ($null -eq $getValue)
                     {
                         Write-Verbose -Message "Could not find an Intune Device Configuration Email Profile Policy for Windows10 with DisplayName {$DisplayName}"
@@ -654,11 +650,16 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.'@odata.type' -eq '#microsoft.graph.windows10EasEmailProfileConfiguration' `
+        $baseFilter = "isof('microsoft.graph.windows10EasEmailProfileConfiguration')"
+        if (-not [string]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
         }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All -ErrorAction Stop
         #endregion
 
         $i = 1

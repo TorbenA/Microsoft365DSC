@@ -120,10 +120,7 @@ function Get-TargetResource
             #region resource generator code
             if ($null -eq $getValue)
             {
-                $getValue = Get-MgBetaDeviceAppManagementMobileAppConfiguration -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
-                    -FilterScript {
-                        $_.'@odata.type' -eq '#microsoft.graph.androidManagedStoreAppConfiguration' `
-                }
+                $getValue = Get-MgBetaDeviceAppManagementMobileAppConfiguration -Filter "DisplayName eq '$($Displayname -replace "'", "''")' and isof('microsoft.graph.androidManagedStoreAppConfiguration')" -ErrorAction SilentlyContinue
             }
             #endregion
 
@@ -507,12 +504,16 @@ function Export-TargetResource
     {
 
         #region resource generator code
-        [array]$getValue = Get-MgBetaDeviceAppManagementMobileAppConfiguration -Filter $Filter -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.'@odata.type' -eq '#microsoft.graph.androidManagedStoreAppConfiguration' `
+        $baseFilter = "isof('microsoft.graph.androidManagedStoreAppConfiguration')"
+        if (-not [System.String]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
         }
-        #endregion
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = Get-MgBetaDeviceAppManagementMobileAppConfiguration -Filter $Filter -All -ErrorAction Stop
 
         $i = 1
         $dscContent = ''

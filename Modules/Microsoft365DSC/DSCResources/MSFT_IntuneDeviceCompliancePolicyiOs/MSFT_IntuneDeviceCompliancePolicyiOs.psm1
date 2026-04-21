@@ -169,10 +169,9 @@ function Get-TargetResource
 
             $devicePolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
                 -All `
+                -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.iosCompliancePolicy')" `
                 -ExpandProperty 'scheduledActionsForRule($expand=scheduledActionConfigurations)' `
-                -ErrorAction SilentlyContinue | Where-Object `
-                -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.iosCompliancePolicy' -and `
-                    $_.displayName -eq $($DisplayName) }
+                -ErrorAction SilentlyContinue
             if (([array]$devicePolicy).Count -gt 1)
             {
                 throw "A policy with a duplicated displayName {'$DisplayName'} was found - Ensure displayName is unique"
@@ -747,15 +746,20 @@ function Export-TargetResource
 
     try
     {
+        $baseFilter = "isof('microsoft.graph.iosCompliancePolicy')"
         if (-not [string]::IsNullOrEmpty($Filter))
         {
             $complexFunctions = Get-ComplexFunctionsFromFilterQuery -FilterQuery $Filter
             $Filter = Remove-ComplexFunctionsFromFilterQuery -FilterQuery $Filter
+            $Filter = "($baseFilter) and ($Filter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
         }
         [array]$configDeviceiOsPolicies = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
             -ExpandProperty 'scheduledActionsForRule($expand=scheduledActionConfigurations)' `
-            -ErrorAction Stop -All:$true -Filter $Filter | Where-Object `
-            -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.iosCompliancePolicy' }
+            -ErrorAction Stop -All -Filter $Filter
         $configDeviceiOsPolicies = Find-GraphDataUsingComplexFunctions -ComplexFunctions $complexFunctions -Policies $configDeviceiOsPolicies
 
         $i = 1

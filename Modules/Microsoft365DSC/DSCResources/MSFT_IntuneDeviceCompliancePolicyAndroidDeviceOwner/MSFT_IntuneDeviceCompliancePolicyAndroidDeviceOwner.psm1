@@ -194,12 +194,9 @@ function Get-TargetResource
 
             $devicePolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
                 -All `
+                -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.androidDeviceOwnerCompliancePolicy')" `
                 -ExpandProperty 'scheduledActionsForRule($expand=scheduledActionConfigurations)' `
-                -ErrorAction Stop | Where-Object `
-                -FilterScript {
-                $_.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerCompliancePolicy' -and `
-                    $_.displayName -eq $($DisplayName)
-            }
+                -ErrorAction Stop
 
             if (([array]$devicePolicy).Count -gt 1)
             {
@@ -833,17 +830,20 @@ function Export-TargetResource
 
     try
     {
+        $baseFilter = "isof('microsoft.graph.androidDeviceOwnerCompliancePolicy')"
         if (-not [string]::IsNullOrEmpty($Filter))
         {
             $complexFunctions = Get-ComplexFunctionsFromFilterQuery -FilterQuery $Filter
             $Filter = Remove-ComplexFunctionsFromFilterQuery -FilterQuery $Filter
+            $Filter = "($baseFilter) and ($Filter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
         }
         [array]$configDeviceAndroidPolicies = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
             -ExpandProperty 'scheduledActionsForRule($expand=scheduledActionConfigurations)' `
-            -ErrorAction Stop -All:$true -Filter $Filter | Where-Object `
-            -FilterScript {
-            $_.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerCompliancePolicy'
-        }
+            -ErrorAction Stop -All -Filter $Filter
         $configDeviceAndroidPolicies = Find-GraphDataUsingComplexFunctions -ComplexFunctions $complexFunctions -Policies $configDeviceAndroidPolicies
 
         $i = 1

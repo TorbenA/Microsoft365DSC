@@ -468,8 +468,9 @@ function Export-TargetResource
 
     try
     {
-        [array]$configs = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -All:$true -Filter $Filter -ErrorAction Stop `
-        | Where-Object -FilterScript { $_.'@odata.type' -eq '#microsoft.graph.deviceEnrollmentLimitConfiguration' }
+        [array]$configs = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -Filter $Filter -All -ErrorAction Stop | Where-Object {
+            $_.'@odata.type' -eq "#microsoft.graph.deviceEnrollmentLimitConfiguration"
+        }
         $i = 1
         $dscContent = ''
         if ($configs.Length -eq 0)

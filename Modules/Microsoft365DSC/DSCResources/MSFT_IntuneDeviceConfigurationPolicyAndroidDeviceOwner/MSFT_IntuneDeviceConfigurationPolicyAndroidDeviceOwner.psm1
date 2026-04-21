@@ -655,10 +655,7 @@ function Get-TargetResource
 
             if (-not $getValue)
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($Displayname -replace "'", "''")'" -ErrorAction SilentlyContinue | Where-Object `
-                    -FilterScript {
-                        $_.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerGeneralDeviceConfiguration' `
-                }
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($Displayname -replace "'", "''")' and isof('microsoft.graph.androidDeviceOwnerGeneralDeviceConfiguration')" -ErrorAction SilentlyContinue
             }
             #endregion
 
@@ -2438,11 +2435,16 @@ function Export-TargetResource
     {
 
         #region resource generator code
-        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-            $_.'@odata.type' -eq '#microsoft.graph.androidDeviceOwnerGeneralDeviceConfiguration'
+        $baseFilter = "isof('microsoft.graph.androidDeviceOwnerGeneralDeviceConfiguration')"
+        if (-not [string]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
         }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All -ErrorAction Stop
         #endregion
 
 
