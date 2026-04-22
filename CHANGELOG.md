@@ -17,6 +17,9 @@
 * AADServicePrincipal
   * Fixed an issue where `odataType` and `userType` were missing from the
     `MSFT_AADServicePrincipalCustomClaimCondition` instances.
+* AzureRoleDefinition
+  * Initial Release
+    FIXES [#7077](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7077)
 * EXOCASMailboxPlan
   * Fixed an issue where `Identity` was missing in the export.
 * EXODataEncryptionPolicy
