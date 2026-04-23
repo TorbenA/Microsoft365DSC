@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.26.422.1
 
 * AADApplication
   * Fixed an issue where the value of `Value` in `MSFT_MicrosoftGraphAppRole` was missing.
