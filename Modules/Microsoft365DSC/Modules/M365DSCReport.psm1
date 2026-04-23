@@ -383,7 +383,6 @@ function New-M365DSCConfigurationToMarkdown
     Write-Output 'Completed generating Markdown report'
 }
 
-
 <#
 .DESCRIPTION
     This function creates a new HTML document from the specified exported configuration
@@ -574,7 +573,6 @@ function New-M365DSCConfigurationToJSON
     $jsonContent = $ParsedContent | ConvertTo-Json -Depth 25
     $jsonContent | Out-File -FilePath $OutputPath
 }
-
 
 <#
 .DESCRIPTION

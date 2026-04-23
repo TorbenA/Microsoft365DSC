@@ -622,7 +622,6 @@ Note 3:
 If you want to configure App-Only permission for Power Platform, please refer to this information on how to setup the permissions:
 https://microsoft365dsc.com/user-guide/get-started/authentication-and-permissions/#power-apps-permissions
 
-
 .Parameter ApplicationName
 The name of the application to create or update. Default value is 'Microsoft365DSC'.
 

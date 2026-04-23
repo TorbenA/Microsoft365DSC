@@ -649,7 +649,6 @@ function Get-M365DSCIdentityGovernanceTasks
         $WorkflowId
     )
 
-
     # Get the tasks from the specified workflow
     $tasks = Get-MgBetaIdentityGovernanceLifecycleWorkflowTask -WorkflowId $WorkflowId
 

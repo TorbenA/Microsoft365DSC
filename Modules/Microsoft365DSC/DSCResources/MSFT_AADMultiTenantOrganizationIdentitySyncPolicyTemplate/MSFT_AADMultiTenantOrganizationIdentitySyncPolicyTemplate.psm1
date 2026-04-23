@@ -305,7 +305,6 @@ function Export-TargetResource
             $Global:M365DSCExportResourceInstancesCount++
         }
 
-
         $params = @{
             IsSingleInstance      = 'Yes'
             Credential            = $Credential

@@ -473,7 +473,6 @@ function Set-TargetResource
         $AccessTokens
     )
 
-
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 

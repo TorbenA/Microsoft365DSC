@@ -270,7 +270,7 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Creating an Azure AD Activity Based Timeout Policy with DisplayName {$DisplayName}"
+        Write-Verbose -Message "Updating an Azure AD Activity Based Timeout Policy with DisplayName {$DisplayName}"
         if ($AzurePortalTimeOutexist)
         {
             $ApplicationPolicies += @{

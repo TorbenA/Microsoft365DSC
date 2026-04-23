@@ -705,7 +705,6 @@ function Export-TargetResource
     }
 }
 
-
 function Get-M365DSCRoleManagementPolicyRuleObject
 {
     [CmdletBinding()]

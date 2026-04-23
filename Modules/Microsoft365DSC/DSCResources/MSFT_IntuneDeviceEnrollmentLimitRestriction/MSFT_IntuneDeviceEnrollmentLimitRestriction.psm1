@@ -255,12 +255,13 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $BoundParameters = Rename-M365DSCCimInstanceParameter -Properties $BoundParameters
 
     $priorityPresent = $false
-    if ($PSBoundParameters.Keys.Contains('Priority'))
+    if ($BoundParameters.Keys.Contains('Priority'))
     {
         $priorityPresent = $true
-        $PSBoundParameters.Remove('Priority') | Out-Null
+        $BoundParameters.Remove('Priority') | Out-Null
     }
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
@@ -269,7 +270,6 @@ function Set-TargetResource
 
         $BoundParameters.Remove('Assignments') | Out-Null
         $BoundParameters.Add('@odata.type', '#microsoft.graph.deviceEnrollmentLimitConfiguration')
-
         $policy = New-MgBetaDeviceManagementDeviceEnrollmentConfiguration -BodyParameter $BoundParameters
 
         # Assignments from DefaultPolicy are not editable and will raise an alert

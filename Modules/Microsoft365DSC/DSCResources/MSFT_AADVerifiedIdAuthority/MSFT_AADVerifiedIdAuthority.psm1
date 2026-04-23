@@ -453,7 +453,6 @@ function Export-TargetResource
     }
 }
 
-
 function Get-M365DSCVerifiedIdAuthorityObject
 {
     [CmdletBinding()]

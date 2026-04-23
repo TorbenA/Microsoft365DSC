@@ -1631,7 +1631,6 @@ function Set-MailboxCalendarConfiguration
 }
 
 
-
 function Get-RetentionPolicy
 {
     [CmdletBinding()]
@@ -1672,7 +1671,6 @@ function New-RetentionPolicy
     )
 }
 
-
 function Remove-RetentionPolicy
 {
     [CmdletBinding()]
@@ -1690,7 +1688,6 @@ function Remove-RetentionPolicy
         $Force
     )
 }
-
 
 function Set-RetentionPolicy
 {
@@ -83712,7 +83709,6 @@ function Set-RecordReviewNotificationTemplateConfig
         $IsCustomizedNotificationTemplate
     )
 }
-
 
 function Get-AdminAuditLogConfig
 {

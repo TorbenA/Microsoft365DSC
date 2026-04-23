@@ -272,7 +272,6 @@ function Set-TargetResource
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
         $createParameters.Remove('Id') | Out-Null
 
-
         #region resource generator code
         $policy = New-MgBetaDeviceManagementWindowsQualityUpdateProfile -BodyParameter $createParameters
         if ($policy.Id)
@@ -293,7 +292,6 @@ function Set-TargetResource
         $updateParameters = ([Hashtable]$boundParameters).Clone()
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
         $updateParameters.Remove('Id') | Out-Null
-
 
         #region resource generator code
         Update-MgBetaDeviceManagementWindowsQualityUpdateProfile `

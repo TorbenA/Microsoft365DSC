@@ -1924,7 +1924,6 @@ function Set-TargetResource
     $featureSettingsValue = "{`"Anonymization`":$($Anonymization.ToString().ToLower()), `"DLPUserRiskSync`":$($DLPUserRiskSync.ToString().ToLower()), `"OptInIRMDataExport`":$($OptInIRMDataExport.ToString().ToLower()), `"RaiseAuditAlert`":$($RaiseAuditAlert.ToString().ToLower()), `"EnableTeam`":$($EnableTeam.ToString().ToLower()), `"InlineAlertPolicyCustomization`":$($InlineAlertPolicyCustomization.ToString().ToLower())}"
     $intelligentDetectionValue = "{`"FileVolCutoffLimits`":`"$($FileVolCutoffLimits)`", `"AlertVolume`":`"$($AlertVolume)`", `"MDATPTriageStatus`": `"$($MDATPTriageStatusValue)`"}"
 
-
     $tenantSettingsValue = "{`"Region`":`"WW`", `"FeatureSettings`":$($featureSettingsValue), " + `
         "`"IntelligentDetections`":$($intelligentDetectionValue)"
     if ($null -ne $AdaptiveProtectionEnabled)

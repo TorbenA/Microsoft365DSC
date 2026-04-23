@@ -1230,7 +1230,6 @@ function Set-TargetResource
     $null = New-M365DSCConnection -Workload 'ExchangeOnline' `
         -InboundParameters $PSBoundParameters
 
-
     Write-Verbose -Message "Setting EXOOrganizationConfig with values: $(Convert-M365DscHashtableToString -Hashtable $PSBoundParameters)"
     $SetValues = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $SetValues.Remove('IsSingleInstance') | Out-Null

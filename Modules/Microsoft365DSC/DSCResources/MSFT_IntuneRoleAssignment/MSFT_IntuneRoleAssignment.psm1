@@ -511,7 +511,6 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-
     $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `

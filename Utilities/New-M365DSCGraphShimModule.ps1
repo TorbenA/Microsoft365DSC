@@ -515,10 +515,10 @@ foreach ($cmdletName in $cmdletNames) {
     $method = $variants[0].Method
 
     # Find the appropriate URI templates
-    $listUri = ($variants | Where-Object { $_.URI.Split('/')[-1] -notmatch '\{[^}]+\}' } | Select-Object -First 1)?.URI # The Uri that does not end with a placeholder is likely the list endpoint
-    $singleUri = ($variants | Where-Object { $_.URI.Split('/')[-1] -match '\{[^}]+\}' } | Select-Object -First 1)?.URI # The Uri that ends with a placeholder is likely the single-item endpoint
+    $listUri = ($variants | Where-Object { $_.URI.Split('/')[-1] -notmatch '\{[^}]+\}' } | Select-Object -First 1)?.URI?.Replace('$','`$') # The Uri that does not end with a placeholder is likely the list endpoint
+    $singleUri = ($variants | Where-Object { $_.URI.Split('/')[-1] -match '\{[^}]+\}' } | Select-Object -First 1)?.URI?.Replace('$','`$') # The Uri that ends with a placeholder is likely the single-item endpoint
     $primaryUri = if ($singleUri) { $singleUri } else { $listUri }
-    if (-not $primaryUri) { $primaryUri = $variants[0].URI }
+    if (-not $primaryUri) { $primaryUri = $variants[0].URI.Replace('$', '`$') }
 
     # Determine identity parameter mappings
     $identityMapping = [ordered]@{}

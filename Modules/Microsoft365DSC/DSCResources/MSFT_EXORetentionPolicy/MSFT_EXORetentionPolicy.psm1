@@ -1,6 +1,5 @@
 Confirm-M365DSCModuleDependency -ModuleName 'MSFT_EXORetentionPolicy'
 
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -128,7 +127,6 @@ function Get-TargetResource
     }
 }
 
-
 function Set-TargetResource
 {
     [CmdletBinding()]
@@ -162,7 +160,6 @@ function Set-TargetResource
         [ValidateSet('Present', 'Absent')]
         [System.String]
         $Ensure = 'Present',
-
 
         [Parameter()]
         [System.Management.Automation.PSCredential]
@@ -224,7 +221,6 @@ function Set-TargetResource
         Remove-RetentionPolicy -Identity $Identity -Force
     }
 }
-
 
 function Test-TargetResource
 {

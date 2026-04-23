@@ -413,8 +413,6 @@ function Export-TargetResource
         $uri = 'https://verifiedid.did.msidentity.com/v1.0/verifiableCredentials/authorities'
         $response = Invoke-M365DSCVerifiedIdWebRequest -Uri $uri -Method 'GET'
         [array] $authorities = $response.value
-
-
         [array] $Script:exportedInstances = $()
 
         foreach ($authority in $authorities)
@@ -493,7 +491,6 @@ function Export-TargetResource
                         }
                     }
 
-
                     if ($null -ne $Results.rules)
                     {
                         $complexMapping = @(
@@ -563,7 +560,6 @@ function Export-TargetResource
                         }
                     }
 
-
                     $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                         -ConnectionMode $ConnectionMode `
                         -ModulePath $PSScriptRoot `
@@ -592,7 +588,6 @@ function Export-TargetResource
         throw
     }
 }
-
 
 function Get-M365DSCVerifiedIdAuthorityContractObject
 {
@@ -650,7 +645,6 @@ function Get-M365DSCVerifiedIdAuthorityContractObject
 
         $values.Add('displays', $displays)
     }
-
 
     if ($null -ne $Contract.rules)
     {
@@ -783,7 +777,6 @@ function Get-M365DSCVerifiedIdAuthorityContractObject
             $attestations.Add('accessTokens', $accessTokens)
         }
 
-
         $rules.Add('attestations', $attestations)
         $rules.Add('vc', @{
                 type = $Contract.rules.vc.type
@@ -795,7 +788,6 @@ function Get-M365DSCVerifiedIdAuthorityContractObject
 
     return $values
 }
-
 
 function Get-M365DSCVerifiedIdAuthorityObject
 {

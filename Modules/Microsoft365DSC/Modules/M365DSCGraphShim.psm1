@@ -25476,7 +25476,7 @@ function New-MgApplicationOwnerByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/applications/$($ApplicationId)/owners/$ref"
+    $uri = "/v1.0/applications/$($ApplicationId)/owners/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
 
@@ -25560,7 +25560,7 @@ function New-MgApplicationTokenLifetimePolicyByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/applications/$($ApplicationId)/tokenLifetimePolicies/$ref"
+    $uri = "/v1.0/applications/$($ApplicationId)/tokenLifetimePolicies/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
 
@@ -32540,7 +32540,7 @@ function New-MgBetaEntitlementManagementAccessPackageIncompatibleAccessPackageBy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleAccessPackages/$ref"
+    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleAccessPackages/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
 
@@ -32624,7 +32624,7 @@ function New-MgBetaEntitlementManagementAccessPackageIncompatibleGroupByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleGroups/$ref"
+    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleGroups/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
 
@@ -33040,7 +33040,7 @@ function New-MgBetaEntitlementManagementConnectedOrganizationExternalSponsorByRe
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/externalSponsors/$ref"
+    $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/externalSponsors/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
 
@@ -33124,7 +33124,7 @@ function New-MgBetaEntitlementManagementConnectedOrganizationInternalSponsorByRe
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/internalSponsors/$ref"
+    $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/internalSponsors/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
 
@@ -33344,7 +33344,7 @@ function New-MgBetaGroupMemberByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/groups/$($GroupId)/members/$ref"
+    $uri = "/beta/groups/$($GroupId)/members/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
 
@@ -33612,7 +33612,7 @@ function New-MgBetaIdentityB2XUserFlowIdentityProviderByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userFlowIdentityProviders/$ref"
+    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userFlowIdentityProviders/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
 
@@ -36144,7 +36144,7 @@ function New-MgBetaPolicyFeatureRolloutPolicyApplyToByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/featureRolloutPolicies/$($FeatureRolloutPolicyId)/appliesTo/$ref"
+    $uri = "/beta/policies/featureRolloutPolicies/$($FeatureRolloutPolicyId)/appliesTo/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
 
@@ -38064,7 +38064,7 @@ function New-MgDirectoryAdministrativeUnitMemberByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/members/$ref"
+    $uri = "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/members/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
 
@@ -38788,7 +38788,7 @@ function New-MgGroupMemberByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/groups/$($GroupId)/members/$ref"
+    $uri = "/v1.0/groups/$($GroupId)/members/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
 
@@ -38872,7 +38872,7 @@ function New-MgGroupOwnerByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/groups/$($GroupId)/owners/$ref"
+    $uri = "/v1.0/groups/$($GroupId)/owners/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
 
@@ -39716,7 +39716,7 @@ function New-MgServicePrincipalOwnerByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/servicePrincipals/$($ServicePrincipalId)/owners/$ref"
+    $uri = "/v1.0/servicePrincipals/$($ServicePrincipalId)/owners/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
 
@@ -40463,7 +40463,7 @@ function Remove-MgApplicationOwnerDirectoryObjectByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/applications/$($ApplicationId)/owners/$($DirectoryObjectId)/$ref"
+    $uri = "/v1.0/applications/$($ApplicationId)/owners/$($DirectoryObjectId)/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
     Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
@@ -40526,7 +40526,7 @@ function Remove-MgApplicationTokenLifetimePolicyTokenLifetimePolicyByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/applications/$($ApplicationId)/tokenLifetimePolicies/$($TokenLifetimePolicyId)/$ref"
+    $uri = "/v1.0/applications/$($ApplicationId)/tokenLifetimePolicies/$($TokenLifetimePolicyId)/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
     Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
@@ -43445,7 +43445,7 @@ function Remove-MgBetaEntitlementManagementAccessPackageIncompatibleAccessPackag
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleAccessPackages/$ref"
+    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleAccessPackages/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
     Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
@@ -43508,7 +43508,7 @@ function Remove-MgBetaEntitlementManagementAccessPackageIncompatibleGroupByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleGroups/$ref"
+    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleGroups/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
     Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
@@ -43693,7 +43693,7 @@ function Remove-MgBetaEntitlementManagementConnectedOrganizationExternalSponsorD
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/externalSponsors/$($DirectoryObjectId)/$ref"
+    $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/externalSponsors/$($DirectoryObjectId)/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
     Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
@@ -43756,7 +43756,7 @@ function Remove-MgBetaEntitlementManagementConnectedOrganizationInternalSponsorD
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/internalSponsors/$($DirectoryObjectId)/$ref"
+    $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/internalSponsors/$($DirectoryObjectId)/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
     Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
@@ -43958,7 +43958,7 @@ function Remove-MgBetaGroupMemberDirectoryObjectByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/groups/$($GroupId)/members/$($DirectoryObjectId)/$ref"
+    $uri = "/beta/groups/$($GroupId)/members/$($DirectoryObjectId)/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
     Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
@@ -44139,7 +44139,7 @@ function Remove-MgBetaIdentityB2XUserFlowIdentityProviderBaseByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userFlowIdentityProviders/$($IdentityProviderBaseId)/$ref"
+    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userFlowIdentityProviders/$($IdentityProviderBaseId)/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
     Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
@@ -45697,7 +45697,7 @@ function Remove-MgBetaPolicyFeatureRolloutPolicyApplyToDirectoryObjectByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/featureRolloutPolicies/$($FeatureRolloutPolicyId)/appliesTo/$($DirectoryObjectId)/$ref"
+    $uri = "/beta/policies/featureRolloutPolicies/$($FeatureRolloutPolicyId)/appliesTo/$($DirectoryObjectId)/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
     Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
@@ -46602,7 +46602,7 @@ function Remove-MgDirectoryAdministrativeUnitMemberDirectoryObjectByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/members/$($DirectoryObjectId)/$ref"
+    $uri = "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/members/$($DirectoryObjectId)/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
     Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
@@ -46850,7 +46850,7 @@ function Remove-MgGroupMemberDirectoryObjectByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/groups/$($GroupId)/members/$($DirectoryObjectId)/$ref"
+    $uri = "/v1.0/groups/$($GroupId)/members/$($DirectoryObjectId)/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
     Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
@@ -46913,7 +46913,7 @@ function Remove-MgGroupOwnerDirectoryObjectByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/groups/$($GroupId)/owners/$($DirectoryObjectId)/$ref"
+    $uri = "/v1.0/groups/$($GroupId)/owners/$($DirectoryObjectId)/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
     Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
@@ -47157,7 +47157,7 @@ function Remove-MgServicePrincipalOwnerDirectoryObjectByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/servicePrincipals/$($ServicePrincipalId)/owners/$($DirectoryObjectId)/$ref"
+    $uri = "/v1.0/servicePrincipals/$($ServicePrincipalId)/owners/$($DirectoryObjectId)/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
     Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
@@ -47515,7 +47515,7 @@ function Set-MgBetaIdentityB2XUserFlowPostAttributeCollectionByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/apiConnectorConfiguration/postAttributeCollection/$ref"
+    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/apiConnectorConfiguration/postAttributeCollection/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
 
@@ -47603,7 +47603,7 @@ function Set-MgBetaIdentityB2XUserFlowPostFederationSignupByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/apiConnectorConfiguration/postFederationSignup/$ref"
+    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/apiConnectorConfiguration/postFederationSignup/`$ref"
     $requestHeaders = @{}
     if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
 

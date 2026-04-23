@@ -409,7 +409,7 @@ function Set-TargetResource
                 Write-Verbose -Message "AU {$DisplayName} member Type '$($member.Type)' Identity '$($member.Identity)'"
                 if ($member.Type -eq 'User')
                 {
-                    $memberIdentity = Get-MgUser -Filter "UserPrincipalName eq '$($member.Identity -replace "'", "''")'" -ErrorAction Stop
+                    [array]$memberIdentity = Get-MgUser -Filter "UserPrincipalName eq '$($member.Identity -replace "'", "''")'" -ErrorAction Stop
                     if ($memberIdentity)
                     {
                         $memberSpecification += $memberIdentity.Id
@@ -421,7 +421,7 @@ function Set-TargetResource
                 }
                 elseif ($member.Type -eq 'Group')
                 {
-                    $memberIdentity = Get-MgGroup -Filter "DisplayName eq '$($member.Identity -replace "'", "''")'" -ErrorAction Stop
+                    [array]$memberIdentity = Get-MgGroup -Filter "DisplayName eq '$($member.Identity -replace "'", "''")'" -ErrorAction Stop
                     if ($memberIdentity)
                     {
                         if ($memberIdentity.Count -gt 1)
@@ -437,7 +437,7 @@ function Set-TargetResource
                 }
                 elseif ($member.Type -eq 'Device')
                 {
-                    $memberIdentity = Get-MgDevice -Filter "DisplayName eq '$($member.Identity -replace "'", "''")'" -ErrorAction Stop
+                    [array]$memberIdentity = Get-MgDevice -Filter "DisplayName eq '$($member.Identity -replace "'", "''")'" -ErrorAction Stop
                     if ($memberIdentity)
                     {
                         if ($memberIdentity.Count -gt 1)
@@ -448,7 +448,7 @@ function Set-TargetResource
                     }
                     else
                     {
-                        throw "AU {$($DisplayName)}: Device {$($Member.Identity)} does not exist"
+                        throw "AU {$($DisplayName)}: Device {$($member.Identity)} does not exist"
                     }
                 }
                 else
@@ -562,8 +562,6 @@ function Set-TargetResource
         {
             New-MgDirectoryAdministrativeUnitScopedRoleMember -AdministrativeUnitId $policy.Id -BodyParameter $scopedRoleMember
         }
-
-
         #endregion
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
@@ -597,47 +595,47 @@ function Set-TargetResource
                 {
                     $desiredMembers += @{Type = $member.Type; Identity = $member.Identity }
                 }
-                $membersDiff = Compare-Object -ReferenceObject $currentMembers -DifferenceObject $desiredMembers -Property Identity, Type
+                $membersDiff = Compare-Object -ReferenceObject $currentMembers -DifferenceObject $desiredMembers
                 foreach ($diff in $membersDiff)
                 {
-                    if ($diff.Type -eq 'User')
+                    if ($diff.InputObject.Type -eq 'User')
                     {
-                        $memberObject = Get-MgUser -Filter "UserPrincipalName eq '$($diff.Identity -replace "'", "''")'"
+                        [array]$memberObject = Get-MgUser -Filter "UserPrincipalName eq '$($diff.InputObject.Identity -replace "'", "''")'"
                         #$memberType = 'users'
                     }
-                    elseif ($diff.Type -eq 'Group')
+                    elseif ($diff.InputObject.Type -eq 'Group')
                     {
-                        $memberObject = Get-MgGroup -Filter "DisplayName eq '$($diff.Identity -replace "'", "''")'"
+                        [array]$memberObject = Get-MgGroup -Filter "DisplayName eq '$($diff.InputObject.Identity -replace "'", "''")'"
                         #$memberType = 'groups'
                     }
-                    elseif ($diff.Type -eq 'Device')
+                    elseif ($diff.InputObject.Type -eq 'Device')
                     {
-                        $memberObject = Get-MgDevice -Filter "DisplayName eq '$($diff.Identity -replace "'", "''")'"
+                        [array]$memberObject = Get-MgDevice -Filter "DisplayName eq '$($diff.InputObject.Identity -replace "'", "''")'"
                         #memberType = 'devices'
                     }
                     else
                     {
                         # a *new* member has been specified with invalid type
-                        throw "AU {$($DisplayName)}: Member {$($diff.Identity)} has invalid type {$($diff.Type)}"
+                        throw "AU {$($DisplayName)}: Member {$($diff.InputObject.Identity)} has invalid type {$($diff.InputObject.Type)}"
                     }
                     if ($null -eq $memberObject)
                     {
-                        throw "AU member {$($diff.Identity)} does not exist as a $($diff.Type)"
+                        throw "AU member {$($diff.InputObject.Identity)} does not exist as a $($diff.InputObject.Type)"
                     }
                     if ($memberObject.Count -gt 1)
                     {
-                        throw "AU member {$($diff.Identity)} is not a unique $($diff.Type.ToLower()) (Count=$($memberObject.Count))"
+                        throw "AU member {$($diff.InputObject.Identity)} is not a unique $($diff.InputObject.Type.ToLower()) (Count=$($memberObject.Count))"
                     }
                     if ($diff.SideIndicator -eq '=>')
                     {
-                        Write-Verbose -Message "AdministrativeUnit {$DisplayName} Adding member {$($diff.Identity)}, type {$($diff.Type)}"
+                        Write-Verbose -Message "AdministrativeUnit {$DisplayName} Adding member {$($diff.InputObject.Identity)}, type {$($diff.InputObject.Type)}"
 
                         $url = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "v1.0/directoryObjects/$($memberObject.Id)"
                         New-MgDirectoryAdministrativeUnitMemberByRef -AdministrativeUnitId ($currentInstance.Id) -OdataId $url | Out-Null
                     }
                     else
                     {
-                        Write-Verbose -Message "Administrative Unit {$DisplayName} Removing member {$($diff.Identity)}, type {$($diff.Type)}"
+                        Write-Verbose -Message "Administrative Unit {$DisplayName} Removing member {$($diff.InputObject.Identity)}, type {$($diff.InputObject.Type)}"
                         Remove-MgDirectoryAdministrativeUnitMemberDirectoryObjectByRef -AdministrativeUnitId ($currentInstance.Id) -DirectoryObjectId ($memberObject.Id) | Out-Null
                     }
                 }

@@ -416,7 +416,6 @@ function Remove-PSSession
     )
 }
 
-
 function Get-SPOAdministrationUrl
 {
     [CmdletBinding()]
@@ -1225,7 +1224,6 @@ function Update-MGPlannerPlan
         $PlannerPlanId
     )
 }
-
 
 function Get-MgPlannerPlanBucket
 {

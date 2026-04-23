@@ -244,7 +244,6 @@ function Get-TargetResource
         $AccessTokens
     )
 
-
     Write-Verbose -Message "Getting configuration of the Intune Endpoint Protection Attack Surface Protection rules Policy with Id {$Id} and DisplayName {$DisplayName}"
 
     try

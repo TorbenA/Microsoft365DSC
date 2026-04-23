@@ -27,6 +27,10 @@
       "HasCustomComparison": true,
       "Description": "Uses PostProcessing scriptblock"
     },
+    "AADGroupEligibilitySchedule": {
+      "HasCustomComparison": true,
+      "Description": "Uses PostProcessing scriptblock"
+    },
     "AADIdentityAPIConnector": {
       "HasCustomComparison": true,
       "Description": "Excludes properties: Password"
@@ -45,7 +49,7 @@
     },
     "AADRoleEligibilityScheduleRequest": {
       "HasCustomComparison": true,
-      "Description": "Excludes properties: Action, IsValidationOnly, Justification"
+      "Description": "Excludes properties: Action, IsValidationOnly, Justification; Uses PostProcessing scriptblock"
     },
     "AADServicePrincipal": {
       "HasCustomComparison": true,
@@ -331,6 +335,10 @@
     "IntuneWifiConfigurationPolicyWindows10": {
       "HasCustomComparison": true,
       "Description": "Excludes properties: PreSharedKey"
+    },
+    "IntuneWindowsAutopilotDeploymentProfileAzureADJoined": {
+      "HasCustomComparison": true,
+      "Description": "Excludes properties: DeviceType"
     },
     "PlannerTask": {
       "HasCustomComparison": true,

@@ -469,7 +469,6 @@ function Export-TargetResource
 
                 $Results = Get-TargetResource @Params
 
-
                 if ($Results.Destinations)
                 {
                     $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString -ComplexObject $Results.Destinations -CIMInstanceName 'AADFilteringPolicyRuleDestination'

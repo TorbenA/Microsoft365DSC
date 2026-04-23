@@ -127,7 +127,6 @@ function Get-TargetResource
             $Password = New-Object System.Management.Automation.PSCredential ('Password', $securePassword)
         }
 
-
         $complexCertificates = @()
         foreach ($currentCertificate in $getValue.AuthenticationConfiguration.certificateList)
         {
@@ -386,7 +385,6 @@ function Set-TargetResource
         $createParameters.Add('@odata.type', '#microsoft.graph.IdentityApiConnector')
         $policy = New-MgBetaIdentityApiConnector -BodyParameter $createParameters
 
-
         # Upload the inactive certificates
         foreach ($currentCertificate in $inactiveCertificates)
         {
@@ -623,7 +621,6 @@ function Export-TargetResource
                 -Results $Results `
                 -Credential $Credential `
                 -NoEscape @('Certificates')
-
 
             # Replace the main password variable.
             $currentDSCBlock = $currentDSCBlock.Replace('"New-Object System.', 'New-Object System.').Replace(') -AsPlainText -Force));";', ') -AsPlainText -Force));')

@@ -2447,7 +2447,6 @@ function Export-TargetResource
         [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All -ErrorAction Stop
         #endregion
 
-
         $i = 1
         $dscContent = ''
         if ($getValue.Length -eq 0)
@@ -2603,7 +2602,6 @@ function Export-TargetResource
                     $Results.Remove('KioskModeApps') | Out-Null
                 }
             }
-
 
             if ($Results.KioskModeManagedFolders)
             {

@@ -745,19 +745,19 @@ function Set-TargetResource
                 if ($null -eq $directoryObject)
                 {
                     Write-Verbose -Message "Trying to retrieve Service Principal {$($diff.InputObject)}"
-                    $app = Get-MgApplication -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
-                    if ($null -ne $app)
+                    [array]$app = Get-MgApplication -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
+                    if ($app.Count -gt 0)
                     {
                         $directoryObject = Get-MgServicePrincipal -Filter "AppId eq '$($app.AppId)'"
                     }
                     else
                     {
-                        $spInstances = Get-MgServicePrincipal -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
-                        if ($null -ne $spInstances -and $spInstances.Count -gt 1)
+                        [array]$spInstances = Get-MgServicePrincipal -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
+                        if ($spInstances.Count -gt 1)
                         {
                             throw "Duplicate Service Principals named '$($diff.InputObject)' exist in tenant"
                         }
-                        elseif ($null -ne $spInstances -and $spInstances.Count -eq 1)
+                        elseif ($spInstances.Count -eq 1)
                         {
                             $directoryObject = $spInstances
                         }
@@ -813,19 +813,19 @@ function Set-TargetResource
                 if ($null -eq $directoryObject)
                 {
                     Write-Verbose -Message "Trying to retrieve Service Principal {$($diff.InputObject)}"
-                    $app = Get-MgApplication -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
-                    if ($null -ne $app)
+                    [array]$app = Get-MgApplication -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
+                    if ($app.Count -gt 0)
                     {
                         $directoryObject = Get-MgServicePrincipal -Filter "AppId eq '$($app.AppId)'"
                     }
                     else
                     {
-                        $spInstances = Get-MgServicePrincipal -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
-                        if ($null -ne $spInstances -and $spInstances.Count -gt 1)
+                        [array]$spInstances = Get-MgServicePrincipal -Filter "DisplayName eq '$($diff.InputObject -replace "'", "''")'"
+                        if ($spInstances.Count -gt 1)
                         {
                             throw "Duplicate Service Principals named '$($diff.InputObject)' exist in tenant"
                         }
-                        elseif ($null -ne $spInstances -and $spInstances.Count -eq 1)
+                        elseif ($spInstances.Count -eq 1)
                         {
                             $directoryObject = $spInstances
                         }
@@ -841,7 +841,9 @@ function Set-TargetResource
                 if ($diff.SideIndicator -eq '=>')
                 {
                     Write-Verbose -Message "Adding new member {$($diff.InputObject)} to AAD Group {$($currentGroup.DisplayName)}"
-                    New-MgGroupMemberByRef -GroupId ($currentGroup.Id) -OdataId "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)v1.0/directoryObjects/$($directoryObject.Id)" | Out-Null
+                    New-MgGroupMemberByRef -GroupId ($currentGroup.Id) -BodyParameter @{
+                        '@odata.id' = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "v1.0/directoryObjects/{$($directoryObject.Id)}"
+                    }
                 }
                 elseif ($diff.SideIndicator -eq '<=')
                 {
@@ -938,7 +940,9 @@ function Set-TargetResource
                         if ($memberOfGroup.psobject.Typenames -match 'Group')
                         {
                             Write-Verbose -Message "Adding AAD group {$($currentGroup.DisplayName)} as member of AAD group {$($memberOfGroup.DisplayName)}"
-                            New-MgGroupMemberByRef -GroupId ($memberOfGroup.Id) -OdataId "$((Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl)v1.0/directoryObjects/$($currentGroup.Id)" | Out-Null
+                            New-MgGroupMemberByRef -GroupId ($memberOfGroup.Id) -BodyParameter @{
+                                '@odata.id' = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "v1.0/directoryObjects/$($currentGroup.Id)"
+                            } | Out-Null
                         }
                         else
                         {
@@ -1251,7 +1255,7 @@ function Export-TargetResource
         # Check each attribute in the list
         foreach ($attribute in $attributesToCheck)
         {
-            if ($Filter -like "*$attribute eq null*")
+            if ($Filter -like "*$attribute eq *")
             {
                 $matchConditionFound = $true
                 break

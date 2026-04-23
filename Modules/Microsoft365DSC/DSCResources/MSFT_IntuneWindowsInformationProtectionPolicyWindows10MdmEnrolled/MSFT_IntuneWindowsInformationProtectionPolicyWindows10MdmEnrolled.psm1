@@ -620,7 +620,6 @@ function Set-TargetResource
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
         $createParameters.Remove('Id') | Out-Null
 
-
         #region resource generator code
         $policy = New-MgBetaDeviceAppManagementMdmWindowsInformationProtectionPolicy -BodyParameter $CreateParameters
         #endregion
@@ -642,7 +641,6 @@ function Set-TargetResource
         $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
         $UpdateParameters.Remove('Id') | Out-Null
-
 
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.MdmWindowsInformationProtectionPolicy')

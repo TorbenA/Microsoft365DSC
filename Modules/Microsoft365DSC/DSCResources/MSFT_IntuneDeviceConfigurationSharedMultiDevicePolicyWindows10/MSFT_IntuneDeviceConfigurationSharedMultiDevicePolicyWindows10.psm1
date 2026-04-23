@@ -492,7 +492,6 @@ function Set-TargetResource
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
         $createParameters.Remove('Id') | Out-Null
 
-
         if ($null -ne $AllowedAccounts)
         {
             $CreateParameters.AllowedAccounts = $AllowedAccounts -join ','
@@ -519,7 +518,6 @@ function Set-TargetResource
         $updateParameters = ([Hashtable]$boundParameters).Clone()
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
         $updateParameters.Remove('Id') | Out-Null
-
 
         if ($null -ne $AllowedAccounts)
         {

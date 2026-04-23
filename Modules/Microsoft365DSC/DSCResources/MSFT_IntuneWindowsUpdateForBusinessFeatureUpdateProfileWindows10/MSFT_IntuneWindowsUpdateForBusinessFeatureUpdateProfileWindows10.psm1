@@ -369,7 +369,6 @@ function Set-TargetResource
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
         $createParameters.Remove('Id') | Out-Null
 
-
         #region resource generator code
         $policy = New-MgBetaDeviceManagementWindowsFeatureUpdateProfile -BodyParameter $CreateParameters
 

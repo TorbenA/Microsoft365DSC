@@ -344,7 +344,6 @@ function Set-TargetResource
         $instanceParameters.properties.Add('KillChainPhases', $values)
     }
 
-
     if ([System.String]::IsNullOrEmpty($TenantId) -and -not $null -eq $Credential)
     {
         $TenantId = $Credential.UserName.Split('@')[1]

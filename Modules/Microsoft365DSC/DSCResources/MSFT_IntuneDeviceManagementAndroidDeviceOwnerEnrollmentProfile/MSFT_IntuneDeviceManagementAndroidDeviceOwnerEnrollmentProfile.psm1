@@ -292,12 +292,12 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
     $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $setParameters = Rename-M365DSCCimInstanceParameter -Properties $setParameters
 
     # CREATE
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Create AndroidDeviceOwnerEnrollmentProfile: $DisplayName with Enrollment Mode: $EnrollmentMode"
-
         $setParameters.Remove('Id') | Out-Null
         $null = New-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile -BodyParameter $setParameters
     }

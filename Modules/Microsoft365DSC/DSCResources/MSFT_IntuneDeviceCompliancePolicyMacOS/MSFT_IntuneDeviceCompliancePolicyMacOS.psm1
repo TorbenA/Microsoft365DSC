@@ -266,7 +266,6 @@ function Get-TargetResource
         }
         $results.Add('Assignments', $returnAssignments)
 
-
         return $results
     }
     catch
@@ -427,7 +426,6 @@ function Set-TargetResource
         [System.String[]]
         $AccessTokens
     )
-
 
     Write-Verbose -Message "Intune Device Compliance MacOS Policy {$DisplayName}"
 

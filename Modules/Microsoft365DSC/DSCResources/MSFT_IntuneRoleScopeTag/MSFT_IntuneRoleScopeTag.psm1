@@ -237,7 +237,6 @@ function Set-TargetResource
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
         $createParameters.Remove('Id') | Out-Null
 
-
         #region resource generator code
         $createParameters.Add('@odata.type', '#microsoft.graph.RoleScopeTag')
         $policy = New-MgBetaDeviceManagementRoleScopeTag -BodyParameter $createParameters

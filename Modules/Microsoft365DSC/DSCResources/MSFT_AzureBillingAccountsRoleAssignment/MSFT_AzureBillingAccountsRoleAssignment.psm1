@@ -454,7 +454,6 @@ function Get-M365DSCPrincipalNameFromId
         [System.String]
         $PrincipalId,
 
-
         [Parameter(Mandatory = $true)]
         [System.String]
         $PrincipalType
@@ -496,7 +495,6 @@ function Get-M365DSCPrincipalIdFromName
         [Parameter(Mandatory = $true)]
         [System.String]
         $PrincipalName,
-
 
         [Parameter(Mandatory = $true)]
         [System.String]

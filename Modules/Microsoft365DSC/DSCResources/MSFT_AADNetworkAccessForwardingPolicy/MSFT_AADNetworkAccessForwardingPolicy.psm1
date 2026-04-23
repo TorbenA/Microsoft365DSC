@@ -474,5 +474,4 @@ function Get-MicrosoftGraphNetworkAccessForwardingPolicyRules
     ,$newPolicyRules
 }
 
-
 Export-ModuleMember -Function *-TargetResource

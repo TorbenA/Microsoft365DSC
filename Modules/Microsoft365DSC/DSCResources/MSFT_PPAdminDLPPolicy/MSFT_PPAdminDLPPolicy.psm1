@@ -269,7 +269,6 @@ function Set-TargetResource
         $uri = 'https://' + (Get-MSCloudLoginConnectionProfile -Workload 'PowerPlatformREST').BapEndpoint + `
             '/providers/Microsoft.BusinessAppPlatform/scopes/admin/apiPolicies?api-version=2016-11-01'
 
-
         Write-Verbose -Message "Creating new policy with body:`r`n$(ConvertTo-Json $newPolicy -Depth 20)"
         $policy = Invoke-M365DSCPowerPlatformRESTWebRequest -Uri $uri -Method 'POST' -Body $policyObject
         $policyName = $policy.name

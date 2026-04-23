@@ -678,19 +678,18 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating an Intune Window Update For Business Ring Update Profile for Windows10 with DisplayName {$DisplayName}"
-        $PSBoundParameters.Remove('Assignments') | Out-Null
-
-        $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-        $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
+        $boundParameters.Remove('Assignments') | Out-Null
+        $createParameters = Rename-M365DSCCimInstanceParameter -Properties $boundParameters
         $createParameters.Remove('Id') | Out-Null
 
         #region resource generator code
-        $CreateParameters.Add('@odata.type', '#microsoft.graph.windowsUpdateForBusinessConfiguration')
-        $policy = New-MgBetaDeviceManagementDeviceConfiguration -BodyParameter $CreateParameters
+        $createParameters.Add('@odata.type', '#microsoft.graph.windowsUpdateForBusinessConfiguration')
+        $policy = New-MgBetaDeviceManagementDeviceConfiguration -BodyParameter $createParameters
         #endregion
         #region new Intune assignment management
         $intuneAssignments = @()
@@ -709,17 +708,15 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Intune Window Update For Business Ring Update Profile for Windows10 with Id {$($currentInstance.Id)}"
-        $PSBoundParameters.Remove('Assignments') | Out-Null
-
-        $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-        $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
-        $UpdateParameters.Remove('Id') | Out-Null
+        $boundParameters.Remove('Assignments') | Out-Null
+        $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $boundParameters
+        $updateParameters.Remove('Id') | Out-Null
 
         #region resource generator code
-        $UpdateParameters.Add('@odata.type', '#microsoft.graph.windowsUpdateForBusinessConfiguration')
+        $updateParameters.Add('@odata.type', '#microsoft.graph.windowsUpdateForBusinessConfiguration')
         Update-MgBetaDeviceManagementDeviceConfiguration `
             -DeviceConfigurationId $currentInstance.id `
-            -BodyParameter $UpdateParameters
+            -BodyParameter $updateParameters
         #endregion
         #region new Intune assignment management
         $currentAssignments = @()

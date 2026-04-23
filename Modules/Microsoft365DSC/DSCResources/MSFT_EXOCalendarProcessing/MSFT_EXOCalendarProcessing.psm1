@@ -938,7 +938,6 @@ function Export-TargetResource
             $i++
         }
 
-
         return $dscContent
     }
     catch

@@ -469,7 +469,6 @@ function Set-TargetResource
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
         $updateParameters.Remove('Id') | Out-Null
 
-
         #region resource generator code
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.' + $BoundParameters.TargetType)
         Update-MgBetaDeviceAppManagementMobileApp `

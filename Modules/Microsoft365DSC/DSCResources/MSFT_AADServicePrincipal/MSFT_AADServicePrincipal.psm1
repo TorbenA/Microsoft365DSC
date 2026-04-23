@@ -303,7 +303,6 @@ function Get-TargetResource
             }
             $mykeyCredentials.Add('KeyId', $currentkeyCredentials.keyId)
 
-
             if ($null -ne $currentkeyCredentials.Key)
             {
                 $mykeyCredentials.Add('Key', $currentkeyCredentials.Key)
@@ -591,6 +590,7 @@ function Set-TargetResource
     $currentParameters.Remove('DelegatedPermissionClassifications') | Out-Null
     $AppRoleAssignedToSpecified = $currentParameters.ContainsKey('AppRoleAssignedTo')
     $currentParameters.Remove('AppRoleAssignedTo') | Out-Null
+    $currentParameters.Remove('LogoutUrl') | Out-Null
 
     # update the custom security attributes to be cmdlet comsumable
     if ($null -ne $currentParameters.CustomSecurityAttributes -and $currentParameters.CustomSecurityAttributes.Count -gt 0)
@@ -1436,7 +1436,7 @@ function Get-CompareParameters
     param()
 
     return @{
-        ExcludedProperties = @('ObjectId', 'KeyCredentials', 'PasswordCredentials', 'ReplyUrls')
+        ExcludedProperties = @('ObjectId', 'KeyCredentials', 'PasswordCredentials', 'ReplyUrls', 'LogoutUrl')
     }
 }
 

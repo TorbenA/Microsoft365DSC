@@ -2281,7 +2281,6 @@ function Get-DateTypeConstructorToString
     $returnPropertyName = "date"+ $propertyName
     $propertyType = $Property.Type.Split(".") | Select-Object -Last 1
 
-
     if ($Property.IsRootProperty -eq $false)
     {
         $propertyName = Get-StringFirstCharacterToLower -Value $Property.Name
@@ -2351,7 +2350,6 @@ function Get-TimeTypeConstructorToString
     $propertyName = Get-StringFirstCharacterToUpper -Value $Property.Name
     $returnPropertyName = "time"+ $propertyName
     $propertyType = $Property.Type.Split(".") | Select-Object -Last 1
-
 
     if ($Property.IsRootProperty -eq $false)
     {

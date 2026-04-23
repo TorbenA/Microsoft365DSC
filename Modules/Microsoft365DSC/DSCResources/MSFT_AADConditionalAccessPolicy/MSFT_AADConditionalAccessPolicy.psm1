@@ -1699,14 +1699,12 @@ function Set-TargetResource
             #no translation or conversion needed
         }
 
-
         Write-Verbose -Message "Set-Targetresource: SignInRiskLevels: $SignInRiskLevels"
         if ($currentParameters.ContainsKey('SignInRiskLevels'))
         {
             $Conditions.Add('signInRiskLevels', $SignInRiskLevels)
             #no translation or conversion needed
         }
-
 
         Write-Verbose -Message "Set-Targetresource: ClientAppTypes: $ClientAppTypes"
         if ($currentParameters.ContainsKey('ClientAppTypes'))
@@ -1790,7 +1788,6 @@ function Set-TargetResource
                 $TermsOfUseObj = Get-MgBetaAgreement | Where-Object -FilterScript { $_.DisplayName -eq $TermsOfUse }
                 $GrantControls.Add('termsOfUse', @($TermsOfUseObj.Id))
             }
-
 
             #no translation or conversion needed
             Write-Verbose -Message 'Set-Targetresource: Adding processed grant controls'

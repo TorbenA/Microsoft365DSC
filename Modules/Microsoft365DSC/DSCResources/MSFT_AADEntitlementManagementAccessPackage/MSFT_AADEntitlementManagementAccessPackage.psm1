@@ -164,7 +164,6 @@ function Get-TargetResource
             $getIncompatibleAccessPackages += $query.id
         }
 
-
         $getAccessPackagesIncompatibleWith = @()
         [Array]$query = Get-MgBetaEntitlementManagementAccessPackageIncompatibleWith -AccessPackageId $getValue.id
         if ($query.Count -gt 0)

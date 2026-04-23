@@ -508,7 +508,6 @@ function Export-TargetResource
             {
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString -ComplexObject ([Array]$Results.Assignments) -CIMInstanceName DeviceManagementConfigurationPolicyAssignments
 
-
                 if ($complexTypeStringResult)
                 {
                     $Results.Assignments = $complexTypeStringResult

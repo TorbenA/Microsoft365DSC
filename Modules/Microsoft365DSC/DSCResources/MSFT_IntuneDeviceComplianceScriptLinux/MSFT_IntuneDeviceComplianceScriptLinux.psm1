@@ -215,7 +215,6 @@ function Set-TargetResource
         $AccessTokens
     )
 
-
     Write-Verbose -Message "Setting configuration of the Intune Device Compliance Script for Linux with Id {$Id} and Name {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.

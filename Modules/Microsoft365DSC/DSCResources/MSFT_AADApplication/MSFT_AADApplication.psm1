@@ -175,7 +175,7 @@ function Get-TargetResource
             {
                 if (-not [System.String]::IsNullOrEmpty($AppId))
                 {
-                    $AADApp = Get-MgBetaApplication `
+                    [array]$AADApp = Get-MgBetaApplication `
                         -Filter "AppId eq '$AppId'" `
                         -Property $Script:PropertiesToRetrieve `
                         -ExpandProperty 'owners'
@@ -189,10 +189,10 @@ function Get-TargetResource
             if ($null -eq $AADApp)
             {
                 Write-Verbose -Message "Attempting to retrieve Azure AD Application by DisplayName {$DisplayName}"
-                $AADApp = [Array](Get-MgBetaApplication `
+                [array]$AADApp = Get-MgBetaApplication `
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                         -Property $Script:PropertiesToRetrieve `
-                        -ExpandProperty 'owners')
+                        -ExpandProperty 'owners'
             }
             if ($null -ne $AADApp -and $AADApp.Count -gt 1)
             {
@@ -336,7 +336,6 @@ function Get-TargetResource
                 $mykeyCredentials.Add('EndDateTime', ([DateTimeOffset]$currentkeyCredentials.endDateTime).ToString('o'))
             }
             $mykeyCredentials.Add('KeyId', $currentkeyCredentials.keyId)
-
 
             if ($null -ne $currentkeyCredentials.Key)
             {

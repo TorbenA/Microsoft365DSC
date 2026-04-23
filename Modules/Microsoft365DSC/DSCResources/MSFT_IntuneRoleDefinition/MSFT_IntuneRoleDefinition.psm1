@@ -129,7 +129,7 @@ function Get-TargetResource
             DisplayName           = $getValue.DisplayName
             IsBuiltIn             = $getValue.IsBuiltIn
             Ensure                = 'Present'
-            roleScopeTagIds       = $getValue.RoleScopeTagIds
+            RoleScopeTagIds       = $getValue.RoleScopeTagIds
             Credential            = $Credential
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
@@ -140,8 +140,8 @@ function Get-TargetResource
         }
         if ($getValue.RolePermissions)
         {
-            $results.Add('allowedResourceActions', $getValue.RolePermissions.ResourceActions.AllowedResourceActions)
-            $results.Add('notallowedResourceActions', $getValue.RolePermissions.ResourceActions.notAllowedResourceActions)
+            $results.Add('AllowedResourceActions', $getValue.RolePermissions.ResourceActions.AllowedResourceActions)
+            $results.Add('NotAllowedResourceActions', $getValue.RolePermissions.ResourceActions.NotAllowedResourceActions)
         }
 
         return $results
@@ -512,7 +512,6 @@ function Export-TargetResource
 
             $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
-
 
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `

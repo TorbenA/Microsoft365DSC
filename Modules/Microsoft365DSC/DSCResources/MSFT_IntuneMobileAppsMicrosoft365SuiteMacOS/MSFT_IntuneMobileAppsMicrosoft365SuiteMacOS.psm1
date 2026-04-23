@@ -374,7 +374,6 @@ function Set-TargetResource
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
         $updateParameters.Remove('Id') | Out-Null
 
-
         #region resource generator code
         $updateParameters.Add('@odata.type', '#microsoft.graph.macOSOfficeSuiteApp')
         Invoke-MgGraphRequest -Method PATCH -Uri "/beta/deviceAppManagement/mobileApps/$($currentInstance.Id)" -Body $($UpdateParameters | ConvertTo-Json -Depth 10)
