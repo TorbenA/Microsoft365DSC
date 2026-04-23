@@ -36,6 +36,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
+Update-M365DSCDependencies -ValidateOnly -Development
+
 $settingsFiles = Get-ChildItem -Path "$PSScriptRoot\..\Modules\Microsoft365DSC\DSCResources" -Filter 'settings.json' -Recurse
 $map = [ordered]@{}
 foreach ($file in $settingsFiles)
