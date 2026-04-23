@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADAccessReviewDefinition
+  * Added new properties `AdditionalNotificationRecipients` and `InstanceEnumerationScope`.
+  * Fixed issues when creating and updating instances of this resource.
 * AADApplication
   * Fixed an issue where the value of `Value` in `MSFT_MicrosoftGraphAppRole` was missing.
     FIXES [#7064](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7064)

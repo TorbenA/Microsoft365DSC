@@ -457,7 +457,7 @@ function ConvertTo-M365DSCGraphShimBody
     {
         $body = if ($BodyParameter -is [System.Collections.IDictionary])
         {
-            [System.Collections.Hashtable]$BodyParameter.Clone()
+            ([System.Collections.Hashtable]$BodyParameter).Clone()
         }
         else
         {

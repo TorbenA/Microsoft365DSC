@@ -20,7 +20,15 @@ function Get-TargetResource
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
+        $AdditionalNotificationRecipients,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
         $FallbackReviewers,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $InstanceEnumerationScope,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -138,52 +146,64 @@ function Get-TargetResource
         $complexScope.Add('QueryRoot', $getValue.Scope.queryRoot)
         $complexScope.Add('QueryType', $getValue.Scope.queryType)
 
-        $complexPrincipalScopes = @()
-        foreach ($currentPrincipalScopes in $getValue.Scope.principalScopes)
-        {
-            $myPrincipalScopes = [ordered]@{}
-            $myPrincipalScopes.Add('Query', $currentPrincipalScopes.query)
-            $myPrincipalScopes.Add('QueryRoot', $currentPrincipalScopes.queryRoot)
-            $myPrincipalScopes.Add('QueryType', $currentPrincipalScopes.queryType)
-            $myPrincipalScopes.Add('ScopeType', $currentPrincipalScopes.scopeType)
-            if ($null -ne $currentPrincipalScopes.'@odata.type')
-            {
-                $myPrincipalScopes.Add('odataType', $currentPrincipalScopes.'@odata.type'.ToString())
-            }
-            if ($myPrincipalScopes.values.Where({ $null -ne $_ }).Count -gt 0)
-            {
-                $complexPrincipalScopes += $myPrincipalScopes
-            }
-        }
-        $complexScope.Add('PrincipalScopes', $complexPrincipalScopes)
-        $complexResourceScopes = @()
-        foreach ($currentResourceScopes in $getValue.Scope.resourceScopes)
-        {
-            $myResourceScopes = [ordered]@{}
-            $myResourceScopes.Add('Query', $currentResourceScopes.query)
-            $myResourceScopes.Add('QueryRoot', $currentResourceScopes.queryRoot)
-            $myResourceScopes.Add('QueryType', $currentResourceScopes.queryType)
-            $myResourceScopes.Add('DisplayName', $currentResourceScopes.displayName)
-            $myResourceScopes.Add('ResourceScopeId', $currentResourceScopes.resourceId)
-            $myResourceScopes.Add('ScopeType', $currentResourceScopes.scopeType)
-            if ($null -ne $currentResourceScopes.'@odata.type')
-            {
-                $myResourceScopes.Add('odataType', $currentResourceScopes.'@odata.type'.ToString())
-            }
-            if ($myResourceScopes.values.Where({ $null -ne $_ }).Count -gt 0)
-            {
-                $complexResourceScopes += $myResourceScopes
-            }
-        }
-        $complexScope.Add('ResourceScopes', $complexResourceScopes)
-
         if ($null -ne $getValue.Scope.'@odata.type')
         {
             $complexScope.Add('odataType', $getValue.Scope.'@odata.type'.ToString())
         }
+
+        if ($complexScope.odataType -ne '#microsoft.graph.accessReviewQueryScope')
+        {
+            $complexPrincipalScopes = @()
+            foreach ($currentPrincipalScopes in $getValue.Scope.principalScopes)
+            {
+                $myPrincipalScopes = [ordered]@{}
+                $myPrincipalScopes.Add('Query', $currentPrincipalScopes.query)
+                $myPrincipalScopes.Add('QueryRoot', $currentPrincipalScopes.queryRoot)
+                $myPrincipalScopes.Add('QueryType', $currentPrincipalScopes.queryType)
+                $myPrincipalScopes.Add('ScopeType', $currentPrincipalScopes.scopeType)
+                if ($null -ne $currentPrincipalScopes.'@odata.type')
+                {
+                    $myPrincipalScopes.Add('odataType', $currentPrincipalScopes.'@odata.type'.ToString())
+                }
+                if ($myPrincipalScopes.values.Where({ $null -ne $_ }).Count -gt 0)
+                {
+                    $complexPrincipalScopes += $myPrincipalScopes
+                }
+            }
+            $complexScope.Add('PrincipalScopes', $complexPrincipalScopes)
+            $complexResourceScopes = @()
+            foreach ($currentResourceScopes in $getValue.Scope.resourceScopes)
+            {
+                $myResourceScopes = [ordered]@{}
+                $myResourceScopes.Add('Query', $currentResourceScopes.query)
+                $myResourceScopes.Add('QueryRoot', $currentResourceScopes.queryRoot)
+                $myResourceScopes.Add('QueryType', $currentResourceScopes.queryType)
+                $myResourceScopes.Add('DisplayName', $currentResourceScopes.displayName)
+                $myResourceScopes.Add('ResourceScopeId', $currentResourceScopes.resourceId)
+                $myResourceScopes.Add('ScopeType', $currentResourceScopes.scopeType)
+                if ($null -ne $currentResourceScopes.'@odata.type')
+                {
+                    $myResourceScopes.Add('odataType', $currentResourceScopes.'@odata.type'.ToString())
+                }
+                if ($myResourceScopes.values.Where({ $null -ne $_ }).Count -gt 0)
+                {
+                    $complexResourceScopes += $myResourceScopes
+                }
+            }
+            $complexScope.Add('ResourceScopes', $complexResourceScopes)
+        }
+
         if ($complexScope.values.Where({ $null -ne $_ }).Count -eq 0)
         {
             $complexScope = $null
+        }
+
+        $complexInstanceEnumerationScope = $null
+        if ($null -ne $getValue.InstanceEnumerationScope)
+        {
+            $complexInstanceEnumerationScope = [ordered]@{}
+            $complexInstanceEnumerationScope.Add('Query', (($getValue.InstanceEnumerationScope.query -replace '\/v1.0', '') -replace '&\$count=true', ''))
+            $complexInstanceEnumerationScope.Add('QueryType', $getValue.InstanceEnumerationScope.queryType)
         }
 
         $complexSettings = [ordered]@{}
@@ -235,22 +255,28 @@ function Get-TargetResource
         $complexSettings.Add('RecommendationsEnabled', $getValue.Settings.recommendationsEnabled)
         $complexRecurrence = [ordered]@{}
         $complexPattern = [ordered]@{}
-        $complexPattern.Add('DayOfMonth', $getValue.settings.recurrence.pattern.dayOfMonth)
-        if ($null -ne $getValue.settings.recurrence.pattern.daysOfWeek)
+        if ($getValue.settings.recurrence.pattern.type -in @('absoluteMonthly', 'absoluteYearly') -and $getValue.settings.recurrence.pattern.dayOfMonth -gt 0)
+        {
+            $complexPattern.Add('DayOfMonth', $getValue.settings.recurrence.pattern.dayOfMonth)
+        }
+        if ($null -ne $getValue.settings.recurrence.pattern.daysOfWeek -and $getValue.settings.recurrence.pattern.type -in @('weekly', 'relativeMonthly', 'relativeYearly'))
         {
             $complexPattern.Add('DaysOfWeek', $getValue.settings.recurrence.pattern.daysOfWeek)
         }
-        if ($null -ne $getValue.settings.recurrence.pattern.firstDayOfWeek)
+        if ($null -ne $getValue.settings.recurrence.pattern.firstDayOfWeek -and $getValue.settings.recurrence.pattern.type -eq 'weekly')
         {
             $complexFirstDaysOfWeek = [String]::Join(', ', $getValue.settings.recurrence.pattern.firstDayOfWeek)
             $complexPattern.Add('FirstDayOfWeek', $complexFirstDaysOfWeek)
         }
-        if ($null -ne $getValue.settings.recurrence.pattern.index)
+        if ($null -ne $getValue.settings.recurrence.pattern.index -and $getValue.settings.recurrence.pattern.type -in @('relativeMonthly', 'relativeYearly'))
         {
             $complexPattern.Add('Index', $getValue.settings.recurrence.pattern.index.ToString())
         }
         $complexPattern.Add('Interval', $getValue.settings.recurrence.pattern.interval)
-        $complexPattern.Add('Month', $getValue.settings.recurrence.pattern.month)
+        if ($getValue.settings.recurrence.pattern.month -gt 0)
+        {
+            $complexPattern.Add('Month', $getValue.settings.recurrence.pattern.month)
+        }
         if ($null -ne $getValue.settings.recurrence.pattern.type)
         {
             $complexPattern.Add('Type', $getValue.settings.recurrence.pattern.type.ToString())
@@ -261,7 +287,7 @@ function Get-TargetResource
         }
         $complexRecurrence.Add('Pattern', $complexPattern)
         $complexRange = [ordered]@{}
-        if ($null -ne $getValue.settings.recurrence.range.endDate)
+        if ($null -ne $getValue.settings.recurrence.range.endDate -and $getValue.settings.recurrence.range.type -eq 'endDate')
         {
             $complexRange.Add('EndDate', ([DateTime]$getValue.settings.recurrence.range.endDate).ToString('o'))
         }
@@ -372,6 +398,46 @@ function Get-TargetResource
             }
         }
 
+        $complexAdditionalNotificationRecipients = @()
+        if ($getValue.AdditionalNotificationRecipients.Count -gt 0)
+        {
+            $allQueries = $getValue.AdditionalNotificationRecipients.NotificationRecipientScope.Query
+            if ($allQueries.Count -gt 0)
+            {
+                $batchRequests = @()
+                foreach ($query in $allQueries)
+                {
+                    $batchRequests += @{
+                        id     = $query
+                        method = 'GET'
+                        url    = $query.Replace('/v1.0', '').Replace('transitiveMembers/microsoft.graph.user', '')
+                    }
+                }
+                Write-Verbose -Message "Invoking BATCH request to resolve Additional Notification Recipients from Get-TargetResource: $(ConvertTo-Json $batchRequests -Depth 10)"
+                $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
+            }
+
+            foreach ($currentAdditionalNotificationRecipient in $getValue.AdditionalNotificationRecipients)
+            {
+                $currentQuery = $batchResponses | Where-Object { $_.id -eq $currentAdditionalNotificationRecipient.NotificationRecipientScope.Query }
+                switch ($currentAdditionalNotificationRecipient.NotificationRecipientScope.Query)
+                {
+                    { $_ -like '*users*' }
+                    {
+                        $reviewerType = 'User'
+                    }
+                    { $_ -like '*groups*' }
+                    {
+                        $reviewerType = 'Group'
+                    }
+                }
+                $myAdditionalNotificationRecipient = [ordered]@{}
+                $myAdditionalNotificationRecipient.Add('DisplayName', $currentQuery.body.displayName)
+                $myAdditionalNotificationRecipient.Add('Type', $reviewerType)
+                $complexAdditionalNotificationRecipients += $myAdditionalNotificationRecipient
+            }
+        }
+
         $complexReviewers = @()
         $allQueries = $getValue.Reviewers.Query
         $batchRequests = @()
@@ -424,22 +490,24 @@ function Get-TargetResource
         #endregion
 
         $results = @{
-            DescriptionForAdmins    = $getValue.DescriptionForAdmins
-            DescriptionForReviewers = $getValue.DescriptionForReviewers
-            DisplayName             = $getValue.DisplayName
-            FallbackReviewers       = $complexFallbackReviewers
-            Reviewers               = $complexReviewers
-            ScopeValue              = $complexScope
-            SettingsValue           = $complexSettings
-            StageSettings           = $complexStageSettings
-            Id                      = $getValue.Id
-            Ensure                  = 'Present'
-            Credential              = $Credential
-            ApplicationId           = $ApplicationId
-            TenantId                = $TenantId
-            ApplicationSecret       = $ApplicationSecret
-            CertificateThumbprint   = $CertificateThumbprint
-            ManagedIdentity         = $ManagedIdentity.IsPresent
+            AdditionalNotificationRecipients = $complexAdditionalNotificationRecipients
+            DescriptionForAdmins             = $getValue.DescriptionForAdmins
+            DescriptionForReviewers          = $getValue.DescriptionForReviewers
+            DisplayName                      = $getValue.DisplayName
+            FallbackReviewers                = $complexFallbackReviewers
+            InstanceEnumerationScope         = $complexInstanceEnumerationScope
+            Reviewers                        = $complexReviewers
+            ScopeValue                       = $complexScope
+            SettingsValue                    = $complexSettings
+            StageSettings                    = $complexStageSettings
+            Id                               = $getValue.Id
+            Ensure                           = 'Present'
+            Credential                       = $Credential
+            ApplicationId                    = $ApplicationId
+            TenantId                         = $TenantId
+            ApplicationSecret                = $ApplicationSecret
+            CertificateThumbprint            = $CertificateThumbprint
+            ManagedIdentity                  = $ManagedIdentity.IsPresent
         }
 
         return $results
@@ -475,7 +543,15 @@ function Set-TargetResource
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
+        $AdditionalNotificationRecipients,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
         $FallbackReviewers,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $InstanceEnumerationScope,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -548,6 +624,65 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
+    if ($BoundParameters.ContainsKey('AdditionalNotificationRecipients'))
+    {
+        $batchRequests = @()
+        foreach ($currentRecipient in $AdditionalNotificationRecipients)
+        {
+            if ($currentRecipient.Type -eq 'User')
+            {
+                $reviewerType = 'users'
+            }
+            elseif ($currentRecipient.Type -eq 'Group')
+            {
+                $reviewerType = 'groups'
+            }
+            $filter = "displayName eq '$($currentRecipient.DisplayName -replace "'", "''")'"
+            $batchRequests += @{
+                id     = $currentRecipient.DisplayName
+                method = 'GET'
+                url    = "/$($reviewerType)?`$filter=$filter"
+            }
+        }
+        if ($batchRequests.Count -gt 0)
+        {
+            Write-Verbose -Message "Invoking BATCH request to resolve AdditionalNotificationRecipients: $(ConvertTo-Json $batchRequests -Depth 10)"
+            $batchResponses = Invoke-M365DSCGraphBatchRequest -Requests $batchRequests
+        }
+        $newAdditionalNotificationRecipients = @()
+        foreach ($currentRecipient in $AdditionalNotificationRecipients)
+        {
+            $currentQuery = $batchResponses | Where-Object { $_.id -eq $currentRecipient.DisplayName }
+            if ($currentRecipient.Type -eq 'User')
+            {
+                $reviewerType = 'users'
+            }
+            elseif ($currentRecipient.Type -eq 'Group')
+            {
+                $reviewerType = 'groups'
+            }
+            if ($null -ne $currentQuery)
+            {
+                $append = $null
+                if ($reviewerType -eq 'groups')
+                {
+                    $append = '/transitiveMembers'
+                }
+                $myAdditionalRecipient = @{
+                    notificationRecipientScope = @{
+                        '@odata.type' = '#microsoft.graph.accessReviewNotificationRecipientQueryScope'
+                        query         = "/$reviewerType/$($currentQuery.body.value.id)$append"
+                        queryType     = 'MicrosoftGraph'
+                    }
+                    notificationTemplateType = 'CompletedAdditionalRecipients'
+                }
+                $newAdditionalNotificationRecipients += $myAdditionalRecipient
+            }
+        }
+        $BoundParameters.Remove('AdditionalNotificationRecipients') | Out-Null
+        $BoundParameters.Add('additionalNotificationRecipients', $newAdditionalNotificationRecipients)
+    }
+
     if ($BoundParameters.ContainsKey('FallbackReviewers'))
     {
         $batchRequests = @()
@@ -590,17 +725,17 @@ function Set-TargetResource
                 $append = $null
                 if ($reviewerType -eq 'groups')
                 {
-                    $append = '/transitiveMembers/microsoft.graph.user'
+                    $append = '/transitiveMembers'
                 }
                 $myFallbackReviewer = @{
-                    query     = "/v1.0/$reviewerType/$($currentQuery.body.value.id)$append"
+                    query     = "/$reviewerType/$($currentQuery.body.value.id)$append"
                     queryType = 'MicrosoftGraph'
                 }
                 $newFallbackReviewers += $myFallbackReviewer
             }
         }
         $BoundParameters.Remove('FallbackReviewers') | Out-Null
-        $BoundParameters.Add('FallbackReviewers', $newFallbackReviewers)
+        $BoundParameters.Add('fallbackReviewers', $newFallbackReviewers)
     }
 
     if ($BoundParameters.ContainsKey('Reviewers'))
@@ -646,6 +781,7 @@ function Set-TargetResource
         $newReviewers = @()
         foreach ($currentReviewer in $Reviewers)
         {
+            Write-Verbose "Checking reviewer $($currentReviewer.DisplayName) of type $($currentReviewer.Type) with scope type $($currentReviewer.ScopeType)"
             $currentQuery = $batchResponses | Where-Object { $_.id -eq $currentReviewer.DisplayName }
             switch ($currentReviewer.Type)
             {
@@ -677,17 +813,32 @@ function Set-TargetResource
                     query     = "/v1.0/$reviewerType/$($currentQuery.body.value.id)$append"
                     queryType = 'MicrosoftGraph'
                 }
-
+                $newReviewers += $myReviewer
+            }
+            else
+            {
                 if ($currentReviewer.Type -eq 'Manager')
                 {
-                    $myReviewer.query = './manager'
-                    $myReviewer.queryRoot = 'decisions'
+                    $myReviewer = @{
+                        queryType = 'MicrosoftGraph'
+                        query = './manager'
+                        queryRoot = 'decisions'
+                    }
+                    $newReviewers += $myReviewer
                 }
-                $newReviewers += $myReviewer
             }
         }
         $BoundParameters.Remove('Reviewers') | Out-Null
-        $BoundParameters.Add('Reviewers', $newReviewers)
+        $BoundParameters.Add('reviewers', $newReviewers)
+    }
+
+    if ($BoundParameters.ScopeValue.odataType -eq '#microsoft.graph.accessReviewQueryScope')
+    {
+        $BoundParameters.ScopeValue = @{
+            '@odata.type' = '#microsoft.graph.accessReviewQueryScope'
+            query     = $BoundParameters.ScopeValue.Query
+            queryType = $BoundParameters.ScopeValue.QueryType
+        }
     }
 
     if ($null -ne $StageSettings)
@@ -711,20 +862,20 @@ function Set-TargetResource
         {
             if ($scope.ContainsKey('ResourceScopeId'))
             {
-                $scope.Add('ResourceId', $scope.ResourceScopeId)
+                $scope.Add('resourceId', $scope.ResourceScopeId)
                 $scope.Remove('ResourceScopeId') | Out-Null
             }
         }
-        $createParameters.Add('Scope', $createParameters.ScopeValue)
+        $createParameters.Add('scope', $createParameters.ScopeValue)
         $createParameters.Remove('ScopeValue') | Out-Null
 
-        $createParameters.Add('Settings', $createParameters.SettingsValue)
+        $createParameters.Add('settings', $createParameters.SettingsValue)
         $createParameters.Remove('SettingsValue') | Out-Null
 
         foreach ($hashtable in $createParameters.StageSettings)
         {
             $propertyToRemove = 'DependsOnValue'
-            $newProperty = 'DependsOn'
+            $newProperty = 'dependsOn'
             if ($hashtable.ContainsKey($propertyToRemove))
             {
                 $value = $hashtable[$propertyToRemove]
@@ -744,7 +895,7 @@ function Set-TargetResource
             }
         }
 
-        $createParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
+        #$createParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
         Write-Verbose -Message "Creating an Azure AD Access Review Definition with: $(ConvertTo-Json $createParameters -Depth 10)"
         $policy = New-MgBetaIdentityGovernanceAccessReviewDefinition -BodyParameter $createParameters
         return
@@ -755,29 +906,27 @@ function Set-TargetResource
         Write-Verbose -Message "Creating an Azure AD Access Review Definition with DisplayName {$DisplayName}"
 
         $createParameters = ([Hashtable]$BoundParameters).Clone()
-
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
-
         $createParameters.Remove('Id') | Out-Null
 
         foreach ($scope in $createParameters.ScopeValue.ResourceScopes)
         {
             if ($scope.ContainsKey('ResourceScopeId'))
             {
-                $scope.Add('ResourceId', $scope.ResourceScopeId)
+                $scope.Add('resourceId', $scope.ResourceScopeId)
                 $scope.Remove('ResourceScopeId') | Out-Null
             }
         }
-        $createParameters.Add('Scope', $createParameters.ScopeValue)
+        $createParameters.Add('scope', $createParameters.ScopeValue)
         $createParameters.Remove('ScopeValue') | Out-Null
 
-        $createParameters.Add('Settings', $createParameters.SettingsValue)
+        $createParameters.Add('settings', $createParameters.SettingsValue)
         $createParameters.Remove('SettingsValue') | Out-Null
 
         foreach ($hashtable in $createParameters.StageSettings)
         {
             $propertyToRemove = 'DependsOnValue'
-            $newProperty = 'DependsOn'
+            $newProperty = 'dependsOn'
             if ($hashtable.ContainsKey($propertyToRemove))
             {
                 $value = $hashtable[$propertyToRemove]
@@ -803,7 +952,7 @@ function Set-TargetResource
         }
 
         #region resource generator code
-        $createParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
+        #$createParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
         Write-Verbose -Message "Creating an Azure AD Access Review Definition with: $(ConvertTo-Json $createParameters -Depth 10)"
         $policy = New-MgBetaIdentityGovernanceAccessReviewDefinition -BodyParameter $createParameters
         #endregion
@@ -814,25 +963,24 @@ function Set-TargetResource
 
         $updateParameters = ([Hashtable]$BoundParameters).Clone()
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
-
         $updateParameters.Remove('Id') | Out-Null
 
         foreach ($scope in $updateParameters.ScopeValue.ResourceScopes)
         {
             if ($scope.ContainsKey('ResourceScopeId'))
             {
-                $scope.Add('ResourceId', $scope.ResourceScopeId)
+                $scope.Add('resourceId', $scope.ResourceScopeId)
                 $scope.Remove('ResourceScopeId') | Out-Null
             }
         }
-        $updateParameters.Add('Scope', $updateParameters.ScopeValue)
+        $updateParameters.Add('scope', $updateParameters.ScopeValue)
         $updateParameters.Remove('ScopeValue') | Out-Null
 
-        $updateParameters.Add('Settings', $updateParameters.SettingsValue)
+        $updateParameters.Add('settings', $updateParameters.SettingsValue)
         $updateParameters.Remove('SettingsValue') | Out-Null
 
         #region resource generator code
-        $UpdateParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
+        #$UpdateParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
         Write-Verbose -Message "Updating Azure AD Access Review Definition {$($currentInstance.Id)} with: $(ConvertTo-Json $UpdateParameters -Depth 10)"
         Set-MgBetaIdentityGovernanceAccessReviewDefinition `
             -AccessReviewScheduleDefinitionId $currentInstance.Id `
@@ -868,7 +1016,15 @@ function Test-TargetResource
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
+        $AdditionalNotificationRecipients,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance[]]
         $FallbackReviewers,
+
+        [Parameter()]
+        [Microsoft.Management.Infrastructure.CimInstance]
+        $InstanceEnumerationScope,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -1078,6 +1234,29 @@ function Export-TargetResource
                     $Results.Remove('ScopeValue') | Out-Null
                 }
             }
+            if ($null -ne $Results.InstanceEnumerationScope)
+            {
+                $complexMapping = @(
+                    @{
+                        Name            = 'InstanceEnumerationScope'
+                        CimInstanceName = 'MicrosoftGraphAccessReviewScope'
+                        IsRequired      = $False
+                    }
+                )
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.InstanceEnumerationScope `
+                    -CIMInstanceName 'MicrosoftGraphAccessReviewScope2' `
+                    -ComplexTypeMapping $complexMapping
+
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                {
+                    $Results.InstanceEnumerationScope = $complexTypeStringResult
+                }
+                else
+                {
+                    $Results.Remove('InstanceEnumerationScope') | Out-Null
+                }
+            }
             if ($null -ne $Results.SettingsValue)
             {
                 $complexMapping = @(
@@ -1114,7 +1293,7 @@ function Export-TargetResource
                 )
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
                     -ComplexObject $Results.SettingsValue `
-                    -CIMInstanceName 'MicrosoftGraphaccessReviewScheduleSettings' `
+                    -CIMInstanceName 'MicrosoftGraphAccessReviewScheduleSettings' `
                     -ComplexTypeMapping $complexMapping
 
                 if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
@@ -1174,6 +1353,21 @@ function Export-TargetResource
                     $Results.Remove('StageSettings') | Out-Null
                 }
             }
+            if ($null -ne $Results.AdditionalNotificationRecipients)
+            {
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.AdditionalNotificationRecipients `
+                    -CIMInstanceName 'AADAccessReviewDefinitionReviewer'
+
+                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+                {
+                    $Results.AdditionalNotificationRecipients = $complexTypeStringResult
+                }
+                else
+                {
+                    $Results.Remove('AdditionalNotificationRecipients') | Out-Null
+                }
+            }
             if ($null -ne $Results.FallbackReviewers)
             {
                 $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
@@ -1210,7 +1404,7 @@ function Export-TargetResource
                 -ModulePath $PSScriptRoot `
                 -Results $Results `
                 -Credential $Credential `
-                -NoEscape @('ScopeValue', 'SettingsValue', 'StageSettings', 'FallbackReviewers', 'Reviewers')
+                -NoEscape @('ScopeValue', 'InstanceEnumerationScope', 'SettingsValue', 'StageSettings', 'AdditionalNotificationRecipients', 'FallbackReviewers', 'Reviewers')
 
             $dscContent += $currentDSCBlock
             Save-M365DSCPartialExport -Content $currentDSCBlock `

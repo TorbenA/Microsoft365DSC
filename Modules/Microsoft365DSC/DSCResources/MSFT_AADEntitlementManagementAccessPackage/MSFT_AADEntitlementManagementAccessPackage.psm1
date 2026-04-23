@@ -347,7 +347,7 @@ function Set-TargetResource
 
             New-MgBetaEntitlementManagementAccessPackageIncompatibleAccessPackageByRef `
                 -AccessPackageId $accessPackage.Id `
-                -OdataId $ref.'@odata.id'
+                -BodyParameter $ref
         }
         #endregion
 
@@ -360,7 +360,7 @@ function Set-TargetResource
 
             New-MgBetaEntitlementManagementAccessPackageIncompatibleGroupByRef `
                 -AccessPackageId $accessPackage.Id `
-                -OdataId $ref.'@odata.id'
+                -BodyParameter $ref
         }
         #endregion
 
@@ -379,14 +379,14 @@ function Set-TargetResource
                 -ExpandProperty 'accessPackageResourceScopes'
 
             $resourceRole = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourceRole `
-                -AccessPackageCatalogId $CatalogId `
+                -AccessPackageCatalogId $CreateParameters.CatalogId `
                 -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and DisplayName eq '$($roleName -replace "'", "''")' and originSystem eq '$($resourceScope.originSystem)')" `
                 -ExpandProperty 'accessPackageResource'
 
             $isValidRoleScope = $true
             if ($null -eq $resourceScope)
             {
-                Write-Verbose -Message "The AccessPackageResourceOriginId {$originId} could not be found in catalog with id {$CatalogId}"
+                Write-Verbose -Message "The AccessPackageResourceOriginId {$originId} could not be found in catalog with id {$($CreateParameters.CatalogId)}"
                 $isValidRoleScope = $false
             }
 
@@ -398,27 +398,28 @@ function Set-TargetResource
 
             if ($isValidRoleScope)
             {
-                $params = [ordered]@{
-                    AccessPackageResourceRole  = @{
-                        OriginId              = $resourceRole.OriginId
-                        DisplayName           = $resourceRole.DisplayName
-                        OriginSystem          = $resourceRole.OriginSystem
-                        AccessPackageResource = @{
-                            Id           = $resourceScope.Id
-                            ResourceType = $resourceScope.ResourceType
-                            OriginId     = $resourceScope.OriginId
-                            OriginSystem = $resourceRole.OriginSystem
+                $params = @{
+                    accessPackageResourceRole  = @{
+                        originId              = $resourceRole.OriginId
+                        description           = $resourceRole.Description
+                        displayName           = $resourceRole.DisplayName
+                        id                    = $resourceRole.Id
+                        originSystem          = $resourceRole.OriginSystem
+                        accessPackageResource = @{
+                            id           = $resourceScope.Id
+                            resourceType = $resourceScope.ResourceType
+                            originId     = $resourceScope.OriginId
+                            originSystem = $resourceRole.OriginSystem
                         }
                     }
-                    AccessPackageResourceScope = @{
-                        OriginId     = $resourceScope.OriginId
-                        OriginSystem = $resourceScope.OriginSystem
-                        IsRootScope  = $resourceScope.AccessPackageResourceScopes[0].IsRootScope
+                    accessPackageResourceScope = @{
+                        originId     = $resourceScope.OriginId
+                        originSystem = $resourceScope.OriginSystem
+                        id           = $resourceScope.AccessPackageResourceScopes[0].Id
+                        isRootScope  = $resourceScope.AccessPackageResourceScopes[0].IsRootScope
                     }
                 }
 
-                Write-Verbose -Message ("package id {$($accessPackage.Id)}")
-                Write-Verbose -Message ($params | ConvertTo-Json -Depth 20)
                 New-MgBetaEntitlementManagementAccessPackageResourceRoleScope -AccessPackageId $accessPackage.Id -BodyParameter $params
             }
         }
@@ -433,7 +434,7 @@ function Set-TargetResource
         $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         $ObjectGuid = [System.Guid]::empty
-        if (-not [System.Guid]::TryParse($CreateParameters.CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
+        if (-not [System.Guid]::TryParse($UpdateParameters.CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
         {
             $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($UpdateParameters.CatalogId -replace "'", "''")'"
             if ($catalogInstance)
@@ -476,7 +477,7 @@ function Set-TargetResource
 
             New-MgBetaEntitlementManagementAccessPackageIncompatibleAccessPackageByRef `
                 -AccessPackageId $currentInstance.Id `
-                -OdataId $ref.'@odata.id'
+                -BodyParameter $ref
         }
 
         [Array]$toBeRemoved = $compareResult | Where-Object -FilterScript { $_.SideIndicator -eq '=>' }
@@ -504,7 +505,7 @@ function Set-TargetResource
             -DifferenceObject $currentIncompatibleGroups `
 
         [Array]$toBeAdded = $compareResult | Where-Object -FilterScript { $_.SideIndicator -eq '<=' }
-        foreach ($incompatibleGroup in $tobeAdded.InputObject)
+        foreach ($incompatibleGroup in $toBeAdded.InputObject)
         {
 
             $ref = @{
@@ -513,12 +514,11 @@ function Set-TargetResource
 
             New-MgBetaEntitlementManagementAccessPackageIncompatibleGroupByRef `
                 -AccessPackageId $currentInstance.Id `
-                -OdataId $ref.'@odata.id'
+                -BodyParameter $ref
         }
 
         [Array]$toBeRemoved = $compareResult | Where-Object -FilterScript { $_.SideIndicator -eq '=>' }
-
-        foreach ($IncompatibleGroup in $toBeRemoved.InputObject)
+        foreach ($incompatibleGroup in $toBeRemoved.InputObject)
         {
             Remove-MgBetaEntitlementManagementAccessPackageIncompatibleGroupByRef `
                 -AccessPackageId $currentInstance.Id `
@@ -544,14 +544,14 @@ function Set-TargetResource
                     -ExpandProperty 'accessPackageResourceScopes'
 
                 $resourceRole = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourceRole `
-                    -AccessPackageCatalogId $CatalogId `
+                    -AccessPackageCatalogId $UpdateParameters.CatalogId `
                     -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and DisplayName eq '$($roleName -replace "'", "''")' and originSystem eq '$($resourceScope.originSystem)')" `
                     -ExpandProperty 'accessPackageResource'
 
                 $isValidRoleScope = $true
                 if ($null -eq $resourceScope)
                 {
-                    Write-Verbose -Message "The AccessPackageResourceOriginId {$originId} could not be found in catalog with id {$CatalogId}"
+                    Write-Verbose -Message "The AccessPackageResourceOriginId {$originId} could not be found in catalog with id {$($UpdateParameters.CatalogId)}"
                     $isValidRoleScope = $false
                 }
 
@@ -563,22 +563,25 @@ function Set-TargetResource
 
                 if ($isValidRoleScope)
                 {
-                    $params = [ordered]@{
-                        AccessPackageResourceRole  = @{
-                            OriginId              = $resourceRole.OriginId
-                            DisplayName           = $resourceRole.DisplayName
-                            OriginSystem          = $resourceRole.OriginSystem
-                            AccessPackageResource = @{
-                                Id           = $resourceScope.Id
-                                ResourceType = $resourceScope.ResourceType
-                                OriginId     = $resourceScope.OriginId
-                                OriginSystem = $resourceRole.OriginSystem
+                    $params = @{
+                        accessPackageResourceRole  = @{
+                            originId              = $resourceRole.OriginId
+                            description           = $resourceRole.Description
+                            displayName           = $resourceRole.DisplayName
+                            id                    = $resourceRole.Id
+                            originSystem          = $resourceRole.OriginSystem
+                            accessPackageResource = @{
+                                id           = $resourceScope.Id
+                                resourceType = $resourceScope.ResourceType
+                                originId     = $resourceScope.OriginId
+                                originSystem = $resourceRole.OriginSystem
                             }
                         }
-                        AccessPackageResourceScope = @{
-                            OriginId     = $resourceScope.OriginId
-                            OriginSystem = $resourceScope.OriginSystem
-                            IsRootScope  = $resourceScope.AccessPackageResourceScopes[0].IsRootScope
+                        accessPackageResourceScope = @{
+                            originId     = $resourceScope.OriginId
+                            originSystem = $resourceScope.OriginSystem
+                            id           = $resourceScope.AccessPackageResourceScopes[0].Id
+                            isRootScope  = $resourceScope.AccessPackageResourceScopes[0].IsRootScope
                         }
                     }
 
@@ -605,14 +608,14 @@ function Set-TargetResource
                         -ExpandProperty 'accessPackageResourceScopes'
 
                     $resourceRole = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourceRole `
-                        -AccessPackageCatalogId $CatalogId `
+                        -AccessPackageCatalogId $UpdateParameters.CatalogId `
                         -Filter "(accessPackageResource/Id eq '$($resourceScope.id)' and DisplayName eq '$($roleName -replace "'", "''")' and originSystem eq '$($resourceScope.originSystem)')" `
                         -ExpandProperty 'accessPackageResource'
 
                     $isValidRoleScope = $true
                     if ($null -eq $resourceScope)
                     {
-                        Write-Verbose -Message "The AccessPackageResourceOriginId {$originId} could not be found in catalog with id {$CatalogId}"
+                        Write-Verbose -Message "The AccessPackageResourceOriginId {$originId} could not be found in catalog with id {$($UpdateParameters.CatalogId)}"
                         $isValidRoleScope = $false
                     }
 
@@ -624,26 +627,27 @@ function Set-TargetResource
 
                     if ($isValidRoleScope)
                     {
-                        $params = [ordered]@{
-                            AccessPackageResourceRole  = @{
-                                OriginId              = $resourceRole.OriginId
-                                DisplayName           = $resourceRole.DisplayName
-                                OriginSystem          = $resourceRole.OriginSystem
-                                AccessPackageResource = @{
-                                    Id           = $resourceScope.Id
-                                    ResourceType = $resourceScope.ResourceType
-                                    OriginId     = $resourceScope.OriginId
-                                    OriginSystem = $resourceRole.OriginSystem
+                        $params = @{
+                            accessPackageResourceRole  = @{
+                                originId              = $resourceRole.OriginId
+                                description           = $resourceRole.Description
+                                displayName           = $resourceRole.DisplayName
+                                id                    = $resourceRole.Id
+                                originSystem          = $resourceRole.OriginSystem
+                                accessPackageResource = @{
+                                    id           = $resourceScope.Id
+                                    resourceType = $resourceScope.ResourceType
+                                    originId     = $resourceScope.OriginId
+                                    originSystem = $resourceRole.OriginSystem
                                 }
                             }
-                            AccessPackageResourceScope = @{
-                                OriginId     = $resourceScope.OriginId
-                                OriginSystem = $resourceScope.OriginSystem
-                                IsRootScope  = $resourceScope.AccessPackageResourceScopes[0].IsRootScope
+                            accessPackageResourceScope = @{
+                                originId     = $resourceScope.OriginId
+                                originSystem = $resourceScope.OriginSystem
+                                id           = $resourceScope.AccessPackageResourceScopes[0].Id
+                                isRootScope  = $resourceScope.AccessPackageResourceScopes[0].IsRootScope
                             }
                         }
-
-                        #write-verbose -message ($params|convertTo-json -depth 20)
 
                         Remove-MgBetaEntitlementManagementAccessPackageResourceRoleScope `
                             -AccessPackageId $currentInstance.Id `
