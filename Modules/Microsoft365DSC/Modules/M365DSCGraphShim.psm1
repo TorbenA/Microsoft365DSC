@@ -369,14 +369,8 @@ function Invoke-M365DSCGraphShimGetResource
 
         [Parameter()]
         [System.String]
-        $SingleItemUri,
-
-        [Parameter()]
-        [System.String]
-        $ErrorAction
+        $SingleItemUri
     )
-
-    if (-not $ErrorAction) { $ErrorAction = 'Continue' }
 
     # Build headers
     $requestHeaders = @{}
@@ -392,7 +386,7 @@ function Invoke-M365DSCGraphShimGetResource
         if ($BoundParameters['ExpandProperty']) { $queryParts += "`$expand=$($BoundParameters['ExpandProperty'] -join ',')" }
         if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
 
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorAction
+        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
     }
 
     # Collection retrieval
@@ -410,10 +404,10 @@ function Invoke-M365DSCGraphShimGetResource
 
     if ($BoundParameters.ContainsKey('All') -and $BoundParameters['All'])
     {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorAction
+        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
     }
 
-    $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorAction
+    $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
     if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value'))
     {
         return $response.value
@@ -447,14 +441,8 @@ function Invoke-M365DSCGraphShimWriteResource
 
         [Parameter()]
         [System.String[]]
-        $ExtraExcludeParams = @(),
-
-        [Parameter()]
-        [System.String]
-        $ErrorAction
+        $ExtraExcludeParams = @()
     )
-
-    if (-not $ErrorAction) { $ErrorAction = 'Continue' }
 
     $requestHeaders = @{}
     if ($BoundParameters.ContainsKey('Headers')) { $requestHeaders = $BoundParameters['Headers'] }
@@ -475,7 +463,7 @@ function Invoke-M365DSCGraphShimWriteResource
         -NamedParams $namedParams `
         -ExcludeParams $excludeFromBody
 
-    return Invoke-M365DSCGraphShimRequest -Method $Method -Uri $Uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorAction
+    return Invoke-M365DSCGraphShimRequest -Method $Method -Uri $Uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
 }
 
 function Invoke-M365DSCGraphShimDeleteResource
@@ -493,18 +481,12 @@ function Invoke-M365DSCGraphShimDeleteResource
 
         [Parameter(Mandatory = $true)]
         [System.String]
-        $Uri,
-
-        [Parameter()]
-        [System.String]
-        $ErrorAction
+        $Uri
     )
-
-    if (-not $ErrorAction) { $ErrorAction = 'Continue' }
 
     $requestHeaders = @{}
     if ($BoundParameters.ContainsKey('Headers')) { $requestHeaders = $BoundParameters['Headers'] }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $Uri -Headers $requestHeaders -ErrorAction $ErrorAction
+    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $Uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
 }
 
 #endregion Shared Helpers
