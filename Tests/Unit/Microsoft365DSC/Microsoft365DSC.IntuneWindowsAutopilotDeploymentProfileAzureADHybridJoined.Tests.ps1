@@ -68,15 +68,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Id                             = 'FakeStringValue'
                     Language                       = 'FakeStringValue'
                     ManagementServiceAppId         = 'FakeStringValue'
-                    OutOfBoxExperienceSettings     = @{
-                        HideEULA                  = $True
-                        HideEscapeLink            = $True
-                        HidePrivacySettings       = $True
-                        DeviceUsageType           = 'singleUser'
-                        SkipKeyboardSelectionPage = $True
-                        UserType                  = 'administrator'
+                    OutOfBoxExperienceSetting     = @{
+                        eulaHidden                   = $True
+                        escapeLinkHidden             = $True
+                        privacySettingsHidden        = $True
+                        deviceUsageType              = 'singleUser'
+                        keyboardSelectionPageSkipped = $True
+                        userType                     = 'administrator'
                     }
-
                 }
             }
 
@@ -104,13 +103,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName                            = 'FakeStringValue'
                     EnableWhiteGlove                       = $True
                     EnrollmentStatusScreenSettings         = (New-CimInstance -ClassName MSFT_MicrosoftGraphwindowsEnrollmentStatusScreenSettings -Property @{
-                            HideInstallationProgress                         = $True
-                            BlockDeviceSetupRetryByUser                      = $True
-                            AllowLogCollectionOnInstallFailure               = $True
-                            AllowDeviceUseBeforeProfileAndAppInstallComplete = $True
-                            InstallProgressTimeoutInMinutes                  = 25
-                            CustomErrorMessage                               = 'FakeStringValue'
-                            AllowDeviceUseOnInstallFailure                   = $True
+                        HideInstallationProgress                         = $True
+                        BlockDeviceSetupRetryByUser                      = $True
+                        AllowLogCollectionOnInstallFailure               = $True
+                        AllowDeviceUseBeforeProfileAndAppInstallComplete = $True
+                        InstallProgressTimeoutInMinutes                  = 25
+                        CustomErrorMessage                               = 'FakeStringValue'
+                        AllowDeviceUseOnInstallFailure                   = $True
                         } -ClientOnly)
                     ExtractHardwareHash                    = $True
                     HybridAzureADJoinSkipConnectivityCheck = $True
@@ -118,13 +117,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Language                               = 'FakeStringValue'
                     ManagementServiceAppId                 = 'FakeStringValue'
                     OutOfBoxExperienceSettings             = (New-CimInstance -ClassName MSFT_MicrosoftGraphoutOfBoxExperienceSettings -Property @{
-                            HideEULA                  = $True
-                            HideEscapeLink            = $True
-                            HidePrivacySettings       = $True
-                            DeviceUsageType           = 'singleUser'
-                            SkipKeyboardSelectionPage = $True
-                            UserType                  = 'administrator'
-                        } -ClientOnly)
+                        HideEULA                  = $True
+                        HideEscapeLink            = $True
+                        HidePrivacySettings       = $True
+                        DeviceUsageType           = 'singleUser'
+                        SkipKeyboardSelectionPage = $True
+                        UserType                  = 'administrator'
+                    } -ClientOnly)
                     Ensure                                 = 'Present'
                     Credential                             = $Credential
                 }
@@ -154,27 +153,27 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName                            = 'FakeStringValue'
                     EnableWhiteGlove                       = $True
                     EnrollmentStatusScreenSettings         = (New-CimInstance -ClassName MSFT_MicrosoftGraphwindowsEnrollmentStatusScreenSettings -Property @{
-                            HideInstallationProgress                         = $True
-                            BlockDeviceSetupRetryByUser                      = $True
-                            AllowLogCollectionOnInstallFailure               = $True
-                            AllowDeviceUseBeforeProfileAndAppInstallComplete = $True
-                            InstallProgressTimeoutInMinutes                  = 25
-                            CustomErrorMessage                               = 'FakeStringValue'
-                            AllowDeviceUseOnInstallFailure                   = $True
-                        } -ClientOnly)
+                        HideInstallationProgress                         = $True
+                        BlockDeviceSetupRetryByUser                      = $True
+                        AllowLogCollectionOnInstallFailure               = $True
+                        AllowDeviceUseBeforeProfileAndAppInstallComplete = $True
+                        InstallProgressTimeoutInMinutes                  = 25
+                        CustomErrorMessage                               = 'FakeStringValue'
+                        AllowDeviceUseOnInstallFailure                   = $True
+                    } -ClientOnly)
                     ExtractHardwareHash                    = $True
                     HybridAzureADJoinSkipConnectivityCheck = $True
                     Id                                     = 'FakeStringValue'
                     Language                               = 'FakeStringValue'
                     ManagementServiceAppId                 = 'FakeStringValue'
                     OutOfBoxExperienceSettings             = (New-CimInstance -ClassName MSFT_MicrosoftGraphoutOfBoxExperienceSettings -Property @{
-                            HideEULA                  = $True
-                            HideEscapeLink            = $True
-                            HidePrivacySettings       = $True
-                            DeviceUsageType           = 'singleUser'
-                            SkipKeyboardSelectionPage = $True
-                            UserType                  = 'administrator'
-                        } -ClientOnly)
+                        HideEULA                  = $True
+                        HideEscapeLink            = $True
+                        HidePrivacySettings       = $True
+                        DeviceUsageType           = 'singleUser'
+                        SkipKeyboardSelectionPage = $True
+                        UserType                  = 'administrator'
+                    } -ClientOnly)
                     Ensure                                 = 'Absent'
                     Credential                             = $Credential
                 }
@@ -202,27 +201,27 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     DisplayName                            = 'FakeStringValue'
                     EnableWhiteGlove                       = $True
                     EnrollmentStatusScreenSettings         = (New-CimInstance -ClassName MSFT_MicrosoftGraphwindowsEnrollmentStatusScreenSettings -Property @{
-                            HideInstallationProgress                         = $True
-                            BlockDeviceSetupRetryByUser                      = $True
-                            AllowLogCollectionOnInstallFailure               = $True
-                            AllowDeviceUseBeforeProfileAndAppInstallComplete = $True
-                            InstallProgressTimeoutInMinutes                  = 25
-                            CustomErrorMessage                               = 'FakeStringValue'
-                            AllowDeviceUseOnInstallFailure                   = $True
-                        } -ClientOnly)
+                        HideInstallationProgress                         = $True
+                        BlockDeviceSetupRetryByUser                      = $True
+                        AllowLogCollectionOnInstallFailure               = $True
+                        AllowDeviceUseBeforeProfileAndAppInstallComplete = $True
+                        InstallProgressTimeoutInMinutes                  = 25
+                        CustomErrorMessage                               = 'FakeStringValue'
+                        AllowDeviceUseOnInstallFailure                   = $True
+                    } -ClientOnly)
                     ExtractHardwareHash                    = $True
                     HybridAzureADJoinSkipConnectivityCheck = $True
                     Id                                     = 'FakeStringValue'
                     Language                               = 'FakeStringValue'
                     ManagementServiceAppId                 = 'FakeStringValue'
                     OutOfBoxExperienceSettings             = (New-CimInstance -ClassName MSFT_MicrosoftGraphoutOfBoxExperienceSettings -Property @{
-                            HideEULA                  = $True
-                            HideEscapeLink            = $True
-                            HidePrivacySettings       = $True
-                            DeviceUsageType           = 'singleUser'
-                            SkipKeyboardSelectionPage = $True
-                            UserType                  = 'administrator'
-                        } -ClientOnly)
+                        HideEULA                  = $True
+                        HideEscapeLink            = $True
+                        HidePrivacySettings       = $True
+                        DeviceUsageType           = 'singleUser'
+                        SkipKeyboardSelectionPage = $True
+                        UserType                  = 'administrator'
+                    } -ClientOnly)
                     Ensure                                 = 'Present'
                     Credential                             = $Credential
                 }

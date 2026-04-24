@@ -53,13 +53,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return @{
                     '@odata.type' = "#microsoft.graph.DeviceShellScript"
                     BlockExecutionNotifications = $True
+                    ExecutionFrequency = "PT0S"
                     Description = "FakeStringValue"
                     DisplayName = "FakeStringValue"
                     FileName = "FakeStringValue"
                     Id = "FakeStringValue"
                     RoleScopeTagIds = @("FakeStringValue")
                     RunAsAccount = "system"
-                    ScriptContent = [byte[]]::new(5)
+                    ScriptContent = "AAAAAAA="
                 }
             }
 

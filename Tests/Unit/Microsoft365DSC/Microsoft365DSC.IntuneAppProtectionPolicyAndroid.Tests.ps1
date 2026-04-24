@@ -199,10 +199,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     MaximumPinRetries                               = 5
                     MinimumPinLength                                = 4
                     OrganizationalCredentialsRequired               = $False
-                    PeriodBeforePinReset                            = New-TimeSpan -Days 60
-                    PeriodOfflineBeforeAccessCheck                  = New-TimeSpan -Hours 12
-                    PeriodOfflineBeforeWipeIsEnforced               = New-TimeSpan -Days 90
-                    PeriodOnlineBeforeAccessCheck                   = New-TimeSpan -Minutes 30
+                    PeriodBeforePinReset                            = 'P60D'
+                    PeriodOfflineBeforeAccessCheck                  = 'PT12H'
+                    PeriodOfflineBeforeWipeIsEnforced               = 'P90D'
+                    PeriodOnlineBeforeAccessCheck                   = 'PT30M'
                     PinCharacterSet                                 = 'alphanumericAndSymbol'
                     PinRequired                                     = $True
                     DisableAppPinIfDevicePinIsSet                   = $False

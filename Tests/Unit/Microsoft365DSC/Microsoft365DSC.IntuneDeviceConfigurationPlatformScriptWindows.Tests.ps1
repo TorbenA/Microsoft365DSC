@@ -60,7 +60,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     RoleScopeTagIds = @("FakeStringValue")
                     RunAs32Bit = $True
                     RunAsAccount = "system"
-                    ScriptContent = [byte[]]::new(5)
+                    ScriptContent = "AAAAAAA="
                 }
             }
 

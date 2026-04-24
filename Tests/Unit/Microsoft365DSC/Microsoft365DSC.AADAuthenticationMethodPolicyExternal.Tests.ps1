@@ -39,7 +39,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration -MockWith {
             }
 
-            Mock -CommandName Invoke-MgGraphRequest -MockWith {
+            $scriptBlock = {
                 return @{
                     authenticationMethodConfigurations = @{
                         IncludeTargets = @(
@@ -65,6 +65,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     }
                 }
             }
+
+            Mock -CommandName Invoke-MgGraphRequest -MockWith $scriptBlock
+            Mock -CommandName Get-MgBetaPolicyAuthenticationMethodPolicy -MockWith $scriptBlock
 
             Mock -CommandName Get-MgGroup -ModuleName M365DSCUtil -MockWith {
                 return @{

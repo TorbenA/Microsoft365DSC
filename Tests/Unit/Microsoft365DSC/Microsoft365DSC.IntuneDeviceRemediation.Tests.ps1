@@ -61,7 +61,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Get-MgBetaDeviceManagementDeviceHealthScript -MockWith {
                 return @{
                     Description = "FakeStringValue"
-                    DetectionScriptContent = [byte[]] @(84, 101, 115, 116)
+                    DetectionScriptContent = "VGVzdA==" # "Test"
                     DetectionScriptParameters = @(
                         @{
                             '@odata.type' = "#microsoft.graph.deviceHealthScriptBooleanParameter"
@@ -78,7 +78,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Id = "FakeStringValue"
                     IsGlobalScript = $False
                     Publisher = "FakeStringValue"
-                    RemediationScriptContent = [byte[]] @(84, 101, 115, 116)
+                    RemediationScriptContent = "VGVzdA==" # "Test"
                     RemediationScriptParameters = @(
                         @{
                             '@odata.type' = "#microsoft.graph.deviceHealthScriptBooleanParameter"

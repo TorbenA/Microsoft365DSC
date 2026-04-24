@@ -67,13 +67,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Id                             = 'FakeStringValue'
                     Language                       = 'FakeStringValue'
                     ManagementServiceAppId         = 'FakeStringValue'
-                    OutOfBoxExperienceSettings     = @{
-                        HideEULA                  = $True
-                        HideEscapeLink            = $True
-                        HidePrivacySettings       = $True
-                        DeviceUsageType           = 'singleUser'
-                        SkipKeyboardSelectionPage = $True
-                        UserType                  = 'administrator'
+                    OutOfBoxExperienceSetting     = @{
+                        eulaHidden                   = $True
+                        escapeLinkHidden             = $True
+                        privacySettingsHidden        = $True
+                        deviceUsageType              = 'singleUser'
+                        keyboardSelectionPageSkipped = $True
+                        userType                     = 'administrator'
                     }
 
                 }

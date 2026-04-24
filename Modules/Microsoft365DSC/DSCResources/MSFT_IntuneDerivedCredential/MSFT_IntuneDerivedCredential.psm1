@@ -242,7 +242,6 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating an Intune Derived Credential with DisplayName {$DisplayName}"
-
         New-MgBetaDeviceManagementDerivedCredential -BodyParameter $setParameters
     }
     # UPDATE is not supported API, it always creates a new Derived Credential instance

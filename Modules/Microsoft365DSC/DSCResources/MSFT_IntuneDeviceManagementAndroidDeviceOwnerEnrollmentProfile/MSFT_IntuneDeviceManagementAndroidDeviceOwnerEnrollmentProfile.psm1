@@ -147,6 +147,12 @@ function Get-TargetResource
             $androidDeviceOwnerEnrollmentProfile = $Script:exportedInstance
         }
 
+        $tokenExpirationDateTimeString = $androidDeviceOwnerEnrollmentProfile.TokenExpirationDateTime
+        if (-not [string]::IsNullOrEmpty($tokenExpirationDateTimeString))
+        {
+            $tokenExpirationDateTimeString = [DateTime]::Parse($tokenExpirationDateTimeString).ToString('yyyy-MM-ddTHH:mm:ssZ')
+        }
+
         $results = @{
             Id                      = $androidDeviceOwnerEnrollmentProfile.Id
             DisplayName             = $androidDeviceOwnerEnrollmentProfile.DisplayName
@@ -157,7 +163,7 @@ function Get-TargetResource
             EnrollmentTokenType     = $androidDeviceOwnerEnrollmentProfile.EnrollmentTokenType.ToString()
             IsTeamsDeviceProfile    = $androidDeviceOwnerEnrollmentProfile.IsTeamsDeviceProfile
             RoleScopeTagIds         = $androidDeviceOwnerEnrollmentProfile.RoleScopeTagIds
-            TokenExpirationDateTime = $androidDeviceOwnerEnrollmentProfile.TokenExpirationDateTime.ToString('yyyy-MM-ddTHH:mm:ssZ')
+            TokenExpirationDateTime = $tokenExpirationDateTimeString
             WifiHidden              = $androidDeviceOwnerEnrollmentProfile.WifiHidden
             WifiPassword            = $androidDeviceOwnerEnrollmentProfile.WifiPassword
             WifiSecurityType        = $androidDeviceOwnerEnrollmentProfile.WifiSecurityType.ToString()

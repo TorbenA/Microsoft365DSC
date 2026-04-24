@@ -102,6 +102,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return @(@{
                         target = @{
                             deviceAndAppManagementAssignmentFilterType = 'none'
+                            '@odata.type'                              = '#microsoft.graph.allDevicesAssignmentTarget'
                         }
                     })
             }

@@ -185,7 +185,7 @@ function Get-TargetResource
         $complexOutOfBoxExperienceSettings.Add('SkipKeyboardSelectionPage', $getValue.OutOfBoxExperienceSetting.keyboardSelectionPageSkipped)
         if ($null -ne $getValue.OutOfBoxExperienceSetting.userType)
         {
-            $complexOutOfBoxExperienceSettings.Add('UserType', $getValue.OutOfBoxExperienceSettings.userType.ToString())
+            $complexOutOfBoxExperienceSettings.Add('UserType', $getValue.OutOfBoxExperienceSetting.userType.ToString())
         }
         if ($complexOutOfBoxExperienceSettings.values.Where({ $null -ne $_ }).Count -eq 0)
         {
