@@ -426,7 +426,7 @@ namespace Microsoft365DSC.Compare
             foreach (object param in paramList)
             {
                 string? option = GetStringProperty(param, "Option");
-                if (string.Equals(option, "Required", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(option, "Required", StringComparison.OrdinalIgnoreCase) || string.Equals(option, "Key", StringComparison.OrdinalIgnoreCase))
                 {
                     string? name = GetStringProperty(param, "Name");
                     if (!string.IsNullOrEmpty(name))
