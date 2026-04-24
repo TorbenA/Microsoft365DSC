@@ -51,20 +51,16 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     enableSplitTunneling                    = $False
                     enablePerApp                            = $False
                     optInToDeviceIdSharing                  = $True
-                    proxyServer                             = @(
-                        @{
-                            port                            = 80
-                            automaticConfigurationScriptUrl = 'https://www.test.com'
-                            address                         = 'proxy.test.com'
-                        }
-                    )
-                    server                                  = @(
-                        @{
-                            isDefaultServer                 = $True
-                            description                     = 'server'
-                            address                         = 'vpn.test.com'
-                        }
-                    )
+                    proxyServer                             = @{
+                        port                            = 80
+                        automaticConfigurationScriptUrl = 'https://www.test.com'
+                        address                         = 'proxy.test.com'
+                    }
+                    server                                  = @{
+                        isDefaultServer                 = $True
+                        description                     = 'server'
+                        address                         = 'vpn.test.com'
+                    }
                     customData                              = @(
                         @{
                             key                             = 'FakeStringValue'
@@ -130,18 +126,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Id                                         = 'FakeStringValue'
                     optInToDeviceIdSharing                     = $True
                     proxyServer                                = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_MicrosoftvpnProxyServer `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_MicrosoftvpnProxyServer -Property @{
                             port                               = 80
                             automaticConfigurationScriptUrl    = 'https://www.test.com'
                             address                            = 'proxy.test.com'
                         } -ClientOnly)
                     )
                     server                                     = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_MicrosoftGraphvpnServer `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_MicrosoftGraphvpnServer -Property @{
                             isDefaultServer                    = $True
                             description                        = 'server'
                             address                            = 'vpn.test.com'
@@ -152,25 +144,19 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     excludedDomains                           = @()
                     excludeList                               = @()
                     customData                                 = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_CustomData `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_CustomData -Property @{
                             key                                = 'FakeStringValue'
                             value                              = 'FakeStringValue'
                         } -ClientOnly)
                     )
                     customKeyValueData                         = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_CustomData `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_CustomData -Property @{
                             name                               = 'FakeStringValue'
                             value                              = 'FakeStringValue'
                         } -ClientOnly)
                     )
                     onDemandRules                              = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_DeviceManagementConfigurationPolicyVpnOnDemandRule `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_DeviceManagementConfigurationPolicyVpnOnDemandRule -Property @{
                             ssids                              = 'FakeStringValue'
                             dnsSearchDomains                   = 'FakeStringValue'
                             probeUrl                           = 'FakeStringValue'
@@ -183,9 +169,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         } -ClientOnly)
                     )
                     targetedMobileApps                      = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_targetedMobileApps `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_targetedMobileApps -Property @{
                             name                               = 'FakeStringValue'
                             publisher                          = 'FakeStringValue'
                             appStoreUrl                        = 'FakeStringValue'
@@ -228,18 +212,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     enablePerApp                              = $False
                     optInToDeviceIdSharing                    = $True
                     proxyServer                               = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_MicrosoftvpnProxyServer `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_MicrosoftvpnProxyServer -Property @{
                             port                              = 443 # Updated property
                             automaticConfigurationScriptUrl   = 'https://www.test.com'
                             address                           = 'proxy.test.com'
                         } -ClientOnly)
                     )
                     server                                    = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_MicrosoftGraphvpnServer `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_MicrosoftGraphvpnServer -Property @{
                             isDefaultServer                   = $True
                             description                       = 'server'
                             address                           = 'vpn.test.com'
@@ -250,25 +230,19 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     excludedDomains                           = @()
                     excludeList                               = @()
                     customData                                = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_CustomData `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_CustomData -Property @{
                            key                                = 'FakeStringValue'
                             value                             = 'FakeStringValue'
                         } -ClientOnly)
                     )
                     customKeyValueData                        = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_CustomData `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_CustomData -Property @{
                             name                              = 'FakeStringValue'
                             value                             = 'FakeStringValue'
                         } -ClientOnly)
                     )
                     onDemandRules      = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_DeviceManagementConfigurationPolicyVpnOnDemandRule `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_DeviceManagementConfigurationPolicyVpnOnDemandRule -Property @{
                             ssids                             = 'FakeStringValue'
                             dnsSearchDomains                  = 'FakeStringValue'
                             probeUrl                          = 'FakeStringValue'
@@ -281,9 +255,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         } -ClientOnly)
                     )
                     targetedMobileApps                      = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_targetedMobileApps `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_targetedMobileApps -Property @{
                             name                             = 'FakeStringValue'
                             publisher                        = 'FakeStringValue'
                             appStoreUrl                      = 'FakeStringValue'
@@ -322,43 +294,33 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     enablePerApp                             = $False
                     optInToDeviceIdSharing                   = $True
                     proxyServer                              = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_MicrosoftvpnProxyServer `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_MicrosoftvpnProxyServer -Property @{
                             port                             = 80
                             automaticConfigurationScriptUrl  = 'https://www.test.com'
                             address                          = 'proxy.test.com'
                         } -ClientOnly)
                     )
                     server                                   = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_MicrosoftGraphvpnServer `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_MicrosoftGraphvpnServer -Property @{
                             isDefaultServer                  = $True
                             description                      = 'server'
                             address                          = 'vpn.test.com'
                         } -ClientOnly)
                     )
                     customData                               = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_CustomData `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_CustomData -Property @{
                             key                              = 'FakeStringValue'
                             value                            = 'FakeStringValue'
                         } -ClientOnly)
                     )
                     customKeyValueData      = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_CustomData `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_CustomData -Property @{
                             name                            = 'FakeStringValue'
                             value                           = 'FakeStringValue'
                         } -ClientOnly)
                     )
                     onDemandRules      = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_DeviceManagementConfigurationPolicyVpnOnDemandRule `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_DeviceManagementConfigurationPolicyVpnOnDemandRule -Property @{
                             ssids                           = 'FakeStringValue'
                             dnsSearchDomains                = 'FakeStringValue'
                             probeUrl                        = 'FakeStringValue'
@@ -371,9 +333,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         } -ClientOnly)
                     )
                     targetedMobileApps                    = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_targetedMobileApps `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_targetedMobileApps -Property @{
                             name                            = 'FakeStringValue'
                             publisher                       = 'FakeStringValue'
                             appStoreUrl                     = 'FakeStringValue'
@@ -406,18 +366,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     enablePerApp                            = $False
                     optInToDeviceIdSharing                  = $True
                     proxyServer                             = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_MicrosoftvpnProxyServer `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_MicrosoftvpnProxyServer -Property @{
                             port = 80
                             automaticConfigurationScriptUrl = 'https://www.test.com'
                             address                         = 'proxy.test.com'
                         } -ClientOnly)
                     )
                     server                                  = [CimInstance[]]@(
-                        (New-CimInstance `
-                        -ClassName MSFT_MicrosoftGraphvpnServer `
-                        -Property @{
+                        (New-CimInstance -ClassName MSFT_MicrosoftGraphvpnServer -Property @{
                             isDefaultServer                 = $True
                             description                     = 'server'
                             address                         = 'vpn.test.com'
@@ -432,7 +388,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     (Get-TargetResource @testParams).Ensure | Should -Be 'Present'
             }
 
-            It 'Should return true from the Test method' {
+            It 'Should return false from the Test method' {
                 Test-TargetResource @testParams | Should -Be $false
             }
 

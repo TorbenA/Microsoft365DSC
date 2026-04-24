@@ -19629,7 +19629,7 @@ function Update-MgServicePrincipal
         $ProxyUseDefaultCredentials,
 
         [Parameter()]
-        [PSObject]
+        [System.Object]
         $BodyParameter,
 
         [Parameter()]
@@ -50572,7 +50572,7 @@ function Update-MgBetaRoleManagementDirectoryRoleDefinition
         $Proxy,
 
         [Parameter()]
-        [PSObject]
+        [System.Object]
         $BodyParameter,
 
         [Parameter()]
@@ -59825,7 +59825,11 @@ function Update-MgBetaPolicyPermissionGrantPolicy
 
         [Parameter()]
         [System.String]
-        $Description
+        $Description,
+
+        [Parameter()]
+        [System.Object]
+        $BodyParameter
     )
 }
 

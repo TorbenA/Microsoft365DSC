@@ -126,7 +126,11 @@ function Update-MgServicePrincipal
 
         [Parameter()]
         [PSObject]
-        $KeyCredentials
+        $KeyCredentials,
+
+        [Parameter()]
+        [System.Object]
+        $BodyParameter
     )
 }
 
@@ -408,7 +412,11 @@ function Update-MgBetaRoleManagementDirectoryRoleDefinition
 
         [Parameter()]
         [System.String]
-        $UnifiedRoleDefinitionId
+        $UnifiedRoleDefinitionId,
+
+        [Parameter()]
+        [System.Object]
+        $BodyParameter
     )
 }
 

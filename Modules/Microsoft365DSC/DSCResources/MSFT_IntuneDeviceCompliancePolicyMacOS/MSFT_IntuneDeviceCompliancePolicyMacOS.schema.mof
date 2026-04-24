@@ -10,10 +10,11 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
     [Write, Description("The collection Id that is the target of the assignment.(ConfigMgr)")] String collectionId;
 };
 
-[ClassVersion("1.0.0.0"), FriendlyName("IntuneDeviceCompliancePolicyMacOS")]
+[ClassVersion("1.0.0.1"), FriendlyName("IntuneDeviceCompliancePolicyMacOS")]
 class MSFT_IntuneDeviceCompliancePolicyMacOS : OMI_BaseResource
 {
     [Key, Description("Display name of the MacOS device compliance policy.")] String DisplayName;
+    [Write, Description("The id of the MacOS device compliance policy.")] String Id;
     [Write, Description("Description of the MacOS device compliance policy.")] String Description;
     [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];
     [Write, Description("Assignments of the Intune Policy."), EmbeddedInstance("MSFT_DeviceManagementConfigurationPolicyAssignments")] String Assignments[];

@@ -12,6 +12,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
+        $Id,
+
+        [Parameter()]
+        [System.String]
         $Description,
 
         [Parameter()]
@@ -172,10 +176,19 @@ function Get-TargetResource
             $nullResult = $PSBoundParameters
             $nullResult.Ensure = 'Absent'
 
-            $devicePolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
-                -All `
-                -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.macOSCompliancePolicy')" `
-                -ErrorAction Stop
+            if (-not [System.String]::IsNullOrEmpty($Id))
+            {
+                $devicePolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy -DeviceCompliancePolicyId $Id -ErrorAction SilentlyContinue
+            }
+
+            if ($null -eq $devicePolicy)
+            {
+                $devicePolicy = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
+                    -All `
+                    -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.macOSCompliancePolicy')" `
+                    -ErrorAction Stop
+            }
+
             if (([array]$devicePolicy).Count -gt 1)
             {
                 throw "A policy with a duplicated displayName {'$DisplayName'} was found - Ensure displayName is unique"
@@ -222,6 +235,7 @@ function Get-TargetResource
         Write-Verbose -Message "Found MacOS Device Compliance Policy with displayName {$DisplayName}"
         $results = @{
             DisplayName                                   = $devicePolicy.DisplayName
+            Id                                            = $devicePolicy.Id
             Description                                   = $devicePolicy.Description
             RoleScopeTagIds                               = $devicePolicy.RoleScopeTagIds
             PasswordRequired                              = $devicePolicy.passwordRequired
@@ -288,6 +302,10 @@ function Set-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
+
+        [Parameter()]
+        [System.String]
+        $Id,
 
         [Parameter()]
         [System.String]
@@ -497,6 +515,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Creating new Intune Device Compliance MacOS Policy {$DisplayName}"
         $boundParameters.Remove('Assignments') | Out-Null
+        $boundParameters.Remove('Id') | Out-Null
         $createParameters = Rename-M365DSCCimInstanceParameter -Properties $boundParameters
         $createParameters.Add('@odata.type', '#microsoft.graph.macOSCompliancePolicy')
         $createParameters.Add('scheduledActionsForRule', $complexScheduledActionsForRule)
@@ -516,6 +535,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating Intune Device Compliance MacOS Policy {$DisplayName}"
         $boundParameters.Remove('Assignments') | Out-Null
+        $boundParameters.Remove('Id') | Out-Null
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $boundParameters
         $updateParameters.Add('@odata.type', '#microsoft.graph.macOSCompliancePolicy')
         Update-MgBetaDeviceManagementDeviceCompliancePolicy -BodyParameter $updateParameters `
@@ -550,6 +570,10 @@ function Test-TargetResource
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
+
+        [Parameter()]
+        [System.String]
+        $Id,
 
         [Parameter()]
         [System.String]

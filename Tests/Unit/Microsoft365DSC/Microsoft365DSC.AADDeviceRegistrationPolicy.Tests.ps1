@@ -94,7 +94,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The instance exists and values are already in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    AzureADAllowedToJoin                    = "None";
+                    AzureADAllowedToJoin                    = "All";
                     AzureADAllowedToJoinGroups              = @();
                     AzureADAllowedToJoinUsers               = @();
                     AzureAdJoinLocalAdminsRegisteringGroups = @();
@@ -117,7 +117,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
         Context -Name "The instance exists and values are NOT in the desired state" -Fixture {
             BeforeAll {
                 $testParams = @{
-                    AzureADAllowedToJoin                    = "Selected";
+                    AzureADAllowedToJoin                    = "All";
                     AzureADAllowedToJoinGroups              = @();
                     AzureADAllowedToJoinUsers               = @("john.smith@contoso.com");
                     AzureAdJoinLocalAdminsRegisteringGroups = @();
