@@ -254,7 +254,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             }
                         )
                         SettingInstance = @{
-                            SettingDefinitionId = 'vendor_msft_firewall_mdmstore_firewallrules_{firewallrulename}'
                             SettingInstanceTemplateReference = @{
                                 SettingInstanceTemplateId = '76c7a8be-67d2-44bf-81a5-38c94926b1a1'
                             }

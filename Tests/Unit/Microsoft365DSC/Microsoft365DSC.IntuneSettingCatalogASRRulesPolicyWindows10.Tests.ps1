@@ -245,6 +245,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                 }
                             )
                         }
+                    }
                 )
             }
 

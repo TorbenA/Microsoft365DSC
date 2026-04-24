@@ -304,7 +304,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             SettingInstanceTemplateReference = @{
                                 SettingInstanceTemplateId = '3d6107c2-c307-4399-8070-6542f1760309'
                             }
-                            SettingDefinitionId = 'device_vendor_msft_policy_config_defender_attacksurfacereductionrules'
                             '@odata.type' = "#microsoft.graph.deviceManagementConfigurationGroupSettingCollectionInstance"
                             groupSettingCollectionValue = @{
                                 children = @(

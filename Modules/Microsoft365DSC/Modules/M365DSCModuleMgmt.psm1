@@ -658,14 +658,15 @@ function Update-M365DSCDependencies
             $scopedIsPsResourceGetAvailable = $false
         }
 
-        $dependencies = $Script:M365DSCDependencies.Values.GetEnumerator()
+        $dependencies = [System.Object[]]::new($Script:M365DSCDependencies.Count + $Script:M365DSCDevDependencies.Count)
+        $Script:M365DSCDependencies.Values.CopyTo($dependencies, 0)
         if ($Development)
         {
-            $dependencies = $Script:M365DSCDevDependencies.Values.GetEnumerator()
+            $Script:M365DSCDevDependencies.Values.CopyTo($dependencies, $Script:M365DSCDependencies.Count)
         }
-        foreach ($dependency in $dependencies)
+        foreach ($dependency in ($dependencies | Where-Object { $null -ne $_ }))
         {
-            Write-Progress -Activity 'Scanning dependencies' -PercentComplete ($i / $Script:M365DSCDependencies.Count * 100)
+            Write-Progress -Activity 'Scanning dependencies' -PercentComplete ($i / $dependencies.Count * 100)
             try
             {
                 if (-not $Force)

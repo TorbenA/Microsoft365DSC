@@ -129,7 +129,6 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Description = "FakeStringValue"
                     Developer = "FakeStringValue"
                     DisplayName = "FakeStringValue"
-                    FileName = "FakeStringValue"
                     Id = "FakeStringValue"
                     InformationUrl = "FakeStringValue"
                     IsFeatured = $True

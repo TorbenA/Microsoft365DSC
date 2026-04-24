@@ -121,6 +121,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             value = 'device_vendor_msft_bitlocker_identificationfield_1'
                         }
                     }
+                }
             }
 
             Mock -CommandName Get-MgBetaDeviceManagementConfigurationPolicyAssignment -MockWith {

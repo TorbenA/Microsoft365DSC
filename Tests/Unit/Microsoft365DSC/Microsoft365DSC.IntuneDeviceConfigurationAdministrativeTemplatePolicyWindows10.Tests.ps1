@@ -102,6 +102,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return @(@{
                         target = @{
                             deviceAndAppManagementAssignmentFilterType = 'none'
+                        }
                     })
             }
             Mock -CommandName Update-DeviceConfigurationPolicyAssignment -MockWith {

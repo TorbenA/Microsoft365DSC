@@ -11,12 +11,12 @@
 
 #region Shared Helpers
 
+<#
+.SYNOPSIS
+    Centralized wrapper around Invoke-MgGraphRequest with retry logic.
+#>
 function Invoke-M365DSCGraphShimRequest
 {
-    <#
-    .SYNOPSIS
-        Centralized wrapper around Invoke-MgGraphRequest with retry logic.
-    #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
@@ -113,12 +113,12 @@ function Invoke-M365DSCGraphShimRequest
     }
 }
 
+<#
+.SYNOPSIS
+    Follows @odata.nextLink to retrieve all pages of a Graph API collection.
+#>
 function Get-M365DSCGraphShimAllPages
 {
-    <#
-    .SYNOPSIS
-        Follows @odata.nextLink to retrieve all pages of a Graph API collection.
-    #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
@@ -180,12 +180,12 @@ function Get-M365DSCGraphShimAllPages
     return $allResults
 }
 
+<#
+.SYNOPSIS
+    Builds a Graph API URI from a template, identity parameters, and OData query options.
+#>
 function ConvertTo-M365DSCGraphShimUri
 {
-    <#
-    .SYNOPSIS
-        Builds a Graph API URI from a template, identity parameters, and OData query options.
-    #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]
@@ -267,12 +267,12 @@ function ConvertTo-M365DSCGraphShimUri
     return $uri
 }
 
+<#
+.SYNOPSIS
+    Assembles a request body from bound parameters, merging AdditionalProperties.
+#>
 function ConvertTo-M365DSCGraphShimBody
 {
-    <#
-    .SYNOPSIS
-        Assembles a request body from bound parameters, merging AdditionalProperties.
-    #>
     [CmdletBinding()]
     param(
         [Parameter()]
@@ -337,6 +337,176 @@ function ConvertTo-M365DSCGraphShimBody
     return $body
 }
 
+# Base set of parameter names that are never sent in a request body.
+# Individual functions append their own identity-parameter names before calling helpers.
+$script:GraphShimExcludeFromBody = @(
+    'Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend',
+    'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials',
+    'Break', 'ResponseHeadersVariable', 'InputObject',
+    'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip',
+    'Search', 'Sort', 'CountVariable', 'ConsistencyLevel',
+    'All', 'PageSize', 'BodyParameter', 'AdditionalProperties',
+    'Confirm', 'WhatIf'
+)
+
+<#
+.SYNOPSIS
+    Centralized GET dispatcher that handles single-item vs. collection retrieval,
+    OData query options, and paging — replacing the identical code block that was
+    duplicated in every Get-* wrapper function.
+#>
+function Invoke-M365DSCGraphShimGetResource
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Collections.IDictionary]
+        $BoundParameters,
+
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $CollectionUri,
+
+        [Parameter()]
+        [System.String]
+        $SingleItemUri,
+
+        [Parameter()]
+        [System.String]
+        $ErrorAction
+    )
+
+    if (-not $ErrorAction) { $ErrorAction = 'Continue' }
+
+    # Build headers
+    $requestHeaders = @{}
+    if ($BoundParameters.ContainsKey('Headers')) { $requestHeaders = $BoundParameters['Headers'] }
+    if ($BoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $BoundParameters['ConsistencyLevel'] }
+
+    # Single-item retrieval when a resolved SingleItemUri is supplied
+    if (-not [System.String]::IsNullOrEmpty($SingleItemUri))
+    {
+        $uri = $SingleItemUri
+        $queryParts = @()
+        if ($BoundParameters['Property']) { $queryParts += "`$select=$($BoundParameters['Property'] -join ',')" }
+        if ($BoundParameters['ExpandProperty']) { $queryParts += "`$expand=$($BoundParameters['ExpandProperty'] -join ',')" }
+        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
+
+        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorAction
+    }
+
+    # Collection retrieval
+    $uriParams = @{ UriTemplate = $CollectionUri }
+    if ($BoundParameters['Filter'])         { $uriParams['Filter'] = $BoundParameters['Filter'] }
+    if ($BoundParameters['Property'])       { $uriParams['Property'] = $BoundParameters['Property'] }
+    if ($BoundParameters['ExpandProperty']) { $uriParams['ExpandProperty'] = $BoundParameters['ExpandProperty'] }
+    if ($BoundParameters.ContainsKey('Top') -and $BoundParameters['Top'] -gt 0)   { $uriParams['Top'] = $BoundParameters['Top'] }
+    if ($BoundParameters.ContainsKey('Skip') -and $BoundParameters['Skip'] -gt 0) { $uriParams['Skip'] = $BoundParameters['Skip'] }
+    if ($BoundParameters['Search'])         { $uriParams['Search'] = $BoundParameters['Search'] }
+    if ($BoundParameters['Sort'])           { $uriParams['Sort'] = $BoundParameters['Sort'] }
+    if ($BoundParameters['CountVariable'])  { $uriParams['CountVariable'] = $BoundParameters['CountVariable'] }
+
+    $uri = ConvertTo-M365DSCGraphShimUri @uriParams
+
+    if ($BoundParameters.ContainsKey('All') -and $BoundParameters['All'])
+    {
+        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorAction
+    }
+
+    $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorAction
+    if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value'))
+    {
+        return $response.value
+    }
+    return $response
+}
+
+<#
+.SYNOPSIS
+    Centralized POST / PATCH / PUT dispatcher that builds the request body
+    from BoundParameters, BodyParameter, and AdditionalProperties, then
+    invokes the Graph API — replacing the identical code block that was
+    duplicated in every New-*, Update-*, and Set-* wrapper function.
+#>
+function Invoke-M365DSCGraphShimWriteResource
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Collections.IDictionary]
+        $BoundParameters,
+
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $Uri,
+
+        [Parameter(Mandatory = $true)]
+        [ValidateSet('POST', 'PATCH', 'PUT')]
+        [System.String]
+        $Method,
+
+        [Parameter()]
+        [System.String[]]
+        $ExtraExcludeParams = @(),
+
+        [Parameter()]
+        [System.String]
+        $ErrorAction
+    )
+
+    if (-not $ErrorAction) { $ErrorAction = 'Continue' }
+
+    $requestHeaders = @{}
+    if ($BoundParameters.ContainsKey('Headers')) { $requestHeaders = $BoundParameters['Headers'] }
+
+    $excludeFromBody = $script:GraphShimExcludeFromBody + $ExtraExcludeParams
+    $namedParams = @{}
+    foreach ($key in $BoundParameters.Keys)
+    {
+        if ($key -notin $excludeFromBody)
+        {
+            $namedParams[$key] = $BoundParameters[$key]
+        }
+    }
+
+    $body = ConvertTo-M365DSCGraphShimBody `
+        -BodyParameter $BoundParameters['BodyParameter'] `
+        -AdditionalProperties $BoundParameters['AdditionalProperties'] `
+        -NamedParams $namedParams `
+        -ExcludeParams $excludeFromBody
+
+    return Invoke-M365DSCGraphShimRequest -Method $Method -Uri $Uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorAction
+}
+
+function Invoke-M365DSCGraphShimDeleteResource
+{
+    <#
+    .SYNOPSIS
+        Centralized DELETE dispatcher — replacing the identical 3-line code block
+        that was duplicated in every Remove-* wrapper function.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.Collections.IDictionary]
+        $BoundParameters,
+
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $Uri,
+
+        [Parameter()]
+        [System.String]
+        $ErrorAction
+    )
+
+    if (-not $ErrorAction) { $ErrorAction = 'Continue' }
+
+    $requestHeaders = @{}
+    if ($BoundParameters.ContainsKey('Headers')) { $requestHeaders = $BoundParameters['Headers'] }
+    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $Uri -Headers $requestHeaders -ErrorAction $ErrorAction
+}
+
 #endregion Shared Helpers
 
 function Add-MgBetaGroupToLifecyclePolicy
@@ -396,27 +566,7 @@ function Add-MgBetaGroupToLifecyclePolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/groupLifecyclePolicies/$($GroupLifecyclePolicyId)/addGroup"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'GroupLifecyclePolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/groupLifecyclePolicies/$($GroupLifecyclePolicyId)/addGroup" -Method 'POST' -ExtraExcludeParams @('GroupLifecyclePolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgAdminSharepointSetting
@@ -464,32 +614,7 @@ function Get-MgAdminSharepointSetting
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/v1.0/admin/sharepoint/settings" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/admin/sharepoint/settings" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgApplication
@@ -581,46 +706,8 @@ function Get-MgApplication
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ApplicationId') -and -not [System.String]::IsNullOrEmpty($ApplicationId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/applications/$($ApplicationId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/applications" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ApplicationId') -and -not [System.String]::IsNullOrEmpty($ApplicationId)) { "/v1.0/applications/$($ApplicationId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/applications" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaAgreement
@@ -708,46 +795,8 @@ function Get-MgBetaAgreement
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AgreementId') -and -not [System.String]::IsNullOrEmpty($AgreementId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/agreements/$($AgreementId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/agreements" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AgreementId') -and -not [System.String]::IsNullOrEmpty($AgreementId)) { "/beta/agreements/$($AgreementId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/agreements" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaApplication
@@ -839,46 +888,8 @@ function Get-MgBetaApplication
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ApplicationId') -and -not [System.String]::IsNullOrEmpty($ApplicationId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/applications/$($ApplicationId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/applications" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ApplicationId') -and -not [System.String]::IsNullOrEmpty($ApplicationId)) { "/beta/applications/$($ApplicationId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/applications" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementAndroidManagedAppProtection
@@ -966,46 +977,8 @@ function Get-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AndroidManagedAppProtectionId') -and -not [System.String]::IsNullOrEmpty($AndroidManagedAppProtectionId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/androidManagedAppProtections/$($AndroidManagedAppProtectionId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/androidManagedAppProtections" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AndroidManagedAppProtectionId') -and -not [System.String]::IsNullOrEmpty($AndroidManagedAppProtectionId)) { "/beta/deviceAppManagement/androidManagedAppProtections/$($AndroidManagedAppProtectionId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/androidManagedAppProtections" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementAndroidManagedAppProtectionApp
@@ -1097,46 +1070,8 @@ function Get-MgBetaDeviceAppManagementAndroidManagedAppProtectionApp
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ManagedMobileAppId') -and -not [System.String]::IsNullOrEmpty($ManagedMobileAppId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/androidManagedAppProtections/$($AndroidManagedAppProtectionId)/apps/$($ManagedMobileAppId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/androidManagedAppProtections/$($AndroidManagedAppProtectionId)/apps" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ManagedMobileAppId') -and -not [System.String]::IsNullOrEmpty($ManagedMobileAppId)) { "/beta/deviceAppManagement/androidManagedAppProtections/$($AndroidManagedAppProtectionId)/apps/$($ManagedMobileAppId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/androidManagedAppProtections/$($AndroidManagedAppProtectionId)/apps" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementAndroidManagedAppProtectionAssignment
@@ -1228,46 +1163,8 @@ function Get-MgBetaDeviceAppManagementAndroidManagedAppProtectionAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('TargetedManagedAppPolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($TargetedManagedAppPolicyAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/androidManagedAppProtections/$($AndroidManagedAppProtectionId)/assignments/$($TargetedManagedAppPolicyAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/androidManagedAppProtections/$($AndroidManagedAppProtectionId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('TargetedManagedAppPolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($TargetedManagedAppPolicyAssignmentId)) { "/beta/deviceAppManagement/androidManagedAppProtections/$($AndroidManagedAppProtectionId)/assignments/$($TargetedManagedAppPolicyAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/androidManagedAppProtections/$($AndroidManagedAppProtectionId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementiOSManagedAppProtection
@@ -1355,46 +1252,8 @@ function Get-MgBetaDeviceAppManagementiOSManagedAppProtection
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('IosManagedAppProtectionId') -and -not [System.String]::IsNullOrEmpty($IosManagedAppProtectionId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/iosManagedAppProtections/$($IosManagedAppProtectionId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/iosManagedAppProtections" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('IosManagedAppProtectionId') -and -not [System.String]::IsNullOrEmpty($IosManagedAppProtectionId)) { "/beta/deviceAppManagement/iosManagedAppProtections/$($IosManagedAppProtectionId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/iosManagedAppProtections" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementiOSManagedAppProtectionApp
@@ -1486,46 +1345,8 @@ function Get-MgBetaDeviceAppManagementiOSManagedAppProtectionApp
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ManagedMobileAppId') -and -not [System.String]::IsNullOrEmpty($ManagedMobileAppId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/iosManagedAppProtections/$($IosManagedAppProtectionId)/apps/$($ManagedMobileAppId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/iosManagedAppProtections/$($IosManagedAppProtectionId)/apps" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ManagedMobileAppId') -and -not [System.String]::IsNullOrEmpty($ManagedMobileAppId)) { "/beta/deviceAppManagement/iosManagedAppProtections/$($IosManagedAppProtectionId)/apps/$($ManagedMobileAppId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/iosManagedAppProtections/$($IosManagedAppProtectionId)/apps" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementiOSManagedAppProtectionAssignment
@@ -1617,46 +1438,8 @@ function Get-MgBetaDeviceAppManagementiOSManagedAppProtectionAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('TargetedManagedAppPolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($TargetedManagedAppPolicyAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/iosManagedAppProtections/$($IosManagedAppProtectionId)/assignments/$($TargetedManagedAppPolicyAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/iosManagedAppProtections/$($IosManagedAppProtectionId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('TargetedManagedAppPolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($TargetedManagedAppPolicyAssignmentId)) { "/beta/deviceAppManagement/iosManagedAppProtections/$($IosManagedAppProtectionId)/assignments/$($TargetedManagedAppPolicyAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/iosManagedAppProtections/$($IosManagedAppProtectionId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementManagedAppStatus
@@ -1744,46 +1527,8 @@ function Get-MgBetaDeviceAppManagementManagedAppStatus
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ManagedAppStatusId') -and -not [System.String]::IsNullOrEmpty($ManagedAppStatusId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/managedAppStatuses/$($ManagedAppStatusId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/managedAppStatuses" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ManagedAppStatusId') -and -not [System.String]::IsNullOrEmpty($ManagedAppStatusId)) { "/beta/deviceAppManagement/managedAppStatuses/$($ManagedAppStatusId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/managedAppStatuses" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementMdmWindowsInformationProtectionPolicy
@@ -1871,46 +1616,8 @@ function Get-MgBetaDeviceAppManagementMdmWindowsInformationProtectionPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('MdmWindowsInformationProtectionPolicyId') -and -not [System.String]::IsNullOrEmpty($MdmWindowsInformationProtectionPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/mdmWindowsInformationProtectionPolicies/$($MdmWindowsInformationProtectionPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/mdmWindowsInformationProtectionPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('MdmWindowsInformationProtectionPolicyId') -and -not [System.String]::IsNullOrEmpty($MdmWindowsInformationProtectionPolicyId)) { "/beta/deviceAppManagement/mdmWindowsInformationProtectionPolicies/$($MdmWindowsInformationProtectionPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/mdmWindowsInformationProtectionPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementMobileApp
@@ -1998,46 +1705,8 @@ function Get-MgBetaDeviceAppManagementMobileApp
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('MobileAppId') -and -not [System.String]::IsNullOrEmpty($MobileAppId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/mobileApps/$($MobileAppId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/mobileApps" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('MobileAppId') -and -not [System.String]::IsNullOrEmpty($MobileAppId)) { "/beta/deviceAppManagement/mobileApps/$($MobileAppId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/mobileApps" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementMobileAppAssignment
@@ -2129,46 +1798,8 @@ function Get-MgBetaDeviceAppManagementMobileAppAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('MobileAppAssignmentId') -and -not [System.String]::IsNullOrEmpty($MobileAppAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/mobileApps/$($MobileAppId)/assignments/$($MobileAppAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/mobileApps/$($MobileAppId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('MobileAppAssignmentId') -and -not [System.String]::IsNullOrEmpty($MobileAppAssignmentId)) { "/beta/deviceAppManagement/mobileApps/$($MobileAppId)/assignments/$($MobileAppAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/mobileApps/$($MobileAppId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementMobileAppCategory
@@ -2260,46 +1891,8 @@ function Get-MgBetaDeviceAppManagementMobileAppCategory
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('MobileAppCategoryId') -and -not [System.String]::IsNullOrEmpty($MobileAppCategoryId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/mobileAppCategories/$($MobileAppCategoryId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/mobileAppCategories" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('MobileAppCategoryId') -and -not [System.String]::IsNullOrEmpty($MobileAppCategoryId)) { "/beta/deviceAppManagement/mobileAppCategories/$($MobileAppCategoryId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/mobileAppCategories" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementMobileAppConfiguration
@@ -2387,46 +1980,8 @@ function Get-MgBetaDeviceAppManagementMobileAppConfiguration
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ManagedDeviceMobileAppConfigurationId') -and -not [System.String]::IsNullOrEmpty($ManagedDeviceMobileAppConfigurationId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/mobileAppConfigurations/$($ManagedDeviceMobileAppConfigurationId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/mobileAppConfigurations" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ManagedDeviceMobileAppConfigurationId') -and -not [System.String]::IsNullOrEmpty($ManagedDeviceMobileAppConfigurationId)) { "/beta/deviceAppManagement/mobileAppConfigurations/$($ManagedDeviceMobileAppConfigurationId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/mobileAppConfigurations" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementMobileAppConfigurationAssignment
@@ -2518,46 +2073,8 @@ function Get-MgBetaDeviceAppManagementMobileAppConfigurationAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ManagedDeviceMobileAppConfigurationAssignmentId') -and -not [System.String]::IsNullOrEmpty($ManagedDeviceMobileAppConfigurationAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/mobileAppConfigurations/$($ManagedDeviceMobileAppConfigurationId)/assignments/$($ManagedDeviceMobileAppConfigurationAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/mobileAppConfigurations/$($ManagedDeviceMobileAppConfigurationId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ManagedDeviceMobileAppConfigurationAssignmentId') -and -not [System.String]::IsNullOrEmpty($ManagedDeviceMobileAppConfigurationAssignmentId)) { "/beta/deviceAppManagement/mobileAppConfigurations/$($ManagedDeviceMobileAppConfigurationId)/assignments/$($ManagedDeviceMobileAppConfigurationAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/mobileAppConfigurations/$($ManagedDeviceMobileAppConfigurationId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementPolicySet
@@ -2657,46 +2174,8 @@ function Get-MgBetaDeviceAppManagementPolicySet
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('PolicySetId') -and -not [System.String]::IsNullOrEmpty($PolicySetId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/policySets/$($PolicySetId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/policySets" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('PolicySetId') -and -not [System.String]::IsNullOrEmpty($PolicySetId)) { "/beta/deviceAppManagement/policySets/$($PolicySetId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/policySets" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration
@@ -2784,46 +2263,8 @@ function Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('TargetedManagedAppConfigurationId') -and -not [System.String]::IsNullOrEmpty($TargetedManagedAppConfigurationId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/targetedManagedAppConfigurations/$($TargetedManagedAppConfigurationId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/targetedManagedAppConfigurations" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('TargetedManagedAppConfigurationId') -and -not [System.String]::IsNullOrEmpty($TargetedManagedAppConfigurationId)) { "/beta/deviceAppManagement/targetedManagedAppConfigurations/$($TargetedManagedAppConfigurationId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/targetedManagedAppConfigurations" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementTargetedManagedAppConfigurationApp
@@ -2915,46 +2356,8 @@ function Get-MgBetaDeviceAppManagementTargetedManagedAppConfigurationApp
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ManagedMobileAppId') -and -not [System.String]::IsNullOrEmpty($ManagedMobileAppId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/targetedManagedAppConfigurations/$($TargetedManagedAppConfigurationId)/apps/$($ManagedMobileAppId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/targetedManagedAppConfigurations/$($TargetedManagedAppConfigurationId)/apps" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ManagedMobileAppId') -and -not [System.String]::IsNullOrEmpty($ManagedMobileAppId)) { "/beta/deviceAppManagement/targetedManagedAppConfigurations/$($TargetedManagedAppConfigurationId)/apps/$($ManagedMobileAppId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/targetedManagedAppConfigurations/$($TargetedManagedAppConfigurationId)/apps" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementTargetedManagedAppConfigurationAssignment
@@ -3046,46 +2449,8 @@ function Get-MgBetaDeviceAppManagementTargetedManagedAppConfigurationAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('TargetedManagedAppPolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($TargetedManagedAppPolicyAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/targetedManagedAppConfigurations/$($TargetedManagedAppConfigurationId)/assignments/$($TargetedManagedAppPolicyAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/targetedManagedAppConfigurations/$($TargetedManagedAppConfigurationId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('TargetedManagedAppPolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($TargetedManagedAppPolicyAssignmentId)) { "/beta/deviceAppManagement/targetedManagedAppConfigurations/$($TargetedManagedAppConfigurationId)/assignments/$($TargetedManagedAppPolicyAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/targetedManagedAppConfigurations/$($TargetedManagedAppConfigurationId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementWindowsManagedAppProtection
@@ -3173,46 +2538,8 @@ function Get-MgBetaDeviceAppManagementWindowsManagedAppProtection
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('WindowsManagedAppProtectionId') -and -not [System.String]::IsNullOrEmpty($WindowsManagedAppProtectionId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/windowsManagedAppProtections/$($WindowsManagedAppProtectionId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/windowsManagedAppProtections" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('WindowsManagedAppProtectionId') -and -not [System.String]::IsNullOrEmpty($WindowsManagedAppProtectionId)) { "/beta/deviceAppManagement/windowsManagedAppProtections/$($WindowsManagedAppProtectionId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/windowsManagedAppProtections" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementWindowsManagedAppProtectionApp
@@ -3304,46 +2631,8 @@ function Get-MgBetaDeviceAppManagementWindowsManagedAppProtectionApp
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ManagedMobileAppId') -and -not [System.String]::IsNullOrEmpty($ManagedMobileAppId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/windowsManagedAppProtections/$($WindowsManagedAppProtectionId)/apps/$($ManagedMobileAppId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/windowsManagedAppProtections/$($WindowsManagedAppProtectionId)/apps" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ManagedMobileAppId') -and -not [System.String]::IsNullOrEmpty($ManagedMobileAppId)) { "/beta/deviceAppManagement/windowsManagedAppProtections/$($WindowsManagedAppProtectionId)/apps/$($ManagedMobileAppId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/windowsManagedAppProtections/$($WindowsManagedAppProtectionId)/apps" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceAppManagementWindowsManagedAppProtectionAssignment
@@ -3435,46 +2724,8 @@ function Get-MgBetaDeviceAppManagementWindowsManagedAppProtectionAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('TargetedManagedAppPolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($TargetedManagedAppPolicyAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceAppManagement/windowsManagedAppProtections/$($WindowsManagedAppProtectionId)/assignments/$($TargetedManagedAppPolicyAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceAppManagement/windowsManagedAppProtections/$($WindowsManagedAppProtectionId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('TargetedManagedAppPolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($TargetedManagedAppPolicyAssignmentId)) { "/beta/deviceAppManagement/windowsManagedAppProtections/$($WindowsManagedAppProtectionId)/assignments/$($TargetedManagedAppPolicyAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/windowsManagedAppProtections/$($WindowsManagedAppProtectionId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile
@@ -3562,46 +2813,8 @@ function Get-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AndroidDeviceOwnerEnrollmentProfileId') -and -not [System.String]::IsNullOrEmpty($AndroidDeviceOwnerEnrollmentProfileId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/androidDeviceOwnerEnrollmentProfiles/$($AndroidDeviceOwnerEnrollmentProfileId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/androidDeviceOwnerEnrollmentProfiles" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AndroidDeviceOwnerEnrollmentProfileId') -and -not [System.String]::IsNullOrEmpty($AndroidDeviceOwnerEnrollmentProfileId)) { "/beta/deviceManagement/androidDeviceOwnerEnrollmentProfiles/$($AndroidDeviceOwnerEnrollmentProfileId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/androidDeviceOwnerEnrollmentProfiles" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementAndroidManagedStoreAccountEnterpriseSetting
@@ -3649,32 +2862,7 @@ function Get-MgBetaDeviceManagementAndroidManagedStoreAccountEnterpriseSetting
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/deviceManagement/androidManagedStoreAccountEnterpriseSettings" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/androidManagedStoreAccountEnterpriseSettings" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementApplePushNotificationCertificate
@@ -3722,32 +2910,7 @@ function Get-MgBetaDeviceManagementApplePushNotificationCertificate
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/deviceManagement/applePushNotificationCertificate" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/applePushNotificationCertificate" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementAssignmentFilter
@@ -3835,46 +2998,8 @@ function Get-MgBetaDeviceManagementAssignmentFilter
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceAndAppManagementAssignmentFilterId') -and -not [System.String]::IsNullOrEmpty($DeviceAndAppManagementAssignmentFilterId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/assignmentFilters/$($DeviceAndAppManagementAssignmentFilterId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/assignmentFilters" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceAndAppManagementAssignmentFilterId') -and -not [System.String]::IsNullOrEmpty($DeviceAndAppManagementAssignmentFilterId)) { "/beta/deviceManagement/assignmentFilters/$($DeviceAndAppManagementAssignmentFilterId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/assignmentFilters" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementConfigurationPolicy
@@ -3962,46 +3087,8 @@ function Get-MgBetaDeviceManagementConfigurationPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceManagementConfigurationPolicyId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementConfigurationPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/configurationPolicies/$($DeviceManagementConfigurationPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/configurationPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceManagementConfigurationPolicyId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementConfigurationPolicyId)) { "/beta/deviceManagement/configurationPolicies/$($DeviceManagementConfigurationPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/configurationPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementConfigurationPolicyAssignment
@@ -4093,46 +3180,8 @@ function Get-MgBetaDeviceManagementConfigurationPolicyAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceManagementConfigurationPolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementConfigurationPolicyAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/configurationPolicies/$($DeviceManagementConfigurationPolicyId)/assignments/$($DeviceManagementConfigurationPolicyAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/configurationPolicies/$($DeviceManagementConfigurationPolicyId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceManagementConfigurationPolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementConfigurationPolicyAssignmentId)) { "/beta/deviceManagement/configurationPolicies/$($DeviceManagementConfigurationPolicyId)/assignments/$($DeviceManagementConfigurationPolicyAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/configurationPolicies/$($DeviceManagementConfigurationPolicyId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementConfigurationPolicySetting
@@ -4224,46 +3273,8 @@ function Get-MgBetaDeviceManagementConfigurationPolicySetting
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceManagementConfigurationSettingId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementConfigurationSettingId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/configurationPolicies/$($DeviceManagementConfigurationPolicyId)/settings/$($DeviceManagementConfigurationSettingId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/configurationPolicies/$($DeviceManagementConfigurationPolicyId)/settings" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceManagementConfigurationSettingId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementConfigurationSettingId)) { "/beta/deviceManagement/configurationPolicies/$($DeviceManagementConfigurationPolicyId)/settings/$($DeviceManagementConfigurationSettingId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/configurationPolicies/$($DeviceManagementConfigurationPolicyId)/settings" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementConfigurationPolicyTemplateSettingTemplate
@@ -4355,46 +3366,8 @@ function Get-MgBetaDeviceManagementConfigurationPolicyTemplateSettingTemplate
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceManagementConfigurationSettingTemplateId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementConfigurationSettingTemplateId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/configurationPolicyTemplates/$($DeviceManagementConfigurationPolicyTemplateId)/settingTemplates/$($DeviceManagementConfigurationSettingTemplateId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/configurationPolicyTemplates/$($DeviceManagementConfigurationPolicyTemplateId)/settingTemplates" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceManagementConfigurationSettingTemplateId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementConfigurationSettingTemplateId)) { "/beta/deviceManagement/configurationPolicyTemplates/$($DeviceManagementConfigurationPolicyTemplateId)/settingTemplates/$($DeviceManagementConfigurationSettingTemplateId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/configurationPolicyTemplates/$($DeviceManagementConfigurationPolicyTemplateId)/settingTemplates" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementDataSharingConsent
@@ -4482,46 +3455,8 @@ function Get-MgBetaDeviceManagementDataSharingConsent
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DataSharingConsentId') -and -not [System.String]::IsNullOrEmpty($DataSharingConsentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/dataSharingConsents/$($DataSharingConsentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/dataSharingConsents" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DataSharingConsentId') -and -not [System.String]::IsNullOrEmpty($DataSharingConsentId)) { "/beta/deviceManagement/dataSharingConsents/$($DataSharingConsentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/dataSharingConsents" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementDerivedCredential
@@ -4609,46 +3544,8 @@ function Get-MgBetaDeviceManagementDerivedCredential
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceManagementDerivedCredentialSettingsId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementDerivedCredentialSettingsId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/derivedCredentials/$($DeviceManagementDerivedCredentialSettingsId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/derivedCredentials" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceManagementDerivedCredentialSettingsId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementDerivedCredentialSettingsId)) { "/beta/deviceManagement/derivedCredentials/$($DeviceManagementDerivedCredentialSettingsId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/derivedCredentials" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementDeviceCategory
@@ -4736,46 +3633,8 @@ function Get-MgBetaDeviceManagementDeviceCategory
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceCategoryId') -and -not [System.String]::IsNullOrEmpty($DeviceCategoryId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/deviceCategories/$($DeviceCategoryId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/deviceCategories" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceCategoryId') -and -not [System.String]::IsNullOrEmpty($DeviceCategoryId)) { "/beta/deviceManagement/deviceCategories/$($DeviceCategoryId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/deviceCategories" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementDeviceCompliancePolicy
@@ -4863,46 +3722,8 @@ function Get-MgBetaDeviceManagementDeviceCompliancePolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceCompliancePolicyId') -and -not [System.String]::IsNullOrEmpty($DeviceCompliancePolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/deviceCompliancePolicies/$($DeviceCompliancePolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/deviceCompliancePolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceCompliancePolicyId') -and -not [System.String]::IsNullOrEmpty($DeviceCompliancePolicyId)) { "/beta/deviceManagement/deviceCompliancePolicies/$($DeviceCompliancePolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/deviceCompliancePolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementDeviceCompliancePolicyAssignment
@@ -4994,46 +3815,8 @@ function Get-MgBetaDeviceManagementDeviceCompliancePolicyAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceCompliancePolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceCompliancePolicyAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/deviceCompliancePolicies/$($DeviceCompliancePolicyId)/assignments/$($DeviceCompliancePolicyAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/deviceCompliancePolicies/$($DeviceCompliancePolicyId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceCompliancePolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceCompliancePolicyAssignmentId)) { "/beta/deviceManagement/deviceCompliancePolicies/$($DeviceCompliancePolicyId)/assignments/$($DeviceCompliancePolicyAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/deviceCompliancePolicies/$($DeviceCompliancePolicyId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementDeviceConfiguration
@@ -5121,46 +3904,8 @@ function Get-MgBetaDeviceManagementDeviceConfiguration
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceConfigurationId') -and -not [System.String]::IsNullOrEmpty($DeviceConfigurationId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/deviceConfigurations/$($DeviceConfigurationId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/deviceConfigurations" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceConfigurationId') -and -not [System.String]::IsNullOrEmpty($DeviceConfigurationId)) { "/beta/deviceManagement/deviceConfigurations/$($DeviceConfigurationId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/deviceConfigurations" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementDeviceConfigurationAssignment
@@ -5252,46 +3997,8 @@ function Get-MgBetaDeviceManagementDeviceConfigurationAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceConfigurationAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceConfigurationAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/deviceConfigurations/$($DeviceConfigurationId)/assignments/$($DeviceConfigurationAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/deviceConfigurations/$($DeviceConfigurationId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceConfigurationAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceConfigurationAssignmentId)) { "/beta/deviceManagement/deviceConfigurations/$($DeviceConfigurationId)/assignments/$($DeviceConfigurationAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/deviceConfigurations/$($DeviceConfigurationId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration
@@ -5379,46 +4086,8 @@ function Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceEnrollmentConfigurationId') -and -not [System.String]::IsNullOrEmpty($DeviceEnrollmentConfigurationId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/deviceEnrollmentConfigurations/$($DeviceEnrollmentConfigurationId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/deviceEnrollmentConfigurations" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceEnrollmentConfigurationId') -and -not [System.String]::IsNullOrEmpty($DeviceEnrollmentConfigurationId)) { "/beta/deviceManagement/deviceEnrollmentConfigurations/$($DeviceEnrollmentConfigurationId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/deviceEnrollmentConfigurations" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementDeviceEnrollmentConfigurationAssignment
@@ -5510,46 +4179,8 @@ function Get-MgBetaDeviceManagementDeviceEnrollmentConfigurationAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('EnrollmentConfigurationAssignmentId') -and -not [System.String]::IsNullOrEmpty($EnrollmentConfigurationAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/deviceEnrollmentConfigurations/$($DeviceEnrollmentConfigurationId)/assignments/$($EnrollmentConfigurationAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/deviceEnrollmentConfigurations/$($DeviceEnrollmentConfigurationId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('EnrollmentConfigurationAssignmentId') -and -not [System.String]::IsNullOrEmpty($EnrollmentConfigurationAssignmentId)) { "/beta/deviceManagement/deviceEnrollmentConfigurations/$($DeviceEnrollmentConfigurationId)/assignments/$($EnrollmentConfigurationAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/deviceEnrollmentConfigurations/$($DeviceEnrollmentConfigurationId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementDeviceHealthScript
@@ -5637,46 +4268,8 @@ function Get-MgBetaDeviceManagementDeviceHealthScript
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceHealthScriptId') -and -not [System.String]::IsNullOrEmpty($DeviceHealthScriptId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/deviceHealthScripts/$($DeviceHealthScriptId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/deviceHealthScripts" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceHealthScriptId') -and -not [System.String]::IsNullOrEmpty($DeviceHealthScriptId)) { "/beta/deviceManagement/deviceHealthScripts/$($DeviceHealthScriptId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/deviceHealthScripts" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementDeviceHealthScriptAssignment
@@ -5768,46 +4361,8 @@ function Get-MgBetaDeviceManagementDeviceHealthScriptAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceHealthScriptAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceHealthScriptAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/deviceHealthScripts/$($DeviceHealthScriptId)/assignments/$($DeviceHealthScriptAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/deviceHealthScripts/$($DeviceHealthScriptId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceHealthScriptAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceHealthScriptAssignmentId)) { "/beta/deviceManagement/deviceHealthScripts/$($DeviceHealthScriptId)/assignments/$($DeviceHealthScriptAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/deviceHealthScripts/$($DeviceHealthScriptId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementDeviceShellScript
@@ -5895,46 +4450,8 @@ function Get-MgBetaDeviceManagementDeviceShellScript
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceShellScriptId') -and -not [System.String]::IsNullOrEmpty($DeviceShellScriptId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/deviceShellScripts/$($DeviceShellScriptId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/deviceShellScripts" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceShellScriptId') -and -not [System.String]::IsNullOrEmpty($DeviceShellScriptId)) { "/beta/deviceManagement/deviceShellScripts/$($DeviceShellScriptId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/deviceShellScripts" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementDeviceShellScriptAssignment
@@ -6026,46 +4543,8 @@ function Get-MgBetaDeviceManagementDeviceShellScriptAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceManagementScriptAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementScriptAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/deviceShellScripts/$($DeviceShellScriptId)/assignments/$($DeviceManagementScriptAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/deviceShellScripts/$($DeviceShellScriptId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceManagementScriptAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementScriptAssignmentId)) { "/beta/deviceManagement/deviceShellScripts/$($DeviceShellScriptId)/assignments/$($DeviceManagementScriptAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/deviceShellScripts/$($DeviceShellScriptId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementGroupPolicyConfiguration
@@ -6153,46 +4632,8 @@ function Get-MgBetaDeviceManagementGroupPolicyConfiguration
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('GroupPolicyConfigurationId') -and -not [System.String]::IsNullOrEmpty($GroupPolicyConfigurationId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/groupPolicyConfigurations" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('GroupPolicyConfigurationId') -and -not [System.String]::IsNullOrEmpty($GroupPolicyConfigurationId)) { "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/groupPolicyConfigurations" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementGroupPolicyConfigurationAssignment
@@ -6284,46 +4725,8 @@ function Get-MgBetaDeviceManagementGroupPolicyConfigurationAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('GroupPolicyConfigurationAssignmentId') -and -not [System.String]::IsNullOrEmpty($GroupPolicyConfigurationAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)/assignments/$($GroupPolicyConfigurationAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('GroupPolicyConfigurationAssignmentId') -and -not [System.String]::IsNullOrEmpty($GroupPolicyConfigurationAssignmentId)) { "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)/assignments/$($GroupPolicyConfigurationAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementGroupPolicyConfigurationDefinitionValue
@@ -6415,46 +4818,8 @@ function Get-MgBetaDeviceManagementGroupPolicyConfigurationDefinitionValue
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('GroupPolicyDefinitionValueId') -and -not [System.String]::IsNullOrEmpty($GroupPolicyDefinitionValueId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)/definitionValues/$($GroupPolicyDefinitionValueId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)/definitionValues" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('GroupPolicyDefinitionValueId') -and -not [System.String]::IsNullOrEmpty($GroupPolicyDefinitionValueId)) { "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)/definitionValues/$($GroupPolicyDefinitionValueId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)/definitionValues" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementGroupPolicyConfigurationDefinitionValueDefinition
@@ -6514,32 +4879,7 @@ function Get-MgBetaDeviceManagementGroupPolicyConfigurationDefinitionValueDefini
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)/definitionValues/$($GroupPolicyDefinitionValueId)/definition" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)/definitionValues/$($GroupPolicyDefinitionValueId)/definition" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementGroupPolicyConfigurationDefinitionValuePresentationValue
@@ -6635,46 +4975,8 @@ function Get-MgBetaDeviceManagementGroupPolicyConfigurationDefinitionValuePresen
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('GroupPolicyPresentationValueId') -and -not [System.String]::IsNullOrEmpty($GroupPolicyPresentationValueId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)/definitionValues/$($GroupPolicyDefinitionValueId)/presentationValues/$($GroupPolicyPresentationValueId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)/definitionValues/$($GroupPolicyDefinitionValueId)/presentationValues" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('GroupPolicyPresentationValueId') -and -not [System.String]::IsNullOrEmpty($GroupPolicyPresentationValueId)) { "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)/definitionValues/$($GroupPolicyDefinitionValueId)/presentationValues/$($GroupPolicyPresentationValueId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)/definitionValues/$($GroupPolicyDefinitionValueId)/presentationValues" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementIntent
@@ -6762,46 +5064,8 @@ function Get-MgBetaDeviceManagementIntent
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceManagementIntentId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementIntentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/intents/$($DeviceManagementIntentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/intents" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceManagementIntentId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementIntentId)) { "/beta/deviceManagement/intents/$($DeviceManagementIntentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/intents" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementIntentAssignment
@@ -6893,46 +5157,8 @@ function Get-MgBetaDeviceManagementIntentAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceManagementIntentAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementIntentAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/intents/$($DeviceManagementIntentId)/assignments/$($DeviceManagementIntentAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/intents/$($DeviceManagementIntentId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceManagementIntentAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementIntentAssignmentId)) { "/beta/deviceManagement/intents/$($DeviceManagementIntentId)/assignments/$($DeviceManagementIntentAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/intents/$($DeviceManagementIntentId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementIntentSetting
@@ -7024,46 +5250,8 @@ function Get-MgBetaDeviceManagementIntentSetting
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceManagementSettingInstanceId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementSettingInstanceId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/intents/$($DeviceManagementIntentId)/settings/$($DeviceManagementSettingInstanceId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/intents/$($DeviceManagementIntentId)/settings" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceManagementSettingInstanceId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementSettingInstanceId)) { "/beta/deviceManagement/intents/$($DeviceManagementIntentId)/settings/$($DeviceManagementSettingInstanceId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/intents/$($DeviceManagementIntentId)/settings" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementIntuneBrandingProfile
@@ -7151,46 +5339,8 @@ function Get-MgBetaDeviceManagementIntuneBrandingProfile
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('IntuneBrandingProfileId') -and -not [System.String]::IsNullOrEmpty($IntuneBrandingProfileId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/intuneBrandingProfiles/$($IntuneBrandingProfileId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/intuneBrandingProfiles" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('IntuneBrandingProfileId') -and -not [System.String]::IsNullOrEmpty($IntuneBrandingProfileId)) { "/beta/deviceManagement/intuneBrandingProfiles/$($IntuneBrandingProfileId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/intuneBrandingProfiles" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementIntuneBrandingProfileAssignment
@@ -7282,46 +5432,8 @@ function Get-MgBetaDeviceManagementIntuneBrandingProfileAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('IntuneBrandingProfileAssignmentId') -and -not [System.String]::IsNullOrEmpty($IntuneBrandingProfileAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/intuneBrandingProfiles/$($IntuneBrandingProfileId)/assignments/$($IntuneBrandingProfileAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/intuneBrandingProfiles/$($IntuneBrandingProfileId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('IntuneBrandingProfileAssignmentId') -and -not [System.String]::IsNullOrEmpty($IntuneBrandingProfileAssignmentId)) { "/beta/deviceManagement/intuneBrandingProfiles/$($IntuneBrandingProfileId)/assignments/$($IntuneBrandingProfileAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/intuneBrandingProfiles/$($IntuneBrandingProfileId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementManagedDeviceCleanupRule
@@ -7409,46 +5521,8 @@ function Get-MgBetaDeviceManagementManagedDeviceCleanupRule
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ManagedDeviceCleanupRuleId') -and -not [System.String]::IsNullOrEmpty($ManagedDeviceCleanupRuleId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/managedDeviceCleanupRules/$($ManagedDeviceCleanupRuleId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/managedDeviceCleanupRules" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ManagedDeviceCleanupRuleId') -and -not [System.String]::IsNullOrEmpty($ManagedDeviceCleanupRuleId)) { "/beta/deviceManagement/managedDeviceCleanupRules/$($ManagedDeviceCleanupRuleId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/managedDeviceCleanupRules" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementMobileThreatDefenseConnector
@@ -7536,46 +5610,8 @@ function Get-MgBetaDeviceManagementMobileThreatDefenseConnector
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('MobileThreatDefenseConnectorId') -and -not [System.String]::IsNullOrEmpty($MobileThreatDefenseConnectorId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/mobileThreatDefenseConnectors/$($MobileThreatDefenseConnectorId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/mobileThreatDefenseConnectors" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('MobileThreatDefenseConnectorId') -and -not [System.String]::IsNullOrEmpty($MobileThreatDefenseConnectorId)) { "/beta/deviceManagement/mobileThreatDefenseConnectors/$($MobileThreatDefenseConnectorId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/mobileThreatDefenseConnectors" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementMonitoringAlertRule
@@ -7663,46 +5699,8 @@ function Get-MgBetaDeviceManagementMonitoringAlertRule
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AlertRuleId') -and -not [System.String]::IsNullOrEmpty($AlertRuleId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/monitoring/alertRules/$($AlertRuleId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/monitoring/alertRules" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AlertRuleId') -and -not [System.String]::IsNullOrEmpty($AlertRuleId)) { "/beta/deviceManagement/monitoring/alertRules/$($AlertRuleId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/monitoring/alertRules" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementNotificationMessageTemplate
@@ -7790,46 +5788,8 @@ function Get-MgBetaDeviceManagementNotificationMessageTemplate
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('NotificationMessageTemplateId') -and -not [System.String]::IsNullOrEmpty($NotificationMessageTemplateId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/notificationMessageTemplates/$($NotificationMessageTemplateId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/notificationMessageTemplates" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('NotificationMessageTemplateId') -and -not [System.String]::IsNullOrEmpty($NotificationMessageTemplateId)) { "/beta/deviceManagement/notificationMessageTemplates/$($NotificationMessageTemplateId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/notificationMessageTemplates" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementRoleAssignment
@@ -7917,46 +5877,8 @@ function Get-MgBetaDeviceManagementRoleAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceAndAppManagementRoleAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceAndAppManagementRoleAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/roleAssignments/$($DeviceAndAppManagementRoleAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/roleAssignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceAndAppManagementRoleAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceAndAppManagementRoleAssignmentId)) { "/beta/deviceManagement/roleAssignments/$($DeviceAndAppManagementRoleAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/roleAssignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementRoleDefinition
@@ -8044,46 +5966,8 @@ function Get-MgBetaDeviceManagementRoleDefinition
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('RoleDefinitionId') -and -not [System.String]::IsNullOrEmpty($RoleDefinitionId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/roleDefinitions/$($RoleDefinitionId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/roleDefinitions" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('RoleDefinitionId') -and -not [System.String]::IsNullOrEmpty($RoleDefinitionId)) { "/beta/deviceManagement/roleDefinitions/$($RoleDefinitionId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/roleDefinitions" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementRoleScopeTag
@@ -8171,46 +6055,8 @@ function Get-MgBetaDeviceManagementRoleScopeTag
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('RoleScopeTagId') -and -not [System.String]::IsNullOrEmpty($RoleScopeTagId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/roleScopeTags/$($RoleScopeTagId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/roleScopeTags" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('RoleScopeTagId') -and -not [System.String]::IsNullOrEmpty($RoleScopeTagId)) { "/beta/deviceManagement/roleScopeTags/$($RoleScopeTagId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/roleScopeTags" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementRoleScopeTagAssignment
@@ -8302,46 +6148,8 @@ function Get-MgBetaDeviceManagementRoleScopeTagAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('RoleScopeTagAutoAssignmentId') -and -not [System.String]::IsNullOrEmpty($RoleScopeTagAutoAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/roleScopeTags/$($RoleScopeTagId)/assignments/$($RoleScopeTagAutoAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/roleScopeTags/$($RoleScopeTagId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('RoleScopeTagAutoAssignmentId') -and -not [System.String]::IsNullOrEmpty($RoleScopeTagAutoAssignmentId)) { "/beta/deviceManagement/roleScopeTags/$($RoleScopeTagId)/assignments/$($RoleScopeTagAutoAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/roleScopeTags/$($RoleScopeTagId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementScript
@@ -8429,46 +6237,8 @@ function Get-MgBetaDeviceManagementScript
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceManagementScriptId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementScriptId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/deviceManagementScripts/$($DeviceManagementScriptId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/deviceManagementScripts" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceManagementScriptId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementScriptId)) { "/beta/deviceManagement/deviceManagementScripts/$($DeviceManagementScriptId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/deviceManagementScripts" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementScriptAssignment
@@ -8560,46 +6330,8 @@ function Get-MgBetaDeviceManagementScriptAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceManagementScriptAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementScriptAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/deviceManagementScripts/$($DeviceManagementScriptId)/assignments/$($DeviceManagementScriptAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/deviceManagementScripts/$($DeviceManagementScriptId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceManagementScriptAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementScriptAssignmentId)) { "/beta/deviceManagement/deviceManagementScripts/$($DeviceManagementScriptId)/assignments/$($DeviceManagementScriptAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/deviceManagementScripts/$($DeviceManagementScriptId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementTemplateCategory
@@ -8691,46 +6423,8 @@ function Get-MgBetaDeviceManagementTemplateCategory
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceManagementTemplateSettingCategoryId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementTemplateSettingCategoryId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/templates/$($DeviceManagementTemplateId)/categories/$($DeviceManagementTemplateSettingCategoryId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/templates/$($DeviceManagementTemplateId)/categories" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceManagementTemplateSettingCategoryId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementTemplateSettingCategoryId)) { "/beta/deviceManagement/templates/$($DeviceManagementTemplateId)/categories/$($DeviceManagementTemplateSettingCategoryId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/templates/$($DeviceManagementTemplateId)/categories" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementTemplateCategoryRecommendedSetting
@@ -8826,46 +6520,8 @@ function Get-MgBetaDeviceManagementTemplateCategoryRecommendedSetting
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceManagementSettingInstanceId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementSettingInstanceId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/templates/$($DeviceManagementTemplateId)/categories/$($DeviceManagementTemplateSettingCategoryId)/recommendedSettings/$($DeviceManagementSettingInstanceId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/templates/$($DeviceManagementTemplateId)/categories/$($DeviceManagementTemplateSettingCategoryId)/recommendedSettings" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceManagementSettingInstanceId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementSettingInstanceId)) { "/beta/deviceManagement/templates/$($DeviceManagementTemplateId)/categories/$($DeviceManagementTemplateSettingCategoryId)/recommendedSettings/$($DeviceManagementSettingInstanceId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/templates/$($DeviceManagementTemplateId)/categories/$($DeviceManagementTemplateSettingCategoryId)/recommendedSettings" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementTermAndCondition
@@ -8953,46 +6609,8 @@ function Get-MgBetaDeviceManagementTermAndCondition
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('TermsAndConditionsId') -and -not [System.String]::IsNullOrEmpty($TermsAndConditionsId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/termsAndConditions/$($TermsAndConditionsId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/termsAndConditions" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('TermsAndConditionsId') -and -not [System.String]::IsNullOrEmpty($TermsAndConditionsId)) { "/beta/deviceManagement/termsAndConditions/$($TermsAndConditionsId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/termsAndConditions" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementTermAndConditionAssignment
@@ -9084,46 +6702,8 @@ function Get-MgBetaDeviceManagementTermAndConditionAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('TermsAndConditionsAssignmentId') -and -not [System.String]::IsNullOrEmpty($TermsAndConditionsAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/termsAndConditions/$($TermsAndConditionsId)/assignments/$($TermsAndConditionsAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/termsAndConditions/$($TermsAndConditionsId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('TermsAndConditionsAssignmentId') -and -not [System.String]::IsNullOrEmpty($TermsAndConditionsAssignmentId)) { "/beta/deviceManagement/termsAndConditions/$($TermsAndConditionsId)/assignments/$($TermsAndConditionsAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/termsAndConditions/$($TermsAndConditionsId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
@@ -9211,46 +6791,8 @@ function Get-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('CloudPcOnPremisesConnectionId') -and -not [System.String]::IsNullOrEmpty($CloudPcOnPremisesConnectionId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/virtualEndpoint/onPremisesConnections/$($CloudPcOnPremisesConnectionId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/virtualEndpoint/onPremisesConnections" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('CloudPcOnPremisesConnectionId') -and -not [System.String]::IsNullOrEmpty($CloudPcOnPremisesConnectionId)) { "/beta/deviceManagement/virtualEndpoint/onPremisesConnections/$($CloudPcOnPremisesConnectionId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/virtualEndpoint/onPremisesConnections" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementVirtualEndpointProvisioningPolicy
@@ -9338,46 +6880,8 @@ function Get-MgBetaDeviceManagementVirtualEndpointProvisioningPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('CloudPcProvisioningPolicyId') -and -not [System.String]::IsNullOrEmpty($CloudPcProvisioningPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/virtualEndpoint/provisioningPolicies/$($CloudPcProvisioningPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/virtualEndpoint/provisioningPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('CloudPcProvisioningPolicyId') -and -not [System.String]::IsNullOrEmpty($CloudPcProvisioningPolicyId)) { "/beta/deviceManagement/virtualEndpoint/provisioningPolicies/$($CloudPcProvisioningPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/virtualEndpoint/provisioningPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementVirtualEndpointUserSetting
@@ -9465,46 +6969,8 @@ function Get-MgBetaDeviceManagementVirtualEndpointUserSetting
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('CloudPcUserSettingId') -and -not [System.String]::IsNullOrEmpty($CloudPcUserSettingId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/virtualEndpoint/userSettings/$($CloudPcUserSettingId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/virtualEndpoint/userSettings" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('CloudPcUserSettingId') -and -not [System.String]::IsNullOrEmpty($CloudPcUserSettingId)) { "/beta/deviceManagement/virtualEndpoint/userSettings/$($CloudPcUserSettingId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/virtualEndpoint/userSettings" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile
@@ -9592,46 +7058,8 @@ function Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('WindowsAutopilotDeploymentProfileId') -and -not [System.String]::IsNullOrEmpty($WindowsAutopilotDeploymentProfileId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/windowsAutopilotDeploymentProfiles/$($WindowsAutopilotDeploymentProfileId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/windowsAutopilotDeploymentProfiles" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('WindowsAutopilotDeploymentProfileId') -and -not [System.String]::IsNullOrEmpty($WindowsAutopilotDeploymentProfileId)) { "/beta/deviceManagement/windowsAutopilotDeploymentProfiles/$($WindowsAutopilotDeploymentProfileId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/windowsAutopilotDeploymentProfiles" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfileAssignment
@@ -9723,46 +7151,8 @@ function Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfileAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('WindowsAutopilotDeploymentProfileAssignmentId') -and -not [System.String]::IsNullOrEmpty($WindowsAutopilotDeploymentProfileAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/windowsAutopilotDeploymentProfiles/$($WindowsAutopilotDeploymentProfileId)/assignments/$($WindowsAutopilotDeploymentProfileAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/windowsAutopilotDeploymentProfiles/$($WindowsAutopilotDeploymentProfileId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('WindowsAutopilotDeploymentProfileAssignmentId') -and -not [System.String]::IsNullOrEmpty($WindowsAutopilotDeploymentProfileAssignmentId)) { "/beta/deviceManagement/windowsAutopilotDeploymentProfiles/$($WindowsAutopilotDeploymentProfileId)/assignments/$($WindowsAutopilotDeploymentProfileAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/windowsAutopilotDeploymentProfiles/$($WindowsAutopilotDeploymentProfileId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementWindowsFeatureUpdateProfile
@@ -9850,46 +7240,8 @@ function Get-MgBetaDeviceManagementWindowsFeatureUpdateProfile
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('WindowsFeatureUpdateProfileId') -and -not [System.String]::IsNullOrEmpty($WindowsFeatureUpdateProfileId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/windowsFeatureUpdateProfiles/$($WindowsFeatureUpdateProfileId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/windowsFeatureUpdateProfiles" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('WindowsFeatureUpdateProfileId') -and -not [System.String]::IsNullOrEmpty($WindowsFeatureUpdateProfileId)) { "/beta/deviceManagement/windowsFeatureUpdateProfiles/$($WindowsFeatureUpdateProfileId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/windowsFeatureUpdateProfiles" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementWindowsFeatureUpdateProfileAssignment
@@ -9981,46 +7333,8 @@ function Get-MgBetaDeviceManagementWindowsFeatureUpdateProfileAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('WindowsFeatureUpdateProfileAssignmentId') -and -not [System.String]::IsNullOrEmpty($WindowsFeatureUpdateProfileAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/windowsFeatureUpdateProfiles/$($WindowsFeatureUpdateProfileId)/assignments/$($WindowsFeatureUpdateProfileAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/windowsFeatureUpdateProfiles/$($WindowsFeatureUpdateProfileId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('WindowsFeatureUpdateProfileAssignmentId') -and -not [System.String]::IsNullOrEmpty($WindowsFeatureUpdateProfileAssignmentId)) { "/beta/deviceManagement/windowsFeatureUpdateProfiles/$($WindowsFeatureUpdateProfileId)/assignments/$($WindowsFeatureUpdateProfileAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/windowsFeatureUpdateProfiles/$($WindowsFeatureUpdateProfileId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementWindowsQualityUpdateProfile
@@ -10108,46 +7422,8 @@ function Get-MgBetaDeviceManagementWindowsQualityUpdateProfile
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('WindowsQualityUpdateProfileId') -and -not [System.String]::IsNullOrEmpty($WindowsQualityUpdateProfileId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/windowsQualityUpdateProfiles/$($WindowsQualityUpdateProfileId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/windowsQualityUpdateProfiles" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('WindowsQualityUpdateProfileId') -and -not [System.String]::IsNullOrEmpty($WindowsQualityUpdateProfileId)) { "/beta/deviceManagement/windowsQualityUpdateProfiles/$($WindowsQualityUpdateProfileId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/windowsQualityUpdateProfiles" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementWindowsQualityUpdateProfileAssignment
@@ -10239,46 +7515,8 @@ function Get-MgBetaDeviceManagementWindowsQualityUpdateProfileAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('WindowsQualityUpdateProfileAssignmentId') -and -not [System.String]::IsNullOrEmpty($WindowsQualityUpdateProfileAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/deviceManagement/windowsQualityUpdateProfiles/$($WindowsQualityUpdateProfileId)/assignments/$($WindowsQualityUpdateProfileAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/deviceManagement/windowsQualityUpdateProfiles/$($WindowsQualityUpdateProfileId)/assignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('WindowsQualityUpdateProfileAssignmentId') -and -not [System.String]::IsNullOrEmpty($WindowsQualityUpdateProfileAssignmentId)) { "/beta/deviceManagement/windowsQualityUpdateProfiles/$($WindowsQualityUpdateProfileId)/assignments/$($WindowsQualityUpdateProfileAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/windowsQualityUpdateProfiles/$($WindowsQualityUpdateProfileId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDirectoryAttributeSet
@@ -10366,46 +7604,8 @@ function Get-MgBetaDirectoryAttributeSet
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AttributeSetId') -and -not [System.String]::IsNullOrEmpty($AttributeSetId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/directory/attributeSets/$($AttributeSetId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/directory/attributeSets" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AttributeSetId') -and -not [System.String]::IsNullOrEmpty($AttributeSetId)) { "/beta/directory/attributeSets/$($AttributeSetId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/directory/attributeSets" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfiguration
@@ -10493,46 +7693,8 @@ function Get-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfi
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('CertificateBasedApplicationConfigurationId') -and -not [System.String]::IsNullOrEmpty($CertificateBasedApplicationConfigurationId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('CertificateBasedApplicationConfigurationId') -and -not [System.String]::IsNullOrEmpty($CertificateBasedApplicationConfigurationId)) { "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfigurationTrustedCertificateAuthority
@@ -10624,46 +7786,8 @@ function Get-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfi
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('CertificateAuthorityAsEntityId') -and -not [System.String]::IsNullOrEmpty($CertificateAuthorityAsEntityId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)/trustedCertificateAuthorities/$($CertificateAuthorityAsEntityId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)/trustedCertificateAuthorities" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('CertificateAuthorityAsEntityId') -and -not [System.String]::IsNullOrEmpty($CertificateAuthorityAsEntityId)) { "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)/trustedCertificateAuthorities/$($CertificateAuthorityAsEntityId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)/trustedCertificateAuthorities" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDirectoryCustomSecurityAttributeDefinition
@@ -10751,46 +7875,8 @@ function Get-MgBetaDirectoryCustomSecurityAttributeDefinition
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('CustomSecurityAttributeDefinitionId') -and -not [System.String]::IsNullOrEmpty($CustomSecurityAttributeDefinitionId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/directory/customSecurityAttributeDefinitions/$($CustomSecurityAttributeDefinitionId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/directory/customSecurityAttributeDefinitions" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('CustomSecurityAttributeDefinitionId') -and -not [System.String]::IsNullOrEmpty($CustomSecurityAttributeDefinitionId)) { "/beta/directory/customSecurityAttributeDefinitions/$($CustomSecurityAttributeDefinitionId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/directory/customSecurityAttributeDefinitions" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDirectoryDeletedItemAsApplication
@@ -10878,32 +7964,7 @@ function Get-MgBetaDirectoryDeletedItemAsApplication
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/directory/deletedItems/$($DirectoryObjectId)/application" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/directory/deletedItems/$($DirectoryObjectId)/application" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDirectoryDeletedItemAsGroup
@@ -10991,32 +8052,7 @@ function Get-MgBetaDirectoryDeletedItemAsGroup
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/directory/deletedItems/$($DirectoryObjectId)/group" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/directory/deletedItems/$($DirectoryObjectId)/group" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDirectoryObject
@@ -11108,46 +8144,8 @@ function Get-MgBetaDirectoryObject
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DirectoryObjectId') -and -not [System.String]::IsNullOrEmpty($DirectoryObjectId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/directoryObjects/$($DirectoryObjectId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/directoryObjects" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DirectoryObjectId') -and -not [System.String]::IsNullOrEmpty($DirectoryObjectId)) { "/beta/directoryObjects/$($DirectoryObjectId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/directoryObjects" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDirectoryObjectById
@@ -11203,27 +8201,7 @@ function Get-MgBetaDirectoryObjectById
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/directoryObjects/getByIds"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/directoryObjects/getByIds" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDirectorySetting
@@ -11311,46 +8289,8 @@ function Get-MgBetaDirectorySetting
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DirectorySettingId') -and -not [System.String]::IsNullOrEmpty($DirectorySettingId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/settings/$($DirectorySettingId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/settings" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DirectorySettingId') -and -not [System.String]::IsNullOrEmpty($DirectorySettingId)) { "/beta/settings/$($DirectorySettingId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/settings" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDirectorySettingTemplate
@@ -11438,46 +8378,8 @@ function Get-MgBetaDirectorySettingTemplate
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DirectorySettingTemplateId') -and -not [System.String]::IsNullOrEmpty($DirectorySettingTemplateId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/directorySettingTemplates/$($DirectorySettingTemplateId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/directorySettingTemplates" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DirectorySettingTemplateId') -and -not [System.String]::IsNullOrEmpty($DirectorySettingTemplateId)) { "/beta/directorySettingTemplates/$($DirectorySettingTemplateId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/directorySettingTemplates" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDomain
@@ -11565,46 +8467,8 @@ function Get-MgBetaDomain
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DomainId') -and -not [System.String]::IsNullOrEmpty($DomainId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/domains/$($DomainId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/domains" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DomainId') -and -not [System.String]::IsNullOrEmpty($DomainId)) { "/beta/domains/$($DomainId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/domains" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDomainFederationConfiguration
@@ -11696,46 +8560,8 @@ function Get-MgBetaDomainFederationConfiguration
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('InternalDomainFederationId') -and -not [System.String]::IsNullOrEmpty($InternalDomainFederationId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/domains/$($DomainId)/federationConfiguration/$($InternalDomainFederationId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/domains/$($DomainId)/federationConfiguration" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('InternalDomainFederationId') -and -not [System.String]::IsNullOrEmpty($InternalDomainFederationId)) { "/beta/domains/$($DomainId)/federationConfiguration/$($InternalDomainFederationId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/domains/$($DomainId)/federationConfiguration" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaEntitlementManagementAccessPackage
@@ -11835,46 +8661,8 @@ function Get-MgBetaEntitlementManagementAccessPackage
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AccessPackageId') -and -not [System.String]::IsNullOrEmpty($AccessPackageId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identityGovernance/entitlementManagement/accessPackages" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AccessPackageId') -and -not [System.String]::IsNullOrEmpty($AccessPackageId)) { "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/entitlementManagement/accessPackages" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaEntitlementManagementAccessPackageAssignmentPolicy
@@ -11970,46 +8758,8 @@ function Get-MgBetaEntitlementManagementAccessPackageAssignmentPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AccessPackageAssignmentPolicyId') -and -not [System.String]::IsNullOrEmpty($AccessPackageAssignmentPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identityGovernance/entitlementManagement/accessPackageAssignmentPolicies/$($AccessPackageAssignmentPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identityGovernance/entitlementManagement/accessPackageAssignmentPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AccessPackageAssignmentPolicyId') -and -not [System.String]::IsNullOrEmpty($AccessPackageAssignmentPolicyId)) { "/beta/identityGovernance/entitlementManagement/accessPackageAssignmentPolicies/$($AccessPackageAssignmentPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/entitlementManagement/accessPackageAssignmentPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaEntitlementManagementAccessPackageCatalog
@@ -12105,46 +8855,8 @@ function Get-MgBetaEntitlementManagementAccessPackageCatalog
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AccessPackageCatalogId') -and -not [System.String]::IsNullOrEmpty($AccessPackageCatalogId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identityGovernance/entitlementManagement/accessPackageCatalogs/$($AccessPackageCatalogId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identityGovernance/entitlementManagement/accessPackageCatalogs" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AccessPackageCatalogId') -and -not [System.String]::IsNullOrEmpty($AccessPackageCatalogId)) { "/beta/identityGovernance/entitlementManagement/accessPackageCatalogs/$($AccessPackageCatalogId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/entitlementManagement/accessPackageCatalogs" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResource
@@ -12228,32 +8940,7 @@ function Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourc
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/identityGovernance/entitlementManagement/accessPackageCatalogs/$($AccessPackageCatalogId)/accessPackageResources" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/entitlementManagement/accessPackageCatalogs/$($AccessPackageCatalogId)/accessPackageResources" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourceRole
@@ -12337,32 +9024,7 @@ function Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResourc
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/identityGovernance/entitlementManagement/accessPackageCatalogs/$($AccessPackageCatalogId)/accessPackageResourceRoles" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/entitlementManagement/accessPackageCatalogs/$($AccessPackageCatalogId)/accessPackageResourceRoles" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaEntitlementManagementAccessPackageIncompatibleAccessPackage
@@ -12446,32 +9108,7 @@ function Get-MgBetaEntitlementManagementAccessPackageIncompatibleAccessPackage
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleAccessPackages" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleAccessPackages" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaEntitlementManagementAccessPackageIncompatibleGroup
@@ -12555,32 +9192,7 @@ function Get-MgBetaEntitlementManagementAccessPackageIncompatibleGroup
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleGroups" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleGroups" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaEntitlementManagementAccessPackageIncompatibleWith
@@ -12672,46 +9284,8 @@ function Get-MgBetaEntitlementManagementAccessPackageIncompatibleWith
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AccessPackageId1') -and -not [System.String]::IsNullOrEmpty($AccessPackageId1))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/accessPackagesIncompatibleWith/$($AccessPackageId1)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/accessPackagesIncompatibleWith" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AccessPackageId1') -and -not [System.String]::IsNullOrEmpty($AccessPackageId1)) { "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/accessPackagesIncompatibleWith/$($AccessPackageId1)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/accessPackagesIncompatibleWith" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaEntitlementManagementConnectedOrganization
@@ -12807,46 +9381,8 @@ function Get-MgBetaEntitlementManagementConnectedOrganization
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ConnectedOrganizationId') -and -not [System.String]::IsNullOrEmpty($ConnectedOrganizationId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identityGovernance/entitlementManagement/connectedOrganizations" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ConnectedOrganizationId') -and -not [System.String]::IsNullOrEmpty($ConnectedOrganizationId)) { "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/entitlementManagement/connectedOrganizations" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaEntitlementManagementConnectedOrganizationExternalSponsor
@@ -12930,32 +9466,7 @@ function Get-MgBetaEntitlementManagementConnectedOrganizationExternalSponsor
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/externalSponsors" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/externalSponsors" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaEntitlementManagementConnectedOrganizationInternalSponsor
@@ -13039,32 +9550,7 @@ function Get-MgBetaEntitlementManagementConnectedOrganizationInternalSponsor
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/internalSponsors" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/internalSponsors" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaEntitlementManagementSetting
@@ -13112,32 +9598,7 @@ function Get-MgBetaEntitlementManagementSetting
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/identityGovernance/entitlementManagement/settings" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/entitlementManagement/settings" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaExternalConnection
@@ -13225,46 +9686,8 @@ function Get-MgBetaExternalConnection
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ExternalConnectionId') -and -not [System.String]::IsNullOrEmpty($ExternalConnectionId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/external/connections/$($ExternalConnectionId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/external/connections" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ExternalConnectionId') -and -not [System.String]::IsNullOrEmpty($ExternalConnectionId)) { "/beta/external/connections/$($ExternalConnectionId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/external/connections" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaGroup
@@ -13356,46 +9779,8 @@ function Get-MgBetaGroup
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('GroupId') -and -not [System.String]::IsNullOrEmpty($GroupId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/groups/$($GroupId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/groups" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('GroupId') -and -not [System.String]::IsNullOrEmpty($GroupId)) { "/beta/groups/$($GroupId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/groups" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaGroupLifecyclePolicy
@@ -13487,46 +9872,8 @@ function Get-MgBetaGroupLifecyclePolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('GroupLifecyclePolicyId') -and -not [System.String]::IsNullOrEmpty($GroupLifecyclePolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/groupLifecyclePolicies/$($GroupLifecyclePolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/groupLifecyclePolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('GroupLifecyclePolicyId') -and -not [System.String]::IsNullOrEmpty($GroupLifecyclePolicyId)) { "/beta/groupLifecyclePolicies/$($GroupLifecyclePolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/groupLifecyclePolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityApiConnector
@@ -13614,46 +9961,8 @@ function Get-MgBetaIdentityApiConnector
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('IdentityApiConnectorId') -and -not [System.String]::IsNullOrEmpty($IdentityApiConnectorId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identity/apiConnectors/$($IdentityApiConnectorId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identity/apiConnectors" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('IdentityApiConnectorId') -and -not [System.String]::IsNullOrEmpty($IdentityApiConnectorId)) { "/beta/identity/apiConnectors/$($IdentityApiConnectorId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identity/apiConnectors" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityB2XUserFlow
@@ -13741,46 +10050,8 @@ function Get-MgBetaIdentityB2XUserFlow
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('B2xIdentityUserFlowId') -and -not [System.String]::IsNullOrEmpty($B2xIdentityUserFlowId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identity/b2xUserFlows" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('B2xIdentityUserFlowId') -and -not [System.String]::IsNullOrEmpty($B2xIdentityUserFlowId)) { "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identity/b2xUserFlows" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityB2XUserFlowApiConnectorConfiguration
@@ -13836,32 +10107,7 @@ function Get-MgBetaIdentityB2XUserFlowApiConnectorConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/apiConnectorConfiguration" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/apiConnectorConfiguration" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityB2XUserFlowIdentityProvider
@@ -13953,46 +10199,8 @@ function Get-MgBetaIdentityB2XUserFlowIdentityProvider
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('IdentityProviderId') -and -not [System.String]::IsNullOrEmpty($IdentityProviderId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/identityProviders/$($IdentityProviderId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/identityProviders" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('IdentityProviderId') -and -not [System.String]::IsNullOrEmpty($IdentityProviderId)) { "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/identityProviders/$($IdentityProviderId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/identityProviders" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityB2XUserFlowUserAttributeAssignment
@@ -14084,46 +10292,8 @@ function Get-MgBetaIdentityB2XUserFlowUserAttributeAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('IdentityUserFlowAttributeAssignmentId') -and -not [System.String]::IsNullOrEmpty($IdentityUserFlowAttributeAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userAttributeAssignments/$($IdentityUserFlowAttributeAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userAttributeAssignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('IdentityUserFlowAttributeAssignmentId') -and -not [System.String]::IsNullOrEmpty($IdentityUserFlowAttributeAssignmentId)) { "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userAttributeAssignments/$($IdentityUserFlowAttributeAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userAttributeAssignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityConditionalAccessAuthenticationContextClassReference
@@ -14211,46 +10381,8 @@ function Get-MgBetaIdentityConditionalAccessAuthenticationContextClassReference
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AuthenticationContextClassReferenceId') -and -not [System.String]::IsNullOrEmpty($AuthenticationContextClassReferenceId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identity/conditionalAccess/authenticationContextClassReferences/$($AuthenticationContextClassReferenceId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identity/conditionalAccess/authenticationContextClassReferences" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AuthenticationContextClassReferenceId') -and -not [System.String]::IsNullOrEmpty($AuthenticationContextClassReferenceId)) { "/beta/identity/conditionalAccess/authenticationContextClassReferences/$($AuthenticationContextClassReferenceId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identity/conditionalAccess/authenticationContextClassReferences" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityConditionalAccessNamedLocation
@@ -14338,46 +10470,8 @@ function Get-MgBetaIdentityConditionalAccessNamedLocation
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('NamedLocationId') -and -not [System.String]::IsNullOrEmpty($NamedLocationId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identity/conditionalAccess/namedLocations/$($NamedLocationId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identity/conditionalAccess/namedLocations" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('NamedLocationId') -and -not [System.String]::IsNullOrEmpty($NamedLocationId)) { "/beta/identity/conditionalAccess/namedLocations/$($NamedLocationId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identity/conditionalAccess/namedLocations" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityConditionalAccessPolicy
@@ -14465,46 +10559,8 @@ function Get-MgBetaIdentityConditionalAccessPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ConditionalAccessPolicyId') -and -not [System.String]::IsNullOrEmpty($ConditionalAccessPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identity/conditionalAccess/policies/$($ConditionalAccessPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identity/conditionalAccess/policies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ConditionalAccessPolicyId') -and -not [System.String]::IsNullOrEmpty($ConditionalAccessPolicyId)) { "/beta/identity/conditionalAccess/policies/$($ConditionalAccessPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identity/conditionalAccess/policies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityCustomAuthenticationExtension
@@ -14592,46 +10648,8 @@ function Get-MgBetaIdentityCustomAuthenticationExtension
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('CustomAuthenticationExtensionId') -and -not [System.String]::IsNullOrEmpty($CustomAuthenticationExtensionId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identity/customAuthenticationExtensions/$($CustomAuthenticationExtensionId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identity/customAuthenticationExtensions" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('CustomAuthenticationExtensionId') -and -not [System.String]::IsNullOrEmpty($CustomAuthenticationExtensionId)) { "/beta/identity/customAuthenticationExtensions/$($CustomAuthenticationExtensionId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identity/customAuthenticationExtensions" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityGovernanceAccessReviewDefinition
@@ -14719,46 +10737,8 @@ function Get-MgBetaIdentityGovernanceAccessReviewDefinition
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AccessReviewScheduleDefinitionId') -and -not [System.String]::IsNullOrEmpty($AccessReviewScheduleDefinitionId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identityGovernance/accessReviews/definitions/$($AccessReviewScheduleDefinitionId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identityGovernance/accessReviews/definitions" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AccessReviewScheduleDefinitionId') -and -not [System.String]::IsNullOrEmpty($AccessReviewScheduleDefinitionId)) { "/beta/identityGovernance/accessReviews/definitions/$($AccessReviewScheduleDefinitionId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/accessReviews/definitions" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityGovernanceLifecycleWorkflow
@@ -14846,46 +10826,8 @@ function Get-MgBetaIdentityGovernanceLifecycleWorkflow
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('WorkflowId') -and -not [System.String]::IsNullOrEmpty($WorkflowId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identityGovernance/lifecycleWorkflows/workflows/$($WorkflowId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identityGovernance/lifecycleWorkflows/workflows" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('WorkflowId') -and -not [System.String]::IsNullOrEmpty($WorkflowId)) { "/beta/identityGovernance/lifecycleWorkflows/workflows/$($WorkflowId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/lifecycleWorkflows/workflows" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension
@@ -14973,46 +10915,8 @@ function Get-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('CustomTaskExtensionId') -and -not [System.String]::IsNullOrEmpty($CustomTaskExtensionId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identityGovernance/lifecycleWorkflows/customTaskExtensions/$($CustomTaskExtensionId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identityGovernance/lifecycleWorkflows/customTaskExtensions" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('CustomTaskExtensionId') -and -not [System.String]::IsNullOrEmpty($CustomTaskExtensionId)) { "/beta/identityGovernance/lifecycleWorkflows/customTaskExtensions/$($CustomTaskExtensionId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/lifecycleWorkflows/customTaskExtensions" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityGovernanceLifecycleWorkflowSetting
@@ -15060,32 +10964,7 @@ function Get-MgBetaIdentityGovernanceLifecycleWorkflowSetting
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/identityGovernance/lifecycleWorkflows/settings" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/lifecycleWorkflows/settings" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityGovernanceLifecycleWorkflowTask
@@ -15177,46 +11056,8 @@ function Get-MgBetaIdentityGovernanceLifecycleWorkflowTask
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('TaskId') -and -not [System.String]::IsNullOrEmpty($TaskId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identityGovernance/lifecycleWorkflows/workflows/$($WorkflowId)/tasks/$($TaskId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identityGovernance/lifecycleWorkflows/workflows/$($WorkflowId)/tasks" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('TaskId') -and -not [System.String]::IsNullOrEmpty($TaskId)) { "/beta/identityGovernance/lifecycleWorkflows/workflows/$($WorkflowId)/tasks/$($TaskId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/lifecycleWorkflows/workflows/$($WorkflowId)/tasks" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilitySchedule
@@ -15304,46 +11145,8 @@ function Get-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilitySchedule
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('PrivilegedAccessGroupEligibilityScheduleId') -and -not [System.String]::IsNullOrEmpty($PrivilegedAccessGroupEligibilityScheduleId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identityGovernance/privilegedAccess/group/eligibilitySchedules/$($PrivilegedAccessGroupEligibilityScheduleId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identityGovernance/privilegedAccess/group/eligibilitySchedules" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('PrivilegedAccessGroupEligibilityScheduleId') -and -not [System.String]::IsNullOrEmpty($PrivilegedAccessGroupEligibilityScheduleId)) { "/beta/identityGovernance/privilegedAccess/group/eligibilitySchedules/$($PrivilegedAccessGroupEligibilityScheduleId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identityGovernance/privilegedAccess/group/eligibilitySchedules" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityProvider
@@ -15431,46 +11234,8 @@ function Get-MgBetaIdentityProvider
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('IdentityProviderBaseId') -and -not [System.String]::IsNullOrEmpty($IdentityProviderBaseId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identity/identityProviders/$($IdentityProviderBaseId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identity/identityProviders" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('IdentityProviderBaseId') -and -not [System.String]::IsNullOrEmpty($IdentityProviderBaseId)) { "/beta/identity/identityProviders/$($IdentityProviderBaseId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identity/identityProviders" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityUserFlowAttribute
@@ -15558,46 +11323,8 @@ function Get-MgBetaIdentityUserFlowAttribute
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('IdentityUserFlowAttributeId') -and -not [System.String]::IsNullOrEmpty($IdentityUserFlowAttributeId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/identity/userFlowAttributes/$($IdentityUserFlowAttributeId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/identity/userFlowAttributes" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('IdentityUserFlowAttributeId') -and -not [System.String]::IsNullOrEmpty($IdentityUserFlowAttributeId)) { "/beta/identity/userFlowAttributes/$($IdentityUserFlowAttributeId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/identity/userFlowAttributes" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaNetworkAccessConnectivityRemoteNetwork
@@ -15685,46 +11412,8 @@ function Get-MgBetaNetworkAccessConnectivityRemoteNetwork
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('RemoteNetworkId') -and -not [System.String]::IsNullOrEmpty($RemoteNetworkId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/networkAccess/connectivity/remoteNetworks/$($RemoteNetworkId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/networkAccess/connectivity/remoteNetworks" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('RemoteNetworkId') -and -not [System.String]::IsNullOrEmpty($RemoteNetworkId)) { "/beta/networkAccess/connectivity/remoteNetworks/$($RemoteNetworkId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/networkAccess/connectivity/remoteNetworks" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaNetworkAccessFilteringPolicy
@@ -15812,46 +11501,8 @@ function Get-MgBetaNetworkAccessFilteringPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('FilteringPolicyId') -and -not [System.String]::IsNullOrEmpty($FilteringPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/networkAccess/filteringPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('FilteringPolicyId') -and -not [System.String]::IsNullOrEmpty($FilteringPolicyId)) { "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/networkAccess/filteringPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaNetworkAccessFilteringPolicyRule
@@ -15943,46 +11594,8 @@ function Get-MgBetaNetworkAccessFilteringPolicyRule
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('PolicyRuleId') -and -not [System.String]::IsNullOrEmpty($PolicyRuleId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)/policyRules/$($PolicyRuleId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)/policyRules" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('PolicyRuleId') -and -not [System.String]::IsNullOrEmpty($PolicyRuleId)) { "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)/policyRules/$($PolicyRuleId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)/policyRules" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaNetworkAccessFilteringProfile
@@ -16070,46 +11683,8 @@ function Get-MgBetaNetworkAccessFilteringProfile
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('FilteringProfileId') -and -not [System.String]::IsNullOrEmpty($FilteringProfileId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/networkAccess/filteringProfiles/$($FilteringProfileId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/networkAccess/filteringProfiles" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('FilteringProfileId') -and -not [System.String]::IsNullOrEmpty($FilteringProfileId)) { "/beta/networkAccess/filteringProfiles/$($FilteringProfileId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/networkAccess/filteringProfiles" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaNetworkAccessFilteringProfilePolicy
@@ -16201,46 +11776,8 @@ function Get-MgBetaNetworkAccessFilteringProfilePolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('PolicyLinkId') -and -not [System.String]::IsNullOrEmpty($PolicyLinkId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/networkAccess/filteringProfiles/$($FilteringProfileId)/policies/$($PolicyLinkId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/networkAccess/filteringProfiles/$($FilteringProfileId)/policies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('PolicyLinkId') -and -not [System.String]::IsNullOrEmpty($PolicyLinkId)) { "/beta/networkAccess/filteringProfiles/$($FilteringProfileId)/policies/$($PolicyLinkId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/networkAccess/filteringProfiles/$($FilteringProfileId)/policies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaNetworkAccessForwardingPolicy
@@ -16328,46 +11865,8 @@ function Get-MgBetaNetworkAccessForwardingPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ForwardingPolicyId') -and -not [System.String]::IsNullOrEmpty($ForwardingPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/networkAccess/forwardingPolicies/$($ForwardingPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/networkAccess/forwardingPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ForwardingPolicyId') -and -not [System.String]::IsNullOrEmpty($ForwardingPolicyId)) { "/beta/networkAccess/forwardingPolicies/$($ForwardingPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/networkAccess/forwardingPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaNetworkAccessForwardingProfile
@@ -16455,46 +11954,8 @@ function Get-MgBetaNetworkAccessForwardingProfile
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ForwardingProfileId') -and -not [System.String]::IsNullOrEmpty($ForwardingProfileId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/networkAccess/forwardingProfiles/$($ForwardingProfileId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/networkAccess/forwardingProfiles" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ForwardingProfileId') -and -not [System.String]::IsNullOrEmpty($ForwardingProfileId)) { "/beta/networkAccess/forwardingProfiles/$($ForwardingProfileId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/networkAccess/forwardingProfiles" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaNetworkAccessForwardingProfilePolicy
@@ -16586,46 +12047,8 @@ function Get-MgBetaNetworkAccessForwardingProfilePolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('PolicyLinkId') -and -not [System.String]::IsNullOrEmpty($PolicyLinkId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/networkAccess/forwardingProfiles/$($ForwardingProfileId)/policies/$($PolicyLinkId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/networkAccess/forwardingProfiles/$($ForwardingProfileId)/policies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('PolicyLinkId') -and -not [System.String]::IsNullOrEmpty($PolicyLinkId)) { "/beta/networkAccess/forwardingProfiles/$($ForwardingProfileId)/policies/$($PolicyLinkId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/networkAccess/forwardingProfiles/$($ForwardingProfileId)/policies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaNetworkAccessSettingConditionalAccess
@@ -16673,32 +12096,7 @@ function Get-MgBetaNetworkAccessSettingConditionalAccess
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/networkAccess/settings/conditionalAccess" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/networkAccess/settings/conditionalAccess" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaNetworkAccessSettingCrossTenantAccess
@@ -16746,32 +12144,7 @@ function Get-MgBetaNetworkAccessSettingCrossTenantAccess
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/networkAccess/settings/crossTenantAccess" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/networkAccess/settings/crossTenantAccess" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaOnPremisePublishingProfileConnectorGroup
@@ -16863,46 +12236,8 @@ function Get-MgBetaOnPremisePublishingProfileConnectorGroup
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ConnectorGroupId') -and -not [System.String]::IsNullOrEmpty($ConnectorGroupId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/onPremisesPublishingProfiles/$($OnPremisesPublishingProfileId)/connectorGroups/$($ConnectorGroupId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/onPremisesPublishingProfiles/$($OnPremisesPublishingProfileId)/connectorGroups" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ConnectorGroupId') -and -not [System.String]::IsNullOrEmpty($ConnectorGroupId)) { "/beta/onPremisesPublishingProfiles/$($OnPremisesPublishingProfileId)/connectorGroups/$($ConnectorGroupId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/onPremisesPublishingProfiles/$($OnPremisesPublishingProfileId)/connectorGroups" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaOrganization
@@ -16990,46 +12325,8 @@ function Get-MgBetaOrganization
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('OrganizationId') -and -not [System.String]::IsNullOrEmpty($OrganizationId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/organization/$($OrganizationId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/organization" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('OrganizationId') -and -not [System.String]::IsNullOrEmpty($OrganizationId)) { "/beta/organization/$($OrganizationId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/organization" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaOrganizationCertificateBasedAuthConfiguration
@@ -17121,46 +12418,8 @@ function Get-MgBetaOrganizationCertificateBasedAuthConfiguration
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('CertificateBasedAuthConfigurationId') -and -not [System.String]::IsNullOrEmpty($CertificateBasedAuthConfigurationId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/organization/$($OrganizationId)/certificateBasedAuthConfiguration/$($CertificateBasedAuthConfigurationId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/organization/$($OrganizationId)/certificateBasedAuthConfiguration" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('CertificateBasedAuthConfigurationId') -and -not [System.String]::IsNullOrEmpty($CertificateBasedAuthConfigurationId)) { "/beta/organization/$($OrganizationId)/certificateBasedAuthConfiguration/$($CertificateBasedAuthConfigurationId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/organization/$($OrganizationId)/certificateBasedAuthConfiguration" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaOrganizationSettingItemInsight
@@ -17216,32 +12475,7 @@ function Get-MgBetaOrganizationSettingItemInsight
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/organization/$($OrganizationId)/settings/itemInsights" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/organization/$($OrganizationId)/settings/itemInsights" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaOrganizationSettingPersonInsight
@@ -17297,32 +12531,7 @@ function Get-MgBetaOrganizationSettingPersonInsight
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/organization/$($OrganizationId)/settings/peopleInsights" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/organization/$($OrganizationId)/settings/peopleInsights" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyAccessReviewPolicy
@@ -17370,32 +12579,7 @@ function Get-MgBetaPolicyAccessReviewPolicy
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/policies/accessReviewPolicy" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/accessReviewPolicy" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyActivityBasedTimeoutPolicy
@@ -17483,46 +12667,8 @@ function Get-MgBetaPolicyActivityBasedTimeoutPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ActivityBasedTimeoutPolicyId') -and -not [System.String]::IsNullOrEmpty($ActivityBasedTimeoutPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/activityBasedTimeoutPolicies/$($ActivityBasedTimeoutPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/activityBasedTimeoutPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ActivityBasedTimeoutPolicyId') -and -not [System.String]::IsNullOrEmpty($ActivityBasedTimeoutPolicyId)) { "/beta/policies/activityBasedTimeoutPolicies/$($ActivityBasedTimeoutPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/activityBasedTimeoutPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyAdminConsentRequestPolicy
@@ -17570,32 +12716,7 @@ function Get-MgBetaPolicyAdminConsentRequestPolicy
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/policies/adminConsentRequestPolicy" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/adminConsentRequestPolicy" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyAppManagementPolicy
@@ -17683,46 +12804,8 @@ function Get-MgBetaPolicyAppManagementPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AppManagementPolicyId') -and -not [System.String]::IsNullOrEmpty($AppManagementPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/appManagementPolicies/$($AppManagementPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/appManagementPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AppManagementPolicyId') -and -not [System.String]::IsNullOrEmpty($AppManagementPolicyId)) { "/beta/policies/appManagementPolicies/$($AppManagementPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/appManagementPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyAuthenticationFlowPolicy
@@ -17770,32 +12853,7 @@ function Get-MgBetaPolicyAuthenticationFlowPolicy
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/policies/authenticationFlowsPolicy" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/authenticationFlowsPolicy" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyAuthenticationMethodPolicy
@@ -17843,32 +12901,7 @@ function Get-MgBetaPolicyAuthenticationMethodPolicy
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/policies/authenticationMethodsPolicy" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/authenticationMethodsPolicy" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration
@@ -17956,46 +12989,8 @@ function Get-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfigura
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AuthenticationMethodConfigurationId') -and -not [System.String]::IsNullOrEmpty($AuthenticationMethodConfigurationId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations/$($AuthenticationMethodConfigurationId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AuthenticationMethodConfigurationId') -and -not [System.String]::IsNullOrEmpty($AuthenticationMethodConfigurationId)) { "/beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations/$($AuthenticationMethodConfigurationId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyAuthenticationStrengthPolicy
@@ -18083,46 +13078,8 @@ function Get-MgBetaPolicyAuthenticationStrengthPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AuthenticationStrengthPolicyId') -and -not [System.String]::IsNullOrEmpty($AuthenticationStrengthPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/authenticationStrengthPolicies/$($AuthenticationStrengthPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/authenticationStrengthPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AuthenticationStrengthPolicyId') -and -not [System.String]::IsNullOrEmpty($AuthenticationStrengthPolicyId)) { "/beta/policies/authenticationStrengthPolicies/$($AuthenticationStrengthPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/authenticationStrengthPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyAuthorizationPolicy
@@ -18210,46 +13167,8 @@ function Get-MgBetaPolicyAuthorizationPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AuthorizationPolicyId') -and -not [System.String]::IsNullOrEmpty($AuthorizationPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/authorizationPolicy/$($AuthorizationPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/authorizationPolicy" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AuthorizationPolicyId') -and -not [System.String]::IsNullOrEmpty($AuthorizationPolicyId)) { "/beta/policies/authorizationPolicy/$($AuthorizationPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/authorizationPolicy" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyB2BManagementPolicy
@@ -18337,46 +13256,8 @@ function Get-MgBetaPolicyB2BManagementPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('B2bManagementPolicyId') -and -not [System.String]::IsNullOrEmpty($B2bManagementPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/b2bManagementPolicies/$($B2bManagementPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/b2bManagementPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('B2bManagementPolicyId') -and -not [System.String]::IsNullOrEmpty($B2bManagementPolicyId)) { "/beta/policies/b2bManagementPolicies/$($B2bManagementPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/b2bManagementPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyB2CAuthenticationMethodPolicy
@@ -18424,32 +13305,7 @@ function Get-MgBetaPolicyB2CAuthenticationMethodPolicy
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/policies/b2cAuthenticationMethodsPolicy" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/b2cAuthenticationMethodsPolicy" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyClaimMappingPolicy
@@ -18537,46 +13393,8 @@ function Get-MgBetaPolicyClaimMappingPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ClaimsMappingPolicyId') -and -not [System.String]::IsNullOrEmpty($ClaimsMappingPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/claimsMappingPolicies/$($ClaimsMappingPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/claimsMappingPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ClaimsMappingPolicyId') -and -not [System.String]::IsNullOrEmpty($ClaimsMappingPolicyId)) { "/beta/policies/claimsMappingPolicies/$($ClaimsMappingPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/claimsMappingPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyCrossTenantAccessPolicy
@@ -18624,32 +13442,7 @@ function Get-MgBetaPolicyCrossTenantAccessPolicy
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/policies/crossTenantAccessPolicy" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/crossTenantAccessPolicy" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyCrossTenantAccessPolicyDefault
@@ -18697,32 +13490,7 @@ function Get-MgBetaPolicyCrossTenantAccessPolicyDefault
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/policies/crossTenantAccessPolicy/default" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/crossTenantAccessPolicy/default" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyCrossTenantAccessPolicyPartner
@@ -18810,46 +13578,8 @@ function Get-MgBetaPolicyCrossTenantAccessPolicyPartner
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('CrossTenantAccessPolicyConfigurationPartnerTenantId') -and -not [System.String]::IsNullOrEmpty($CrossTenantAccessPolicyConfigurationPartnerTenantId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/crossTenantAccessPolicy/partners/$($CrossTenantAccessPolicyConfigurationPartnerTenantId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/crossTenantAccessPolicy/partners" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('CrossTenantAccessPolicyConfigurationPartnerTenantId') -and -not [System.String]::IsNullOrEmpty($CrossTenantAccessPolicyConfigurationPartnerTenantId)) { "/beta/policies/crossTenantAccessPolicy/partners/$($CrossTenantAccessPolicyConfigurationPartnerTenantId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/crossTenantAccessPolicy/partners" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyCrossTenantAccessPolicyPartnerIdentitySynchronization
@@ -18905,32 +13635,7 @@ function Get-MgBetaPolicyCrossTenantAccessPolicyPartnerIdentitySynchronization
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/policies/crossTenantAccessPolicy/partners/$($CrossTenantAccessPolicyConfigurationPartnerTenantId)/identitySynchronization" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/crossTenantAccessPolicy/partners/$($CrossTenantAccessPolicyConfigurationPartnerTenantId)/identitySynchronization" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyCrossTenantAccessPolicyTemplateMultiTenantOrganizationIdentitySynchronization
@@ -18978,32 +13683,7 @@ function Get-MgBetaPolicyCrossTenantAccessPolicyTemplateMultiTenantOrganizationI
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/policies/crossTenantAccessPolicy/templates/multiTenantOrganizationIdentitySynchronization" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/crossTenantAccessPolicy/templates/multiTenantOrganizationIdentitySynchronization" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyDefaultAppManagementPolicy
@@ -19051,32 +13731,7 @@ function Get-MgBetaPolicyDefaultAppManagementPolicy
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/policies/defaultAppManagementPolicy" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/defaultAppManagementPolicy" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyDeviceRegistrationPolicy
@@ -19124,32 +13779,7 @@ function Get-MgBetaPolicyDeviceRegistrationPolicy
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/policies/deviceRegistrationPolicy" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/deviceRegistrationPolicy" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyExternalIdentityPolicy
@@ -19197,32 +13827,7 @@ function Get-MgBetaPolicyExternalIdentityPolicy
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/policies/externalIdentitiesPolicy" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/externalIdentitiesPolicy" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyFeatureRolloutPolicy
@@ -19310,46 +13915,8 @@ function Get-MgBetaPolicyFeatureRolloutPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('FeatureRolloutPolicyId') -and -not [System.String]::IsNullOrEmpty($FeatureRolloutPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/featureRolloutPolicies/$($FeatureRolloutPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/featureRolloutPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('FeatureRolloutPolicyId') -and -not [System.String]::IsNullOrEmpty($FeatureRolloutPolicyId)) { "/beta/policies/featureRolloutPolicies/$($FeatureRolloutPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/featureRolloutPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyHomeRealmDiscoveryPolicy
@@ -19437,46 +14004,8 @@ function Get-MgBetaPolicyHomeRealmDiscoveryPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('HomeRealmDiscoveryPolicyId') -and -not [System.String]::IsNullOrEmpty($HomeRealmDiscoveryPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/homeRealmDiscoveryPolicies/$($HomeRealmDiscoveryPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/homeRealmDiscoveryPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('HomeRealmDiscoveryPolicyId') -and -not [System.String]::IsNullOrEmpty($HomeRealmDiscoveryPolicyId)) { "/beta/policies/homeRealmDiscoveryPolicies/$($HomeRealmDiscoveryPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/homeRealmDiscoveryPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyIdentitySecurityDefaultEnforcementPolicy
@@ -19524,32 +14053,7 @@ function Get-MgBetaPolicyIdentitySecurityDefaultEnforcementPolicy
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/beta/policies/identitySecurityDefaultsEnforcementPolicy" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/identitySecurityDefaultsEnforcementPolicy" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyMobileAppManagementPolicy
@@ -19637,46 +14141,8 @@ function Get-MgBetaPolicyMobileAppManagementPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('MobileAppManagementPolicyId') -and -not [System.String]::IsNullOrEmpty($MobileAppManagementPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/mobileAppManagementPolicies/$($MobileAppManagementPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/mobileAppManagementPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('MobileAppManagementPolicyId') -and -not [System.String]::IsNullOrEmpty($MobileAppManagementPolicyId)) { "/beta/policies/mobileAppManagementPolicies/$($MobileAppManagementPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/mobileAppManagementPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyMobileDeviceManagementPolicy
@@ -19764,46 +14230,8 @@ function Get-MgBetaPolicyMobileDeviceManagementPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('MobileDeviceManagementPolicyId') -and -not [System.String]::IsNullOrEmpty($MobileDeviceManagementPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/mobileDeviceManagementPolicies/$($MobileDeviceManagementPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/mobileDeviceManagementPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('MobileDeviceManagementPolicyId') -and -not [System.String]::IsNullOrEmpty($MobileDeviceManagementPolicyId)) { "/beta/policies/mobileDeviceManagementPolicies/$($MobileDeviceManagementPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/mobileDeviceManagementPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyPermissionGrantPolicy
@@ -19891,46 +14319,8 @@ function Get-MgBetaPolicyPermissionGrantPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('PermissionGrantPolicyId') -and -not [System.String]::IsNullOrEmpty($PermissionGrantPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/permissionGrantPolicies/$($PermissionGrantPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/permissionGrantPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('PermissionGrantPolicyId') -and -not [System.String]::IsNullOrEmpty($PermissionGrantPolicyId)) { "/beta/policies/permissionGrantPolicies/$($PermissionGrantPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/permissionGrantPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyRoleManagementPolicy
@@ -20018,46 +14408,8 @@ function Get-MgBetaPolicyRoleManagementPolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('UnifiedRoleManagementPolicyId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleManagementPolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/roleManagementPolicies/$($UnifiedRoleManagementPolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/roleManagementPolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('UnifiedRoleManagementPolicyId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleManagementPolicyId)) { "/beta/policies/roleManagementPolicies/$($UnifiedRoleManagementPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/roleManagementPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyRoleManagementPolicyAssignment
@@ -20145,46 +14497,8 @@ function Get-MgBetaPolicyRoleManagementPolicyAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('UnifiedRoleManagementPolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleManagementPolicyAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/roleManagementPolicyAssignments/$($UnifiedRoleManagementPolicyAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/roleManagementPolicyAssignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('UnifiedRoleManagementPolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleManagementPolicyAssignmentId)) { "/beta/policies/roleManagementPolicyAssignments/$($UnifiedRoleManagementPolicyAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/roleManagementPolicyAssignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyRoleManagementPolicyRule
@@ -20276,46 +14590,8 @@ function Get-MgBetaPolicyRoleManagementPolicyRule
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('UnifiedRoleManagementPolicyRuleId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleManagementPolicyRuleId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/roleManagementPolicies/$($UnifiedRoleManagementPolicyId)/rules/$($UnifiedRoleManagementPolicyRuleId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/roleManagementPolicies/$($UnifiedRoleManagementPolicyId)/rules" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('UnifiedRoleManagementPolicyRuleId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleManagementPolicyRuleId)) { "/beta/policies/roleManagementPolicies/$($UnifiedRoleManagementPolicyId)/rules/$($UnifiedRoleManagementPolicyRuleId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/roleManagementPolicies/$($UnifiedRoleManagementPolicyId)/rules" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyTokenIssuancePolicy
@@ -20403,46 +14679,8 @@ function Get-MgBetaPolicyTokenIssuancePolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('TokenIssuancePolicyId') -and -not [System.String]::IsNullOrEmpty($TokenIssuancePolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/tokenIssuancePolicies/$($TokenIssuancePolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/tokenIssuancePolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('TokenIssuancePolicyId') -and -not [System.String]::IsNullOrEmpty($TokenIssuancePolicyId)) { "/beta/policies/tokenIssuancePolicies/$($TokenIssuancePolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/tokenIssuancePolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaPolicyTokenLifetimePolicy
@@ -20530,46 +14768,8 @@ function Get-MgBetaPolicyTokenLifetimePolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('TokenLifetimePolicyId') -and -not [System.String]::IsNullOrEmpty($TokenLifetimePolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/policies/tokenLifetimePolicies/$($TokenLifetimePolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/policies/tokenLifetimePolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('TokenLifetimePolicyId') -and -not [System.String]::IsNullOrEmpty($TokenLifetimePolicyId)) { "/beta/policies/tokenLifetimePolicies/$($TokenLifetimePolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/policies/tokenLifetimePolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaProgram
@@ -20657,46 +14857,8 @@ function Get-MgBetaProgram
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ProgramId') -and -not [System.String]::IsNullOrEmpty($ProgramId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/programs/$($ProgramId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/programs" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ProgramId') -and -not [System.String]::IsNullOrEmpty($ProgramId)) { "/beta/programs/$($ProgramId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/programs" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaRoleManagementCloudPcRoleAssignment
@@ -20784,46 +14946,8 @@ function Get-MgBetaRoleManagementCloudPcRoleAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('UnifiedRoleAssignmentMultipleId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleAssignmentMultipleId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/roleManagement/cloudPC/roleAssignments/$($UnifiedRoleAssignmentMultipleId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/roleManagement/cloudPC/roleAssignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('UnifiedRoleAssignmentMultipleId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleAssignmentMultipleId)) { "/beta/roleManagement/cloudPC/roleAssignments/$($UnifiedRoleAssignmentMultipleId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/roleManagement/cloudPC/roleAssignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaRoleManagementCloudPcRoleDefinition
@@ -20911,46 +15035,8 @@ function Get-MgBetaRoleManagementCloudPcRoleDefinition
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('UnifiedRoleDefinitionId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleDefinitionId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/roleManagement/cloudPC/roleDefinitions/$($UnifiedRoleDefinitionId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/roleManagement/cloudPC/roleDefinitions" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('UnifiedRoleDefinitionId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleDefinitionId)) { "/beta/roleManagement/cloudPC/roleDefinitions/$($UnifiedRoleDefinitionId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/roleManagement/cloudPC/roleDefinitions" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaRoleManagementDirectoryRoleAssignment
@@ -21038,46 +15124,8 @@ function Get-MgBetaRoleManagementDirectoryRoleAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('UnifiedRoleAssignmentId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/roleManagement/directory/roleAssignments/$($UnifiedRoleAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/roleManagement/directory/roleAssignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('UnifiedRoleAssignmentId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleAssignmentId)) { "/beta/roleManagement/directory/roleAssignments/$($UnifiedRoleAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/roleManagement/directory/roleAssignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaRoleManagementDirectoryRoleAssignmentSchedule
@@ -21165,46 +15213,8 @@ function Get-MgBetaRoleManagementDirectoryRoleAssignmentSchedule
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('UnifiedRoleAssignmentScheduleId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleAssignmentScheduleId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/roleManagement/directory/roleAssignmentSchedules/$($UnifiedRoleAssignmentScheduleId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/roleManagement/directory/roleAssignmentSchedules" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('UnifiedRoleAssignmentScheduleId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleAssignmentScheduleId)) { "/beta/roleManagement/directory/roleAssignmentSchedules/$($UnifiedRoleAssignmentScheduleId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/roleManagement/directory/roleAssignmentSchedules" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaRoleManagementDirectoryRoleDefinition
@@ -21292,46 +15302,8 @@ function Get-MgBetaRoleManagementDirectoryRoleDefinition
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('UnifiedRoleDefinitionId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleDefinitionId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/roleManagement/directory/roleDefinitions/$($UnifiedRoleDefinitionId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/roleManagement/directory/roleDefinitions" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('UnifiedRoleDefinitionId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleDefinitionId)) { "/beta/roleManagement/directory/roleDefinitions/$($UnifiedRoleDefinitionId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/roleManagement/directory/roleDefinitions" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaRoleManagementDirectoryRoleEligibilitySchedule
@@ -21419,46 +15391,8 @@ function Get-MgBetaRoleManagementDirectoryRoleEligibilitySchedule
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('UnifiedRoleEligibilityScheduleId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleEligibilityScheduleId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/roleManagement/directory/roleEligibilitySchedules/$($UnifiedRoleEligibilityScheduleId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/roleManagement/directory/roleEligibilitySchedules" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('UnifiedRoleEligibilityScheduleId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleEligibilityScheduleId)) { "/beta/roleManagement/directory/roleEligibilitySchedules/$($UnifiedRoleEligibilityScheduleId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/roleManagement/directory/roleEligibilitySchedules" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaRoleManagementEntitlementManagementRoleAssignment
@@ -21546,46 +15480,8 @@ function Get-MgBetaRoleManagementEntitlementManagementRoleAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('UnifiedRoleAssignmentId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/roleManagement/entitlementManagement/roleAssignments/$($UnifiedRoleAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/roleManagement/entitlementManagement/roleAssignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('UnifiedRoleAssignmentId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleAssignmentId)) { "/beta/roleManagement/entitlementManagement/roleAssignments/$($UnifiedRoleAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/roleManagement/entitlementManagement/roleAssignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaRoleManagementEntitlementManagementRoleDefinition
@@ -21673,46 +15569,8 @@ function Get-MgBetaRoleManagementEntitlementManagementRoleDefinition
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('UnifiedRoleDefinitionId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleDefinitionId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/roleManagement/entitlementManagement/roleDefinitions/$($UnifiedRoleDefinitionId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/roleManagement/entitlementManagement/roleDefinitions" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('UnifiedRoleDefinitionId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleDefinitionId)) { "/beta/roleManagement/entitlementManagement/roleDefinitions/$($UnifiedRoleDefinitionId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/roleManagement/entitlementManagement/roleDefinitions" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaSubscribedSku
@@ -21800,46 +15658,8 @@ function Get-MgBetaSubscribedSku
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('SubscribedSkuId') -and -not [System.String]::IsNullOrEmpty($SubscribedSkuId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/subscribedSkus/$($SubscribedSkuId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/subscribedSkus" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('SubscribedSkuId') -and -not [System.String]::IsNullOrEmpty($SubscribedSkuId)) { "/beta/subscribedSkus/$($SubscribedSkuId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/subscribedSkus" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaTeam
@@ -21927,46 +15747,8 @@ function Get-MgBetaTeam
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('TeamId') -and -not [System.String]::IsNullOrEmpty($TeamId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/teams/$($TeamId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/teams" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('TeamId') -and -not [System.String]::IsNullOrEmpty($TeamId)) { "/beta/teams/$($TeamId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/teams" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaTeamChannel
@@ -22058,46 +15840,8 @@ function Get-MgBetaTeamChannel
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ChannelId') -and -not [System.String]::IsNullOrEmpty($ChannelId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/teams/$($TeamId)/channels/$($ChannelId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/teams/$($TeamId)/channels" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ChannelId') -and -not [System.String]::IsNullOrEmpty($ChannelId)) { "/beta/teams/$($TeamId)/channels/$($ChannelId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/teams/$($TeamId)/channels" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaTeamChannelTab
@@ -22193,46 +15937,8 @@ function Get-MgBetaTeamChannelTab
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('TeamsTabId') -and -not [System.String]::IsNullOrEmpty($TeamsTabId))
-    {
-        # Single-item retrieval
-        $uri = "/beta/teams/$($TeamId)/channels/$($ChannelId)/tabs/$($TeamsTabId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/beta/teams/$($TeamId)/channels/$($ChannelId)/tabs" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('TeamsTabId') -and -not [System.String]::IsNullOrEmpty($TeamsTabId)) { "/beta/teams/$($TeamId)/channels/$($ChannelId)/tabs/$($TeamsTabId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/teams/$($TeamId)/channels/$($ChannelId)/tabs" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgDevice
@@ -22324,46 +16030,8 @@ function Get-MgDevice
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DeviceId') -and -not [System.String]::IsNullOrEmpty($DeviceId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/devices/$($DeviceId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/devices" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceId') -and -not [System.String]::IsNullOrEmpty($DeviceId)) { "/v1.0/devices/$($DeviceId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/devices" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgDeviceManagementRoleDefinition
@@ -22451,46 +16119,8 @@ function Get-MgDeviceManagementRoleDefinition
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('RoleDefinitionId') -and -not [System.String]::IsNullOrEmpty($RoleDefinitionId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/deviceManagement/roleDefinitions/$($RoleDefinitionId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/deviceManagement/roleDefinitions" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('RoleDefinitionId') -and -not [System.String]::IsNullOrEmpty($RoleDefinitionId)) { "/v1.0/deviceManagement/roleDefinitions/$($RoleDefinitionId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/deviceManagement/roleDefinitions" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgDeviceManagementRoleDefinitionRoleAssignment
@@ -22582,46 +16212,8 @@ function Get-MgDeviceManagementRoleDefinitionRoleAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('RoleAssignmentId') -and -not [System.String]::IsNullOrEmpty($RoleAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/deviceManagement/roleDefinitions/$($RoleDefinitionId)/roleAssignments/$($RoleAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/deviceManagement/roleDefinitions/$($RoleDefinitionId)/roleAssignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('RoleAssignmentId') -and -not [System.String]::IsNullOrEmpty($RoleAssignmentId)) { "/v1.0/deviceManagement/roleDefinitions/$($RoleDefinitionId)/roleAssignments/$($RoleAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/deviceManagement/roleDefinitions/$($RoleDefinitionId)/roleAssignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgDirectoryAdministrativeUnit
@@ -22709,46 +16301,8 @@ function Get-MgDirectoryAdministrativeUnit
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AdministrativeUnitId') -and -not [System.String]::IsNullOrEmpty($AdministrativeUnitId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/directory/administrativeUnits" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AdministrativeUnitId') -and -not [System.String]::IsNullOrEmpty($AdministrativeUnitId)) { "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/directory/administrativeUnits" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgDirectoryAdministrativeUnitMember
@@ -22836,32 +16390,7 @@ function Get-MgDirectoryAdministrativeUnitMember
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/members" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/members" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgDirectoryAdministrativeUnitScopedRoleMember
@@ -22953,46 +16482,8 @@ function Get-MgDirectoryAdministrativeUnitScopedRoleMember
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ScopedRoleMembershipId') -and -not [System.String]::IsNullOrEmpty($ScopedRoleMembershipId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/scopedRoleMembers/$($ScopedRoleMembershipId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/scopedRoleMembers" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ScopedRoleMembershipId') -and -not [System.String]::IsNullOrEmpty($ScopedRoleMembershipId)) { "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/scopedRoleMembers/$($ScopedRoleMembershipId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/scopedRoleMembers" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgDirectoryRole
@@ -23080,46 +16571,8 @@ function Get-MgDirectoryRole
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DirectoryRoleId') -and -not [System.String]::IsNullOrEmpty($DirectoryRoleId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/directoryRoles/$($DirectoryRoleId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/directoryRoles" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DirectoryRoleId') -and -not [System.String]::IsNullOrEmpty($DirectoryRoleId)) { "/v1.0/directoryRoles/$($DirectoryRoleId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/directoryRoles" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgDirectoryRoleTemplate
@@ -23207,46 +16660,8 @@ function Get-MgDirectoryRoleTemplate
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('DirectoryRoleTemplateId') -and -not [System.String]::IsNullOrEmpty($DirectoryRoleTemplateId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/directoryRoleTemplates/$($DirectoryRoleTemplateId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/directoryRoleTemplates" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DirectoryRoleTemplateId') -and -not [System.String]::IsNullOrEmpty($DirectoryRoleTemplateId)) { "/v1.0/directoryRoleTemplates/$($DirectoryRoleTemplateId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/directoryRoleTemplates" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgGroup
@@ -23338,46 +16753,8 @@ function Get-MgGroup
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('GroupId') -and -not [System.String]::IsNullOrEmpty($GroupId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/groups/$($GroupId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/groups" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('GroupId') -and -not [System.String]::IsNullOrEmpty($GroupId)) { "/v1.0/groups/$($GroupId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/groups" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgGroupLifecyclePolicy
@@ -23469,46 +16846,8 @@ function Get-MgGroupLifecyclePolicy
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('GroupLifecyclePolicyId') -and -not [System.String]::IsNullOrEmpty($GroupLifecyclePolicyId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/groupLifecyclePolicies/$($GroupLifecyclePolicyId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/groupLifecyclePolicies" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('GroupLifecyclePolicyId') -and -not [System.String]::IsNullOrEmpty($GroupLifecyclePolicyId)) { "/v1.0/groupLifecyclePolicies/$($GroupLifecyclePolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/groupLifecyclePolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgGroupMember
@@ -23596,32 +16935,7 @@ function Get-MgGroupMember
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/v1.0/groups/$($GroupId)/members" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/groups/$($GroupId)/members" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgGroupOwner
@@ -23709,32 +17023,7 @@ function Get-MgGroupOwner
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/v1.0/groups/$($GroupId)/owners" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/groups/$($GroupId)/owners" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgGroupPlannerPlan
@@ -23826,46 +17115,8 @@ function Get-MgGroupPlannerPlan
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('PlannerPlanId') -and -not [System.String]::IsNullOrEmpty($PlannerPlanId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/groups/$($GroupId)/planner/plans/$($PlannerPlanId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/groups/$($GroupId)/planner/plans" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('PlannerPlanId') -and -not [System.String]::IsNullOrEmpty($PlannerPlanId)) { "/v1.0/groups/$($GroupId)/planner/plans/$($PlannerPlanId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/groups/$($GroupId)/planner/plans" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgGroupPlannerPlanTask
@@ -23953,32 +17204,7 @@ function Get-MgGroupPlannerPlanTask
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/v1.0/groups/$($GroupId)/planner/plans/$($PlannerPlanId)/tasks" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/groups/$($GroupId)/planner/plans/$($PlannerPlanId)/tasks" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgPlannerPlanBucket
@@ -24062,32 +17288,7 @@ function Get-MgPlannerPlanBucket
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/v1.0/planner/plans/$($PlannerPlanId)/buckets" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/planner/plans/$($PlannerPlanId)/buckets" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgPlannerPlanDetail
@@ -24143,32 +17344,7 @@ function Get-MgPlannerPlanDetail
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/v1.0/planner/plans/$($PlannerPlanId)/details" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/planner/plans/$($PlannerPlanId)/details" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgPlannerTask
@@ -24256,46 +17432,8 @@ function Get-MgPlannerTask
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('PlannerTaskId') -and -not [System.String]::IsNullOrEmpty($PlannerTaskId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/planner/tasks/$($PlannerTaskId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/planner/tasks" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('PlannerTaskId') -and -not [System.String]::IsNullOrEmpty($PlannerTaskId)) { "/v1.0/planner/tasks/$($PlannerTaskId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/planner/tasks" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgPlannerTaskDetail
@@ -24351,32 +17489,7 @@ function Get-MgPlannerTaskDetail
         $ProxyUseDefaultCredentials
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    # Collection retrieval
-    $uri = ConvertTo-M365DSCGraphShimUri `
-        -UriTemplate "/v1.0/planner/tasks/$($PlannerTaskId)/details" `
-        -Filter $Filter `
-        -Property $Property `
-        -ExpandProperty $ExpandProperty `
-        -Top $Top `
-        -Skip $Skip `
-        -Search $Search `
-        -Sort $Sort `
-        -CountVariable $CountVariable
-
-    if ($All)
-    {
-        return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-    }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/planner/tasks/$($PlannerTaskId)/details" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgPolicyRoleManagementPolicyAssignment
@@ -24464,46 +17577,8 @@ function Get-MgPolicyRoleManagementPolicyAssignment
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('UnifiedRoleManagementPolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleManagementPolicyAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/policies/roleManagementPolicyAssignments/$($UnifiedRoleManagementPolicyAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/policies/roleManagementPolicyAssignments" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('UnifiedRoleManagementPolicyAssignmentId') -and -not [System.String]::IsNullOrEmpty($UnifiedRoleManagementPolicyAssignmentId)) { "/v1.0/policies/roleManagementPolicyAssignments/$($UnifiedRoleManagementPolicyAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/policies/roleManagementPolicyAssignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgServicePrincipal
@@ -24595,46 +17670,8 @@ function Get-MgServicePrincipal
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('ServicePrincipalId') -and -not [System.String]::IsNullOrEmpty($ServicePrincipalId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/servicePrincipals/$($ServicePrincipalId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/servicePrincipals" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ServicePrincipalId') -and -not [System.String]::IsNullOrEmpty($ServicePrincipalId)) { "/v1.0/servicePrincipals/$($ServicePrincipalId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/servicePrincipals" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgServicePrincipalAppRoleAssignedTo
@@ -24726,46 +17763,8 @@ function Get-MgServicePrincipalAppRoleAssignedTo
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('AppRoleAssignmentId') -and -not [System.String]::IsNullOrEmpty($AppRoleAssignmentId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/servicePrincipals/$($ServicePrincipalId)/appRoleAssignedTo/$($AppRoleAssignmentId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/servicePrincipals/$($ServicePrincipalId)/appRoleAssignedTo" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('AppRoleAssignmentId') -and -not [System.String]::IsNullOrEmpty($AppRoleAssignmentId)) { "/v1.0/servicePrincipals/$($ServicePrincipalId)/appRoleAssignedTo/$($AppRoleAssignmentId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/servicePrincipals/$($ServicePrincipalId)/appRoleAssignedTo" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgUser
@@ -24853,46 +17852,8 @@ function Get-MgUser
         $CountVariable
     )
 
-    # Build headers
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    if ($PSBoundParameters.ContainsKey('ConsistencyLevel')) { $requestHeaders['ConsistencyLevel'] = $ConsistencyLevel }
-
-    if ($PSBoundParameters.ContainsKey('UserId') -and -not [System.String]::IsNullOrEmpty($UserId))
-    {
-        # Single-item retrieval
-        $uri = "/v1.0/users/$($UserId)"
-        $queryParts = @()
-        if ($Property) { $queryParts += "`$select=$($Property -join ',')" }
-        if ($ExpandProperty) { $queryParts += "`$expand=$($ExpandProperty -join ',')" }
-        if ($queryParts.Count -gt 0) { $uri = "$uri`?$($queryParts -join '&')" }
-
-        return Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-    }
-    else
-    {
-        # Collection retrieval
-        $uri = ConvertTo-M365DSCGraphShimUri `
-            -UriTemplate "/v1.0/users" `
-            -Filter $Filter `
-            -Property $Property `
-            -ExpandProperty $ExpandProperty `
-            -Top $Top `
-            -Skip $Skip `
-            -Search $Search `
-            -Sort $Sort `
-            -CountVariable $CountVariable
-
-        if ($All)
-        {
-            return Get-M365DSCGraphShimAllPages -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-        }
-        else
-        {
-            $response = Invoke-M365DSCGraphShimRequest -Method GET -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
-            if ($null -ne $response -and $response -is [hashtable] -and $response.ContainsKey('value')) { return $response.value } else { return $response }
-        }
-    }
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('UserId') -and -not [System.String]::IsNullOrEmpty($UserId)) { "/v1.0/users/$($UserId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/v1.0/users" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Invoke-MgBetaForceDomainDelete
@@ -24956,27 +17917,7 @@ function Invoke-MgBetaForceDomainDelete
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/domains/$($DomainId)/forceDelete"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DomainId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/domains/$($DomainId)/forceDelete" -Method 'POST' -ExtraExcludeParams @('DomainId') -ErrorAction $ErrorActionPreference
 }
 
 function Invoke-MgBetaInstantiateApplicationTemplate
@@ -25040,27 +17981,7 @@ function Invoke-MgBetaInstantiateApplicationTemplate
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/applicationTemplates/$($ApplicationTemplateId)/instantiate"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ApplicationTemplateId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/applicationTemplates/$($ApplicationTemplateId)/instantiate" -Method 'POST' -ExtraExcludeParams @('ApplicationTemplateId') -ErrorAction $ErrorActionPreference
 }
 
 function Invoke-MgBetaUploadIdentityApiConnectorClientCertificate
@@ -25124,27 +18045,7 @@ function Invoke-MgBetaUploadIdentityApiConnectorClientCertificate
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/apiConnectors/$($IdentityApiConnectorId)/uploadClientCertificate"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'IdentityApiConnectorId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/apiConnectors/$($IdentityApiConnectorId)/uploadClientCertificate" -Method 'POST' -ExtraExcludeParams @('IdentityApiConnectorId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgApplication
@@ -25392,27 +18293,7 @@ function New-MgApplication
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/applications"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/applications" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgApplicationOwnerByRef
@@ -25476,27 +18357,7 @@ function New-MgApplicationOwnerByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/applications/$($ApplicationId)/owners/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ApplicationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/applications/$($ApplicationId)/owners/`$ref" -Method 'POST' -ExtraExcludeParams @('ApplicationId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgApplicationTokenLifetimePolicyByRef
@@ -25560,27 +18421,7 @@ function New-MgApplicationTokenLifetimePolicyByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/applications/$($ApplicationId)/tokenLifetimePolicies/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ApplicationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/applications/$($ApplicationId)/tokenLifetimePolicies/`$ref" -Method 'POST' -ExtraExcludeParams @('ApplicationId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceAppManagementAndroidManagedAppProtection
@@ -26040,27 +18881,7 @@ function New-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/androidManagedAppProtections"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/androidManagedAppProtections" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceAppManagementiOSManagedAppProtection
@@ -26440,27 +19261,7 @@ function New-MgBetaDeviceAppManagementiOSManagedAppProtection
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/iosManagedAppProtections"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/iosManagedAppProtections" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceAppManagementMdmWindowsInformationProtectionPolicy
@@ -26636,27 +19437,7 @@ function New-MgBetaDeviceAppManagementMdmWindowsInformationProtectionPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/mdmWindowsInformationProtectionPolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/mdmWindowsInformationProtectionPolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceAppManagementMobileApp
@@ -26768,27 +19549,7 @@ function New-MgBetaDeviceAppManagementMobileApp
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/mobileApps"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/mobileApps" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceAppManagementMobileAppCategory
@@ -26844,27 +19605,7 @@ function New-MgBetaDeviceAppManagementMobileAppCategory
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/mobileAppCategories"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/mobileAppCategories" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceAppManagementMobileAppConfiguration
@@ -26964,27 +19705,7 @@ function New-MgBetaDeviceAppManagementMobileAppConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/mobileAppConfigurations"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/mobileAppConfigurations" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceAppManagementPolicySet
@@ -27076,27 +19797,7 @@ function New-MgBetaDeviceAppManagementPolicySet
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/policySets"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/policySets" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceAppManagementTargetedManagedAppConfiguration
@@ -27208,27 +19909,7 @@ function New-MgBetaDeviceAppManagementTargetedManagedAppConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/targetedManagedAppConfigurations"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/targetedManagedAppConfigurations" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceAppManagementWindowsManagedAppProtection
@@ -27404,27 +20085,7 @@ function New-MgBetaDeviceAppManagementWindowsManagedAppProtection
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/windowsManagedAppProtections"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/windowsManagedAppProtections" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile
@@ -27564,27 +20225,7 @@ function New-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/androidDeviceOwnerEnrollmentProfiles"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/androidDeviceOwnerEnrollmentProfiles" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementAssignmentFilter
@@ -27672,27 +20313,7 @@ function New-MgBetaDeviceManagementAssignmentFilter
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/assignmentFilters"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/assignmentFilters" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementConfigurationPolicy
@@ -27800,27 +20421,7 @@ function New-MgBetaDeviceManagementConfigurationPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/configurationPolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/configurationPolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementDerivedCredential
@@ -27892,27 +20493,7 @@ function New-MgBetaDeviceManagementDerivedCredential
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/derivedCredentials"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/derivedCredentials" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementDeviceCategory
@@ -27976,27 +20557,7 @@ function New-MgBetaDeviceManagementDeviceCategory
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceCategories"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceCategories" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementDeviceCompliancePolicy
@@ -28100,27 +20661,7 @@ function New-MgBetaDeviceManagementDeviceCompliancePolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceCompliancePolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceCompliancePolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementDeviceConfiguration
@@ -28236,27 +20777,7 @@ function New-MgBetaDeviceManagementDeviceConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceConfigurations"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceConfigurations" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementDeviceConfigurationAssignment
@@ -28328,27 +20849,7 @@ function New-MgBetaDeviceManagementDeviceConfigurationAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceConfigurations/$($DeviceConfigurationId)/assignments"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DeviceConfigurationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceConfigurations/$($DeviceConfigurationId)/assignments" -Method 'POST' -ExtraExcludeParams @('DeviceConfigurationId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementDeviceEnrollmentConfiguration
@@ -28436,27 +20937,7 @@ function New-MgBetaDeviceManagementDeviceEnrollmentConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceEnrollmentConfigurations"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceEnrollmentConfigurations" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementDeviceHealthScript
@@ -28580,27 +21061,7 @@ function New-MgBetaDeviceManagementDeviceHealthScript
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceHealthScripts"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceHealthScripts" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementDeviceShellScript
@@ -28708,27 +21169,7 @@ function New-MgBetaDeviceManagementDeviceShellScript
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceShellScripts"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceShellScripts" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementGroupPolicyConfiguration
@@ -28812,27 +21253,7 @@ function New-MgBetaDeviceManagementGroupPolicyConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/groupPolicyConfigurations"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/groupPolicyConfigurations" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementIntent
@@ -28944,27 +21365,7 @@ function New-MgBetaDeviceManagementIntent
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/intents"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/intents" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementIntuneBrandingProfile
@@ -29152,27 +21553,7 @@ function New-MgBetaDeviceManagementIntuneBrandingProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/intuneBrandingProfiles"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/intuneBrandingProfiles" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementManagedDeviceCleanupRule
@@ -29240,27 +21621,7 @@ function New-MgBetaDeviceManagementManagedDeviceCleanupRule
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/managedDeviceCleanupRules"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/managedDeviceCleanupRules" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementMobileThreatDefenseConnector
@@ -29384,27 +21745,7 @@ function New-MgBetaDeviceManagementMobileThreatDefenseConnector
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/mobileThreatDefenseConnectors"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/mobileThreatDefenseConnectors" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementMonitoringAlertRule
@@ -29492,27 +21833,7 @@ function New-MgBetaDeviceManagementMonitoringAlertRule
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/monitoring/alertRules"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/monitoring/alertRules" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementNotificationMessageTemplate
@@ -29592,27 +21913,7 @@ function New-MgBetaDeviceManagementNotificationMessageTemplate
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/notificationMessageTemplates"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/notificationMessageTemplates" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementNotificationMessageTemplateLocalizedNotificationMessage
@@ -29692,27 +21993,7 @@ function New-MgBetaDeviceManagementNotificationMessageTemplateLocalizedNotificat
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/notificationMessageTemplates/$($NotificationMessageTemplateId)/localizedNotificationMessages"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'NotificationMessageTemplateId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/notificationMessageTemplates/$($NotificationMessageTemplateId)/localizedNotificationMessages" -Method 'POST' -ExtraExcludeParams @('NotificationMessageTemplateId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementRoleAssignment
@@ -29796,27 +22077,7 @@ function New-MgBetaDeviceManagementRoleAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/roleAssignments"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/roleAssignments" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementRoleDefinition
@@ -29900,27 +22161,7 @@ function New-MgBetaDeviceManagementRoleDefinition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/roleDefinitions"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/roleDefinitions" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementRoleScopeTag
@@ -29984,27 +22225,7 @@ function New-MgBetaDeviceManagementRoleScopeTag
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/roleScopeTags"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/roleScopeTags" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementScript
@@ -30108,27 +22329,7 @@ function New-MgBetaDeviceManagementScript
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceManagementScripts"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceManagementScripts" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementTermAndCondition
@@ -30232,27 +22433,7 @@ function New-MgBetaDeviceManagementTermAndCondition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/termsAndConditions"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/termsAndConditions" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementTermAndConditionAssignment
@@ -30316,27 +22497,7 @@ function New-MgBetaDeviceManagementTermAndConditionAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/termsAndConditions/$($TermsAndConditionsId)/assignments"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'TermsAndConditionsId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/termsAndConditions/$($TermsAndConditionsId)/assignments" -Method 'POST' -ExtraExcludeParams @('TermsAndConditionsId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
@@ -30468,27 +22629,7 @@ function New-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/virtualEndpoint/onPremisesConnections"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/virtualEndpoint/onPremisesConnections" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementVirtualEndpointProvisioningPolicy
@@ -30624,27 +22765,7 @@ function New-MgBetaDeviceManagementVirtualEndpointProvisioningPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/virtualEndpoint/provisioningPolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/virtualEndpoint/provisioningPolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementVirtualEndpointUserSetting
@@ -30736,27 +22857,7 @@ function New-MgBetaDeviceManagementVirtualEndpointUserSetting
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/virtualEndpoint/userSettings"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/virtualEndpoint/userSettings" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile
@@ -30884,27 +22985,7 @@ function New-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/windowsAutopilotDeploymentProfiles"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/windowsAutopilotDeploymentProfiles" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementWindowsAutopilotDeploymentProfileAssignment
@@ -30976,27 +23057,7 @@ function New-MgBetaDeviceManagementWindowsAutopilotDeploymentProfileAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/windowsAutopilotDeploymentProfiles/$($WindowsAutopilotDeploymentProfileId)/assignments"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'WindowsAutopilotDeploymentProfileId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/windowsAutopilotDeploymentProfiles/$($WindowsAutopilotDeploymentProfileId)/assignments" -Method 'POST' -ExtraExcludeParams @('WindowsAutopilotDeploymentProfileId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementWindowsFeatureUpdateProfile
@@ -31096,27 +23157,7 @@ function New-MgBetaDeviceManagementWindowsFeatureUpdateProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/windowsFeatureUpdateProfiles"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/windowsFeatureUpdateProfiles" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDeviceManagementWindowsQualityUpdateProfile
@@ -31204,27 +23245,7 @@ function New-MgBetaDeviceManagementWindowsQualityUpdateProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/windowsQualityUpdateProfiles"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/windowsQualityUpdateProfiles" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDirectoryAttributeSet
@@ -31284,27 +23305,7 @@ function New-MgBetaDirectoryAttributeSet
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/directory/attributeSets"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/directory/attributeSets" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfiguration
@@ -31372,27 +23373,7 @@ function New-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfi
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfigurationTrustedCertificateAuthority
@@ -31468,27 +23449,7 @@ function New-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfi
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)/trustedCertificateAuthorities"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'CertificateBasedApplicationConfigurationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)/trustedCertificateAuthorities" -Method 'POST' -ExtraExcludeParams @('CertificateBasedApplicationConfigurationId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDirectoryCustomSecurityAttributeDefinition
@@ -31576,27 +23537,7 @@ function New-MgBetaDirectoryCustomSecurityAttributeDefinition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/directory/customSecurityAttributeDefinitions"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/directory/customSecurityAttributeDefinitions" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue
@@ -31660,27 +23601,7 @@ function New-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/directory/customSecurityAttributeDefinitions/$($CustomSecurityAttributeDefinitionId)/allowedValues"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'CustomSecurityAttributeDefinitionId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/directory/customSecurityAttributeDefinitions/$($CustomSecurityAttributeDefinitionId)/allowedValues" -Method 'POST' -ExtraExcludeParams @('CustomSecurityAttributeDefinitionId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDirectorySetting
@@ -31744,27 +23665,7 @@ function New-MgBetaDirectorySetting
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/settings"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/settings" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDomain
@@ -31884,27 +23785,7 @@ function New-MgBetaDomain
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/domains"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/domains" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaDomainFederationConfiguration
@@ -32032,27 +23913,7 @@ function New-MgBetaDomainFederationConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/domains/$($DomainId)/federationConfiguration"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DomainId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/domains/$($DomainId)/federationConfiguration" -Method 'POST' -ExtraExcludeParams @('DomainId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaEntitlementManagementAccessPackage
@@ -32168,27 +24029,7 @@ function New-MgBetaEntitlementManagementAccessPackage
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackages" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaEntitlementManagementAccessPackageAssignmentPolicy
@@ -32320,27 +24161,7 @@ function New-MgBetaEntitlementManagementAccessPackageAssignmentPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackageAssignmentPolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackageAssignmentPolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaEntitlementManagementAccessPackageCatalog
@@ -32456,27 +24277,7 @@ function New-MgBetaEntitlementManagementAccessPackageCatalog
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackageCatalogs"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackageCatalogs" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaEntitlementManagementAccessPackageIncompatibleAccessPackageByRef
@@ -32540,27 +24341,7 @@ function New-MgBetaEntitlementManagementAccessPackageIncompatibleAccessPackageBy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleAccessPackages/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AccessPackageId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleAccessPackages/`$ref" -Method 'POST' -ExtraExcludeParams @('AccessPackageId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaEntitlementManagementAccessPackageIncompatibleGroupByRef
@@ -32624,27 +24405,7 @@ function New-MgBetaEntitlementManagementAccessPackageIncompatibleGroupByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleGroups/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AccessPackageId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleGroups/`$ref" -Method 'POST' -ExtraExcludeParams @('AccessPackageId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaEntitlementManagementAccessPackageResourceRequest
@@ -32736,27 +24497,7 @@ function New-MgBetaEntitlementManagementAccessPackageResourceRequest
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackageResourceRequests"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackageResourceRequests" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaEntitlementManagementAccessPackageResourceRoleScope
@@ -32840,27 +24581,7 @@ function New-MgBetaEntitlementManagementAccessPackageResourceRoleScope
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/accessPackageResourceRoleScopes"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AccessPackageId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/accessPackageResourceRoleScopes" -Method 'POST' -ExtraExcludeParams @('AccessPackageId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaEntitlementManagementConnectedOrganization
@@ -32956,27 +24677,7 @@ function New-MgBetaEntitlementManagementConnectedOrganization
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/connectedOrganizations" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaEntitlementManagementConnectedOrganizationExternalSponsorByRef
@@ -33040,27 +24741,7 @@ function New-MgBetaEntitlementManagementConnectedOrganizationExternalSponsorByRe
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/externalSponsors/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ConnectedOrganizationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/externalSponsors/`$ref" -Method 'POST' -ExtraExcludeParams @('ConnectedOrganizationId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaEntitlementManagementConnectedOrganizationInternalSponsorByRef
@@ -33124,27 +24805,7 @@ function New-MgBetaEntitlementManagementConnectedOrganizationInternalSponsorByRe
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/internalSponsors/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ConnectedOrganizationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/internalSponsors/`$ref" -Method 'POST' -ExtraExcludeParams @('ConnectedOrganizationId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaExternalConnection
@@ -33260,27 +24921,7 @@ function New-MgBetaExternalConnection
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/external/connections"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/external/connections" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaGroupMemberByRef
@@ -33344,27 +24985,7 @@ function New-MgBetaGroupMemberByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/groups/$($GroupId)/members/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'GroupId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/groups/$($GroupId)/members/`$ref" -Method 'POST' -ExtraExcludeParams @('GroupId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaIdentityApiConnector
@@ -33428,27 +25049,7 @@ function New-MgBetaIdentityApiConnector
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/apiConnectors"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/apiConnectors" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaIdentityB2XUserFlow
@@ -33528,27 +25129,7 @@ function New-MgBetaIdentityB2XUserFlow
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/b2xUserFlows"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/b2xUserFlows" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaIdentityB2XUserFlowIdentityProviderByRef
@@ -33612,27 +25193,7 @@ function New-MgBetaIdentityB2XUserFlowIdentityProviderByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userFlowIdentityProviders/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'B2xIdentityUserFlowId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userFlowIdentityProviders/`$ref" -Method 'POST' -ExtraExcludeParams @('B2xIdentityUserFlowId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaIdentityB2XUserFlowUserAttributeAssignment
@@ -33716,27 +25277,7 @@ function New-MgBetaIdentityB2XUserFlowUserAttributeAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userAttributeAssignments"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'B2xIdentityUserFlowId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userAttributeAssignments" -Method 'POST' -ExtraExcludeParams @('B2xIdentityUserFlowId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaIdentityConditionalAccessAuthenticationContextClassReference
@@ -33800,27 +25341,7 @@ function New-MgBetaIdentityConditionalAccessAuthenticationContextClassReference
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/conditionalAccess/authenticationContextClassReferences"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/conditionalAccess/authenticationContextClassReferences" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaIdentityCustomAuthenticationExtension
@@ -33896,27 +25417,7 @@ function New-MgBetaIdentityCustomAuthenticationExtension
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/customAuthenticationExtensions"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/customAuthenticationExtensions" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaIdentityGovernanceAccessReviewDefinition
@@ -34032,27 +25533,7 @@ function New-MgBetaIdentityGovernanceAccessReviewDefinition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/accessReviews/definitions"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/accessReviews/definitions" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaIdentityGovernanceLifecycleWorkflow
@@ -34184,27 +25665,7 @@ function New-MgBetaIdentityGovernanceLifecycleWorkflow
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/lifecycleWorkflows/workflows"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/lifecycleWorkflows/workflows" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension
@@ -34296,27 +25757,7 @@ function New-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/lifecycleWorkflows/customTaskExtensions"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/lifecycleWorkflows/customTaskExtensions" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaIdentityGovernanceLifecycleWorkflowNewVersion
@@ -34376,27 +25817,7 @@ function New-MgBetaIdentityGovernanceLifecycleWorkflowNewVersion
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/lifecycleWorkflows/workflows/$($WorkflowId)/createNewVersion"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'WorkflowId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/lifecycleWorkflows/workflows/$($WorkflowId)/createNewVersion" -Method 'POST' -ExtraExcludeParams @('WorkflowId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilityScheduleRequest
@@ -34520,27 +25941,7 @@ function New-MgBetaIdentityGovernancePrivilegedAccessGroupEligibilityScheduleReq
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/privilegedAccess/group/eligibilityScheduleRequests"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/privilegedAccess/group/eligibilityScheduleRequests" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaIdentityProvider
@@ -34596,27 +25997,7 @@ function New-MgBetaIdentityProvider
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/identityProviders"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/identityProviders" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaIdentityUserFlowAttribute
@@ -34684,27 +26065,7 @@ function New-MgBetaIdentityUserFlowAttribute
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/userFlowAttributes"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/userFlowAttributes" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaNetworkAccessConnectivityRemoteNetwork
@@ -34784,27 +26145,7 @@ function New-MgBetaNetworkAccessConnectivityRemoteNetwork
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/connectivity/remoteNetworks"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/connectivity/remoteNetworks" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaNetworkAccessConnectivityRemoteNetworkDeviceLink
@@ -34896,27 +26237,7 @@ function New-MgBetaNetworkAccessConnectivityRemoteNetworkDeviceLink
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/connectivity/remoteNetworks/$($RemoteNetworkId)/deviceLinks"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'RemoteNetworkId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/connectivity/remoteNetworks/$($RemoteNetworkId)/deviceLinks" -Method 'POST' -ExtraExcludeParams @('RemoteNetworkId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaNetworkAccessFilteringPolicy
@@ -34996,27 +26317,7 @@ function New-MgBetaNetworkAccessFilteringPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/filteringPolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/filteringPolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaNetworkAccessFilteringPolicyRule
@@ -35080,27 +26381,7 @@ function New-MgBetaNetworkAccessFilteringPolicyRule
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)/policyRules"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'FilteringPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)/policyRules" -Method 'POST' -ExtraExcludeParams @('FilteringPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaNetworkAccessFilteringProfile
@@ -35188,27 +26469,7 @@ function New-MgBetaNetworkAccessFilteringProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/filteringProfiles"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/filteringProfiles" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaNetworkAccessForwardingPolicyRule
@@ -35272,27 +26533,7 @@ function New-MgBetaNetworkAccessForwardingPolicyRule
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/forwardingPolicies/$($ForwardingPolicyId)/policyRules"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ForwardingPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/forwardingPolicies/$($ForwardingPolicyId)/policyRules" -Method 'POST' -ExtraExcludeParams @('ForwardingPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaOnPremisePublishingProfileConnectorGroup
@@ -35376,27 +26617,7 @@ function New-MgBetaOnPremisePublishingProfileConnectorGroup
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/onPremisesPublishingProfiles/$($OnPremisesPublishingProfileId)/connectorGroups"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'OnPremisesPublishingProfileId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/onPremisesPublishingProfiles/$($OnPremisesPublishingProfileId)/connectorGroups" -Method 'POST' -ExtraExcludeParams @('OnPremisesPublishingProfileId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaPolicyActivityBasedTimeoutPolicy
@@ -35472,27 +26693,7 @@ function New-MgBetaPolicyActivityBasedTimeoutPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/activityBasedTimeoutPolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/activityBasedTimeoutPolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaPolicyAppManagementPolicy
@@ -35568,27 +26769,7 @@ function New-MgBetaPolicyAppManagementPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/appManagementPolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/appManagementPolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration
@@ -35648,27 +26829,7 @@ function New-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfigura
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaPolicyAuthenticationStrengthPolicy
@@ -35752,27 +26913,7 @@ function New-MgBetaPolicyAuthenticationStrengthPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/authenticationStrengthPolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/authenticationStrengthPolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaPolicyClaimMappingPolicy
@@ -35848,27 +26989,7 @@ function New-MgBetaPolicyClaimMappingPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/claimsMappingPolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/claimsMappingPolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaPolicyCrossTenantAccessPolicyPartner
@@ -35964,27 +27085,7 @@ function New-MgBetaPolicyCrossTenantAccessPolicyPartner
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/crossTenantAccessPolicy/partners"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/crossTenantAccessPolicy/partners" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaPolicyFeatureRolloutPolicy
@@ -36060,27 +27161,7 @@ function New-MgBetaPolicyFeatureRolloutPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/featureRolloutPolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/featureRolloutPolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaPolicyFeatureRolloutPolicyApplyToByRef
@@ -36144,27 +27225,7 @@ function New-MgBetaPolicyFeatureRolloutPolicyApplyToByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/featureRolloutPolicies/$($FeatureRolloutPolicyId)/appliesTo/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'FeatureRolloutPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/featureRolloutPolicies/$($FeatureRolloutPolicyId)/appliesTo/`$ref" -Method 'POST' -ExtraExcludeParams @('FeatureRolloutPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaPolicyHomeRealmDiscoveryPolicy
@@ -36240,27 +27301,7 @@ function New-MgBetaPolicyHomeRealmDiscoveryPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/homeRealmDiscoveryPolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/homeRealmDiscoveryPolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaPolicyPermissionGrantPolicy
@@ -36340,27 +27381,7 @@ function New-MgBetaPolicyPermissionGrantPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/permissionGrantPolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/permissionGrantPolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaPolicyPermissionGrantPolicyExclude
@@ -36460,27 +27481,7 @@ function New-MgBetaPolicyPermissionGrantPolicyExclude
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/permissionGrantPolicies/$($PermissionGrantPolicyId)/excludes"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'PermissionGrantPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/permissionGrantPolicies/$($PermissionGrantPolicyId)/excludes" -Method 'POST' -ExtraExcludeParams @('PermissionGrantPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaPolicyPermissionGrantPolicyInclude
@@ -36580,27 +27581,7 @@ function New-MgBetaPolicyPermissionGrantPolicyInclude
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/permissionGrantPolicies/$($PermissionGrantPolicyId)/includes"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'PermissionGrantPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/permissionGrantPolicies/$($PermissionGrantPolicyId)/includes" -Method 'POST' -ExtraExcludeParams @('PermissionGrantPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaPolicyTokenIssuancePolicy
@@ -36676,27 +27657,7 @@ function New-MgBetaPolicyTokenIssuancePolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/tokenIssuancePolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/tokenIssuancePolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaPolicyTokenLifetimePolicy
@@ -36772,27 +27733,7 @@ function New-MgBetaPolicyTokenLifetimePolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/tokenLifetimePolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/tokenLifetimePolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaProgram
@@ -36856,27 +27797,7 @@ function New-MgBetaProgram
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/programs"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/programs" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaRoleManagementCloudPcRoleAssignment
@@ -36972,27 +27893,7 @@ function New-MgBetaRoleManagementCloudPcRoleAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/roleManagement/cloudPC/roleAssignments"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/roleManagement/cloudPC/roleAssignments" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaRoleManagementCloudPcRoleDefinition
@@ -37088,27 +27989,7 @@ function New-MgBetaRoleManagementCloudPcRoleDefinition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/roleManagement/cloudPC/roleDefinitions"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/roleManagement/cloudPC/roleDefinitions" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaRoleManagementDirectoryRoleAssignment
@@ -37204,27 +28085,7 @@ function New-MgBetaRoleManagementDirectoryRoleAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/roleManagement/directory/roleAssignments"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/roleManagement/directory/roleAssignments" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaRoleManagementDirectoryRoleAssignmentScheduleRequest
@@ -37364,27 +28225,7 @@ function New-MgBetaRoleManagementDirectoryRoleAssignmentScheduleRequest
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/roleManagement/directory/roleAssignmentScheduleRequests"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/roleManagement/directory/roleAssignmentScheduleRequests" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaRoleManagementDirectoryRoleDefinition
@@ -37480,27 +28321,7 @@ function New-MgBetaRoleManagementDirectoryRoleDefinition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/roleManagement/directory/roleDefinitions"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/roleManagement/directory/roleDefinitions" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaRoleManagementDirectoryRoleEligibilityScheduleRequest
@@ -37636,27 +28457,7 @@ function New-MgBetaRoleManagementDirectoryRoleEligibilityScheduleRequest
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/roleManagement/directory/roleEligibilityScheduleRequests"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/roleManagement/directory/roleEligibilityScheduleRequests" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaRoleManagementEntitlementManagementRoleAssignment
@@ -37752,27 +28553,7 @@ function New-MgBetaRoleManagementEntitlementManagementRoleAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/roleManagement/entitlementManagement/roleAssignments"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/roleManagement/entitlementManagement/roleAssignments" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaTeamChannelTab
@@ -37864,27 +28645,7 @@ function New-MgBetaTeamChannelTab
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/teams/$($TeamId)/channels/$($ChannelId)/tabs"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'TeamId', 'ChannelId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/teams/$($TeamId)/channels/$($ChannelId)/tabs" -Method 'POST' -ExtraExcludeParams @('TeamId', 'ChannelId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgDirectoryAdministrativeUnit
@@ -37980,27 +28741,7 @@ function New-MgDirectoryAdministrativeUnit
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/directory/administrativeUnits"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/directory/administrativeUnits" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgDirectoryAdministrativeUnitMemberByRef
@@ -38064,27 +28805,7 @@ function New-MgDirectoryAdministrativeUnitMemberByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/members/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AdministrativeUnitId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/members/`$ref" -Method 'POST' -ExtraExcludeParams @('AdministrativeUnitId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgDirectoryAdministrativeUnitScopedRoleMember
@@ -38156,27 +28877,7 @@ function New-MgDirectoryAdministrativeUnitScopedRoleMember
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/scopedRoleMembers"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AdministrativeUnitId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/scopedRoleMembers" -Method 'POST' -ExtraExcludeParams @('AdministrativeUnitId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgDirectoryRole
@@ -38252,27 +28953,7 @@ function New-MgDirectoryRole
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/directoryRoles"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/directoryRoles" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgGroup
@@ -38612,27 +29293,7 @@ function New-MgGroup
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/groups"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/groups" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgGroupLifecyclePolicy
@@ -38704,27 +29365,7 @@ function New-MgGroupLifecyclePolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/groupLifecyclePolicies"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/groupLifecyclePolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgGroupMemberByRef
@@ -38788,27 +29429,7 @@ function New-MgGroupMemberByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/groups/$($GroupId)/members/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'GroupId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/groups/$($GroupId)/members/`$ref" -Method 'POST' -ExtraExcludeParams @('GroupId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgGroupOwnerByRef
@@ -38872,27 +29493,7 @@ function New-MgGroupOwnerByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/groups/$($GroupId)/owners/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'GroupId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/groups/$($GroupId)/owners/`$ref" -Method 'POST' -ExtraExcludeParams @('GroupId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgPlannerBucket
@@ -38960,27 +29561,7 @@ function New-MgPlannerBucket
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/planner/buckets"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/planner/buckets" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgPlannerPlan
@@ -39064,27 +29645,7 @@ function New-MgPlannerPlan
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/planner/plans"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/planner/plans" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgPlannerTask
@@ -39236,27 +29797,7 @@ function New-MgPlannerTask
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/planner/tasks"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/planner/tasks" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgServicePrincipal
@@ -39520,27 +30061,7 @@ function New-MgServicePrincipal
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/servicePrincipals"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/servicePrincipals" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgServicePrincipalAppRoleAssignedTo
@@ -39632,27 +30153,7 @@ function New-MgServicePrincipalAppRoleAssignedTo
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/servicePrincipals/$($ServicePrincipalId)/appRoleAssignedTo"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ServicePrincipalId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/servicePrincipals/$($ServicePrincipalId)/appRoleAssignedTo" -Method 'POST' -ExtraExcludeParams @('ServicePrincipalId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgServicePrincipalOwnerByRef
@@ -39716,27 +30217,7 @@ function New-MgServicePrincipalOwnerByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/servicePrincipals/$($ServicePrincipalId)/owners/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ServicePrincipalId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/servicePrincipals/$($ServicePrincipalId)/owners/`$ref" -Method 'POST' -ExtraExcludeParams @('ServicePrincipalId') -ErrorAction $ErrorActionPreference
 }
 
 function New-MgUser
@@ -40324,27 +30805,7 @@ function New-MgUser
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/users"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/users" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgApplication
@@ -40400,10 +30861,7 @@ function Remove-MgApplication
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/applications/$($ApplicationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/applications/$($ApplicationId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgApplicationOwnerDirectoryObjectByRef
@@ -40463,10 +30921,7 @@ function Remove-MgApplicationOwnerDirectoryObjectByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/applications/$($ApplicationId)/owners/$($DirectoryObjectId)/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/applications/$($ApplicationId)/owners/$($DirectoryObjectId)/`$ref" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgApplicationTokenLifetimePolicyTokenLifetimePolicyByRef
@@ -40526,10 +30981,7 @@ function Remove-MgApplicationTokenLifetimePolicyTokenLifetimePolicyByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/applications/$($ApplicationId)/tokenLifetimePolicies/$($TokenLifetimePolicyId)/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/applications/$($ApplicationId)/tokenLifetimePolicies/$($TokenLifetimePolicyId)/`$ref" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaAgreement
@@ -40585,10 +31037,7 @@ function Remove-MgBetaAgreement
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/agreements/$($AgreementId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/agreements/$($AgreementId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceAppManagementAndroidManagedAppProtection
@@ -40644,10 +31093,7 @@ function Remove-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/androidManagedAppProtections/$($AndroidManagedAppProtectionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/androidManagedAppProtections/$($AndroidManagedAppProtectionId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceAppManagementiOSManagedAppProtection
@@ -40703,10 +31149,7 @@ function Remove-MgBetaDeviceAppManagementiOSManagedAppProtection
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/iosManagedAppProtections/$($IosManagedAppProtectionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/iosManagedAppProtections/$($IosManagedAppProtectionId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceAppManagementMdmWindowsInformationProtectionPolicy
@@ -40762,10 +31205,7 @@ function Remove-MgBetaDeviceAppManagementMdmWindowsInformationProtectionPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/mdmWindowsInformationProtectionPolicies/$($MdmWindowsInformationProtectionPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/mdmWindowsInformationProtectionPolicies/$($MdmWindowsInformationProtectionPolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceAppManagementMobileApp
@@ -40821,10 +31261,7 @@ function Remove-MgBetaDeviceAppManagementMobileApp
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/mobileApps/$($MobileAppId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/mobileApps/$($MobileAppId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceAppManagementMobileAppCategory
@@ -40880,10 +31317,7 @@ function Remove-MgBetaDeviceAppManagementMobileAppCategory
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/mobileAppCategories/$($MobileAppCategoryId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/mobileAppCategories/$($MobileAppCategoryId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceAppManagementMobileAppConfiguration
@@ -40939,10 +31373,7 @@ function Remove-MgBetaDeviceAppManagementMobileAppConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/mobileAppConfigurations/$($ManagedDeviceMobileAppConfigurationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/mobileAppConfigurations/$($ManagedDeviceMobileAppConfigurationId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceAppManagementPolicySet
@@ -40998,10 +31429,7 @@ function Remove-MgBetaDeviceAppManagementPolicySet
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/policySets/$($PolicySetId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/policySets/$($PolicySetId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceAppManagementTargetedManagedAppConfiguration
@@ -41057,10 +31485,7 @@ function Remove-MgBetaDeviceAppManagementTargetedManagedAppConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/targetedManagedAppConfigurations/$($TargetedManagedAppConfigurationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/targetedManagedAppConfigurations/$($TargetedManagedAppConfigurationId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceAppManagementWindowsManagedAppProtection
@@ -41116,10 +31541,7 @@ function Remove-MgBetaDeviceAppManagementWindowsManagedAppProtection
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/windowsManagedAppProtections/$($WindowsManagedAppProtectionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/windowsManagedAppProtections/$($WindowsManagedAppProtectionId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile
@@ -41175,10 +31597,7 @@ function Remove-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/androidDeviceOwnerEnrollmentProfiles/$($AndroidDeviceOwnerEnrollmentProfileId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/androidDeviceOwnerEnrollmentProfiles/$($AndroidDeviceOwnerEnrollmentProfileId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementAssignmentFilter
@@ -41234,10 +31653,7 @@ function Remove-MgBetaDeviceManagementAssignmentFilter
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/assignmentFilters/$($DeviceAndAppManagementAssignmentFilterId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/assignmentFilters/$($DeviceAndAppManagementAssignmentFilterId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementConfigurationPolicy
@@ -41293,10 +31709,7 @@ function Remove-MgBetaDeviceManagementConfigurationPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/configurationPolicies/$($DeviceManagementConfigurationPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/configurationPolicies/$($DeviceManagementConfigurationPolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementDerivedCredential
@@ -41352,10 +31765,7 @@ function Remove-MgBetaDeviceManagementDerivedCredential
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/derivedCredentials/$($DeviceManagementDerivedCredentialSettingsId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/derivedCredentials/$($DeviceManagementDerivedCredentialSettingsId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementDeviceCategory
@@ -41411,10 +31821,7 @@ function Remove-MgBetaDeviceManagementDeviceCategory
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceCategories/$($DeviceCategoryId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceCategories/$($DeviceCategoryId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementDeviceCompliancePolicy
@@ -41470,10 +31877,7 @@ function Remove-MgBetaDeviceManagementDeviceCompliancePolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceCompliancePolicies/$($DeviceCompliancePolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceCompliancePolicies/$($DeviceCompliancePolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementDeviceConfiguration
@@ -41529,10 +31933,7 @@ function Remove-MgBetaDeviceManagementDeviceConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceConfigurations/$($DeviceConfigurationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceConfigurations/$($DeviceConfigurationId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementDeviceConfigurationAssignment
@@ -41592,10 +31993,7 @@ function Remove-MgBetaDeviceManagementDeviceConfigurationAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceConfigurations/$($DeviceConfigurationId)/assignments/$($DeviceConfigurationAssignmentId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceConfigurations/$($DeviceConfigurationId)/assignments/$($DeviceConfigurationAssignmentId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementDeviceEnrollmentConfiguration
@@ -41651,10 +32049,7 @@ function Remove-MgBetaDeviceManagementDeviceEnrollmentConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceEnrollmentConfigurations/$($DeviceEnrollmentConfigurationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceEnrollmentConfigurations/$($DeviceEnrollmentConfigurationId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementDeviceHealthScript
@@ -41710,10 +32105,7 @@ function Remove-MgBetaDeviceManagementDeviceHealthScript
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceHealthScripts/$($DeviceHealthScriptId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceHealthScripts/$($DeviceHealthScriptId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementDeviceShellScript
@@ -41769,10 +32161,7 @@ function Remove-MgBetaDeviceManagementDeviceShellScript
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceShellScripts/$($DeviceShellScriptId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceShellScripts/$($DeviceShellScriptId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementGroupPolicyConfiguration
@@ -41828,10 +32217,7 @@ function Remove-MgBetaDeviceManagementGroupPolicyConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementIntent
@@ -41887,10 +32273,7 @@ function Remove-MgBetaDeviceManagementIntent
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/intents/$($DeviceManagementIntentId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/intents/$($DeviceManagementIntentId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementIntuneBrandingProfile
@@ -41946,10 +32329,7 @@ function Remove-MgBetaDeviceManagementIntuneBrandingProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/intuneBrandingProfiles/$($IntuneBrandingProfileId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/intuneBrandingProfiles/$($IntuneBrandingProfileId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementManagedDeviceCleanupRule
@@ -42005,10 +32385,7 @@ function Remove-MgBetaDeviceManagementManagedDeviceCleanupRule
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/managedDeviceCleanupRules/$($ManagedDeviceCleanupRuleId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/managedDeviceCleanupRules/$($ManagedDeviceCleanupRuleId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementMobileThreatDefenseConnector
@@ -42064,10 +32441,7 @@ function Remove-MgBetaDeviceManagementMobileThreatDefenseConnector
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/mobileThreatDefenseConnectors/$($MobileThreatDefenseConnectorId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/mobileThreatDefenseConnectors/$($MobileThreatDefenseConnectorId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementNotificationMessageTemplate
@@ -42123,10 +32497,7 @@ function Remove-MgBetaDeviceManagementNotificationMessageTemplate
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/notificationMessageTemplates/$($NotificationMessageTemplateId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/notificationMessageTemplates/$($NotificationMessageTemplateId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementNotificationMessageTemplateLocalizedNotificationMessage
@@ -42186,10 +32557,7 @@ function Remove-MgBetaDeviceManagementNotificationMessageTemplateLocalizedNotifi
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/notificationMessageTemplates/$($NotificationMessageTemplateId)/localizedNotificationMessages/$($LocalizedNotificationMessageId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/notificationMessageTemplates/$($NotificationMessageTemplateId)/localizedNotificationMessages/$($LocalizedNotificationMessageId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementRoleAssignment
@@ -42245,10 +32613,7 @@ function Remove-MgBetaDeviceManagementRoleAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/roleAssignments/$($DeviceAndAppManagementRoleAssignmentId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/roleAssignments/$($DeviceAndAppManagementRoleAssignmentId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementRoleDefinition
@@ -42304,10 +32669,7 @@ function Remove-MgBetaDeviceManagementRoleDefinition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/roleDefinitions/$($RoleDefinitionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/roleDefinitions/$($RoleDefinitionId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementRoleScopeTag
@@ -42363,10 +32725,7 @@ function Remove-MgBetaDeviceManagementRoleScopeTag
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/roleScopeTags/$($RoleScopeTagId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/roleScopeTags/$($RoleScopeTagId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementScript
@@ -42422,10 +32781,7 @@ function Remove-MgBetaDeviceManagementScript
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceManagementScripts/$($DeviceManagementScriptId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceManagementScripts/$($DeviceManagementScriptId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementTermAndCondition
@@ -42481,10 +32837,7 @@ function Remove-MgBetaDeviceManagementTermAndCondition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/termsAndConditions/$($TermsAndConditionsId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/termsAndConditions/$($TermsAndConditionsId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementTermAndConditionAssignment
@@ -42544,10 +32897,7 @@ function Remove-MgBetaDeviceManagementTermAndConditionAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/termsAndConditions/$($TermsAndConditionsId)/assignments/$($TermsAndConditionsAssignmentId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/termsAndConditions/$($TermsAndConditionsId)/assignments/$($TermsAndConditionsAssignmentId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
@@ -42603,10 +32953,7 @@ function Remove-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/virtualEndpoint/onPremisesConnections/$($CloudPcOnPremisesConnectionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/virtualEndpoint/onPremisesConnections/$($CloudPcOnPremisesConnectionId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementVirtualEndpointProvisioningPolicy
@@ -42662,10 +33009,7 @@ function Remove-MgBetaDeviceManagementVirtualEndpointProvisioningPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/virtualEndpoint/provisioningPolicies/$($CloudPcProvisioningPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/virtualEndpoint/provisioningPolicies/$($CloudPcProvisioningPolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementVirtualEndpointUserSetting
@@ -42721,10 +33065,7 @@ function Remove-MgBetaDeviceManagementVirtualEndpointUserSetting
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/virtualEndpoint/userSettings/$($CloudPcUserSettingId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/virtualEndpoint/userSettings/$($CloudPcUserSettingId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile
@@ -42780,10 +33121,7 @@ function Remove-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/windowsAutopilotDeploymentProfiles/$($WindowsAutopilotDeploymentProfileId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/windowsAutopilotDeploymentProfiles/$($WindowsAutopilotDeploymentProfileId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementWindowsAutopilotDeploymentProfileAssignment
@@ -42843,10 +33181,7 @@ function Remove-MgBetaDeviceManagementWindowsAutopilotDeploymentProfileAssignmen
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/windowsAutopilotDeploymentProfiles/$($WindowsAutopilotDeploymentProfileId)/assignments/$($WindowsAutopilotDeploymentProfileAssignmentId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/windowsAutopilotDeploymentProfiles/$($WindowsAutopilotDeploymentProfileId)/assignments/$($WindowsAutopilotDeploymentProfileAssignmentId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementWindowsFeatureUpdateProfile
@@ -42902,10 +33237,7 @@ function Remove-MgBetaDeviceManagementWindowsFeatureUpdateProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/windowsFeatureUpdateProfiles/$($WindowsFeatureUpdateProfileId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/windowsFeatureUpdateProfiles/$($WindowsFeatureUpdateProfileId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDeviceManagementWindowsQualityUpdateProfile
@@ -42961,10 +33293,7 @@ function Remove-MgBetaDeviceManagementWindowsQualityUpdateProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/windowsQualityUpdateProfiles/$($WindowsQualityUpdateProfileId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/windowsQualityUpdateProfiles/$($WindowsQualityUpdateProfileId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfiguration
@@ -43020,10 +33349,7 @@ function Remove-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationCo
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfigurationTrustedCertificateAuthority
@@ -43083,10 +33409,7 @@ function Remove-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationCo
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)/trustedCertificateAuthorities/$($CertificateAuthorityAsEntityId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)/trustedCertificateAuthorities/$($CertificateAuthorityAsEntityId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDirectorySetting
@@ -43142,10 +33465,7 @@ function Remove-MgBetaDirectorySetting
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/settings/$($DirectorySettingId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/settings/$($DirectorySettingId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaDomainFederationConfiguration
@@ -43205,10 +33525,7 @@ function Remove-MgBetaDomainFederationConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/domains/$($DomainId)/federationConfiguration/$($InternalDomainFederationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/domains/$($DomainId)/federationConfiguration/$($InternalDomainFederationId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaEntitlementManagementAccessPackage
@@ -43264,10 +33581,7 @@ function Remove-MgBetaEntitlementManagementAccessPackage
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaEntitlementManagementAccessPackageAssignmentPolicy
@@ -43323,10 +33637,7 @@ function Remove-MgBetaEntitlementManagementAccessPackageAssignmentPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackageAssignmentPolicies/$($AccessPackageAssignmentPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackageAssignmentPolicies/$($AccessPackageAssignmentPolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaEntitlementManagementAccessPackageCatalog
@@ -43382,10 +33693,7 @@ function Remove-MgBetaEntitlementManagementAccessPackageCatalog
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackageCatalogs/$($AccessPackageCatalogId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackageCatalogs/$($AccessPackageCatalogId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaEntitlementManagementAccessPackageIncompatibleAccessPackageByRef
@@ -43445,10 +33753,7 @@ function Remove-MgBetaEntitlementManagementAccessPackageIncompatibleAccessPackag
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleAccessPackages/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleAccessPackages/`$ref" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaEntitlementManagementAccessPackageIncompatibleGroupByRef
@@ -43508,10 +33813,7 @@ function Remove-MgBetaEntitlementManagementAccessPackageIncompatibleGroupByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleGroups/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/incompatibleGroups/`$ref" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaEntitlementManagementAccessPackageResourceRoleScope
@@ -43571,10 +33873,7 @@ function Remove-MgBetaEntitlementManagementAccessPackageResourceRoleScope
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/accessPackageResourceRoleScopes/$($AccessPackageResourceRoleScopeId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)/accessPackageResourceRoleScopes/$($AccessPackageResourceRoleScopeId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaEntitlementManagementConnectedOrganization
@@ -43630,10 +33929,7 @@ function Remove-MgBetaEntitlementManagementConnectedOrganization
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaEntitlementManagementConnectedOrganizationExternalSponsorDirectoryObjectByRef
@@ -43693,10 +33989,7 @@ function Remove-MgBetaEntitlementManagementConnectedOrganizationExternalSponsorD
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/externalSponsors/$($DirectoryObjectId)/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/externalSponsors/$($DirectoryObjectId)/`$ref" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaEntitlementManagementConnectedOrganizationInternalSponsorDirectoryObjectByRef
@@ -43756,10 +34049,7 @@ function Remove-MgBetaEntitlementManagementConnectedOrganizationInternalSponsorD
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/internalSponsors/$($DirectoryObjectId)/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)/internalSponsors/$($DirectoryObjectId)/`$ref" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaExternalConnection
@@ -43815,10 +34105,7 @@ function Remove-MgBetaExternalConnection
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/external/connections/$($ExternalConnectionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/external/connections/$($ExternalConnectionId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaGroupFromLifecyclePolicy
@@ -43878,27 +34165,7 @@ function Remove-MgBetaGroupFromLifecyclePolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/groupLifecyclePolicies/$($GroupLifecyclePolicyId)/removeGroup"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'GroupLifecyclePolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/groupLifecyclePolicies/$($GroupLifecyclePolicyId)/removeGroup" -Method 'POST' -ExtraExcludeParams @('GroupLifecyclePolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaGroupMemberDirectoryObjectByRef
@@ -43958,10 +34225,7 @@ function Remove-MgBetaGroupMemberDirectoryObjectByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/groups/$($GroupId)/members/$($DirectoryObjectId)/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/groups/$($GroupId)/members/$($DirectoryObjectId)/`$ref" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaIdentityApiConnector
@@ -44017,10 +34281,7 @@ function Remove-MgBetaIdentityApiConnector
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/apiConnectors/$($IdentityApiConnectorId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/apiConnectors/$($IdentityApiConnectorId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaIdentityB2XUserFlow
@@ -44076,10 +34337,7 @@ function Remove-MgBetaIdentityB2XUserFlow
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaIdentityB2XUserFlowIdentityProviderBaseByRef
@@ -44139,10 +34397,7 @@ function Remove-MgBetaIdentityB2XUserFlowIdentityProviderBaseByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userFlowIdentityProviders/$($IdentityProviderBaseId)/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userFlowIdentityProviders/$($IdentityProviderBaseId)/`$ref" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaIdentityB2XUserFlowUserAttributeAssignment
@@ -44202,10 +34457,7 @@ function Remove-MgBetaIdentityB2XUserFlowUserAttributeAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userAttributeAssignments/$($IdentityUserFlowAttributeAssignmentId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userAttributeAssignments/$($IdentityUserFlowAttributeAssignmentId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaIdentityConditionalAccessAuthenticationContextClassReference
@@ -44261,10 +34513,7 @@ function Remove-MgBetaIdentityConditionalAccessAuthenticationContextClassReferen
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/conditionalAccess/authenticationContextClassReferences/$($AuthenticationContextClassReferenceId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/conditionalAccess/authenticationContextClassReferences/$($AuthenticationContextClassReferenceId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaIdentityConditionalAccessNamedLocation
@@ -44320,10 +34569,7 @@ function Remove-MgBetaIdentityConditionalAccessNamedLocation
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/conditionalAccess/namedLocations/$($NamedLocationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/conditionalAccess/namedLocations/$($NamedLocationId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaIdentityConditionalAccessPolicy
@@ -44379,10 +34625,7 @@ function Remove-MgBetaIdentityConditionalAccessPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/conditionalAccess/policies/$($ConditionalAccessPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/conditionalAccess/policies/$($ConditionalAccessPolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaIdentityCustomAuthenticationExtension
@@ -44438,10 +34681,7 @@ function Remove-MgBetaIdentityCustomAuthenticationExtension
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/customAuthenticationExtensions/$($CustomAuthenticationExtensionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/customAuthenticationExtensions/$($CustomAuthenticationExtensionId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaIdentityGovernanceAccessReviewDefinition
@@ -44497,10 +34737,7 @@ function Remove-MgBetaIdentityGovernanceAccessReviewDefinition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/accessReviews/definitions/$($AccessReviewScheduleDefinitionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/accessReviews/definitions/$($AccessReviewScheduleDefinitionId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaIdentityGovernanceLifecycleWorkflow
@@ -44556,10 +34793,7 @@ function Remove-MgBetaIdentityGovernanceLifecycleWorkflow
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/lifecycleWorkflows/workflows/$($WorkflowId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/lifecycleWorkflows/workflows/$($WorkflowId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension
@@ -44615,10 +34849,7 @@ function Remove-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/lifecycleWorkflows/customTaskExtensions/$($CustomTaskExtensionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/lifecycleWorkflows/customTaskExtensions/$($CustomTaskExtensionId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaIdentityProvider
@@ -44674,10 +34905,7 @@ function Remove-MgBetaIdentityProvider
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/identityProviders/$($IdentityProviderBaseId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/identityProviders/$($IdentityProviderBaseId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaIdentityUserFlowAttribute
@@ -44733,10 +34961,7 @@ function Remove-MgBetaIdentityUserFlowAttribute
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/userFlowAttributes/$($IdentityUserFlowAttributeId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/userFlowAttributes/$($IdentityUserFlowAttributeId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaNetworkAccessConnectivityRemoteNetwork
@@ -44792,10 +35017,7 @@ function Remove-MgBetaNetworkAccessConnectivityRemoteNetwork
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/connectivity/remoteNetworks/$($RemoteNetworkId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/connectivity/remoteNetworks/$($RemoteNetworkId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaNetworkAccessConnectivityRemoteNetworkDeviceLink
@@ -44855,10 +35077,7 @@ function Remove-MgBetaNetworkAccessConnectivityRemoteNetworkDeviceLink
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/connectivity/remoteNetworks/$($RemoteNetworkId)/deviceLinks/$($DeviceLinkId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/connectivity/remoteNetworks/$($RemoteNetworkId)/deviceLinks/$($DeviceLinkId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaNetworkAccessFilteringPolicy
@@ -44914,10 +35133,7 @@ function Remove-MgBetaNetworkAccessFilteringPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaNetworkAccessFilteringPolicyRule
@@ -44977,10 +35193,7 @@ function Remove-MgBetaNetworkAccessFilteringPolicyRule
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)/policyRules/$($PolicyRuleId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)/policyRules/$($PolicyRuleId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaNetworkAccessFilteringProfile
@@ -45036,10 +35249,7 @@ function Remove-MgBetaNetworkAccessFilteringProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/filteringProfiles/$($FilteringProfileId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/filteringProfiles/$($FilteringProfileId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaNetworkAccessForwardingPolicyRule
@@ -45099,10 +35309,7 @@ function Remove-MgBetaNetworkAccessForwardingPolicyRule
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/forwardingPolicies/$($ForwardingPolicyId)/policyRules/$($PolicyRuleId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/forwardingPolicies/$($ForwardingPolicyId)/policyRules/$($PolicyRuleId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaOnPremisePublishingProfileConnectorGroup
@@ -45162,10 +35369,7 @@ function Remove-MgBetaOnPremisePublishingProfileConnectorGroup
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/onPremisesPublishingProfiles/$($OnPremisesPublishingProfileId)/connectorGroups/$($ConnectorGroupId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/onPremisesPublishingProfiles/$($OnPremisesPublishingProfileId)/connectorGroups/$($ConnectorGroupId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaPolicyActivityBasedTimeoutPolicy
@@ -45221,10 +35425,7 @@ function Remove-MgBetaPolicyActivityBasedTimeoutPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/activityBasedTimeoutPolicies/$($ActivityBasedTimeoutPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/activityBasedTimeoutPolicies/$($ActivityBasedTimeoutPolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaPolicyAppManagementPolicy
@@ -45280,10 +35481,7 @@ function Remove-MgBetaPolicyAppManagementPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/appManagementPolicies/$($AppManagementPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/appManagementPolicies/$($AppManagementPolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration
@@ -45339,10 +35537,7 @@ function Remove-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfig
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations/$($AuthenticationMethodConfigurationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations/$($AuthenticationMethodConfigurationId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaPolicyAuthenticationStrengthPolicy
@@ -45398,10 +35593,7 @@ function Remove-MgBetaPolicyAuthenticationStrengthPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/authenticationStrengthPolicies/$($AuthenticationStrengthPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/authenticationStrengthPolicies/$($AuthenticationStrengthPolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaPolicyClaimMappingPolicy
@@ -45457,10 +35649,7 @@ function Remove-MgBetaPolicyClaimMappingPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/claimsMappingPolicies/$($ClaimsMappingPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/claimsMappingPolicies/$($ClaimsMappingPolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaPolicyCrossTenantAccessPolicyPartner
@@ -45516,10 +35705,7 @@ function Remove-MgBetaPolicyCrossTenantAccessPolicyPartner
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/crossTenantAccessPolicy/partners/$($CrossTenantAccessPolicyConfigurationPartnerTenantId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/crossTenantAccessPolicy/partners/$($CrossTenantAccessPolicyConfigurationPartnerTenantId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaPolicyCrossTenantAccessPolicyPartnerIdentitySynchronization
@@ -45575,10 +35761,7 @@ function Remove-MgBetaPolicyCrossTenantAccessPolicyPartnerIdentitySynchronizatio
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/crossTenantAccessPolicy/partners/$($CrossTenantAccessPolicyConfigurationPartnerTenantId)/identitySynchronization"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/crossTenantAccessPolicy/partners/$($CrossTenantAccessPolicyConfigurationPartnerTenantId)/identitySynchronization" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaPolicyFeatureRolloutPolicy
@@ -45634,10 +35817,7 @@ function Remove-MgBetaPolicyFeatureRolloutPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/featureRolloutPolicies/$($FeatureRolloutPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/featureRolloutPolicies/$($FeatureRolloutPolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaPolicyFeatureRolloutPolicyApplyToDirectoryObjectByRef
@@ -45697,10 +35877,7 @@ function Remove-MgBetaPolicyFeatureRolloutPolicyApplyToDirectoryObjectByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/featureRolloutPolicies/$($FeatureRolloutPolicyId)/appliesTo/$($DirectoryObjectId)/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/featureRolloutPolicies/$($FeatureRolloutPolicyId)/appliesTo/$($DirectoryObjectId)/`$ref" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaPolicyHomeRealmDiscoveryPolicy
@@ -45756,10 +35933,7 @@ function Remove-MgBetaPolicyHomeRealmDiscoveryPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/homeRealmDiscoveryPolicies/$($HomeRealmDiscoveryPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/homeRealmDiscoveryPolicies/$($HomeRealmDiscoveryPolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaPolicyPermissionGrantPolicy
@@ -45815,10 +35989,7 @@ function Remove-MgBetaPolicyPermissionGrantPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/permissionGrantPolicies/$($PermissionGrantPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/permissionGrantPolicies/$($PermissionGrantPolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaPolicyPermissionGrantPolicyExclude
@@ -45878,10 +36049,7 @@ function Remove-MgBetaPolicyPermissionGrantPolicyExclude
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/permissionGrantPolicies/$($PermissionGrantPolicyId)/excludes/$($PermissionGrantConditionSetId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/permissionGrantPolicies/$($PermissionGrantPolicyId)/excludes/$($PermissionGrantConditionSetId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaPolicyPermissionGrantPolicyInclude
@@ -45941,10 +36109,7 @@ function Remove-MgBetaPolicyPermissionGrantPolicyInclude
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/permissionGrantPolicies/$($PermissionGrantPolicyId)/includes/$($PermissionGrantConditionSetId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/permissionGrantPolicies/$($PermissionGrantPolicyId)/includes/$($PermissionGrantConditionSetId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaPolicyTokenIssuancePolicy
@@ -46000,10 +36165,7 @@ function Remove-MgBetaPolicyTokenIssuancePolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/tokenIssuancePolicies/$($TokenIssuancePolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/tokenIssuancePolicies/$($TokenIssuancePolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaPolicyTokenLifetimePolicy
@@ -46059,10 +36221,7 @@ function Remove-MgBetaPolicyTokenLifetimePolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/tokenLifetimePolicies/$($TokenLifetimePolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/tokenLifetimePolicies/$($TokenLifetimePolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaProgram
@@ -46118,10 +36277,7 @@ function Remove-MgBetaProgram
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/programs/$($ProgramId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/programs/$($ProgramId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaRoleManagementCloudPcRoleAssignment
@@ -46177,10 +36333,7 @@ function Remove-MgBetaRoleManagementCloudPcRoleAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/roleManagement/cloudPC/roleAssignments/$($UnifiedRoleAssignmentMultipleId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/roleManagement/cloudPC/roleAssignments/$($UnifiedRoleAssignmentMultipleId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaRoleManagementCloudPcRoleDefinition
@@ -46236,10 +36389,7 @@ function Remove-MgBetaRoleManagementCloudPcRoleDefinition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/roleManagement/cloudPC/roleDefinitions/$($UnifiedRoleDefinitionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/roleManagement/cloudPC/roleDefinitions/$($UnifiedRoleDefinitionId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaRoleManagementDirectoryRoleAssignment
@@ -46295,10 +36445,7 @@ function Remove-MgBetaRoleManagementDirectoryRoleAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/roleManagement/directory/roleAssignments/$($UnifiedRoleAssignmentId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/roleManagement/directory/roleAssignments/$($UnifiedRoleAssignmentId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaRoleManagementDirectoryRoleDefinition
@@ -46354,10 +36501,7 @@ function Remove-MgBetaRoleManagementDirectoryRoleDefinition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/roleManagement/directory/roleDefinitions/$($UnifiedRoleDefinitionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/roleManagement/directory/roleDefinitions/$($UnifiedRoleDefinitionId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaRoleManagementEntitlementManagementRoleAssignment
@@ -46413,10 +36557,7 @@ function Remove-MgBetaRoleManagementEntitlementManagementRoleAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/roleManagement/entitlementManagement/roleAssignments/$($UnifiedRoleAssignmentId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/roleManagement/entitlementManagement/roleAssignments/$($UnifiedRoleAssignmentId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgBetaTeamChannelTab
@@ -46480,10 +36621,7 @@ function Remove-MgBetaTeamChannelTab
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/teams/$($TeamId)/channels/$($ChannelId)/tabs/$($TeamsTabId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/beta/teams/$($TeamId)/channels/$($ChannelId)/tabs/$($TeamsTabId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgDirectoryAdministrativeUnit
@@ -46539,10 +36677,7 @@ function Remove-MgDirectoryAdministrativeUnit
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgDirectoryAdministrativeUnitMemberDirectoryObjectByRef
@@ -46602,10 +36737,7 @@ function Remove-MgDirectoryAdministrativeUnitMemberDirectoryObjectByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/members/$($DirectoryObjectId)/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/members/$($DirectoryObjectId)/`$ref" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgDirectoryAdministrativeUnitScopedRoleMember
@@ -46665,10 +36797,7 @@ function Remove-MgDirectoryAdministrativeUnitScopedRoleMember
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/scopedRoleMembers/$($ScopedRoleMembershipId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)/scopedRoleMembers/$($ScopedRoleMembershipId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgGroup
@@ -46724,10 +36853,7 @@ function Remove-MgGroup
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/groups/$($GroupId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/groups/$($GroupId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgGroupLifecyclePolicy
@@ -46787,10 +36913,7 @@ function Remove-MgGroupLifecyclePolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/groupLifecyclePolicies/$($GroupLifecyclePolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/groupLifecyclePolicies/$($GroupLifecyclePolicyId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgGroupMemberDirectoryObjectByRef
@@ -46850,10 +36973,7 @@ function Remove-MgGroupMemberDirectoryObjectByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/groups/$($GroupId)/members/$($DirectoryObjectId)/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/groups/$($GroupId)/members/$($DirectoryObjectId)/`$ref" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgGroupOwnerDirectoryObjectByRef
@@ -46913,10 +37033,7 @@ function Remove-MgGroupOwnerDirectoryObjectByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/groups/$($GroupId)/owners/$($DirectoryObjectId)/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/groups/$($GroupId)/owners/$($DirectoryObjectId)/`$ref" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgPlannerTask
@@ -46972,10 +37089,7 @@ function Remove-MgPlannerTask
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/planner/tasks/$($PlannerTaskId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/planner/tasks/$($PlannerTaskId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgServicePrincipal
@@ -47031,10 +37145,7 @@ function Remove-MgServicePrincipal
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/servicePrincipals/$($ServicePrincipalId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/servicePrincipals/$($ServicePrincipalId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgServicePrincipalAppRoleAssignedTo
@@ -47094,10 +37205,7 @@ function Remove-MgServicePrincipalAppRoleAssignedTo
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/servicePrincipals/$($ServicePrincipalId)/appRoleAssignedTo/$($AppRoleAssignmentId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/servicePrincipals/$($ServicePrincipalId)/appRoleAssignedTo/$($AppRoleAssignmentId)" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgServicePrincipalOwnerDirectoryObjectByRef
@@ -47157,10 +37265,7 @@ function Remove-MgServicePrincipalOwnerDirectoryObjectByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/servicePrincipals/$($ServicePrincipalId)/owners/$($DirectoryObjectId)/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/servicePrincipals/$($ServicePrincipalId)/owners/$($DirectoryObjectId)/`$ref" -ErrorAction $ErrorActionPreference
 }
 
 function Remove-MgUser
@@ -47216,10 +37321,7 @@ function Remove-MgUser
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/users/$($UserId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-    Invoke-M365DSCGraphShimRequest -Method 'DELETE' -Uri $uri -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    Invoke-M365DSCGraphShimDeleteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/users/$($UserId)" -ErrorAction $ErrorActionPreference
 }
 
 function Restore-MgBetaDirectoryDeletedItem
@@ -47267,27 +37369,7 @@ function Restore-MgBetaDirectoryDeletedItem
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/directory/deletedItems/$($DirectoryObjectId)/restore"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DirectoryObjectId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/directory/deletedItems/$($DirectoryObjectId)/restore" -Method 'POST' -ExtraExcludeParams @('DirectoryObjectId') -ErrorAction $ErrorActionPreference
 }
 
 function Set-MgBetaEntitlementManagementAccessPackageAssignmentPolicy
@@ -47427,27 +37509,7 @@ function Set-MgBetaEntitlementManagementAccessPackageAssignmentPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackageAssignmentPolicies/$($AccessPackageAssignmentPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AccessPackageAssignmentPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PUT' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackageAssignmentPolicies/$($AccessPackageAssignmentPolicyId)" -Method 'PUT' -ExtraExcludeParams @('AccessPackageAssignmentPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Set-MgBetaIdentityB2XUserFlowPostAttributeCollectionByRef
@@ -47515,27 +37577,7 @@ function Set-MgBetaIdentityB2XUserFlowPostAttributeCollectionByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/apiConnectorConfiguration/postAttributeCollection/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'B2xIdentityUserFlowId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PUT' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/apiConnectorConfiguration/postAttributeCollection/`$ref" -Method 'PUT' -ExtraExcludeParams @('B2xIdentityUserFlowId') -ErrorAction $ErrorActionPreference
 }
 
 function Set-MgBetaIdentityB2XUserFlowPostFederationSignupByRef
@@ -47603,27 +37645,7 @@ function Set-MgBetaIdentityB2XUserFlowPostFederationSignupByRef
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/apiConnectorConfiguration/postFederationSignup/`$ref"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'B2xIdentityUserFlowId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PUT' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/apiConnectorConfiguration/postFederationSignup/`$ref" -Method 'PUT' -ExtraExcludeParams @('B2xIdentityUserFlowId') -ErrorAction $ErrorActionPreference
 }
 
 function Set-MgBetaIdentityGovernanceAccessReviewDefinition
@@ -47747,27 +37769,7 @@ function Set-MgBetaIdentityGovernanceAccessReviewDefinition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/accessReviews/definitions/$($AccessReviewScheduleDefinitionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AccessReviewScheduleDefinitionId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PUT' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/accessReviews/definitions/$($AccessReviewScheduleDefinitionId)" -Method 'PUT' -ExtraExcludeParams @('AccessReviewScheduleDefinitionId') -ErrorAction $ErrorActionPreference
 }
 
 function Set-MgBetaPolicyCrossTenantAccessPolicyPartnerIdentitySynchronization
@@ -47847,27 +37849,7 @@ function Set-MgBetaPolicyCrossTenantAccessPolicyPartnerIdentitySynchronization
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/crossTenantAccessPolicy/partners/$($CrossTenantAccessPolicyConfigurationPartnerTenantId)/identitySynchronization"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'CrossTenantAccessPolicyConfigurationPartnerTenantId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PUT' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/crossTenantAccessPolicy/partners/$($CrossTenantAccessPolicyConfigurationPartnerTenantId)/identitySynchronization" -Method 'PUT' -ExtraExcludeParams @('CrossTenantAccessPolicyConfigurationPartnerTenantId') -ErrorAction $ErrorActionPreference
 }
 
 function Set-MgGroupLicense
@@ -47931,27 +37913,7 @@ function Set-MgGroupLicense
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/groups/$($GroupId)/assignLicense"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'GroupId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/groups/$($GroupId)/assignLicense" -Method 'POST' -ExtraExcludeParams @('GroupId') -ErrorAction $ErrorActionPreference
 }
 
 function Set-MgUserLicense
@@ -48015,27 +37977,7 @@ function Set-MgUserLicense
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/users/$($UserId)/assignLicense"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'UserId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/users/$($UserId)/assignLicense" -Method 'POST' -ExtraExcludeParams @('UserId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgAdminSharepointSetting
@@ -48203,27 +38145,7 @@ function Update-MgAdminSharepointSetting
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/admin/sharepoint/settings"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/admin/sharepoint/settings" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgApplication
@@ -48479,27 +38401,7 @@ function Update-MgApplication
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/applications/$($ApplicationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ApplicationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/applications/$($ApplicationId)" -Method 'PATCH' -ExtraExcludeParams @('ApplicationId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaApplication
@@ -48767,27 +38669,7 @@ function Update-MgBetaApplication
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/applications/$($ApplicationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ApplicationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/applications/$($ApplicationId)" -Method 'PATCH' -ExtraExcludeParams @('ApplicationId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceAppManagementAndroidManagedAppProtection
@@ -49255,27 +39137,7 @@ function Update-MgBetaDeviceAppManagementAndroidManagedAppProtection
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/androidManagedAppProtections/$($AndroidManagedAppProtectionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AndroidManagedAppProtectionId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/androidManagedAppProtections/$($AndroidManagedAppProtectionId)" -Method 'PATCH' -ExtraExcludeParams @('AndroidManagedAppProtectionId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceAppManagementiOSManagedAppProtection
@@ -49663,27 +39525,7 @@ function Update-MgBetaDeviceAppManagementiOSManagedAppProtection
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/iosManagedAppProtections/$($IosManagedAppProtectionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'IosManagedAppProtectionId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/iosManagedAppProtections/$($IosManagedAppProtectionId)" -Method 'PATCH' -ExtraExcludeParams @('IosManagedAppProtectionId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceAppManagementMdmWindowsInformationProtectionPolicy
@@ -49867,27 +39709,7 @@ function Update-MgBetaDeviceAppManagementMdmWindowsInformationProtectionPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/mdmWindowsInformationProtectionPolicies/$($MdmWindowsInformationProtectionPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'MdmWindowsInformationProtectionPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/mdmWindowsInformationProtectionPolicies/$($MdmWindowsInformationProtectionPolicyId)" -Method 'PATCH' -ExtraExcludeParams @('MdmWindowsInformationProtectionPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceAppManagementMobileApp
@@ -50007,27 +39829,7 @@ function Update-MgBetaDeviceAppManagementMobileApp
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/mobileApps/$($MobileAppId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'MobileAppId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/mobileApps/$($MobileAppId)" -Method 'PATCH' -ExtraExcludeParams @('MobileAppId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceAppManagementMobileAppCategory
@@ -50091,27 +39893,7 @@ function Update-MgBetaDeviceAppManagementMobileAppCategory
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/mobileAppCategories/$($MobileAppCategoryId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'MobileAppCategoryId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/mobileAppCategories/$($MobileAppCategoryId)" -Method 'PATCH' -ExtraExcludeParams @('MobileAppCategoryId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceAppManagementMobileAppConfiguration
@@ -50219,27 +40001,7 @@ function Update-MgBetaDeviceAppManagementMobileAppConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/mobileAppConfigurations/$($ManagedDeviceMobileAppConfigurationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ManagedDeviceMobileAppConfigurationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/mobileAppConfigurations/$($ManagedDeviceMobileAppConfigurationId)" -Method 'PATCH' -ExtraExcludeParams @('ManagedDeviceMobileAppConfigurationId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceAppManagementPolicySet
@@ -50339,27 +40101,7 @@ function Update-MgBetaDeviceAppManagementPolicySet
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/policySets/$($PolicySetId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'PolicySetId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/policySets/$($PolicySetId)" -Method 'PATCH' -ExtraExcludeParams @('PolicySetId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceAppManagementTargetedManagedAppConfiguration
@@ -50479,27 +40221,7 @@ function Update-MgBetaDeviceAppManagementTargetedManagedAppConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/targetedManagedAppConfigurations/$($TargetedManagedAppConfigurationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'TargetedManagedAppConfigurationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/targetedManagedAppConfigurations/$($TargetedManagedAppConfigurationId)" -Method 'PATCH' -ExtraExcludeParams @('TargetedManagedAppConfigurationId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceAppManagementWindowsManagedAppProtection
@@ -50683,27 +40405,7 @@ function Update-MgBetaDeviceAppManagementWindowsManagedAppProtection
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceAppManagement/windowsManagedAppProtections/$($WindowsManagedAppProtectionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'WindowsManagedAppProtectionId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceAppManagement/windowsManagedAppProtections/$($WindowsManagedAppProtectionId)" -Method 'PATCH' -ExtraExcludeParams @('WindowsManagedAppProtectionId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagement
@@ -51503,27 +41205,7 @@ function Update-MgBetaDeviceManagement
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementApplePushNotificationCertificate
@@ -51603,27 +41285,7 @@ function Update-MgBetaDeviceManagementApplePushNotificationCertificate
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/applePushNotificationCertificate"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/applePushNotificationCertificate" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementAssignmentFilter
@@ -51719,27 +41381,7 @@ function Update-MgBetaDeviceManagementAssignmentFilter
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/assignmentFilters/$($DeviceAndAppManagementAssignmentFilterId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DeviceAndAppManagementAssignmentFilterId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/assignmentFilters/$($DeviceAndAppManagementAssignmentFilterId)" -Method 'PATCH' -ExtraExcludeParams @('DeviceAndAppManagementAssignmentFilterId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementDeviceCategory
@@ -51811,27 +41453,7 @@ function Update-MgBetaDeviceManagementDeviceCategory
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceCategories/$($DeviceCategoryId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DeviceCategoryId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceCategories/$($DeviceCategoryId)" -Method 'PATCH' -ExtraExcludeParams @('DeviceCategoryId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementDeviceCompliancePolicy
@@ -51943,27 +41565,7 @@ function Update-MgBetaDeviceManagementDeviceCompliancePolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceCompliancePolicies/$($DeviceCompliancePolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DeviceCompliancePolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceCompliancePolicies/$($DeviceCompliancePolicyId)" -Method 'PATCH' -ExtraExcludeParams @('DeviceCompliancePolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementDeviceConfiguration
@@ -52087,27 +41689,7 @@ function Update-MgBetaDeviceManagementDeviceConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceConfigurations/$($DeviceConfigurationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DeviceConfigurationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceConfigurations/$($DeviceConfigurationId)" -Method 'PATCH' -ExtraExcludeParams @('DeviceConfigurationId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementDeviceEnrollmentConfiguration
@@ -52203,27 +41785,7 @@ function Update-MgBetaDeviceManagementDeviceEnrollmentConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceEnrollmentConfigurations/$($DeviceEnrollmentConfigurationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DeviceEnrollmentConfigurationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceEnrollmentConfigurations/$($DeviceEnrollmentConfigurationId)" -Method 'PATCH' -ExtraExcludeParams @('DeviceEnrollmentConfigurationId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementDeviceHealthScript
@@ -52355,27 +41917,7 @@ function Update-MgBetaDeviceManagementDeviceHealthScript
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceHealthScripts/$($DeviceHealthScriptId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DeviceHealthScriptId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceHealthScripts/$($DeviceHealthScriptId)" -Method 'PATCH' -ExtraExcludeParams @('DeviceHealthScriptId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementDeviceShellScript
@@ -52491,27 +42033,7 @@ function Update-MgBetaDeviceManagementDeviceShellScript
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceShellScripts/$($DeviceShellScriptId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DeviceShellScriptId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceShellScripts/$($DeviceShellScriptId)" -Method 'PATCH' -ExtraExcludeParams @('DeviceShellScriptId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementGroupPolicyConfiguration
@@ -52603,27 +42125,7 @@ function Update-MgBetaDeviceManagementGroupPolicyConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'GroupPolicyConfigurationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/groupPolicyConfigurations/$($GroupPolicyConfigurationId)" -Method 'PATCH' -ExtraExcludeParams @('GroupPolicyConfigurationId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementIntent
@@ -52743,27 +42245,7 @@ function Update-MgBetaDeviceManagementIntent
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/intents/$($DeviceManagementIntentId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DeviceManagementIntentId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/intents/$($DeviceManagementIntentId)" -Method 'PATCH' -ExtraExcludeParams @('DeviceManagementIntentId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementIntuneBrandingProfile
@@ -52959,27 +42441,7 @@ function Update-MgBetaDeviceManagementIntuneBrandingProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/intuneBrandingProfiles/$($IntuneBrandingProfileId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'IntuneBrandingProfileId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/intuneBrandingProfiles/$($IntuneBrandingProfileId)" -Method 'PATCH' -ExtraExcludeParams @('IntuneBrandingProfileId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementManagedDeviceCleanupRule
@@ -53055,27 +42517,7 @@ function Update-MgBetaDeviceManagementManagedDeviceCleanupRule
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/managedDeviceCleanupRules/$($ManagedDeviceCleanupRuleId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ManagedDeviceCleanupRuleId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/managedDeviceCleanupRules/$($ManagedDeviceCleanupRuleId)" -Method 'PATCH' -ExtraExcludeParams @('ManagedDeviceCleanupRuleId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementMobileThreatDefenseConnector
@@ -53207,27 +42649,7 @@ function Update-MgBetaDeviceManagementMobileThreatDefenseConnector
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/mobileThreatDefenseConnectors/$($MobileThreatDefenseConnectorId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'MobileThreatDefenseConnectorId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/mobileThreatDefenseConnectors/$($MobileThreatDefenseConnectorId)" -Method 'PATCH' -ExtraExcludeParams @('MobileThreatDefenseConnectorId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementMonitoringAlertRule
@@ -53323,27 +42745,7 @@ function Update-MgBetaDeviceManagementMonitoringAlertRule
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/monitoring/alertRules/$($AlertRuleId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AlertRuleId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/monitoring/alertRules/$($AlertRuleId)" -Method 'PATCH' -ExtraExcludeParams @('AlertRuleId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementNotificationMessageTemplate
@@ -53431,27 +42833,7 @@ function Update-MgBetaDeviceManagementNotificationMessageTemplate
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/notificationMessageTemplates/$($NotificationMessageTemplateId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'NotificationMessageTemplateId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/notificationMessageTemplates/$($NotificationMessageTemplateId)" -Method 'PATCH' -ExtraExcludeParams @('NotificationMessageTemplateId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementNotificationMessageTemplateLocalizedNotificationMessage
@@ -53535,27 +42917,7 @@ function Update-MgBetaDeviceManagementNotificationMessageTemplateLocalizedNotifi
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/notificationMessageTemplates/$($NotificationMessageTemplateId)/localizedNotificationMessages/$($LocalizedNotificationMessageId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'NotificationMessageTemplateId', 'LocalizedNotificationMessageId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/notificationMessageTemplates/$($NotificationMessageTemplateId)/localizedNotificationMessages/$($LocalizedNotificationMessageId)" -Method 'PATCH' -ExtraExcludeParams @('NotificationMessageTemplateId', 'LocalizedNotificationMessageId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementRoleAssignment
@@ -53647,27 +43009,7 @@ function Update-MgBetaDeviceManagementRoleAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/roleAssignments/$($DeviceAndAppManagementRoleAssignmentId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DeviceAndAppManagementRoleAssignmentId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/roleAssignments/$($DeviceAndAppManagementRoleAssignmentId)" -Method 'PATCH' -ExtraExcludeParams @('DeviceAndAppManagementRoleAssignmentId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementRoleDefinition
@@ -53759,27 +43101,7 @@ function Update-MgBetaDeviceManagementRoleDefinition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/roleDefinitions/$($RoleDefinitionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'RoleDefinitionId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/roleDefinitions/$($RoleDefinitionId)" -Method 'PATCH' -ExtraExcludeParams @('RoleDefinitionId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementRoleScopeTag
@@ -53851,27 +43173,7 @@ function Update-MgBetaDeviceManagementRoleScopeTag
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/roleScopeTags/$($RoleScopeTagId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'RoleScopeTagId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/roleScopeTags/$($RoleScopeTagId)" -Method 'PATCH' -ExtraExcludeParams @('RoleScopeTagId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementScript
@@ -53983,27 +43285,7 @@ function Update-MgBetaDeviceManagementScript
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/deviceManagementScripts/$($DeviceManagementScriptId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DeviceManagementScriptId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/deviceManagementScripts/$($DeviceManagementScriptId)" -Method 'PATCH' -ExtraExcludeParams @('DeviceManagementScriptId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementTermAndCondition
@@ -54115,27 +43397,7 @@ function Update-MgBetaDeviceManagementTermAndCondition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/termsAndConditions/$($TermsAndConditionsId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'TermsAndConditionsId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/termsAndConditions/$($TermsAndConditionsId)" -Method 'PATCH' -ExtraExcludeParams @('TermsAndConditionsId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
@@ -54275,27 +43537,7 @@ function Update-MgBetaDeviceManagementVirtualEndpointOnPremiseConnection
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/virtualEndpoint/onPremisesConnections/$($CloudPcOnPremisesConnectionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'CloudPcOnPremisesConnectionId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/virtualEndpoint/onPremisesConnections/$($CloudPcOnPremisesConnectionId)" -Method 'PATCH' -ExtraExcludeParams @('CloudPcOnPremisesConnectionId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementVirtualEndpointProvisioningPolicy
@@ -54439,27 +43681,7 @@ function Update-MgBetaDeviceManagementVirtualEndpointProvisioningPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/virtualEndpoint/provisioningPolicies/$($CloudPcProvisioningPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'CloudPcProvisioningPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/virtualEndpoint/provisioningPolicies/$($CloudPcProvisioningPolicyId)" -Method 'PATCH' -ExtraExcludeParams @('CloudPcProvisioningPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementVirtualEndpointUserSetting
@@ -54559,27 +43781,7 @@ function Update-MgBetaDeviceManagementVirtualEndpointUserSetting
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/virtualEndpoint/userSettings/$($CloudPcUserSettingId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'CloudPcUserSettingId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/virtualEndpoint/userSettings/$($CloudPcUserSettingId)" -Method 'PATCH' -ExtraExcludeParams @('CloudPcUserSettingId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile
@@ -54715,27 +43917,7 @@ function Update-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/windowsAutopilotDeploymentProfiles/$($WindowsAutopilotDeploymentProfileId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'WindowsAutopilotDeploymentProfileId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/windowsAutopilotDeploymentProfiles/$($WindowsAutopilotDeploymentProfileId)" -Method 'PATCH' -ExtraExcludeParams @('WindowsAutopilotDeploymentProfileId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementWindowsFeatureUpdateProfile
@@ -54843,27 +44025,7 @@ function Update-MgBetaDeviceManagementWindowsFeatureUpdateProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/windowsFeatureUpdateProfiles/$($WindowsFeatureUpdateProfileId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'WindowsFeatureUpdateProfileId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/windowsFeatureUpdateProfiles/$($WindowsFeatureUpdateProfileId)" -Method 'PATCH' -ExtraExcludeParams @('WindowsFeatureUpdateProfileId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDeviceManagementWindowsQualityUpdateProfile
@@ -54959,27 +44121,7 @@ function Update-MgBetaDeviceManagementWindowsQualityUpdateProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/deviceManagement/windowsQualityUpdateProfiles/$($WindowsQualityUpdateProfileId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'WindowsQualityUpdateProfileId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/deviceManagement/windowsQualityUpdateProfiles/$($WindowsQualityUpdateProfileId)" -Method 'PATCH' -ExtraExcludeParams @('WindowsQualityUpdateProfileId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDirectoryAttributeSet
@@ -55047,27 +44189,7 @@ function Update-MgBetaDirectoryAttributeSet
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/directory/attributeSets/$($AttributeSetId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AttributeSetId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/directory/attributeSets/$($AttributeSetId)" -Method 'PATCH' -ExtraExcludeParams @('AttributeSetId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfiguration
@@ -55143,27 +44265,7 @@ function Update-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationCo
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'CertificateBasedApplicationConfigurationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)" -Method 'PATCH' -ExtraExcludeParams @('CertificateBasedApplicationConfigurationId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfigurationTrustedCertificateAuthority
@@ -55243,27 +44345,7 @@ function Update-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationCo
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)/trustedCertificateAuthorities/$($CertificateAuthorityAsEntityId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'CertificateBasedApplicationConfigurationId', 'CertificateAuthorityAsEntityId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations/$($CertificateBasedApplicationConfigurationId)/trustedCertificateAuthorities/$($CertificateAuthorityAsEntityId)" -Method 'PATCH' -ExtraExcludeParams @('CertificateBasedApplicationConfigurationId', 'CertificateAuthorityAsEntityId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDirectoryCustomSecurityAttributeDefinition
@@ -55359,27 +44441,7 @@ function Update-MgBetaDirectoryCustomSecurityAttributeDefinition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/directory/customSecurityAttributeDefinitions/$($CustomSecurityAttributeDefinitionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'CustomSecurityAttributeDefinitionId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/directory/customSecurityAttributeDefinitions/$($CustomSecurityAttributeDefinitionId)" -Method 'PATCH' -ExtraExcludeParams @('CustomSecurityAttributeDefinitionId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue
@@ -55447,27 +44509,7 @@ function Update-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/directory/customSecurityAttributeDefinitions/$($CustomSecurityAttributeDefinitionId)/allowedValues/$($AllowedValueId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'CustomSecurityAttributeDefinitionId', 'AllowedValueId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/directory/customSecurityAttributeDefinitions/$($CustomSecurityAttributeDefinitionId)/allowedValues/$($AllowedValueId)" -Method 'PATCH' -ExtraExcludeParams @('CustomSecurityAttributeDefinitionId', 'AllowedValueId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDirectorySetting
@@ -55539,27 +44581,7 @@ function Update-MgBetaDirectorySetting
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/settings/$($DirectorySettingId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DirectorySettingId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/settings/$($DirectorySettingId)" -Method 'PATCH' -ExtraExcludeParams @('DirectorySettingId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDomain
@@ -55687,27 +44709,7 @@ function Update-MgBetaDomain
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/domains/$($DomainId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DomainId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/domains/$($DomainId)" -Method 'PATCH' -ExtraExcludeParams @('DomainId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaDomainFederationConfiguration
@@ -55839,27 +44841,7 @@ function Update-MgBetaDomainFederationConfiguration
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/domains/$($DomainId)/federationConfiguration/$($InternalDomainFederationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'DomainId', 'InternalDomainFederationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/domains/$($DomainId)/federationConfiguration/$($InternalDomainFederationId)" -Method 'PATCH' -ExtraExcludeParams @('DomainId', 'InternalDomainFederationId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaEntitlementManagementAccessPackage
@@ -55983,27 +44965,7 @@ function Update-MgBetaEntitlementManagementAccessPackage
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AccessPackageId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackages/$($AccessPackageId)" -Method 'PATCH' -ExtraExcludeParams @('AccessPackageId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaEntitlementManagementAccessPackageCatalog
@@ -56127,27 +45089,7 @@ function Update-MgBetaEntitlementManagementAccessPackageCatalog
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/accessPackageCatalogs/$($AccessPackageCatalogId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AccessPackageCatalogId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/accessPackageCatalogs/$($AccessPackageCatalogId)" -Method 'PATCH' -ExtraExcludeParams @('AccessPackageCatalogId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaEntitlementManagementConnectedOrganization
@@ -56247,27 +45189,7 @@ function Update-MgBetaEntitlementManagementConnectedOrganization
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ConnectedOrganizationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/connectedOrganizations/$($ConnectedOrganizationId)" -Method 'PATCH' -ExtraExcludeParams @('ConnectedOrganizationId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaEntitlementManagementSetting
@@ -56327,27 +45249,7 @@ function Update-MgBetaEntitlementManagementSetting
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/entitlementManagement/settings"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/entitlementManagement/settings" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaExternalConnection
@@ -56471,27 +45373,7 @@ function Update-MgBetaExternalConnection
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/external/connections/$($ExternalConnectionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ExternalConnectionId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/external/connections/$($ExternalConnectionId)" -Method 'PATCH' -ExtraExcludeParams @('ExternalConnectionId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaIdentityApiConnector
@@ -56563,27 +45445,7 @@ function Update-MgBetaIdentityApiConnector
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/apiConnectors/$($IdentityApiConnectorId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'IdentityApiConnectorId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/apiConnectors/$($IdentityApiConnectorId)" -Method 'PATCH' -ExtraExcludeParams @('IdentityApiConnectorId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaIdentityB2XUserFlowUserAttributeAssignment
@@ -56671,27 +45533,7 @@ function Update-MgBetaIdentityB2XUserFlowUserAttributeAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userAttributeAssignments/$($IdentityUserFlowAttributeAssignmentId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'B2xIdentityUserFlowId', 'IdentityUserFlowAttributeAssignmentId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/b2xUserFlows/$($B2xIdentityUserFlowId)/userAttributeAssignments/$($IdentityUserFlowAttributeAssignmentId)" -Method 'PATCH' -ExtraExcludeParams @('B2xIdentityUserFlowId', 'IdentityUserFlowAttributeAssignmentId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaIdentityConditionalAccessAuthenticationContextClassReference
@@ -56763,27 +45605,7 @@ function Update-MgBetaIdentityConditionalAccessAuthenticationContextClassReferen
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/conditionalAccess/authenticationContextClassReferences/$($AuthenticationContextClassReferenceId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AuthenticationContextClassReferenceId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/conditionalAccess/authenticationContextClassReferences/$($AuthenticationContextClassReferenceId)" -Method 'PATCH' -ExtraExcludeParams @('AuthenticationContextClassReferenceId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaIdentityCustomAuthenticationExtension
@@ -56867,27 +45689,7 @@ function Update-MgBetaIdentityCustomAuthenticationExtension
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/customAuthenticationExtensions/$($CustomAuthenticationExtensionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'CustomAuthenticationExtensionId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/customAuthenticationExtensions/$($CustomAuthenticationExtensionId)" -Method 'PATCH' -ExtraExcludeParams @('CustomAuthenticationExtensionId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaIdentityGovernanceLifecycleWorkflow
@@ -57027,27 +45829,7 @@ function Update-MgBetaIdentityGovernanceLifecycleWorkflow
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/lifecycleWorkflows/workflows/$($WorkflowId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'WorkflowId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/lifecycleWorkflows/workflows/$($WorkflowId)" -Method 'PATCH' -ExtraExcludeParams @('WorkflowId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension
@@ -57147,27 +45929,7 @@ function Update-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/lifecycleWorkflows/customTaskExtensions/$($CustomTaskExtensionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'CustomTaskExtensionId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/lifecycleWorkflows/customTaskExtensions/$($CustomTaskExtensionId)" -Method 'PATCH' -ExtraExcludeParams @('CustomTaskExtensionId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaIdentityGovernanceLifecycleWorkflowSetting
@@ -57227,27 +45989,7 @@ function Update-MgBetaIdentityGovernanceLifecycleWorkflowSetting
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identityGovernance/lifecycleWorkflows/settings"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/lifecycleWorkflows/settings" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaIdentityProvider
@@ -57311,27 +46053,7 @@ function Update-MgBetaIdentityProvider
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/identityProviders/$($IdentityProviderBaseId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'IdentityProviderBaseId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/identityProviders/$($IdentityProviderBaseId)" -Method 'PATCH' -ExtraExcludeParams @('IdentityProviderBaseId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaIdentityUserFlowAttribute
@@ -57407,27 +46129,7 @@ function Update-MgBetaIdentityUserFlowAttribute
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/identity/userFlowAttributes/$($IdentityUserFlowAttributeId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'IdentityUserFlowAttributeId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/userFlowAttributes/$($IdentityUserFlowAttributeId)" -Method 'PATCH' -ExtraExcludeParams @('IdentityUserFlowAttributeId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaNetworkAccessFilteringPolicy
@@ -57515,27 +46217,7 @@ function Update-MgBetaNetworkAccessFilteringPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'FilteringPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)" -Method 'PATCH' -ExtraExcludeParams @('FilteringPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaNetworkAccessFilteringPolicyRule
@@ -57603,27 +46285,7 @@ function Update-MgBetaNetworkAccessFilteringPolicyRule
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)/policyRules/$($PolicyRuleId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'FilteringPolicyId', 'PolicyRuleId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/filteringPolicies/$($FilteringPolicyId)/policyRules/$($PolicyRuleId)" -Method 'PATCH' -ExtraExcludeParams @('FilteringPolicyId', 'PolicyRuleId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaNetworkAccessForwardingProfile
@@ -57727,27 +46389,7 @@ function Update-MgBetaNetworkAccessForwardingProfile
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/forwardingProfiles/$($ForwardingProfileId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ForwardingProfileId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/forwardingProfiles/$($ForwardingProfileId)" -Method 'PATCH' -ExtraExcludeParams @('ForwardingProfileId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaNetworkAccessForwardingProfilePolicy
@@ -57823,27 +46465,7 @@ function Update-MgBetaNetworkAccessForwardingProfilePolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/forwardingProfiles/$($ForwardingProfileId)/policies/$($PolicyLinkId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ForwardingProfileId', 'PolicyLinkId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/forwardingProfiles/$($ForwardingProfileId)/policies/$($PolicyLinkId)" -Method 'PATCH' -ExtraExcludeParams @('ForwardingProfileId', 'PolicyLinkId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaNetworkAccessSettingConditionalAccess
@@ -57899,27 +46521,7 @@ function Update-MgBetaNetworkAccessSettingConditionalAccess
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/settings/conditionalAccess"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/settings/conditionalAccess" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaNetworkAccessSettingCrossTenantAccess
@@ -57975,27 +46577,7 @@ function Update-MgBetaNetworkAccessSettingCrossTenantAccess
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/networkAccess/settings/crossTenantAccess"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/networkAccess/settings/crossTenantAccess" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaOnPremisePublishingProfileConnectorGroup
@@ -58083,27 +46665,7 @@ function Update-MgBetaOnPremisePublishingProfileConnectorGroup
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/onPremisesPublishingProfiles/$($OnPremisesPublishingProfileId)/connectorGroups/$($ConnectorGroupId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'OnPremisesPublishingProfileId', 'ConnectorGroupId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/onPremisesPublishingProfiles/$($OnPremisesPublishingProfileId)/connectorGroups/$($ConnectorGroupId)" -Method 'PATCH' -ExtraExcludeParams @('OnPremisesPublishingProfileId', 'ConnectorGroupId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaOrganization
@@ -58299,27 +46861,7 @@ function Update-MgBetaOrganization
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/organization/$($OrganizationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'OrganizationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/organization/$($OrganizationId)" -Method 'PATCH' -ExtraExcludeParams @('OrganizationId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaOrganizationSettingItemInsight
@@ -58387,27 +46929,7 @@ function Update-MgBetaOrganizationSettingItemInsight
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/organization/$($OrganizationId)/settings/itemInsights"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'OrganizationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/organization/$($OrganizationId)/settings/itemInsights" -Method 'PATCH' -ExtraExcludeParams @('OrganizationId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaOrganizationSettingPersonInsight
@@ -58475,27 +46997,7 @@ function Update-MgBetaOrganizationSettingPersonInsight
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/organization/$($OrganizationId)/settings/peopleInsights"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'OrganizationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/organization/$($OrganizationId)/settings/peopleInsights" -Method 'PATCH' -ExtraExcludeParams @('OrganizationId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyAccessReviewPolicy
@@ -58559,27 +47061,7 @@ function Update-MgBetaPolicyAccessReviewPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/accessReviewPolicy"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/accessReviewPolicy" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyActivityBasedTimeoutPolicy
@@ -58663,27 +47145,7 @@ function Update-MgBetaPolicyActivityBasedTimeoutPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/activityBasedTimeoutPolicies/$($ActivityBasedTimeoutPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ActivityBasedTimeoutPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/activityBasedTimeoutPolicies/$($ActivityBasedTimeoutPolicyId)" -Method 'PATCH' -ExtraExcludeParams @('ActivityBasedTimeoutPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyAppManagementPolicy
@@ -58767,27 +47229,7 @@ function Update-MgBetaPolicyAppManagementPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/appManagementPolicies/$($AppManagementPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AppManagementPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/appManagementPolicies/$($AppManagementPolicyId)" -Method 'PATCH' -ExtraExcludeParams @('AppManagementPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyAuthenticationFlowPolicy
@@ -58851,27 +47293,7 @@ function Update-MgBetaPolicyAuthenticationFlowPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/authenticationFlowsPolicy"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/authenticationFlowsPolicy" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyAuthenticationMethodPolicy
@@ -58967,27 +47389,7 @@ function Update-MgBetaPolicyAuthenticationMethodPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/authenticationMethodsPolicy"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/authenticationMethodsPolicy" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration
@@ -59055,27 +47457,7 @@ function Update-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfig
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations/$($AuthenticationMethodConfigurationId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AuthenticationMethodConfigurationId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/authenticationMethodsPolicy/authenticationMethodConfigurations/$($AuthenticationMethodConfigurationId)" -Method 'PATCH' -ExtraExcludeParams @('AuthenticationMethodConfigurationId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyAuthenticationStrengthPolicy
@@ -59167,27 +47549,7 @@ function Update-MgBetaPolicyAuthenticationStrengthPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/authenticationStrengthPolicies/$($AuthenticationStrengthPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AuthenticationStrengthPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/authenticationStrengthPolicies/$($AuthenticationStrengthPolicyId)" -Method 'PATCH' -ExtraExcludeParams @('AuthenticationStrengthPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyAuthenticationStrengthPolicyAllowedCombination
@@ -59247,27 +47609,7 @@ function Update-MgBetaPolicyAuthenticationStrengthPolicyAllowedCombination
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/authenticationStrengthPolicies/$($AuthenticationStrengthPolicyId)/updateAllowedCombinations"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AuthenticationStrengthPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'POST' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/authenticationStrengthPolicies/$($AuthenticationStrengthPolicyId)/updateAllowedCombinations" -Method 'POST' -ExtraExcludeParams @('AuthenticationStrengthPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyAuthorizationPolicy
@@ -59383,27 +47725,7 @@ function Update-MgBetaPolicyAuthorizationPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/authorizationPolicy/$($AuthorizationPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AuthorizationPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/authorizationPolicy/$($AuthorizationPolicyId)" -Method 'PATCH' -ExtraExcludeParams @('AuthorizationPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyB2BManagementPolicy
@@ -59487,27 +47809,7 @@ function Update-MgBetaPolicyB2BManagementPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/b2bManagementPolicies/$($B2bManagementPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'B2bManagementPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/b2bManagementPolicies/$($B2bManagementPolicyId)" -Method 'PATCH' -ExtraExcludeParams @('B2bManagementPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyB2CAuthenticationMethodPolicy
@@ -59571,27 +47873,7 @@ function Update-MgBetaPolicyB2CAuthenticationMethodPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/b2cAuthenticationMethodsPolicy"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/b2cAuthenticationMethodsPolicy" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyClaimMappingPolicy
@@ -59675,27 +47957,7 @@ function Update-MgBetaPolicyClaimMappingPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/claimsMappingPolicies/$($ClaimsMappingPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ClaimsMappingPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/claimsMappingPolicies/$($ClaimsMappingPolicyId)" -Method 'PATCH' -ExtraExcludeParams @('ClaimsMappingPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyCrossTenantAccessPolicy
@@ -59779,27 +48041,7 @@ function Update-MgBetaPolicyCrossTenantAccessPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/crossTenantAccessPolicy"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/crossTenantAccessPolicy" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyCrossTenantAccessPolicyDefault
@@ -59887,27 +48129,7 @@ function Update-MgBetaPolicyCrossTenantAccessPolicyDefault
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/crossTenantAccessPolicy/default"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/crossTenantAccessPolicy/default" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyCrossTenantAccessPolicyPartner
@@ -60011,27 +48233,7 @@ function Update-MgBetaPolicyCrossTenantAccessPolicyPartner
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/crossTenantAccessPolicy/partners/$($CrossTenantAccessPolicyConfigurationPartnerTenantId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'CrossTenantAccessPolicyConfigurationPartnerTenantId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/crossTenantAccessPolicy/partners/$($CrossTenantAccessPolicyConfigurationPartnerTenantId)" -Method 'PATCH' -ExtraExcludeParams @('CrossTenantAccessPolicyConfigurationPartnerTenantId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyCrossTenantAccessPolicyTemplateMultiTenantOrganizationIdentitySynchronization
@@ -60091,27 +48293,7 @@ function Update-MgBetaPolicyCrossTenantAccessPolicyTemplateMultiTenantOrganizati
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/crossTenantAccessPolicy/templates/multiTenantOrganizationIdentitySynchronization"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/crossTenantAccessPolicy/templates/multiTenantOrganizationIdentitySynchronization" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyDefaultAppManagementPolicy
@@ -60187,27 +48369,7 @@ function Update-MgBetaPolicyDefaultAppManagementPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/defaultAppManagementPolicy"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/defaultAppManagementPolicy" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyExternalIdentityPolicy
@@ -60279,27 +48441,7 @@ function Update-MgBetaPolicyExternalIdentityPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/externalIdentitiesPolicy"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/externalIdentitiesPolicy" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyFeatureRolloutPolicy
@@ -60383,27 +48525,7 @@ function Update-MgBetaPolicyFeatureRolloutPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/featureRolloutPolicies/$($FeatureRolloutPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'FeatureRolloutPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/featureRolloutPolicies/$($FeatureRolloutPolicyId)" -Method 'PATCH' -ExtraExcludeParams @('FeatureRolloutPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyHomeRealmDiscoveryPolicy
@@ -60487,27 +48609,7 @@ function Update-MgBetaPolicyHomeRealmDiscoveryPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/homeRealmDiscoveryPolicies/$($HomeRealmDiscoveryPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'HomeRealmDiscoveryPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/homeRealmDiscoveryPolicies/$($HomeRealmDiscoveryPolicyId)" -Method 'PATCH' -ExtraExcludeParams @('HomeRealmDiscoveryPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyIdentitySecurityDefaultEnforcementPolicy
@@ -60575,27 +48677,7 @@ function Update-MgBetaPolicyIdentitySecurityDefaultEnforcementPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/identitySecurityDefaultsEnforcementPolicy"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/identitySecurityDefaultsEnforcementPolicy" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyPermissionGrantPolicy
@@ -60683,27 +48765,7 @@ function Update-MgBetaPolicyPermissionGrantPolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/permissionGrantPolicies/$($PermissionGrantPolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'PermissionGrantPolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/permissionGrantPolicies/$($PermissionGrantPolicyId)" -Method 'PATCH' -ExtraExcludeParams @('PermissionGrantPolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyRoleManagementPolicyRule
@@ -60771,27 +48833,7 @@ function Update-MgBetaPolicyRoleManagementPolicyRule
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/roleManagementPolicies/$($UnifiedRoleManagementPolicyId)/rules/$($UnifiedRoleManagementPolicyRuleId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'UnifiedRoleManagementPolicyId', 'UnifiedRoleManagementPolicyRuleId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/roleManagementPolicies/$($UnifiedRoleManagementPolicyId)/rules/$($UnifiedRoleManagementPolicyRuleId)" -Method 'PATCH' -ExtraExcludeParams @('UnifiedRoleManagementPolicyId', 'UnifiedRoleManagementPolicyRuleId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyTokenIssuancePolicy
@@ -60875,27 +48917,7 @@ function Update-MgBetaPolicyTokenIssuancePolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/tokenIssuancePolicies/$($TokenIssuancePolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'TokenIssuancePolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/tokenIssuancePolicies/$($TokenIssuancePolicyId)" -Method 'PATCH' -ExtraExcludeParams @('TokenIssuancePolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyTokenLifetimePolicy
@@ -60979,27 +49001,7 @@ function Update-MgBetaPolicyTokenLifetimePolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/policies/tokenLifetimePolicies/$($TokenLifetimePolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'TokenLifetimePolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/tokenLifetimePolicies/$($TokenLifetimePolicyId)" -Method 'PATCH' -ExtraExcludeParams @('TokenLifetimePolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaProgram
@@ -61071,27 +49073,7 @@ function Update-MgBetaProgram
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/programs/$($ProgramId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ProgramId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/programs/$($ProgramId)" -Method 'PATCH' -ExtraExcludeParams @('ProgramId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaRoleManagementCloudPcRoleAssignment
@@ -61195,27 +49177,7 @@ function Update-MgBetaRoleManagementCloudPcRoleAssignment
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/roleManagement/cloudPC/roleAssignments/$($UnifiedRoleAssignmentMultipleId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'UnifiedRoleAssignmentMultipleId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/roleManagement/cloudPC/roleAssignments/$($UnifiedRoleAssignmentMultipleId)" -Method 'PATCH' -ExtraExcludeParams @('UnifiedRoleAssignmentMultipleId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaRoleManagementCloudPcRoleDefinition
@@ -61319,27 +49281,7 @@ function Update-MgBetaRoleManagementCloudPcRoleDefinition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/roleManagement/cloudPC/roleDefinitions/$($UnifiedRoleDefinitionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'UnifiedRoleDefinitionId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/roleManagement/cloudPC/roleDefinitions/$($UnifiedRoleDefinitionId)" -Method 'PATCH' -ExtraExcludeParams @('UnifiedRoleDefinitionId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaRoleManagementDirectoryRoleDefinition
@@ -61443,27 +49385,7 @@ function Update-MgBetaRoleManagementDirectoryRoleDefinition
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/roleManagement/directory/roleDefinitions/$($UnifiedRoleDefinitionId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'UnifiedRoleDefinitionId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/roleManagement/directory/roleDefinitions/$($UnifiedRoleDefinitionId)" -Method 'PATCH' -ExtraExcludeParams @('UnifiedRoleDefinitionId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaTeamChannelTab
@@ -61559,27 +49481,7 @@ function Update-MgBetaTeamChannelTab
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/beta/teams/$($TeamId)/channels/$($ChannelId)/tabs/$($TeamsTabId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'TeamId', 'ChannelId', 'TeamsTabId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/teams/$($TeamId)/channels/$($ChannelId)/tabs/$($TeamsTabId)" -Method 'PATCH' -ExtraExcludeParams @('TeamId', 'ChannelId', 'TeamsTabId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgDirectoryAdministrativeUnit
@@ -61683,27 +49585,7 @@ function Update-MgDirectoryAdministrativeUnit
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'AdministrativeUnitId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/directory/administrativeUnits/$($AdministrativeUnitId)" -Method 'PATCH' -ExtraExcludeParams @('AdministrativeUnitId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgGroup
@@ -62051,27 +49933,7 @@ function Update-MgGroup
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/groups/$($GroupId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'GroupId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/groups/$($GroupId)" -Method 'PATCH' -ExtraExcludeParams @('GroupId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgGroupLifecyclePolicy
@@ -62147,27 +50009,7 @@ function Update-MgGroupLifecyclePolicy
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/groupLifecyclePolicies/$($GroupLifecyclePolicyId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'GroupLifecyclePolicyId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/groupLifecyclePolicies/$($GroupLifecyclePolicyId)" -Method 'PATCH' -ExtraExcludeParams @('GroupLifecyclePolicyId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgPlannerPlan
@@ -62259,27 +50101,7 @@ function Update-MgPlannerPlan
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/planner/plans/$($PlannerPlanId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'PlannerPlanId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/planner/plans/$($PlannerPlanId)" -Method 'PATCH' -ExtraExcludeParams @('PlannerPlanId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgServicePrincipal
@@ -62551,27 +50373,7 @@ function Update-MgServicePrincipal
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/servicePrincipals/$($ServicePrincipalId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'ServicePrincipalId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/servicePrincipals/$($ServicePrincipalId)" -Method 'PATCH' -ExtraExcludeParams @('ServicePrincipalId') -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgUser
@@ -63167,27 +50969,7 @@ function Update-MgUser
         $ProxyUseDefaultCredentials
     )
 
-    $uri = "/v1.0/users/$($UserId)"
-    $requestHeaders = @{}
-    if ($PSBoundParameters.ContainsKey('Headers')) { $requestHeaders = $Headers }
-
-    $namedParams = @{}
-    $excludeFromBody = @('Headers', 'HttpPipelinePrepend', 'HttpPipelineAppend', 'Proxy', 'ProxyCredential', 'ProxyUseDefaultCredentials', 'Break', 'ResponseHeadersVariable', 'InputObject', 'Filter', 'Property', 'ExpandProperty', 'Top', 'Skip', 'Search', 'Sort', 'CountVariable', 'ConsistencyLevel', 'All', 'PageSize', 'BodyParameter', 'AdditionalProperties', 'UserId', 'Confirm', 'WhatIf')
-    foreach ($key in $PSBoundParameters.Keys)
-    {
-        if ($key -notin $excludeFromBody)
-        {
-            $namedParams[$key] = $PSBoundParameters[$key]
-        }
-    }
-
-    $body = ConvertTo-M365DSCGraphShimBody `
-        -BodyParameter $BodyParameter `
-        -AdditionalProperties $AdditionalProperties `
-        -NamedParams $namedParams `
-        -ExcludeParams $excludeFromBody
-
-    return Invoke-M365DSCGraphShimRequest -Method 'PATCH' -Uri $uri -Body $body -Headers $requestHeaders -ErrorAction $ErrorActionPreference
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/v1.0/users/$($UserId)" -Method 'PATCH' -ExtraExcludeParams @('UserId') -ErrorAction $ErrorActionPreference
 }
 
 # Export all wrapper functions

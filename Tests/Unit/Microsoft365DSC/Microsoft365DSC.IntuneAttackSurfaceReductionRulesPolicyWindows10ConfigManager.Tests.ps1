@@ -122,10 +122,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     SourceId = '12345-12345-12345-12345-12345'
                     Target   = @{
                         DeviceAndAppManagementAssignmentFilterType = 'none'
-                        @{
-                            '@odata.type' = '#microsoft.graph.configurationManagerCollectionAssignmentTarget'
-                            collectionId  = '26d60dd1-fab6-47bf-8656-358194c1a49d'
-                        }
+                        '@odata.type' = '#microsoft.graph.configurationManagerCollectionAssignmentTarget'
+                        collectionId  = '26d60dd1-fab6-47bf-8656-358194c1a49d'
                     }
                 })
             }

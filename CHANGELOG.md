@@ -5,6 +5,13 @@
 * AADAccessReviewDefinition
   * Added new properties `AdditionalNotificationRecipients` and `InstanceEnumerationScope`.
   * Fixed issues when creating and updating instances of this resource.
+* MISC
+  * Refactored filters on Graph calls to be done on the server side instead of locally.
+* Dependencies
+  * Updated `MSCloudLoginAssistant` to version 1.1.63.
+
+# UNRELEASED
+
 * AADApplication
   * Fixed an issue where the value of `Value` in `MSFT_MicrosoftGraphAppRole` was missing.
     FIXES [#7064](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7064)
@@ -27,8 +34,6 @@
     FIXES [#7055](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7055)
 * M365DSCUtil
   * Added retry logic for too many requests when invoking batch requests.
-* MISC
-  * Refactored filters on Graph calls to be done on the server side instead of locally.
 * Dependencies
   * Updated `DSCParser` to version 3.0.0.4.
     FIXES [#7056](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7056)
