@@ -148,6 +148,10 @@ function Get-TargetResource
         }
 
         $tokenExpirationDateTimeString = $androidDeviceOwnerEnrollmentProfile.TokenExpirationDateTime
+        if ($tokenExpirationDateTimeString -is [DateTime])
+        {
+            $tokenExpirationDateTimeString = $tokenExpirationDateTimeString.ToString('yyyy-MM-ddTHH:mm:ssZ')
+        }
         if (-not [string]::IsNullOrEmpty($tokenExpirationDateTimeString))
         {
             $tokenExpirationDateTimeString = [DateTime]::Parse($tokenExpirationDateTimeString).ToString('yyyy-MM-ddTHH:mm:ssZ')
@@ -492,6 +496,7 @@ function Export-TargetResource
         # Exclude profiles with Microsoft internal enrollment mode (EnrollmentMode 5) from export
         # as it cannot be managed. Example is "Default enrollment profile for personally-owned work profile devices"
         [array] $Script:exportedInstances = Get-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile `
+            -All `
             -ErrorAction Stop | Where-Object EnrollmentMode -NE 5
 
         $i = 1
