@@ -411,8 +411,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
+    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+        @compareParameters
     return $result
 }
 
@@ -593,4 +595,70 @@ function Export-TargetResource
     }
 }
 
-Export-ModuleMember -Function *-TargetResource
+function Get-CompareParameters
+{
+    return @{
+        PostProcessing = {
+            param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
+            foreach ($keyCred in $DesiredValues.ApplicationRestrictions.KeyCredentials)
+            {
+                if (-not [System.String]::IsNullOrWhiteSpace($keyCred.MaxLifetime))
+                {
+                    $keyCred.MaxLifetime = $keyCred.MaxLifetime.Replace("T0H0M0S", "")
+                }
+            }
+            foreach ($passwordCred in $DesiredValues.ApplicationRestrictions.PasswordCredentials)
+            {
+                if (-not [System.String]::IsNullOrWhiteSpace($passwordCred.MaxLifetime))
+                {
+                    $passwordCred.MaxLifetime = $passwordCred.MaxLifetime.Replace("T0H0M0S", "")
+                }
+            }
+            foreach ($keyCred in $DesiredValues.ServicePrincipalRestrictions.KeyCredentials)
+            {
+                if (-not [System.String]::IsNullOrWhiteSpace($keyCred.MaxLifetime))
+                {
+                    $keyCred.MaxLifetime = $keyCred.MaxLifetime.Replace("T0H0M0S", "")
+                }
+            }
+            foreach ($passwordCred in $DesiredValues.ServicePrincipalRestrictions.PasswordCredentials)
+            {
+                if (-not [System.String]::IsNullOrWhiteSpace($passwordCred.MaxLifetime))
+                {
+                    $passwordCred.MaxLifetime = $passwordCred.MaxLifetime.Replace("T0H0M0S", "")
+                }
+            }
+            foreach ($keyCred in $CurrentValues.ApplicationRestrictions.KeyCredentials)
+            {
+                if (-not [System.String]::IsNullOrWhiteSpace($keyCred.MaxLifetime))
+                {
+                    $keyCred.MaxLifetime = $keyCred.MaxLifetime.Replace("T0H0M0S", "")
+                }
+            }
+            foreach ($passwordCred in $CurrentValues.ApplicationRestrictions.PasswordCredentials)
+            {
+                if (-not [System.String]::IsNullOrWhiteSpace($passwordCred.MaxLifetime))
+                {
+                    $passwordCred.MaxLifetime = $passwordCred.MaxLifetime.Replace("T0H0M0S", "")
+                }
+            }
+            foreach ($keyCred in $CurrentValues.ServicePrincipalRestrictions.KeyCredentials)
+            {
+                if (-not [System.String]::IsNullOrWhiteSpace($keyCred.MaxLifetime))
+                {
+                    $keyCred.MaxLifetime = $keyCred.MaxLifetime.Replace("T0H0M0S", "")
+                }
+            }
+            foreach ($passwordCred in $CurrentValues.ServicePrincipalRestrictions.PasswordCredentials)
+            {
+                if (-not [System.String]::IsNullOrWhiteSpace($passwordCred.MaxLifetime))
+                {
+                    $passwordCred.MaxLifetime = $passwordCred.MaxLifetime.Replace("T0H0M0S", "")
+                }
+            }
+            return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
+        }
+    }
+}
+
+Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')

@@ -5,6 +5,19 @@
 * AADAccessReviewDefinition
   * Added new properties `AdditionalNotificationRecipients` and `InstanceEnumerationScope`.
   * Fixed issues when creating and updating instances of this resource.
+* AADTenantAppManagementPolicy
+  * Changed the `MaxLifetime` property in application + service principal restrictions
+    --> key and password credentials to only include necessary date and time information.
+* IntuneDeviceCompliancePolicyAndroidWorkProfile
+  * Added support for the property `RoleScopeTagIds`.
+* IntuneDeviceCompliancePolicyiOs
+  * Added support for the property `ScheduledActionsForRule`.
+* IntuneDeviceConfigurationPolicyMacOS
+  * Fixed an issue where profiles that didn't match the filter were being exported.
+* IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile
+  * Standardized time format of `TokenExpirationDateTime` and excluded it from comparison.
+* M365DSCReverse
+  * Added functionality to use wildcards in the `-Components` parameter when exporting.
 * MISC
   * Introduced Microsoft Graph shim layer.
   * Refactored filters on Graph calls to be done on the server side instead of locally.

@@ -158,7 +158,7 @@ function Start-M365DSCConfigurationExtract
             $OutputDSCPath = Read-Host 'Please Provide Output Folder for DSC Configuration (Will be Created as Necessary)'
         }
         <## Ensures the path we specify ends with a Slash, in order to make sure the resulting file path is properly structured. #>
-        if (!$OutputDSCPath.EndsWith('\') -and !$OutputDSCPath.EndsWith('/'))
+        if (-not $OutputDSCPath.EndsWith('\') -and -not $OutputDSCPath.EndsWith('/'))
         {
             $OutputDSCPath += '\'
         }
@@ -203,9 +203,33 @@ function Start-M365DSCConfigurationExtract
 
         if ($null -ne $Components)
         {
+            $allM365DscResources = Get-M365DSCAllResources
+            $newComponents = @()
+            foreach ($component in $Components)
+            {
+                if ($component.Contains('*'))
+                {
+                    $matchingResources = $allM365DscResources | Where-Object { $_ -like $component }
+                    if ($matchingResources.Count -eq 0)
+                    {
+                        Write-Warning -Message "The component filter '$component' did not match any resources and will be ignored."
+                    }
+                    else
+                    {
+                        Write-Verbose -Message "The component filter '$component' matched the following resources: $($matchingResources -join ',')"
+                        $newComponents += ($matchingResources | Where-Object { $ComponentsToSkip -notcontains $_ })
+                    }
+                }
+                else
+                {
+                    $newComponents += $component
+                }
+            }
+            $Components = $newComponents | Select-Object -Unique
             $resourcesInBothIncludeAndExclude = Compare-Object -ReferenceObject $Components `
                 -DifferenceObject $ComponentsToSkip -ExcludeDifferent -IncludeEqual
         }
+
         if ($resourcesInBothIncludeAndExclude.Count -gt 0)
         {
             foreach ($resource in $resourcesInBothIncludeAndExclude)

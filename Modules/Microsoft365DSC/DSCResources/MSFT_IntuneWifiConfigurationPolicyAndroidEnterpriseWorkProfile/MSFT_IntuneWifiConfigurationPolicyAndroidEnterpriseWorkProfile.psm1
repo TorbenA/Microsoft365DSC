@@ -116,7 +116,9 @@ function Get-TargetResource
             #region resource generator code
             if ($null -eq $getValue)
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.androidWorkProfileWiFiConfiguration')" -ErrorAction SilentlyContinue
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All `
+                    -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.androidWorkProfileWiFiConfiguration') and not isof('microsoft.graph.androidWorkProfileEnterpriseWiFiConfiguration')" `
+                    -ErrorAction SilentlyContinue
             }
             #endregion
 
@@ -482,7 +484,7 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        $baseFilter = "isof('microsoft.graph.androidWorkProfileWiFiConfiguration')"
+        $baseFilter = "isof('microsoft.graph.androidWorkProfileWiFiConfiguration') and not isof('microsoft.graph.androidWorkProfileEnterpriseWiFiConfiguration')"
         if (-not [string]::IsNullOrEmpty($Filter))
         {
             $Filter = "($baseFilter) and ($Filter)"

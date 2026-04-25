@@ -59,6 +59,10 @@
       "HasCustomComparison": true,
       "Description": "Excludes properties: ClientSecret"
     },
+    "AADTenantAppManagementPolicy": {
+      "HasCustomComparison": true,
+      "Description": "Uses PostProcessing scriptblock"
+    },
     "DefenderDeviceAuthenticatedScanDefinition": {
       "HasCustomComparison": true,
       "Description": "Excludes properties: ScanAuthenticationParams"
@@ -191,6 +195,10 @@
     "IntuneDeviceEnrollmentScopeConfigurationMdm": {
       "HasCustomComparison": true,
       "Description": "Uses PostProcessing scriptblock"
+    },
+    "IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile": {
+      "HasCustomComparison": true,
+      "Description": "Excludes properties: TokenExpirationDateTime"
     },
     "IntuneDeviceRemediation": {
       "HasCustomComparison": true,

@@ -145,7 +145,9 @@ function Get-TargetResource
             #region resource generator code
             if ($null -eq $getValue)
             {
-                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.iosWiFiConfiguration')" -ErrorAction SilentlyContinue
+                $getValue = Get-MgBetaDeviceManagementDeviceConfiguration -All `
+                    -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.iosWiFiConfiguration') and not isof('microsoft.graph.iosEnterpriseWiFiConfiguration')" `
+                    -ErrorAction SilentlyContinue
             }
             #endregion
 
@@ -598,7 +600,7 @@ function Export-TargetResource
     {
 
         #region resource generator code
-        $baseFilter = "isof('microsoft.graph.iosWiFiConfiguration')"
+        $baseFilter = "isof('microsoft.graph.iosWiFiConfiguration') and not isof('microsoft.graph.iosEnterpriseWiFiConfiguration')"
         if (-not [string]::IsNullOrEmpty($Filter))
         {
             $Filter = "($baseFilter) and ($Filter)"
