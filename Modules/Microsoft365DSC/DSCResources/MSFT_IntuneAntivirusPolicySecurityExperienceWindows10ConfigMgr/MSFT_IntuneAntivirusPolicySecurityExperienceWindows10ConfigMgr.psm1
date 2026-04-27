@@ -470,12 +470,13 @@ function Set-TargetResource
         }
 
         $createParameters = @{
-            Name           = $DisplayName
-            Description    = $Description
-            CreationSource = 'WindowsSecurity'
-            Platforms      = $platforms
-            Technologies   = $technologies
-            Settings       = $settings
+            name           = $DisplayName
+            description    = $Description
+            creationSource = 'WindowsSecurity'
+            platforms      = $platforms
+            technologies   = $technologies
+            settings       = $settings
+            roleScopeTagIds = $RoleScopeTagIds
         }
 
         #region resource generator code

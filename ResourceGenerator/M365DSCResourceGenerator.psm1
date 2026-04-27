@@ -677,12 +677,13 @@ $($userDefinitionSettings.MOF -join "`r`n")
             -TemplateId `$templateReferenceId$(if ($containsDeviceAndUserSettings) { " ```r`n            -ContainsDeviceAndUserSettings" })
 
         `$createParameters = @{
-            Name              = `$DisplayName
-            Description       = `$Description
-            TemplateReference = @{ templateId = `$templateReferenceId }
-            Platforms         = `$platforms
-            Technologies      = `$technologies
-            Settings          = `$settings
+            name              = `$DisplayName
+            description       = `$Description
+            templateReference = @{ templateId = `$templateReferenceId }
+            platforms         = `$platforms
+            technologies      = `$technologies
+            settings          = `$settings
+            roleScopeTagIds   = `$RoleScopeTagIds
         }`r`n
 "@
         }

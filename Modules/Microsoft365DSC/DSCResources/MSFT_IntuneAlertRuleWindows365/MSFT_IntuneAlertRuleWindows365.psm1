@@ -92,9 +92,7 @@ function Get-TargetResource
             $getValue = Get-MgBetaDeviceManagementMonitoringAlertRule `
                 -Filter "alertRuleTemplate eq '$($AlertRuleTemplate -replace "'", "''")'" `
                 -All `
-                -ErrorAction SilentlyContinue | Where-Object {
-                    $_.alertRuleTemplate -eq $AlertRuleTemplate
-                }
+                -ErrorAction SilentlyContinue
             $Script:currentAlertRule = $getValue
             #endregion
             if ($null -eq $getValue)

@@ -151,12 +151,26 @@ function Get-TargetResource
             }
         }
 
+        [System.String[]]$targetedMobileAppsValue = @()
+        foreach ($appId in $getValue.TargetedMobileApps)
+        {
+            $appDetails = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $appId -ErrorAction SilentlyContinue
+            if ($null -eq $appDetails)
+            {
+                Write-Warning -Message "Could not retrieve details for Targeted Mobile App with id {$appId} targeted by this policy. Skipping it."
+            }
+            else
+            {
+                $targetedMobileAppsValue += $appDetails.DisplayName
+            }
+        }
+
         $results = @{
             #region resource generator code
             Id                    = $getValue.Id
             Description           = $getValue.Description
             DisplayName           = $getValue.DisplayName
-            targetedMobileApps    = $getValue.TargetedMobileApps
+            targetedMobileApps    = $targetedMobileAppsValue
             packageId             = $getValue.packageId
             payloadJson           = $getValue.payloadJson
             appSupportsOemConfig  = $getValue.appSupportsOemConfig
@@ -217,7 +231,7 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String[]]
-        $targetedMobileApps,
+        $TargetedMobileApps,
 
         [Parameter()]
         [System.String]
@@ -296,6 +310,34 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
+
+    if ($PSBoundParameters.ContainsKey('TargetedMobileApps'))
+    {
+        $newTargetedMobileApps = @()
+        foreach ($app in $TargetedMobileApps)
+        {
+            $guid = [System.Guid]::Empty
+            if ([System.Guid]::TryParse($app, [ref]$guid))
+            {
+                $appId = (Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $app -ErrorAction SilentlyContinue).id
+                if ($null -eq $appId)
+                {
+                    throw "Could not find an Android Managed Store App in Intune with the id {$app} that is being targeted by this policy. Please ensure the app exists."
+                }
+            }
+            else
+            {
+                $appId = (Get-MgBetaDeviceAppManagementMobileApp -Filter "DisplayName eq '$($app -replace "'", "''")' and isof('microsoft.graph.androidManagedStoreApp')").id
+                if ($null -eq $appId)
+                {
+                    throw "Could not find an Android Managed Store App in Intune with the display name {$app} that is being targeted by this policy. Please ensure the app exists."
+                }
+            }
+            $newTargetedMobileApps += $appId
+        }
+        $PSBoundParameters.Remove('TargetedMobileApps') | Out-Null
+        $PSBoundParameters.Add('TargetedMobileApps', $newTargetedMobileApps)
+    }
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {

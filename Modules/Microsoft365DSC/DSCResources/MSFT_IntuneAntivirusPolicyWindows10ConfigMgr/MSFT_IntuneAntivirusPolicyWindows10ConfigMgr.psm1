@@ -736,12 +736,13 @@ function Set-TargetResource
         }
 
         $createParameters = @{
-            Name           = $DisplayName
-            Description    = $Description
-            CreationSource = 'SccmAV'
-            Platforms      = $platforms
-            Technologies   = $technologies
-            Settings       = $settings
+            name            = $DisplayName
+            description     = $Description
+            creationSource  = 'SccmAV'
+            platforms       = $platforms
+            technologies    = $technologies
+            settings        = $settings
+            roleScopeTagIds = $RoleScopeTagIds
         }
 
         #region resource generator code

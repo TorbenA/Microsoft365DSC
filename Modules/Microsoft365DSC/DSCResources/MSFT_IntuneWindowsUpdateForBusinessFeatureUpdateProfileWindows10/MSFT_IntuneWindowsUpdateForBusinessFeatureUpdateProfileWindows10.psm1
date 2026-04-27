@@ -314,13 +314,14 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $BoundParameters = Rename-M365DSCCimInstanceParameter -Properties $BoundParameters
 
     if ($null -eq $RolloutSettings)
     {
-        $BoundParameters.RolloutSettings = @{
-            OfferStartDateTimeInUTC = $null
-            OfferEndDateTimeInUTC   = $null
-            OfferIntervalInDays     = $null
+        $BoundParameters.rolloutSettings = @{
+            offerStartDateTimeInUTC = $null
+            offerEndDateTimeInUTC   = $null
+            offerIntervalInDays     = $null
         }
     }
 
@@ -338,7 +339,7 @@ function Set-TargetResource
                 if ($offerStartDate -lt $minTimeForAvailable)
                 {
                     $newOfferStartDate = $minTimeForAvailable
-                    $BoundParameters.RolloutSettings.OfferStartDateTimeInUTC = $newOfferStartDate.ToString('yyyy-MM-ddTHH:mm:ss.fffZ')
+                    $BoundParameters.rolloutSettings.offerStartDateTimeInUTC = $newOfferStartDate.ToString('yyyy-MM-ddTHH:mm:ss.fffZ')
                 }
 
                 if (-not [string]::IsNullOrEmpty($RolloutSettings.OfferEndDateTimeInUTC))
@@ -349,7 +350,7 @@ function Set-TargetResource
                     {
                         Write-Verbose -Message 'OfferStartDateTimeInUTC must be at least the current time + 2 days, adjusting it...'
                         $newOfferStartDate = $minTimeForAvailable
-                        $BoundParameters.RolloutSettings.OfferStartDateTimeInUTC = $newOfferStartDate.ToString('yyyy-MM-ddTHH:mm:ss.fffZ')
+                        $BoundParameters.rolloutSettings.offerStartDateTimeInUTC = $newOfferStartDate.ToString('yyyy-MM-ddTHH:mm:ss.fffZ')
                     }
 
                     if ($offerEndDate -lt $newOfferStartDate.AddDays(1))
@@ -366,7 +367,6 @@ function Set-TargetResource
         }
 
         $CreateParameters = ([Hashtable]$BoundParameters).Clone()
-        $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
         $createParameters.Remove('Id') | Out-Null
 
         #region resource generator code
@@ -414,7 +414,7 @@ function Set-TargetResource
                     {
                         $newOfferStartDate = $currentOfferDate
                     }
-                    $BoundParameters.RolloutSettings.OfferStartDateTimeInUTC = $newOfferStartDate.ToString('yyyy-MM-ddTHH:mm:ss.fffZ')
+                    $BoundParameters.rolloutSettings.offerStartDateTimeInUTC = $newOfferStartDate.ToString('yyyy-MM-ddTHH:mm:ss.fffZ')
                 }
 
                 if (-not [string]::IsNullOrEmpty($RolloutSettings.OfferEndDateTimeInUTC))
@@ -426,7 +426,7 @@ function Set-TargetResource
                     {
                         Write-Verbose -Message 'OfferStartDateTimeInUTC must be at least the current time + 2 days, adjusting it...'
                         $newOfferStartDate = $minTimeForAvailable
-                        $BoundParameters.RolloutSettings.OfferStartDateTimeInUTC = $newOfferStartDate.ToString('yyyy-MM-ddTHH:mm:ss.fffZ')
+                        $BoundParameters.rolloutSettings.offerStartDateTimeInUTC = $newOfferStartDate.ToString('yyyy-MM-ddTHH:mm:ss.fffZ')
                     }
 
                     if ($offerEndDate -lt $newOfferStartDate.AddDays(1))
@@ -443,7 +443,6 @@ function Set-TargetResource
         }
 
         $updateParameters = ([Hashtable]$boundParameters).Clone()
-        $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
         $updateParameters.Remove('Id') | Out-Null
 
         #region resource generator code

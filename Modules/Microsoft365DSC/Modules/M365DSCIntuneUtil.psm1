@@ -170,8 +170,8 @@ function ConvertTo-IntunePolicyAssignment
             if ($null -eq $group -and -not [System.String]::IsNullOrEmpty($assignment.groupDisplayName))
             {
                 $escapedName = $assignment.groupDisplayName -replace "'", "''"
-                $group = Get-MgGroup -Filter "DisplayName eq '$escapedName'" -All -ErrorAction SilentlyContinue
-                if ($null -eq $group)
+                [array]$group = Get-MgGroup -Filter "DisplayName eq '$escapedName'" -All -ErrorAction SilentlyContinue
+                if ($null -eq $group -or $group.Count -eq 0)
                 {
                     Write-Warning "Skipping assignment: groupDisplayName '{$($assignment.groupDisplayName)}' not found."
                     $target = $null
@@ -382,8 +382,8 @@ function ConvertTo-IntuneMobileAppAssignment
             if ($null -eq $group -and -not [System.String]::IsNullOrEmpty($assignment.groupDisplayName))
             {
                 $escapedName = $assignment.groupDisplayName -replace "'", "''"
-                $group = Get-MgGroup -Filter "DisplayName eq '$escapedName'" -All -ErrorAction SilentlyContinue
-                if ($null -eq $group)
+                [array]$group = Get-MgGroup -Filter "DisplayName eq '$escapedName'" -All -ErrorAction SilentlyContinue
+                if ($null -eq $group -or $group.Count -eq 0)
                 {
                     Write-Warning "Skipping assignment: groupDisplayName '{$($assignment.groupDisplayName)}' not found."
                     $target = $null
@@ -482,8 +482,8 @@ function Update-DeviceConfigurationPolicyAssignment
                 {
                     if ($target.groupDisplayName)
                     {
-                        $group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName -replace "'", "''")'" -All -ErrorAction SilentlyContinue
-                        if ($null -eq $group)
+                        [array]$group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName -replace "'", "''")'" -All -ErrorAction SilentlyContinue
+                        if ($null -eq $group -or $group.Count -eq 0)
                         {
                             $message = "Skipping assignment for the group with DisplayName {$($target.groupDisplayName)} as it could not be found in the directory.`r`n"
                             $message += 'Please update your DSC resource extract with the correct groupId or groupDisplayName.'
@@ -606,8 +606,8 @@ function Update-DeviceAppManagementPolicyAssignment
                 {
                     if ($target.groupDisplayName)
                     {
-                        $group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName -replace "'", "''")'" -All -ErrorAction SilentlyContinue
-                        if ($null -eq $group)
+                        [array]$group = Get-MgGroup -Filter "DisplayName eq '$($target.groupDisplayName -replace "'", "''")'" -All -ErrorAction SilentlyContinue
+                        if ($null -eq $group -or $group.Count -eq 0)
                         {
                             $message = "Skipping assignment for the group with DisplayName {$($target.groupDisplayName)} as it could not be found in the directory.`r`n"
                             $message += 'Please update your DSC resource extract with the correct groupId or groupDisplayName.'

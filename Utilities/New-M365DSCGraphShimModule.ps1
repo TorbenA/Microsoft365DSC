@@ -317,7 +317,11 @@ function Get-M365DSCGraphShimAllPages
     do
     {
         $response = Invoke-M365DSCGraphShimRequest @requestParams -PassThru
-        if ($response.ContainsKey('value'))
+        if ($null -eq $response)
+        {
+            break
+        }
+        elseif ($response.ContainsKey('value'))
         {
             $allResults.AddRange([array]$response.value)
         }

@@ -298,21 +298,30 @@ function Set-TargetResource
 
         # set assignments and items to work with New-MgBetaDeviceAppManagementPolicySet command
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
-        $CreateParameters.Add('Assignments', $assignmentsHash)
+        $CreateParameters.Add('assignments', $assignmentsHash)
 
         $itemsHash = @()
         foreach ($item in $items)
         {
             $itemsHash += @{
-                PayloadId            = $item.payloadId
+                payloadId            = $item.payloadId
                 '@odata.type'        = $item.dataType
                 guidedDeploymentTags = $item.guidedDeploymentTags
             }
         }
-        $CreateParameters.Add('Items', $itemsHash)
+        $CreateParameters.Add('items', $itemsHash)
 
         Write-Verbose -Message ($CreateParameters | Out-String)
         $policy = New-MgBetaDeviceAppManagementPolicySet -BodyParameter $CreateParameters
+
+        if ($policy.id)
+        {
+            $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
+            $url = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceAppManagement/policySets/$($policy.Id)/update"
+            Invoke-MgGraphRequest -Method POST -Uri ($url) -Body @{
+                assignments = $assignmentsHash
+            }
+        }
 
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
@@ -337,7 +346,9 @@ function Set-TargetResource
         }
 
         $assignmentsHash = ConvertTo-IntunePolicyAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
-        Invoke-MgGraphRequest -Method POST -Uri $url -Body $assignmentsHash
+        Invoke-MgGraphRequest -Method POST -Uri $url -Body @{
+            assignments = $assignmentsHash
+        }
         #endregion
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
@@ -606,19 +617,16 @@ function Get-ItemsAmendmentsObject
     }
 
     $currentObjectItems | ForEach-Object {
-
-        if (!($targetObjectItems.Payloadid -contains $_.PayloadId))
+        if (-not ($targetObjectItems.PayloadId -contains $_.PayloadId))
         {
             Write-Verbose -Message ($_.DisplayName + ' NOT present in Config Document, Removing')
             $ItemsModificationTemplate.deletedPolicySetItems += $_.Id
             $nullreturn = $false
         }
-
     }
 
     $targetObjectItems | ForEach-Object {
-
-        if (!($currentObjectItems.PayloadId -contains $_.PayloadId))
+        if (-not ($currentObjectItems.PayloadId -contains $_.PayloadId))
         {
             Write-Verbose -Message ($_.DisplayName + ' NOT already present in Policy Set, Adding')
             $ItemsModificationTemplate.addedPolicySetItems += @{
@@ -628,16 +636,14 @@ function Get-ItemsAmendmentsObject
             }
             $nullreturn = $false
         }
-
     }
 
-    if (!$nullreturn)
+    if (-not $nullreturn)
     {
         return $ItemsModificationTemplate
     }
 
     return $null
-
 }
 
 Export-ModuleMember -Function *-TargetResource

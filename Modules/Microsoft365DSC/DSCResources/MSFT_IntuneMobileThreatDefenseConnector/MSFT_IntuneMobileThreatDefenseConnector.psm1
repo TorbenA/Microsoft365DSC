@@ -158,8 +158,8 @@ function Get-TargetResource
                 # The DisplayName property is not supported by the any API of this resource, hence hard-coded in below function for convenience.
                 $connectorId = (Get-MobileThreatDefenseConnectorIdOrDisplayName -DisplayName $DisplayName).Id
                 $instance = Get-MgBetaDeviceManagementMobileThreatDefenseConnector `
-                    -MobileThreatDefenseConnectorId $connectorId
-                -ErrorAction SilentlyContinue
+                    -MobileThreatDefenseConnectorId $connectorId `
+                    -ErrorAction SilentlyContinue
             }
 
             if ($null -eq $instance)
@@ -192,7 +192,6 @@ function Get-TargetResource
             PartnerUnsupportedOSVersionBlocked                  = $instance.PartnerUnsupportedOSVersionBlocked
             WindowsDeviceBlockedOnMissingPartnerData            = $instance.WindowsDeviceBlockedOnMissingPartnerData
             WindowsEnabled                                      = $instance.WindowsEnabled
-
             Ensure                                              = 'Present'
             Credential                                          = $Credential
             ApplicationId                                       = $ApplicationId
@@ -342,6 +341,7 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
     $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $SetParameters = Rename-M365DSCCimInstanceParameter -Properties $SetParameters
 
     # Remove the DisplayName parameter as the Graph API does not support it
     $SetParameters.Remove('DisplayName') | Out-Null

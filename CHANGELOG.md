@@ -8,6 +8,8 @@
 * AADTenantAppManagementPolicy
   * Changed the `MaxLifetime` property in application + service principal restrictions
     --> key and password credentials to only include necessary date and time information.
+* IntuneAndroidManagedStoreAppConfiguration
+  * Changed property `targetedMobileApps` to use display name instead of app id.
 * IntuneDeviceCompliancePolicyAndroidWorkProfile
   * Added support for the property `RoleScopeTagIds`.
 * IntuneDeviceCompliancePolicyiOs
@@ -18,6 +20,8 @@
   * Standardized time format of `TokenExpirationDateTime` and excluded it from comparison.
 * M365DSCReverse
   * Added functionality to use wildcards in the `-Components` parameter when exporting.
+* C# - SettingCatalogPolicySettingBuilder
+  * Fixed an issue if a setting definition appears multiple times in the same instance template.
 * MISC
   * Introduced Microsoft Graph shim layer.
   * Refactored filters on Graph calls to be done on the server side instead of locally.

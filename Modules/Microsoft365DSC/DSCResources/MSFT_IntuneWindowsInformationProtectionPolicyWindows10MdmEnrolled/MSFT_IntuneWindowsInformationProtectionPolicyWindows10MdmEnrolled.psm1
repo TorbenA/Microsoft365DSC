@@ -181,7 +181,7 @@ function Get-TargetResource
 
             if (-not [string]::IsNullOrEmpty($DisplayName))
             {
-                $getValue = Get-MgBetaDeviceAppManagementMdmWindowsInformationProtectionPolicy `
+                [array]$getValue = Get-MgBetaDeviceAppManagementMdmWindowsInformationProtectionPolicy `
                     -All `
                     -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
                     -ErrorAction SilentlyContinue

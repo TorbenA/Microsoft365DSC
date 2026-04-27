@@ -297,6 +297,10 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    if ($BoundParameters.ContainsKey('ExecutionFrequency'))
+    {
+        $BoundParameters['ExecutionFrequency'] = [System.Xml.XmlConvert]::ToString([System.TimeSpan]::Parse($BoundParameters['ExecutionFrequency']))
+    }
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {

@@ -813,13 +813,13 @@ function Set-TargetResource
             -TemplateId $templateReferenceId
 
         $createParameters = @{
-            Name              = $DisplayName
-            Description       = $Description
-            TemplateReference = @{ templateId = $templateReferenceId }
-            Platforms         = $platforms
-            Technologies      = $technologies
-            Settings          = $settings
-            RoleScopeTagIds   = $RoleScopeTagIds
+            name              = $DisplayName
+            description       = $Description
+            templateReference = @{ templateId = $templateReferenceId }
+            platforms         = $platforms
+            technologies      = $technologies
+            settings          = $settings
+            roleScopeTagIds   = $RoleScopeTagIds
         }
 
         #region resource generator code

@@ -199,6 +199,7 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
 
     $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $SetParameters = Rename-M365DSCCimInstanceParameter -Properties $SetParameters
     $SetParameters.Remove('DataSharingConsetGranted') | Out-Null
 
     # CREATE

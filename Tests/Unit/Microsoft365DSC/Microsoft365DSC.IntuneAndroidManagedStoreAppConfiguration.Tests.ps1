@@ -39,8 +39,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Remove-MgBetaDeviceAppManagementMobileAppConfiguration -MockWith {
             }
 
-            Mock -CommandName Get-MgBetaDeviceManagementDeviceCompliancePolicyAssignment -MockWith {
+            Mock -CommandName Get-MgBetaDeviceAppManagementMobileApp -MockWith {
+                return @{
+                    id = '{FakeStringValue}'
+                    displayName = '{FakeStringValue}'
+                }
+            }
 
+            Mock -CommandName Get-MgBetaDeviceManagementDeviceCompliancePolicyAssignment -MockWith {
                 return @()
             }
             Mock -CommandName Update-DeviceConfigurationPolicyAssignment -MockWith {
@@ -58,7 +64,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     DisplayName                                 = 'Test Android Managed Store App Configuration Policy'
                     Description                                 = 'Test Android Managed Store App Configuration Policy Description'
-                    targetedMobileApps            = "{FakeStringValue}"
+                    targetedMobileApps            = @("{FakeStringValue}")
                     permissionActions                      = [CimInstance[]]@(
                         (New-CimInstance -ClassName MSFT_androidPermissionAction -Property @{
                             permission = "android.permission.READ_SMS"
@@ -98,7 +104,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     DisplayName                                 = 'Test Android Managed Store App Configuration Policy'
                     Description                                 = 'Test Android Managed Store App Configuration Policy Description'
-                    targetedMobileApps                          = "{FakeStringValue}"
+                    targetedMobileApps                          = @("{FakeStringValue}")
                     permissionActions                           = [CimInstance[]]@(
                         (New-CimInstance -ClassName MSFT_androidPermissionAction -Property @{
                             permission = "android.permission.READ_SMS"
@@ -119,7 +125,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         DisplayName                      = 'Test Android Managed Store App Configuration Policy'
                         Description                      = 'Different Value'
                         Id                               = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
-                        targetedMobileApps               = "{FakeStringValue}"
+                        targetedMobileApps               = @("{FakeStringValue}")
                         permissionActions = @(
                            @{
                                 permission      = "android.permission.READ_SMS"
@@ -157,7 +163,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     DisplayName                                 = 'Test Android Managed Store App Configuration Policy'
                     Description                                 = 'Test Android Managed Store App Configuration Policy Description'
-                    targetedMobileApps                          = "{FakeStringValue}"
+                    targetedMobileApps                          = @("{FakeStringValue}")
                     permissionActions                           = [CimInstance[]]@(
                         (New-CimInstance -ClassName MSFT_androidPermissionAction -Property @{
                             permission = "android.permission.READ_SMS"
@@ -178,7 +184,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         DisplayName                             = 'Test Android Managed Store App Configuration Policy'
                         Description                             = 'Test Android Managed Store App Configuration Policy Description'
                         Id                                      = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
-                        targetedMobileApps                      = "{FakeStringValue}"
+                        targetedMobileApps                      = @("{FakeStringValue}")
                         permissionActions = @(
                            @{
                                 permission      = "android.permission.READ_SMS"
@@ -205,7 +211,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     DisplayName                                 = 'Test Android Managed Store App Configuration Policy'
                     Description                                 = 'Test Android Managed Store App Configuration Policy Description'
-                    targetedMobileApps                          = "{FakeStringValue}"
+                    targetedMobileApps                          = @("{FakeStringValue}")
                     permissionActions                           = [CimInstance[]]@(
                         (New-CimInstance -ClassName MSFT_androidPermissionAction -Property @{
                             permission = "android.permission.READ_SMS"
@@ -270,7 +276,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                         DisplayName                   = 'Test Android Managed Store App Configuration Policy'
                         Description                   = 'Test Android Managed Store App Configuration Policy Description'
                         Id                            = 'e30954ac-a65e-4dcb-ab79-91d45f3c52b4'
-                        targetedMobileApps            = "{FakeStringValue}"
+                        targetedMobileApps            = @("{FakeStringValue}")
                         permissionActions = @(
                            @{
                                 permission        = "android.permission.READ_SMS"

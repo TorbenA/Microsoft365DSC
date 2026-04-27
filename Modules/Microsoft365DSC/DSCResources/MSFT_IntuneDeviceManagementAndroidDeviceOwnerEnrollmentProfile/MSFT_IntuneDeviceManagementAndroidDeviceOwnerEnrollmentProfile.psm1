@@ -27,12 +27,13 @@ function Get-TargetResource
         $Description,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('corporateOwnedDedicatedDevice', 'corporateOwnedFullyManaged', 'corporateOwnedWorkProfile', 'corporateOwnedAOSPUserlessDevice', 'corporateOwnedAOSPUserAssociatedDevice')]
+        [System.String]
         $EnrollmentMode,
 
         [Parameter()]
         [ValidateSet('default', 'corporateOwnedDedicatedDeviceWithAzureADSharedMode', 'deviceStaging')]
+        [System.String]
         $EnrollmentTokenType,
 
         [Parameter()]
@@ -56,8 +57,8 @@ function Get-TargetResource
         $WifiPassword,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('none', 'wpa', 'wep' )]
+        [System.String]
         $WifiSecurityType,
 
         [Parameter()]
@@ -148,13 +149,13 @@ function Get-TargetResource
         }
 
         $tokenExpirationDateTimeString = $androidDeviceOwnerEnrollmentProfile.TokenExpirationDateTime
-        if ($tokenExpirationDateTimeString -is [DateTime])
+        if ($tokenExpirationDateTimeString -is [System.DateTime])
         {
             $tokenExpirationDateTimeString = $tokenExpirationDateTimeString.ToString('yyyy-MM-ddTHH:mm:ssZ')
         }
-        if (-not [string]::IsNullOrEmpty($tokenExpirationDateTimeString))
+        elseif (-not [string]::IsNullOrEmpty($tokenExpirationDateTimeString))
         {
-            $tokenExpirationDateTimeString = [DateTime]::Parse($tokenExpirationDateTimeString).ToString('yyyy-MM-ddTHH:mm:ssZ')
+            $tokenExpirationDateTimeString = [System.DateTime]::Parse($tokenExpirationDateTimeString).ToString('yyyy-MM-ddTHH:mm:ssZ')
         }
 
         $results = @{
@@ -221,12 +222,13 @@ function Set-TargetResource
         $Description,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('corporateOwnedDedicatedDevice', 'corporateOwnedFullyManaged', 'corporateOwnedWorkProfile', 'corporateOwnedAOSPUserlessDevice', 'corporateOwnedAOSPUserAssociatedDevice')]
+        [System.String]
         $EnrollmentMode,
 
         [Parameter()]
         [ValidateSet('default', 'corporateOwnedDedicatedDeviceWithAzureADSharedMode', 'deviceStaging')]
+        [System.String]
         $EnrollmentTokenType,
 
         [Parameter()]
@@ -250,8 +252,8 @@ function Set-TargetResource
         $WifiPassword,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('none', 'wpa', 'wep' )]
+        [System.String]
         $WifiSecurityType,
 
         [Parameter()]
@@ -353,12 +355,13 @@ function Test-TargetResource
         $Description,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('corporateOwnedDedicatedDevice', 'corporateOwnedFullyManaged', 'corporateOwnedWorkProfile', 'corporateOwnedAOSPUserlessDevice', 'corporateOwnedAOSPUserAssociatedDevice')]
+        [System.String]
         $EnrollmentMode,
 
         [Parameter()]
         [ValidateSet('default', 'corporateOwnedDedicatedDeviceWithAzureADSharedMode', 'deviceStaging')]
+        [System.String]
         $EnrollmentTokenType,
 
         [Parameter()]
@@ -382,8 +385,8 @@ function Test-TargetResource
         $WifiPassword,
 
         [Parameter()]
-        [System.String]
         [ValidateSet('none', 'wpa', 'wep' )]
+        [System.String]
         $WifiSecurityType,
 
         [Parameter()]
