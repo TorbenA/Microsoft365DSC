@@ -426,7 +426,7 @@ function Set-TargetResource
         if ($ADGroup.Length -eq 1)
         {
             Write-Verbose -Message "Removing O365Group $($existingO365Group.Name)"
-            Remove-MgGroup -GroupId $ADGroup[0].Id -Confirm:$false | Out-Null
+            Remove-MgGroup -GroupId $ADGroup[0].Id | Out-Null
         }
         else
         {

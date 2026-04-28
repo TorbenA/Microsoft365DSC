@@ -25,7 +25,7 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $AllowPartnerToCollectIosPersonalApplicationMetadata,
+        $AllowPartnerToCollectIOSPersonalApplicationMetadata,
 
         [Parameter()]
         [System.Boolean]
@@ -178,7 +178,7 @@ function Get-TargetResource
             Id                                                  = $instance.Id
             DisplayName                                         = $DisplayName
             AllowPartnerToCollectIosApplicationMetadata         = $instance.AllowPartnerToCollectIosApplicationMetadata
-            AllowPartnerToCollectIosPersonalApplicationMetadata = $instance.AllowPartnerToCollectIosPersonalApplicationMetadata
+            AllowPartnerToCollectIOSPersonalApplicationMetadata = $instance.AllowPartnerToCollectIosPersonalApplicationMetadata
             AndroidDeviceBlockedOnMissingPartnerData            = $instance.AndroidDeviceBlockedOnMissingPartnerData
             AndroidEnabled                                      = $instance.AndroidEnabled
             AndroidMobileApplicationManagementEnabled           = $instance.AndroidMobileApplicationManagementEnabled
@@ -237,7 +237,7 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $AllowPartnerToCollectIosPersonalApplicationMetadata,
+        $AllowPartnerToCollectIOSPersonalApplicationMetadata,
 
         [Parameter()]
         [System.Boolean]
@@ -348,6 +348,18 @@ function Set-TargetResource
     $SetParameters.Remove('Id') | Out-Null
     $SetParameters.Remove('LastHeartbeatDateTime') | Out-Null
 
+
+    if ($PSBoundParameters.ContainsKey('PartnerUnsupportedOSVersionBlocked'))
+    {
+        $SetParameters.Remove('PartnerUnsupportedOSVersionBlocked') | Out-Null
+        $SetParameters.Add('partnerUnsupportedOsVersionBlocked', $PartnerUnsupportedOSVersionBlocked)
+    }
+    if ($PSBoundParameters.ContainsKey('AllowPartnerToCollectIosApplicationMetadata'))
+    {
+        $SetParameters.Remove('AllowPartnerToCollectIosApplicationMetadata') | Out-Null
+        $SetParameters.Add('allowPartnerToCollectIOSApplicationMetadata', $AllowPartnerToCollectIosApplicationMetadata)
+    }
+
     # CREATE
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -361,7 +373,7 @@ function Set-TargetResource
     # REMOVE
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Remove-MgBetaDeviceManagementMobileThreatDefenseConnector -MobileThreatDefenseConnectorId $currentInstance.Id -Confirm:$false
+        Remove-MgBetaDeviceManagementMobileThreatDefenseConnector -MobileThreatDefenseConnectorId $currentInstance.Id
     }
 }
 
@@ -387,7 +399,7 @@ function Test-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $AllowPartnerToCollectIosPersonalApplicationMetadata,
+        $AllowPartnerToCollectIOSPersonalApplicationMetadata,
 
         [Parameter()]
         [System.Boolean]
@@ -572,7 +584,7 @@ function Export-TargetResource
                 Id                                                  = $config.Id
                 DisplayName                                         = $config.DisplayName
                 AllowPartnerToCollectIosApplicationMetadata         = $config.AllowPartnerToCollectIosApplicationMetadata
-                AllowPartnerToCollectIosPersonalApplicationMetadata = $config.AllowPartnerToCollectIosPersonalApplicationMetadata
+                AllowPartnerToCollectIOSPersonalApplicationMetadata = $config.AllowPartnerToCollectIosPersonalApplicationMetadata
                 AndroidDeviceBlockedOnMissingPartnerData            = $config.AndroidDeviceBlockedOnMissingPartnerData
                 AndroidEnabled                                      = $config.AndroidEnabled
                 AndroidMobileApplicationManagementEnabled           = $config.AndroidMobileApplicationManagementEnabled

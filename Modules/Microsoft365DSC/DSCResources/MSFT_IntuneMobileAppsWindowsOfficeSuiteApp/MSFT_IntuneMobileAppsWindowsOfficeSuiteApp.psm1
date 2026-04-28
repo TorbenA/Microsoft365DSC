@@ -449,6 +449,7 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $BoundParameters.Remove('Categories') | Out-Null
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -456,12 +457,11 @@ function Set-TargetResource
         $BoundParameters.Remove('Assignments') | Out-Null
 
         $CreateParameters = ([Hashtable]$BoundParameters).Clone()
-        $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
         $CreateParameters.Remove('Id') | Out-Null
-        $CreateParameters.Remove('Categories') | Out-Null
         $CreateParameters.Add('Publisher', 'Microsoft')
         $CreateParameters.Add('Developer', 'Microsoft')
         $CreateParameters.Add('Owner', 'Microsoft')
+        $CreateParameters = Rename-M365DSCCimInstanceParameter -Properties $CreateParameters
 
         $CreateParameters.Add('@odata.type', '#microsoft.graph.officeSuiteApp')
         $app = New-MgBetaDeviceAppManagementMobileApp -BodyParameter $CreateParameters
@@ -503,7 +503,6 @@ function Set-TargetResource
         $UpdateParameters = ([Hashtable]$BoundParameters).Clone()
         $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
         $UpdateParameters.Remove('Id') | Out-Null
-        $UpdateParameters.Remove('Categories') | Out-Null
         $UpdateParameters.Remove('OfficePlatformArchitecture') | Out-Null
 
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.officeSuiteApp')
@@ -564,7 +563,7 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Remove the Intune Windows Office Suite App with Id {$($currentInstance.Id)}"
-        Remove-MgBetaDeviceAppManagementMobileApp -MobileAppId $currentInstance.Id -Confirm:$false
+        Remove-MgBetaDeviceAppManagementMobileApp -MobileAppId $currentInstance.Id
     }
 }
 

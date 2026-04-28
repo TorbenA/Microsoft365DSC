@@ -244,7 +244,7 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Removing external connection {$Name}"
-        Remove-MgBetaExternalConnection -ExternalConnectionId $currentInstance.Id -Confirm:$false
+        Remove-MgBetaExternalConnection -ExternalConnectionId $currentInstance.Id
     }
 }
 

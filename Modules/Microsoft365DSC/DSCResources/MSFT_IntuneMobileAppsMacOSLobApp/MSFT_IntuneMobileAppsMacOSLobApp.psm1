@@ -428,9 +428,15 @@ function Set-TargetResource
         $CreateParameters.Remove('Categories') | Out-Null
 
         $CreateParameters.Add('@odata.type', '#microsoft.graph.macOSLobApp')
+        $CreateParameters.Add('fileName', "$DisplayName.pkg")
         $app = New-MgBetaDeviceAppManagementMobileApp -BodyParameter $CreateParameters
 
-        Update-DeviceAppManagementAppCategory -App $app -Categories $Categories
+        Invoke-M365DSCIntuneMobileAppInitialUpload -AppId $app.Id -OdataType '#microsoft.graph.macOSLobApp' -FileExtension 'pkg'
+
+        if ($PSBoundParameters.ContainsKey('Categories'))
+        {
+            Update-DeviceAppManagementAppCategory -App $app -Categories $Categories
+        }
 
         #Assignments
         if ($app.Id)
@@ -453,7 +459,10 @@ function Set-TargetResource
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.macOSLobApp')
         Update-MgBetaDeviceAppManagementMobileApp -MobileAppId $currentInstance.Id -BodyParameter $UpdateParameters
 
-        Update-DeviceAppManagementAppCategory -App $currentInstance -Categories $Categories -Compare
+        if ($PSBoundParameters.ContainsKey('Categories'))
+        {
+            Update-DeviceAppManagementAppCategory -App $currentInstance -Categories $Categories
+        }
 
         #Assignments
         $assignmentsHash = ConvertTo-IntuneMobileAppAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
@@ -463,7 +472,7 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Remove the Intune MacOS Lob App with Id {$($currentInstance.Id)}"
-        Remove-MgBetaDeviceAppManagementMobileApp -MobileAppId $currentInstance.Id -Confirm:$false
+        Remove-MgBetaDeviceAppManagementMobileApp -MobileAppId $currentInstance.Id
     }
 }
 

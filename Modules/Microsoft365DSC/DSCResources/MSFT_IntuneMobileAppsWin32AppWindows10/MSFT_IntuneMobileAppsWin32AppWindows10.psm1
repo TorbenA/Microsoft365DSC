@@ -371,6 +371,17 @@ function Get-TargetResource
         {
             $assignmentResult += ConvertFrom-IntuneMobileAppAssignment -Assignments $assignmentsValues -IncludeDeviceFilter $true
         }
+        foreach ($assignment in $assignmentResult)
+        {
+            if ($assignment.assignmentSettings.installTimeSettings.deadlineDateTime -is [System.DateTime])
+            {
+                $assignment.assignmentSettings.installTimeSettings.deadlineDateTime = $assignment.assignmentSettings.installTimeSettings.deadlineDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ")
+            }
+            if ($assignment.assignmentSettings.installTimeSettings.startDateTime -is [System.DateTime])
+            {
+                $assignment.assignmentSettings.installTimeSettings.startDateTime = $assignment.assignmentSettings.installTimeSettings.startDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ")
+            }
+        }
         $results.Add('Assignments', $assignmentResult)
 
         return $results
@@ -575,13 +586,13 @@ function Set-TargetResource
         }
 
         $boundParameters.Remove('AllowedArchitectures') | Out-Null
-        $boundParameters.Add('AllowedArchitectures', ($PSBoundParameters.AllowedArchitectures -join ','))
-        $PSBoundParameters.Add('ApplicableArchitectures', 'none')
-        $boundParameters.Add('ApplicableArchitectures', 'none')
+        $boundParameters.Add('allowedArchitectures', ($PSBoundParameters.AllowedArchitectures -join ','))
+        $PSBoundParameters.Add('applicableArchitectures', 'none')
+        $boundParameters.Add('applicableArchitectures', 'none')
 
-        if ([System.String]::IsNullOrEmpty($boundParameters.AllowedArchitectures))
+        if ([System.String]::IsNullOrEmpty($boundParameters.allowedArchitectures))
         {
-            $boundParameters.AllowedArchitectures = $null
+            $boundParameters.allowedArchitectures = $null
         }
     }
 

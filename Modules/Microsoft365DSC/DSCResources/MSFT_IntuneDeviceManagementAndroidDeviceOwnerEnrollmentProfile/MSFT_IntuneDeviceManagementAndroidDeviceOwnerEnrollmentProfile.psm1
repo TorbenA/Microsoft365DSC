@@ -317,14 +317,14 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating AndroidDeviceOwnerEnrollmentProfile: $DisplayName"
-        Remove-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile -AndroidDeviceOwnerEnrollmentProfileId $currentInstance.Id -Confirm:$false
+        Remove-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile -AndroidDeviceOwnerEnrollmentProfileId $currentInstance.Id
         $null = New-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile -BodyParameter $setParameters
     }
     # REMOVE
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Removing AndroidDeviceOwnerEnrollmentProfile: $DisplayName"
-        Remove-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile -AndroidDeviceOwnerEnrollmentProfileId $currentInstance.Id -Confirm:$false
+        Remove-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile -AndroidDeviceOwnerEnrollmentProfileId $currentInstance.Id
     }
 }
 
@@ -567,7 +567,7 @@ function Get-CompareParameters
     param()
 
     return @{
-        ExcludedProperties = @('TokenExpirationDateTime')
+        ExcludedProperties = @('AccountId', 'TokenExpirationDateTime')
     }
 }
 

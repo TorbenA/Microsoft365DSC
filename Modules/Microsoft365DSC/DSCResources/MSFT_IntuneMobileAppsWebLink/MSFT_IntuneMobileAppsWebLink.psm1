@@ -189,13 +189,17 @@ function Get-TargetResource
                 Write-Verbose -Message "Could not find an Intune Mobile Apps Web Link with DisplayName {$DisplayName}."
                 return $nullResult
             }
+
+            $Id = $getValue.Id
         }
         else
         {
-            $getValue = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $Script:exportedInstance.Id `
-                -ExpandProperty 'categories'
+            $Id = $Script:exportedInstance.Id
         }
-        $Id = $getValue.Id
+
+        $getValue = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $Id `
+            -ExpandProperty 'categories'
+
         Write-Verbose -Message "An Intune Mobile Apps Web Link with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
@@ -430,7 +434,6 @@ function Set-TargetResource
         }
     }
 
-    $BoundParameters.Remove('AppUrl') | Out-Null
     $BoundParameters.Remove('Categories') | Out-Null
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
@@ -464,6 +467,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating the Intune Mobile Apps Web Link with Id {$($currentInstance.Id)}"
         $BoundParameters.Remove('Assignments') | Out-Null
+        $BoundParameters.Remove('AppUrl') | Out-Null
 
         $updateParameters = ([Hashtable]$boundParameters).Clone()
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters

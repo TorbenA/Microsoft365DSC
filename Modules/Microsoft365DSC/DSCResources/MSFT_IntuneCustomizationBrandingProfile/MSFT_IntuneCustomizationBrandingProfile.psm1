@@ -526,6 +526,19 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $boundParameters = Rename-M365DSCCimInstanceParameter -Properties $boundParameters
+
+    if ($boundParameters.ContainsKey('themeColor'))
+    {
+        $rgbProperties = @('r', 'g', 'b')
+        foreach ($property in $rgbProperties)
+        {
+            if ($null -ne $boundParameters.themeColor.$property)
+            {
+                $boundParameters.themeColor.$property = [int]$boundParameters.themeColor.$property
+            }
+        }
+    }
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -533,7 +546,6 @@ function Set-TargetResource
         $boundParameters.Remove("Assignments") | Out-Null
 
         $createParameters = ([Hashtable]$boundParameters).Clone()
-        $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
         $createParameters.Remove('Id') | Out-Null
 
         #region resource generator code
@@ -562,7 +574,6 @@ function Set-TargetResource
         $boundParameters.Remove("Assignments") | Out-Null
 
         $updateParameters = ([Hashtable]$boundParameters).Clone()
-        $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
         $updateParameters.Remove('Id') | Out-Null
 
         #region resource generator code

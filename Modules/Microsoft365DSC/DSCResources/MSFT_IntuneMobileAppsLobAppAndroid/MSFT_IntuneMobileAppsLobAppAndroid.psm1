@@ -419,8 +419,9 @@ function Set-TargetResource
 
         #region resource generator code
         $createParameters.Add('@odata.type', '#microsoft.graph.androidLobApp')
-        $createParameters.Add('versionCode', '20250000')
-        $createParameters.Add('versionName', '1.0.0')
+        $createParameters.Add('versionCode', '1')
+        $createParameters.Add('versionName', '1.0')
+        $createParameters.fileName = "Sample.apk"
         $policy = Invoke-MgGraphRequest -Method POST -Uri '/beta/deviceAppManagement/mobileApps' -Body ($createParameters | ConvertTo-Json -Depth 10)
 
         Invoke-M365DSCIntuneMobileAppInitialUpload -AppId $policy.Id -OdataType '#microsoft.graph.androidLobApp' -FileExtension 'apk'
