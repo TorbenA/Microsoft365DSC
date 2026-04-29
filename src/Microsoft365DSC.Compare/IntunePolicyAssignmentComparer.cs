@@ -65,13 +65,6 @@ namespace Microsoft365DSC.Compare
                     assignmentTarget = FindAssignmentTarget(target, "groupId", assignmentGroupId);
                     testResult = assignmentTarget is not null;
 
-                    // Check for mobile app assignments with intent
-                    if (testResult && !string.IsNullOrEmpty(assignmentIntent))
-                    {
-                        var targetIntent = GetPropertyValue<string>(assignmentTarget, "intent");
-                        testResult = string.Equals(assignmentIntent, targetIntent, StringComparison.OrdinalIgnoreCase);
-                    }
-
                     // If not found by groupId, try by groupDisplayName
                     if (!testResult)
                     {
@@ -83,11 +76,18 @@ namespace Microsoft365DSC.Compare
                         {
                             drifts.Add(new Dictionary<string, object>
                             {
-                                { "PropertyName", $"Assignments[{i}]" },
-                                { "CurrentValue", $"{assignmentGroupDisplayName} is present" },
-                                { "DesiredValue", $"{assignmentGroupDisplayName} is missing" }
+                                { "PropertyName", $"Assignments[{i}].groupDisplayName" },
+                                { "CurrentValue", GetPropertyValue<string>(ComplexObjectConverter.ToHashtable(target.GetValue(i)), "groupDisplayName") ?? string.Empty },
+                                { "DesiredValue", assignmentGroupDisplayName }
                             });
                         }
+                    }
+
+                    // Check for mobile app assignments with intent
+                    if (testResult && !string.IsNullOrEmpty(assignmentIntent))
+                    {
+                        var targetIntent = GetPropertyValue<string>(assignmentTarget, "intent");
+                        testResult = string.Equals(assignmentIntent, targetIntent, StringComparison.OrdinalIgnoreCase);
                     }
 
                     if (testResult)

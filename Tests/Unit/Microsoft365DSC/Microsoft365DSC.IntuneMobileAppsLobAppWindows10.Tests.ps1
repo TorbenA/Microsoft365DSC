@@ -183,6 +183,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             Intent = "required"
                             DeviceAndAppManagementAssignmentFilterType = "none"
                             GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
+                            dataType = "#microsoft.graph.groupAssignmentTarget"
                             assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementAppxMobileAppAssignmentSettings -Property @{
                                 UseDeviceContext = $false
                             } -ClientOnly)
@@ -236,6 +237,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             Id = "12345-12345-12345-12345-12345"
                             Intent = "required"
                             DeviceAndAppManagementAssignmentFilterType = "none"
+                            dataType = "#microsoft.graph.groupAssignmentTarget"
                             GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
                             assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementAppxMobileAppAssignmentSettings -Property @{
                                 UseDeviceContext = $false
@@ -289,6 +291,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             Id = "12345-12345-12345-12345-12345"
                             Intent = "required"
                             DeviceAndAppManagementAssignmentFilterType = "none"
+                            dataType = "#microsoft.graph.groupAssignmentTarget"
                             GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
                             assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementAppxMobileAppAssignmentSettings -Property @{
                                 UseDeviceContext = $false
@@ -333,6 +336,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             Id = "12345-12345-12345-12345-12345"
                             Intent = "required"
                             DeviceAndAppManagementAssignmentFilterType = "none"
+                            dataType = "#microsoft.graph.groupAssignmentTarget"
                             GroupId = "26d60dd1-fab6-47bf-8656-358194c1a49d"
                             assignmentSettings = (New-CimInstance -ClassName MSFT_DeviceManagementAppxMobileAppAssignmentSettings -Property @{
                                 UseDeviceContext = $true # Drift

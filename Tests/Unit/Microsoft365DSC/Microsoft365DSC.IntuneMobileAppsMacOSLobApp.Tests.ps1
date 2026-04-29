@@ -47,6 +47,9 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             Mock -CommandName Update-DeviceAppManagementAppCategory -MockWith {
             }
 
+            Mock -CommandName Invoke-M365DSCIntuneMobileAppInitialUpload -MockWith {
+            }
+
             Mock -CommandName Get-MgBetaDeviceAppManagementMobileApp -MockWith {
             }
             Mock -CommandName New-MgBetaDeviceAppManagementMobileApp -MockWith {
