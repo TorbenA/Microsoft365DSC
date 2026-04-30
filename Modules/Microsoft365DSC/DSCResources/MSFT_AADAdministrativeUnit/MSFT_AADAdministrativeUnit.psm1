@@ -546,6 +546,7 @@ function Set-TargetResource
         #region resource generator code
         Write-Verbose -Message "Creating new Administrative Unit with: $(Convert-M365DscHashtableToString -Hashtable $CreateParameters)"
         $policy = New-MgDirectoryAdministrativeUnit -BodyParameter $CreateParameters
+        Start-Sleep -Seconds 2 # Sleep added to allow for AU to be fully available before adding members
 
         if ($MembershipType -ne 'Dynamic')
         {
@@ -554,7 +555,7 @@ function Set-TargetResource
                 Write-Verbose -Message "Adding new assigned member {$($member)}"
                 $url = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "v1.0/directoryObjects/$($member)"
 
-                New-MgDirectoryAdministrativeUnitMemberByRef -AdministrativeUnitId $policy.Id -OdataId $url
+                New-MgDirectoryAdministrativeUnitMemberByRef -AdministrativeUnitId $policy.Id -BodyParameter @{ "@odata.id" = $url }
             }
         }
 
@@ -631,7 +632,7 @@ function Set-TargetResource
                         Write-Verbose -Message "AdministrativeUnit {$DisplayName} Adding member {$($diff.InputObject.Identity)}, type {$($diff.InputObject.Type)}"
 
                         $url = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "v1.0/directoryObjects/$($memberObject.Id)"
-                        New-MgDirectoryAdministrativeUnitMemberByRef -AdministrativeUnitId ($currentInstance.Id) -OdataId $url | Out-Null
+                        New-MgDirectoryAdministrativeUnitMemberByRef -AdministrativeUnitId ($currentInstance.Id) -BodyParameter @{ "@odata.id" = $url } | Out-Null
                     }
                     else
                     {

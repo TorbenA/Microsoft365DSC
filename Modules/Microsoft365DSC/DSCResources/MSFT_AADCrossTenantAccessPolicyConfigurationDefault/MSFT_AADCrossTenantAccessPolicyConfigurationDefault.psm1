@@ -536,6 +536,8 @@ function Set-TargetResource
         $OperationParams.Add('tenantRestrictions', $temp)
     }
 
+    $OperationParams = Rename-M365DSCCimInstanceParameter -Properties $OperationParams
+
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         $body = ConvertTo-Json $OperationParams -Depth 10

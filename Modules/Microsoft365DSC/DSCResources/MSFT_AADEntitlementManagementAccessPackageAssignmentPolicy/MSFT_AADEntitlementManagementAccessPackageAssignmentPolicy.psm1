@@ -559,6 +559,16 @@ function Set-TargetResource
         $commonParameters.AccessPackageId = $AccessPackageId
     }
 
+    if ($null -ne $commonParameters.AccessReviewSettings -and $null -ne $commonParameters.AccessReviewSettings.StartDateTime)
+    {
+        $parsedTime = [System.DateTimeOffset]::Parse($commonParameters.AccessReviewSettings.StartDateTime)
+        if ($parsedTime -lt [System.DateTimeOffset]::UtcNow)
+        {
+            Write-Verbose -Message "The provided AccessReviewSettings.StartDateTime {$($commonParameters.AccessReviewSettings.StartDateTime)} is in the past. Setting it to 1 minute in the future from now."
+            $commonParameters.AccessReviewSettings.StartDateTime = ([System.DateTimeOffset]::UtcNow).AddMinutes(1).ToString("o")
+        }
+    }
+
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating a new access package assignment policy {$DisplayName}"
@@ -684,8 +694,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
+    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-        -ResourceName $ResourceName
+        -ResourceName $ResourceName `
+        @compareParameters
     return $result
 }
 
@@ -955,4 +967,37 @@ function Export-TargetResource
     }
 }
 
-Export-ModuleMember -Function *-TargetResource
+function Get-CompareParameters
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param()
+
+    return @{
+        PostProcessing = {
+            param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
+            if (-not [System.String]::IsNullOrEmpty($DesiredValues.AccessReviewSettings.StartDateTime))
+            {
+                $parsedDesiredDate = [System.DateTime]::MinValue
+                $parseResultDesired = [System.DateTime]::TryParse($DesiredValues.AccessReviewSettings.StartDateTime, [ref]$parsedDesiredDate)
+
+                $parsedCurrentDate = [System.DateTime]::MinValue
+                $parseResultCurrent = [System.DateTime]::TryParse($CurrentValues.AccessReviewSettings.StartDateTime, [ref]$parsedCurrentDate)
+
+                if ($parseResultDesired -and $parseResultCurrent)
+                {
+                    Write-Verbose -Message "Parsed Desired StartDateTime: $parsedDesiredDate, Parsed Current StartDateTime: $parsedCurrentDate"
+                    if ($parsedDesiredDate -ne $parsedCurrentDate -and $parsedDesiredDate -lt [System.DateTime]::UtcNow)
+                    {
+                        Write-Verbose -Message 'Ignoring StartDateTime in ScheduleInfo as it is in the past. StartDateTime cannot be set to a past date.'
+                        Write-Verbose -Message 'Aligning the Desired and Current StartDateTime values for comparison.'
+                        $DesiredValues.AccessReviewSettings.StartDateTime = $CurrentValues.AccessReviewSettings.StartDateTime
+                    }
+                }
+            }
+            return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
+        }
+    }
+}
+
+Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')

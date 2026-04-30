@@ -49,6 +49,12 @@
   "mode": "Configuration",
   "commands": [
     {
+      "module": "Microsoft.Graph.Applications",
+      "cmdlets": [
+        "Get-MgServicePrincipal"
+      ]
+    },
+    {
       "module": "Microsoft.Graph.Beta.Identity.Governance",
       "cmdlets": [
         "Get-MgBetaEntitlementManagementAccessPackageCatalog",

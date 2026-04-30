@@ -1890,6 +1890,12 @@ function Set-TargetResource
             {
                 $sessioncontrols.disableResilienceDefaults = $DisableResilienceDefaultsIsEnabled
             }
+
+            if ($sessioncontrols.Values.Where({ $null -ne $_ }).Count -eq 0)
+            {
+                $sessioncontrols = $null
+            }
+
             $NewParameters.Add('sessionControls', $sessioncontrols)
             #add SessionControls to the parameter list
         }

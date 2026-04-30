@@ -24,6 +24,9 @@
         "update": [
           {
             "name": "CustomSecAttributeDefinition.ReadWrite.All"
+          },
+          {
+            "name": "CustomAuthenticationExtension.ReadWrite.All"
           }
         ]
       }

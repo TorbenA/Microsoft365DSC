@@ -19,6 +19,10 @@
       "HasCustomComparison": true,
       "Description": "Includes properties: ValueId, IsActive; Uses PostProcessing scriptblock"
     },
+    "AADEntitlementManagementAccessPackageAssignmentPolicy": {
+      "HasCustomComparison": true,
+      "Description": "Uses PostProcessing scriptblock"
+    },
     "AADEntitlementManagementAccessPackageCatalogResource": {
       "HasCustomComparison": true,
       "Description": "Excludes properties: AddedBy, AddedOn, IsPendingOnboarding"

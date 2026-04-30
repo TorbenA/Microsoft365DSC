@@ -96,38 +96,37 @@ function Get-TargetResource
     {
         $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
-    }
-    catch
-    {
-        Write-Verbose -Message ($_)
-    }
 
-    #Ensure the proper dependencies are installed in the current environment.
-    Confirm-M365DSCDependencies
+        #Ensure the proper dependencies are installed in the current environment.
+        Confirm-M365DSCDependencies
 
-    #region Telemetry
-    $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
-    $CommandName = $MyInvocation.MyCommand
-    $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
-        -CommandName $CommandName `
-        -Parameters $PSBoundParameters
-    Add-M365DSCTelemetryEvent -Data $data
-    #endregion
+        #region Telemetry
+        $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
+        $CommandName = $MyInvocation.MyCommand
+        $data = Format-M365DSCTelemetryParameters -ResourceName $ResourceName `
+            -CommandName $CommandName `
+            -Parameters $PSBoundParameters
+        Add-M365DSCTelemetryEvent -Data $data
+        #endregion
 
-    $nullResult = $PSBoundParameters
-    $nullResult.Ensure = 'Absent'
-    try
-    {
+        $nullResult = $PSBoundParameters
+        $nullResult.Ensure = 'Absent'
+
         $getValue = $null
         $CatalogIdValue = $catalogId
         if (-not [System.String]::IsNullOrEmpty($CatalogId))
         {
-            $ObjectGuid = [System.Guid]::empty
-            if (-not [System.Guid]::TryParse($CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
+            $ObjectGuid = [System.Guid]::Empty
+            if (-not [System.Guid]::TryParse($CatalogId, [ref]$ObjectGuid))
             {
                 $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($catalogId -replace "'", "''")'"
                 $CatalogId = $catalogInstance.Id
                 $CatalogIdValue = $catalogInstance.DisplayName
+            }
+            else
+            {
+                $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -AccessPackageCatalogId $CatalogId -ErrorAction SilentlyContinue
+                $catalogIdValue = $catalogInstance.DisplayName
             }
 
             $getValue = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResource `
@@ -177,6 +176,19 @@ function Get-TargetResource
             $hashAttributes += $hashAttribute
         }
 
+        switch ($getValue.OriginSystem)
+        {
+            'AadApplication' {
+                $originId = (Get-MgServicePrincipal -ServicePrincipalId $getValue.OriginId).DisplayName
+            }
+            'AADGroup' {
+                $originId = (Get-MgGroup -GroupId $getValue.OriginId).DisplayName
+            }
+            default {
+                $originId = $getValue.OriginId
+            }
+        }
+
         $results = [ordered]@{
             Id                    = $Id
             CatalogId             = $CatalogIdValue
@@ -186,7 +198,7 @@ function Get-TargetResource
             Description           = $getValue.description
             DisplayName           = $getValue.displayName
             IsPendingOnboarding   = $getValue.isPendingOnboarding #Read-Only
-            OriginId              = $OriginId
+            OriginId              = $originId
             OriginSystem          = $getValue.originSystem
             ResourceType          = $getValue.resourceType
             Url                   = $getValue.url
@@ -324,9 +336,9 @@ function Set-TargetResource
     $PSBoundParameters.Remove('isPendingOnboarding') | Out-Null
 
     $resource = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $ObjectGuid = [System.Guid]::empty
+    $ObjectGuid = [System.Guid]::Empty
     if ($OriginSystem -eq 'AADGroup' -and `
-            -not [System.Guid]::TryParse($OriginId, [System.Management.Automation.PSReference]$ObjectGuid))
+            -not [System.Guid]::TryParse($OriginId, [ref]$ObjectGuid))
     {
         Write-Verbose -Message "The Group reference was provided by name {$OriginId}. Retrieving associated id."
         $groupInfo = Get-MgGroup -Filter "DisplayName eq '$($OriginId -replace "'", "''")'"
@@ -335,18 +347,28 @@ function Set-TargetResource
             $resource.OriginId = $groupInfo.Id
         }
     }
+    if ($OriginSystem -eq 'AadApplication' -and `
+            -not [System.Guid]::TryParse($OriginId, [ref]$ObjectGuid))
+    {
+        Write-Verbose -Message "The Application reference was provided by name {$OriginId}. Retrieving associated id."
+        $appInfo = Get-MgServicePrincipal -Filter "DisplayName eq '$($OriginId -replace "'", "''")'"
+        if ($null -ne $appInfo)
+        {
+            $resource.OriginId = $appInfo.Id
+        }
+    }
+    $ObjectGuid = [System.Guid]::Empty
+    if (-not [System.Guid]::TryParse($CatalogId, [ref]$ObjectGuid))
+    {
+        Write-Verbose -Message 'Retrieving Catalog by Display Name'
+        $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($CatalogId -replace "'", "''")'"
+        if ($catalogInstance)
+        {
+            $CatalogId = $catalogInstance.Id
+        }
+    }
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        $ObjectGuid = [System.Guid]::empty
-        if (-not [System.Guid]::TryParse($CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
-        {
-            Write-Verbose -Message 'Retrieving Catalog by Display Name'
-            $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($CatalogId -replace "'", "''")'"
-            if ($catalogInstance)
-            {
-                $CatalogId = $catalogInstance.Id
-            }
-        }
         Write-Verbose -Message "Assigning resource {$DisplayName} to catalog {$CatalogId}"
 
         $resource.Remove('Id') | Out-Null
@@ -363,10 +385,11 @@ function Set-TargetResource
         $resourceRequest = @{
             catalogId             = $CatalogId
             requestType           = 'AdminAdd'
-            accessPackageresource = $resource
+            accessPackageResource = $resource
         }
         #region resource generator code
         Write-Verbose -Message "Creating a new AAD Entitlement Management Access Package Catalog Resource"
+        Write-Verbose $($resourceRequest | ConvertTo-Json -Depth 10) -Verbose
         New-MgBetaEntitlementManagementAccessPackageResourceRequest -BodyParameter $resourceRequest
 
         #endregion
@@ -376,17 +399,7 @@ function Set-TargetResource
         Write-Verbose -Message "Updating resource {$DisplayName} in catalog {$CatalogId}"
 
         $resource = ([Hashtable]$PSBoundParameters).Clone()
-        $ObjectGuid = [System.Guid]::empty
-        if (-not [System.Guid]::TryParse($CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
-        {
-            Write-Verbose -Message 'Retrieving Catalog by Display Name'
-            $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($CatalogId -replace "'", "''")'"
-            if ($catalogInstance)
-            {
-                $CatalogId = $catalogInstance.Id
-            }
-        }
-        #$resource.Remove('Id') | Out-Null
+        $resource.Remove('Id') | Out-Null
         $resource.Remove('CatalogId') | Out-Null
         $resource.Remove('Verbose') | Out-Null
 
@@ -401,7 +414,7 @@ function Set-TargetResource
         $resourceRequest = @{
             catalogId             = $CatalogId
             requestType           = 'AdminUpdate'
-            accessPackageresource = $resource
+            accessPackageResource = $resource
         }
         #region resource generator code
         New-MgBetaEntitlementManagementAccessPackageResourceRequest -BodyParameter $resourceRequest
@@ -426,7 +439,7 @@ function Set-TargetResource
         $resourceRequest = @{
             catalogId             = $CatalogId
             requestType           = 'AdminRemove'
-            accessPackageresource = $resource
+            accessPackageResource = $resource
         }
         New-MgBetaEntitlementManagementAccessPackageResourceRequest -BodyParameter $resourceRequest
     }
@@ -619,9 +632,7 @@ function Export-TargetResource
             }
             Write-M365DSCHost -Message "    |---[$i/$($catalogs.Count)] $displayedKey" -DeferWrite
 
-            $catalogId = $catalog.id
-
-            [array]$resources = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResource -AccessPackageCatalogId $catalogId -ErrorAction Stop
+            [array]$resources = Get-MgBetaEntitlementManagementAccessPackageCatalogAccessPackageResource -AccessPackageCatalogId $catalog.Id -ErrorAction Stop
 
             $j = 1
 
@@ -646,7 +657,7 @@ function Export-TargetResource
                 $params = @{
                     Id                    = $resource.id
                     DisplayName           = $resource.displayName
-                    CatalogId             = $catalogId
+                    CatalogId             = $catalog.Id
                     Ensure                = 'Present'
                     Credential            = $Credential
                     ApplicationId         = $ApplicationId

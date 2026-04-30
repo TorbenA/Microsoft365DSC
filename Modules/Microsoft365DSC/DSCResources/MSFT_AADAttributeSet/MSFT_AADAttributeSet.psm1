@@ -191,6 +191,7 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $BoundParameters = Rename-M365DSCCimInstanceParameter -Properties $BoundParameters
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {

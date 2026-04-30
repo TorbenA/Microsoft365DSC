@@ -344,6 +344,7 @@ function Set-TargetResource
     try
     {
         Write-Verbose -Message "Updating existing authorization policy"
+        $UpdateParameters = Rename-M365DSCCimInstanceParameter -Properties $UpdateParameters
         $null = Update-MgBetaPolicyAuthorizationPolicy -AuthorizationPolicyId 'authorizationPolicy' -BodyParameter $UpdateParameters -ErrorAction Stop
     }
     catch

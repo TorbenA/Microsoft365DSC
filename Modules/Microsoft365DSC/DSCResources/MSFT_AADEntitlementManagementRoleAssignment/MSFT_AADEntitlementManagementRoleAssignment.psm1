@@ -260,7 +260,7 @@ function Set-TargetResource
         @{
             id     = 'user'
             method = 'GET'
-            url    = "/users/$($Principal)&`$select=id,userPrincipalName,displayName"
+            url    = "/users/$($Principal)?`$select=id,userPrincipalName,displayName"
         }
         @{
             id     = 'group'
@@ -285,13 +285,14 @@ function Set-TargetResource
         throw "Multiple objects found for Principal '$Principal'. Please specify a unique identifier."
     }
 
-    $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $setParameters = Rename-M365DSCCimInstanceParameter -Properties $setParameters
 
     $roleInfo = Get-MgBetaRoleManagementEntitlementManagementRoleDefinition -Filter "DisplayName eq '$($RoleDefinition -replace "'", "''")'"
-    $setParameters.Add('PrincipalId', $objectId)
-    $setParameters.Add('RoleDefinitionId', $roleInfo.Id)
+    $setParameters.Add('principalId', $objectId)
+    $setParameters.Add('roleDefinitionId', $roleInfo.Id)
     $setParameters.Remove('Principal') | Out-Null
     $setParameters.Remove('RoleDefinition') | Out-Null
+
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         $setParameters.Remove('Id') | Out-Null

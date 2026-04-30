@@ -5,6 +5,10 @@
 * AADAccessReviewDefinition
   * Added new properties `AdditionalNotificationRecipients` and `InstanceEnumerationScope`.
   * Fixed issues when creating and updating instances of this resource.
+* AADCustomAuthenticationExtension
+  * Added missing application update permission `CustomAuthenticationExtension.ReadWrite.All`.
+* AADEntitlementManagementAccessPackageCatalogResource
+  * Changed properties `CatalogId` and `OriginId` to their display name equivalent.
 * AADTenantAppManagementPolicy
   * Changed the `MaxLifetime` property in application + service principal restrictions
     --> key and password credentials to only include necessary date and time information.

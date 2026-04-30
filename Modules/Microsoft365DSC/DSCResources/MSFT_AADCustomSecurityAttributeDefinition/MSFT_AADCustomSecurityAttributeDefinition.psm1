@@ -308,16 +308,28 @@ function Set-TargetResource
                 # Add new allowed value
                 New-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue `
                     -CustomSecurityAttributeDefinitionId $currentInstance.Id `
-                    -Id $allowedValue.ValueId `
-                    -IsActive:$allowedValue.IsActive
+                    -BodyParameter @{
+                        'allowedValues@delta' = @(
+                            @{
+                                id       = $allowedValue.ValueId
+                                isActive = $allowedValue.IsActive
+                            }
+                        )
+                    }
             }
             elseif ($existingAllowedValue.IsActive -ne $allowedValue.IsActive)
             {
                 # Update existing allowed value
                 Update-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue `
                     -CustomSecurityAttributeDefinitionId $currentInstance.Id `
-                    -AllowedValueId $allowedValue.ValueId `
-                    -IsActive:$allowedValue.IsActive
+                    -BodyParameter @{
+                        'allowedValues@delta' = @(
+                            @{
+                                id       = $allowedValue.ValueId
+                                isActive = $allowedValue.IsActive
+                            }
+                        )
+                    }
             }
         }
     }

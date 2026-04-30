@@ -313,10 +313,12 @@ function Set-TargetResource
         $OperationParams.IdentitySynchronization = (Get-M365DSCAADCrossTenantAccessPolicyIdentitySynchronization -Setting $OperationParams.IdentitySynchronization)
     }
 
+    $OperationParams = Rename-M365DSCCimInstanceParameter -Properties $OperationParams
+
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating new Cross Tenant Access Policy Configuration Partner entry for TenantId {$PartnerTenantId}"
-        $OperationParams.Add('TenantId', $PartnerTenantId)
+        $OperationParams.Add('tenantId', $PartnerTenantId)
         $OperationParams.Remove('PartnerTenantId') | Out-Null
         New-MgBetaPolicyCrossTenantAccessPolicyPartner -BodyParameter $OperationParams
     }
