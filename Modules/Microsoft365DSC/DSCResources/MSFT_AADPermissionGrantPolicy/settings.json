@@ -38,6 +38,7 @@
     }
   },
   "requiredModules": [
+    "Microsoft.Graph.Applications",
     "Microsoft.Graph.Beta.Identity.SignIns"
   ],
   "supportedEnvironments": [
@@ -46,6 +47,12 @@
   ],
   "mode": "Configuration",
   "commands": [
+    {
+      "module": "Microsoft.Graph.Applications",
+      "cmdlets": [
+        "Get-MgServicePrincipal"
+      ]
+    },
     {
       "module": "Microsoft.Graph.Beta.Identity.SignIns",
       "cmdlets": [

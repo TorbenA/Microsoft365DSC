@@ -33,6 +33,7 @@
   },
   "requiredModules": [
     "Az.Accounts",
+    "Az.ResourceGraph",
     "Az.Security"
   ],
   "mode": "Data",
@@ -43,6 +44,12 @@
         "Get-AzContext",
         "Get-AzSubscription",
         "Set-AzContext"
+      ]
+    },
+    {
+      "module": "Az.ResourceGraph",
+      "cmdlets": [
+        "Search-AzGraph"
       ]
     },
     {

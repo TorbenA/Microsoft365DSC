@@ -252,6 +252,7 @@ function Set-TargetResource
     {
         $currentParameters.Add('ResourceScopes', $resourceScopesObj) | Out-Null
     }
+    $currentParameters = Rename-M365DSCCimInstanceParameter -Properties $currentParameters
 
     # Role definition should exist but it doesn't
     if ($Ensure -eq 'Present' -and $currentAADRoleDef.Ensure -eq 'Absent')

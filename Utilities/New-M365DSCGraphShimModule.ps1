@@ -673,13 +673,40 @@ foreach ($cmdletName in $cmdletNames) {
     $method = $variants[0].Method
 
     # Find the appropriate URI templates
-    $listUri = ($variants | Where-Object { $_.URI.Split('/')[-1] -notmatch '\{[^}]+\}' } | Select-Object -First 1)?.URI?.Replace('$','`$') # The Uri that does not end with a placeholder is likely the list endpoint
-    $singleUri = ($variants | Where-Object { $_.URI.Split('/')[-1] -match '\{[^}]+\}' } | Select-Object -First 1)?.URI?.Replace('$','`$') # The Uri that ends with a placeholder is likely the single-item endpoint
+    $allListUris = $variants | Where-Object { $_.URI.Split('/')[-1] -notmatch '\{[^}]+\}' } | Select-Object -ExpandProperty URI
+    if ($allListUris.Count -gt 1) {
+        $placeHolders = @()
+        foreach ($uri in $allListUris) {
+            $phs = [regex]::Matches($uri, '\{([^}]+)\}') | ForEach-Object { $_.Groups[1].Value }
+            $placeHolders += $phs
+        }
+        $cleanedAllListUris = $allListUris | ForEach-Object {
+            $cleanUri = $_
+            foreach ($ph in $placeHolders) {
+                $cleanUri = ($cleanUri -replace [regex]::Escape("{$ph}"), '') -replace '//+', '/'
+            }
+            $cleanUri
+        }
+        $singleUri = $variants | Where-Object {
+            $uri = $_.URI
+            foreach ($cleanUri in $cleanedAllListUris) {
+                if ($uri -eq $cleanUri) {
+                    return $false
+                }
+            }
+            return $true
+        } | Select-Object -First 1 | Select-Object -ExpandProperty URI
+        $listUri = $allListUris | Where-Object { $_ -notlike "*{*}*" } | Select-Object -First 1
+    } else {
+        $listUri = ($allListUris | Select-Object -First 1)?.Replace('$','`$') # The Uri that does not end with a placeholder is likely the list endpoint
+        $singleUri = ($variants | Where-Object { $_.URI.Split('/')[-1] -match '\{[^}]+\}' } | Select-Object -First 1)?.URI?.Replace('$','`$') # The Uri that ends with a placeholder is likely the single-item endpoint
+    }
+
     $primaryUri = if ($singleUri) { $singleUri } else { $listUri }
     if (-not $primaryUri) { $primaryUri = $variants[0].URI.Replace('$', '`$') }
 
     # Determine identity parameter mappings
-    $identityMapping = [ordered]@{}
+     $identityMapping = [ordered]@{}
     $placeholders = @()
     if ($singleUri) {
         $placeholders = [regex]::Matches($singleUri, '\{([^}]+)\}') | ForEach-Object { $_.Groups[1].Value }

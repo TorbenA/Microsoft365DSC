@@ -780,7 +780,6 @@ function Set-TargetResource
 
     # App should exist but it doesn't
     $needToUpdatePermissions = $false
-    $needToUpdateAuthenticationBehaviors = $false
     $needToUpdateKeyCredentials = $false
     $currentParameters.Remove('AppId') | Out-Null
     $currentParameters.Remove('Permissions') | Out-Null
@@ -794,7 +793,6 @@ function Set-TargetResource
     }
 
     $currentParameters.Remove('PublicClient') | Out-Null
-    $currentParameters.Remove('Verbose') | Out-Null
 
     if ($PublicClientRedirectUris.Length -gt 0)
     {
@@ -1030,7 +1028,6 @@ function Set-TargetResource
         }
         Write-Verbose -Message "Azure AD Application {$DisplayName} was successfully created"
         $needToUpdatePermissions = $true
-        $needToUpdateAuthenticationBehaviors = $true
         $needToUpdateKeyCredentials = $true
 
         $tries = 1
@@ -1060,7 +1057,6 @@ function Set-TargetResource
             $currentAADApp.Add('Id', $currentAADApp.ObjectId)
         }
         $needToUpdatePermissions = $true
-        $needToUpdateAuthenticationBehaviors = $true
         $needToUpdateKeyCredentials = $true
 
         # Update AppRoles
@@ -1086,13 +1082,13 @@ function Set-TargetResource
                 {
                     Write-Verbose -Message "Found matching AppRole entry in Desired values for {$($currentRole.DisplayName)}. Keeping same value as current, but setting to disable."
                     $entry = @{
-                        AllowedMemberTypes = $currentRole.AllowedMemberTypes
-                        Id                 = $currentRole.Id
-                        IsEnabled          = $false
-                        Origin             = $currentRole.Origin
-                        Value              = $currentRole.Value
-                        DisplayName        = $currentRole.DisplayName
-                        Description        = $currentRole.Description
+                        allowedMemberTypes = $currentRole.AllowedMemberTypes
+                        id                 = $currentRole.Id
+                        isEnabled          = $false
+                        origin             = $currentRole.Origin
+                        value              = $currentRole.Value
+                        displayName        = $currentRole.DisplayName
+                        description        = $currentRole.Description
                     }
                     $fixedRoles += $entry
                 }
@@ -1106,13 +1102,13 @@ function Set-TargetResource
             foreach ($currentAppRole in $AppRoles)
             {
                 $entry = @{
-                    AllowedMemberTypes = $currentAppRole.AllowedMemberTypes
-                    Id                 = $currentAppRole.Id
-                    IsEnabled          = $currentAppRole.IsEnabled
-                    Origin             = $currentAppRole.Origin
-                    Value              = $currentAppRole.Value
-                    DisplayName        = $currentAppRole.DisplayName
-                    Description        = $currentAppRole.Description
+                    allowedMemberTypes = $currentAppRole.AllowedMemberTypes
+                    id                 = $currentAppRole.Id
+                    isEnabled          = $currentAppRole.IsEnabled
+                    origin             = $currentAppRole.Origin
+                    value              = $currentAppRole.Value
+                    displayName        = $currentAppRole.DisplayName
+                    description        = $currentAppRole.Description
                 }
                 $resultingAppRoles += $entry
             }
@@ -1217,8 +1213,8 @@ function Set-TargetResource
                 $permissionsForcurrentAPI = $Permissions | Where-Object -FilterScript { $_.SourceAPI -eq $sourceAPI }
                 $apiPrincipal = Get-MgServicePrincipal -Filter "DisplayName eq '$($sourceAPI -replace "'", "''")'"
                 $currentAPIAccess = @{
-                    ResourceAppId  = $apiPrincipal.AppId
-                    ResourceAccess = @()
+                    resourceAppId  = $apiPrincipal.AppId
+                    resourceAccess = @()
                 }
                 foreach ($permission in $permissionsForcurrentAPI)
                 {
@@ -1240,10 +1236,10 @@ function Set-TargetResource
                         }
                         Write-Verbose -Message "Adding Delegated Permission {$($scopeId)}"
                         $delPermission = @{
-                            Id   = $scopeId
-                            Type = 'Scope'
+                            id   = $scopeId
+                            type = 'Scope'
                         }
-                        $currentAPIAccess.ResourceAccess += $delPermission
+                        $currentAPIAccess.resourceAccess += $delPermission
                     }
                     elseif ($permission.Type -eq 'AppOnly')
                     {
@@ -1266,10 +1262,10 @@ function Set-TargetResource
                             throw "Could not find associated role {$($permission.Name)} for API {$($sourceAPI)}"
                         }
                         $appPermission = @{
-                            Id   = $roleId
-                            Type = 'Role'
+                            id   = $roleId
+                            type = 'Role'
                         }
-                        $currentAPIAccess.ResourceAccess += $appPermission
+                        $currentAPIAccess.resourceAccess += $appPermission
                     }
                 }
                 if ($null -ne $currentAPIAccess)
@@ -1287,18 +1283,29 @@ function Set-TargetResource
             -RequiredResourceAccess $allRequiredAccess | Out-Null
     }
 
-    if ($needToUpdateAuthenticationBehaviors -and $AuthenticationBehaviors)
+    if ($PSBoundParameters.ContainsKey('AuthenticationBehaviors'))
     {
         Write-Verbose -Message "Updating for Azure AD Application {$($currentAADApp.DisplayName)} with AuthenticationBehaviors:`r`n$($AuthenticationBehaviors| Out-String)"
         Write-Verbose -Message "Current App Id: $($currentAADApp.AppId)"
 
-        $IAuthenticationBehaviors = @{
-            blockAzureADGraphAccess    = $AuthenticationBehaviors.blockAzureADGraphAccess
-            removeUnverifiedEmailClaim = $AuthenticationBehaviors.removeUnverifiedEmailClaim
+        $IAuthenticationBehaviors = @{}
+        if ($AuthenticationBehaviors.BlockAzureADGraphAccess -ne $currentAADApp.AuthenticationBehaviors.BlockAzureADGraphAccess)
+        {
+            $blockAzureADGraphAccessValue = if ($AuthenticationBehaviors.BlockAzureADGraphAccess -eq "Null") { $null } else { $AuthenticationBehaviors.BlockAzureADGraphAccess }
+            $IAuthenticationBehaviors.Add('blockAzureADGraphAccess', $blockAzureADGraphAccessValue)
+        }
+        if ($AuthenticationBehaviors.RemoveUnverifiedEmailClaim -ne $currentAADApp.AuthenticationBehaviors.RemoveUnverifiedEmailClaim)
+        {
+            $removeUnverifiedEmailClaimValue = if ($AuthenticationBehaviors.RemoveUnverifiedEmailClaim -eq "Null") { $null } else { $AuthenticationBehaviors.RemoveUnverifiedEmailClaim }
+            $IAuthenticationBehaviors.Add('removeUnverifiedEmailClaim', $removeUnverifiedEmailClaimValue)
         }
 
-        Update-MgBetaApplication -ApplicationId $currentAADApp.ObjectId -BodyParameter @{
-            authenticationBehaviors = $IAuthenticationBehaviors
+        if ($IAuthenticationBehaviors.Keys.Count -gt 0)
+        {
+             Write-Verbose -Message "Updating AuthenticationBehaviors for Azure AD Application {$($currentAADApp.DisplayName)} with values:`r`n$($IAuthenticationBehaviors | Out-String)"
+            Update-MgBetaApplication -ApplicationId $currentAADApp.ObjectId -BodyParameter @{
+                authenticationBehaviors = $IAuthenticationBehaviors
+            }
         }
     }
 
@@ -2083,7 +2090,7 @@ function Get-CompareParameters
     param()
 
     return @{
-        ExcludedProperties = @('AppId', 'ObjectId')
+        ExcludedProperties = @('AppId', 'ObjectId', 'ApplicationTemplateId', 'AdminConsentGranted')
     }
 }
 

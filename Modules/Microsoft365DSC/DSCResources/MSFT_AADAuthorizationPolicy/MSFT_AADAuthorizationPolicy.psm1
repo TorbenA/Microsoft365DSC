@@ -326,7 +326,7 @@ function Set-TargetResource
                 {
                     # translate displayvalue to corresponding GUID
                     $guestUserRoleId = Get-GuestUserRoleIdFromName -GuestUserRole $desiredParam
-                    $UpdateParameters.Add($param, $guestUserRoleId)
+                    $UpdateParameters.Add('GuestUserRoleId', $guestUserRoleId)
                 }
                 else
                 {

@@ -148,10 +148,21 @@ function Get-TargetResource
         $getAccessPackageResourceRoleScopes = @()
         foreach ($accessPackageResourceRoleScope in $getValue.AccessPackageResourceRoleScopes)
         {
+            $originId = $accessPackageResourceRoleScope.AccessPackageResourceScope.OriginId
+            $guid = [System.Guid]::Empty
+            if ([System.Guid]::TryParse($originId, [ref]$guid))
+            {
+                switch ($accessPackageResourceRoleScope.AccessPackageResourceScope.OriginSystem)
+                {
+                    'AadApplication' { $originId = (Get-MgServicePrincipal -ServicePrincipalId $originId).DisplayName }
+                    'AadGroup' { $originId = (Get-MgGroup -GroupId $originId).DisplayName }
+                }
+            }
             $getAccessPackageResourceRoleScopes += @{
-                Id                                   = $accessPackageResourceRoleScope.Id
-                AccessPackageResourceOriginId        = $accessPackageResourceRoleScope.AccessPackageResourceScope.OriginId
-                AccessPackageResourceRoleDisplayName = $accessPackageResourceRoleScope.AccessPackageResourceRole.DisplayName
+                Id                                     = $accessPackageResourceRoleScope.Id
+                AccessPackageResourceOriginId          = $originId
+                AccessPackageResourceRoleDisplayName   = $accessPackageResourceRoleScope.AccessPackageResourceRole.DisplayName
+                AccessPackageResourceScopeOriginSystem = $accessPackageResourceRoleScope.AccessPackageResourceScope.OriginSystem
             }
         }
 
@@ -318,7 +329,7 @@ function Set-TargetResource
         $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         $ObjectGuid = [System.Guid]::empty
-        if (-not [System.Guid]::TryParse($CreateParameters.CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
+        if (-not [System.Guid]::TryParse($CreateParameters.CatalogId, [ref]$ObjectGuid))
         {
             $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($CreateParameters.CatalogId -replace "'", "''")'"
             if ($catalogInstance)
@@ -370,6 +381,28 @@ function Set-TargetResource
             #Add scopeRole
             $originId = $accessPackageResourceRoleScope.AccessPackageResourceOriginId
             $roleName = $accessPackageResourceRoleScope.AccessPackageResourceRoleDisplayName
+            $originSystem = $accessPackageResourceRoleScope.AccessPackageResourceScopeOriginSystem
+
+            $guid = [System.Guid]::Empty
+            if ($originSystem -in @('AadApplication', 'AadGroup') -and -not [System.Guid]::TryParse($originId, [ref]$guid))
+            {
+                if ($originSystem -eq 'AadApplication')
+                {
+                    $application = Get-MgServicePrincipal -Filter "DisplayName eq '$($originId -replace "'", "''")'" -All
+                    if ($null -ne $application)
+                    {
+                        $originId = $application.Id
+                    }
+                }
+                else
+                {
+                    $group = Get-MgGroup -Filter "DisplayName eq '$($OriginId -replace "'", "''")'" -All
+                    if ($null -ne $group)
+                    {
+                        $originId = $group.Id
+                    }
+                }
+            }
 
             Write-Verbose -Message "Adding roleScope {$originId`:$roleName} to access package with Id {$($accessPackage.Id)}"
 
@@ -434,7 +467,7 @@ function Set-TargetResource
         $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
         $ObjectGuid = [System.Guid]::empty
-        if (-not [System.Guid]::TryParse($UpdateParameters.CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
+        if (-not [System.Guid]::TryParse($UpdateParameters.CatalogId, [ref]$ObjectGuid))
         {
             $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($UpdateParameters.CatalogId -replace "'", "''")'"
             if ($catalogInstance)
@@ -535,6 +568,28 @@ function Set-TargetResource
                 #region new roleScope
                 $originId = $accessPackageResourceRoleScope.AccessPackageResourceOriginId
                 $roleName = $accessPackageResourceRoleScope.AccessPackageResourceRoleDisplayName
+                $originSystem = $accessPackageResourceRoleScope.AccessPackageResourceScopeOriginSystem
+
+                $guid = [System.Guid]::Empty
+                if ($originSystem -in @('AadApplication', 'AadGroup') -and -not [System.Guid]::TryParse($originId, [ref]$guid))
+                {
+                    if ($originSystem -eq 'AadApplication')
+                    {
+                        $application = Get-MgServicePrincipal -Filter "DisplayName eq '$($originId -replace "'", "''")'" -All
+                        if ($null -ne $application)
+                        {
+                            $originId = $application.Id
+                        }
+                    }
+                    else
+                    {
+                        $group = Get-MgGroup -Filter "DisplayName eq '$($originId -replace "'", "''")'" -All
+                        if ($null -ne $group)
+                        {
+                            $originId = $group.Id
+                        }
+                    }
+                }
 
                 Write-Verbose -Message "Adding roleScope {$originId`:$roleName} to access package with Id {$($currentInstance.Id)}"
 

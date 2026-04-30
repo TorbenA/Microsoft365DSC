@@ -676,14 +676,14 @@ function Get-M365DSCSentinelThreatIntelligenceIndicator
         if (-not [System.String]::IsNullOrEmpty($Id))
         {
             $uri += "providers/Microsoft.OperationalInsights/workspaces/$($WorkspaceName)/providers/Microsoft.SecurityInsights/threatIntelligence/main/indicators/$($Id)?api-version=2024-03-01"
-            $response = Invoke-AzRest -Uri $uri -Method 'GET'
+            $response = Invoke-AzRestMethod -Uri $uri -Method 'GET'
             $result = ConvertFrom-Json $response.Content
             return $result
         }
         else
         {
             $uri += "providers/Microsoft.OperationalInsights/workspaces/$($WorkspaceName)/providers/Microsoft.SecurityInsights/threatIntelligence/main/indicators?api-version=2024-03-01"
-            $response = Invoke-AzRest -Uri $uri -Method 'GET'
+            $response = Invoke-AzRestMethod -Uri $uri -Method 'GET'
             $result = ConvertFrom-Json $response.Content
             return $result.value
         }
@@ -731,7 +731,7 @@ function New-M365DSCSentinelThreatIntelligenceIndicator
 
         $uri += "providers/Microsoft.OperationalInsights/workspaces/$($WorkspaceName)/providers/Microsoft.SecurityInsights/threatIntelligence/main/createIndicator?api-version=2024-03-01"
         $payload = ConvertTo-Json $Body -Depth 10 -Compress
-        $null = Invoke-AzRest -Uri $uri -Method 'POST' -Payload $payload
+        $null = Invoke-AzRestMethod -Uri $uri -Method 'POST' -Payload $payload
     }
     catch
     {
@@ -780,7 +780,7 @@ function Set-M365DSCSentinelThreatIntelligenceIndicator
 
         $uri += "providers/Microsoft.OperationalInsights/workspaces/$($WorkspaceName)/providers/Microsoft.SecurityInsights/threatIntelligence/main/indicators/$($Id)?api-version=2024-03-01"
         $payload = ConvertTo-Json $Body -Depth 10 -Compress
-        $null = Invoke-AzRest -Uri $uri -Method 'PUT' -Payload $payload
+        $null = Invoke-AzRestMethod -Uri $uri -Method 'PUT' -Payload $payload
     }
     catch
     {
@@ -824,7 +824,7 @@ function Remove-M365DSCSentinelThreatIntelligenceIndicator
         $uri = $hostUrl.AzureManagement + "/subscriptions/$($SubscriptionId)/resourceGroups/$($ResourceGroupName)/"
 
         $uri += "providers/Microsoft.OperationalInsights/workspaces/$($WorkspaceName)/providers/Microsoft.SecurityInsights/threatIntelligence/main/indicators/$($Id)?api-version=2024-03-01"
-        $null = Invoke-AzRest -Uri $uri -Method 'DELETE'
+        $null = Invoke-AzRestMethod -Uri $uri -Method 'DELETE'
     }
     catch
     {

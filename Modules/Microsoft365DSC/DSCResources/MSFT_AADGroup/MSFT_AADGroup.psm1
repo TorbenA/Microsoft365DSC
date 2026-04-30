@@ -629,7 +629,8 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Checking to see if an existing deleted group exists with DisplayName {$DisplayName}"
         $restoringExisting = $false
-        [Array]$groups = Get-MgBetaDirectoryDeletedItemAsGroup -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'"
+        # Not using Get-MgBetaDirectoryDeletedItemAsGroup because the URI from Find-MgGraphCommand is not correct
+        [Array]$groups = (Invoke-MgGraphRequest -Uri "/beta/directory/deletedItems/microsoft.graph.group?`$filter=DisplayName eq '$($DisplayName -replace "'", "''")'").value
         if ($groups.Length -gt 1)
         {
             throw "Multiple deleted groups with the name {$DisplayName} were found. Cannot restore the existing group. Please ensure that you either have no instance of the group in the deleted list or that you have a single one."
@@ -640,7 +641,15 @@ function Set-TargetResource
             Write-Verbose -Message "Found an instance of a deleted group {$DisplayName}. Restoring it."
             Restore-MgBetaDirectoryDeletedItem -DirectoryObjectId $groups[0].Id
             $restoringExisting = $true
-            $currentGroup = Get-MgBetaGroup -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ErrorAction Stop
+            do
+            {
+                $currentGroup = Get-MgBetaGroup -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ErrorAction Stop
+            } while ($null -eq $currentGroup)
+            $null = Invoke-M365DSCCommand -ScriptBlock { Get-MgBetaGroupMember -GroupId $currentGroup.Id -ErrorAction Stop } -RetryOnNotFoundError
+            $commandParameters = ([Hashtable]$PSBoundParameters).Clone()
+            Invoke-M365DSCCommand -ScriptBlock { $currentGroup = Get-TargetResource @commandParameters } -RetryOnNotFoundError
+            $backCurrentOwners = $currentGroup.Owners
+            $backCurrentMembers = $currentGroup.Members
         }
 
         if (-not $restoringExisting)
@@ -683,7 +692,7 @@ function Set-TargetResource
             {
                 $currentParameters.Remove('Id') | Out-Null
                 Write-Verbose -Message "Updating Group with Values: $(Convert-M365DscHashtableToString -Hashtable $currentParameters)"
-                Update-MgGroup -GroupId $currentGroup.Id -BodyParameter $currentParameters | Out-Null
+                Invoke-M365DSCCommand -ScriptBlock { Update-MgGroup -GroupId $currentGroup.Id -BodyParameter $currentParameters -ErrorAction Stop } -RetryOnNotFoundError | Out-Null
             }
 
             if (($licensesToAdd.Length -gt 0 -or $licensesToRemove.Length -gt 0) -and $PSBoundParameters.ContainsKey('AssignedLicenses'))

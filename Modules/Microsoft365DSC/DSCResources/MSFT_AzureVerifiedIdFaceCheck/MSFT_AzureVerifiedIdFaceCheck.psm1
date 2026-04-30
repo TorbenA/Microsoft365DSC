@@ -85,7 +85,7 @@ function Get-TargetResource
         }
 
         $uri = "$((Get-MSCloudLoginConnectionProfile -Workload Azure).ManagementUrl)$($resourceGroupInstance.ResourceId)/providers/Microsoft.VerifiedId/authorities/$($VerifiedIdAuthorityId)?api-version=2024-01-26-preview"
-        $response = Invoke-AzRest -Uri $uri -Method Get
+        $response = Invoke-AzRestMethod -Uri $uri -Method Get
         $authorities = ConvertFrom-Json $response.Content
 
         $EnabledValue = $false
@@ -198,14 +198,14 @@ function Set-TargetResource
         Write-Verbose -Message "Enabling FaceCheck on Verified ID Authority {$($VerifiedIDAuthorityId)}"
         $uri = "$((Get-MSCloudLoginConnectionProfile -Workload Azure).ManagementUrl)subscriptions/$($SubscriptionId)/resourceGroups/$($ResourceGroupName)/providers/Microsoft.VerifiedId/authorities/$($VerifiedIdAuthorityId)?api-version=2024-01-26-preview"
         $payload = '{"location": "' + $VerifiedIdAuthorityLocation + '"}'
-        $response = Invoke-AzRest -Uri $uri -Method Put -Payload $payload
+        $response = Invoke-AzRestMethod -Uri $uri -Method Put -Payload $payload
     }
     else
     {
         Write-Verbose -Message "Disabling FaceCheck on Verified ID Authority {$($VerifiedIDAuthorityId)}"
         $uri = "$((Get-MSCloudLoginConnectionProfile -Workload Azure).ManagementUrl)subscriptions/$($SubscriptionId)/resourceGroups/$($ResourceGroupName)/providers/Microsoft.VerifiedId/authorities/$($VerifiedIdAuthorityId)?api-version=2024-01-26-preview"
         $payload = '{"location": null}'
-        $response = Invoke-AzRest -Uri $uri -Method DELETE
+        $response = Invoke-AzRestMethod -Uri $uri -Method DELETE
     }
 }
 
@@ -374,7 +374,7 @@ function Export-TargetResource
             foreach ($authority in $authorities.value)
             {
                 $uri = "$((Get-MSCloudLoginConnectionProfile -Workload Azure).ManagementUrl)$($resourceGroup.ResourceId)/providers/Microsoft.VerifiedId/authorities/$($authority.id)?api-version=2024-01-26-preview"
-                $response = Invoke-AzRest -Uri $uri -Method Get
+                $response = Invoke-AzRestMethod -Uri $uri -Method Get
 
                 $Global:M365DSCExportResourceInstancesCount++
 

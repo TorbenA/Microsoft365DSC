@@ -1428,6 +1428,95 @@ function Get-MgBetaDeviceAppManagementiOSManagedAppProtectionAssignment
     return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/iosManagedAppProtections/$($IosManagedAppProtectionId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
+function Get-MgBetaDeviceAppManagementManagedAppPolicy
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $ManagedAppPolicyId,
+
+        [Parameter()]
+        [System.Object]
+        $InputObject,
+
+        [Parameter()]
+        [System.String[]]
+        $ExpandProperty,
+
+        [Parameter()]
+        [System.String[]]
+        $Property,
+
+        [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
+        [System.String]
+        $Search,
+
+        [Parameter()]
+        [System.Int32]
+        $Skip,
+
+        [Parameter()]
+        [System.String[]]
+        $Sort,
+
+        [Parameter()]
+        [System.Int32]
+        $Top,
+
+        [Parameter()]
+        [System.String]
+        $ResponseHeadersVariable,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Break,
+
+        [Parameter()]
+        [System.Collections.IDictionary]
+        $Headers,
+
+        [Parameter()]
+        [System.Object[]]
+        $HttpPipelineAppend,
+
+        [Parameter()]
+        [System.Object[]]
+        $HttpPipelinePrepend,
+
+        [Parameter()]
+        [System.Uri]
+        $Proxy,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ProxyCredential,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ProxyUseDefaultCredentials,
+
+        [Parameter()]
+        [System.Int32]
+        $PageSize,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $All,
+
+        [Parameter()]
+        [System.String]
+        $CountVariable
+    )
+
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('ManagedAppPolicyId') -and -not [System.String]::IsNullOrEmpty($ManagedAppPolicyId)) { "/beta/deviceAppManagement/managedAppPolicies/$($ManagedAppPolicyId)" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceAppManagement/managedAppPolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
+}
+
 function Get-MgBetaDeviceAppManagementManagedAppStatus
 {
     [CmdletBinding()]
@@ -4438,99 +4527,6 @@ function Get-MgBetaDeviceManagementDeviceShellScript
 
     $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceShellScriptId') -and -not [System.String]::IsNullOrEmpty($DeviceShellScriptId)) { "/beta/deviceManagement/deviceShellScripts/$($DeviceShellScriptId)" } else { $null }
     return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/deviceShellScripts" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
-}
-
-function Get-MgBetaDeviceManagementDeviceShellScriptAssignment
-{
-    [CmdletBinding()]
-    param(
-        [Parameter()]
-        [System.String]
-        $DeviceManagementScriptAssignmentId,
-
-        [Parameter()]
-        [System.String]
-        $DeviceShellScriptId,
-
-        [Parameter()]
-        [System.Object]
-        $InputObject,
-
-        [Parameter()]
-        [System.String[]]
-        $ExpandProperty,
-
-        [Parameter()]
-        [System.String[]]
-        $Property,
-
-        [Parameter()]
-        [System.String]
-        $Filter,
-
-        [Parameter()]
-        [System.String]
-        $Search,
-
-        [Parameter()]
-        [System.Int32]
-        $Skip,
-
-        [Parameter()]
-        [System.String[]]
-        $Sort,
-
-        [Parameter()]
-        [System.Int32]
-        $Top,
-
-        [Parameter()]
-        [System.String]
-        $ResponseHeadersVariable,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $Break,
-
-        [Parameter()]
-        [System.Collections.IDictionary]
-        $Headers,
-
-        [Parameter()]
-        [System.Object[]]
-        $HttpPipelineAppend,
-
-        [Parameter()]
-        [System.Object[]]
-        $HttpPipelinePrepend,
-
-        [Parameter()]
-        [System.Uri]
-        $Proxy,
-
-        [Parameter()]
-        [System.Management.Automation.PSCredential]
-        $ProxyCredential,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $ProxyUseDefaultCredentials,
-
-        [Parameter()]
-        [System.Int32]
-        $PageSize,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $All,
-
-        [Parameter()]
-        [System.String]
-        $CountVariable
-    )
-
-    $singleItemUri = if ($PSBoundParameters.ContainsKey('DeviceManagementScriptAssignmentId') -and -not [System.String]::IsNullOrEmpty($DeviceManagementScriptAssignmentId)) { "/beta/deviceManagement/deviceShellScripts/$($DeviceShellScriptId)/assignments/$($DeviceManagementScriptAssignmentId)" } else { $null }
-    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/deviceManagement/deviceShellScripts/$($DeviceShellScriptId)/assignments" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDeviceManagementGroupPolicyConfiguration
@@ -7950,95 +7946,8 @@ function Get-MgBetaDirectoryDeletedItemAsApplication
         $CountVariable
     )
 
-    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/directory/deletedItems/$($DirectoryObjectId)/application" -ErrorAction $ErrorActionPreference
-}
-
-function Get-MgBetaDirectoryDeletedItemAsGroup
-{
-    [CmdletBinding()]
-    param(
-        [Parameter()]
-        [System.String]
-        $DirectoryObjectId,
-
-        [Parameter()]
-        [System.Object]
-        $InputObject,
-
-        [Parameter()]
-        [System.String[]]
-        $ExpandProperty,
-
-        [Parameter()]
-        [System.String[]]
-        $Property,
-
-        [Parameter()]
-        [System.String]
-        $Filter,
-
-        [Parameter()]
-        [System.String]
-        $Search,
-
-        [Parameter()]
-        [System.Int32]
-        $Skip,
-
-        [Parameter()]
-        [System.String[]]
-        $Sort,
-
-        [Parameter()]
-        [System.Int32]
-        $Top,
-
-        [Parameter()]
-        [System.String]
-        $ResponseHeadersVariable,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $Break,
-
-        [Parameter()]
-        [System.Collections.IDictionary]
-        $Headers,
-
-        [Parameter()]
-        [System.Object[]]
-        $HttpPipelineAppend,
-
-        [Parameter()]
-        [System.Object[]]
-        $HttpPipelinePrepend,
-
-        [Parameter()]
-        [System.Uri]
-        $Proxy,
-
-        [Parameter()]
-        [System.Management.Automation.PSCredential]
-        $ProxyCredential,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $ProxyUseDefaultCredentials,
-
-        [Parameter()]
-        [System.Int32]
-        $PageSize,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $All,
-
-        [Parameter()]
-        [System.String]
-        $CountVariable
-    )
-
-    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/directory/deletedItems/$($DirectoryObjectId)/group" -ErrorAction $ErrorActionPreference
+    $singleItemUri = if ($PSBoundParameters.ContainsKey('DirectoryObjectId') -and -not [System.String]::IsNullOrEmpty($DirectoryObjectId)) { "/beta/directory/deletedItems/$($DirectoryObjectId)/application" } else { $null }
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/directory/deletedItems/application" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaDirectoryObject
@@ -9860,6 +9769,94 @@ function Get-MgBetaGroupLifecyclePolicy
 
     $singleItemUri = if ($PSBoundParameters.ContainsKey('GroupLifecyclePolicyId') -and -not [System.String]::IsNullOrEmpty($GroupLifecyclePolicyId)) { "/beta/groupLifecyclePolicies/$($GroupLifecyclePolicyId)" } else { $null }
     return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/groupLifecyclePolicies" -SingleItemUri $singleItemUri -ErrorAction $ErrorActionPreference
+}
+
+function Get-MgBetaGroupMember
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $GroupId,
+
+        [Parameter()]
+        [System.String[]]
+        $ExpandProperty,
+
+        [Parameter()]
+        [System.String]
+        $Filter,
+
+        [Parameter()]
+        [System.String[]]
+        $Property,
+
+        [Parameter()]
+        [System.String]
+        $Search,
+
+        [Parameter()]
+        [System.Int32]
+        $Skip,
+
+        [Parameter()]
+        [System.String[]]
+        $Sort,
+
+        [Parameter()]
+        [System.Int32]
+        $Top,
+
+        [Parameter()]
+        [System.String]
+        $ConsistencyLevel,
+
+        [Parameter()]
+        [System.String]
+        $ResponseHeadersVariable,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Break,
+
+        [Parameter()]
+        [System.Collections.IDictionary]
+        $Headers,
+
+        [Parameter()]
+        [System.Object[]]
+        $HttpPipelineAppend,
+
+        [Parameter()]
+        [System.Object[]]
+        $HttpPipelinePrepend,
+
+        [Parameter()]
+        [System.Uri]
+        $Proxy,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ProxyCredential,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ProxyUseDefaultCredentials,
+
+        [Parameter()]
+        [System.Int32]
+        $PageSize,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $All,
+
+        [Parameter()]
+        [System.String]
+        $CountVariable
+    )
+
+    return Invoke-M365DSCGraphShimGetResource -BoundParameters $PSBoundParameters -CollectionUri "/beta/groups/$($GroupId)/members" -ErrorAction $ErrorActionPreference
 }
 
 function Get-MgBetaIdentityApiConnector
@@ -23294,74 +23291,6 @@ function New-MgBetaDirectoryAttributeSet
     return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/directory/attributeSets" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
-function New-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfiguration
-{
-    [CmdletBinding()]
-    param(
-        [Parameter()]
-        [System.Object]
-        $BodyParameter,
-
-        [Parameter()]
-        [System.String]
-        $ResponseHeadersVariable,
-
-        [Parameter()]
-        [System.Collections.Hashtable]
-        $AdditionalProperties,
-
-        [Parameter()]
-        [System.DateTime]
-        $DeletedDateTime,
-
-        [Parameter()]
-        [System.String]
-        $Description,
-
-        [Parameter()]
-        [System.String]
-        $DisplayName,
-
-        [Parameter()]
-        [System.String]
-        $Id,
-
-        [Parameter()]
-        [System.Object]
-        $TrustedCertificateAuthorities,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $Break,
-
-        [Parameter()]
-        [System.Collections.IDictionary]
-        $Headers,
-
-        [Parameter()]
-        [System.Object[]]
-        $HttpPipelineAppend,
-
-        [Parameter()]
-        [System.Object[]]
-        $HttpPipelinePrepend,
-
-        [Parameter()]
-        [System.Uri]
-        $Proxy,
-
-        [Parameter()]
-        [System.Management.Automation.PSCredential]
-        $ProxyCredential,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $ProxyUseDefaultCredentials
-    )
-
-    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/directory/certificateAuthorities/certificateBasedApplicationConfigurations" -Method 'POST' -ErrorAction $ErrorActionPreference
-}
-
 function New-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfigurationTrustedCertificateAuthority
 {
     [CmdletBinding()]
@@ -26900,6 +26829,82 @@ function New-MgBetaPolicyAuthenticationStrengthPolicy
     )
 
     return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/authenticationStrengthPolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
+}
+
+function New-MgBetaPolicyB2BManagementPolicy
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.Collections.Hashtable]
+        $BodyParameter,
+
+        [Parameter()]
+        [System.String]
+        $ResponseHeadersVariable,
+
+        [Parameter()]
+        [System.Collections.Hashtable]
+        $AdditionalProperties,
+
+        [Parameter()]
+        [System.Object]
+        $AppliesTo,
+
+        [Parameter()]
+        [System.String[]]
+        $Definition,
+
+        [Parameter()]
+        [System.DateTime]
+        $DeletedDateTime,
+
+        [Parameter()]
+        [System.String]
+        $Description,
+
+        [Parameter()]
+        [System.String]
+        $DisplayName,
+
+        [Parameter()]
+        [System.String]
+        $Id,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $IsOrganizationDefault,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Break,
+
+        [Parameter()]
+        [System.Collections.IDictionary]
+        $Headers,
+
+        [Parameter()]
+        [System.Object[]]
+        $HttpPipelineAppend,
+
+        [Parameter()]
+        [System.Object[]]
+        $HttpPipelinePrepend,
+
+        [Parameter()]
+        [System.Uri]
+        $Proxy,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ProxyCredential,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $ProxyUseDefaultCredentials
+    )
+
+    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/b2bManagementPolicies" -Method 'POST' -ErrorAction $ErrorActionPreference
 }
 
 function New-MgBetaPolicyClaimMappingPolicy
@@ -45678,146 +45683,6 @@ function Update-MgBetaIdentityCustomAuthenticationExtension
     return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identity/customAuthenticationExtensions/$($CustomAuthenticationExtensionId)" -Method 'PATCH' -ExtraExcludeParams @('CustomAuthenticationExtensionId') -ErrorAction $ErrorActionPreference
 }
 
-function Update-MgBetaIdentityGovernanceLifecycleWorkflow
-{
-    [CmdletBinding()]
-    param(
-        [Parameter()]
-        [System.String]
-        $WorkflowId,
-
-        [Parameter()]
-        [System.Object]
-        $InputObject,
-
-        [Parameter()]
-        [System.Object]
-        $BodyParameter,
-
-        [Parameter()]
-        [System.String]
-        $ResponseHeadersVariable,
-
-        [Parameter()]
-        [System.Collections.Hashtable]
-        $AdditionalProperties,
-
-        [Parameter()]
-        [System.Object]
-        $AdministrationScopeTargets,
-
-        [Parameter()]
-        [System.String]
-        $Category,
-
-        [Parameter()]
-        [System.Object]
-        $CreatedBy,
-
-        [Parameter()]
-        [System.DateTime]
-        $CreatedDateTime,
-
-        [Parameter()]
-        [System.DateTime]
-        $DeletedDateTime,
-
-        [Parameter()]
-        [System.String]
-        $Description,
-
-        [Parameter()]
-        [System.String]
-        $DisplayName,
-
-        [Parameter()]
-        [System.Collections.Hashtable]
-        $ExecutionConditions,
-
-        [Parameter()]
-        [System.Object]
-        $ExecutionScope,
-
-        [Parameter()]
-        [System.String]
-        $Id,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $IsEnabled,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $IsSchedulingEnabled,
-
-        [Parameter()]
-        [System.Object]
-        $LastModifiedBy,
-
-        [Parameter()]
-        [System.DateTime]
-        $LastModifiedDateTime,
-
-        [Parameter()]
-        [System.DateTime]
-        $NextScheduleRunDateTime,
-
-        [Parameter()]
-        [System.Object]
-        $Runs,
-
-        [Parameter()]
-        [System.Object]
-        $TaskReports,
-
-        [Parameter()]
-        [System.Object]
-        $Tasks,
-
-        [Parameter()]
-        [System.Object]
-        $UserProcessingResults,
-
-        [Parameter()]
-        [System.Int32]
-        $Version,
-
-        [Parameter()]
-        [System.Object]
-        $Versions,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $Break,
-
-        [Parameter()]
-        [System.Collections.IDictionary]
-        $Headers,
-
-        [Parameter()]
-        [System.Object[]]
-        $HttpPipelineAppend,
-
-        [Parameter()]
-        [System.Object[]]
-        $HttpPipelinePrepend,
-
-        [Parameter()]
-        [System.Uri]
-        $Proxy,
-
-        [Parameter()]
-        [System.Management.Automation.PSCredential]
-        $ProxyCredential,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $ProxyUseDefaultCredentials
-    )
-
-    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/identityGovernance/lifecycleWorkflows/workflows/$($WorkflowId)" -Method 'PATCH' -ExtraExcludeParams @('WorkflowId') -ErrorAction $ErrorActionPreference
-}
-
 function Update-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension
 {
     [CmdletBinding()]
@@ -48028,94 +47893,6 @@ function Update-MgBetaPolicyCrossTenantAccessPolicy
     )
 
     return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/crossTenantAccessPolicy" -Method 'PATCH' -ErrorAction $ErrorActionPreference
-}
-
-function Update-MgBetaPolicyCrossTenantAccessPolicyDefault
-{
-    [CmdletBinding()]
-    param(
-        [Parameter()]
-        [System.Object]
-        $BodyParameter,
-
-        [Parameter()]
-        [System.String]
-        $ResponseHeadersVariable,
-
-        [Parameter()]
-        [System.Collections.Hashtable]
-        $AdditionalProperties,
-
-        [Parameter()]
-        [System.Object]
-        $AutomaticUserConsentSettings,
-
-        [Parameter()]
-        [System.Object]
-        $B2BCollaborationInbound,
-
-        [Parameter()]
-        [System.Object]
-        $B2BCollaborationOutbound,
-
-        [Parameter()]
-        [System.Object]
-        $B2BDirectConnectInbound,
-
-        [Parameter()]
-        [System.Object]
-        $B2BDirectConnectOutbound,
-
-        [Parameter()]
-        [System.String]
-        $Id,
-
-        [Parameter()]
-        [System.Object]
-        $InboundTrust,
-
-        [Parameter()]
-        [System.Collections.Hashtable]
-        $InvitationRedemptionIdentityProviderConfiguration,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $IsServiceDefault,
-
-        [Parameter()]
-        [System.Object]
-        $TenantRestrictions,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $Break,
-
-        [Parameter()]
-        [System.Collections.IDictionary]
-        $Headers,
-
-        [Parameter()]
-        [System.Object[]]
-        $HttpPipelineAppend,
-
-        [Parameter()]
-        [System.Object[]]
-        $HttpPipelinePrepend,
-
-        [Parameter()]
-        [System.Uri]
-        $Proxy,
-
-        [Parameter()]
-        [System.Management.Automation.PSCredential]
-        $ProxyCredential,
-
-        [Parameter()]
-        [System.Management.Automation.SwitchParameter]
-        $ProxyUseDefaultCredentials
-    )
-
-    return Invoke-M365DSCGraphShimWriteResource -BoundParameters $PSBoundParameters -Uri "/beta/policies/crossTenantAccessPolicy/default" -Method 'PATCH' -ErrorAction $ErrorActionPreference
 }
 
 function Update-MgBetaPolicyCrossTenantAccessPolicyPartner
@@ -50971,6 +50748,7 @@ Export-ModuleMember -Function @(
     'Get-MgBetaDeviceAppManagementiOSManagedAppProtection',
     'Get-MgBetaDeviceAppManagementiOSManagedAppProtectionApp',
     'Get-MgBetaDeviceAppManagementiOSManagedAppProtectionAssignment',
+    'Get-MgBetaDeviceAppManagementManagedAppPolicy',
     'Get-MgBetaDeviceAppManagementManagedAppStatus',
     'Get-MgBetaDeviceAppManagementMdmWindowsInformationProtectionPolicy',
     'Get-MgBetaDeviceAppManagementMobileApp',
@@ -51005,7 +50783,6 @@ Export-ModuleMember -Function @(
     'Get-MgBetaDeviceManagementDeviceHealthScript',
     'Get-MgBetaDeviceManagementDeviceHealthScriptAssignment',
     'Get-MgBetaDeviceManagementDeviceShellScript',
-    'Get-MgBetaDeviceManagementDeviceShellScriptAssignment',
     'Get-MgBetaDeviceManagementGroupPolicyConfiguration',
     'Get-MgBetaDeviceManagementGroupPolicyConfigurationAssignment',
     'Get-MgBetaDeviceManagementGroupPolicyConfigurationDefinitionValue',
@@ -51044,7 +50821,6 @@ Export-ModuleMember -Function @(
     'Get-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfigurationTrustedCertificateAuthority',
     'Get-MgBetaDirectoryCustomSecurityAttributeDefinition',
     'Get-MgBetaDirectoryDeletedItemAsApplication',
-    'Get-MgBetaDirectoryDeletedItemAsGroup',
     'Get-MgBetaDirectoryObject',
     'Get-MgBetaDirectoryObjectById',
     'Get-MgBetaDirectorySetting',
@@ -51066,6 +50842,7 @@ Export-ModuleMember -Function @(
     'Get-MgBetaExternalConnection',
     'Get-MgBetaGroup',
     'Get-MgBetaGroupLifecyclePolicy',
+    'Get-MgBetaGroupMember',
     'Get-MgBetaIdentityApiConnector',
     'Get-MgBetaIdentityB2XUserFlow',
     'Get-MgBetaIdentityB2XUserFlowApiConnectorConfiguration',
@@ -51212,7 +50989,6 @@ Export-ModuleMember -Function @(
     'New-MgBetaDeviceManagementWindowsFeatureUpdateProfile',
     'New-MgBetaDeviceManagementWindowsQualityUpdateProfile',
     'New-MgBetaDirectoryAttributeSet',
-    'New-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfiguration',
     'New-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfigurationTrustedCertificateAuthority',
     'New-MgBetaDirectoryCustomSecurityAttributeDefinition',
     'New-MgBetaDirectoryCustomSecurityAttributeDefinitionAllowedValue',
@@ -51255,6 +51031,7 @@ Export-ModuleMember -Function @(
     'New-MgBetaPolicyAppManagementPolicy',
     'New-MgBetaPolicyAuthenticationMethodPolicyAuthenticationMethodConfiguration',
     'New-MgBetaPolicyAuthenticationStrengthPolicy',
+    'New-MgBetaPolicyB2BManagementPolicy',
     'New-MgBetaPolicyClaimMappingPolicy',
     'New-MgBetaPolicyCrossTenantAccessPolicyPartner',
     'New-MgBetaPolicyFeatureRolloutPolicy',
@@ -51468,7 +51245,6 @@ Export-ModuleMember -Function @(
     'Update-MgBetaIdentityB2XUserFlowUserAttributeAssignment',
     'Update-MgBetaIdentityConditionalAccessAuthenticationContextClassReference',
     'Update-MgBetaIdentityCustomAuthenticationExtension',
-    'Update-MgBetaIdentityGovernanceLifecycleWorkflow',
     'Update-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension',
     'Update-MgBetaIdentityGovernanceLifecycleWorkflowSetting',
     'Update-MgBetaIdentityProvider',
@@ -51496,7 +51272,6 @@ Export-ModuleMember -Function @(
     'Update-MgBetaPolicyB2CAuthenticationMethodPolicy',
     'Update-MgBetaPolicyClaimMappingPolicy',
     'Update-MgBetaPolicyCrossTenantAccessPolicy',
-    'Update-MgBetaPolicyCrossTenantAccessPolicyDefault',
     'Update-MgBetaPolicyCrossTenantAccessPolicyPartner',
     'Update-MgBetaPolicyCrossTenantAccessPolicyTemplateMultiTenantOrganizationIdentitySynchronization',
     'Update-MgBetaPolicyDefaultAppManagementPolicy',

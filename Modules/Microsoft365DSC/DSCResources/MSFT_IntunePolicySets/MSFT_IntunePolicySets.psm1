@@ -173,6 +173,7 @@ function Get-TargetResource
         $itemsValues = $getValue.Items
 
         $itemResult = @()
+        $Script:itemResultCache = @()
         foreach ($itemEntry in $itemsValues)
         {
             $itemValue = @{
@@ -183,6 +184,10 @@ function Get-TargetResource
                 guidedDeploymentTags = $itemEntry.GuidedDeploymentTags
             }
             $itemResult += $itemValue
+
+            $itemValue = $itemValue.Clone()
+            $itemValue.Add('id', $itemEntry.Id)
+            $Script:itemResultCache += $itemValue
         }
 
         $results.Add('Items', $itemResult)
@@ -337,8 +342,9 @@ function Set-TargetResource
         Update-MgBetaDeviceAppManagementPolicySet -PolicySetId $currentInstance.Id -BodyParameter $UpdateParameters
 
         $Url = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/deviceAppManagement/policySets/$($currentInstance.Id)/update"
-        if ($null -ne ($itemamendments = Get-ItemsAmendmentsObject -currentObjectItems $currentInstance.Items -targetObjectItems $items))
+        if ($null -ne ($itemamendments = Get-ItemsAmendmentsObject -currentObjectItems $Script:itemResultCache -targetObjectItems $items))
         {
+            Write-Verbose $($itemamendments | ConvertTo-Json -Depth 10) -Verbose
             Invoke-MgGraphRequest -Method POST -Uri $url -Body $itemamendments
         }
 
@@ -436,8 +442,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
+    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+        @compareParameters
     return $result
 }
 
@@ -614,17 +622,18 @@ function Get-ItemsAmendmentsObject
         addedPolicySetItems   = @()
     }
 
+    $nullreturn = $true
     $currentObjectItems | ForEach-Object {
-        if (-not ($targetObjectItems.PayloadId -contains $_.PayloadId))
+        if (-not ($targetObjectItems.DisplayName -contains $_.DisplayName))
         {
             Write-Verbose -Message ($_.DisplayName + ' NOT present in Config Document, Removing')
-            $ItemsModificationTemplate.deletedPolicySetItems += $_.Id
+            $ItemsModificationTemplate.deletedPolicySetItems += $_.id
             $nullreturn = $false
         }
     }
 
     $targetObjectItems | ForEach-Object {
-        if (-not ($currentObjectItems.PayloadId -contains $_.PayloadId))
+        if (-not ($currentObjectItems.DisplayName -contains $_.DisplayName))
         {
             Write-Verbose -Message ($_.DisplayName + ' NOT already present in Policy Set, Adding')
             $ItemsModificationTemplate.addedPolicySetItems += @{
@@ -647,6 +656,7 @@ function Get-ItemsAmendmentsObject
 function Get-PayloadIdFromItem
 {
     [CmdletBinding()]
+    [OutputType([System.String])]
     param
     (
         [Parameter(Mandatory = $true)]
@@ -654,7 +664,7 @@ function Get-PayloadIdFromItem
         $Item
     )
 
-    $object = switch ($Item.dataType)
+    switch ($Item.dataType)
     {
         '#microsoft.graph.windowsAutopilotDeploymentProfilePolicySetItem'
         {
@@ -665,7 +675,7 @@ function Get-PayloadIdFromItem
                 {
                     throw "Unable to find the item with payloadId $($Item.payloadId) and no displayName to fallback on"
                 }
-                $object = Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile -Filter "displayName eq '$($Item.displayName)'" -ErrorAction SilentlyContinue
+                $object = Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile -Filter "displayName eq '$($Item.displayName)'" -All -ErrorAction SilentlyContinue
                 if ($null -eq $object)
                 {
                     throw "Unable to find the item with payloadId $($Item.payloadId) and displayName $($Item.displayName)"
@@ -681,7 +691,7 @@ function Get-PayloadIdFromItem
                 {
                     throw "Unable to find the item with payloadId $($Item.payloadId) and no displayName to fallback on"
                 }
-                $object = Get-MgBetaDeviceManagementDeviceCompliancePolicy -Filter "displayName eq '$($Item.displayName)'" -ErrorAction SilentlyContinue
+                $object = Get-MgBetaDeviceManagementDeviceCompliancePolicy -Filter "displayName eq '$($Item.displayName)'" -All -ErrorAction SilentlyContinue
                 if ($null -eq $object)
                 {
                     throw "Unable to find the item with payloadId $($Item.payloadId) and displayName $($Item.displayName)"
@@ -697,7 +707,7 @@ function Get-PayloadIdFromItem
                 {
                     throw "Unable to find the item with payloadId $($Item.payloadId) and no displayName to fallback on"
                 }
-                $object = Get-MgBetaDeviceManagementDeviceConfiguration -Filter "displayName eq '$($Item.displayName)'" -ErrorAction SilentlyContinue
+                $object = Get-MgBetaDeviceManagementDeviceConfiguration -Filter "displayName eq '$($Item.displayName)'" -All -ErrorAction SilentlyContinue
                 if ($null -eq $object)
                 {
                     throw "Unable to find the item with payloadId $($Item.payloadId) and displayName $($Item.displayName)"
@@ -713,7 +723,7 @@ function Get-PayloadIdFromItem
                 {
                     throw "Unable to find the item with payloadId $($Item.payloadId) and no displayName to fallback on"
                 }
-                $object = Get-MgBetaDeviceAppManagementMobileApp -Filter "displayName eq '$($Item.displayName)'" -ErrorAction SilentlyContinue
+                $object = Get-MgBetaDeviceAppManagementMobileApp -Filter "displayName eq '$($Item.displayName)'" -All -ErrorAction SilentlyContinue
                 if ($null -eq $object)
                 {
                     throw "Unable to find the item with payloadId $($Item.payloadId) and displayName $($Item.displayName)"
@@ -729,7 +739,7 @@ function Get-PayloadIdFromItem
                 {
                     throw "Unable to find the item with payloadId $($Item.payloadId) and no displayName to fallback on"
                 }
-                $object = Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -Filter "displayName eq '$($Item.displayName)'" -ErrorAction SilentlyContinue
+                $object = Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -Filter "displayName eq '$($Item.displayName)'" -All -ErrorAction SilentlyContinue
                 if ($null -eq $object)
                 {
                     throw "Unable to find the item with payloadId $($Item.payloadId) and displayName $($Item.displayName)"
@@ -745,7 +755,7 @@ function Get-PayloadIdFromItem
                 {
                     throw "Unable to find the item with payloadId $($Item.payloadId) and no displayName to fallback on"
                 }
-                $object = Get-MgBetaDeviceAppManagementManagedAppPolicy -Filter "displayName eq '$($Item.displayName)'" -ErrorAction SilentlyContinue
+                $object = Get-MgBetaDeviceAppManagementManagedAppPolicy -Filter "displayName eq '$($Item.displayName)'" -All -ErrorAction SilentlyContinue
                 if ($null -eq $object)
                 {
                     throw "Unable to find the item with payloadId $($Item.payloadId) and displayName $($Item.displayName)"
@@ -761,7 +771,7 @@ function Get-PayloadIdFromItem
                 {
                     throw "Unable to find the item with payloadId $($Item.payloadId) and no displayName to fallback on"
                 }
-                $object = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -Filter "displayName eq '$($Item.displayName)'" -ErrorAction SilentlyContinue
+                $object = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -Filter "displayName eq '$($Item.displayName)'" -All -ErrorAction SilentlyContinue
                 if ($null -eq $object)
                 {
                     throw "Unable to find the item with payloadId $($Item.payloadId) and displayName $($Item.displayName)"
@@ -773,4 +783,15 @@ function Get-PayloadIdFromItem
     return $object.Id
 }
 
-Export-ModuleMember -Function *-TargetResource
+function Get-CompareParameters
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param()
+
+    return @{
+        ExcludedProperties = @('PayloadId')
+    }
+}
+
+Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')

@@ -204,7 +204,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 }
             )
 
-            Mock -CommandName Invoke-AzRest -MockWith {
+            Mock -CommandName Invoke-AzRestMethod -MockWith {
                 return @{
                     Content = ConvertTo-Json (@{
                         value = @(
@@ -335,7 +335,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $Script:capturedPayload = $null
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     if ($Method -eq 'PATCH')
                     {
                         $Script:capturedPayload = $Payload
@@ -581,7 +581,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     }
                 }
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @(
@@ -689,7 +689,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     }
                 }
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @(
@@ -783,7 +783,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Credential = $Credential
                 }
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @(
@@ -796,7 +796,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     }
                 } -ParameterFilter { $Uri -like "*subscriptions?*" }
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @()
@@ -804,7 +804,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     }
                 } -ParameterFilter { $Uri -like "*resourcegroups*" }
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @()
@@ -812,7 +812,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     }
                 } -ParameterFilter { $Uri -like "*managementGroups*" }
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @(
@@ -833,7 +833,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     }
                 } -ParameterFilter { $Uri -like "*roleManagementPolicyAssignments*" }
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @(
@@ -879,7 +879,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Filter     = 'ModifiedOnly'
                 }
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @(
@@ -892,7 +892,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     }
                 } -ParameterFilter { $Uri -like "*subscriptions?*" }
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @()
@@ -900,7 +900,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     }
                 } -ParameterFilter { $Uri -like "*resourcegroups*" }
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @()
@@ -908,7 +908,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     }
                 } -ParameterFilter { $Uri -like "*managementGroups*" }
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @(
@@ -930,7 +930,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 } -ParameterFilter { $Uri -like "*roleManagementPolicyAssignments*" }
 
                 # Return policy with null lastModifiedBy and lastModifiedDateTime (Azure defaults)
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @(
@@ -960,7 +960,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Credential = $Credential
                 }
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @(
@@ -973,7 +973,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     }
                 } -ParameterFilter { $Uri -like "*subscriptions?*" }
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @()
@@ -981,7 +981,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     }
                 } -ParameterFilter { $Uri -like "*resourcegroups*" }
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @()
@@ -989,7 +989,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     }
                 } -ParameterFilter { $Uri -like "*managementGroups*" }
 
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @(
@@ -1011,7 +1011,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 } -ParameterFilter { $Uri -like "*roleManagementPolicyAssignments*" }
 
                 # Return policy with null lastModifiedDateTime (Azure defaults) - should still be exported when no filter
-                Mock -CommandName Invoke-AzRest -MockWith {
+                Mock -CommandName Invoke-AzRestMethod -MockWith {
                     return @{
                         Content = ConvertTo-Json (@{
                             value = @(

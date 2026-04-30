@@ -27,6 +27,7 @@
   },
   "requiredModules": [
     "Az.Accounts",
+    "Az.Subscription",
     "MSCloudLoginAssistant"
   ],
   "mode": "Data",
@@ -34,7 +35,14 @@
     {
       "module": "Az.Accounts",
       "cmdlets": [
-        "Invoke-AzRest"
+        "Invoke-AzRestMethod"
+      ]
+    },
+    {
+      "module": "Az.Subscription",
+      "cmdlets": [
+        "Disable-AzSubscription",
+        "Enable-AzSubscription"
       ]
     },
     {

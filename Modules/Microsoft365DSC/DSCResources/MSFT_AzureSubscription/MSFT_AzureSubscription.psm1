@@ -79,13 +79,13 @@ function Get-TargetResource
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
                 $uri = "$((Get-MSCloudLoginConnectionProfile -Workload Azure).ManagementUrl)$($InvoiceSectionId.Trim('/'))/billingSubscriptions/$($Id)?api-version=2024-04-01"
-                $response = Invoke-AzRest -Uri $uri -Method Get
+                $response = Invoke-AzRestMethod -Uri $uri -Method Get
                 $instance = (ConvertFrom-Json $response.Content).value
             }
             elseif ($null -eq $instance -and -not [System.String]::IsNullOrEmpty($DisplayName))
             {
                 $uri = "$((Get-MSCloudLoginConnectionProfile -Workload Azure).ManagementUrl)$($InvoiceSectionId.Trim('/'))/billingSubscriptions?api-version=2024-04-01"
-                $response = Invoke-AzRest -Uri $uri -Method Get
+                $response = Invoke-AzRestMethod -Uri $uri -Method Get
                 $instances = (ConvertFrom-Json $response.Content).value
                 $instance = $instances | Where-Object -FilterScript { $_.properties.displayName -eq $DisplayName }
             }
@@ -215,7 +215,7 @@ function Set-TargetResource
         }
         $payload = ConvertTo-Json $params -Depth 10 -Compress
         Write-Verbose -Message "Creating new subscription {$DisplayName} with payload:`r`n$payload"
-        $response = Invoke-AzRest -Uri $uri -Method PUT -Payload $payload
+        $response = Invoke-AzRestMethod -Uri $uri -Method PUT -Payload $payload
         Write-Verbose -Message "Result: $($response.Content)"
     }
     # UPDATE
@@ -237,7 +237,7 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Deleting subscription {$Name}"
         $uri = "$((Get-MSCloudLoginConnectionProfile -Workload Azure).ManagementUrl)subscriptions/$($currentInstance.Id)/providers/Microsoft.Subscription/cancel?api-version=2019-03-01-preview&ImmediateDelete=true"
-        $response = Invoke-AzRest -Uri $uri -Method POST
+        $response = Invoke-AzRestMethod -Uri $uri -Method POST
         Write-Verbose -Message "Response:`r`n$($response.Content)"
     }
 }
@@ -363,7 +363,7 @@ function Export-TargetResource
         $Script:ExportMode = $true
 
         $uri = "$((Get-MSCloudLoginConnectionProfile -Workload Azure).ManagementUrl)providers/Microsoft.Billing/billingaccounts/?api-version=2020-05-01"
-        $response = Invoke-AzRest -Uri $uri -Method Get
+        $response = Invoke-AzRestMethod -Uri $uri -Method Get
         $billingAccounts = (ConvertFrom-Json $response.Content).value
 
         if ($billingAccounts.Count -eq 0)
@@ -375,13 +375,13 @@ function Export-TargetResource
         foreach ($billingAccount in $billingAccounts)
         {
             $uri = "$((Get-MSCloudLoginConnectionProfile -Workload Azure).ManagementUrl)providers/Microsoft.Billing/billingaccounts/$($billingAccount.Name)/billingprofiles/?api-version=2020-05-01"
-            $response = Invoke-AzRest -Uri $uri -Method Get
+            $response = Invoke-AzRestMethod -Uri $uri -Method Get
             $billingProfiles = (ConvertFrom-Json $response.Content).value
 
             foreach ($billingProfile in $billingProfiles)
             {
                 $uri = "$((Get-MSCloudLoginConnectionProfile -Workload Azure).ManagementUrl)providers/Microsoft.Billing/billingAccounts/$($billingAccount.name)/billingProfiles/$($billingProfile.name)/billingSubscriptions?api-version=2024-04-01"
-                $response = Invoke-AzRest -Uri $uri -Method Get
+                $response = Invoke-AzRestMethod -Uri $uri -Method Get
                 $subscriptions = (ConvertFrom-Json $response.Content).value
                 [array] $Script:exportedInstances += $subscriptions
 

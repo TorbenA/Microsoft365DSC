@@ -26,6 +26,7 @@
   * Updated resource to work with multitenants.
 * M365DSCReverse
   * Added functionality to use wildcards in the `-Components` parameter when exporting.
+  * Fixed an issue where the resources to export counter did not match the actual value.
 * C# - SettingCatalogPolicySettingBuilder
   * Fixed an issue if a setting definition appears multiple times in the same instance template.
 * MISC

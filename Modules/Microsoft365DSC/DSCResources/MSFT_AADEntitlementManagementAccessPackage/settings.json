@@ -38,7 +38,9 @@
     }
   },
   "requiredModules": [
+    "Microsoft.Graph.Applications",
     "Microsoft.Graph.Beta.Identity.Governance",
+    "Microsoft.Graph.Groups",
     "MSCloudLoginAssistant"
   ],
   "supportedEnvironments": [
@@ -47,6 +49,12 @@
   ],
   "mode": "Configuration",
   "commands": [
+    {
+      "module": "Microsoft.Graph.Applications",
+      "cmdlets": [
+        "Get-MgServicePrincipal"
+      ]
+    },
     {
       "module": "Microsoft.Graph.Beta.Identity.Governance",
       "cmdlets": [
@@ -66,6 +74,12 @@
         "Remove-MgBetaEntitlementManagementAccessPackageIncompatibleGroupByRef",
         "Remove-MgBetaEntitlementManagementAccessPackageResourceRoleScope",
         "Update-MgBetaEntitlementManagementAccessPackage"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Groups",
+      "cmdlets": [
+        "Get-MgGroup"
       ]
     },
     {

@@ -3736,6 +3736,7 @@ function Get-ResourceStub
         'ErrorVariable'
         'WarningAction'
         'ErrorAction'
+        'ProgressAction'
         'Debug'
         'Verbose'
         'IfMatch'

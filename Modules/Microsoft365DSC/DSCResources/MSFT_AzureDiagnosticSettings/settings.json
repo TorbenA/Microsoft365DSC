@@ -34,7 +34,7 @@
     {
       "module": "Az.Accounts",
       "cmdlets": [
-        "Invoke-AzRest"
+        "Invoke-AzRestMethod"
       ]
     },
     {

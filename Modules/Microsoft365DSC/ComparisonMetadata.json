@@ -13,7 +13,7 @@
     },
     "AADApplication": {
       "HasCustomComparison": true,
-      "Description": "Excludes properties: AppId, ObjectId"
+      "Description": "Excludes properties: AppId, ObjectId, ApplicationTemplateId, AdminConsentGranted"
     },
     "AADCustomSecurityAttributeDefinition": {
       "HasCustomComparison": true,
@@ -54,6 +54,10 @@
     "AADRoleEligibilityScheduleRequest": {
       "HasCustomComparison": true,
       "Description": "Excludes properties: Action, IsValidationOnly, Justification; Uses PostProcessing scriptblock"
+    },
+    "AADRoleManagementPolicyRule": {
+      "HasCustomComparison": true,
+      "Description": "Excludes properties: PolicyId"
     },
     "AADServicePrincipal": {
       "HasCustomComparison": true,
@@ -299,6 +303,10 @@
     "IntuneMobileThreatDefenseConnector": {
       "HasCustomComparison": true,
       "Description": "Excludes properties: LastHeartbeatDateTime"
+    },
+    "IntunePolicySets": {
+      "HasCustomComparison": true,
+      "Description": "Excludes properties: PayloadId"
     },
     "IntuneRoleAssignment": {
       "HasCustomComparison": true,

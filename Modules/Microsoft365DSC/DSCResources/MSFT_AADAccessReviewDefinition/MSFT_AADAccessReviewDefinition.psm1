@@ -295,7 +295,7 @@ function Get-TargetResource
         $complexRange.Add('RecurrenceTimeZone', $getValue.settings.recurrence.range.recurrenceTimeZone)
         if ($null -ne $getValue.settings.recurrence.range.startDate)
         {
-            $complexRange.Add('StartDate', ([DateTime]$getValue.settings.recurrence.range.startDate).ToString('o'))
+            $complexRange.Add('StartDate', ([DateTime]$getValue.settings.recurrence.range.startDate).ToString('o') + 'Z')
         }
         if ($null -ne $getValue.settings.recurrence.range.type)
         {

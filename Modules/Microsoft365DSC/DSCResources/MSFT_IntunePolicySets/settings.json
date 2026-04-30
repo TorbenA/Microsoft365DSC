@@ -44,6 +44,7 @@
   "requiredModules": [
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.DeviceManagement",
+    "Microsoft.Graph.Beta.DeviceManagement.Enrollment",
     "Microsoft.Graph.Beta.Devices.CorporateManagement",
     "Microsoft.Graph.Groups",
     "MSCloudLoginAssistant"
@@ -63,13 +64,25 @@
     {
       "module": "Microsoft.Graph.Beta.DeviceManagement",
       "cmdlets": [
-        "Get-MgBetaDeviceManagementAssignmentFilter"
+        "Get-MgBetaDeviceManagementAssignmentFilter",
+        "Get-MgBetaDeviceManagementDeviceCompliancePolicy",
+        "Get-MgBetaDeviceManagementDeviceConfiguration"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Beta.DeviceManagement.Enrollment",
+      "cmdlets": [
+        "Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration",
+        "Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile"
       ]
     },
     {
       "module": "Microsoft.Graph.Beta.Devices.CorporateManagement",
       "cmdlets": [
+        "Get-MgBetaDeviceAppManagementManagedAppPolicy",
+        "Get-MgBetaDeviceAppManagementMobileApp",
         "Get-MgBetaDeviceAppManagementPolicySet",
+        "Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration",
         "New-MgBetaDeviceAppManagementPolicySet",
         "Remove-MgBetaDeviceAppManagementPolicySet",
         "Update-MgBetaDeviceAppManagementPolicySet"

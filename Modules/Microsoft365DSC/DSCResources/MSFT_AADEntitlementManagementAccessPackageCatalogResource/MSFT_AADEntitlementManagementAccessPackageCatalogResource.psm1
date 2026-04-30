@@ -330,18 +330,18 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
+    $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $boundParameters.Remove('AddedBy') | Out-Null
+    $boundParameters.Remove('AddedOn') | Out-Null
+    $boundParameters.Remove('IsPendingOnboarding') | Out-Null
 
-    $PSBoundParameters.Remove('addedBy') | Out-Null
-    $PSBoundParameters.Remove('addedOn') | Out-Null
-    $PSBoundParameters.Remove('isPendingOnboarding') | Out-Null
-
-    $resource = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $resource = $boundParameters
     $ObjectGuid = [System.Guid]::Empty
     if ($OriginSystem -eq 'AADGroup' -and `
             -not [System.Guid]::TryParse($OriginId, [ref]$ObjectGuid))
     {
         Write-Verbose -Message "The Group reference was provided by name {$OriginId}. Retrieving associated id."
-        $groupInfo = Get-MgGroup -Filter "DisplayName eq '$($OriginId -replace "'", "''")'"
+        $groupInfo = Get-MgGroup -Filter "DisplayName eq '$($OriginId -replace "'", "''")'" -All
         if ($null -ne $groupInfo)
         {
             $resource.OriginId = $groupInfo.Id
@@ -351,12 +351,13 @@ function Set-TargetResource
             -not [System.Guid]::TryParse($OriginId, [ref]$ObjectGuid))
     {
         Write-Verbose -Message "The Application reference was provided by name {$OriginId}. Retrieving associated id."
-        $appInfo = Get-MgServicePrincipal -Filter "DisplayName eq '$($OriginId -replace "'", "''")'"
+        $appInfo = Get-MgServicePrincipal -Filter "DisplayName eq '$($OriginId -replace "'", "''")'" -All
         if ($null -ne $appInfo)
         {
             $resource.OriginId = $appInfo.Id
         }
     }
+
     $ObjectGuid = [System.Guid]::Empty
     if (-not [System.Guid]::TryParse($CatalogId, [ref]$ObjectGuid))
     {
@@ -367,6 +368,7 @@ function Set-TargetResource
             $CatalogId = $catalogInstance.Id
         }
     }
+
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Assigning resource {$DisplayName} to catalog {$CatalogId}"
@@ -389,7 +391,6 @@ function Set-TargetResource
         }
         #region resource generator code
         Write-Verbose -Message "Creating a new AAD Entitlement Management Access Package Catalog Resource"
-        Write-Verbose $($resourceRequest | ConvertTo-Json -Depth 10) -Verbose
         New-MgBetaEntitlementManagementAccessPackageResourceRequest -BodyParameter $resourceRequest
 
         #endregion
@@ -398,10 +399,9 @@ function Set-TargetResource
     {
         Write-Verbose -Message "Updating resource {$DisplayName} in catalog {$CatalogId}"
 
-        $resource = ([Hashtable]$PSBoundParameters).Clone()
+        $resource = ([Hashtable]$boundParameters).Clone()
         $resource.Remove('Id') | Out-Null
         $resource.Remove('CatalogId') | Out-Null
-        $resource.Remove('Verbose') | Out-Null
 
         $mapping = @{
             odataType    = '@odata.type'
@@ -423,11 +423,10 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Removing resource {$DisplayName} from catalog {$CatalogId}"
-        $resource = ([Hashtable]$PSBoundParameters).Clone()
+        $resource = ([Hashtable]$boundParameters).Clone()
 
         $resource.Remove('Id') | Out-Null
         $resource.Remove('CatalogId') | Out-Null
-        $resource.Remove('Verbose') | Out-Null
 
         $mapping = @{
             odataType    = '@odata.type'

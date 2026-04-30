@@ -507,6 +507,7 @@ function Set-TargetResource
             }
         }
         $creationParams = Remove-NullEntriesFromHashtable -Hash $CreationParams
+        $creationParams = Rename-M365DSCCimInstanceParameter -Properties $creationParams
 
         #region Licenses
         if ($null -ne $LicenseAssignment)
@@ -519,18 +520,18 @@ function Set-TargetResource
             [Array]$licenseDifferences = Compare-Object -ReferenceObject $LicenseAssignment -DifferenceObject $currentLicenses
             if ($licenseDifferences.Length -gt 0)
             {
-                $licenses = @{AddLicenses = @(); RemoveLicenses = @(); }
+                $licenses = @{addLicenses = @(); removeLicenses = @(); }
 
                 $SubscribedSku = Get-MgBetaSubscribedSku
                 foreach ($licenseSkuPart in $LicenseAssignment)
                 {
                     Write-Verbose -Message "Adding License {$licenseSkuPart} to the Queue"
                     $license = @{
-                        SkuId = ($SubscribedSku | Where-Object -Property SkuPartNumber -Value $licenseSkuPart -EQ).SkuID
+                        skuId = ($SubscribedSku | Where-Object -Property SkuPartNumber -Value $licenseSkuPart -EQ).SkuID
                     }
 
                     # Set the Office license as the license we want to add in the $licenses object
-                    $licenses.AddLicenses += $license
+                    $licenses.addLicenses += $license
                 }
 
                 foreach ($currentLicense in $user.LicenseAssignment)
@@ -539,9 +540,9 @@ function Set-TargetResource
                     {
                         Write-Verbose -Message "Removing {$currentLicense} from user {$UserPrincipalName}"
                         $license = @{
-                            SkuId = ($SubscribedSku | Where-Object -Property SkuPartNumber -Value $currentLicense -EQ).SkuID
+                            skuId = ($SubscribedSku | Where-Object -Property SkuPartNumber -Value $currentLicense -EQ).SkuID
                         }
-                        $licenses.RemoveLicenses += $license
+                        $licenses.removeLicenses += $license
                     }
                 }
             }
@@ -596,16 +597,16 @@ function Set-TargetResource
             }
 
             $PasswordProfile = @{
-                Password = $passwordValue
+                password = $passwordValue
             }
-            $creationParams.Add('PasswordProfile', $PasswordProfile)
+            $creationParams.Add('passwordProfile', $PasswordProfile)
 
             Write-Verbose -Message "Creating Office 365 User $UserPrincipalName"
-            if (-not $creationParams.ContainsKey('AccountEnabled') -or $null -eq $creationParams.AccountEnabled)
+            if (-not $creationParams.ContainsKey('accountEnabled') -or $null -eq $creationParams.accountEnabled)
             {
-                $creationParams.AccountEnabled = $true
+                $creationParams.accountEnabled = $true
             }
-            $creationParams.Add('MailNickName', $UserPrincipalName.Split('@')[0])
+            $creationParams.Add('mailNickName', $UserPrincipalName.Split('@')[0])
             Write-Verbose -Message "Creating new user with values: $(Convert-M365DscHashtableToString -Hashtable $creationParams)"
             $user = New-MgUser -BodyParameter $creationParams
             $userId = $user.Id
@@ -617,7 +618,7 @@ function Set-TargetResource
             if ($licenseDifferences.Length -gt 0)
             {
                 Write-Verbose -Message "Updating License assignments with values: $(Convert-M365DscHashtableToString -Hashtable $licenses)"
-                Set-MgUserLicense -UserId $user.UserPrincipalName -AddLicenses $licenses.AddLicenses -RemoveLicenses $licenses.RemoveLicenses
+                Set-MgUserLicense -UserId $user.UserPrincipalName -AddLicenses $licenses.addLicenses -RemoveLicenses $licenses.removeLicenses
             }
         }
         catch

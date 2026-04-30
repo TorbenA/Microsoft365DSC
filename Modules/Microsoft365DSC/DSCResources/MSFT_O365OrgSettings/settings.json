@@ -132,6 +132,7 @@
   "requiredModules": [
     "ExchangeOnlineManagement",
     "Microsoft.Graph.Applications",
+    "Microsoft.Graph.Authentication",
     "MSCloudLoginAssistant"
   ],
   "mode": "Configuration",
@@ -149,6 +150,12 @@
         "Get-MgServicePrincipal",
         "New-MgServicePrincipal",
         "Update-MgServicePrincipal"
+      ]
+    },
+    {
+      "module": "Microsoft.Graph.Authentication",
+      "cmdlets": [
+        "Invoke-MgGraphRequest"
       ]
     },
     {

@@ -165,6 +165,22 @@
       }
     ]
   },
+  "Get-MgBetaDeviceAppManagementManagedAppPolicy": {
+    "SourceModule": "Microsoft.Graph.Beta.Devices.CorporateManagement",
+    "ApiVersion": "beta",
+    "Variants": [
+      {
+        "Method": "GET",
+        "URI": "/deviceAppManagement/managedAppPolicies/{managedAppPolicy-id}",
+        "ApiVersion": "beta"
+      },
+      {
+        "Method": "GET",
+        "URI": "/deviceAppManagement/managedAppPolicies",
+        "ApiVersion": "beta"
+      }
+    ]
+  },
   "Get-MgBetaDeviceAppManagementManagedAppStatus": {
     "SourceModule": "Microsoft.Graph.Beta.Devices.CorporateManagement",
     "ApiVersion": "beta",
@@ -695,22 +711,6 @@
       {
         "Method": "GET",
         "URI": "/deviceManagement/deviceShellScripts",
-        "ApiVersion": "beta"
-      }
-    ]
-  },
-  "Get-MgBetaDeviceManagementDeviceShellScriptAssignment": {
-    "SourceModule": "Microsoft.Graph.Beta.DeviceManagement",
-    "ApiVersion": "beta",
-    "Variants": [
-      {
-        "Method": "GET",
-        "URI": "/deviceManagement/deviceShellScripts/{deviceShellScript-id}/assignments/{deviceManagementScriptAssignment-id}",
-        "ApiVersion": "beta"
-      },
-      {
-        "Method": "GET",
-        "URI": "/deviceManagement/deviceShellScripts/{deviceShellScript-id}/assignments",
         "ApiVersion": "beta"
       }
     ]
@@ -1318,22 +1318,6 @@
       }
     ]
   },
-  "Get-MgBetaDirectoryDeletedItemAsGroup": {
-    "SourceModule": "Microsoft.Graph.Beta.Identity.DirectoryManagement",
-    "ApiVersion": "beta",
-    "Variants": [
-      {
-        "Method": "GET",
-        "URI": "/directory/deletedItems/{directoryObject-id}/group",
-        "ApiVersion": "beta"
-      },
-      {
-        "Method": "GET",
-        "URI": "/directory/deletedItems/group",
-        "ApiVersion": "beta"
-      }
-    ]
-  },
   "Get-MgBetaDirectoryObject": {
     "SourceModule": "Microsoft.Graph.Beta.DirectoryObjects",
     "ApiVersion": "beta",
@@ -1626,6 +1610,17 @@
       {
         "Method": "GET",
         "URI": "/groupLifecyclePolicies",
+        "ApiVersion": "beta"
+      }
+    ]
+  },
+  "Get-MgBetaGroupMember": {
+    "SourceModule": "Microsoft.Graph.Beta.Groups",
+    "ApiVersion": "beta",
+    "Variants": [
+      {
+        "Method": "GET",
+        "URI": "/groups/{group-id}/members",
         "ApiVersion": "beta"
       }
     ]
@@ -3596,17 +3591,6 @@
       }
     ]
   },
-  "New-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfiguration": {
-    "SourceModule": "Microsoft.Graph.Beta.Identity.DirectoryManagement",
-    "ApiVersion": "beta",
-    "Variants": [
-      {
-        "Method": "POST",
-        "URI": "/directory/certificateAuthorities/certificateBasedApplicationConfigurations",
-        "ApiVersion": "beta"
-      }
-    ]
-  },
   "New-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfigurationTrustedCertificateAuthority": {
     "SourceModule": "Microsoft.Graph.Beta.Identity.DirectoryManagement",
     "ApiVersion": "beta",
@@ -4065,6 +4049,17 @@
       {
         "Method": "POST",
         "URI": "/policies/authenticationStrengthPolicies",
+        "ApiVersion": "beta"
+      }
+    ]
+  },
+  "New-MgBetaPolicyB2BManagementPolicy": {
+    "SourceModule": "Microsoft.Graph.Beta.Identity.SignIns",
+    "ApiVersion": "beta",
+    "Variants": [
+      {
+        "Method": "POST",
+        "URI": "/policies/b2bManagementPolicies",
         "ApiVersion": "beta"
       }
     ]
@@ -6412,17 +6407,6 @@
       }
     ]
   },
-  "Update-MgBetaIdentityGovernanceLifecycleWorkflow": {
-    "SourceModule": "Microsoft.Graph.Beta.Identity.Governance",
-    "ApiVersion": "beta",
-    "Variants": [
-      {
-        "Method": "PATCH",
-        "URI": "/identityGovernance/lifecycleWorkflows/workflows/{workflow-id}",
-        "ApiVersion": "beta"
-      }
-    ]
-  },
   "Update-MgBetaIdentityGovernanceLifecycleWorkflowCustomTaskExtension": {
     "SourceModule": "Microsoft.Graph.Beta.Identity.Governance",
     "ApiVersion": "beta",
@@ -6716,17 +6700,6 @@
       {
         "Method": "PATCH",
         "URI": "/policies/crossTenantAccessPolicy",
-        "ApiVersion": "beta"
-      }
-    ]
-  },
-  "Update-MgBetaPolicyCrossTenantAccessPolicyDefault": {
-    "SourceModule": "Microsoft.Graph.Beta.Identity.SignIns",
-    "ApiVersion": "beta",
-    "Variants": [
-      {
-        "Method": "PATCH",
-        "URI": "/policies/crossTenantAccessPolicy/default",
         "ApiVersion": "beta"
       }
     ]
