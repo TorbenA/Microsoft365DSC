@@ -22,6 +22,8 @@
   * Fixed an issue where profiles that didn't match the filter were being exported.
 * IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile
   * Standardized time format of `TokenExpirationDateTime` and excluded it from comparison.
+* IntunePolicySets
+  * Updated resource to work with multitenants.
 * M365DSCReverse
   * Added functionality to use wildcards in the `-Components` parameter when exporting.
 * C# - SettingCatalogPolicySettingBuilder

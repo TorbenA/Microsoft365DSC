@@ -83,7 +83,8 @@
     "Microsoft.Graph.Beta.Identity.Governance",
     "Microsoft.Graph.Groups",
     "Microsoft.Graph.Users",
-    "Microsoft.Graph.Users.Actions"
+    "Microsoft.Graph.Users.Actions",
+    "MSCloudLoginAssistant"
   ],
   "supportedEnvironments": [
     "Global",
@@ -133,6 +134,12 @@
       "module": "Microsoft.Graph.Users.Actions",
       "cmdlets": [
         "Set-MgUserLicense"
+      ]
+    },
+    {
+      "module": "MSCloudLoginAssistant",
+      "cmdlets": [
+        "Get-MSCloudLoginConnectionProfile"
       ]
     }
   ]

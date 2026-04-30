@@ -30,7 +30,6 @@
     }
   },
   "requiredModules": [
-    "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.SignIns"
   ],
   "supportedEnvironments": [
@@ -43,6 +42,7 @@
       "module": "Microsoft.Graph.Beta.Identity.SignIns",
       "cmdlets": [
         "Get-MgBetaPolicyB2BManagementPolicy",
+        "New-MgBetaPolicyB2BManagementPolicy",
         "Update-MgBetaPolicyB2BManagementPolicy"
       ]
     }

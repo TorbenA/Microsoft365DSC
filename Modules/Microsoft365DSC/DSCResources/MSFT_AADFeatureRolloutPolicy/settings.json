@@ -31,7 +31,8 @@
   },
   "requiredModules": [
     "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Beta.Identity.SignIns"
+    "Microsoft.Graph.Beta.Identity.SignIns",
+    "MSCloudLoginAssistant"
   ],
   "supportedEnvironments": [
     "Global",
@@ -54,6 +55,12 @@
         "Remove-MgBetaPolicyFeatureRolloutPolicy",
         "Remove-MgBetaPolicyFeatureRolloutPolicyApplyToDirectoryObjectByRef",
         "Update-MgBetaPolicyFeatureRolloutPolicy"
+      ]
+    },
+    {
+      "module": "MSCloudLoginAssistant",
+      "cmdlets": [
+        "Get-MSCloudLoginConnectionProfile"
       ]
     }
   ]

@@ -38,10 +38,7 @@
     }
   },
   "requiredModules": [
-    "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Beta.Identity.SignIns",
-    "Microsoft.Graph.Groups",
-    "Microsoft.Graph.Users"
+    "Microsoft.Graph.Beta.Identity.SignIns"
   ],
   "supportedEnvironments": [
     "Global",
@@ -56,18 +53,6 @@
         "New-MgBetaPolicyCrossTenantAccessPolicyPartner",
         "Remove-MgBetaPolicyCrossTenantAccessPolicyPartner",
         "Update-MgBetaPolicyCrossTenantAccessPolicyPartner"
-      ]
-    },
-    {
-      "module": "Microsoft.Graph.Groups",
-      "cmdlets": [
-        "Get-MgGroup"
-      ]
-    },
-    {
-      "module": "Microsoft.Graph.Users",
-      "cmdlets": [
-        "Get-MgUser"
       ]
     }
   ]

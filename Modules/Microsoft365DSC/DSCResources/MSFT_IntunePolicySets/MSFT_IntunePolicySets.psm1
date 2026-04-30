@@ -304,14 +304,12 @@ function Set-TargetResource
         foreach ($item in $items)
         {
             $itemsHash += @{
-                payloadId            = $item.payloadId
+                payloadId            = Get-PayloadIdFromItem -Item $item
                 '@odata.type'        = $item.dataType
                 guidedDeploymentTags = $item.guidedDeploymentTags
             }
         }
         $CreateParameters.Add('items', $itemsHash)
-
-        Write-Verbose -Message ($CreateParameters | Out-String)
         $policy = New-MgBetaDeviceAppManagementPolicySet -BodyParameter $CreateParameters
 
         if ($policy.id)
@@ -322,7 +320,6 @@ function Set-TargetResource
                 assignments = $assignmentsHash
             }
         }
-
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
@@ -603,6 +600,7 @@ function Export-TargetResource
 
 function Get-ItemsAmendmentsObject
 {
+    [CmdletBinding()]
     param
     (
         $currentObjectItems,
@@ -630,7 +628,7 @@ function Get-ItemsAmendmentsObject
         {
             Write-Verbose -Message ($_.DisplayName + ' NOT already present in Policy Set, Adding')
             $ItemsModificationTemplate.addedPolicySetItems += @{
-                payloadId            = $_.payloadId
+                payloadId            = Get-PayloadIdFromItem -Item $_
                 '@odata.type'        = $_.dataType
                 guidedDeploymentTags = $_.guidedDeploymentTags
             }
@@ -644,6 +642,135 @@ function Get-ItemsAmendmentsObject
     }
 
     return $null
+}
+
+function Get-PayloadIdFromItem
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.Object]
+        $Item
+    )
+
+    $object = switch ($Item.dataType)
+    {
+        '#microsoft.graph.windowsAutopilotDeploymentProfilePolicySetItem'
+        {
+            $object = Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile -WindowsAutopilotDeploymentProfileId $Item.payloadId -ErrorAction SilentlyContinue
+            if ($null -eq $object)
+            {
+                if ($null -eq $Item.displayName)
+                {
+                    throw "Unable to find the item with payloadId $($Item.payloadId) and no displayName to fallback on"
+                }
+                $object = Get-MgBetaDeviceManagementWindowsAutopilotDeploymentProfile -Filter "displayName eq '$($Item.displayName)'" -ErrorAction SilentlyContinue
+                if ($null -eq $object)
+                {
+                    throw "Unable to find the item with payloadId $($Item.payloadId) and displayName $($Item.displayName)"
+                }
+            }
+        }
+        '#microsoft.graph.deviceCompliancePolicyPolicySetItem'
+        {
+            $object = Get-MgBetaDeviceManagementDeviceCompliancePolicy -DeviceCompliancePolicyId $Item.payloadId -ErrorAction SilentlyContinue
+            if ($null -eq $object)
+            {
+                if ($null -eq $Item.displayName)
+                {
+                    throw "Unable to find the item with payloadId $($Item.payloadId) and no displayName to fallback on"
+                }
+                $object = Get-MgBetaDeviceManagementDeviceCompliancePolicy -Filter "displayName eq '$($Item.displayName)'" -ErrorAction SilentlyContinue
+                if ($null -eq $object)
+                {
+                    throw "Unable to find the item with payloadId $($Item.payloadId) and displayName $($Item.displayName)"
+                }
+            }
+        }
+        '#microsoft.graph.deviceConfigurationPolicySetItem'
+        {
+            $object = Get-MgBetaDeviceManagementDeviceConfiguration -DeviceConfigurationId $Item.payloadId -ErrorAction SilentlyContinue
+            if ($null -eq $object)
+            {
+                if ($null -eq $Item.displayName)
+                {
+                    throw "Unable to find the item with payloadId $($Item.payloadId) and no displayName to fallback on"
+                }
+                $object = Get-MgBetaDeviceManagementDeviceConfiguration -Filter "displayName eq '$($Item.displayName)'" -ErrorAction SilentlyContinue
+                if ($null -eq $object)
+                {
+                    throw "Unable to find the item with payloadId $($Item.payloadId) and displayName $($Item.displayName)"
+                }
+            }
+        }
+        '#microsoft.graph.mobileAppPolicySetItem'
+        {
+            $object = Get-MgBetaDeviceAppManagementMobileApp -MobileAppId $Item.payloadId -ErrorAction SilentlyContinue
+            if ($null -eq $object)
+            {
+                if ($null -eq $Item.displayName)
+                {
+                    throw "Unable to find the item with payloadId $($Item.payloadId) and no displayName to fallback on"
+                }
+                $object = Get-MgBetaDeviceAppManagementMobileApp -Filter "displayName eq '$($Item.displayName)'" -ErrorAction SilentlyContinue
+                if ($null -eq $object)
+                {
+                    throw "Unable to find the item with payloadId $($Item.payloadId) and displayName $($Item.displayName)"
+                }
+            }
+        }
+        '#microsoft.graph.targetedManagedAppConfigurationPolicySetItem'
+        {
+            $object = Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -TargetedManagedAppConfigurationId $Item.payloadId -ErrorAction SilentlyContinue
+            if ($null -eq $object)
+            {
+                if ($null -eq $Item.displayName)
+                {
+                    throw "Unable to find the item with payloadId $($Item.payloadId) and no displayName to fallback on"
+                }
+                $object = Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -Filter "displayName eq '$($Item.displayName)'" -ErrorAction SilentlyContinue
+                if ($null -eq $object)
+                {
+                    throw "Unable to find the item with payloadId $($Item.payloadId) and displayName $($Item.displayName)"
+                }
+            }
+        }
+        '#microsoft.graph.managedAppProtectionPolicySetItem'
+        {
+            $object = Get-MgBetaDeviceAppManagementManagedAppPolicy -ManagedAppPolicyId $Item.payloadId -ErrorAction SilentlyContinue
+            if ($null -eq $object)
+            {
+                if ($null -eq $Item.displayName)
+                {
+                    throw "Unable to find the item with payloadId $($Item.payloadId) and no displayName to fallback on"
+                }
+                $object = Get-MgBetaDeviceAppManagementManagedAppPolicy -Filter "displayName eq '$($Item.displayName)'" -ErrorAction SilentlyContinue
+                if ($null -eq $object)
+                {
+                    throw "Unable to find the item with payloadId $($Item.payloadId) and displayName $($Item.displayName)"
+                }
+            }
+        }
+        '#microsoft.graph.windows10EnrollmentCompletionPageConfigurationPolicySetItem'
+        {
+            $object = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -DeviceEnrollmentConfigurationId $Item.payloadId -ErrorAction SilentlyContinue
+            if ($null -eq $object)
+            {
+                if ($null -eq $Item.displayName)
+                {
+                    throw "Unable to find the item with payloadId $($Item.payloadId) and no displayName to fallback on"
+                }
+                $object = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -Filter "displayName eq '$($Item.displayName)'" -ErrorAction SilentlyContinue
+                if ($null -eq $object)
+                {
+                    throw "Unable to find the item with payloadId $($Item.payloadId) and displayName $($Item.displayName)"
+                }
+            }
+        }
+    }
+
+    return $object.Id
 }
 
 Export-ModuleMember -Function *-TargetResource

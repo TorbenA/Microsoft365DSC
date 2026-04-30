@@ -26,7 +26,22 @@
     }
   },
   "requiredModules": [
-    "Az.Accounts"
+    "Az.Accounts",
+    "MSCloudLoginAssistant"
   ],
-  "mode": "Data"
+  "mode": "Data",
+  "commands": [
+    {
+      "module": "Az.Accounts",
+      "cmdlets": [
+        "Invoke-AzRest"
+      ]
+    },
+    {
+      "module": "MSCloudLoginAssistant",
+      "cmdlets": [
+        "Get-MSCloudLoginConnectionProfile"
+      ]
+    }
+  ]
 }

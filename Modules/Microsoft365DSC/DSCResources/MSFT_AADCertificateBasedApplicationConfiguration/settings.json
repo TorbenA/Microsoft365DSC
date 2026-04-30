@@ -52,7 +52,8 @@
   },
   "requiredModules": [
     "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Beta.Identity.DirectoryManagement"
+    "Microsoft.Graph.Beta.Identity.DirectoryManagement",
+    "MSCloudLoginAssistant"
   ],
   "supportedEnvironments": [
     "Global",
@@ -71,12 +72,17 @@
       "cmdlets": [
         "Get-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfiguration",
         "Get-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfigurationTrustedCertificateAuthority",
-        "New-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfiguration",
         "New-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfigurationTrustedCertificateAuthority",
         "Remove-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfiguration",
         "Remove-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfigurationTrustedCertificateAuthority",
         "Update-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfiguration",
         "Update-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfigurationTrustedCertificateAuthority"
+      ]
+    },
+    {
+      "module": "MSCloudLoginAssistant",
+      "cmdlets": [
+        "Get-MSCloudLoginConnectionProfile"
       ]
     }
   ]

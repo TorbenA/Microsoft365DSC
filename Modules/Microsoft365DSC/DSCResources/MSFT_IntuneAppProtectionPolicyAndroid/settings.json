@@ -45,7 +45,8 @@
     "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.DeviceManagement",
     "Microsoft.Graph.Beta.Devices.CorporateManagement",
-    "Microsoft.Graph.Groups"
+    "Microsoft.Graph.Groups",
+    "MSCloudLoginAssistant"
   ],
   "supportedEnvironments": [
     "Global",
@@ -71,7 +72,6 @@
         "Get-MgBetaDeviceAppManagementAndroidManagedAppProtection",
         "Get-MgBetaDeviceAppManagementAndroidManagedAppProtectionApp",
         "Get-MgBetaDeviceAppManagementAndroidManagedAppProtectionAssignment",
-        "Get-MgBetaDeviceAppManagementManagedAppStatus",
         "New-MgBetaDeviceAppManagementAndroidManagedAppProtection",
         "Remove-MgBetaDeviceAppManagementAndroidManagedAppProtection",
         "Update-MgBetaDeviceAppManagementAndroidManagedAppProtection"
@@ -81,6 +81,12 @@
       "module": "Microsoft.Graph.Groups",
       "cmdlets": [
         "Get-MgGroup"
+      ]
+    },
+    {
+      "module": "MSCloudLoginAssistant",
+      "cmdlets": [
+        "Get-MSCloudLoginConnectionProfile"
       ]
     }
   ]

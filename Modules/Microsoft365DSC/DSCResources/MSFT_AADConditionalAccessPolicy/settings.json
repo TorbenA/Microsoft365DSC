@@ -170,6 +170,12 @@
       "cmdlets": [
         "Get-MgUser"
       ]
+    },
+    {
+      "module": "MSCloudLoginAssistant",
+      "cmdlets": [
+        "Get-MSCloudLoginConnectionProfile"
+      ]
     }
   ]
 }

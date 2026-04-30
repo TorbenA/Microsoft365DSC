@@ -49,6 +49,14 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return "Credentials"
             }
 
+            Mock -CommandName Get-MgBetaDeviceAppManagementManagedAppPolicy -MockWith {
+                return @{
+                    displayName = "FakeStringValue"
+                    id = "T_12345678-1234-1234-1234-1234567890ab"
+                    '@odata.type' = "#microsoft.graph.androidManagedAppProtection"
+                }
+            }
+
             # Mock Write-M365DSCHost to hide output during the tests
             Mock -CommandName Write-M365DSCHost -MockWith {
             }

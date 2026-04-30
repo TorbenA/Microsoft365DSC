@@ -34,5 +34,13 @@
   "requiredModules": [
     "Az.Resources"
   ],
-  "mode": "Configuration"
+  "mode": "Configuration",
+  "commands": [
+    {
+      "module": "Az.Resources",
+      "cmdlets": [
+        "Get-AzResource"
+      ]
+    }
+  ]
 }

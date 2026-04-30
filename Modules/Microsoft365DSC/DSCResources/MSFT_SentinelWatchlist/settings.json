@@ -34,5 +34,13 @@
   "requiredModules": [
     "Az.Resources"
   ],
-  "mode": "Data"
+  "mode": "Data",
+  "commands": [
+    {
+      "module": "Az.Resources",
+      "cmdlets": [
+        "Get-AzResource"
+      ]
+    }
+  ]
 }

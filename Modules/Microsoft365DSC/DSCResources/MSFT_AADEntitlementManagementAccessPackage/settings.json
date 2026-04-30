@@ -38,7 +38,6 @@
     }
   },
   "requiredModules": [
-    "Microsoft.Graph.Authentication",
     "Microsoft.Graph.Beta.Identity.Governance",
     "MSCloudLoginAssistant"
   ],
@@ -67,6 +66,12 @@
         "Remove-MgBetaEntitlementManagementAccessPackageIncompatibleGroupByRef",
         "Remove-MgBetaEntitlementManagementAccessPackageResourceRoleScope",
         "Update-MgBetaEntitlementManagementAccessPackage"
+      ]
+    },
+    {
+      "module": "MSCloudLoginAssistant",
+      "cmdlets": [
+        "Get-MSCloudLoginConnectionProfile"
       ]
     }
   ]

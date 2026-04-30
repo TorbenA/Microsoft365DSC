@@ -35,5 +35,22 @@
     "Az.Accounts",
     "Az.Security"
   ],
-  "mode": "Data"
+  "mode": "Data",
+  "commands": [
+    {
+      "module": "Az.Accounts",
+      "cmdlets": [
+        "Get-AzContext",
+        "Get-AzSubscription",
+        "Set-AzContext"
+      ]
+    },
+    {
+      "module": "Az.Security",
+      "cmdlets": [
+        "Get-AzSecurityPricing",
+        "Set-AzSecurityPricing"
+      ]
+    }
+  ]
 }

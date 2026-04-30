@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceEnrollmentScopeConfigurationMdm'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -454,3 +456,4 @@ function Get-CompareParameters
 }
 
 Export-ModuleMember -Function *-TargetResource
+

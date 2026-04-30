@@ -35,7 +35,8 @@
   },
   "requiredModules": [
     "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Users"
+    "Microsoft.Graph.Users",
+    "MSCloudLoginAssistant"
   ],
   "mode": "Configuration",
   "commands": [
@@ -49,6 +50,12 @@
       "module": "Microsoft.Graph.Users",
       "cmdlets": [
         "Get-MgUser"
+      ]
+    },
+    {
+      "module": "MSCloudLoginAssistant",
+      "cmdlets": [
+        "Get-MSCloudLoginConnectionProfile"
       ]
     }
   ]

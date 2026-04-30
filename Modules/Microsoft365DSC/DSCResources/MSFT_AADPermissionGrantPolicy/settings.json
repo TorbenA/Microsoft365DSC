@@ -38,10 +38,7 @@
     }
   },
   "requiredModules": [
-    "Microsoft.Graph.Applications",
-    "Microsoft.Graph.Authentication",
-    "Microsoft.Graph.Beta.Identity.SignIns",
-    "MSCloudLoginAssistant"
+    "Microsoft.Graph.Beta.Identity.SignIns"
   ],
   "supportedEnvironments": [
     "Global",
@@ -49,12 +46,6 @@
   ],
   "mode": "Configuration",
   "commands": [
-    {
-      "module": "Microsoft.Graph.Applications",
-      "cmdlets": [
-        "Get-MgServicePrincipal"
-      ]
-    },
     {
       "module": "Microsoft.Graph.Beta.Identity.SignIns",
       "cmdlets": [
