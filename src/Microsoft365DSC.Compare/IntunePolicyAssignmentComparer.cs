@@ -61,9 +61,18 @@ namespace Microsoft365DSC.Compare
                     var assignmentGroupId = GetPropertyValue<string>(assignment, "groupId");
                     var assignmentIntent = GetPropertyValue<string>(assignment, "intent");
 
+                    if (dataType.Equals("#microsoft.graph.allDevicesAssignmentTarget", StringComparison.OrdinalIgnoreCase)
+                        || dataType.Equals("#microsoft.graph.allLicensedUsersAssignmentTarget"))
+                    {
+                        assignmentTarget = FindAssignmentTarget(target, "dataType", dataType);
+                    }
+
                     // Find matching assignment target by dataType and groupId
-                    assignmentTarget = FindAssignmentTarget(target, "groupId", assignmentGroupId);
-                    testResult = assignmentTarget is not null;
+                    if (assignmentTarget is null && assignmentGroupId is not null)
+                    {
+                        assignmentTarget = FindAssignmentTarget(target, "groupId", assignmentGroupId);
+                        testResult = assignmentTarget is not null;
+                    }
 
                     // If not found by groupId, try by groupDisplayName
                     if (!testResult)
