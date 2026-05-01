@@ -578,106 +578,112 @@ function Update-M365DSCAllowedGraphScopes
 }
 
 <#
-.Description
-This function creates or updates an application in Azure AD. It assigns permissions,
-grants consent and creates a secret or uploads a certificate to the application.
+.DESCRIPTION
+    This function creates or updates an application in Azure AD. It assigns permissions,
+    grants consent and creates a secret or uploads a certificate to the application.
 
-This application can then be used for Application Authentication.
+    This application can then be used for Application Authentication.
 
-The provided permissions have to be as an array of hashtables, with Api=Graph, SharePoint
-or Exchange and PermissionsName set to a list of permissions. See examples for more information.
+    The provided permissions have to be as an array of hashtables, with Api=Graph, SharePoint
+    or Exchange and PermissionsName set to a list of permissions. See examples for more information.
 
-NOTE:
-Please make sure you have the following permissions for the 'Microsoft Graph Command Line Tools'
-Enterprise Application in your tenant:
+    NOTE:
+    Please make sure you have the following permissions for the 'Microsoft Graph Command Line Tools'
+    Enterprise Application in your tenant:
 
-- Application.ReadWrite.All
+    - Application.ReadWrite.All
 
-You can add this scope to the 'Microsoft Graph Command Line Tools' Enterprise Application by running
-the following command:
+    You can add this scope to the 'Microsoft Graph Command Line Tools' Enterprise Application by running
+    the following command:
 
-```powershell
-Connect-MgGraph -Scopes 'Application.ReadWrite.All'
-```
+    ```powershell
+    Connect-MgGraph -Scopes 'Application.ReadWrite.All'
+    ```
 
-NOTE:
-If consent cannot be given for whatever reason, make sure all these permissions are
-given Admin Consent by browsing to the App Registration in Azure AD > API Permissions
-and clicking the "Grant admin consent for <orgname>" button.
+    NOTE:
+    If consent cannot be given for whatever reason, make sure all these permissions are
+    given Admin Consent by browsing to the App Registration in Azure AD > API Permissions
+    and clicking the "Grant admin consent for <orgname>" button.
 
-More information:
-Graph API permissions: https://docs.microsoft.com/en-us/graph/permissions-reference
-Exchange permissions: https://docs.microsoft.com/en-us/exchange/permissions-exo/permissions-exo
+    More information:
+    Graph API permissions: https://docs.microsoft.com/en-us/graph/permissions-reference
+    Exchange permissions: https://docs.microsoft.com/en-us/exchange/permissions-exo/permissions-exo
 
-Note:
-If you want to configure App-Only permission for Exchange, as described here:
-https://docs.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2?view=exchange-ps#step-2-assign-api-permissions-to-the-application
-Using the following permission will achieve exactly that: @{Api='Exchange';PermissionsName='Exchange.ManageAsApp'}
+    Note:
+    If you want to configure App-Only permission for Exchange, as described here:
+    https://docs.microsoft.com/en-us/powershell/exchange/app-only-auth-powershell-v2?view=exchange-ps#step-2-assign-api-permissions-to-the-application
+    Using the following permission will achieve exactly that: @{Api='Exchange';PermissionsName='Exchange.ManageAsApp'}
 
-Note 2:
-If you want to configure App-Only permission for Security and compliance, please refer to this information on how to setup the permissions:
-https://microsoft365dsc.com/user-guide/get-started/authentication-and-permissions/#security-and-compliance-center-permissions
+    Note 2:
+    If you want to configure App-Only permission for Security and compliance, please refer to this information on how to setup the permissions:
+    https://microsoft365dsc.com/user-guide/get-started/authentication-and-permissions/#security-and-compliance-center-permissions
 
-Note 3:
-If you want to configure App-Only permission for Power Platform, please refer to this information on how to setup the permissions:
-https://microsoft365dsc.com/user-guide/get-started/authentication-and-permissions/#power-apps-permissions
+    Note 3:
+    If you want to configure App-Only permission for Power Platform, please refer to this information on how to setup the permissions:
+    https://microsoft365dsc.com/user-guide/get-started/authentication-and-permissions/#power-apps-permissions
 
-.Parameter ApplicationName
-The name of the application to create or update. Default value is 'Microsoft365DSC'.
+.PARAMETER ApplicationName
+    The name of the application to create or update. Default value is 'Microsoft365DSC'.
 
-.Parameter Permissions
-The permissions to assign to the application. This has to be an array of hashtables, with Api=Graph, SharePoint or Exchange and PermissionsName set to a list of permissions. See examples for more information.
+.PARAMETER Permissions
+    The permissions to assign to the application. This has to be an array of hashtables, with Api=Graph, SharePoint or Exchange and PermissionsName set to a list of permissions. See examples for more information.
 
-.Parameter Type
-The type of credential to create. Default value is 'Secret'. Valid values are 'Secret' and 'Certificate'.
+.PARAMETER Type
+    The type of credential to create. Default value is 'Secret'. Valid values are 'Secret' and 'Certificate'.
 
-.Parameter MonthsValid
-The number of months the certificate should be valid. Default value is 12.
+.PARAMETER MonthsValid
+    The number of months the certificate should be valid. Default value is 12.
 
-.Parameter CreateNewSecret
-If specified, a new secret will be created for the application. -CreateNewSecret or -CertificatePath can be used, not both.
+.PARAMETER CreateNewSecret
+    If specified, a new secret will be created for the application. -CreateNewSecret or -CertificatePath can be used, not both.
 
-.Parameter CertificatePath
-The path to the certificate to be uploaded for the app registration. If using with -CreateSelfSignedCertificate - a file with this name will be created and uploaded (file must not exist). Otherwise the file must already exist. Cannot be used with -CreateNewSecret simultaneously.
+.PARAMETER CertificatePath
+    The path to the certificate to be uploaded for the app registration. If using with -CreateSelfSignedCertificate - a file with this name will be created and uploaded (file must not exist). Otherwise the file must already exist. Cannot be used with -CreateNewSecret simultaneously.
 
-.Parameter CreateSelfSignedCertificate
-If specified, a self-signed certificate will be created for the application. -CreateSelfSignedCertificate or -CertificatePath can be used, not both.
+.PARAMETER CreateSelfSignedCertificate
+    If specified, a self-signed certificate will be created for the application. -CreateSelfSignedCertificate or -CertificatePath can be used, not both.
+    The certificate is create in the Cert:\CurrentUser\My store and will be exported to the path specified in -CertificatePath.
+    If you require the certificate with the private key, you can export it from the certificate store after running the command using the Export-PfxCertificate cmdlet.
 
-.Parameter AdminConsent
-If specified, admin consent will be granted for the application.
+.PARAMETER AdminConsent
+    If specified, admin consent will be granted for the application.
 
-.Parameter Credential
-The credential to use for authenticating the request. Mutually exclusive with -TenantId.
+.PARAMETER Credential
+    The credential to use for authenticating the request. Mutually exclusive with -TenantId.
 
-.Parameter ApplicationId
-The ApplicationId to use for authenticating the request. -Credential or -ApplicationId can be used, not both.
+.PARAMETER ApplicationId
+    The ApplicationId to use for authenticating the request. -Credential or -ApplicationId can be used, not both.
 
-.Parameter TenantId
-The name of the tenant to use for the request. Must be in the form of contoso.onmicrosoft.com. Mutually exclusive with -Credential.
+.PARAMETER TenantId
+    The name of the tenant to use for the request. Must be in the form of contoso.onmicrosoft.com. Mutually exclusive with -Credential.
 
-.Parameter ApplicationSecret
-The ApplicationSecret to use for authenticating the request. -Credential or -ApplicationSecret can be used, not both.
+.PARAMETER ApplicationSecret
+    The ApplicationSecret to use for authenticating the request. -Credential or -ApplicationSecret can be used, not both.
 
-.Parameter CertificateThumbprint
-Thumbprint of an existing auth certificate to use for authenticating the request. Mutually exclusive with -Credential.
+.PARAMETER CertificateThumbprint
+    Thumbprint of an existing auth certificate to use for authenticating the request. Mutually exclusive with -Credential.
 
-.Parameter ManagedIdentity
-If specified, Managed Identity will be used for authenticating the request. -Credential or -ApplicationId or -ManagedIdentity can be used, only one of them.
-
-.Example
-Update-M365DSCAzureAdApplication -ApplicationName 'Microsoft365DSC' -Permissions @(@{Api='SharePoint';PermissionName='Sites.FullControl.All'}) -AdminConsent -Type Secret -Credential $creds
-
-.EXAMPLE
-Update-M365DSCAzureAdApplication -ApplicationName 'Microsoft365DSC' -Permissions @(@{Api='Graph';PermissionName='Domain.Read.All'}) -AdminConsent  -Credential $creds -Type Certificate -CreateSelfSignedCertificate -CertificatePath c:\Temp\M365DSC.cer
+.PARAMETER ManagedIdentity
+    If specified, Managed Identity will be used for authenticating the request. -Credential or -ApplicationId or -ManagedIdentity can be used, only one of them.
 
 .EXAMPLE
-Update-M365DSCAzureAdApplication -ApplicationName 'Microsoft365DSC' -Permissions @(@{Api='SharePoint';PermissionName='Sites.FullControl.All'},@{Api='Graph';PermissionName='Group.ReadWrite.All'},@{Api='Exchange';PermissionName='Exchange.ManageAsApp'}) -AdminConsent -Credential $creds -Type Certificate -CertificatePath c:\Temp\M365DSC.cer
+    PS> $creds = Get-Credential
+    PS> Update-M365DSCAzureAdApplication -ApplicationName 'Microsoft365DSC' -Permissions @(@{Api='SharePoint';PermissionName='Sites.FullControl.All'}) -AdminConsent -Type Secret -Credential $creds
 
 .EXAMPLE
-Update-M365DSCAzureAdApplication -ApplicationName $Microsoft365DSC -Permissions $((Get-M365DSCCompiledPermissionList -ResourceNameList (Get-M365DSCAllResources) -PermissionType Application -AccessType Read).Permissions) -Type Certificate -CreateSelfSignedCertificate -AdminConsent -MonthsValid 12 -Credential $creds -CertificatePath c:\Temp\M365DSC.cer
+    PS> $creds = Get-Credential
+    PS> Update-M365DSCAzureAdApplication -ApplicationName 'Microsoft365DSC' -Permissions @(@{Api='Graph';PermissionName='Domain.Read.All'}) -AdminConsent  -Credential $creds -Type Certificate -CreateSelfSignedCertificate -CertificatePath c:\Temp\M365DSC.cer
 
-.Functionality
-Public
+.EXAMPLE
+    PS> $creds = Get-Credential
+    PS> Update-M365DSCAzureAdApplication -ApplicationName 'Microsoft365DSC' -Permissions @(@{Api='SharePoint';PermissionName='Sites.FullControl.All'},@{Api='Graph';PermissionName='Group.ReadWrite.All'},@{Api='Exchange';PermissionName='Exchange.ManageAsApp'}) -AdminConsent -Credential $creds -Type Certificate -CertificatePath c:\Temp\M365DSC.cer
+
+.EXAMPLE
+    PS> $creds = Get-Credential
+    PS> Update-M365DSCAzureAdApplication -ApplicationName 'Microsoft365DSC' -Permissions $((Get-M365DSCCompiledPermissionList -ResourceNameList (Get-M365DSCAllResources) -PermissionType Application -AccessType Read).Permissions) -Type Certificate -CreateSelfSignedCertificate -AdminConsent -MonthsValid 12 -Credential $creds -CertificatePath c:\Temp\M365DSC.cer
+
+.FUNCTIONALITY
+    Public
 #>
 function Update-M365DSCAzureAdApplication
 {
@@ -789,6 +795,8 @@ function Update-M365DSCAzureAdApplication
 
         Write-Host @params
     }
+
+    Confirm-M365DSCDependencies
 
     $null = New-M365DSCConnection -Workload 'MicrosoftGraph' `
         -InboundParameters $PSBoundParameters
