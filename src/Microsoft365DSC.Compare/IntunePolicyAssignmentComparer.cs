@@ -59,10 +59,11 @@ namespace Microsoft365DSC.Compare
                 if (dataType!.EndsWith("AssignmentTarget", StringComparison.OrdinalIgnoreCase))
                 {
                     var assignmentGroupId = GetPropertyValue<string>(assignment, "groupId");
+                    var assignmentCollectionId = GetPropertyValue<string>(assignment, "collectionId");
                     var assignmentIntent = GetPropertyValue<string>(assignment, "intent");
 
                     if (dataType.Equals("#microsoft.graph.allDevicesAssignmentTarget", StringComparison.OrdinalIgnoreCase)
-                        || dataType.Equals("#microsoft.graph.allLicensedUsersAssignmentTarget"))
+                        || dataType.Equals("#microsoft.graph.allLicensedUsersAssignmentTarget", StringComparison.OrdinalIgnoreCase))
                     {
                         assignmentTarget = FindAssignmentTarget(target, "dataType", dataType);
                     }
@@ -71,6 +72,12 @@ namespace Microsoft365DSC.Compare
                     if (assignmentTarget is null && assignmentGroupId is not null)
                     {
                         assignmentTarget = FindAssignmentTarget(target, "groupId", assignmentGroupId);
+                        testResult = assignmentTarget is not null;
+                    }
+
+                    if (assignmentTarget is null && assignmentCollectionId is not null)
+                    {
+                        assignmentTarget = FindAssignmentTarget(target, "collectionId", assignmentCollectionId);
                         testResult = assignmentTarget is not null;
                     }
 
@@ -118,25 +125,6 @@ namespace Microsoft365DSC.Compare
                     if (testResult)
                     {
                         testResult = CompareFilters(assignment, assignmentTarget, i, drifts);
-                    }
-
-                    // Check collectionId if still matching
-                    if (testResult)
-                    {
-                        var assignmentCollectionId = GetPropertyValue<string>(assignment, "collectionId");
-                        var targetCollectionId = GetPropertyValue<string>(assignmentTarget, "collectionId");
-
-                        testResult = string.Equals(assignmentCollectionId, targetCollectionId, StringComparison.OrdinalIgnoreCase);
-
-                        if (!testResult)
-                        {
-                            drifts.Add(new Dictionary<string, object>
-                            {
-                                { "PropertyName", $"Assignments[{i}].collectionId" },
-                                { "CurrentValue", assignmentCollectionId },
-                                { "DesiredValue", targetCollectionId }
-                            });
-                        }
                     }
                 }
                 else
