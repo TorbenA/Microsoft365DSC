@@ -642,6 +642,8 @@ function Update-M365DSCAllowedGraphScopes
 
 .PARAMETER CreateSelfSignedCertificate
     If specified, a self-signed certificate will be created for the application. -CreateSelfSignedCertificate or -CertificatePath can be used, not both.
+    The certificate is create in the Cert:\CurrentUser\My store and will be exported to the path specified in -CertificatePath.
+    If you require the certificate with the private key, you can export it from the certificate store after running the command using the Export-PfxCertificate cmdlet.
 
 .PARAMETER AdminConsent
     If specified, admin consent will be granted for the application.
