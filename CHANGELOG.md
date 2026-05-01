@@ -16,6 +16,9 @@
 * M365DSCPermissions
   * Fixed documentation and dependency check issues in `Update-M365DSCAzureADApplication`.
     FIXES [#5694](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/5694)
+* SentinelAlertRule
+  * Fixed an issue where the create failed when sending an empty EntityMapping property.
+    FIXES [#7088](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7088)
 
 # 1.26.422.1
 
