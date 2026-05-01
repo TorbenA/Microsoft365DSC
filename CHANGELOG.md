@@ -1,5 +1,22 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADServicePrincipal
+  * Fixed an issue where service principal as owners for other service principals
+    were not exported or applied correctly.
+    FIXES [#5939](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/5939)
+* EXOServicePrincipal
+  * Fixed an issue where the export was not possible for service principals with
+    a missing `AppDisplayName` in their object.
+    FIXES [#7086](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7086)
+* O365ExternalConnection
+  * Fixed an issue where resolving multi-tenant applications from other tenants failed.
+    FIXES [#5156](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/5156)
+* M365DSCPermissions
+  * Fixed documentation and dependency check issues in `Update-M365DSCAzureADApplication`.
+    FIXES [#5694](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/5694)
+
 # 1.26.422.1
 
 * AADApplication
