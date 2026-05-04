@@ -10,6 +10,9 @@
   * Fixed an issue where the export was not possible for service principals with
     a missing `AppDisplayName` in their object.
     FIXES [#7086](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7086)
+* IntuneDeviceConfigurationAdministrativeTemplatePolicyWindows10
+  * Fixed an issue where an empty `Value` property was exported.
+    FIXES [#7085](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7085)
 * O365ExternalConnection
   * Fixed an issue where resolving multi-tenant applications from other tenants failed.
     FIXES [#5156](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/5156)
