@@ -261,16 +261,25 @@ function Get-TargetResource
                 $PSBoundParameters.ContainsKey('VivaInsightsWebExperience') -or `
                 $Script:exportedInstance)
         {
-            # TODO: Remove verbose information after testing is complete
-            $currentVivaInsightsSettings = Invoke-M365DSCCommand -ScriptBlock { Get-DefaultTenantMyAnalyticsFeatureConfig } -RetryOnNotFoundError
-            Write-Verbose -Message "Current Viva Insights Settings: $($currentVivaInsightsSettings | ConvertTo-Json -Depth 5)"
-            if ($null -ne $currentVivaInsightsSettings)
+            try
             {
-                $results += @{
-                    VivaInsightsDigestEmail                      = $currentVivaInsightsSettings.IsDigestEmailEnabled
-                    VivaInsightsOutlookAddInAndInlineSuggestions = $currentVivaInsightsSettings.IsAddInEnabled
-                    VivaInsightsScheduleSendSuggestions          = $currentVivaInsightsSettings.IsScheduleSendEnabled
-                    VivaInsightsWebExperience                    = $currentVivaInsightsSettings.IsDashboardEnabled
+                $currentVivaInsightsSettings = Invoke-M365DSCCommand -ScriptBlock { Get-DefaultTenantMyAnalyticsFeatureConfig } -RetryOnNotFoundError
+                Write-Verbose -Message "Current Viva Insights Settings: $($currentVivaInsightsSettings | ConvertTo-Json -Depth 5)" -Verbose
+                if ($null -ne $currentVivaInsightsSettings)
+                {
+                    $results += @{
+                        VivaInsightsDigestEmail                      = $currentVivaInsightsSettings.IsDigestEmailEnabled
+                        VivaInsightsOutlookAddInAndInlineSuggestions = $currentVivaInsightsSettings.IsAddInEnabled
+                        VivaInsightsScheduleSendSuggestions          = $currentVivaInsightsSettings.IsScheduleSendEnabled
+                        VivaInsightsWebExperience                    = $currentVivaInsightsSettings.IsDashboardEnabled
+                    }
+                }
+            }
+            catch
+            {
+                if ($_.Exception.Message -like '*The following authorization requirements are not satisfied*')
+                {
+                    Write-Warning -Message "Exporting Viva Insights configuration requires either Exchange Administrator, Insights Administrator or Global Administrator."
                 }
             }
         }

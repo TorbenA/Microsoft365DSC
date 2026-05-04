@@ -1,35 +1,41 @@
 using namespace System.Management.Automation.Language
 
 <#
-.Description
-This function lists all Graph, SharePoint or Exchange permissions required for the specified
-resources, both for reading/updating and Delegated/Applications. With the parameters, you can
-specify a specific subset of permissions, to be use with the Permissions parameter of
-Update-M365DSCAzureAdApplication.
+.DESCRIPTION
+    This function lists all Graph, SharePoint or Exchange permissions required for the specified
+    resources, both for reading/updating and Delegated/Applications. With the parameters, you can
+    specify a specific subset of permissions, to be use with the Permissions parameter of
+    Update-M365DSCAzureAdApplication.
 
-.Parameter ResourceNameList
-An array of resource names for which the permissions should be determined.
+.PARAMETER ResourceNameList
+    An array of resource names for which the permissions should be determined.
 
-.Parameter PermissionsType
-Specifies what type of permissions need to get returned, Delegated or Application.
+.PARAMETER PermissionsType
+    Specifies what type of permissions need to get returned, Delegated or Application.
 
-.Parameter AccessType
-Specifies the workload of the permissions that need to get returned.
+.PARAMETER AccessType
+    Specifies the workload of the permissions that need to get returned.
 
-.Example
-Get-M365DSCCompiledPermissionList -ResourceNameList @('EXOAcceptedDomain')
+.PARAMETER GroupByResourceName
+    If specified, groups the permissions by resource name instead of by permission type.
 
-.Example
-Get-M365DSCCompiledPermissionList -ResourceNameList (Get-M365DSCAllResources)
+.EXAMPLE
+    Get-M365DSCCompiledPermissionList -ResourceNameList @('EXOAcceptedDomain')
 
-.Example
-Get-M365DSCCompiledPermissionList -ResourceNameList (Get-M365DSCAllResources) -PermissionType 'Application' -AccessType 'Update'
+.EXAMPLE
+    Get-M365DSCCompiledPermissionList -ResourceNameList (Get-M365DSCAllResources)
 
-.Example
-Get-M365DSCCompiledPermissionList -ResourceNameList (Get-M365DSCAllResources) -PermissionType 'Delegated' -AccessType 'Read'
+.EXAMPLE
+    Get-M365DSCCompiledPermissionList -ResourceNameList (Get-M365DSCAllResources) -PermissionType 'Application' -AccessType 'Update'
 
-.Functionality
-Public
+.EXAMPLE
+    Get-M365DSCCompiledPermissionList -ResourceNameList (Get-M365DSCAllResources) -PermissionType 'Delegated' -AccessType 'Read'
+
+.EXAMPLE
+    Get-M365DSCCompiledPermissionList -ResourceNameList @('AADUser', 'EXOMailbox') -GroupByResourceName
+
+.FUNCTIONALITY
+    Public
 #>
 function Get-M365DSCCompiledPermissionList
 {
@@ -41,28 +47,22 @@ function Get-M365DSCCompiledPermissionList
         [System.String[]]
         $ResourceNameList,
 
-        [Parameter()]
-        [System.String]
+        [Parameter(ParameterSetName = 'PermissionType', Mandatory = $true)]
         [ValidateSet('Delegated', 'Application')]
+        [System.String]
         $PermissionType,
 
-        [Parameter()]
-        [System.String]
+        [Parameter(ParameterSetName = 'PermissionType', Mandatory = $true)]
         [ValidateSet('Read', 'Update')]
-        $AccessType
+        [System.String]
+        $AccessType,
+
+        [Parameter(ParameterSetName = 'GroupByResourceName')]
+        [Switch]
+        $GroupByResourceName
     )
 
-    if (($PSBoundParameters.ContainsKey('PermissionType') -eq $true -and $PSBoundParameters.ContainsKey('AccessType') -eq $false))
-    {
-        throw 'You specified parameter PermissionType without AccessType. Please specify both parameters.'
-    }
-
-    if (($PSBoundParameters.ContainsKey('PermissionType') -eq $false -and $PSBoundParameters.ContainsKey('AccessType') -eq $true))
-    {
-        throw 'You specified parameter AccessType without PermissionType. Please specify both parameters.'
-    }
-
-    $results = @{
+    $baseObject = @{
         AdministrativeRoles = @{
             Read   = @()
             Update = @()
@@ -95,14 +95,29 @@ function Get-M365DSCCompiledPermissionList
         }
     }
 
+    if ($GroupByResourceName)
+    {
+        $results = [ordered]@{}
+    }
+    else
+    {
+        $results = $baseObject
+    }
+
     $total = $ResourceNameList.Count
     $count = 1
+    $ResourceNameList = $ResourceNameList | Sort-Object
     foreach ($resourceName in $ResourceNameList)
     {
         $percentage = ($count / $total) * 100
         Write-Progress -Activity 'Retrieving required permissions' -PercentComplete $percentage -Status 'Processing resource' -CurrentOperation $resourceName
 
         Write-Verbose -Message "Processing $resourceName"
+
+        if ($GroupByResourceName)
+        {
+            $currentResourceResults = $baseObject.Clone()
+        }
         $settingsFilePath = $null
         try
         {
@@ -121,6 +136,8 @@ function Get-M365DSCCompiledPermissionList
             $fileContent = Get-Content $settingsFilePath -Raw
             $resourceSettings = ConvertFrom-Json -InputObject $fileContent
 
+            $targetMatrix = if ($GroupByResourceName) { $currentResourceResults } else { $results }
+
             # Entra / Administrative roles
             if ($null -ne $resourceSettings.roles.read -or $null -ne $resourceSettings.roles.update)
             {
@@ -128,10 +145,10 @@ function Get-M365DSCCompiledPermissionList
                 $updateRoles = $resourceSettings.roles.update
                 foreach ($role in $readRoles)
                 {
-                    if (-not $results.AdministrativeRoles.Read.Contains($role))
+                    if (-not $targetMatrix.AdministrativeRoles.Read.Contains($role))
                     {
                         Write-Verbose -Message "    Found new Administrative Read role {$($role)}"
-                        $results.AdministrativeRoles.Read += $role
+                        $targetMatrix.AdministrativeRoles.Read += $role
                     }
                     else
                     {
@@ -140,10 +157,10 @@ function Get-M365DSCCompiledPermissionList
                 }
                 foreach ($role in $updateRoles)
                 {
-                    if (-not $results.AdministrativeRoles.Update.Contains($role))
+                    if (-not $targetMatrix.AdministrativeRoles.Update.Contains($role))
                     {
                         Write-Verbose -Message "    Found new Administrative Update role {$($role)}"
-                        $results.AdministrativeRoles.Update += $role
+                        $targetMatrix.AdministrativeRoles.Update += $role
                     }
                     else
                     {
@@ -167,28 +184,28 @@ function Get-M365DSCCompiledPermissionList
                 Update-M365DSCPermissionsMatrix -Source 'Graph' `
                     -PermissionType 'Delegated' `
                     -AccessType 'Update' `
-                    -Matrix ([ref]$results) `
+                    -Matrix ([ref]$targetMatrix) `
                     -Settings ($resourceSettings)
 
                 # Application Update permissions
                 Update-M365DSCPermissionsMatrix -Source 'Graph' `
                     -PermissionType 'Application' `
                     -AccessType 'Update' `
-                    -Matrix ([ref]$results) `
+                    -Matrix ([ref]$targetMatrix) `
                     -Settings ($resourceSettings)
 
                 # Delegated Read permissions
                 Update-M365DSCPermissionsMatrix -Source 'Graph' `
                     -PermissionType 'Delegated' `
                     -AccessType 'Read' `
-                    -Matrix ([ref]$results) `
+                    -Matrix ([ref]$targetMatrix) `
                     -Settings ($resourceSettings)
 
                 # Application Read permissions
                 Update-M365DSCPermissionsMatrix -Source 'Graph' `
                     -PermissionType 'Application' `
                     -AccessType 'Read' `
-                    -Matrix ([ref]$results) `
+                    -Matrix ([ref]$targetMatrix) `
                     -Settings ($resourceSettings)
             }
             else
@@ -203,10 +220,10 @@ function Get-M365DSCCompiledPermissionList
                 # Required Role
                 foreach ($requiredRole in $resourceSettings.permissions.exchange.requiredroles.read)
                 {
-                    if (-not $results.RequiredRoles.Read.Contains($requiredRole))
+                    if (-not $targetMatrix.RequiredRoles.Read.Contains($requiredRole))
                     {
                         Write-Verbose -Message "    Found new Read Required Role {$($requiredRole)}"
-                        $results.RequiredRoles.Read += $requiredRole
+                        $targetMatrix.RequiredRoles.Read += $requiredRole
                     }
                     else
                     {
@@ -215,10 +232,10 @@ function Get-M365DSCCompiledPermissionList
                 }
                 foreach ($requiredRole in $resourceSettings.permissions.exchange.requiredroles.update)
                 {
-                    if (-not $results.RequiredRoles.Update.Contains($requiredRole))
+                    if (-not $targetMatrix.RequiredRoles.Update.Contains($requiredRole))
                     {
                         Write-Verbose -Message "    Found new Update Required Role {$($requiredRole)}"
-                        $results.RequiredRoles.Update += $requiredRole
+                        $targetMatrix.RequiredRoles.Update += $requiredRole
                     }
                     else
                     {
@@ -229,10 +246,10 @@ function Get-M365DSCCompiledPermissionList
                 # Required RoleGroups
                 foreach ($requiredRoleGroup in $resourceSettings.permissions.exchange.requiredrolegroups.read)
                 {
-                    if (-not $results.RequiredRoleGroups.Read.Contains($requiredRoleGroup))
+                    if (-not $targetMatrix.RequiredRoleGroups.Read.Contains($requiredRoleGroup))
                     {
                         Write-Verbose -Message "    Found new Read Required Role Group {$($requiredRoleGroup)}"
-                        $results.RequiredRoleGroups.Read += $requiredRoleGroup
+                        $targetMatrix.RequiredRoleGroups.Read += $requiredRoleGroup
                     }
                     else
                     {
@@ -241,10 +258,10 @@ function Get-M365DSCCompiledPermissionList
                 }
                 foreach ($requiredRoleGroup in $resourceSettings.permissions.exchange.requiredrolegroups.update)
                 {
-                    if (-not $results.RequiredRoleGroups.Update.Contains($requiredRoleGroup))
+                    if (-not $targetMatrix.RequiredRoleGroups.Update.Contains($requiredRoleGroup))
                     {
                         Write-Verbose -Message "    Found new Update Required Role Group {$($requiredRoleGroup)}"
-                        $results.RequiredRoleGroups.Update += $requiredRoleGroup
+                        $targetMatrix.RequiredRoleGroups.Update += $requiredRoleGroup
                     }
                     else
                     {
@@ -252,10 +269,10 @@ function Get-M365DSCCompiledPermissionList
                     }
                 }
 
-                $exchangeRead = $results.Read | Where-Object -FilterScript { $_.API -eq 'Exchange' -and $_.Permission.Name -eq 'Exchange.ManageAsApp' }
+                $exchangeRead = $targetMatrix.Read | Where-Object -FilterScript { $_.API -eq 'Exchange' -and $_.Permission.Name -eq 'Exchange.ManageAsApp' }
                 if ($null -eq $exchangeRead)
                 {
-                    $results.Read += @{
+                    $targetMatrix.Read += @{
                         API        = 'Exchange'
                         Permission = @{
                             Type = 'Application'
@@ -264,10 +281,10 @@ function Get-M365DSCCompiledPermissionList
                     }
                 }
 
-                $exchangeUpdate = $results.Update | Where-Object -FilterScript { $_.API -eq 'Exchange' -and $_.Permission.Name -eq 'Exchange.ManageAsApp' }
+                $exchangeUpdate = $targetMatrix.Update | Where-Object -FilterScript { $_.API -eq 'Exchange' -and $_.Permission.Name -eq 'Exchange.ManageAsApp' }
                 if ($null -eq $exchangeUpdate)
                 {
-                    $results.Update += @{
+                    $targetMatrix.Update += @{
                         API        = 'Exchange'
                         Permission = @{
                             Type = 'Application'
@@ -288,10 +305,10 @@ function Get-M365DSCCompiledPermissionList
                 # Required Role
                 foreach ($requiredRole in $resourceSettings.permissions.purview.requiredroles.read)
                 {
-                    if (-not $results.RequiredRoles.Read.Contains($requiredRole))
+                    if (-not $targetMatrix.RequiredRoles.Read.Contains($requiredRole))
                     {
                         Write-Verbose -Message "    Found new Read Required Role {$($requiredRole)}"
-                        $results.RequiredRoles.Read += $requiredRole
+                        $targetMatrix.RequiredRoles.Read += $requiredRole
                     }
                     else
                     {
@@ -300,10 +317,10 @@ function Get-M365DSCCompiledPermissionList
                 }
                 foreach ($requiredRole in $resourceSettings.permissions.purview.requiredroles.update)
                 {
-                    if (-not $results.RequiredRoles.Update.Contains($requiredRole))
+                    if (-not $targetMatrix.RequiredRoles.Update.Contains($requiredRole))
                     {
                         Write-Verbose -Message "    Found new Update Required Role {$($requiredRole)}"
-                        $results.RequiredRoles.Update += $requiredRole
+                        $targetMatrix.RequiredRoles.Update += $requiredRole
                     }
                     else
                     {
@@ -314,10 +331,10 @@ function Get-M365DSCCompiledPermissionList
                 # Required RoleGroups
                 foreach ($requiredRoleGroup in $resourceSettings.permissions.purview.requiredrolegroups.read)
                 {
-                    if (-not $results.RequiredRoleGroups.Read.Contains($requiredRoleGroup))
+                    if (-not $targetMatrix.RequiredRoleGroups.Read.Contains($requiredRoleGroup))
                     {
                         Write-Verbose -Message "    Found new Read Required Role Group {$($requiredRoleGroup)}"
-                        $results.RequiredRoleGroups.Read += $requiredRoleGroup
+                        $targetMatrix.RequiredRoleGroups.Read += $requiredRoleGroup
                     }
                     else
                     {
@@ -326,10 +343,10 @@ function Get-M365DSCCompiledPermissionList
                 }
                 foreach ($requiredRoleGroup in $resourceSettings.permissions.purview.requiredrolegroups.update)
                 {
-                    if (-not $results.RequiredRoleGroups.Update.Contains($requiredRoleGroup))
+                    if (-not $targetMatrix.RequiredRoleGroups.Update.Contains($requiredRoleGroup))
                     {
                         Write-Verbose -Message "    Found new Update Required Role Group {$($requiredRoleGroup)}"
-                        $results.RequiredRoleGroups.Update += $requiredRoleGroup
+                        $targetMatrix.RequiredRoleGroups.Update += $requiredRoleGroup
                     }
                     else
                     {
@@ -337,10 +354,10 @@ function Get-M365DSCCompiledPermissionList
                     }
                 }
 
-                $exchangeRead = $results.Read | Where-Object -FilterScript { $_.API -eq 'Exchange' -and $_.Permission.Name -eq 'Exchange.ManageAsApp' }
+                $exchangeRead = $targetMatrix.Read | Where-Object -FilterScript { $_.API -eq 'Exchange' -and $_.Permission.Name -eq 'Exchange.ManageAsApp' }
                 if ($null -eq $exchangeRead)
                 {
-                    $results.Read += @{
+                    $targetMatrix.Read += @{
                         API        = 'Exchange'
                         Permission = @{
                             Type = 'Application'
@@ -349,10 +366,10 @@ function Get-M365DSCCompiledPermissionList
                     }
                 }
 
-                $exchangeUpdate = $results.Update | Where-Object -FilterScript { $_.API -eq 'Exchange' -and $_.Permission.Name -eq 'Exchange.ManageAsApp' }
+                $exchangeUpdate = $targetMatrix.Update | Where-Object -FilterScript { $_.API -eq 'Exchange' -and $_.Permission.Name -eq 'Exchange.ManageAsApp' }
                 if ($null -eq $exchangeUpdate)
                 {
-                    $results.Update += @{
+                    $targetMatrix.Update += @{
                         API        = 'Exchange'
                         Permission = @{
                             Type = 'Application'
@@ -375,33 +392,44 @@ function Get-M365DSCCompiledPermissionList
                 Update-M365DSCPermissionsMatrix -Source 'SharePoint' `
                     -PermissionType 'Delegated' `
                     -AccessType 'Update' `
-                    -Matrix ([ref]$results) `
+                    -Matrix ([ref]$targetMatrix) `
                     -Settings ($resourceSettings)
 
                 # Application Update permissions
                 Update-M365DSCPermissionsMatrix -Source 'SharePoint' `
                     -PermissionType 'Application' `
                     -AccessType 'Update' `
-                    -Matrix ([ref]$results) `
+                    -Matrix ([ref]$targetMatrix) `
                     -Settings ($resourceSettings)
 
                 # Delegated Read permissions
                 Update-M365DSCPermissionsMatrix -Source 'SharePoint' `
                     -PermissionType 'Delegated' `
                     -AccessType 'Read' `
-                    -Matrix ([ref]$results) `
+                    -Matrix ([ref]$targetMatrix) `
                     -Settings ($resourceSettings)
 
                 # Application Read permissions
                 Update-M365DSCPermissionsMatrix -Source 'SharePoint' `
                     -PermissionType 'Application' `
                     -AccessType 'Read' `
-                    -Matrix ([ref]$results) `
+                    -Matrix ([ref]$targetMatrix) `
                     -Settings ($resourceSettings)
             }
             else
             {
                 Write-Verbose "  No SharePoint node in settings.json for $resourceName."
+            }
+
+            if ($GroupByResourceName)
+            {
+                $currentResourceResults.AdministrativeRoles.Read   = Get-M365DSCArrayFromProperty -PropertyValue ($currentResourceResults.AdministrativeRoles.Read | Sort-Object -Unique) -ElementType ([System.String])
+                $currentResourceResults.AdministrativeRoles.Update = Get-M365DSCArrayFromProperty -PropertyValue ($currentResourceResults.AdministrativeRoles.Update | Sort-Object -Unique) -ElementType ([System.String])
+                $currentResourceResults.RequiredRoleGroups.Read    = Get-M365DSCArrayFromProperty -PropertyValue ($currentResourceResults.RequiredRoleGroups.Read | Sort-Object -Unique) -ElementType ([System.String])
+                $currentResourceResults.RequiredRoleGroups.Update  = Get-M365DSCArrayFromProperty -PropertyValue ($currentResourceResults.RequiredRoleGroups.Update | Sort-Object -Unique) -ElementType ([System.String])
+                $currentResourceResults.RequiredRoles.Read         = Get-M365DSCArrayFromProperty -PropertyValue ($currentResourceResults.RequiredRoles.Read | Sort-Object -Unique) -ElementType ([System.String])
+                $currentResourceResults.RequiredRoles.Update       = Get-M365DSCArrayFromProperty -PropertyValue ($currentResourceResults.RequiredRoles.Update | Sort-Object -Unique) -ElementType ([System.String])
+                $results[$resourceName] = $currentResourceResults
             }
         }
         $count++
@@ -422,9 +450,13 @@ function Get-M365DSCCompiledPermissionList
         }
     }
 
-    $results.AdministrativeRoles = $results.AdministrativeRoles | Sort-Object -Unique
-    $results.RequiredRoleGroups = $results.RequiredRoleGroups | Sort-Object -Unique
-    $results.RequiredRoles = $results.RequiredRoles | Sort-Object -Unique
+    if (-not $GroupByResourceName)
+    {
+        $results.AdministrativeRoles = $results.AdministrativeRoles | Sort-Object -Unique
+        $results.RequiredRoleGroups  = $results.RequiredRoleGroups | Sort-Object -Unique
+        $results.RequiredRoles       = $results.RequiredRoles | Sort-Object -Unique
+    }
+
     return $results
 }
 
