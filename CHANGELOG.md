@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.26.506.1
 
 * AADServicePrincipal
   * Fixed an issue where service principal as owners for other service principals
