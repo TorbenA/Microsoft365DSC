@@ -262,61 +262,36 @@ function Set-TargetResource
         '@odata.type' = $ruleType
     }
 
-    if ($ruleType -eq '#microsoft.graph.unifiedRoleManagementPolicyExpirationRule')
+    switch ($ruleType)
     {
-        $expirationRuleHashmap = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $expirationRule
-        # add all the properties to the body
-        foreach ($key in $expirationRuleHashmap.Keys)
+        '#microsoft.graph.unifiedRoleManagementPolicyExpirationRule'
         {
-            $body.Add($key, $expirationRuleHashmap.$key)
+            $ruleHashmap = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $expirationRule
+        }
+        '#microsoft.graph.unifiedRoleManagementPolicyNotificationRule'
+        {
+            $ruleHashmap = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $notificationRule
+        }
+        '#microsoft.graph.unifiedRoleManagementPolicyEnablementRule'
+        {
+            $ruleHashmap = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $enablementRule
+        }
+        '#microsoft.graph.unifiedRoleManagementPolicyApprovalRule'
+        {
+            $ruleHashmap = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $approvalRule
+        }
+        '#microsoft.graph.unifiedRoleManagementPolicyAuthenticationContextRule'
+        {
+            $ruleHashmap = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $authenticationContextRule
         }
     }
 
-    if ($ruleType -eq '#microsoft.graph.unifiedRoleManagementPolicyNotificationRule')
+    foreach ($key in $ruleHashmap.Keys)
     {
-        $notificationRuleHashmap = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $notificationRule
-        # add all the properties to the body
-        foreach ($key in $notificationRuleHashmap.Keys)
-        {
-            $body.Add($key, $notificationRuleHashmap.$key)
-        }
+        $body.Add($key, $ruleHashmap.$key)
     }
 
-    if ($ruleType -eq '#microsoft.graph.unifiedRoleManagementPolicyEnablementRule')
-    {
-        $enablementRuleHashmap = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $enablementRule
-        # add all the properties to the body
-        foreach ($key in $enablementRuleHashmap.Keys)
-        {
-            $body.Add($key, $enablementRuleHashmap.$key)
-        }
-    }
-
-    if ($ruleType -eq '#microsoft.graph.unifiedRoleManagementPolicyApprovalRule')
-    {
-        $approvalRuleHashmap = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $approvalRule
-        # add all the properties to the body
-        foreach ($key in $approvalRuleHashmap.Keys)
-        {
-            $body.Add($key, $approvalRuleHashmap.$key)
-        }
-    }
-
-    if ($ruleType -eq '#microsoft.graph.unifiedRoleManagementPolicyAuthenticationContextRule')
-    {
-        $authenticationContextRuleHashmap = Convert-M365DSCDRGComplexTypeToHashtable -ComplexObject $authenticationContextRule
-        # add all the properties to the body
-        foreach ($key in $authenticationContextRuleHashmap.Keys)
-        {
-            $body.Add($key, $authenticationContextRuleHashmap.$key)
-        }
-    }
-
-    if ($GroupDisplayName.Contains("'"))
-    {
-        $GroupDisplayName = $GroupDisplayName -replace "'", "''"
-    }
-    $filter = "DisplayName eq '$GroupDisplayName'"
+    $filter = "DisplayName eq '$($GroupDisplayName -replace "'", "''")'"
     [array]$Group = Get-MgGroup -Filter $filter -ErrorAction Stop
     if ($Group.Count -gt 1)
     {

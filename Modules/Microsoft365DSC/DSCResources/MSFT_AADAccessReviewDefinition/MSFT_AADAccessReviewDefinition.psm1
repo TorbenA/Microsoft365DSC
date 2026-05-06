@@ -841,6 +841,24 @@ function Set-TargetResource
         }
     }
 
+    $boundParameters = ([Hashtable]$BoundParameters.Clone())
+    $boundParameters = Rename-M365DSCCimInstanceParameter -Properties $boundParameters
+    $boundParameters.Remove('Id') | Out-Null
+
+    foreach ($scope in $boundParameters.ScopeValue.ResourceScopes)
+    {
+        if ($scope.ContainsKey('ResourceScopeId'))
+        {
+            $scope.Add('resourceId', $scope.ResourceScopeId)
+            $scope.Remove('ResourceScopeId') | Out-Null
+        }
+    }
+    $boundParameters.Add('scope', $boundParameters.ScopeValue)
+    $boundParameters.Remove('ScopeValue') | Out-Null
+
+    $boundParameters.Add('settings', $boundParameters.SettingsValue)
+    $boundParameters.Remove('SettingsValue') | Out-Null
+
     if ($null -ne $StageSettings)
     {
         Write-Verbose -Message 'StageSettings cannot be updated after creation of access review definition.'
@@ -854,24 +872,6 @@ function Set-TargetResource
         Write-Verbose -Message "Creating an Azure AD Access Review Definition with DisplayName {$DisplayName}"
 
         $createParameters = ([Hashtable]$BoundParameters).Clone()
-
-        $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
-        $createParameters.Remove('Id') | Out-Null
-
-        foreach ($scope in $createParameters.ScopeValue.ResourceScopes)
-        {
-            if ($scope.ContainsKey('ResourceScopeId'))
-            {
-                $scope.Add('resourceId', $scope.ResourceScopeId)
-                $scope.Remove('ResourceScopeId') | Out-Null
-            }
-        }
-        $createParameters.Add('scope', $createParameters.ScopeValue)
-        $createParameters.Remove('ScopeValue') | Out-Null
-
-        $createParameters.Add('settings', $createParameters.SettingsValue)
-        $createParameters.Remove('SettingsValue') | Out-Null
-
         foreach ($hashtable in $createParameters.StageSettings)
         {
             $propertyToRemove = 'DependsOnValue'
@@ -906,23 +906,6 @@ function Set-TargetResource
         Write-Verbose -Message "Creating an Azure AD Access Review Definition with DisplayName {$DisplayName}"
 
         $createParameters = ([Hashtable]$BoundParameters).Clone()
-        $createParameters = Rename-M365DSCCimInstanceParameter -Properties $createParameters
-        $createParameters.Remove('Id') | Out-Null
-
-        foreach ($scope in $createParameters.ScopeValue.ResourceScopes)
-        {
-            if ($scope.ContainsKey('ResourceScopeId'))
-            {
-                $scope.Add('resourceId', $scope.ResourceScopeId)
-                $scope.Remove('ResourceScopeId') | Out-Null
-            }
-        }
-        $createParameters.Add('scope', $createParameters.ScopeValue)
-        $createParameters.Remove('ScopeValue') | Out-Null
-
-        $createParameters.Add('settings', $createParameters.SettingsValue)
-        $createParameters.Remove('SettingsValue') | Out-Null
-
         foreach ($hashtable in $createParameters.StageSettings)
         {
             $propertyToRemove = 'DependsOnValue'
@@ -946,11 +929,6 @@ function Set-TargetResource
             }
         }
 
-        foreach ($hashtable in $createParameters.StageSettings)
-        {
-            Write-Verbose -Message "Priting Values: $(Convert-M365DscHashtableToString -Hashtable $hashtable)"
-        }
-
         #region resource generator code
         #$createParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
         Write-Verbose -Message "Creating an Azure AD Access Review Definition with: $(ConvertTo-Json $createParameters -Depth 10)"
@@ -962,22 +940,6 @@ function Set-TargetResource
         Write-Verbose -Message "Updating the Azure AD Access Review Definition with Id {$($currentInstance.Id)}"
 
         $updateParameters = ([Hashtable]$BoundParameters).Clone()
-        $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
-        $updateParameters.Remove('Id') | Out-Null
-
-        foreach ($scope in $updateParameters.ScopeValue.ResourceScopes)
-        {
-            if ($scope.ContainsKey('ResourceScopeId'))
-            {
-                $scope.Add('resourceId', $scope.ResourceScopeId)
-                $scope.Remove('ResourceScopeId') | Out-Null
-            }
-        }
-        $updateParameters.Add('scope', $updateParameters.ScopeValue)
-        $updateParameters.Remove('ScopeValue') | Out-Null
-
-        $updateParameters.Add('settings', $updateParameters.SettingsValue)
-        $updateParameters.Remove('SettingsValue') | Out-Null
 
         #region resource generator code
         #$UpdateParameters.Add('@odata.type', '#microsoft.graph.AccessReviewScheduleDefinition')
