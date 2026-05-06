@@ -34,6 +34,10 @@
   * Added the new function `Get-M365DSCResourceDifferences`, which returns newly
     added or removed resources between different module versions.
     FIXES [#4416](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/4416)
+* MISC
+  * Changed the directory path separator from backslash (\\) to forward slash (/)
+    to ensure cross-platform compatibility.
+    FIXES [#7097](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7097)
 * DEPENDENCIES
   * Rolled back the `Microsoft.Graph.*` dependencies to version 2.35.1 to avoid
     conflict with the `ExchangeOnlineManagement` dependency.
