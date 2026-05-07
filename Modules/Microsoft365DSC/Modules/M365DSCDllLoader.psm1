@@ -69,7 +69,7 @@ function Initialize-M365DSCDllLoader
 
         foreach ($dllName in $dllsToLoad)
         {
-            $dllPath = Join-Path -Path $moduleRoot -ChildPath "Dependencies\Assemblies\$dllName"
+            $dllPath = Join-Path -Path $moduleRoot -ChildPath "Dependencies/Assemblies/$dllName"
             if (-not (Test-Path -Path $dllPath))
             {
                 $errorMessage = "$dllName not found at: $dllPath. Please run Utilities/Build-DllFiles.ps1 to build the dll file."
@@ -85,7 +85,7 @@ function Initialize-M365DSCDllLoader
         $loadedAssemblies = @()
         foreach ($dllName in $dllsToLoad)
         {
-            $dllPath = Join-Path -Path $moduleRoot -ChildPath "Dependencies\Assemblies\$dllName"
+            $dllPath = Join-Path -Path $moduleRoot -ChildPath "Dependencies/Assemblies/$dllName"
             $loadedAssemblies += Add-Type -Path $dllPath -PassThru -ErrorAction Stop
         }
 

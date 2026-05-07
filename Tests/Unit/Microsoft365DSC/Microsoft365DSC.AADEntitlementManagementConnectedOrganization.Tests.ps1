@@ -58,6 +58,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return @(
                     @{
                         Id = '12345678-1234-1234-1234-123456789012'
+                        '@odata.type' = '#microsoft.graph.user'
+                        userPrincipalName = 'John.smith@contoso.com'
                     }
                 )
             }
@@ -65,6 +67,8 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return @(
                     @{
                         Id = '12345678-1234-1234-1234-123456789012'
+                        '@odata.type' = '#microsoft.graph.user'
+                        userPrincipalName = 'John.smith@contoso.com'
                     }
                 )
             }
@@ -146,7 +150,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Description      = 'ConnectedOrganization_Description'
                     DisplayName      = 'ConnectedOrganization_DisplayName'
-                    ExternalSponsors = @('12345678-1234-1234-1234-123456789012')
+                    ExternalSponsors = @('John.smith@contoso.com')
                     Id               = 'ConnectedOrganization_Id'
                     IdentitySources  = @(
                         (New-CimInstance -ClassName MSFT_AADEntitlementManagementConnectedOrganizationIdentitySource -Property @{
@@ -155,7 +159,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             displayName      = 'IdentitySource_DisplayName'
                         } -ClientOnly)
                     )
-                    InternalSponsors = @('12345678-1234-1234-1234-123456789012')
+                    InternalSponsors = @('John.smith@contoso.com')
                     State            = 'configured'
                     Ensure           = 'Present'
                     Credential       = $Credential
@@ -190,7 +194,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 $testParams = @{
                     Description      = 'ConnectedOrganization_Description'
                     DisplayName      = 'ConnectedOrganization_DisplayName'
-                    ExternalSponsors = @('12345678-1234-1234-1234-123456789012')
+                    ExternalSponsors = @('John.smith@contoso.com')
                     Id               = 'ConnectedOrganization_Id'
                     IdentitySources  = @(
                         (New-CimInstance -ClassName MSFT_AADEntitlementManagementConnectedOrganizationIdentitySource -Property @{
@@ -199,7 +203,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                             displayName      = 'IdentitySource_DisplayName'
                         } -ClientOnly)
                     )
-                    InternalSponsors = @('12345678-1234-1234-1234-123456789012')
+                    InternalSponsors = @('John.smith@contoso.com')
                     State            = 'configured'
                     Ensure           = 'Absent'
                     Credential       = $Credential
@@ -268,9 +272,13 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     return @(
                         @{
                             Id = '12345678-1234-1234-1234-123456789012'
+                            '@odata.type' = '#microsoft.graph.user'
+                            userPrincipalName = 'John.Smith@contoso.com'
                         },
                         @{
                             Id = '12345678-1234-1234-1234-234567890123' #Drift
+                            '@odata.type' = '#microsoft.graph.user'
+                            userPrincipalName = 'John.doe@contoso.com'
                         }
                     )
                 }
