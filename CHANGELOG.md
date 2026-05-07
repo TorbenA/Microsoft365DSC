@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADEntitlementManagementConnectedOrganization
+  * Fixed an issue where internal and external sponsors that are group were
+    not resolved correctly and omitted during the export.
 * ComplexObjectConverter
   * Fixed an issue where `ToDscString` was not handling ArrayList correctly.
     FIXES [#7103](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7103)
