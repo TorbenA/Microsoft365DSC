@@ -5,6 +5,12 @@
 * ComplexObjectConverter
   * Fixed an issue where `ToDscString` was not handling ArrayList correctly.
     FIXES [#7103](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7103)
+* IntuneDeviceConfigurationKioskPolicyWindows10
+  * Fixed an issue where `odataType` was required for elements of type
+    `MSFT_MicrosoftGraphWindowsKioskWin32App` that don't need to have it specified.
+* IntuneDeviceConfigurationPolicyAndroidDeviceOwner
+  * Fixed an issue where not all properties were exported in elements of `KioskModeApps`.
+    FIXES [#7102](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7102)
 * IntuneDeviceEnrollmentPlatformRestriction
   * Added the new properties `TvosRestriction` and `VisionOSRestriction`.
 * SCDLPComplianceRule
