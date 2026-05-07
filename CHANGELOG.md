@@ -7,6 +7,8 @@
     FIXES [#7103](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7103)
 * IntuneDeviceEnrollmentPlatformRestriction
   * Added the new properties `TvosRestriction` and `VisionOSRestriction`.
+* SCDLPComplianceRule
+  * Fixed an issue where `ContentContainsSensitiveInformation` was not defined as array.
 
 # 1.26.506.1
 
