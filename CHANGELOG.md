@@ -1,5 +1,11 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* ComplexObjectConverter
+  * Fixed an issue where `ToDscString` was not handling ArrayList correctly.
+    FIXES [#7103](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7103)
+
 # 1.26.506.1
 
 * AADServicePrincipal
