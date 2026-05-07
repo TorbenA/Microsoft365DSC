@@ -9,6 +9,9 @@
   * Added the new properties `TvosRestriction` and `VisionOSRestriction`.
 * SCDLPComplianceRule
   * Fixed an issue where `ContentContainsSensitiveInformation` was not defined as array.
+* M365DSCUtil
+  * Reverted a change to array return values with `-NoEnumerate`.
+    FIXES [#7105](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7105)
 
 # 1.26.506.1
 
