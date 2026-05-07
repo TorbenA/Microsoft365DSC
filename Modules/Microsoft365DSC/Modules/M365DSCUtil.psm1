@@ -2,9 +2,6 @@
 $Global:SessionSecurityCompliance = $null
 #endregion
 
-# Automatically initialize accelerator on module import
-Initialize-M365DSCDllLoader -ErrorAction SilentlyContinue
-
 $Script:M365DSCWorkloads = @('AAD', 'ADO', 'AZURE', 'COMMERCE', 'DEFENDER', 'EXO', 'FABRIC', 'INTUNE', 'O365', 'OD', 'PLANNER', 'PP', 'SC', 'SENTINEL', 'SH', 'SPO', 'TEAMS')
 
 <#
@@ -74,6 +71,7 @@ function Convert-M365DscHashtableToString
         $Hashtable
     )
 
+    Initialize-M365DSCDllLoader -ErrorAction Stop
     return [Microsoft365DSC.Converter.HashtableConverter]::ToString($Hashtable)
 }
 
@@ -237,6 +235,7 @@ function Test-M365DSCParameterState
         Add-M365DSCTelemetryEvent -Type 'DriftEvaluation' -Data $dataEvaluation
     }
 
+    Initialize-M365DSCDllLoader -ErrorAction Stop
     $compareResult = [Microsoft365DSC.Compare.SimpleObjectComparer]::Compare($CurrentValues, $DesiredValues, $ValuesToCheck, $IncludedDrifts, $NoEventMessage, $NoDriftReset, $ExcludedProperties)
     $driftedParameters = $compareResult.DriftedParameters
     $driftObject = $compareResult.DriftObject
@@ -461,6 +460,7 @@ function Test-M365DSCTargetResource
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
+    Initialize-M365DSCDllLoader -ErrorAction Stop
 
     if ($null -eq (Get-Module -Name 'M365DSCCompare'))
     {

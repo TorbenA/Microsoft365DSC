@@ -1,6 +1,3 @@
-# Automatically initialize accelerator on module import
-Initialize-M365DSCDllLoader -ErrorAction SilentlyContinue
-
 $Script:ReportCSS = @'
 <style>
     body {
@@ -1377,6 +1374,7 @@ function New-M365DSCDeltaReport
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
+    Initialize-M365DSCDllLoader -ErrorAction Stop
 
     if ($null -eq (Get-Module -Name 'M365DSCCompare'))
     {

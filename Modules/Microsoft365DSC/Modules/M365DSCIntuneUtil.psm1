@@ -940,11 +940,6 @@ function Get-IntuneSettingCatalogPolicySetting
         $ContainsDeviceAndUserSettings
     )
 
-    if ($null -eq (Get-Command Get-SettingsCatalogSettingName -ErrorAction SilentlyContinue))
-    {
-        Import-Module -Name (Join-Path $PSScriptRoot M365DSCIntuneSettingsCatalogUtil.psm1) -Force
-    }
-
     $DSCParams.Remove('Identity') | Out-Null
     $DSCParams.Remove('DisplayName') | Out-Null
     $DSCParams.Remove('Description') | Out-Null
@@ -957,6 +952,8 @@ function Get-IntuneSettingCatalogPolicySetting
             -ExpandProperty 'SettingDefinitions' `
             -All
     }
+
+    Initialize-M365DSCDllLoader -ErrorAction Stop
 
     return ,[Microsoft365DSC.Intune.SettingCatalogPolicySettingBuilder]::Build(
         [System.Collections.Generic.List[object]]@($SettingTemplates),
@@ -1012,6 +1009,8 @@ function Export-IntuneSettingCatalogPolicySettings
         )]
         [switch]$ContainsDeviceAndUserSettings
     )
+
+    Initialize-M365DSCDllLoader -ErrorAction Stop
 
     return [Microsoft365DSC.Intune.SettingCatalogPolicyExporter]::Export($Settings, $ReturnHashtable, $AllSettingDefinitions, $ContainsDeviceAndUserSettings)
 }
