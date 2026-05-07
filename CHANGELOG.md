@@ -5,6 +5,8 @@
 * ComplexObjectConverter
   * Fixed an issue where `ToDscString` was not handling ArrayList correctly.
     FIXES [#7103](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7103)
+* IntuneDeviceEnrollmentPlatformRestriction
+  * Added the new properties `TvosRestriction` and `VisionOSRestriction`.
 
 # 1.26.506.1
 
