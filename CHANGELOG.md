@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.26.506.2
 
 * AADEntitlementManagementConnectedOrganization
   * Fixed an issue where internal and external sponsors that are group were
