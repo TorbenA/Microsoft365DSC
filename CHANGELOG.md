@@ -1,5 +1,15 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCExportUtil
+  * Fixed an issue where the organization name was not
+    replaced with `$OrganizationName` during configuration export.
+* M365DSCReport
+  * Added the option to use variable substitution during report generation
+    with `New-M365DSCDeltaReport`. Please refer to the function documentation
+    page for guidance on how to use this new functionality.
+
 # 1.26.506.2
 
 * AADEntitlementManagementConnectedOrganization

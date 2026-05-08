@@ -469,6 +469,12 @@ function Start-M365DSCConfigurationExtract
                     -Key 'TenantId' `
                     -Value $TenantId `
                     -Description 'The Id or Name of the tenant to authenticate against'
+
+                $tenantGuid = [System.Guid]::Empty
+                if ([System.Guid]::TryParse($TenantId, [ref]$tenantGuid))
+                {
+                    Set-M365DSCStringReplacementMap -Map @{ $TenantId = '$ConfigurationData.NonNodeData.TenantId' }
+                }
             }
             'CertificateThumbprint'
             {
@@ -528,6 +534,8 @@ function Start-M365DSCConfigurationExtract
                     -Key 'TenantId' `
                     -Value $TenantId `
                     -Description 'The Id or Name of the tenant to authenticate against'
+
+                Set-M365DSCStringReplacementMap -Map @{ $TenantId = '$ConfigurationData.NonNodeData.TenantId' }
             }
             { $_ -in 'Credentials', 'CredentialsWithApplicationId', 'CredentialsWithTenantId' }
             {
@@ -572,6 +580,8 @@ function Start-M365DSCConfigurationExtract
                     -Key 'TenantId' `
                     -Value $TenantId `
                     -Description 'The Id or Name of the tenant to authenticate against'
+
+                Set-M365DSCStringReplacementMap -Map @{ $TenantId = '$ConfigurationData.NonNodeData.TenantId' }
             }
         }
 
