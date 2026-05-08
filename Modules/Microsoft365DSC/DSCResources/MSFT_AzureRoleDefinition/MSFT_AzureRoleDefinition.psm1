@@ -76,7 +76,7 @@ function Get-TargetResource
 
     try
     {
-        if ($null -eq $Script:exportedInstances -or -not $Script:ExportMode)
+        if (-not $Script:exportedInstance -or $Script:exportedInstance.Name -ne $CustomRoleName)
         {
             $null = New-M365DSCConnection -Workload 'Azure' `
                 -InboundParameters $PSBoundParameters
@@ -127,22 +127,7 @@ function Get-TargetResource
         }
         else
         {
-            $nullReturn = $PSBoundParameters
-            $nullReturn.Ensure = 'Absent'
-
-            if (-not [System.String]::IsNullOrEmpty($Id))
-            {
-                $AzureRoleDefinition = $Script:exportedInstances | Where-Object -FilterScript { $_.Id -eq $Id }
-            }
-            if ($null -eq $AzureRoleDefinition)
-            {
-                $AzureRoleDefinition = $Script:exportedInstances | Where-Object -FilterScript { $_.Name -eq $CustomRoleName }
-            }
-
-            if ($null -eq $AzureRoleDefinition)
-            {
-                return $nullReturn
-            }
+            $AzureRoleDefinition = $Script:exportedInstance
         }
 
         $result = @{
@@ -481,6 +466,7 @@ function Export-TargetResource
                 ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
+            $Script:exportedInstance = $role
             $Results = Get-TargetResource @Params
 
             if ($Results.Ensure -eq 'Present')
