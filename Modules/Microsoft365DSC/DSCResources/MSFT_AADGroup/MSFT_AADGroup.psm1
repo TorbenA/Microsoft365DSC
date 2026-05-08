@@ -236,60 +236,27 @@ function Get-TargetResource
             if ($Group.Members.Count -eq 20 -or $Script:requireGroupMemberFetching -eq $true)
             {
                 # Fetch all group members
-                $uri = "/beta/groups/$($Group.Id)/members?`$top=999"
-                $groupMembers = [System.Collections.Generic.List[System.Object]]::new()
-                $graphRequest = Invoke-MgGraphRequest -Uri $uri -Method GET
-                $groupMembers.AddRange($graphRequest.value)
-                while (-not [System.String]::IsNullOrEmpty($graphRequest.'@odata.nextLink'))
-                {
-                    $graphRequest = Invoke-MgGraphRequest -Uri $graphRequest.'@odata.nextLink' -Method GET
-                    $groupMembers.AddRange($graphRequest.value)
-                }
+                $groupMembers = Get-MgGroupMember -GroupId $Group.Id -All -Top 999
             }
             foreach ($member in $groupMembers)
             {
-                if ($null -ne $member)
+                switch ($member.'@odata.type')
                 {
-                    switch ($member.'@odata.type')
+                    '#microsoft.graph.user'
                     {
-                        '#microsoft.graph.user'
-                        {
-                            $MembersValues.Add($member.userPrincipalName)
-                        }
-                        '#microsoft.graph.servicePrincipal'
-                        {
-                            $MembersValues.Add($member.displayName)
-                        }
-                        '#microsoft.graph.device'
-                        {
-                            $MembersValues.Add($member.displayName)
-                        }
-                        '#microsoft.graph.group'
-                        {
-                            $GroupAsMembersValues.Add($member.displayName)
-                        }
+                        $MembersValues.Add($member.userPrincipalName)
                     }
-                }
-                else
-                {
-                    switch ($member.'@odata.type')
+                    '#microsoft.graph.servicePrincipal'
                     {
-                        '#microsoft.graph.user'
-                        {
-                            $MembersValues.Add($member.userPrincipalName)
-                        }
-                        '#microsoft.graph.servicePrincipal'
-                        {
-                            $MembersValues.Add($member.displayName)
-                        }
-                        '#microsoft.graph.device'
-                        {
-                            $MembersValues.Add($member.displayName)
-                        }
-                        '#microsoft.graph.group'
-                        {
-                            $GroupAsMembersValues.Add($member.displayName)
-                        }
+                        $MembersValues.Add($member.displayName)
+                    }
+                    '#microsoft.graph.device'
+                    {
+                        $MembersValues.Add($member.displayName)
+                    }
+                    '#microsoft.graph.group'
+                    {
+                        $GroupAsMembersValues.Add($member.displayName)
                     }
                 }
             }
