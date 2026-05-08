@@ -1551,6 +1551,8 @@ function New-M365DSCDeltaReport
                     if ($content.Contains($varName))
                     {
                         Write-Verbose -Message "  Replacing $varName with '$($substitutions[$varName])'"
+                        $content = $content.Replace('$(' + $varName.TrimStart('`$') + ')', $substitutions[$varName])
+                        $content = $content.Replace('$(' + $varName + ')', $substitutions[$varName])
                         $content = $content.Replace($varName, $substitutions[$varName])
                         $hasSubstitutions = $true
                     }
