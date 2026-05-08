@@ -1288,6 +1288,12 @@ function Get-M365DSCResourceKey
 .PARAMETER ExcludedResources
     Array that contains the list of resources to exclude.
 
+.PARAMETER Type
+    The type of report that should be created: HTML or JSON.
+
+.PARAMETER UseVariableSubstitution
+    Switch that indicates whether variable substitution should be used in the report.
+
 .PARAMETER SourceConfigurationDataPath
     The path to the ConfigurationData.psd1 file that belongs to the source configuration, used for variable substitution in the report.
 
@@ -1360,17 +1366,21 @@ function New-M365DSCDeltaReport
         [Array]
         $ExcludedResources,
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'VariableSubstitution')]
+        [Switch]
+        $UseVariableSubstitution,
+
+        [Parameter(ParameterSetName = 'VariableSubstitution')]
         [System.String]
         $SourceConfigurationDataPath,
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'VariableSubstitution')]
         [System.String]
         $DestinationConfigurationDataPath,
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'VariableSubstitution')]
         [System.String[]]
-        $ExcludedSubstitutionProperties = @()
+        $ExcludedSubstitutionProperties
     )
 
     # Validate that the latest version of the module is installed.
@@ -1442,122 +1452,125 @@ function New-M365DSCDeltaReport
         $tempSourcePath = $null
         $tempDestinationPath = $null
 
-        # Build a map of ConfigurationData paths: key = file path, value = config data path
-        $configDataMap = @{}
-        if (-not [System.String]::IsNullOrEmpty($SourceConfigurationDataPath))
+        if ($UseVariableSubstitution)
         {
-            $configDataMap[$Source] = $SourceConfigurationDataPath
-        }
-        if (-not [System.String]::IsNullOrEmpty($DestinationConfigurationDataPath))
-        {
-            $configDataMap[$Destination] = $DestinationConfigurationDataPath
-        }
-
-        # Auto-detect ConfigurationData.psd1 when no explicit path was provided
-        foreach ($filePath in @($Source, $Destination))
-        {
-            if (-not $configDataMap.ContainsKey($filePath))
+            # Build a map of ConfigurationData paths: key = file path, value = config data path
+            $configDataMap = @{}
+            if (-not [System.String]::IsNullOrEmpty($SourceConfigurationDataPath))
             {
-                $autoPath = Join-Path -Path (Split-Path -Path $filePath -Parent) -ChildPath 'ConfigurationData.psd1'
-                if (Test-Path -Path $autoPath)
-                {
-                    $configDataMap[$filePath] = $autoPath
-                }
+                $configDataMap[$Source] = $SourceConfigurationDataPath
             }
-        }
-
-        foreach ($filePath in @($Source, $Destination))
-        {
-            if (-not $configDataMap.ContainsKey($filePath))
+            if (-not [System.String]::IsNullOrEmpty($DestinationConfigurationDataPath))
             {
-                continue
+                $configDataMap[$Destination] = $DestinationConfigurationDataPath
             }
 
-            $configDataFile = $configDataMap[$filePath]
-            if (-not (Test-Path -Path $configDataFile))
+            # Auto-detect ConfigurationData.psd1 when no explicit path was provided
+            foreach ($filePath in @($Source, $Destination))
             {
-                Write-Warning -Message "ConfigurationData file not found at '$configDataFile'. Skipping variable substitution for '$filePath'."
-                continue
-            }
-
-            Write-Verbose -Message "Importing ConfigurationData from '$configDataFile' for '$filePath'"
-            $configData = Import-PowerShellDataFile -Path $configDataFile
-
-            # Collect all string properties from NonNodeData
-            $substitutions = @{}
-            if ($null -ne $configData.NonNodeData)
-            {
-                $nonNodeEntries = @()
-                if ($configData.NonNodeData -is [System.Array])
+                if (-not $configDataMap.ContainsKey($filePath))
                 {
-                    $nonNodeEntries = $configData.NonNodeData
-                }
-                else
-                {
-                    $nonNodeEntries = @($configData.NonNodeData)
-                }
-
-                $ExcludedSubstitutionProperties += @('ApplicationId', 'ApplicationSecret', 'CertificatePath', 'CertificatePassword', 'CertificateThumbprint', 'Credential', 'TenantId', 'TenantGuid')
-                $ExcludedSubstitutionProperties = $ExcludedSubstitutionProperties | Select-Object -Unique
-                foreach ($entry in $nonNodeEntries)
-                {
-                    if ($entry -is [System.Collections.IDictionary])
+                    $autoPath = Join-Path -Path (Split-Path -Path $filePath -Parent) -ChildPath 'ConfigurationData.psd1'
+                    if (Test-Path -Path $autoPath)
                     {
-                        foreach ($key in $entry.Keys)
-                        {
-                            if ($ExcludedSubstitutionProperties -contains $key)
-                            {
-                                Write-Verbose -Message "  Skipping excluded property '$key'"
-                                continue
-                            }
-
-                            $value = $entry[$key]
-                            if ($key -eq 'OrganizationName')
-                            {
-                                $substitutions["`$OrganizationName"] = $value
-                                continue
-                            }
-
-                            if ($value -is [System.String] -and -not [System.String]::IsNullOrEmpty($value))
-                            {
-                                $substitutions["`$ConfigurationData.NonNodeData.$key"] = $value
-                            }
-                        }
+                        $configDataMap[$filePath] = $autoPath
                     }
                 }
             }
 
-            if ($substitutions.Count -eq 0)
+            foreach ($filePath in @($Source, $Destination))
             {
-                continue
-            }
-
-            $content = [System.IO.File]::ReadAllText($filePath)
-            $hasSubstitutions = $false
-            foreach ($varName in $substitutions.Keys)
-            {
-                if ($content.Contains($varName))
+                if (-not $configDataMap.ContainsKey($filePath))
                 {
-                    Write-Verbose -Message "  Replacing $varName with '$($substitutions[$varName])'"
-                    $content = $content.Replace($varName, $substitutions[$varName])
-                    $hasSubstitutions = $true
+                    continue
                 }
-            }
 
-            if ($hasSubstitutions)
-            {
-                $tempPath = [System.IO.Path]::GetTempFileName() + '.ps1'
-                [System.IO.File]::WriteAllText($tempPath, $content)
-
-                if ($filePath -eq $Source)
+                $configDataFile = $configDataMap[$filePath]
+                if (-not (Test-Path -Path $configDataFile))
                 {
-                    $effectiveSource = $tempPath
-                    $tempSourcePath = $tempPath
+                    Write-Warning -Message "ConfigurationData file not found at '$configDataFile'. Skipping variable substitution for '$filePath'."
+                    continue
                 }
-                else
+
+                Write-Verbose -Message "Importing ConfigurationData from '$configDataFile' for '$filePath'"
+                $configData = Import-PowerShellDataFile -Path $configDataFile
+
+                # Collect all string properties from NonNodeData
+                $substitutions = @{}
+                if ($null -ne $configData.NonNodeData)
                 {
-                    $effectiveDestination = $tempPath
-                    $tempDestinationPath = $tempPath
+                    $nonNodeEntries = @()
+                    if ($configData.NonNodeData -is [System.Array])
+                    {
+                        $nonNodeEntries = $configData.NonNodeData
+                    }
+                    else
+                    {
+                        $nonNodeEntries = @($configData.NonNodeData)
+                    }
+
+                    $ExcludedSubstitutionProperties += @('ApplicationId', 'ApplicationSecret', 'CertificatePath', 'CertificatePassword', 'CertificateThumbprint', 'Credential', 'TenantId', 'TenantGuid')
+                    $ExcludedSubstitutionProperties = $ExcludedSubstitutionProperties | Select-Object -Unique
+                    foreach ($entry in $nonNodeEntries)
+                    {
+                        if ($entry -is [System.Collections.IDictionary])
+                        {
+                            foreach ($key in $entry.Keys)
+                            {
+                                if ($ExcludedSubstitutionProperties -contains $key)
+                                {
+                                    Write-Verbose -Message "  Skipping excluded property '$key'"
+                                    continue
+                                }
+
+                                $value = $entry[$key]
+                                if ($key -eq 'OrganizationName')
+                                {
+                                    $substitutions["`$OrganizationName"] = $value
+                                    continue
+                                }
+
+                                if ($value -is [System.String] -and -not [System.String]::IsNullOrEmpty($value))
+                                {
+                                    $substitutions["`$ConfigurationData.NonNodeData.$key"] = $value
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if ($substitutions.Count -eq 0)
+                {
+                    continue
+                }
+
+                $content = [System.IO.File]::ReadAllText($filePath)
+                $hasSubstitutions = $false
+                foreach ($varName in $substitutions.Keys)
+                {
+                    if ($content.Contains($varName))
+                    {
+                        Write-Verbose -Message "  Replacing $varName with '$($substitutions[$varName])'"
+                        $content = $content.Replace($varName, $substitutions[$varName])
+                        $hasSubstitutions = $true
+                    }
+                }
+
+                if ($hasSubstitutions)
+                {
+                    $tempPath = [System.IO.Path]::GetTempFileName() + '.ps1'
+                    [System.IO.File]::WriteAllText($tempPath, $content)
+
+                    if ($filePath -eq $Source)
+                    {
+                        $effectiveSource = $tempPath
+                        $tempSourcePath = $tempPath
+                    }
+                    else
+                    {
+                        $effectiveDestination = $tempPath
+                        $tempDestinationPath = $tempPath
+                    }
                 }
             }
         }
