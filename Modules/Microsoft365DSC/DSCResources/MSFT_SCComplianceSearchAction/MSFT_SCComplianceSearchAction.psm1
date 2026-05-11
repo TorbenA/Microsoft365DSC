@@ -615,11 +615,12 @@ function Export-TargetResource
                 }
                 $Results = Get-TargetResource @PSBoundParameters @Params
 
-                $dscContent += Get-M365DSCExportContentForResource -ResourceName $ResourceName `
+                $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                     -ConnectionMode $ConnectionMode `
                     -ModulePath $PSScriptRoot `
                     -Results $Results `
                     -Credential $Credential
+                [void]$dscContent.Append($currentDSCBlock)
                 Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
                 $i++
             }

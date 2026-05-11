@@ -119,6 +119,7 @@ function Get-TargetResource
         throw
     }
 }
+
 function Set-TargetResource
 {
     [CmdletBinding()]
@@ -395,6 +396,7 @@ function Export-TargetResource
         {
             $principal = $organization.Split('.')[0]
         }
+        $dscContent = $dscContent.ToString()
         if ($dscContent.ToLower().Contains($organization.ToLower()) -or `
                 $dscContent.ToLower().Contains($principal.ToLower()))
         {
@@ -402,7 +404,7 @@ function Export-TargetResource
             $dscContent = $dscContent -ireplace [regex]::Escape('@' + $organization), "@`$(`$OrganizationName)"
         }
 
-        return $dscContent.ToString()
+        return $dscContent
     }
     catch
     {

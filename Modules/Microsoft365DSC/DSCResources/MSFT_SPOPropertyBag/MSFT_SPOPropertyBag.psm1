@@ -509,13 +509,14 @@ function Export-TargetResource
             $principal = $organization.Split('.')[0]
         }
 
+        $dscContent = $dscContent.ToString()
         if ($dscContent.ToLower().Contains($organization.ToLower()) -or `
                 $dscContent.ToLower().Contains($principal.ToLower()))
         {
             $dscContent = $dscContent -ireplace [regex]::Escape('https://' + $principal + '.sharepoint.com/'), "https://`$(`$OrganizationName.Split('.')[0]).sharepoint.com/"
             $dscContent = $dscContent -ireplace [regex]::Escape('@' + $organization), "@`$(`$OrganizationName)"
         }
-        return $dscContent.ToString()
+        return $dscContent
     }
     catch
     {
