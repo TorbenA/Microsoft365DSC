@@ -664,7 +664,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         $baseFilter = "isof('microsoft.graph.macOSLobApp')"
         if (-not [String]::IsNullOrEmpty($Filter))
         {

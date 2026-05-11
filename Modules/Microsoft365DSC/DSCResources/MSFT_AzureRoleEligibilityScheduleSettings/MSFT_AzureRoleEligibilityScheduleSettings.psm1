@@ -1539,7 +1539,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         $apiVersion = '2020-10-01'
 
         if ($Filter -eq 'ModifiedOnly')
@@ -1596,7 +1595,7 @@ function Export-TargetResource
             }
         }
 
-        [System.Collections.Generic.List[hashtable]] $Script:exportedInstances = [System.Collections.Generic.List[hashtable]]::new()
+        [System.Collections.Generic.List[hashtable]] $exportedInstances = [System.Collections.Generic.List[hashtable]]::new()
         $dscContent = [System.Text.StringBuilder]::new()
         Write-M365DSCHost -Message "`r`n" -DeferWrite
         $j = 1
@@ -1700,7 +1699,7 @@ function Export-TargetResource
             # Add scope instances to the global exported instances collection
             foreach ($inst in $scopeInstances)
             {
-                $Script:exportedInstances.Add($inst)
+                $exportedInstances.Add($inst)
             }
 
             # Phase 2: Export collected instances

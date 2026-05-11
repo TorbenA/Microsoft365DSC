@@ -351,7 +351,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         [array]$retentionPolicies = Get-RetentionPolicy -ErrorAction Stop
 
         $i = 1

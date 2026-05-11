@@ -545,15 +545,13 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
-
-        [array] $Script:exportedInstances = Get-MgBetaPolicyPermissionGrantPolicy -All:$true `
+        [array] $exportedInstances = Get-MgBetaPolicyPermissionGrantPolicy -All:$true `
             -ErrorAction Stop
 
         $dscContent = [System.Text.StringBuilder]::new()
         $i = 1
 
-        if ($Script:exportedInstances.Length -eq 0)
+        if ($exportedInstances.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
@@ -562,14 +560,14 @@ function Export-TargetResource
             Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
 
-        foreach ($policy in $Script:exportedInstances)
+        foreach ($policy in $exportedInstances)
         {
             if ($null -ne $Global:M365DSCExportResourceInstancesCount)
             {
                 $Global:M365DSCExportResourceInstancesCount++
             }
 
-            Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Count)] $($policy.Id)" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$i/$($exportedInstances.Count)] $($policy.Id)" -DeferWrite
 
             $Params = @{
                 Id                    = $policy.Id

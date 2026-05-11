@@ -468,7 +468,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         [array]$rules = Get-ATPProtectionPolicyRule -ErrorAction Stop
 
         $i = 1

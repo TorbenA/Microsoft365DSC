@@ -396,7 +396,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         [array] $getValue = Get-MgBetaDeviceManagementDerivedCredential -Filter $Filter -ErrorAction Stop
 
         $i = 1

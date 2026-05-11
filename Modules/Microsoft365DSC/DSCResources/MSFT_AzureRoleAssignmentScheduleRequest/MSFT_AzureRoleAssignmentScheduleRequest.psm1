@@ -625,7 +625,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         #region resource generator code
         $AllSchedules = [System.Collections.Generic.List[System.Object]]::new()
         $SeenScheduleNames = [System.Collections.Generic.HashSet[System.String]]::new()
@@ -685,11 +684,11 @@ function Export-TargetResource
             }
         }
 
-        [array] $Script:exportedInstances = $AllSchedules
+        [array] $exportedInstances = $AllSchedules
 
         $i = 1
         $dscContent = [System.Text.StringBuilder]::new()
-        if ($Script:exportedInstances.Count -eq 0)
+        if ($exportedInstances.Count -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
@@ -707,7 +706,7 @@ function Export-TargetResource
             }
         }
         $Script:PrincipalByIdCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
-        foreach ($request in $Script:exportedInstances)
+        foreach ($request in $exportedInstances)
         {
             if ($null -ne $Global:M365DSCExportResourceInstancesCount)
             {
@@ -715,7 +714,7 @@ function Export-TargetResource
             }
 
             $displayedKey = $request.Name
-            Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Count)] $displayedKey" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$i/$($exportedInstances.Count)] $displayedKey" -DeferWrite
 
             # Find the Principal Type
             $principalType = $request.PrincipalType

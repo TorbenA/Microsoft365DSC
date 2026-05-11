@@ -713,7 +713,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         #region resource generator code
         [array] $Script:exportedInstances = Get-MgBetaRoleManagementDirectoryRoleAssignmentSchedule -All -Filter $Filter -ErrorAction SilentlyContinue
 

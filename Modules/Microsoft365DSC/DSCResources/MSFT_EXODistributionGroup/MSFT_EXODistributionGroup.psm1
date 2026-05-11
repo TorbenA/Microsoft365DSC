@@ -1049,11 +1049,10 @@ function Export-TargetResource
     #endregion
     try
     {
-        $Script:ExportMode = $true
-        [array] $Script:exportedInstances = Get-DistributionGroup @Script:displayNameProperties -ResultSize 'Unlimited' -ErrorAction Stop
+        [array] $exportedInstances = Get-DistributionGroup @Script:displayNameProperties -ResultSize 'Unlimited' -ErrorAction Stop
 
         $i = 1
-        if ($Script:exportedInstances.Length -eq 0)
+        if ($exportedInstances.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
@@ -1063,14 +1062,14 @@ function Export-TargetResource
         }
 
         $dscContent = [System.Text.StringBuilder]::new()
-        foreach ($distributionGroup in $Script:exportedInstances)
+        foreach ($distributionGroup in $exportedInstances)
         {
             if ($null -ne $Global:M365DSCExportResourceInstancesCount)
             {
                 $Global:M365DSCExportResourceInstancesCount++
             }
 
-            Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Count)] $($distributionGroup.Identity)" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$i/$($exportedInstances.Count)] $($distributionGroup.Identity)" -DeferWrite
             $params = @{
                 Identity              = $distributionGroup.Identity
                 PrimarySmtpAddress    = $distributionGroup.PrimarySmtpAddress

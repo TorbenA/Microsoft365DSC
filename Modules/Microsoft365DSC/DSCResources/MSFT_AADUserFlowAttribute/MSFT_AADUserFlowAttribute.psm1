@@ -360,18 +360,18 @@ function Export-TargetResource
     #endregion
     try
     {
-        [array] $Script:exportedInstances = Get-MgBetaIdentityUserFlowAttribute -Filter "userFlowAttributeType ne 'builtIn'" -Sort DisplayName -ErrorAction Stop
+        [array] $exportedInstances = Get-MgBetaIdentityUserFlowAttribute -Filter "userFlowAttributeType ne 'builtIn'" -Sort DisplayName -ErrorAction Stop
         $i = 1
         $dscContent = [System.Text.StringBuilder]::new()
         Write-M365DSCHost -Message "`r`n" -DeferWrite
-        foreach ($userFlowAttribute in $Script:exportedInstances)
+        foreach ($userFlowAttribute in $exportedInstances)
         {
             if ($null -ne $Global:M365DSCExportResourceInstancesCount)
             {
                 $Global:M365DSCExportResourceInstancesCount++
             }
 
-            Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Count)] $($userFlowAttribute.DisplayName)" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$i/$($exportedInstances.Count)] $($userFlowAttribute.DisplayName)" -DeferWrite
             $Params = @{
                 Id                    = $userFlowAttribute.Id
                 DisplayName           = $userFlowAttribute.DisplayName

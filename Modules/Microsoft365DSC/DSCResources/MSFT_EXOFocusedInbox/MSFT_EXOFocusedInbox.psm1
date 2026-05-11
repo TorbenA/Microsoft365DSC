@@ -286,7 +286,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         [array]$mailboxes = Get-Mailbox -ResultSize Unlimited -ErrorAction Stop
 
         $i = 1

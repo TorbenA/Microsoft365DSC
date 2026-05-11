@@ -699,7 +699,6 @@ function Export-TargetResource
             return ''
         }
         $dscContent = [System.Text.StringBuilder]::new()
-        $Script:ExportMode = $true
         [array] $Script:exportedInstances = Get-Addresslist -ErrorAction Stop
         if ($Script:exportedInstances.Length -eq 0)
         {
