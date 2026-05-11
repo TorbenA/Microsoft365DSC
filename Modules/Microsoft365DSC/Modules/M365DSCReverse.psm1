@@ -664,10 +664,10 @@ function Start-M365DSCConfigurationExtract
         $partialExportName = $Global:PartialExportFileName
         $resourcesPath = $resourcesPath | Sort-Object $_.Name
         $synchronizedHashtable = [System.Collections.Concurrent.ConcurrentDictionary[System.String, System.Object]]::new()
-        $synchronizedHashtable.TryAdd('ResourceCounter', 1) | Out-Null
-        $synchronizedHashtable.TryAdd('ResourcesResult', [System.Collections.Concurrent.ConcurrentDictionary[System.String, System.String]]::new()) | Out-Null
-        $synchronizedHashtable.TryAdd('SuccessfulResources', 0) | Out-Null
-        $synchronizedHashtable.TryAdd('FailedResources', 0) | Out-Null
+        [void]$synchronizedHashtable.TryAdd('ResourceCounter', 1)
+        [void]$synchronizedHashtable.TryAdd('ResourcesResult', [System.Collections.Concurrent.ConcurrentDictionary[System.String, System.String]]::new())
+        [void]$synchronizedHashtable.TryAdd('SuccessfulResources', 0)
+        [void]$synchronizedHashtable.TryAdd('FailedResources', 0)
         $resourceDictionary = Get-M365DSCAllResourcesDictionary
         $exportScriptBlock = {
             $Global:MaximumFunctionCount = 32768
@@ -821,7 +821,7 @@ function Start-M365DSCConfigurationExtract
 
         foreach ($resource in $($synchronizedHashtable.ResourcesResult.Keys | Sort-Object))
         {
-            $DSCContent.Append($synchronizedHashtable.ResourcesResult[$resource]) | Out-Null
+            [void]$DSCContent.Append($synchronizedHashtable.ResourcesResult[$resource])
         }
 
         foreach ($pair in (Get-M365DSCStringReplacementMap).GetEnumerator())
