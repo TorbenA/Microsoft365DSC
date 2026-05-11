@@ -416,57 +416,56 @@ function Export-TargetResource
             $Global:M365DSCExportResourceInstancesCount++
         }
 
-            $displayedKey = 'Policy'
-            Write-M365DSCHost -Message "    |---[$i/$($exportedInstances.Count)] $displayedKey" -DeferWrite
-            $params = @{
-                IsSingleInstance      = 'Yes'
-                Credential            = $Credential
-                ApplicationId         = $ApplicationId
-                TenantId              = $TenantId
-                ApplicationSecret     = $ApplicationSecret
-                CertificateThumbprint = $CertificateThumbprint
-                ManagedIdentity       = $ManagedIdentity.IsPresent
-                AccessTokens          = $AccessTokens
-            }
-
-            $Script:exportedInstance = $config
-            $Results = Get-TargetResource @Params
-            if ($null -ne $Results.Reviewers)
-            {
-                $complexMapping = @(
-                    @{
-                        Name            = 'Reviewers'
-                        CimInstanceName = 'AADAdminConsentRequestPolicyReviewer'
-                        IsRequired      = $False
-                    }
-                )
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
-                    -ComplexObject $Results.Reviewers `
-                    -CIMInstanceName 'AADAdminConsentRequestPolicyReviewer' `
-                    -ComplexTypeMapping $complexMapping
-
-                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
-                {
-                    $Results.Reviewers = $complexTypeStringResult
-                }
-                else
-                {
-                    $Results.Remove('Reviewers') | Out-Null
-                }
-            }
-
-            $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
-                -ConnectionMode $ConnectionMode `
-                -ModulePath $PSScriptRoot `
-                -Results $Results `
-                -Credential $Credential `
-                -NoEscape @('Reviewers')
-            [void]$dscContent.Append($currentDSCBlock)
-            Save-M365DSCPartialExport -Content $currentDSCBlock `
-                -FileName $Global:PartialExportFileName
-            $i++
-            Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
+        $displayedKey = 'Policy'
+        Write-M365DSCHost -Message "    |---[$i/1] $displayedKey" -DeferWrite
+        $params = @{
+            IsSingleInstance      = 'Yes'
+            Credential            = $Credential
+            ApplicationId         = $ApplicationId
+            TenantId              = $TenantId
+            ApplicationSecret     = $ApplicationSecret
+            CertificateThumbprint = $CertificateThumbprint
+            ManagedIdentity       = $ManagedIdentity.IsPresent
+            AccessTokens          = $AccessTokens
         }
+
+        $Script:exportedInstance = $config
+        $Results = Get-TargetResource @Params
+        if ($null -ne $Results.Reviewers)
+        {
+            $complexMapping = @(
+                @{
+                    Name            = 'Reviewers'
+                    CimInstanceName = 'AADAdminConsentRequestPolicyReviewer'
+                    IsRequired      = $False
+                }
+            )
+            $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                -ComplexObject $Results.Reviewers `
+                -CIMInstanceName 'AADAdminConsentRequestPolicyReviewer' `
+                -ComplexTypeMapping $complexMapping
+
+            if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
+            {
+                $Results.Reviewers = $complexTypeStringResult
+            }
+            else
+            {
+                $Results.Remove('Reviewers') | Out-Null
+            }
+        }
+
+        $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
+            -ConnectionMode $ConnectionMode `
+            -ModulePath $PSScriptRoot `
+            -Results $Results `
+            -Credential $Credential `
+            -NoEscape @('Reviewers')
+        [void]$dscContent.Append($currentDSCBlock)
+        Save-M365DSCPartialExport -Content $currentDSCBlock `
+            -FileName $Global:PartialExportFileName
+        $i++
+        Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         return $dscContent.ToString()
     }
     catch

@@ -87,7 +87,7 @@ function Get-TargetResource
             {
                 Write-Verbose -Message "Could not find an AAD Certificate Based Application Configuration with Id {$Id}"
                 $instance = Get-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfiguration -All `
-                    -Filter "displayName eq '$DisplayName'"
+                    -Filter "displayName eq '$DisplayName'" `
                     -ErrorAction SilentlyContinue
             }
 
