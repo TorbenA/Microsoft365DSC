@@ -559,15 +559,6 @@ function Get-M365DSCExportContentForResource
         $AllowVariablesInStrings
     )
 
-    if (-not $SkipAuthenticationUpdate)
-    {
-        $withoutAuthentication = Update-M365DSCExportAuthenticationResults -ConnectionMode $ConnectionMode `
-            -Results $Results
-        $Results = $withoutAuthentication.Results
-        $NoEscape += $withoutAuthentication.NoEscape
-    }
-    $NoEscape = $NoEscape | Select-Object -Unique
-
     $OrganizationName = ''
     if ($ConnectionMode -like 'ServicePrincipal*' -or `
             $ConnectionMode -eq 'ManagedIdentity')
@@ -582,6 +573,15 @@ function Get-M365DSCExportContentForResource
     {
         $OrganizationName = ''
     }
+
+    if (-not $SkipAuthenticationUpdate)
+    {
+        $withoutAuthentication = Update-M365DSCExportAuthenticationResults -ConnectionMode $ConnectionMode `
+            -Results $Results
+        $Results = $withoutAuthentication.Results
+        $NoEscape += $withoutAuthentication.NoEscape
+    }
+    $NoEscape = $NoEscape | Select-Object -Unique
 
     $primaryKey = ''
     $ModuleFullName = 'MSFT_' + $ResourceName
