@@ -604,7 +604,7 @@ function Export-TargetResource
         #endregion
 
         $i = 1
-        $dscContent = ''
+        $dscContent = [System.Text.StringBuilder]::new()
         if ($catalogs.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
@@ -712,7 +712,7 @@ function Export-TargetResource
                     -Results $Results `
                     -Credential $Credential `
                     -NoEscape @('Attributes')
-                $dscContent += $currentDSCBlock
+                [void]$dscContent.Append($currentDSCBlock)
                 Save-M365DSCPartialExport -Content $currentDSCBlock `
                     -FileName $Global:PartialExportFileName
 
@@ -725,7 +725,7 @@ function Export-TargetResource
 
         # Removing comma between items in cim instance array
         $dscContent = $dscContent.Replace("            ,`r`n", '')
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {

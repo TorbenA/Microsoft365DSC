@@ -1266,7 +1266,7 @@ function Export-TargetResource
                     -Credential $Credential `
                     -NoEscape @('AppRoleAssignedTo', 'ClaimsPolicy', 'DelegatedPermissionClassifications', 'KeyCredentials', 'PasswordCredentials', 'CustomSecurityAttributes')
 
-                $dscContent.Append($currentDSCBlock) | Out-Null
+                [void]$dscContent.Append($currentDSCBlock)
                 Save-M365DSCPartialExport -Content $currentDSCBlock `
                     -FileName $Global:PartialExportFileName
 

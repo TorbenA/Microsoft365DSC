@@ -611,7 +611,7 @@ function Export-TargetResource
         [array] $Script:exportedInstances = Get-MgBetaDirectoryCertificateAuthorityCertificateBasedApplicationConfiguration -All -ErrorAction Stop
 
         $i = 1
-        $dscContent = ''
+        $dscContent = [System.Text.StringBuilder]::new()
 
         if ($Script:exportedInstances.Count -eq 0)
         {
@@ -682,13 +682,13 @@ function Export-TargetResource
                 -Credential $Credential `
                 -NoEscape @('TrustedCertificateAuthorities')
 
-            $dscContent += $currentDSCBlock
+            [void]$dscContent.Append($currentDSCBlock)
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
             $i++
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {

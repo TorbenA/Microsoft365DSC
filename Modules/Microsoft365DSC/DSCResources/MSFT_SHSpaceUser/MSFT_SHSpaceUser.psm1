@@ -357,7 +357,7 @@ function Export-TargetResource
         $response = Invoke-M365DSCServicesHubWebRequest -Uri $spacesUri -Method GET
         $spaces = $response.value
 
-        $dscContent = ''
+        $dscContent = [System.Text.StringBuilder]::new()
         if ($spaces.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
@@ -413,7 +413,7 @@ function Export-TargetResource
                     -ModulePath $PSScriptRoot `
                     -Results $Results `
                     -Credential $Credential
-                $dscContent += $currentDSCBlock
+                [void]$dscContent.Append($currentDSCBlock)
                 Save-M365DSCPartialExport -Content $currentDSCBlock `
                     -FileName $Global:PartialExportFileName
                 $i++
@@ -421,7 +421,7 @@ function Export-TargetResource
             }
             $j++
         }
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {

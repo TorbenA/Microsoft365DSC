@@ -687,7 +687,7 @@ function Export-TargetResource
         [array] $Script:exportedInstances = Get-MgBetaRoleManagementDirectoryRoleEligibilitySchedule -All -Filter $Filter -ErrorAction SilentlyContinue
 
         $i = 1
-        $dscContent = ''
+        $dscContent = [System.Text.StringBuilder]::new()
         if ($Script:exportedInstances.Count -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
@@ -798,13 +798,13 @@ function Export-TargetResource
                 -Results $Results `
                 -Credential $Credential `
                 -NoEscape @('ScheduleInfo')
-            $dscContent += $currentDSCBlock
+            [void]$dscContent.Append($currentDSCBlock)
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
             $i++
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {

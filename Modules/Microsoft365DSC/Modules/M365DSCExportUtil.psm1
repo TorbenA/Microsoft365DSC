@@ -1,4 +1,6 @@
 $Script:M365DSCStringReplacementMap = @{}
+$Script:M365DSCMandatoryKeyCache = @{}
+$Script:M365DSCCompiledRegexCache = @{}
 
 <#
 .Description
@@ -212,7 +214,11 @@ function Export-M365DSCConfiguration
     Clear-M365DSCHostMessageCache
 
     # Define the exported resource instances' names Global variable
-    $Global:M365DSCExportedResourceInstancesNames = @()
+    $Global:M365DSCExportedResourceInstancesNames = [System.Collections.Generic.HashSet[System.String]]::new([System.StringComparer]::OrdinalIgnoreCase)
+
+    # Clear performance caches for fresh export
+    $Script:M365DSCMandatoryKeyCache = @{}
+    $Script:M365DSCCompiledRegexCache = @{}
 
     # LaunchWebUI specified, launching that now
     if ($LaunchWebUI)
@@ -585,16 +591,24 @@ function Get-M365DSCExportContentForResource
 
     $primaryKey = ''
     $ModuleFullName = 'MSFT_' + $ResourceName
-    $Resource = (Get-M365DSCAllResourcesDictionary).$ResourceName
-    $Keys = $Resource.Properties.Where({ $_.IsMandatory }) | Select-Object -ExpandProperty Name
-    if ($null -eq $keys)
+    if ($Script:M365DSCMandatoryKeyCache.ContainsKey($ResourceName))
     {
-        if (-not (Get-Module $ModuleFullName))
+        $Keys = $Script:M365DSCMandatoryKeyCache[$ResourceName]
+    }
+    else
+    {
+        $Resource = (Get-M365DSCAllResourcesDictionary).$ResourceName
+        $Keys = $Resource.Properties.Where({ $_.IsMandatory }) | Select-Object -ExpandProperty Name
+        if ($null -eq $Keys)
         {
-            Import-Module $Resource.Path -Force
+            if (-not (Get-Module $ModuleFullName))
+            {
+                Import-Module $Resource.Path -Force
+            }
+            $cmdInfo = Get-Command $ModuleFullName\Get-TargetResource -ErrorAction SilentlyContinue
+            $Keys = $cmdInfo.Parameters.Values.Where({ $_.ParameterSets.Values.IsMandatory }).Name
         }
-        $cmdInfo = Get-Command $ModuleFullName\Get-TargetResource -ErrorAction SilentlyContinue
-        $Keys = $cmdInfo.Parameters.Values.Where({ $_.ParameterSets.Values.IsMandatory }).Name
+        $Script:M365DSCMandatoryKeyCache[$ResourceName] = $Keys
     }
 
     if ($Keys.Contains('IsSingleInstance'))
@@ -673,6 +687,10 @@ function Get-M365DSCExportContentForResource
     # Check to see if a resource with this exact name was already exported, if so, append a number to the end.
     $i = 2
     $tempName = $instanceName
+    if ($null -eq $Global:M365DSCExportedResourceInstancesNames)
+    {
+        $Global:M365DSCExportedResourceInstancesNames = [System.Collections.Generic.HashSet[System.String]]::new([System.StringComparer]::OrdinalIgnoreCase)
+    }
     while ($null -ne $Global:M365DSCExportedResourceInstancesNames -and `
             $Global:M365DSCExportedResourceInstancesNames.Contains($tempName))
     {
@@ -680,7 +698,7 @@ function Get-M365DSCExportContentForResource
         $i++
     }
     $instanceName = $tempName
-    [string[]]$Global:M365DSCExportedResourceInstancesNames += $tempName
+    [void]$Global:M365DSCExportedResourceInstancesNames.Add($tempName)
 
     $content = [System.Text.StringBuilder]::New()
     [void]$content.Append("        $ResourceName `"$instanceName`"`r`n")
@@ -689,9 +707,15 @@ function Get-M365DSCExportContentForResource
 
     if ($partialContent.ToLower().IndexOf($OrganizationName.ToLower()) -gt 0)
     {
-        $partialContent = $partialContent -ireplace [regex]::Escape($OrganizationName + ':'), "`$($OrganizationName):"
-        $partialContent = $partialContent -ireplace [regex]::Escape($OrganizationName), "`$OrganizationName"
-        $partialContent = $partialContent -ireplace [regex]::Escape('@' + $OrganizationName), "@`$OrganizationName"
+        if (-not $Script:M365DSCCompiledRegexCache.ContainsKey("OrgColon_$OrganizationName"))
+        {
+            $Script:M365DSCCompiledRegexCache["OrgColon_$OrganizationName"] = [regex]::new([regex]::Escape($OrganizationName + ':'), 'IgnoreCase, Compiled')
+            $Script:M365DSCCompiledRegexCache["OrgAt_$OrganizationName"] = [regex]::new([regex]::Escape('@' + $OrganizationName), 'IgnoreCase, Compiled')
+            $Script:M365DSCCompiledRegexCache["Org_$OrganizationName"] = [regex]::new([regex]::Escape($OrganizationName), 'IgnoreCase, Compiled')
+        }
+        $partialContent = $Script:M365DSCCompiledRegexCache["OrgColon_$OrganizationName"].Replace($partialContent, "`$(`$OrganizationName):")
+        $partialContent = $Script:M365DSCCompiledRegexCache["OrgAt_$OrganizationName"].Replace($partialContent, "@`$OrganizationName")
+        $partialContent = $Script:M365DSCCompiledRegexCache["Org_$OrganizationName"].Replace($partialContent, "`$OrganizationName")
     }
 
     # Apply additional string to variable replacements from mapping
@@ -715,9 +739,16 @@ function Get-M365DSCExportContentForResource
 
             if ($partialContent.ToLower().IndexOf($target.ToLower()) -gt 0)
             {
-                $partialContent = $partialContent -ireplace [regex]::Escape($target + ':'), "`$(`$ConfigurationData.NonNodeData.$varName):"
-                $partialContent = $partialContent -ireplace [regex]::Escape($target), "`$(`$ConfigurationData.NonNodeData.$varName)"
-                $partialContent = $partialContent -ireplace [regex]::Escape('@' + $target), "@`$(`$ConfigurationData.NonNodeData.$varName)"
+                $cacheKeyBase = "Map_$target"
+                if (-not $Script:M365DSCCompiledRegexCache.ContainsKey("${cacheKeyBase}_colon"))
+                {
+                    $Script:M365DSCCompiledRegexCache["${cacheKeyBase}_colon"] = [regex]::new([regex]::Escape($target + ':'), 'IgnoreCase, Compiled')
+                    $Script:M365DSCCompiledRegexCache["${cacheKeyBase}_at"] = [regex]::new([regex]::Escape('@' + $target), 'IgnoreCase, Compiled')
+                    $Script:M365DSCCompiledRegexCache["${cacheKeyBase}_plain"] = [regex]::new([regex]::Escape($target), 'IgnoreCase, Compiled')
+                }
+                $partialContent = $Script:M365DSCCompiledRegexCache["${cacheKeyBase}_colon"].Replace($partialContent, "`$(`$ConfigurationData.NonNodeData.$varName):")
+                $partialContent = $Script:M365DSCCompiledRegexCache["${cacheKeyBase}_at"].Replace($partialContent, "@`$(`$ConfigurationData.NonNodeData.$varName)")
+                $partialContent = $Script:M365DSCCompiledRegexCache["${cacheKeyBase}_plain"].Replace($partialContent, "`$(`$ConfigurationData.NonNodeData.$varName)")
             }
         }
     }
