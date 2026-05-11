@@ -1509,7 +1509,7 @@ function New-M365DSCDeltaReport
                         $nonNodeEntries = @($configData.NonNodeData)
                     }
 
-                    $ExcludedSubstitutionProperties += @('ApplicationId', 'ApplicationSecret', 'CertificatePath', 'CertificatePassword', 'CertificateThumbprint', 'Credential', 'TenantId', 'TenantGuid')
+                    $ExcludedSubstitutionProperties += @('ApplicationId', 'ApplicationSecret', 'CertificatePath', 'CertificatePassword', 'CertificateThumbprint', 'Credential', 'ManagedIdentity', 'TenantId', 'TenantGuid')
                     $ExcludedSubstitutionProperties = $ExcludedSubstitutionProperties | Select-Object -Unique
                     foreach ($entry in $nonNodeEntries)
                     {
