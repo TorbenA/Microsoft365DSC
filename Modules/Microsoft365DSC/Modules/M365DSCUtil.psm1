@@ -971,7 +971,23 @@ function Assert-M365DSCBlueprint
 
         [Parameter()]
         [System.Boolean]
-        $KeepExport = $false
+        $KeepExport = $false,
+
+        [Parameter()]
+        [Switch]
+        $UseVariableSubstitution,
+
+        [Parameter()]
+        [System.String]
+        $SourceConfigurationDataPath,
+
+        [Parameter()]
+        [System.String]
+        $DestinationConfigurationDataPath,
+
+        [Parameter()]
+        [System.String[]]
+        $ExcludedSubstitutionProperties
     )
 
     #Ensure the proper dependencies are installed in the current environment.
@@ -1072,15 +1088,36 @@ function Assert-M365DSCBlueprint
         # Call the New-M365DSCDeltaReport configuration to generate the Delta Report between
         # the BluePrint and the extracted resources;
         $ExportPath = Join-Path -Path $env:Temp -ChildPath $TempExportName
-        New-M365DSCDeltaReport -Source $ExportPath `
-            -Destination $LocalBluePrintPath `
-            -OutputPath $OutputReportPath `
-            -DriftOnly $DriftOnly `
-            -IsBlueprintAssessment:$true `
-            -HeaderFilePath $HeaderFilePath `
-            -Type $Type `
-            -ExcludedProperties $ExcludedProperties `
-            -ExcludedResources $ExcludedResources
+        $deltaReportParams = @{
+            Source                = $ExportPath
+            Destination           = $LocalBluePrintPath
+            OutputPath            = $OutputReportPath
+            DriftOnly             = $DriftOnly
+            IsBlueprintAssessment = $true
+            HeaderFilePath        = $HeaderFilePath
+            Type                  = $Type
+            ExcludedProperties    = $ExcludedProperties
+            ExcludedResources     = $ExcludedResources
+        }
+
+        if ($UseVariableSubstitution)
+        {
+            $deltaReportParams.UseVariableSubstitution = $true
+            if (-not [System.String]::IsNullOrEmpty($SourceConfigurationDataPath))
+            {
+                $deltaReportParams.SourceConfigurationDataPath = $SourceConfigurationDataPath
+            }
+            if (-not [System.String]::IsNullOrEmpty($DestinationConfigurationDataPath))
+            {
+                $deltaReportParams.DestinationConfigurationDataPath = $DestinationConfigurationDataPath
+            }
+            if ($null -ne $ExcludedSubstitutionProperties -and $ExcludedSubstitutionProperties.Count -gt 0)
+            {
+                $deltaReportParams.ExcludedSubstitutionProperties = $ExcludedSubstitutionProperties
+            }
+        }
+
+        New-M365DSCDeltaReport @deltaReportParams
 
         # Clean up the temporary files
         Remove-Item $LocalBluePrintPath -Force -ErrorAction SilentlyContinue
