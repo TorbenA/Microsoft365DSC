@@ -488,7 +488,7 @@ function Export-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $dscContent = ''
+    $dscContent = [System.Text.StringBuilder]::new()
     $i = 1
 
     try
@@ -530,7 +530,7 @@ function Export-TargetResource
                     -ModulePath $PSScriptRoot `
                     -Results $Results `
                     -Credential $Credential
-                $dscContent += $currentDSCBlock
+                [void]$dscContent.Append($currentDSCBlock)
                 Save-M365DSCPartialExport -Content $currentDSCBlock `
                     -FileName $Global:PartialExportFileName
 
@@ -538,7 +538,7 @@ function Export-TargetResource
                 $i++
             }
         }
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {

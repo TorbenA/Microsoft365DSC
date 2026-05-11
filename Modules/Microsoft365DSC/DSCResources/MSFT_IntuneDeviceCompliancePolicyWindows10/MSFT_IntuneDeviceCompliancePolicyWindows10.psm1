@@ -985,7 +985,7 @@ function Export-TargetResource
         $configDeviceWindowsPolicies = Find-GraphDataUsingComplexFunctions -ComplexFunctions $complexFunctions -Policies $configDeviceWindowsPolicies
 
         $i = 1
-        $dscContent = ''
+        $dscContent = [System.Text.StringBuilder]::new()
         if ($configDeviceWindowsPolicies.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
@@ -1092,14 +1092,14 @@ function Export-TargetResource
                 -Credential $Credential `
                 -NoEscape @('ValidOperatingSystemBuildRanges', 'DeviceCompliancePolicyScript', 'ScheduledActionsForRule', 'Assignments')
 
-            $dscContent += $currentDSCBlock
+            [void]$dscContent.Append($currentDSCBlock)
 
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
             $i++
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {

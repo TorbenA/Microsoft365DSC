@@ -1146,7 +1146,7 @@ function Export-TargetResource
                         -Credential $Credential `
                         -NoEscape @('Password')
 
-                    $dscContent.Append($currentDSCBlock) | Out-Null
+                    [void]$dscContent.Append($currentDSCBlock)
                     Save-M365DSCPartialExport -Content $currentDSCBlock `
                         -FileName $Global:PartialExportFileName
                 }

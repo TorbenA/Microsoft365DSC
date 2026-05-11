@@ -389,7 +389,7 @@ function Export-TargetResource
         # Get all Site Collections in tenant;
         $sites = Get-PnPTenantSite -ErrorAction Stop
         $i = 1
-        $dscContent = ''
+        $dscContent = [System.Text.StringBuilder]::new()
 
         if ($sites.Length -eq 0)
         {
@@ -469,7 +469,7 @@ function Export-TargetResource
                         -ModulePath $PSScriptRoot `
                         -Results $Results `
                         -Credential $Credential
-                    $dscContent += $currentDSCBlock
+                    [void]$dscContent.Append($currentDSCBlock)
                     Save-M365DSCPartialExport -Content $currentDSCBlock `
                         -FileName $Global:PartialExportFileName
 
@@ -515,7 +515,7 @@ function Export-TargetResource
             $dscContent = $dscContent -ireplace [regex]::Escape('https://' + $principal + '.sharepoint.com/'), "https://`$(`$OrganizationName.Split('.')[0]).sharepoint.com/"
             $dscContent = $dscContent -ireplace [regex]::Escape('@' + $organization), "@`$(`$OrganizationName)"
         }
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {

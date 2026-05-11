@@ -825,7 +825,7 @@ function Export-TargetResource
             Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
 
-        $dscContent = ''
+        $dscContent = [System.Text.StringBuilder]::new()
         $batchRequests = @()
 
         foreach ($group in $Script:exportedGroups)
@@ -957,7 +957,7 @@ function Export-TargetResource
                     -Credential $Credential `
                     -NoEscape @('ScheduleInfo')
 
-                $dscContent += $currentDSCBlock
+                [void]$dscContent.Append($currentDSCBlock)
                 Save-M365DSCPartialExport -Content $currentDSCBlock `
                     -FileName $Global:PartialExportFileName
                 $i++
@@ -965,7 +965,7 @@ function Export-TargetResource
             }
             $j++
         }
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {

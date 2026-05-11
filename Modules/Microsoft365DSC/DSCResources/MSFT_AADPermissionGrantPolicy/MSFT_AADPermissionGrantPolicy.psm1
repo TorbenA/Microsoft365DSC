@@ -550,7 +550,7 @@ function Export-TargetResource
         [array] $Script:exportedInstances = Get-MgBetaPolicyPermissionGrantPolicy -All:$true `
             -ErrorAction Stop
 
-        $dscContent = ''
+        $dscContent = [System.Text.StringBuilder]::new()
         $i = 1
 
         if ($Script:exportedInstances.Length -eq 0)
@@ -621,7 +621,7 @@ function Export-TargetResource
                 -Results $Results `
                 -Credential $Credential `
                 -NoEscape @('Includes', 'Excludes')
-            $dscContent += $currentDSCBlock
+            [void]$dscContent.Append($currentDSCBlock)
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
 
@@ -629,7 +629,7 @@ function Export-TargetResource
             $i++
         }
 
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {

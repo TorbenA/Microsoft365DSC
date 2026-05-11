@@ -490,7 +490,7 @@ function Export-TargetResource
             Write-M365DSCHost -Message "`r`n    * Searches not assigned to an eDiscovery Case`r`n" -DeferWrite
         }
         $i = 1
-        $dscContent = ''
+        $dscContent = [System.Text.StringBuilder]::new()
         foreach ($search in $searches)
         {
             if ($null -ne $Global:M365DSCExportResourceInstancesCount)
@@ -541,7 +541,7 @@ function Export-TargetResource
                     -ModulePath $PSScriptRoot `
                     -Results $Results `
                     -Credential $Credential
-                $dscContent += $currentDSCBlock
+                [void]$dscContent.Append($currentDSCBlock)
 
                 Save-M365DSCPartialExport -Content $currentDSCBlock `
                     -FileName $Global:PartialExportFileName
@@ -551,7 +551,7 @@ function Export-TargetResource
             $j++
         }
 
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {
