@@ -1819,7 +1819,6 @@ function Set-TargetResource
             -or ($null -ne $DisableResilienceDefaultsIsEnabled) -or $PSBoundParameters.ContainsKey('SecureSignInSessionIsEnabled'))
         {
             Write-Verbose -Message 'Set-Targetresource: process session controls'
-            $sessioncontrols = $null
             Write-Verbose -Message 'Set-Targetresource: create provision Session Control object'
             $sessioncontrols = @{
                 applicationEnforcedRestrictions = $null
@@ -1893,8 +1892,11 @@ function Set-TargetResource
             {
                 $sessioncontrols.disableResilienceDefaults = $DisableResilienceDefaultsIsEnabled
             }
+            if ($sessionControls.Values.Where({ $null -ne $_.Value}).Count -eq 0)
+            {
+                $sessioncontrols = $null
+            }
             $NewParameters.Add('sessionControls', $sessioncontrols)
-            #add SessionControls to the parameter list
         }
     }
 
