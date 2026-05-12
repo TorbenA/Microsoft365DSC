@@ -493,7 +493,7 @@ function Export-TargetResource
 
     try
     {
-        $AADNamedLocations = Get-MgBetaIdentityConditionalAccessNamedLocation -Filter $Filter -All:$true -ErrorAction Stop
+        $AADNamedLocations = Get-MgBetaIdentityConditionalAccessNamedLocation -Filter $Filter -All -ErrorAction Stop
         if ($AADNamedLocations.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite

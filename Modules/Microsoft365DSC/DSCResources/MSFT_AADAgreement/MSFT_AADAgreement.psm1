@@ -110,7 +110,7 @@ function Get-TargetResource
             if ($null -eq $instance)
             {
                 Write-Verbose -Message "Could not find Azure AD Agreement with ID {$Id}"
-                $instance = Get-MgBetaAgreement -Filter "displayName eq '$($DisplayName.Replace("'", "''"))'" -ErrorAction SilentlyContinue
+                $instance = Get-MgBetaAgreement -All -Filter "displayName eq '$($DisplayName.Replace("'", "''"))'" -ErrorAction SilentlyContinue
             }
 
             if ($null -eq $instance)

@@ -415,7 +415,7 @@ function Export-TargetResource
             $complexFunctions = Get-ComplexFunctionsFromFilterQuery -FilterQuery $Filter
             $Filter = Remove-ComplexFunctionsFromFilterQuery -FilterQuery $Filter
         }
-        [array]$assignmentFilters = Get-MgBetaDeviceManagementAssignmentFilter -All:$true -Filter $Filter -ErrorAction Stop
+        [array]$assignmentFilters = Get-MgBetaDeviceManagementAssignmentFilter -All -Filter $Filter -ErrorAction Stop
         $assignmentFilters = Find-GraphDataUsingComplexFunctions -ComplexFunctions $complexFunctions -Policies $assignmentFilters
 
         if ($policies.Length -eq 0)

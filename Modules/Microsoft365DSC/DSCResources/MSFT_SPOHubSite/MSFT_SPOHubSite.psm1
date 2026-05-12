@@ -342,7 +342,7 @@ function Set-TargetResource
 
         if ($PSBoundParameters.ContainsKey('AllowedToJoin') -eq $true)
         {
-            $groups = Get-MgGroup -All:$true
+            $groups = Get-MgGroup -All
             $regex = "^[a-zA-Z0-9.!£#$%&'^_`{}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$"
 
             Write-Verbose -Message 'Validating AllowedToJoin principals'
@@ -421,7 +421,7 @@ function Set-TargetResource
 
             if ($null -ne $differences)
             {
-                $groups = Get-MgGroup -All:$true
+                $groups = Get-MgGroup -All
                 $regex = "^[a-zA-Z0-9.!£#$%&'^_`{}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$"
 
                 Write-Verbose -Message 'Updating Hub Site permissions'

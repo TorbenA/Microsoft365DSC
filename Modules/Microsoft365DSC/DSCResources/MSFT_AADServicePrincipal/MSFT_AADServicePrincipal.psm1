@@ -1100,7 +1100,7 @@ function Export-TargetResource
     {
         $i = 1
         Write-M365DSCHost -Message "`r`n" -DeferWrite
-        [array] $exportedInstances = Get-MgServicePrincipal -All:$true `
+        [array] $exportedInstances = Get-MgServicePrincipal -All `
             -Filter $Filter `
             -Expand 'AppRoleAssignedTo' `
             -Property $Script:PropertiesToExport `

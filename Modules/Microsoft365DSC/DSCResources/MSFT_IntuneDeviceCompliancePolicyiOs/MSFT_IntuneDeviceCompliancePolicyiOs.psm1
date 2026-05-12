@@ -684,7 +684,7 @@ function Export-TargetResource
             $Filter = Remove-ComplexFunctionsFromFilterQuery -FilterQuery $Filter
         }
         [array]$configDeviceiOsPolicies = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
-            -ErrorAction Stop -All:$true -Filter $Filter | Where-Object `
+            -ErrorAction Stop -All -Filter $Filter | Where-Object `
             -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.iosCompliancePolicy' }
         $configDeviceiOsPolicies = Find-GraphDataUsingComplexFunctions -ComplexFunctions $complexFunctions -Policies $configDeviceiOsPolicies
 

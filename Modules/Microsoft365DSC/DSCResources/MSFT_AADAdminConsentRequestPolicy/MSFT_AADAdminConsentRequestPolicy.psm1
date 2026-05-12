@@ -429,7 +429,6 @@ function Export-TargetResource
             AccessTokens          = $AccessTokens
         }
 
-        $Script:exportedInstance = $config
         $Results = Get-TargetResource @Params
         if ($null -ne $Results.Reviewers)
         {

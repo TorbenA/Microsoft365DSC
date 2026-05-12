@@ -545,7 +545,7 @@ function Export-TargetResource
 
     try
     {
-        [array] $exportedInstances = Get-MgBetaPolicyPermissionGrantPolicy -All:$true `
+        [array] $exportedInstances = Get-MgBetaPolicyPermissionGrantPolicy -All `
             -ErrorAction Stop
 
         $dscContent = [System.Text.StringBuilder]::new()

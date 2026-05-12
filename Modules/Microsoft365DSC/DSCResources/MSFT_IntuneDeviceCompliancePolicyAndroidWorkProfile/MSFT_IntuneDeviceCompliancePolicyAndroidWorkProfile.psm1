@@ -961,7 +961,7 @@ function Export-TargetResource
         }
         [array]$configDeviceAndroidPolicies = Get-MgBetaDeviceManagementDeviceCompliancePolicy `
             -ExpandProperty 'scheduledActionsForRule($expand=scheduledActionConfigurations)' `
-            -ErrorAction Stop -All:$true -Filter $Filter | Where-Object `
+            -ErrorAction Stop -All -Filter $Filter | Where-Object `
             -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileCompliancePolicy' }
         $configDeviceAndroidPolicies = Find-GraphDataUsingComplexFunctions -ComplexFunctions $complexFunctions -Policies $configDeviceAndroidPolicies
 

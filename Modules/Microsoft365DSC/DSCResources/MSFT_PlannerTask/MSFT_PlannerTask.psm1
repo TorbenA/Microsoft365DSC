@@ -711,7 +711,7 @@ function Export-TargetResource
         $ConnectionMode = New-M365DSCConnection -Workload 'MicrosoftGraph' `
             -InboundParameters $PSBoundParameters
 
-        [array]$groups = Get-MgGroup -All:$true -ErrorAction Stop -Filter $filter
+        [array]$groups = Get-MgGroup -All -ErrorAction Stop -Filter $filter
 
         $i = 1
         $dscContent = [System.Text.StringBuilder]::new()

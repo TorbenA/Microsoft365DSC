@@ -423,7 +423,7 @@ function Export-TargetResource
     $i = 1
     try
     {
-        [array] $exportedInstances = Get-MgBetaRoleManagementDirectoryRoleDefinition -Filter $Filter -All:$true -ErrorAction Stop
+        [array] $exportedInstances = Get-MgBetaRoleManagementDirectoryRoleDefinition -Filter $Filter -All -ErrorAction Stop
         if ($exportedInstances.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite

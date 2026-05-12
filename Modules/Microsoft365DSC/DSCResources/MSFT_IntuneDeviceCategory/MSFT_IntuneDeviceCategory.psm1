@@ -312,7 +312,7 @@ function Export-TargetResource
 
     try
     {
-        [array]$categories = Get-MgBetaDeviceManagementDeviceCategory -All:$true -Filter $Filter -ErrorAction Stop
+        [array]$categories = Get-MgBetaDeviceManagementDeviceCategory -All -Filter $Filter -ErrorAction Stop
         $i = 1
         $dscContent = [System.Text.StringBuilder]::new()
         if ($categories.Length -eq 0)
