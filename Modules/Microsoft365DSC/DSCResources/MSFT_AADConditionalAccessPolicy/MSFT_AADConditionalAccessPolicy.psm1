@@ -1820,7 +1820,7 @@ function Set-TargetResource
         {
             Write-Verbose -Message 'Set-Targetresource: process session controls'
             Write-Verbose -Message 'Set-Targetresource: create provision Session Control object'
-            $sessioncontrols = @{
+            $sessionControls = @{
                 applicationEnforcedRestrictions = $null
                 cloudAppSecurity                = $null
                 secureSignInSession             = $null
@@ -1831,7 +1831,7 @@ function Set-TargetResource
 
             if ($ApplicationEnforcedRestrictionsIsEnabled -eq $true)
             {
-                $sessioncontrols.applicationEnforcedRestrictions = @{
+                $sessionControls.applicationEnforcedRestrictions = @{
                     isEnabled = $ApplicationEnforcedRestrictionsIsEnabled
                 }
             }
@@ -1841,14 +1841,14 @@ function Set-TargetResource
                     isEnabled            = $true
                     cloudAppSecurityType = $CloudAppSecurityType
                 }
-                $sessioncontrols.cloudAppSecurity = $cloudAppSecurityValue
+                $sessionControls.cloudAppSecurity = $cloudAppSecurityValue
             }
             if ($SecureSignInSessionIsEnabled)
             {
                 $secureSignInSessionValue = @{
                     isEnabled = $SecureSignInSessionIsEnabled
                 }
-                $sessioncontrols.secureSignInSession = $secureSignInSessionValue
+                $sessionControls.secureSignInSession = $secureSignInSessionValue
             }
             if ($SignInFrequencyIsEnabled)
             {
@@ -1859,26 +1859,26 @@ function Set-TargetResource
                     frequencyInterval = $null
                 }
 
-                $sessioncontrols.signInFrequency = $signinFrequencyProp
+                $sessionControls.signInFrequency = $signinFrequencyProp
                 #create and provision SignInFrequency object if used
-                $sessioncontrols.signInFrequency.isEnabled = $true
+                $sessionControls.signInFrequency.isEnabled = $true
                 if ($SignInFrequencyType -ne '')
                 {
-                    $sessioncontrols.signInFrequency.type = $SignInFrequencyType
+                    $sessionControls.signInFrequency.type = $SignInFrequencyType
                 }
                 else
                 {
-                    $sessioncontrols.signInFrequency.Remove('type') | Out-Null
+                    $sessionControls.signInFrequency.Remove('type') | Out-Null
                 }
                 if ($SignInFrequencyValue -gt 0)
                 {
-                    $sessioncontrols.signInFrequency.value = $SignInFrequencyValue
+                    $sessionControls.signInFrequency.value = $SignInFrequencyValue
                 }
                 else
                 {
-                    $sessioncontrols.signInFrequency.Remove('value') | Out-Null
+                    $sessionControls.signInFrequency.Remove('value') | Out-Null
                 }
-                $sessioncontrols.signInFrequency.frequencyInterval = $SignInFrequencyInterval
+                $sessionControls.signInFrequency.frequencyInterval = $SignInFrequencyInterval
             }
             if ($PersistentBrowserIsEnabled)
             {
@@ -1886,17 +1886,17 @@ function Set-TargetResource
                     isEnabled = $true
                     mode      = $PersistentBrowserMode
                 }
-                $sessioncontrols.persistentBrowser = $persistentBrowserValue
+                $sessionControls.persistentBrowser = $persistentBrowserValue
             }
             if ($DisableResilienceDefaultsIsEnabled)
             {
-                $sessioncontrols.disableResilienceDefaults = $DisableResilienceDefaultsIsEnabled
+                $sessionControls.disableResilienceDefaults = $DisableResilienceDefaultsIsEnabled
             }
-            if ($sessionControls.Values.Where({ $null -ne $_.Value}).Count -eq 0)
+            if ($sessionControls.Values.Where({ $null -ne $_ }).Count -eq 0)
             {
-                $sessioncontrols = $null
+                $sessionControls = $null
             }
-            $NewParameters.Add('sessionControls', $sessioncontrols)
+            $NewParameters.Add('sessionControls', $sessionControls)
         }
     }
 
