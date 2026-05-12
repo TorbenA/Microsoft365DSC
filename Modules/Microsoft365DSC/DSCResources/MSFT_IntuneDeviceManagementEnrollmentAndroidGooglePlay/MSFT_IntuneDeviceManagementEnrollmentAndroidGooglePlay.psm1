@@ -420,7 +420,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         [array] $getValue = Get-MgBetaDeviceManagementAndroidManagedStoreAccountEnterpriseSetting `
             -ErrorAction Stop
 

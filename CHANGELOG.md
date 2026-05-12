@@ -18,6 +18,8 @@
 * M365DSCTelemetryEngine
   * Reduced number of calls to resolve assignments and role definitions.
 * MISC
+  * Code cleanup in export functions.
+  * Improved export of some resources.
   * Improved ordered instance logging for parallel export.
   * Reduced string memory allocations during export.
 

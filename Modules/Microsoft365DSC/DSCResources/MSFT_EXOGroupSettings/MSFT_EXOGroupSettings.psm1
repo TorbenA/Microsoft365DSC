@@ -1074,11 +1074,10 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
-        [array] $Script:exportedInstances = Get-UnifiedGroup -ResultSize Unlimited @Script:displayNameProperties -ErrorAction SilentlyContinue
+        [array] $exportedInstances = Get-UnifiedGroup -ResultSize Unlimited @Script:displayNameProperties -ErrorAction SilentlyContinue
 
         $i = 1
-        if ($Script:exportedInstances.Length -eq 0)
+        if ($exportedInstances.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
@@ -1087,9 +1086,9 @@ function Export-TargetResource
             Write-M365DSCHost -Message "`r`n"-DeferWrite
         }
         $dscContent = [System.Text.StringBuilder]::New()
-        foreach ($group in $Script:exportedInstances)
+        foreach ($group in $exportedInstances)
         {
-            Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Length)] $($group.DisplayName)" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$i/$($exportedInstances.Length)] $($group.DisplayName)" -DeferWrite
             $groupName = $group.DisplayName
             if (-not [System.String]::IsNullOrEmpty($groupName))
             {

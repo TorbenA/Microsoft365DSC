@@ -1231,7 +1231,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         $ExportParameters = @{
             Filter         = $Filter
             All            = [switch]$true

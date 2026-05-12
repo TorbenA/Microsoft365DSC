@@ -353,7 +353,7 @@ function Export-TargetResource
 
     try
     {
-        [array]$groups = Get-MgGroup -All:$true -ErrorAction Stop -Filter $filter
+        [array]$groups = Get-MgGroup -All -ErrorAction Stop -Filter $filter
 
         $i = 1
         $dscContent = [System.Text.StringBuilder]::new()
@@ -364,7 +364,7 @@ function Export-TargetResource
             try
             {
                 [Array]$plans = Get-MgGroupPlannerPlan -GroupId $group.Id `
-                    -All:$true `
+                    -All `
                     -ErrorAction 'SilentlyContinue'
 
                 $j = 1

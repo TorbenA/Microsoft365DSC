@@ -1659,21 +1659,20 @@ function Export-TargetResource
     Write-M365DSCHost -Message "`r`n" -DeferWrite
     try
     {
-        $Script:ExportMode = $true
-        [array] $Script:exportedInstances = Get-MgBetaApplication `
+        [array] $exportedInstances = Get-MgBetaApplication `
             -Filter $Filter `
             -Property $Script:PropertiesToRetrieve `
             -ExpandProperty 'owners' `
             -All `
             -ErrorAction Stop
-        foreach ($AADApp in $Script:exportedInstances)
+        foreach ($AADApp in $exportedInstances)
         {
             if ($null -ne $Global:M365DSCExportResourceInstancesCount)
             {
                 $Global:M365DSCExportResourceInstancesCount++
             }
 
-            Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Count)] $($AADApp.DisplayName)" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$i/$($exportedInstances.Count)] $($AADApp.DisplayName)" -DeferWrite
             $Params = @{
                 ApplicationId         = $ApplicationId
                 AppId                 = $AADApp.AppId

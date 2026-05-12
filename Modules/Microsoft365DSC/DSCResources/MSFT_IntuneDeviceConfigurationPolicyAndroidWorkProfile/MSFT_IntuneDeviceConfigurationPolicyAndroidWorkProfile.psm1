@@ -992,7 +992,7 @@ function Export-TargetResource
     try
     {
         [array]$policies = Get-MgBetaDeviceManagementDeviceConfiguration `
-            -ErrorAction Stop -All:$true -Filter $Filter | Where-Object `
+            -ErrorAction Stop -All -Filter $Filter | Where-Object `
             -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.androidWorkProfileGeneralDeviceConfiguration' }
         $i = 1
         $dscContent = [System.Text.StringBuilder]::new()

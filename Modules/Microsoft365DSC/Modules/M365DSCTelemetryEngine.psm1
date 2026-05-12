@@ -498,10 +498,6 @@ function Add-M365DSCTelemetryEvent
             }
         }
     }
-    else
-    {
-        return
-    }
 }
 
 <#

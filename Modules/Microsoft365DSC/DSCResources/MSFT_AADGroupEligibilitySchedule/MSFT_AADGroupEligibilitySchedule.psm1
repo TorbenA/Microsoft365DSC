@@ -780,7 +780,6 @@ function Export-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $Script:ExportMode = $true
     # Filter out dynamic groups
     if ($filter -notlike '*DynamicMembership*')
     {

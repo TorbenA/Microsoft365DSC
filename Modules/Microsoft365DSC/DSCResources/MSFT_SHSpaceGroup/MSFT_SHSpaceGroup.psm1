@@ -371,8 +371,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
-
         $spacesUri = (Get-MSCloudLoginConnectionProfile -Workload EngageHub).APIUrl + '/spaces'
         $response = Invoke-M365DSCServicesHubWebRequest -Uri $spacesUri -Method GET
         $spaces = $response.value

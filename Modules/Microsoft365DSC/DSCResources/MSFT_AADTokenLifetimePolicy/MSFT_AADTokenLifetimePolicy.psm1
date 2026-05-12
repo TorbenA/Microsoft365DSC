@@ -381,7 +381,7 @@ function Export-TargetResource
     $i = 1
     try
     {
-        [array]$AADPolicies = Get-MgBetaPolicyTokenLifetimePolicy -All:$true -Filter $Filter -ErrorAction Stop
+        [array]$AADPolicies = Get-MgBetaPolicyTokenLifetimePolicy -All -Filter $Filter -ErrorAction Stop
 
         if ($AADPolicies.Length -eq 0)
         {

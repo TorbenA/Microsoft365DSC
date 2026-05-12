@@ -417,7 +417,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         $policies = Get-MgBetaNetworkAccessFilteringPolicy -All -Filter $Filter -ErrorAction Stop
 
         $i = 1

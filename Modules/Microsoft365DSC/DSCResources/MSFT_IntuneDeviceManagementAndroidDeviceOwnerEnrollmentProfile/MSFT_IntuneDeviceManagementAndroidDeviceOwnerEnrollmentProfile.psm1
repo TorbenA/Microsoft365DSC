@@ -480,15 +480,14 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         # Exclude profiles with Microsoft internal enrollment mode (EnrollmentMode 5) from export
         # as it cannot be managed. Example is "Default enrollment profile for personally-owned work profile devices"
-        [array] $Script:exportedInstances = Get-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile `
+        [array] $exportedInstances = Get-MgBetaDeviceManagementAndroidDeviceOwnerEnrollmentProfile `
             -ErrorAction Stop | Where-Object EnrollmentMode -NE 5
 
         $i = 1
         $dscContent = [System.Text.StringBuilder]::new()
-        if ($Script:exportedInstances.Length -eq 0)
+        if ($exportedInstances.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
@@ -496,14 +495,14 @@ function Export-TargetResource
         {
             Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
-        foreach ($config in $Script:exportedInstances)
+        foreach ($config in $exportedInstances)
         {
             if ($null -ne $Global:M365DSCExportResourceInstancesCount)
             {
                 $Global:M365DSCExportResourceInstancesCount++
             }
             $displayedKey = $config.DisplayName
-            Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Count)] $displayedKey" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$i/$($exportedInstances.Count)] $displayedKey" -DeferWrite
             $params = @{
                 Id                    = $config.Id
                 DisplayName           = $config.DisplayName

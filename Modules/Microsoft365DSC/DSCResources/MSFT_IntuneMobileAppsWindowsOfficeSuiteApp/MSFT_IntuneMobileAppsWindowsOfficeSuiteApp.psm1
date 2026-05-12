@@ -792,7 +792,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         $baseFilter = "isof('microsoft.graph.officeSuiteApp')"
         if (-not [String]::IsNullOrEmpty($Filter))
         {

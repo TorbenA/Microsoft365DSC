@@ -1100,20 +1100,19 @@ function Export-TargetResource
     {
         $i = 1
         Write-M365DSCHost -Message "`r`n" -DeferWrite
-        $Script:ExportMode = $true
-        [array] $Script:exportedInstances = Get-MgServicePrincipal -All:$true `
+        [array] $exportedInstances = Get-MgServicePrincipal -All `
             -Filter $Filter `
             -Expand 'AppRoleAssignedTo' `
             -Property $Script:PropertiesToExport `
             -ErrorAction Stop
-        foreach ($AADServicePrincipal in $Script:exportedInstances)
+        foreach ($AADServicePrincipal in $exportedInstances)
         {
             if ($null -ne $Global:M365DSCExportResourceInstancesCount)
             {
                 $Global:M365DSCExportResourceInstancesCount++
             }
 
-            Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Count)] $($AADServicePrincipal.DisplayName)" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$i/$($exportedInstances.Count)] $($AADServicePrincipal.DisplayName)" -DeferWrite
             $Params = @{
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId

@@ -266,12 +266,11 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
-        [array] $Script:exportedInstances = Get-AcceptedDomain -ErrorAction Stop
+        [array] $exportedInstances = Get-AcceptedDomain -ErrorAction Stop
 
         $i = 1
         $dscContent = [System.Text.StringBuilder]::new()
-        if ($Script:exportedInstances.Length -eq 0)
+        if ($exportedInstances.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }
@@ -279,10 +278,10 @@ function Export-TargetResource
         {
             Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
-        foreach ($config in $Script:exportedInstances)
+        foreach ($config in $exportedInstances)
         {
             $displayedKey = $config.Id
-            Write-M365DSCHost -Message "    |---[$i/$($Script:exportedInstances.Count)] $displayedKey" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$i/$($exportedInstances.Count)] $displayedKey" -DeferWrite
             $params = @{
                 DomainName            = $config.DomainName
                 Credential            = $Credential

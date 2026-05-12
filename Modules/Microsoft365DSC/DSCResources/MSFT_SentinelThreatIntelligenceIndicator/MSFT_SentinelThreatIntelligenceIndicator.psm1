@@ -553,12 +553,11 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         $workspaces = Get-AzResource -ResourceType 'Microsoft.OperationalInsights/workspaces'
-        $Script:exportedInstances = @()
+        $exportedInstances = @()
         $i = 1
         $dscContent = [System.Text.StringBuilder]::new()
-        if ($Script:exportedInstances.Length -eq 0)
+        if ($exportedInstances.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
         }

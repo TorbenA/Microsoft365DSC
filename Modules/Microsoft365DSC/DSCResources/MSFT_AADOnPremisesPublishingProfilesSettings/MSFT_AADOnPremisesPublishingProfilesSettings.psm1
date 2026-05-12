@@ -270,8 +270,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
-
         $dscContent = [System.Text.StringBuilder]::new()
         if ($null -ne $Global:M365DSCExportResourceInstancesCount)
         {

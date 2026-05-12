@@ -302,7 +302,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         $uri = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + 'beta/employeeExperience/roles'
 
         [array]$roles = (Invoke-MgGraphRequest -Uri $uri -Method Get -ErrorAction Stop).value

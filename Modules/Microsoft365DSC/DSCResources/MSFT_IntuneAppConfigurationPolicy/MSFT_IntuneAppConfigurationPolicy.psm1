@@ -608,7 +608,7 @@ function Export-TargetResource
             $complexFunctions = Get-ComplexFunctionsFromFilterQuery -FilterQuery $Filter
             $Filter = Remove-ComplexFunctionsFromFilterQuery -FilterQuery $Filter
         }
-        [array]$configPolicies = Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -All:$true -ExpandProperty 'Apps' -Filter $Filter -ErrorAction Stop
+        [array]$configPolicies = Get-MgBetaDeviceAppManagementTargetedManagedAppConfiguration -All -ExpandProperty 'Apps' -Filter $Filter -ErrorAction Stop
         $configPolicies = Find-GraphDataUsingComplexFunctions -ComplexFunctions $complexFunctions -Policies $configPolicies
 
         $i = 1

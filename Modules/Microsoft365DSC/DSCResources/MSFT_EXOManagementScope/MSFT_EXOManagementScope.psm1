@@ -341,7 +341,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         [array]$managementScopes = Get-ManagementScope -ErrorAction Stop
 
         $i = 1

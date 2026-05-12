@@ -2324,7 +2324,7 @@ function Export-TargetResource
 
     try
     {
-        [array] $Policies = Get-MgBetaIdentityConditionalAccessPolicy -Filter $Filter -All:$true -ErrorAction Stop
+        [array] $Policies = Get-MgBetaIdentityConditionalAccessPolicy -Filter $Filter -All -ErrorAction Stop
         $i = 1
         $dscContent = [System.Text.StringBuilder]::new()
 
