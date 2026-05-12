@@ -1169,8 +1169,7 @@ function Get-CompareParameters
                     $convertedValues = @()
                     foreach ($member in $DesiredValues.$key)
                     {
-                        $guid = [System.Guid]::Empty
-                        if ([System.Guid]::TryParse($member, [ref]$guid))
+                        if ([System.Guid]::TryParse($member, [ref][System.Guid]::Empty))
                         {
                             $entry = Get-Recipient -Identity $member
                             $convertedValues += $entry.PrimarySmtpAddress

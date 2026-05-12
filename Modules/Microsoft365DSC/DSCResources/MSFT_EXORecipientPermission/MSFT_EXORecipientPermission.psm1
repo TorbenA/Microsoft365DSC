@@ -382,7 +382,6 @@ function Export-TargetResource
         {
             Write-M365DSCHost -Message "`r`n" -DeferWrite
         }
-        $ObjectGuid = [System.Guid]::empty
         if ($null -eq $Script:UsersCache)
         {
             $Script:UsersCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
@@ -401,7 +400,7 @@ function Export-TargetResource
             }
 
             $IdentityValue = $recipientPermission.Identity
-            if ([System.Guid]::TryParse($IdentityValue, [System.Management.Automation.PSReference]$ObjectGuid))
+            if ([System.Guid]::TryParse($IdentityValue, [ref][System.Guid]::Empty))
             {
                 $IdentityValue = $Script:UsersCache[$IdentityValue].UserPrincipalName
             }

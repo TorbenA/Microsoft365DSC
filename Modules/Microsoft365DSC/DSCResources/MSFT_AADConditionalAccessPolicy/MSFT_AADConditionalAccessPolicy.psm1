@@ -657,10 +657,9 @@ function Get-TargetResource
         {
             foreach ($app in $Policy.Conditions.Applications.IncludeApplications)
             {
-                $appGuid = [System.Guid]::Empty
-                if ([System.Guid]::TryParse($app, [ref]$appGuid))
+                if ([System.Guid]::TryParse($app, [ref][System.Guid]::Empty))
                 {
-                    $appInfo = Get-MgServicePrincipal -Filter "AppId eq '$appGuid'" -ErrorAction SilentlyContinue
+                    $appInfo = Get-MgServicePrincipal -Filter "AppId eq '$app'" -ErrorAction SilentlyContinue
                     if ($null -ne $appInfo)
                     {
                         $includeApplicationsValue += $appInfo.DisplayName
@@ -682,10 +681,9 @@ function Get-TargetResource
         {
             foreach ($app in $Policy.Conditions.Applications.ExcludeApplications)
             {
-                $appGuid = [System.Guid]::Empty
-                if ([System.Guid]::TryParse($app, [ref]$appGuid))
+                if ([System.Guid]::TryParse($app, [ref][System.Guid]::Empty))
                 {
-                    $appInfo = Get-MgServicePrincipal -Filter "AppId eq '$appGuid'" -ErrorAction SilentlyContinue
+                    $appInfo = Get-MgServicePrincipal -Filter "AppId eq '$app'" -ErrorAction SilentlyContinue
                     if ($null -ne $appInfo)
                     {
                         $excludeApplicationsValue += $appInfo.DisplayName
@@ -1128,8 +1126,7 @@ function Set-TargetResource
                     continue
                 }
 
-                $objectGuid = [System.Guid]::Empty
-                if ([System.Guid]::TryParse($app, [ref]$objectGuid))
+                if ([System.Guid]::TryParse($app, [ref][System.Guid]::Empty))
                 {
                     $appInfo = Get-MgServicePrincipal -Filter "AppId eq '$app'" -ErrorAction SilentlyContinue
                     if ($null -ne $appInfo)
@@ -1172,8 +1169,7 @@ function Set-TargetResource
                     continue
                 }
 
-                $objectGuid = [System.Guid]::Empty
-                if ([System.Guid]::TryParse($app, [ref]$objectGuid))
+                if ([System.Guid]::TryParse($app, [ref][System.Guid]::Empty))
                 {
                     $appInfo = Get-MgServicePrincipal -Filter "AppId eq '$app'" -ErrorAction SilentlyContinue
                     if ($null -ne $appInfo)

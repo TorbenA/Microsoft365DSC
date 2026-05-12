@@ -122,8 +122,7 @@ function Get-TargetResource
         $CatalogIdValue = $catalogId
         if (-not [System.String]::IsNullOrEmpty($CatalogId))
         {
-            $ObjectGuid = [System.Guid]::empty
-            if (-not [System.Guid]::TryParse($CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
+            if (-not [System.Guid]::TryParse($CatalogId, [ref][System.Guid]::Empty))
             {
                 $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($catalogId -replace "'", "''")'"
                 $CatalogId = $catalogInstance.Id
@@ -324,9 +323,8 @@ function Set-TargetResource
     $PSBoundParameters.Remove('isPendingOnboarding') | Out-Null
 
     $resource = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-    $ObjectGuid = [System.Guid]::empty
     if ($OriginSystem -eq 'AADGroup' -and `
-            -not [System.Guid]::TryParse($OriginId, [System.Management.Automation.PSReference]$ObjectGuid))
+            -not [System.Guid]::TryParse($OriginId, [ref][System.Guid]::Empty))
     {
         Write-Verbose -Message "The Group reference was provided by name {$OriginId}. Retrieving associated id."
         $groupInfo = Get-MgGroup -Filter "DisplayName eq '$($OriginId -replace "'", "''")'"
@@ -337,8 +335,7 @@ function Set-TargetResource
     }
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        $ObjectGuid = [System.Guid]::empty
-        if (-not [System.Guid]::TryParse($CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
+        if (-not [System.Guid]::TryParse($CatalogId, [ref][System.Guid]::Empty))
         {
             Write-Verbose -Message 'Retrieving Catalog by Display Name'
             $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($CatalogId -replace "'", "''")'"
@@ -376,8 +373,7 @@ function Set-TargetResource
         Write-Verbose -Message "Updating resource {$DisplayName} in catalog {$CatalogId}"
 
         $resource = ([Hashtable]$PSBoundParameters).Clone()
-        $ObjectGuid = [System.Guid]::empty
-        if (-not [System.Guid]::TryParse($CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
+        if (-not [System.Guid]::TryParse($CatalogId, [ref][System.Guid]::Empty))
         {
             Write-Verbose -Message 'Retrieving Catalog by Display Name'
             $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($CatalogId -replace "'", "''")'"

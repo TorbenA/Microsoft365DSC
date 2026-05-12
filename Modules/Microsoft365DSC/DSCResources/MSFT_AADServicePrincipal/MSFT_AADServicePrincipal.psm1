@@ -171,8 +171,7 @@ function Get-TargetResource
 
             if ($null -eq $AADServicePrincipal)
             {
-                $ObjectGuid = [System.Guid]::empty
-                if (-not [System.Guid]::TryParse($AppId, [ref]$ObjectGuid))
+                if (-not [System.Guid]::TryParse($AppId, [ref][System.Guid]::Empty))
                 {
                     $AADServicePrincipal = [Array](Get-MgServicePrincipal -Filter "DisplayName eq '$($AppId -replace "'", "''")'" `
                             -Property $Script:PropertiesToExport `
@@ -352,8 +351,7 @@ function Get-TargetResource
         }
 
         # If the App Id was passed in as a Guid, return it as a GUID. Otherwise return it as text.
-        $ObjectGuid = [System.Guid]::empty
-        if (-not [System.String]::IsNullOrEmpty($AppId) -and [System.Guid]::TryParse($AppId, [ref]$ObjectGuid))
+        if (-not [System.String]::IsNullOrEmpty($AppId) -and [System.Guid]::TryParse($AppId, [ref][System.Guid]::Empty))
         {
             Write-Verbose -Message 'Returning AppId as GUID since the provided value was in GUID format.'
             $appIdToExport = $AADServicePrincipal.AppId
@@ -606,8 +604,7 @@ function Set-TargetResource
     }
 
     # If the AppId was passed as a display name (not in GUID format), translate it to an ID.
-    $ObjectGuid = [System.Guid]::empty
-    if (-not [System.Guid]::TryParse($AppId, [System.Management.Automation.PSReference]$ObjectGuid))
+    if (-not [System.Guid]::TryParse($AppId, [ref][System.Guid]::Empty))
     {
         Write-Verbose -Message 'AppId was provided as a DisplayName. Translating it to an a GUID.'
         $appInstance = Get-MgApplication -Filter "DisplayName eq '$($AppId -replace "'", "''")'"

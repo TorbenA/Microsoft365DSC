@@ -22,6 +22,7 @@
   * Improved export of some resources.
   * Improved ordered instance logging for parallel export.
   * Reduced string memory allocations during export.
+  * Updated Guid parsing with a reference to the empty Guid instance.
 
 # 1.26.506.2
 
