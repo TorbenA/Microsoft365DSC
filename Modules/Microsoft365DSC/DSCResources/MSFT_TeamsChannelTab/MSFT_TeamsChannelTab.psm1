@@ -523,7 +523,7 @@ function Export-TargetResource
     {
         [array]$teams = Get-MgGroup -Filter "resourceProvisioningOptions/Any(x:x eq 'Team')" -All
         $i = 1
-        $dscContent = ''
+        $dscContent = [System.Text.StringBuilder]::new()
         Write-M365DSCHost -Message "`r`n" -DeferWrite
         foreach ($team in $teams)
         {
@@ -597,7 +597,7 @@ function Export-TargetResource
                             -Results $Results `
                             -Credential $Credential
 
-                        $dscContent += $currentDSCBlock
+                        [void]$dscContent.Append($currentDSCBlock)
                         Save-M365DSCPartialExport -Content $currentDSCBlock `
                             -FileName $Global:PartialExportFileName
 
@@ -614,7 +614,7 @@ function Export-TargetResource
             $i++
         }
 
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {

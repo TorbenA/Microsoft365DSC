@@ -973,7 +973,6 @@ function Export-TargetResource
 
     try
     {
-        $Script:ExportMode = $true
         $ExportParameters = @{
             Filter      = $Filter
             All         = [switch]$true
@@ -1150,7 +1149,7 @@ function Export-TargetResource
                         -Credential $Credential `
                         -NoEscape @('Password')
 
-                    $dscContent.Append($currentDSCBlock) | Out-Null
+                    [void]$dscContent.Append($currentDSCBlock)
                     Save-M365DSCPartialExport -Content $currentDSCBlock `
                         -FileName $Global:PartialExportFileName
                 }

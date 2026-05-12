@@ -38,6 +38,9 @@
 
 # UNRELEASED
 
+* M365DSCErrorHandler
+  * Updated temporary export save operation to use file stream writer
+    to reduce I/O usage.
 * M365DSCExportUtil
   * Fixed an issue where the organization name was not
     replaced with `$OrganizationName` during configuration export.
@@ -45,6 +48,16 @@
   * Added the option to use variable substitution during report generation
     with `New-M365DSCDeltaReport`. Please refer to the function documentation
     page for guidance on how to use this new functionality.
+* M365DSCReverse
+  * Updated the parallel export to use `ConcurrentDictionary` instead of
+    a synchronized hashtable to improve parallel performance.
+* M365DSCTelemetryEngine
+  * Reduced number of calls to resolve assignments and role definitions.
+* MISC
+  * Code cleanup in export functions.
+  * Improved export of some resources.
+  * Improved ordered instance logging for parallel export.
+  * Reduced string memory allocations during export.
 
 # 1.26.506.2
 

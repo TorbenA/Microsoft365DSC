@@ -687,12 +687,11 @@ function Start-M365DSCConfigurationExtract
         Confirm-M365DSCDependencies
         $partialExportName = $Global:PartialExportFileName
         $resourcesPath = $resourcesPath | Sort-Object $_.Name
-        $synchronizedHashtable = [System.Collections.Hashtable]::Synchronized(@{
-            ResourceCounter     = 1
-            ResourcesResult     = @{}
-            SuccessfulResources = 0
-            FailedResources     = 0
-        })
+        $synchronizedHashtable = [System.Collections.Concurrent.ConcurrentDictionary[System.String, System.Object]]::new()
+        [void]$synchronizedHashtable.TryAdd('ResourceCounter', 1)
+        [void]$synchronizedHashtable.TryAdd('ResourcesResult', [System.Collections.Concurrent.ConcurrentDictionary[System.String, System.String]]::new())
+        [void]$synchronizedHashtable.TryAdd('SuccessfulResources', 0)
+        [void]$synchronizedHashtable.TryAdd('FailedResources', 0)
         $resourceDictionary = Get-M365DSCAllResourcesDictionary
         $exportScriptBlock = {
             $Global:MaximumFunctionCount = 32768
@@ -792,7 +791,7 @@ function Start-M365DSCConfigurationExtract
                 {
                     $exportOutput = Export-TargetResource @parameters
                     $exportString.Append($exportOutput) | Out-Null
-                    ($using:synchronizedHashtable).ResourcesResult.Add($resourceName, $exportString.ToString())
+                    [void]($using:synchronizedHashtable).ResourcesResult.TryAdd($resourceName, $exportString.ToString())
                     ($using:synchronizedHashtable).SuccessfulResources++
                 }
                 catch
@@ -846,7 +845,7 @@ function Start-M365DSCConfigurationExtract
 
         foreach ($resource in $($synchronizedHashtable.ResourcesResult.Keys | Sort-Object))
         {
-            $DSCContent.Append($synchronizedHashtable.ResourcesResult.$resource) | Out-Null
+            [void]$DSCContent.Append($synchronizedHashtable.ResourcesResult[$resource])
         }
 
         foreach ($pair in (Get-M365DSCStringReplacementMap).GetEnumerator())
@@ -1078,6 +1077,9 @@ function Start-M365DSCConfigurationExtract
             }
         }
 
+        # Close the partial export StreamWriter
+        Close-M365DSCPartialExport
+
         # Remove Temp Partial Export File
         if (-not [System.String]::IsNullOrEmpty($env:Temp))
         {
@@ -1101,21 +1103,25 @@ function Start-M365DSCConfigurationExtract
     }
     catch
     {
+        # Close the partial export StreamWriter
+        Close-M365DSCPartialExport
+
         if (-not [System.String]::IsNullOrEmpty($env:Temp))
         {
             $partialPath = Join-Path $env:TEMP -ChildPath "$($Global:PartialExportFileName)"
             Write-M365DSCHost -Message "Partial Export file was saved at: $partialPath"
         }
-        throw $_
+
+        throw
     }
 }
 
 <#
-.Description
-This function gets all resources for the specified workloads
+.DESCRIPTION
+    This function gets all resources for the specified workloads
 
-.Functionality
-Internal, Hidden
+.FUNCTIONALITY
+    Internal, Hidden
 #>
 function Get-M365DSCResourcesByWorkloads
 {

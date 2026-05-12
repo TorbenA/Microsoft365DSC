@@ -376,11 +376,11 @@ function Export-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $dscContent = ''
+    $dscContent = [System.Text.StringBuilder]::new()
     $i = 1
     try
     {
-        [array]$AADPolicies = Get-MgBetaPolicyTokenLifetimePolicy -All:$true -Filter $Filter -ErrorAction Stop
+        [array]$AADPolicies = Get-MgBetaPolicyTokenLifetimePolicy -All -Filter $Filter -ErrorAction Stop
 
         if ($AADPolicies.Length -eq 0)
         {
@@ -419,7 +419,7 @@ function Export-TargetResource
                     -ModulePath $PSScriptRoot `
                     -Results $Results `
                     -Credential $Credential
-                $dscContent += $currentDSCBlock
+                [void]$dscContent.Append($currentDSCBlock)
                 Save-M365DSCPartialExport -Content $currentDSCBlock `
                     -FileName $Global:PartialExportFileName
 
@@ -427,7 +427,7 @@ function Export-TargetResource
                 $i++
             }
         }
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {

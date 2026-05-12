@@ -332,7 +332,7 @@ function Export-TargetResource
             $principal = $organization.Split('.')[0]
         }
 
-        $dscContent = ''
+        $dscContent = [System.Text.StringBuilder]::new()
         foreach ($site in $sites)
         {
             try
@@ -377,7 +377,7 @@ function Export-TargetResource
                     {
                         $currentDSCBlock = $currentDSCBlock -ireplace [regex]::Escape('https://' + $principal + '.sharepoint.com/'), "https://`$(`$OrganizationName.Split('.')[0]).sharepoint.com/"
                     }
-                    $dscContent += $currentDSCBlock
+                    [void]$dscContent.Append($currentDSCBlock)
                     Save-M365DSCPartialExport -Content $currentDSCBlock `
                         -FileName $Global:PartialExportFileName
 
@@ -408,7 +408,7 @@ function Export-TargetResource
             Write-M365DSCHost -Message ''
         }
 
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {

@@ -371,7 +371,7 @@ function Export-TargetResource
 
         [array]$policies = Invoke-M365DSCPowerPlatformRESTWebRequest -Uri $uri -Method 'GET'
         $policies = $policies.value | Where-Object -FilterScript { $_.type -eq 'Microsoft.BusinessAppPlatform/scopes/apiPolicies' }
-        $dscContent = ''
+        $dscContent = [System.Text.StringBuilder]::new()
         if ($policies.Length -eq 0)
         {
             Write-M365DSCHost -Message $Global:M365DSCEmojiGreenCheckMark -CommitWrite
@@ -422,7 +422,7 @@ function Export-TargetResource
                 -Results $Results `
                 -Credential $Credential `
                 -NoEscape @('RuleSet')
-            $dscContent += $currentDSCBlock
+            [void]$dscContent.Append($currentDSCBlock)
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
             $k++
@@ -430,7 +430,7 @@ function Export-TargetResource
 
             $i++
         }
-        return $dscContent
+        return $dscContent.ToString()
     }
     catch
     {
