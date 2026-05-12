@@ -182,8 +182,7 @@ function Set-TargetResource
     # Check if $disabledForGroup is a guid or display name and convert to guid if needed
     if (-not [string]::IsNullOrEmpty($disabledForGroup))
     {
-        $guid = [System.Guid]::Empty
-        if (-not ([System.Guid]::TryParse($disabledForGroup, [ref]$guid)))
+        if (-not ([System.Guid]::TryParse($disabledForGroup, [ref][System.Guid]::Empty)))
         {
             $group = Get-MgGroup -Filter "displayName eq '$disabledForGroup'" -Property Id -Top 1
             if ($null -ne $group)

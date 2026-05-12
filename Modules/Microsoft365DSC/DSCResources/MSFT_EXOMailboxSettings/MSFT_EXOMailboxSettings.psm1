@@ -439,11 +439,10 @@ function Export-TargetResource
             Write-M365DSCHost -Message "`r`n"-DeferWrite
         }
         $dscContent = [System.Text.StringBuilder]::new()
-        $ObjectGuid = [System.Guid]::empty
         foreach ($mailbox in $mailboxes)
         {
             $DisplayNameValue = $mailbox.Name
-            if ([System.Guid]::TryParse($mailbox.Identity, [System.Management.Automation.PSReference]$ObjectGuid))
+            if ([System.Guid]::TryParse($mailbox.Identity, [ref][System.Guid]::Empty))
             {
                 try
                 {

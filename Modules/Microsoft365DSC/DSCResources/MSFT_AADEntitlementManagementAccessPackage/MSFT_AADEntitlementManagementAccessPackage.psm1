@@ -318,8 +318,7 @@ function Set-TargetResource
         #region basic information
         $CreateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-        $ObjectGuid = [System.Guid]::empty
-        if (-not [System.Guid]::TryParse($CreateParameters.CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
+        if (-not [System.Guid]::TryParse($CreateParameters.CatalogId, [ref][System.Guid]::Empty))
         {
             $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($CreateParameters.CatalogId -replace "'", "''")'"
             if ($catalogInstance)
@@ -433,8 +432,7 @@ function Set-TargetResource
         #region basic information
         $UpdateParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-        $ObjectGuid = [System.Guid]::empty
-        if (-not [System.Guid]::TryParse($CreateParameters.CatalogId, [System.Management.Automation.PSReference]$ObjectGuid))
+        if (-not [System.Guid]::TryParse($CreateParameters.CatalogId, [ref][System.Guid]::Empty))
         {
             $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($UpdateParameters.CatalogId -replace "'", "''")'"
             if ($catalogInstance)
