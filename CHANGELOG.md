@@ -27,6 +27,9 @@
   * Improved ordered instance logging for parallel export.
   * Reduced string memory allocations during export.
   * Updated Guid parsing with a reference to the empty Guid instance.
+* DEPENDENCIES
+  * Updated `DSCParser` to version 3.0.0.5.
+    FIXES [#7122](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7122)
 
 # 1.26.506.2
 
