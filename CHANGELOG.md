@@ -6,6 +6,8 @@
   * Fixed an issue where a `SessionControl` object with all null values
     was used in combination with `ProtocolFlows`.
     FIXES [#7119](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7119)
+* EXODynamicDistributionGroup
+  * Initial release.
 * M365DSCErrorHandler
   * Updated temporary export save operation to use file stream writer
     to reduce I/O usage.
