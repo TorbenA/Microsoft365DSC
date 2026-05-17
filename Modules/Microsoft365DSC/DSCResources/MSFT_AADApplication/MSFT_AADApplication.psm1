@@ -1224,8 +1224,7 @@ function Set-TargetResource
                         $scopeId = $null
                         if ($null -eq $scope)
                         {
-                            $ObjectGuid = [System.Guid]::Empty
-                            if ([System.Guid]::TryParse($permission.Name, [System.Management.Automation.PSReference]$ObjectGuid))
+                            if ([System.Guid]::TryParse($permission.Name, [ref][System.Guid]::Empty))
                             {
                                 $scopeId = $permission.Name
                             }
@@ -1247,8 +1246,7 @@ function Set-TargetResource
                         $roleId = $null
                         if ($null -eq $role)
                         {
-                            $ObjectGuid = [System.Guid]::empty
-                            if ([System.Guid]::TryParse($permission.Name, [System.Management.Automation.PSReference]$ObjectGuid))
+                            if ([System.Guid]::TryParse($permission.Name, [ref][System.Guid]::Empty))
                             {
                                 $roleId = $permission.Name
                             }
@@ -2019,8 +2017,7 @@ function Get-M365DSCAzureADAppPermissions
                 $scopeInfoValue = $null
                 if ($null -eq $scopeInfo)
                 {
-                    $ObjectGuid = [System.Guid]::empty
-                    if ([System.Guid]::TryParse($resourceAccess.Id, [System.Management.Automation.PSReference]$ObjectGuid))
+                    if ([System.Guid]::TryParse($resourceAccess.Id, [ref][System.Guid]::Empty))
                     {
                         $scopeInfoValue = $resourceAccess.Id
                     }
@@ -2052,8 +2049,7 @@ function Get-M365DSCAzureADAppPermissions
                 $roleValue = $null
                 if ($null -eq $role)
                 {
-                    $ObjectGuid = [System.Guid]::empty
-                    if ([System.Guid]::TryParse($resourceAccess.Id, [System.Management.Automation.PSReference]$ObjectGuid))
+                    if ([System.Guid]::TryParse($resourceAccess.Id, [ref][System.Guid]::Empty))
                     {
                         $roleValue = $resourceAccess.Id
                     }

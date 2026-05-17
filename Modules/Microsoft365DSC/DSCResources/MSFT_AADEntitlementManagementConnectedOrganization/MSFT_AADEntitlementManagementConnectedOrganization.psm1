@@ -326,11 +326,10 @@ function Set-TargetResource
 
     if ($Ensure -eq 'Present')
     {
-        $ObjectGuid = [System.Guid]::Empty
         $ExternalSponsorsValues = @()
         foreach ($sponsor in $ExternalSponsors)
         {
-            if (-not [System.Guid]::TryParse($sponsor, [ref]$ObjectGuid))
+            if (-not [System.Guid]::TryParse($sponsor, [ref][System.Guid]::Empty))
             {
                 try
                 {
@@ -367,7 +366,7 @@ function Set-TargetResource
         $InternalSponsorsValues = @()
         foreach ($sponsor in $InternalSponsors)
         {
-            if (-not [System.Guid]::TryParse($sponsor, [ref]$ObjectGuid))
+            if (-not [System.Guid]::TryParse($sponsor, [ref][System.Guid]::Empty))
             {
                 try
                 {
@@ -391,7 +390,7 @@ function Set-TargetResource
                 }
                 catch
                 {
-                    Write-Verbose -Message "Could not find External Sponsor {$sponsor}"
+                    Write-Verbose -Message "Could not find Internal Sponsor {$sponsor}"
                 }
             }
             else

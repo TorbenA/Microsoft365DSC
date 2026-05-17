@@ -470,8 +470,7 @@ function Set-TargetResource
     {
         if ($null -ne $assignment.assignmentSettings -and -not [System.String]::IsNullOrEmpty($assignment.assignmentSettings.vpnConfigurationId))
         {
-            $guid = [System.Guid]::Empty
-            if (-not [System.Guid]::TryParse($assignment.assignmentSettings.vpnConfigurationId, [ref]$guid))
+            if (-not [System.Guid]::TryParse($assignment.assignmentSettings.vpnConfigurationId, [ref][System.Guid]::Empty))
             {
                 [array]$vpnConfiguration = Get-MgBetaDeviceManagementDeviceConfiguration -All -Filter "displayName eq '$($assignment.assignmentSettings.vpnConfigurationId)'" | Where-Object {
                     $_.'@odata.type' -like "#microsoft.graph.*VpnConfiguration"

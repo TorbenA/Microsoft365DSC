@@ -494,8 +494,7 @@ function Start-M365DSCConfigurationExtract
                     -Value $TenantId `
                     -Description 'The Id or Name of the tenant to authenticate against'
 
-                $tenantGuid = [System.Guid]::Empty
-                if ([System.Guid]::TryParse($TenantId, [ref]$tenantGuid))
+                if ([System.Guid]::TryParse($TenantId, [ref][System.Guid]::Empty))
                 {
                     Set-M365DSCStringReplacementMap -Map @{ $TenantId = '$ConfigurationData.NonNodeData.TenantId' }
                 }

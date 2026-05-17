@@ -116,8 +116,7 @@ function Get-TargetResource
         $CatalogIdValue = $catalogId
         if (-not [System.String]::IsNullOrEmpty($CatalogId))
         {
-            $ObjectGuid = [System.Guid]::Empty
-            if (-not [System.Guid]::TryParse($CatalogId, [ref]$ObjectGuid))
+            if (-not [System.Guid]::TryParse($CatalogId, [ref][System.Guid]::Empty))
             {
                 $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($catalogId -replace "'", "''")'"
                 $CatalogId = $catalogInstance.Id
@@ -336,9 +335,8 @@ function Set-TargetResource
     $boundParameters.Remove('IsPendingOnboarding') | Out-Null
 
     $resource = $boundParameters
-    $ObjectGuid = [System.Guid]::Empty
     if ($OriginSystem -eq 'AADGroup' -and `
-            -not [System.Guid]::TryParse($OriginId, [ref]$ObjectGuid))
+            -not [System.Guid]::TryParse($OriginId, [ref][System.Guid]::Empty))
     {
         Write-Verbose -Message "The Group reference was provided by name {$OriginId}. Retrieving associated id."
         $groupInfo = Get-MgGroup -Filter "DisplayName eq '$($OriginId -replace "'", "''")'" -All
@@ -348,7 +346,7 @@ function Set-TargetResource
         }
     }
     if ($OriginSystem -eq 'AadApplication' -and `
-            -not [System.Guid]::TryParse($OriginId, [ref]$ObjectGuid))
+            -not [System.Guid]::TryParse($OriginId, [ref][System.Guid]::Empty))
     {
         Write-Verbose -Message "The Application reference was provided by name {$OriginId}. Retrieving associated id."
         $appInfo = Get-MgServicePrincipal -Filter "DisplayName eq '$($OriginId -replace "'", "''")'" -All
@@ -358,8 +356,7 @@ function Set-TargetResource
         }
     }
 
-    $ObjectGuid = [System.Guid]::Empty
-    if (-not [System.Guid]::TryParse($CatalogId, [ref]$ObjectGuid))
+    if (-not [System.Guid]::TryParse($CatalogId, [ref][System.Guid]::Empty))
     {
         Write-Verbose -Message 'Retrieving Catalog by Display Name'
         $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($CatalogId -replace "'", "''")'"
@@ -401,6 +398,15 @@ function Set-TargetResource
 
         $resource = ([Hashtable]$boundParameters).Clone()
         $resource.Remove('Id') | Out-Null
+        if (-not [System.Guid]::TryParse($CatalogId, [ref][System.Guid]::Empty))
+        {
+            Write-Verbose -Message 'Retrieving Catalog by Display Name'
+            $catalogInstance = Get-MgBetaEntitlementManagementAccessPackageCatalog -Filter "DisplayName eq '$($CatalogId -replace "'", "''")'"
+            if ($catalogInstance)
+            {
+                $CatalogId = $catalogInstance.Id
+            }
+        }
         $resource.Remove('CatalogId') | Out-Null
 
         $mapping = @{

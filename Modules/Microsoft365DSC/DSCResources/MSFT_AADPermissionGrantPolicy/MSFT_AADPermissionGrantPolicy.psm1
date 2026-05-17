@@ -887,8 +887,7 @@ function ConvertTo-PermissionGuid
     }
 
     # Check if already a GUID
-    $guidResult = [System.Guid]::Empty
-    if ([System.Guid]::TryParse($PermissionName, [ref]$guidResult))
+    if ([System.Guid]::TryParse($PermissionName, [ref][System.Guid]::Empty))
     {
         return $PermissionName
     }
