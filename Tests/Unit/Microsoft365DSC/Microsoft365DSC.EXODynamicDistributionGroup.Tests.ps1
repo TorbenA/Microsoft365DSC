@@ -76,7 +76,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Name                               = "FakeStringValue"
                     Alias                              = "smtp:FakeStringValue@contoso.com"
                     ReportToManagerEnabled             = $True
-                    RecipientFilter                    = "FakeStringValue"
+                    RecipientFilter                    = "((((Title -eq 'Architect') -or (Title -eq 'Title'))) -and (-not(Name -like 'SystemMailbox{*')) -and (-not(Name -like 'CAS_{*')) -and (-not(RecipientTypeDetailsValue -eq 'MailboxPlan')) -and (-not(RecipientTypeDetailsValue -eq 'DiscoveryMailbox')) -and (-not(RecipientTypeDetailsValue -eq 'PublicFolderMailbox')) -and (-not(RecipientTypeDetailsValue -eq 'ArbitrationMailbox')) -and (-not(RecipientTypeDetailsValue -eq 'AuditLogMailbox')) -and (-not(RecipientTypeDetailsValue -eq 'AuxAuditLogMailbox')) -and (-not(RecipientTypeDetailsValue -eq 'SupervisoryReviewPolicyMailbox')))"
                     RequireSenderAuthenticationEnabled = $True
                     SimpleDisplayName                  = "FakeStringValue"
                     PhoneticDisplayName                = "FakeStringValue"
@@ -114,7 +114,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Name                               = "FakeStringValue"
                     Alias                              = "smtp:FakeStringValue@contoso.com"
                     ReportToManagerEnabled             = $True
-                    RecipientFilter                    = "FakeStringValue"
+                    RecipientFilter                    = "(((Title -eq 'Architect') -or (Title -eq 'Title')))"
                     RequireSenderAuthenticationEnabled = $True
                     SimpleDisplayName                  = "FakeStringValue"
                     PhoneticDisplayName                = "FakeStringValue"
@@ -158,7 +158,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Name                               = "FakeStringValue"
                     Alias                              = "smtp:FakeStringValue@contoso.com"
                     ReportToManagerEnabled             = $True
-                    RecipientFilter                    = "FakeStringValue"
+                    RecipientFilter                    = "(((Title -eq 'Architect') -or (Title -eq 'Title')))"
                     RequireSenderAuthenticationEnabled = $True
                     SimpleDisplayName                  = "FakeStringValue"
                     PhoneticDisplayName                = "FakeStringValue"
@@ -200,7 +200,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Name                               = "FakeStringValue"
                     Alias                              = "smtp:FakeStringValue@contoso.com"
                     ReportToManagerEnabled             = $True
-                    RecipientFilter                    = "FakeStringValue"
+                    RecipientFilter                    = "(((Title -eq 'Architect') -or (Title -eq 'Title')))"
                     RequireSenderAuthenticationEnabled = $True
                     SimpleDisplayName                  = "FakeStringValue"
                     PhoneticDisplayName                = "FakeStringValue"
@@ -233,7 +233,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                     Name                               = "FakeStringValue"
                     Alias                              = "smtp:FakeStringValue@contoso.com"
                     ReportToManagerEnabled             = $True
-                    RecipientFilter                    = "FakeStringValue"
+                    RecipientFilter                    = "(((Title -eq 'Architect') -or (Title -eq 'Title')))"
                     RequireSenderAuthenticationEnabled = $True
                     SimpleDisplayName                  = "FakeStringValue"
                     PhoneticDisplayName                = "FakeStringValue"

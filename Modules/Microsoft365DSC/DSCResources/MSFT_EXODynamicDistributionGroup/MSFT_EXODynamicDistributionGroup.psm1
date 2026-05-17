@@ -890,6 +890,16 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
     $boundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    if ($boundParameters.ContainsKey('RecipientFilter') -and -not [System.String]::IsNullOrEmpty($boundParameters['RecipientFilter']))
+    {
+        Write-Verbose -Message 'Removing Conditional* parameters because RecipientFilter is set'
+        $boundParameters.Keys.Clone() | ForEach-Object {
+            if ($_ -like 'Conditional*')
+            {
+                $boundParameters.Remove($_) | Out-Null
+            }
+        }
+    }
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -961,6 +971,16 @@ function Set-TargetResource
         Write-Verbose -Message "Updating the EXO Dynamic Distribution Group with Identity {$Identity}"
 
         $updateParameters = ([Hashtable]$boundParameters).Clone()
+        if ($EmailAddresses.Length -gt 0)
+        {
+            $updateParameters.Remove('PrimarySmtpAddress') | Out-Null
+        }
+
+        if ($AcceptMessagesOnlyFrom.Length -gt 0)
+        {
+            $updateParameters.Remove('AcceptMessagesOnlyFromDLMembers') | Out-Null
+            $updateParameters.Remove('AcceptMessagesOnlyFromSendersOrMembers') | Out-Null
+        }
 
         Set-DynamicDistributionGroup @updateParameters | Out-Null
     }
@@ -1321,18 +1341,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $postProcessingScript = {
-        param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
-        if ($DesiredValues.ContainsKey('RecipientFilter'))
-        {
-            $DesiredValues.RecipientFilter = Convert-ToExchangeFilterSyntax -Filter $DesiredValues.RecipientFilter
-        }
-        return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
-    }
-
+    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-                                         -PostProcessing $postProcessingScript
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+        @compareParameters
     return $result
 }
 
@@ -1462,20 +1474,6 @@ function Export-TargetResource
     }
 }
 
-function Initialize-RecipientsCache
-{
-    if ($null -eq $Script:RecipientsCache)
-    {
-        $Script:RecipientsCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
-        Get-Recipient -ResultSize Unlimited | Foreach-Object {
-            $Script:RecipientsCache[$_.Name] = @{
-                PrimarySmtpAddress = $_.PrimarySmtpAddress
-                WindowsLiveID      = $_.WindowsLiveID
-            }
-        }
-    }
-}
-
 function Get-ElementFromRecipientsCacheAsPrimarySmtpAddress
 {
     param
@@ -1488,14 +1486,23 @@ function Get-ElementFromRecipientsCacheAsPrimarySmtpAddress
 
     if ($null -eq $Script:RecipientsCache)
     {
-        Initialize-RecipientsCache
+        if ($null -eq $Script:RecipientsCache)
+        {
+            $Script:RecipientsCache = [System.Collections.Generic.Dictionary[System.String, System.Object]]::new()
+
+        }
     }
 
     foreach ($name in $RecipientName)
     {
         if (-not $Script:RecipientsCache.ContainsKey($name))
         {
-            throw "Recipient $name not found in cache."
+            Get-Recipient -Identity $name -ErrorAction SilentlyContinue | ForEach-Object {
+                $Script:RecipientsCache[$_.Name] = @{
+                    PrimarySmtpAddress = $_.PrimarySmtpAddress
+                    WindowsLiveID      = $_.WindowsLiveID
+                }
+            }
         }
         $Script:RecipientsCache[$name].PrimarySmtpAddress
     }
@@ -1503,7 +1510,7 @@ function Get-ElementFromRecipientsCacheAsPrimarySmtpAddress
 
 <#
 .SYNOPSIS
-    Normalize RecipientFilter like Exchange Online's wrapping behavior (matching user's examples).
+    Normalize RecipientFilter like Exchange Online's wrapping behavior.
 
 .DESCRIPTION
     - Expects atomic conditions to be parenthesized, e.g. "(Company -eq 'Contoso')".
@@ -1511,51 +1518,71 @@ function Get-ElementFromRecipientsCacheAsPrimarySmtpAddress
     - Wraps -and nodes with two extra parentheses (so the -and group becomes triple-wrapped).
     - Adds one additional outer parentheses per operator in the whole expression (to mimic Exchange).
 #>
-function Convert-ToExchangeFilterSyntax {
+function Convert-ToExchangeFilterSyntax
+{
     [CmdletBinding()]
     [OutputType([System.String])]
-    param (
-        [Parameter(Mandatory)]
-        [string] $Expression
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $Expression
     )
 
-    function Parse-Expression {
-        param ([string] $expr)
+    function ConvertFrom-ExchangeExpression {
+        param ([System.String] $expr)
 
         # Trim outer spaces and redundant parentheses
         $expr = $expr.Trim()
-        while ($expr.StartsWith('(') -and $expr.EndsWith(')')) {
+        while ($expr.StartsWith('(') -and $expr.EndsWith(')'))
+        {
             $inner = $expr.Substring(1, $expr.Length - 2).Trim()
             $balance = 0
             $valid = $true
-            foreach ($ch in $inner.ToCharArray()) {
-                if ($ch -eq '(') { $balance++ }
-                elseif ($ch -eq ')') { $balance-- }
-                if ($balance -lt 0) { $valid = $false; break }
+            foreach ($ch in $inner.ToCharArray())
+            {
+                if ($ch -eq '(')
+                {
+                    $balance++
+                }
+                elseif ($ch -eq ')')
+                {
+                    $balance--
+                }
+
+                if ($balance -lt 0)
+                {
+                    $valid = $false
+                    break
+                }
             }
-            if ($valid -and $balance -eq 0) {
-                $expr = $inner
-            }
-            else {
+
+            if (-not $valid -or $balance -ne 0)
+            {
                 break
             }
+            $expr = $inner
         }
 
         # Parse into tokens considering nested parentheses
         $tokens = [System.Collections.Generic.List[string]]::new()
         $current = ''
         $depth = 0
-        for ($i = 0; $i -lt $expr.Length; $i++) {
+        for ($i = 0; $i -lt $expr.Length; $i++)
+        {
             $ch = $expr[$i]
-            if ($ch -eq '(') {
+            if ($ch -eq '(')
+            {
                 $depth++
                 $current += $ch
             }
-            elseif ($ch -eq ')') {
+            elseif ($ch -eq ')')
+            {
                 $depth--
                 $current += $ch
             }
-            elseif ($depth -eq 0 -and $expr.Substring($i) -match '^-or\s|^-and\s') {
+            elseif ($depth -eq 0 -and $expr.Substring($i) -match '^-or\s|^-and\s')
+            {
                 # Split at top-level logical operator
                 $match = $matches[0].Trim()
                 $tokens.Add(($current.Trim()))
@@ -1563,25 +1590,30 @@ function Convert-ToExchangeFilterSyntax {
                 $current = ''
                 $i += $match.Length - 1
             }
-            else {
+            else
+            {
                 $current += $ch
             }
         }
-        if ($current.Trim()) {
+        if ($current.Trim())
+        {
             $tokens.Add(($current.Trim()))
         }
 
         # Base condition — no logical operators
-        if ($tokens.Count -eq 1) {
+        if ($tokens.Count -eq 1)
+        {
             return $tokens[0]
         }
 
         # Handle operator precedence: -and before -or
         # First handle all -and operations
-        for ($i = 0; $i -lt $tokens.Count; $i++) {
-            if ($tokens[$i] -eq '-and') {
-                $left = Parse-Expression $tokens[$i - 1]
-                $right = Parse-Expression $tokens[$i + 1]
+        for ($i = 0; $i -lt $tokens.Count; $i++)
+        {
+            if ($tokens[$i] -eq '-and')
+            {
+                $left = ConvertFrom-ExchangeExpression $tokens[$i - 1]
+                $right = ConvertFrom-ExchangeExpression $tokens[$i + 1]
                 $combined = "(($left) -and ($right))"
                 $tokens[$i - 1] = $combined
                 $tokens.RemoveAt($i)    # remove operator
@@ -1591,10 +1623,12 @@ function Convert-ToExchangeFilterSyntax {
         }
 
         # Then handle -or operations
-        for ($i = 0; $i -lt $tokens.Count; $i++) {
-            if ($tokens[$i] -eq '-or') {
-                $left = Parse-Expression $tokens[$i - 1]
-                $right = Parse-Expression $tokens[$i + 1]
+        for ($i = 0; $i -lt $tokens.Count; $i++)
+        {
+            if ($tokens[$i] -eq '-or')
+            {
+                $left = ConvertFrom-ExchangeExpression $tokens[$i - 1]
+                $right = ConvertFrom-ExchangeExpression $tokens[$i + 1]
                 $combined = "(($left) -or ($right))"
                 $tokens[$i - 1] = $combined
                 $tokens.RemoveAt($i)
@@ -1606,7 +1640,7 @@ function Convert-ToExchangeFilterSyntax {
         return $tokens[0]
     }
 
-    $normalized = Parse-Expression $Expression
+    $normalized = ConvertFrom-ExchangeExpression $Expression
     return "($normalized)"  # Always add one final outer wrapper
 }
 
@@ -1627,11 +1661,14 @@ function Convert-ToExchangeFilterSyntax {
     $group = Get-DynamicDistributionGroup -Identity "Test"
     Restore-OriginalRecipientFilter -ExpandedFilter $group.RecipientFilter
 #>
-function Restore-OriginalRecipientFilter {
+function Restore-OriginalRecipientFilter
+{
     [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)]
-        [string] $ExpandedFilter
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $ExpandedFilter
     )
 
     # region --- define the two known Exchange Online auto-append patterns ---
@@ -1647,7 +1684,8 @@ function Restore-OriginalRecipientFilter {
 
     $cleaned = $ExpandedFilter
 
-    foreach ($pattern in $patterns) {
+    foreach ($pattern in $patterns)
+    {
         $cleaned = [regex]::Replace($cleaned, $pattern, '', 'IgnoreCase')
     }
 
@@ -1656,18 +1694,27 @@ function Restore-OriginalRecipientFilter {
 
     # Trim outer parentheses if they wrap the whole expression
     $trimmed = $cleaned.Trim()
-    if ($trimmed.StartsWith('(') -and $trimmed.EndsWith(')')) {
+    if ($trimmed.StartsWith('(') -and $trimmed.EndsWith(')'))
+    {
         # Check parentheses balance before trimming
         $open = 0
         $balanced = $true
-        for ($i = 0; $i -lt $trimmed.Length; $i++) {
-            switch ($trimmed[$i]) {
+        for ($i = 0; $i -lt $trimmed.Length; $i++)
+        {
+            switch ($trimmed[$i])
+            {
                 '(' { $open++ }
                 ')' { $open-- }
             }
-            if ($open -lt 0) { $balanced = $false; break }
+
+            if ($open -lt 0)
+            {
+                $balanced = $false
+                break
+            }
         }
-        if ($balanced -and $open -eq 0) {
+        if ($balanced -and $open -eq 0)
+        {
             # Remove only one outer layer of parentheses
             $trimmed = $trimmed.Substring(1, $trimmed.Length - 2).Trim()
         }
@@ -1676,4 +1723,27 @@ function Restore-OriginalRecipientFilter {
     return $trimmed
 }
 
-Export-ModuleMember -Function *-TargetResource
+function Get-CompareParameters
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param()
+
+    return @{
+        PostProcessing = {
+            param($DesiredValues, $CurrentValues, $ValuesToCheck, $ignore)
+            if ($DesiredValues.ContainsKey('RecipientFilter') -and -not [System.String]::IsNullOrEmpty($DesiredValues.RecipientFilter))
+            {
+                $DesiredValues.RecipientFilter = Convert-ToExchangeFilterSyntax -Expression $DesiredValues.RecipientFilter
+
+                # If RecipientFilter is specified, ignore the conditional properties
+                $ValuesToCheck.Keys.Clone() | Where-Object { $_ -like "Conditional*" } | Foreach-Object {
+                    $ValuesToCheck.Remove($_) | Out-Null
+                }
+            }
+            return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
+        }
+    }
+}
+
+Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')
