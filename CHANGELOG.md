@@ -13,6 +13,10 @@
   * Added new parameters `OneDriveSharedBy`, `OneDriveSharedByMemberOf`,
     `ExceptIfOneDriveSharedBy` and `ExceptIfOneDriveSharedByMemberOf`.
     FIXES [#7123](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7123)
+* M365DSCDocGenerator
+  * Fixed an issue where the directory for the generated documentation
+    was not found at the intended location.
+    FIXES [#7128](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7128)
 * M365DSCErrorHandler
   * Updated temporary export save operation to use file stream writer
     to reduce I/O usage.
@@ -29,11 +33,15 @@
 * M365DSCTelemetryEngine
   * Reduced number of calls to resolve assignments and role definitions.
 * MISC
+  * Bump GitHub Action dependencies.
   * Code cleanup in export functions.
   * Improved export of some resources.
   * Improved ordered instance logging for parallel export.
   * Reduced string memory allocations during export.
   * Updated Guid parsing with a reference to the empty Guid instance.
+* DEPENDENCIES
+  * Updated `DSCParser` to version 3.0.0.5.
+    FIXES [#7122](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7122)
 
 # 1.26.506.2
 
