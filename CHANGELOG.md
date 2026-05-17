@@ -8,6 +8,10 @@
     FIXES [#7119](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7119)
 * EXODynamicDistributionGroup
   * Initial release.
+* M365DSCDocGenerator
+  * Fixed an issue where the directory for the generated documentation
+    was not found at the intended location.
+    FIXES [#7128](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7128)
 * M365DSCErrorHandler
   * Updated temporary export save operation to use file stream writer
     to reduce I/O usage.
@@ -24,6 +28,7 @@
 * M365DSCTelemetryEngine
   * Reduced number of calls to resolve assignments and role definitions.
 * MISC
+  * Bump GitHub Action dependencies.
   * Code cleanup in export functions.
   * Improved export of some resources.
   * Improved ordered instance logging for parallel export.
