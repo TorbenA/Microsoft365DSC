@@ -6,6 +6,8 @@
   * Fixed an issue where a `SessionControl` object with all null values
     was used in combination with `ProtocolFlows`.
     FIXES [#7119](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7119)
+* EXODynamicDistributionGroup
+  * Initial release.
 * EXOManagementRole
   * Added error handler when fetching resource information.
     FIXES [#7124](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7124)
