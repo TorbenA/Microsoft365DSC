@@ -1,5 +1,3 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneAppControlForBusinessPolicyWindows10'
-
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -10,6 +8,10 @@ function Get-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisableEntraGroupPolicyAssignment,
 
         [Parameter(Mandatory = $true)]
         [System.String]
@@ -30,17 +32,22 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
-        $Enter_path_of_xml_data,
-
-        [Parameter()]
-        [ValidateSet(1, 2)]
-        [System.Int32[]]
-        $ConfigureApplicationControlSelectAdditionalRulesForTrustingApps,
+        $ConfigureApplicationControlsXMLUpload,
 
         [Parameter()]
         [ValidateSet(0, 1)]
         [System.Int32]
-        $ConfigureApplicationControlEnableAppControlPolicy,
+        $ConfigureApplicationControlsAuditMode,
+
+        [Parameter()]
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $ConfigureApplicationControlsTrustAppsFromManagedInstaller,
+
+        [Parameter()]
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $ConfigureApplicationControlsTrustAppsWithGoodReputation,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -81,9 +88,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Warning -Message 'This resource is deprecated. Please use IntuneAppControlForBusinessPolicyWindows10V2 instead.'
-
-    Write-Verbose -Message "Getting configuration for the Intune App Control For Business Policy for Windows10 with Id {$Id} and Name {$DisplayName}"
+    Write-Verbose -Message "Getting configuration for the Intune App Control For Business Policy for Windows10 V2 with Id {$Id} and Name {$DisplayName}"
 
     try
     {
@@ -112,24 +117,28 @@ function Get-TargetResource
             #region resource generator code
             if (-not [System.String]::IsNullOrEmpty($Id))
             {
-                $getValue = Get-MgBetaDeviceManagementConfigurationPolicy -DeviceManagementConfigurationPolicyId $Id -ErrorAction SilentlyContinue
+                $getValue = Invoke-M365DSCCommand -ScriptBlock {
+                    Get-MgBetaDeviceManagementConfigurationPolicy -DeviceManagementConfigurationPolicyId $Id  -ErrorAction Stop
+                } -SuppressNotFoundError
             }
 
             if ($null -eq $getValue)
             {
-                Write-Verbose -Message "Could not find an Intune App Control For Business Policy for Windows10 with Id {$Id}"
+                Write-Verbose -Message "Could not find an Intune App Control For Business Policy for Windows10 V2 with Id {$Id}"
 
                 if (-not [System.String]::IsNullOrEmpty($DisplayName))
                 {
-                    $getValue = Get-MgBetaDeviceManagementConfigurationPolicy `
-                        -Filter "Name eq '$($DisplayName -replace "'", "''")'" `
+                    $getValue = Invoke-M365DSCCommand -ScriptBlock {
+                        Get-MgBetaDeviceManagementConfigurationPolicy `
+                            -Filter "Name eq '$($DisplayName -replace "'", "''")'" `
                         -ErrorAction SilentlyContinue
+                    }
                 }
             }
             #endregion
             if ($null -eq $getValue)
             {
-                Write-Verbose -Message "Could not find an Intune App Control For Business Policy for Windows10 with Name {$DisplayName}."
+                Write-Verbose -Message "Could not find an Intune App Control For Business Policy for Windows10 V2 with Name {$DisplayName}."
                 return $nullResult
             }
         }
@@ -138,7 +147,7 @@ function Get-TargetResource
             $getValue = $Script:exportedInstance
         }
         $Id = $getValue.Id
-        Write-Verbose -Message "An Intune App Control For Business Policy for Windows10 with Id {$Id} and Name {$DisplayName} was found"
+        Write-Verbose -Message "An Intune App Control For Business Policy for Windows10 V2 with Id {$Id} and Name {$DisplayName} was found"
 
         # Retrieve policy specific settings
         [array]$settings = Get-MgBetaDeviceManagementConfigurationPolicySetting `
@@ -152,17 +161,17 @@ function Get-TargetResource
 
         $results = @{
             #region resource generator code
-            Description           = $getValue.Description
-            DisplayName           = $getValue.Name
-            RoleScopeTagIds       = $getValue.RoleScopeTagIds
-            Id                    = $getValue.Id
-            Ensure                = 'Present'
-            Credential            = $Credential
-            ApplicationId         = $ApplicationId
-            TenantId              = $TenantId
-            ApplicationSecret     = $ApplicationSecret
-            CertificateThumbprint = $CertificateThumbprint
-            ManagedIdentity       = $ManagedIdentity.IsPresent
+            Description                       = $getValue.Description
+            DisplayName                       = $getValue.Name
+            RoleScopeTagIds                   = $getValue.RoleScopeTagIds
+            Id                                = $getValue.Id
+            Ensure                            = 'Present'
+            Credential                        = $Credential
+            ApplicationId                     = $ApplicationId
+            TenantId                          = $TenantId
+            ApplicationSecret                 = $ApplicationSecret
+            CertificateThumbprint             = $CertificateThumbprint
+            ManagedIdentity                   = $ManagedIdentity.IsPresent
             #endregion
         }
         $results += $policySettings
@@ -199,6 +208,10 @@ function Set-TargetResource
         [System.String]
         $Description,
 
+        [Parameter()]
+        [System.Boolean]
+        $DisableEntraGroupPolicyAssignment,
+
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
@@ -218,23 +231,27 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
-        $Enter_path_of_xml_data,
-
-        [Parameter()]
-        [ValidateSet(1, 2)]
-        [System.Int32[]]
-        $ConfigureApplicationControlSelectAdditionalRulesForTrustingApps,
+        $ConfigureApplicationControlsXMLUpload,
 
         [Parameter()]
         [ValidateSet(0, 1)]
         [System.Int32]
-        $ConfigureApplicationControlEnableAppControlPolicy,
+        $ConfigureApplicationControlsAuditMode,
+
+        [Parameter()]
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $ConfigureApplicationControlsTrustAppsFromManagedInstaller,
+
+        [Parameter()]
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $ConfigureApplicationControlsTrustAppsWithGoodReputation,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
         $Assignments,
         #endregion
-
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
         [System.String]
@@ -269,7 +286,7 @@ function Set-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Setting configuration of the Intune App Control For Business Policy for Windows10 with Id {$Id} and Name {$DisplayName}"
+    Write-Verbose -Message "Setting configuration of the Intune App Control For Business Policy for Windows10 V2 with Id {$Id} and Name {$DisplayName}"
 
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
@@ -286,27 +303,26 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-    $templateReferenceId = '4321b946-b76b-4450-8afd-769c08b16ffc_1'
+    $templateReferenceId = 'd3849ba8-bf95-467c-9640-aa2334eae9e3_1'
     $platforms = 'windows10'
     $technologies = 'mdm'
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating an Intune App Control For Business Policy for Windows10 with Name {$DisplayName}"
-        $boundParameters.Remove('Assignments') | Out-Null
+        Write-Verbose -Message "Creating an Intune App Control For Business Policy for Windows10 V2 with Name {$DisplayName}"
+        $boundParameters.Remove("Assignments") | Out-Null
 
         $settings = Get-IntuneSettingCatalogPolicySetting `
             -DSCParams ([System.Collections.Hashtable]$boundParameters) `
             -TemplateId $templateReferenceId
 
         $createParameters = @{
-            Name              = $DisplayName
-            Description       = $Description
-            TemplateReference = @{ templateId = $templateReferenceId }
-            Platforms         = $platforms
-            Technologies      = $technologies
-            Settings          = $settings
-            RoleScopeTagIds   = $RoleScopeTagIds
+            name              = $DisplayName
+            description       = $Description
+            templateReference = @{ templateId = $templateReferenceId }
+            platforms         = $platforms
+            technologies      = $technologies
+            settings          = $settings
         }
 
         #region resource generator code
@@ -324,8 +340,8 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating the Intune App Control For Business Policy for Windows10 with Id {$($currentInstance.Id)}"
-        $boundParameters.Remove('Assignments') | Out-Null
+        Write-Verbose -Message "Updating the Intune App Control For Business Policy for Windows10 V2 with Id {$($currentInstance.Id)}"
+        $boundParameters.Remove("Assignments") | Out-Null
 
         $settings = Get-IntuneSettingCatalogPolicySetting `
             -DSCParams ([System.Collections.Hashtable]$boundParameters) `
@@ -352,7 +368,7 @@ function Set-TargetResource
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removing the Intune App Control For Business Policy for Windows10 with Id {$($currentInstance.Id)}"
+        Write-Verbose -Message "Removing the Intune App Control For Business Policy for Windows10 V2 with Id {$($currentInstance.Id)}"
         #region resource generator code
         Remove-MgBetaDeviceManagementConfigurationPolicy -DeviceManagementConfigurationPolicyId $currentInstance.Id
         #endregion
@@ -369,6 +385,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
+
+        [Parameter()]
+        [System.Boolean]
+        $DisableEntraGroupPolicyAssignment,
 
         [Parameter(Mandatory = $true)]
         [System.String]
@@ -389,17 +409,22 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
-        $Enter_path_of_xml_data,
-
-        [Parameter()]
-        [ValidateSet(1, 2)]
-        [System.Int32[]]
-        $ConfigureApplicationControlSelectAdditionalRulesForTrustingApps,
+        $ConfigureApplicationControlsXMLUpload,
 
         [Parameter()]
         [ValidateSet(0, 1)]
         [System.Int32]
-        $ConfigureApplicationControlEnableAppControlPolicy,
+        $ConfigureApplicationControlsAuditMode,
+
+        [Parameter()]
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $ConfigureApplicationControlsTrustAppsFromManagedInstaller,
+
+        [Parameter()]
+        [ValidateSet(0, 1)]
+        [System.Int32]
+        $ConfigureApplicationControlsTrustAppsWithGoodReputation,
 
         [Parameter()]
         [Microsoft.Management.Infrastructure.CimInstance[]]
@@ -440,8 +465,6 @@ function Test-TargetResource
         $AccessTokens
     )
 
-    Write-Warning -Message 'This resource is deprecated. Please use IntuneAppControlForBusinessPolicyWindows10V2 instead.'
-
     #region Telemetry
     $ResourceName = $MyInvocation.MyCommand.ModuleName.Replace('MSFT_', '')
     $CommandName = $MyInvocation.MyCommand
@@ -451,10 +474,8 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
-        @compareParameters
+                                         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 }
 
@@ -515,7 +536,7 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        $policyTemplateID = '4321b946-b76b-4450-8afd-769c08b16ffc_1'
+        $policyTemplateID = 'd3849ba8-bf95-467c-9640-aa2334eae9e3_1'
         $baseFilter = "templateReference/templateId eq '$policyTemplateID'"
         if (-not [System.String]::IsNullOrEmpty($Filter))
         {
@@ -544,11 +565,11 @@ function Export-TargetResource
         foreach ($config in $getValue)
         {
             $displayedKey = $config.Id
-            if (-not [String]::IsNullOrEmpty($config.displayName))
+            if (-not [System.String]::IsNullOrEmpty($config.displayName))
             {
                 $displayedKey = $config.displayName
             }
-            elseif (-not [string]::IsNullOrEmpty($config.name))
+            elseif (-not [System.String]::IsNullOrEmpty($config.name))
             {
                 $displayedKey = $config.name
             }
@@ -568,20 +589,6 @@ function Export-TargetResource
 
             $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
-            if ($null -ne $Results.ConfigureApplicationControlBuiltInControls)
-            {
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
-                    -ComplexObject $Results.ConfigureApplicationControlBuiltInControls `
-                    -CIMInstanceName 'MicrosoftGraphIntuneSettingsCatalogConfigureApplicationControlBuiltInControls'
-                if (-not [String]::IsNullOrWhiteSpace($complexTypeStringResult))
-                {
-                    $Results.ConfigureApplicationControlBuiltInControls = $complexTypeStringResult
-                }
-                else
-                {
-                    $Results.Remove('ConfigureApplicationControlBuiltInControls') | Out-Null
-                }
-            }
 
             if ($Results.Assignments)
             {
@@ -601,7 +608,7 @@ function Export-TargetResource
                 -ModulePath $PSScriptRoot `
                 -Results $Results `
                 -Credential $Credential `
-                -NoEscape @('Assignments', 'ConfigureApplicationControlBuiltInControls')
+                -NoEscape @('Assignments')
             [void]$dscContent.Append($currentDSCBlock)
             Save-M365DSCPartialExport -Content $currentDSCBlock `
                 -FileName $Global:PartialExportFileName
@@ -622,33 +629,4 @@ function Export-TargetResource
     }
 }
 
-function Get-CompareParameters
-{
-    [CmdletBinding()]
-    [OutputType([System.Collections.Hashtable])]
-    param()
-
-    return @{
-        PostProcessing     = {
-            param($DesiredValues, $CurrentValues, $ValuesToCheck, $PostProcessingArgs)
-            $PostProcessingArgs[0] | ForEach-Object {
-                if ($_.Key -notlike '*Variable' -or $_.Key -notin @('Verbose', 'Debug', 'ErrorAction', 'WarningAction', 'InformationAction'))
-                {
-                    if ($null -ne $CurrentValues[$_.Key] -or $null -ne $DesiredValues[$_.Key])
-                    {
-                        $ValuesToCheck[$_.Key] = $null
-                        if (-not $DesiredValues.ContainsKey($_.Key))
-                        {
-                            $DesiredValues.Add($_.Key, $null)
-                        }
-                    }
-                }
-            }
-
-            return [System.Tuple[Hashtable, Hashtable, Hashtable]]::new($DesiredValues, $CurrentValues, $ValuesToCheck)
-        }
-        PostProcessingArgs = $MyInvocation.MyCommand.Parameters.GetEnumerator()
-    }
-}
-
-Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')
+Export-ModuleMember -Function *-TargetResource
