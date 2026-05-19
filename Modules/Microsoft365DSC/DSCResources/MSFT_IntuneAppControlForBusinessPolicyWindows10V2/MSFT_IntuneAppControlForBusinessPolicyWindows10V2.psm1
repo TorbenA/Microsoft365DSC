@@ -9,10 +9,6 @@ function Get-TargetResource
         [System.String]
         $Description,
 
-        [Parameter()]
-        [System.Boolean]
-        $DisableEntraGroupPolicyAssignment,
-
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
@@ -208,10 +204,6 @@ function Set-TargetResource
         [System.String]
         $Description,
 
-        [Parameter()]
-        [System.Boolean]
-        $DisableEntraGroupPolicyAssignment,
-
         [Parameter(Mandatory = $true)]
         [System.String]
         $DisplayName,
@@ -385,10 +377,6 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $Description,
-
-        [Parameter()]
-        [System.Boolean]
-        $DisableEntraGroupPolicyAssignment,
 
         [Parameter(Mandatory = $true)]
         [System.String]
