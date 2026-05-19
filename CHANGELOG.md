@@ -10,6 +10,9 @@
     FIXES [#7119](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7119)
 * EXODynamicDistributionGroup
   * Initial release.
+* EXOOrganizationConfig
+  * Added the new property `DLPViaDcsEnabled`.
+    FIXES [#7138](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7138)
 * IntuneAppControlForBusinessPolicyWindows10
   * Deprecated resource.
 * IntuneAppControlForBusinessPolicyWindows10V2
