@@ -8,6 +8,14 @@
     FIXES [#7119](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7119)
 * EXODynamicDistributionGroup
   * Initial release.
+* IntuneAppControlForBusinessPolicyWindows10
+  * Deprecated resource.
+* IntuneAppControlForBusinessPolicyWindows10V2
+  * Initial release. Supersedes `IntuneAppControlForBusinessPolicyWindows10`.
+    FIXES [#7129](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7129)
+* IntuneAppProtectionPolicyAndroid
+  * Fixed an issue where configuring `ExemptedAppPackages` would fail.
+    FIXES [#7135](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7135)
 * VivaEngagementRoleMember
   * Added missing permission `User.ReadBasic.All` to the resource.
     FIXES [#7133](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7133)
