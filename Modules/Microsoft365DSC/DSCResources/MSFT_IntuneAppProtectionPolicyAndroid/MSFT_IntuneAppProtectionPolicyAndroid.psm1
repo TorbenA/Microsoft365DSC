@@ -998,6 +998,7 @@ function Set-TargetResource
             value = $exemptedAppPackage.Split('|')[1]
         }
     }
+    $BoundParameters.ExemptedAppPackages = $myExemptedAppPackages
 
     $durationParameters = @(
         'PeriodOfflineBeforeAccessCheck',
