@@ -175,6 +175,7 @@ function Get-TargetResource
         $CloudAppSecurityType,
 
         [Parameter()]
+        [ValidateSet('disabled', 'strictEnforcement', 'strictLocation')]
         [System.String]
         $ContinuousAccessEvaluationMode,
 
@@ -572,10 +573,10 @@ function Get-TargetResource
         {
             $CloudAppSecurityType = [System.String]$Policy.SessionControls.CloudAppSecurity.CloudAppSecurityType
         }
-        $ContinuousAccessEvaluationMode = $null
+        $ContinuousAccessEvaluationModeValue = $null
         if ($Policy.SessionControls.ContinuousAccessEvaluation.Mode)
         {
-            $ContinuousAccessEvaluationMode = [System.String]$Policy.SessionControls.ContinuousAccessEvaluation.Mode
+            $ContinuousAccessEvaluationModeValue = [System.String]$Policy.SessionControls.ContinuousAccessEvaluation.Mode
         }
         if ($Policy.SessionControls.SignInFrequency.IsEnabled)
         {
@@ -762,7 +763,7 @@ function Get-TargetResource
             CloudAppSecurityIsEnabled                = $false -or $Policy.SessionControls.CloudAppSecurity.IsEnabled
             #make false if undefined, true if true
             CloudAppSecurityType                     = [System.String]$Policy.SessionControls.CloudAppSecurity.CloudAppSecurityType
-            ContinuousAccessEvaluationMode           = $ContinuousAccessEvaluationMode
+            ContinuousAccessEvaluationMode           = $ContinuousAccessEvaluationModeValue
             SecureSignInSessionIsEnabled             = $false -or $Policy.SessionControls.SecureSignInSession.IsEnabled
             #no translation needed, return empty string array if undefined
             SignInFrequencyIsEnabled                 = $false -or $Policy.SessionControls.SignInFrequency.IsEnabled
@@ -985,6 +986,7 @@ function Set-TargetResource
         $CloudAppSecurityType,
 
         [Parameter()]
+        [ValidateSet('disabled', 'strictEnforcement', 'strictLocation')]
         [System.String]
         $ContinuousAccessEvaluationMode,
 
@@ -2164,6 +2166,7 @@ function Test-TargetResource
         $CloudAppSecurityType,
 
         [Parameter()]
+        [ValidateSet('disabled', 'strictEnforcement', 'strictLocation')]
         [System.String]
         $ContinuousAccessEvaluationMode,
 
