@@ -99,7 +99,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                                         }
                                     }
                                     @{
-                                        itemId = 'device_vendor_msft_policy_config_applicationcontrolv2_buildoptions_built_in_xml_selected'
+                                        itemId = 'device_vendor_msft_policy_config_applicationcontrolv2_buildoptions_built_in_controls_selected'
                                         name = 'Built-in controls'
                                         optionValue = @{
                                             '@odata.type' = '#microsoft.graph.deviceManagementConfigurationIntegerSettingValue'
