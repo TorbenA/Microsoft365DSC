@@ -228,6 +228,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $DLPViaDcsEnabled,
+
+        [Parameter()]
+        [System.Boolean]
         $ElcProcessingDisabled,
 
         [Parameter()]
@@ -615,6 +619,7 @@ function Get-TargetResource
             DistributionGroupDefaultOU                                = $ConfigSettings.DistributionGroupDefaultOU
             DistributionGroupNameBlockedWordsList                     = $ConfigSettings.DistributionGroupNameBlockedWordsList
             DistributionGroupNamingPolicy                             = $ConfigSettings.DistributionGroupNamingPolicy
+            DLPViaDcsEnabled                                          = $ConfigSettings.DLPViaDcsEnabled
             ElcProcessingDisabled                                     = $ConfigSettings.ElcProcessingDisabled
             EnableOutlookEvents                                       = $ConfigSettings.EnableOutlookEvents
             EndUserDLUpgradeFlowsDisabled                             = $ConfigSettings.EndUserDLUpgradeFlowsDisabled
@@ -941,6 +946,10 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $DistributionGroupNamingPolicy,
+
+        [Parameter()]
+        [System.Boolean]
+        $DLPViaDcsEnabled,
 
         [Parameter()]
         [System.Boolean]
@@ -1501,6 +1510,10 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $DistributionGroupNamingPolicy,
+
+        [Parameter()]
+        [System.Boolean]
+        $DLPViaDcsEnabled,
 
         [Parameter()]
         [System.Boolean]
