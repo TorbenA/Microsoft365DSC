@@ -3,6 +3,8 @@
 # UNRELEASED
 
 * AADConditionalAccessPolicy
+  * Added the new property `ContinuousAccessEvaluationMode`.
+    FIXES [#7132](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7132)
   * Fixed an issue where a `SessionControl` object with all null values
     was used in combination with `ProtocolFlows`.
     FIXES [#7119](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7119)
