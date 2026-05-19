@@ -997,6 +997,7 @@ function Set-TargetResource
             value = $exemptedAppPackage.Split('|')[1]
         }
     }
+    $BoundParameters.ExemptedAppPackages = $myExemptedAppPackages
 
     # Set the managedbrowser values
     $ManagedBrowserValuesHash = Set-ManagedBrowserValues @BoundParameters

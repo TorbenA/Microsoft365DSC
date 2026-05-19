@@ -65,6 +65,13 @@ Describe -Name 'Successfully validate all used permissions in Settings.json file
             )
         }
 
+        if ($settings.ResourceName -like 'VivaEngagement*')
+        {
+            $allowedPermissions = @(
+                'User.ReadBasic.All'
+            )
+        }
+
         if ($settings.ResourceName -like 'AADAuthenticationMethod*' -or $settings.ResourceName -eq 'AADAuthenticationStrengthPolicy')
         {
             $allowedPermissions = @(
