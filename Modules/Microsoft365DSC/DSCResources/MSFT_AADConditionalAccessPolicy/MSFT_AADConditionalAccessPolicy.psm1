@@ -175,6 +175,11 @@ function Get-TargetResource
         $CloudAppSecurityType,
 
         [Parameter()]
+        [ValidateSet('disabled', 'strictEnforcement', 'strictLocation')]
+        [System.String]
+        $ContinuousAccessEvaluationMode,
+
+        [Parameter()]
         [System.Boolean]
         $SecureSignInSessionIsEnabled,
 
@@ -563,13 +568,15 @@ function Get-TargetResource
                 }
             }
         }
+        $CloudAppSecurityType = $null
         if ($Policy.SessionControls.CloudAppSecurity.IsEnabled)
         {
             $CloudAppSecurityType = [System.String]$Policy.SessionControls.CloudAppSecurity.CloudAppSecurityType
         }
-        else
+        $ContinuousAccessEvaluationModeValue = $null
+        if ($Policy.SessionControls.ContinuousAccessEvaluation.Mode)
         {
-            $CloudAppSecurityType = $null
+            $ContinuousAccessEvaluationModeValue = [System.String]$Policy.SessionControls.ContinuousAccessEvaluation.Mode
         }
         if ($Policy.SessionControls.SignInFrequency.IsEnabled)
         {
@@ -581,13 +588,10 @@ function Get-TargetResource
             $SignInFrequencyType = $null
             $SignInFrequencyIntervalValue = $null
         }
+        $PersistentBrowserMode = $null
         if ($Policy.SessionControls.PersistentBrowser.IsEnabled)
         {
             $PersistentBrowserMode = [System.String]$Policy.SessionControls.PersistentBrowser.Mode
-        }
-        else
-        {
-            $PersistentBrowserMode = $null
         }
         if ($Policy.Conditions.Users.IncludeGuestsOrExternalUsers.GuestOrExternalUserTypes)
         {
@@ -759,6 +763,7 @@ function Get-TargetResource
             CloudAppSecurityIsEnabled                = $false -or $Policy.SessionControls.CloudAppSecurity.IsEnabled
             #make false if undefined, true if true
             CloudAppSecurityType                     = [System.String]$Policy.SessionControls.CloudAppSecurity.CloudAppSecurityType
+            ContinuousAccessEvaluationMode           = $ContinuousAccessEvaluationModeValue
             SecureSignInSessionIsEnabled             = $false -or $Policy.SessionControls.SecureSignInSession.IsEnabled
             #no translation needed, return empty string array if undefined
             SignInFrequencyIsEnabled                 = $false -or $Policy.SessionControls.SignInFrequency.IsEnabled
@@ -979,6 +984,11 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $CloudAppSecurityType,
+
+        [Parameter()]
+        [ValidateSet('disabled', 'strictEnforcement', 'strictLocation')]
+        [System.String]
+        $ContinuousAccessEvaluationMode,
 
         [Parameter()]
         [System.Boolean]
@@ -1816,6 +1826,7 @@ function Set-TargetResource
             $sessionControls = @{
                 applicationEnforcedRestrictions = $null
                 cloudAppSecurity                = $null
+                continuousAccessEvaluation      = $null
                 secureSignInSession             = $null
                 signInFrequency                 = $null
                 persistentBrowser               = $null
@@ -1835,6 +1846,12 @@ function Set-TargetResource
                     cloudAppSecurityType = $CloudAppSecurityType
                 }
                 $sessionControls.cloudAppSecurity = $cloudAppSecurityValue
+            }
+            if ($ContinuousAccessEvaluationMode)
+            {
+                $sessionControls.continuousAccessEvaluation = @{
+                    mode = $ContinuousAccessEvaluationMode
+                }
             }
             if ($SecureSignInSessionIsEnabled)
             {
@@ -2145,6 +2162,11 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $CloudAppSecurityType,
+
+        [Parameter()]
+        [ValidateSet('disabled', 'strictEnforcement', 'strictLocation')]
+        [System.String]
+        $ContinuousAccessEvaluationMode,
 
         [Parameter()]
         [System.Boolean]
