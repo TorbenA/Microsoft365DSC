@@ -8,6 +8,9 @@
     FIXES [#7119](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7119)
 * EXODynamicDistributionGroup
   * Initial release.
+* VivaEngagementRoleMember
+  * Added missing permission `User.ReadBasic.All` to the resource.
+    FIXES [#7133](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7133)
 * M365DSCDocGenerator
   * Fixed an issue where the directory for the generated documentation
     was not found at the intended location.
@@ -16,6 +19,7 @@
   * Updated temporary export save operation to use file stream writer
     to reduce I/O usage.
 * M365DSCExportUtil
+  * Added the `VIVA` workload to the list of supported workloads to export.
   * Fixed an issue where the organization name was not
     replaced with `$OrganizationName` during configuration export.
 * M365DSCReport
