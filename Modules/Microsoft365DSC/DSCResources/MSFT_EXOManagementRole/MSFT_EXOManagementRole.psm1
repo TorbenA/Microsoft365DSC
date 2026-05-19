@@ -81,7 +81,7 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            $ManagementRole = Get-ManagementRole -Identity $Name -ErrorAction SilentlyContinue
+            $ManagementRole = Invoke-M365DSCCommand -ScriptBlock { Get-ManagementRole -Identity $Name -ErrorAction Stop } -SuppressNotFoundError
             if ($null -eq $ManagementRole)
             {
                 Write-Verbose -Message "Management Role $($Name) does not exist."

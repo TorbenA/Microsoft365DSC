@@ -10,6 +10,9 @@
     FIXES [#7119](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7119)
 * EXODynamicDistributionGroup
   * Initial release.
+* EXOManagementRole
+  * Added error handler when fetching resource information.
+    FIXES [#7124](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7124)
 * EXOOrganizationConfig
   * Added the new property `DLPViaDcsEnabled`.
     FIXES [#7138](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7138)
@@ -21,6 +24,10 @@
 * IntuneAppProtectionPolicyAndroid
   * Fixed an issue where configuring `ExemptedAppPackages` would fail.
     FIXES [#7135](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7135)
+* SCDLPCompliancePolicy
+  * Added new parameters `OneDriveSharedBy`, `OneDriveSharedByMemberOf`,
+    `ExceptIfOneDriveSharedBy` and `ExceptIfOneDriveSharedByMemberOf`.
+    FIXES [#7123](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7123)
 * VivaEngagementRoleMember
   * Added missing permission `User.ReadBasic.All` to the resource.
     FIXES [#7133](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7133)
