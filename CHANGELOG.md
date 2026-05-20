@@ -36,7 +36,7 @@
   * Removed all `Microsoft.Graph.*` dependencies except for `Microsoft.Graph.Authentication`.
   * Updated `MSCloudLoginAssistant` to version 1.1.63.
 
-# UNRELEASED
+# 1.26.520.1
 
 * AADConditionalAccessPolicy
   * Added the new property `ContinuousAccessEvaluationMode`.
@@ -46,6 +46,12 @@
     FIXES [#7119](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7119)
 * EXODynamicDistributionGroup
   * Initial release.
+* EXOManagementRole
+  * Added error handler when fetching resource information.
+    FIXES [#7124](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7124)
+* EXOOrganizationConfig
+  * Added the new property `DLPViaDcsEnabled`.
+    FIXES [#7138](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7138)
 * IntuneAppControlForBusinessPolicyWindows10
   * Deprecated resource.
 * IntuneAppControlForBusinessPolicyWindows10V2
@@ -54,6 +60,21 @@
 * IntuneAppProtectionPolicyAndroid
   * Fixed an issue where configuring `ExemptedAppPackages` would fail.
     FIXES [#7135](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7135)
+* SCDLPCompliancePolicy
+  * Added new parameters `OneDriveSharedBy`, `OneDriveSharedByMemberOf`,
+    `ExceptIfOneDriveSharedBy` and `ExceptIfOneDriveSharedByMemberOf`.
+    FIXES [#7123](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7123)
+* SCInsiderRiskPolicy
+  * Added new parameters `AIAppRiskyPrompt`, `EmailSignatureExclusionSettingsEnabled`,
+    `UserAnalyticsSettingsEnabled`, `CCPromptShields`, `CCProtectedMaterialDetection`,
+    `CCSensitiveInformationType`, `CCSupervisionRuleMatch`, `CompromisedSignInAlerts`,
+    `CompromisedUserAlerts`, `ConnectedAIAppRiskyPrompt`, `ConnectedAIAppSensitiveResponse`,
+    `CopilotRiskyPrompt`, `CopilotSensitiveResponse`, `FabricExternalDataSharingSwitchEnabled`,
+    `HighSeverityDlpRuleMatch`, `LakehouseArtifactDeleted`, `LakehouseExternalDataShareCreated`,
+    `LakehouseFileOrBlobDeleted`, `LakehouseSensitivityLabelDowngraded`,
+    `LakehouseSensitivityLabelRemoved`, `NetworkDownloadFile`, `NetworkDownloadText`,
+    `NetworkUploadFile` and `NetworkUploadText`.
+  * Fixed an issue when applying the policy.
 * VivaEngagementRoleMember
   * Added missing permission `User.ReadBasic.All` to the resource.
     FIXES [#7133](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7133)
