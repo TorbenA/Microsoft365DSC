@@ -484,6 +484,10 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $AIAppRiskyPrompt,
+
+        [Parameter()]
+        [System.Boolean]
         $AWSS3BlockPublicAccessDisabled,
 
         [Parameter()]
@@ -1723,6 +1727,10 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
+        $AIAppRiskyPrompt,
+
+        [Parameter()]
+        [System.Boolean]
         $AWSS3BlockPublicAccessDisabled,
 
         [Parameter()]
@@ -2710,6 +2718,10 @@ function Test-TargetResource
         [Parameter()]
         [System.Boolean]
         $UserHistory,
+
+        [Parameter()]
+        [System.Boolean]
+        $AIAppRiskyPrompt,
 
         [Parameter()]
         [System.Boolean]
