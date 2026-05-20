@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.26.520.1
 
 * AADConditionalAccessPolicy
   * Added the new property `ContinuousAccessEvaluationMode`.
@@ -39,7 +39,6 @@
     `LakehouseSensitivityLabelRemoved`, `NetworkDownloadFile`, `NetworkDownloadText`,
     `NetworkUploadFile` and `NetworkUploadText`.
   * Fixed an issue when applying the policy.
-
 * VivaEngagementRoleMember
   * Added missing permission `User.ReadBasic.All` to the resource.
     FIXES [#7133](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7133)
