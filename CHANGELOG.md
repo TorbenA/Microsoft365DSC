@@ -28,6 +28,18 @@
   * Added new parameters `OneDriveSharedBy`, `OneDriveSharedByMemberOf`,
     `ExceptIfOneDriveSharedBy` and `ExceptIfOneDriveSharedByMemberOf`.
     FIXES [#7123](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7123)
+* SCInsiderRiskPolicy
+  * Added new parameters `AIAppRiskyPrompt`, `EmailSignatureExclusionSettingsEnabled`,
+    `UserAnalyticsSettingsEnabled`, `CCPromptShields`, `CCProtectedMaterialDetection`,
+    `CCSensitiveInformationType`, `CCSupervisionRuleMatch`, `CompromisedSignInAlerts`,
+    `CompromisedUserAlerts`, `ConnectedAIAppRiskyPrompt`, `ConnectedAIAppSensitiveResponse`,
+    `CopilotRiskyPrompt`, `CopilotSensitiveResponse`, `FabricExternalDataSharingSwitchEnabled`,
+    `HighSeverityDlpRuleMatch`, `LakehouseArtifactDeleted`, `LakehouseExternalDataShareCreated`,
+    `LakehouseFileOrBlobDeleted`, `LakehouseSensitivityLabelDowngraded`,
+    `LakehouseSensitivityLabelRemoved`, `NetworkDownloadFile`, `NetworkDownloadText`,
+    `NetworkUploadFile` and `NetworkUploadText`.
+  * Fixed an issue when applying the policy.
+
 * VivaEngagementRoleMember
   * Added missing permission `User.ReadBasic.All` to the resource.
     FIXES [#7133](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7133)
