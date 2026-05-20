@@ -38,6 +38,7 @@
     `LakehouseFileOrBlobDeleted`, `LakehouseSensitivityLabelDowngraded`,
     `LakehouseSensitivityLabelRemoved`, `NetworkDownloadFile`, `NetworkDownloadText`,
     `NetworkUploadFile` and `NetworkUploadText`.
+  * Fixed an issue when applying the policy.
 
 * VivaEngagementRoleMember
   * Added missing permission `User.ReadBasic.All` to the resource.

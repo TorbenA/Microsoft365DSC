@@ -2082,33 +2082,35 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-    $indicatorsProperties = @('AnomalyDetections', 'CopyToPersonalCloud', 'CopyToUSB', 'CumulativeExfiltrationDetector', `
-            'EmailExternal', 'EmployeeAccessedEmployeePatientData', 'EmployeeAccessedFamilyData', `
-            'EmployeeAccessedHighVolumePatientData', 'EmployeeAccessedNeighbourData', `
-            'EmployeeAccessedRestrictedData', 'EpoBrowseToChildAbuseSites', 'EpoBrowseToCriminalActivitySites', `
-            'EpoBrowseToCultSites', 'EpoBrowseToGamblingSites', 'EpoBrowseToHackingSites', `
-            'EpoBrowseToHateIntoleranceSites', 'EpoBrowseToIllegalSoftwareSites', 'EpoBrowseToKeyloggerSites', `
-            'EpoBrowseToLlmSites', 'EpoBrowseToMalwareSites', 'EpoBrowseToPhishingSites', `
-            'EpoBrowseToPornographySites', 'EpoBrowseToUnallowedDomain', 'EpoBrowseToViolenceSites', `
-            'EpoCopyToClipboardFromSensitiveFile', 'EpoCopyToNetworkShare', 'EpoFileArchived', `
-            'EpoFileCopiedToRemoteDesktopSession', 'EpoFileDeleted', 'EpoFileDownloadedFromBlacklistedDomain', `
-            'EpoFileDownloadedFromEnterpriseDomain', 'EpoFileRenamed', 'EpoFileStagedToCentralLocation', `
-            'EpoHiddenFileCreated', 'EpoRemovableMediaMount', 'EpoSensitiveFileRead', 'Mcas3rdPartyAppDownload', `
-            'Mcas3rdPartyAppFileDelete', 'Mcas3rdPartyAppFileSharing', 'McasActivityFromInfrequentCountry', `
-            'McasImpossibleTravel', 'McasMultipleFailedLogins', 'McasMultipleStorageDeletion', `
-            'McasMultipleVMCreation', 'McasMultipleVMDeletion', 'McasSuspiciousAdminActivities', `
-            'McasSuspiciousCloudCreation', 'McasSuspiciousCloudTrailLoggingChange', 'McasTerminatedEmployeeActivity', `
-            'OdbDownload', 'OdbSyncDownload', 'PeerCumulativeExfiltrationDetector', 'PhysicalAccess', `
-            'PotentialHighImpactUser', 'Print', 'PriorityUserGroupMember', 'SecurityAlertDefenseEvasion', `
-            'SecurityAlertUnwantedSoftware', 'SpoAccessRequest', 'SpoApprovedAccess', 'SpoDownload', 'SpoDownloadV2', `
-            'SpoFileAccessed', 'SpoFileDeleted', 'SpoFileDeletedFromFirstStageRecycleBin', `
-            'SpoFileDeletedFromSecondStageRecycleBin', 'SpoFileLabelDowngraded', 'SpoFileLabelRemoved', `
-            'SpoFileSharing', 'SpoFolderDeleted', 'SpoFolderDeletedFromFirstStageRecycleBin', `
-            'SpoFolderDeletedFromSecondStageRecycleBin', 'SpoFolderSharing', 'SpoSiteExternalUserAdded', `
-            'SpoSiteInternalUserAdded', 'SpoSiteLabelRemoved', 'SpoSiteSharing', 'SpoSyncDownload', `
-            'TeamsChannelFileSharedExternal', 'TeamsChannelMemberAddedExternal', 'TeamsChatFileSharedExternal', `
-            'TeamsFileDownload', 'TeamsFolderSharedExternal', 'TeamsMemberAddedExternal', 'TeamsSensitiveMessage', `
-            'UserHistory')
+    $indicatorsProperties = @(
+        'AnomalyDetections', 'CopyToPersonalCloud', 'CopyToUSB', 'CumulativeExfiltrationDetector', `
+        'EmailExternal', 'EmployeeAccessedEmployeePatientData', 'EmployeeAccessedFamilyData', `
+        'EmployeeAccessedHighVolumePatientData', 'EmployeeAccessedNeighbourData', `
+        'EmployeeAccessedRestrictedData', 'EpoBrowseToChildAbuseSites', 'EpoBrowseToCriminalActivitySites', `
+        'EpoBrowseToCultSites', 'EpoBrowseToGamblingSites', 'EpoBrowseToHackingSites', `
+        'EpoBrowseToHateIntoleranceSites', 'EpoBrowseToIllegalSoftwareSites', 'EpoBrowseToKeyloggerSites', `
+        'EpoBrowseToLlmSites', 'EpoBrowseToMalwareSites', 'EpoBrowseToPhishingSites', `
+        'EpoBrowseToPornographySites', 'EpoBrowseToUnallowedDomain', 'EpoBrowseToViolenceSites', `
+        'EpoCopyToClipboardFromSensitiveFile', 'EpoCopyToNetworkShare', 'EpoFileArchived', `
+        'EpoFileCopiedToRemoteDesktopSession', 'EpoFileDeleted', 'EpoFileDownloadedFromBlacklistedDomain', `
+        'EpoFileDownloadedFromEnterpriseDomain', 'EpoFileRenamed', 'EpoFileStagedToCentralLocation', `
+        'EpoHiddenFileCreated', 'EpoRemovableMediaMount', 'EpoSensitiveFileRead', 'Mcas3rdPartyAppDownload', `
+        'Mcas3rdPartyAppFileDelete', 'Mcas3rdPartyAppFileSharing', 'McasActivityFromInfrequentCountry', `
+        'McasImpossibleTravel', 'McasMultipleFailedLogins', 'McasMultipleStorageDeletion', `
+        'McasMultipleVMCreation', 'McasMultipleVMDeletion', 'McasSuspiciousAdminActivities', `
+        'McasSuspiciousCloudCreation', 'McasSuspiciousCloudTrailLoggingChange', 'McasTerminatedEmployeeActivity', `
+        'OdbDownload', 'OdbSyncDownload', 'PeerCumulativeExfiltrationDetector', 'PhysicalAccess', `
+        'PotentialHighImpactUser', 'Print', 'PriorityUserGroupMember', 'SecurityAlertDefenseEvasion', `
+        'SecurityAlertUnwantedSoftware', 'SpoAccessRequest', 'SpoApprovedAccess', 'SpoDownload', 'SpoDownloadV2', `
+        'SpoFileAccessed', 'SpoFileDeleted', 'SpoFileDeletedFromFirstStageRecycleBin', `
+        'SpoFileDeletedFromSecondStageRecycleBin', 'SpoFileLabelDowngraded', 'SpoFileLabelRemoved', `
+        'SpoFileSharing', 'SpoFolderDeleted', 'SpoFolderDeletedFromFirstStageRecycleBin', `
+        'SpoFolderDeletedFromSecondStageRecycleBin', 'SpoFolderSharing', 'SpoSiteExternalUserAdded', `
+        'SpoSiteInternalUserAdded', 'SpoSiteLabelRemoved', 'SpoSiteSharing', 'SpoSyncDownload', `
+        'TeamsChannelFileSharedExternal', 'TeamsChannelMemberAddedExternal', 'TeamsChatFileSharedExternal', `
+        'TeamsFileDownload', 'TeamsFolderSharedExternal', 'TeamsMemberAddedExternal', 'TeamsSensitiveMessage', `
+        'UserHistory'
+    )
 
     $indicatorValues = @()
     foreach ($indicatorProperty in $indicatorsProperties)
@@ -2119,21 +2121,22 @@ function Set-TargetResource
         }
     }
 
-    $extensibleIndicatorsProperties = @('AIAppRiskyPrompt', 'AWSS3BlockPublicAccessDisabled', 'AWSS3BucketDeleted', 'AWSS3PublicAccessEnabled',
-            'AWSS3ServerLoggingDisabled', 'AzureElevateAccessToAllSubscriptions', 'AzureResourceThreatProtectionSettingsUpdated',
-            'AzureSQLServerAuditingSettingsUpdated', 'AzureSQLServerFirewallRuleDeleted', 'AzureSQLServerFirewallRuleUpdated',
-            'AzureStorageAccountOrContainerDeleted', 'BoxContentAccess', 'BoxContentDelete', 'BoxContentDownload', 'BoxContentExternallyShared',
-            'CCFinancialRegulatoryRiskyTextSent', 'CCInappropriateContentSent', 'CCInappropriateImagesSent', 'CCPromptShields',
-            'CCProtectedMaterialDetection', 'CCSensitiveInformationType', 'CCSupervisionRuleMatch', 'CompromisedSignInAlerts',
-            'CompromisedUserAlerts', 'ConnectedAIAppRiskyPrompt', 'ConnectedAIAppSensitiveResponse', 'CopilotRiskyPrompt',
-            'CopilotSensitiveResponse', 'DropboxContentAccess', 'DropboxContentDelete', 'DropboxContentDownload', 'DropboxContentExternallyShared',
-            'FabricExternalDataSharingSwitchEnabled', 'GoogleDriveContentAccess', 'GoogleDriveContentDelete', 'GoogleDriveContentExternallyShared',
-            'HighSeverityDlpRuleMatch', 'LakehouseArtifactDeleted', 'LakehouseExternalDataShareCreated', 'LakehouseFileOrBlobDeleted',
-            'LakehouseSensitivityLabelDowngraded', 'LakehouseSensitivityLabelRemoved', 'NetworkDownloadFile', 'NetworkDownloadText',
-            'NetworkUploadFile', 'NetworkUploadText', 'PowerBIDashboardsDeleted', 'PowerBIReportsDeleted', 'PowerBIReportsDownloaded',
-            'PowerBIReportsExported', 'PowerBIReportsViewed', 'PowerBISemanticModelsDeleted', 'PowerBISensitivityLabelDowngradedForArtifacts',
-            'PowerBISensitivityLabelRemovedFromArtifacts'
-)
+    $extensibleIndicatorsProperties = @(
+        'AIAppRiskyPrompt', 'AWSS3BlockPublicAccessDisabled', 'AWSS3BucketDeleted', 'AWSS3PublicAccessEnabled',
+        'AWSS3ServerLoggingDisabled', 'AzureElevateAccessToAllSubscriptions', 'AzureResourceThreatProtectionSettingsUpdated',
+        'AzureSQLServerAuditingSettingsUpdated', 'AzureSQLServerFirewallRuleDeleted', 'AzureSQLServerFirewallRuleUpdated',
+        'AzureStorageAccountOrContainerDeleted', 'BoxContentAccess', 'BoxContentDelete', 'BoxContentDownload', 'BoxContentExternallyShared',
+        'CCFinancialRegulatoryRiskyTextSent', 'CCInappropriateContentSent', 'CCInappropriateImagesSent', 'CCPromptShields',
+        'CCProtectedMaterialDetection', 'CCSensitiveInformationType', 'CCSupervisionRuleMatch', 'CompromisedSignInAlerts',
+        'CompromisedUserAlerts', 'ConnectedAIAppRiskyPrompt', 'ConnectedAIAppSensitiveResponse', 'CopilotRiskyPrompt',
+        'CopilotSensitiveResponse', 'DropboxContentAccess', 'DropboxContentDelete', 'DropboxContentDownload', 'DropboxContentExternallyShared',
+        'FabricExternalDataSharingSwitchEnabled', 'GoogleDriveContentAccess', 'GoogleDriveContentDelete', 'GoogleDriveContentExternallyShared',
+        'HighSeverityDlpRuleMatch', 'LakehouseArtifactDeleted', 'LakehouseExternalDataShareCreated', 'LakehouseFileOrBlobDeleted',
+        'LakehouseSensitivityLabelDowngraded', 'LakehouseSensitivityLabelRemoved', 'NetworkDownloadFile', 'NetworkDownloadText',
+        'NetworkUploadFile', 'NetworkUploadText', 'PowerBIDashboardsDeleted', 'PowerBIReportsDeleted', 'PowerBIReportsDownloaded',
+        'PowerBIReportsExported', 'PowerBIReportsViewed', 'PowerBISemanticModelsDeleted', 'PowerBISensitivityLabelDowngradedForArtifacts',
+        'PowerBISensitivityLabelRemovedFromArtifacts'
+    )
 
     $extensibleIndicatorsValues = @()
     foreach ($extensibleIndicatorsProperty in $extensibleIndicatorsProperties)
@@ -2155,9 +2158,8 @@ function Set-TargetResource
         $MDATPTriageStatusValue = $MDATPTriageStatusValue.Substring(0, $MDATPTriageStatusValue.Length - 1)
     }
     $MDATPTriageStatusValue += ']'
-    $featureSettingsValue = "{`"Anonymization`":$($Anonymization.ToString().ToLower()), `"DLPUserRiskSync`":$($DLPUserRiskSync.ToString().ToLower()), `"OptInIRMDataExport`":$($OptInIRMDataExport.ToString().ToLower()), `"RaiseAuditAlert`":$($RaiseAuditAlert.ToString().ToLower()), `"EnableTeam`":$($EnableTeam.ToString().ToLower()), `"InlineAlertPolicyCustomization`":$($InlineAlertPolicyCustomization.ToString().ToLower())}"
+    $featureSettingsValue = "{`"Anonymization`":$($Anonymization.ToString().ToLower()), `"DLPUserRiskSync`":$($DLPUserRiskSync.ToString().ToLower()), `"OptInIRMDataExport`":$($OptInIRMDataExport.ToString().ToLower()), `"RaiseAuditAlert`":$($RaiseAuditAlert.ToString().ToLower()), `"EnableTeam`":$($EnableTeam.ToString().ToLower()), `"InlineAlertPolicyCustomization`":$($InlineAlertPolicyCustomization.ToString().ToLower()), `"NotificationDetails`":`"{\`"Rolegroups\`":$((ConvertTo-Json -InputObject $NotificationDetailsRoleGroups -Compress) -replace '"', '\"'),\`"Recepients\`":[]}`"}"
     $intelligentDetectionValue = "{`"FileVolCutoffLimits`":`"$($FileVolCutoffLimits)`", `"AlertVolume`":`"$($AlertVolume)`", `"MDATPTriageStatus`": `"$($MDATPTriageStatusValue)`"}"
-
 
     $tenantSettingsValue = "{`"Region`":`"WW`", `"FeatureSettings`":$($featureSettingsValue), " + `
         "`"IntelligentDetections`":$($intelligentDetectionValue)"
@@ -2170,9 +2172,9 @@ function Set-TargetResource
             $AdaptiveProtectionActivatonStatus = 0
         }
         $dynamicRiskPreventionSettings = "{`"RetainSeverityAfterTriage`":$($RetainSeverityAfterTriage.ToString().ToLower()),`"ProfileInScopeTimeSpan`":$($ProfileInscopeTimeSpan), `"LookbackTimeSpan`":$($LookbackTimeSpan), `"DynamicRiskScenarioSettings`":[{`"ActivationStatus`":$AdaptiveProtectionActivatonStatus"
-        $dynamicRiskPreventionSettings += ", `"HighProfile`":{`"ProfileSourceType`":$($AdaptiveProtectionHighProfileSourceType), `"ConfirmedIssueSeverity`":$($AdaptiveProtectionHighProfileConfirmedIssueSeverity), `"GeneratedIssueSeverity`":$($AdaptiveProtectionHighProfileGeneratedIssueSeverity), `"InsightSeverity`": $($AdaptiveProtectionHighProfileInsightSeverity), `"InsightCount`": $($AdaptiveProtectionHighProfileInsightCount), `"InsightTypes`": [`"$($AdaptiveProtectionHighProfileInsightTypes -join '","')`"], `"ConfirmedIssue`": $($AdaptiveProtectionHighProfileConfirmedIssue.ToString().ToLower())}"
-        $dynamicRiskPreventionSettings += ", `"MediumProfile`":{`"ProfileSourceType`":$($AdaptiveProtectionMediumProfileSourceType), `"ConfirmedIssueSeverity`":$($AdaptiveProtectionMediumProfileConfirmedIssueSeverity), `"GeneratedIssueSeverity`":$($AdaptiveProtectionMediumProfileGeneratedIssueSeverity), `"InsightSeverity`": $($AdaptiveProtectionMediumProfileInsightSeverity), `"InsightCount`": $($AdaptiveProtectionMediumProfileInsightCount), `"InsightTypes`": [`"$($AdaptiveProtectionMediumProfileInsightTypes -join '","')`"], `"ConfirmedIssue`": $($AdaptiveProtectionMediumProfileConfirmedIssue.ToString().ToLower())}"
-        $dynamicRiskPreventionSettings += ", `"LowProfile`":{`"ProfileSourceType`":$($AdaptiveProtectionLowProfileSourceType), `"ConfirmedIssueSeverity`":$($AdaptiveProtectionLowProfileConfirmedIssueSeverity), `"GeneratedIssueSeverity`":$($AdaptiveProtectionLowProfileGeneratedIssueSeverity), `"InsightSeverity`": $($AdaptiveProtectionLowProfileInsightSeverity), `"InsightCount`": $($AdaptiveProtectionLowProfileInsightCount), `"InsightTypes`": [`"$($AdaptiveProtectionLowProfileInsightTypes -join '","')`"], `"ConfirmedIssue`": $($AdaptiveProtectionLowProfileConfirmedIssue.ToString().ToLower())}"
+        $dynamicRiskPreventionSettings += ", `"HighProfile`":{`"ProfileSourceType`":$($AdaptiveProtectionHighProfileSourceType), `"ConfirmedIssueSeverity`":$($AdaptiveProtectionHighProfileConfirmedIssueSeverity), `"GeneratedIssueSeverity`":$($AdaptiveProtectionHighProfileGeneratedIssueSeverity), `"InsightSeverity`": $($AdaptiveProtectionHighProfileInsightSeverity), `"InsightCount`": $($AdaptiveProtectionHighProfileInsightCount), `"InsightTypes`": $(ConvertTo-Json -InputObject $AdaptiveProtectionHighProfileInsightTypes -Compress), `"ConfirmedIssue`": $($AdaptiveProtectionHighProfileConfirmedIssue.ToString().ToLower())}"
+        $dynamicRiskPreventionSettings += ", `"MediumProfile`":{`"ProfileSourceType`":$($AdaptiveProtectionMediumProfileSourceType), `"ConfirmedIssueSeverity`":$($AdaptiveProtectionMediumProfileConfirmedIssueSeverity), `"GeneratedIssueSeverity`":$($AdaptiveProtectionMediumProfileGeneratedIssueSeverity), `"InsightSeverity`": $($AdaptiveProtectionMediumProfileInsightSeverity), `"InsightCount`": $($AdaptiveProtectionMediumProfileInsightCount), `"InsightTypes`": $(ConvertTo-Json -InputObject $AdaptiveProtectionMediumProfileInsightTypes -Compress), `"ConfirmedIssue`": $($AdaptiveProtectionMediumProfileConfirmedIssue.ToString().ToLower())}"
+        $dynamicRiskPreventionSettings += ", `"LowProfile`":{`"ProfileSourceType`":$($AdaptiveProtectionLowProfileSourceType), `"ConfirmedIssueSeverity`":$($AdaptiveProtectionLowProfileConfirmedIssueSeverity), `"GeneratedIssueSeverity`":$($AdaptiveProtectionLowProfileGeneratedIssueSeverity), `"InsightSeverity`": $($AdaptiveProtectionLowProfileInsightSeverity), `"InsightCount`": $($AdaptiveProtectionLowProfileInsightCount), `"InsightTypes`": $(ConvertTo-Json -InputObject $AdaptiveProtectionLowProfileInsightTypes -Compress), `"ConfirmedIssue`": $($AdaptiveProtectionLowProfileConfirmedIssue.ToString().ToLower())}"
         $dynamicRiskPreventionSettings += '}]}'
         $tenantSettingsValue += ", `"DynamicRiskPreventionSettings`":$dynamicRiskPreventionSettings"
     }
@@ -2193,6 +2195,29 @@ function Set-TargetResource
         }
         $tenantSettingsValue = $tenantSettingsValue.TrimEnd(',')
         $tenantSettingsValue += "}"
+    }
+    # NotificationPreferences
+    if ($null -ne $AnalyticsNewInsightEnabled -or $null -ne $AnalyticsTurnedOffEnabled -or $null -ne $HighSeverityAlertsEnabled -or $null -ne $PoliciesHealthEnabled)
+    {
+        $tenantSettingsValue += ", `"NotificationPreferences`":["
+        if ($AnalyticsNewInsightEnabled)
+        {
+            $tenantSettingsValue += "{`"NotificationType`":`"AnalyticsNewInsight`",`"Enabled`":$($AnalyticsNewInsightEnabled.ToString().ToLower()), `"RoleGroups`":[`"InsiderRiskManagement`",`"InsiderRiskManagementAdmins`"]},"
+        }
+        if ($AnalyticsTurnedOffEnabled)
+        {
+            $tenantSettingsValue += "{`"NotificationType`":`"AnalyticsTurnedOff`",`"Enabled`":$($AnalyticsTurnedOffEnabled.ToString().ToLower()), `"RoleGroups`":[`"InsiderRiskManagement`",`"InsiderRiskManagementAdmins`"]},"
+        }
+        if ($HighSeverityAlertsEnabled)
+        {
+            $tenantSettingsValue += "{`"NotificationType`":`"HighSeverityAlerts`",`"Enabled`":$($HighSeverityAlertsEnabled.ToString().ToLower()),`"RoleGroups`":$(ConvertTo-Json -InputObject $HighSeverityAlertsRoleGroups -Compress)},"
+        }
+        if ($PoliciesHealthEnabled)
+        {
+            $tenantSettingsValue += "{`"NotificationType`":`"PoliciesHealth`",`"Enabled`":$($PoliciesHealthEnabled.ToString().ToLower()),`"RoleGroups`":$(ConvertTo-Json -InputObject $PoliciesHealthRoleGroups -Compress)}"
+        }
+        $tenantSettingsValue = $tenantSettingsValue.TrimEnd(',')
+        $tenantSettingsValue += "]"
     }
 
     $tenantSettingsValue += '}'
