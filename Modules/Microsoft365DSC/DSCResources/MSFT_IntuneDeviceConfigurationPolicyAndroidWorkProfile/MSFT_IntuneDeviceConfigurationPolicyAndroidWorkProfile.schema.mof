@@ -10,10 +10,11 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
     [Write, Description("The collection Id that is the target of the assignment.(ConfigMgr)")] String collectionId;
 };
 
-[ClassVersion("1.0.0.0"), FriendlyName("IntuneDeviceConfigurationPolicyAndroidWorkProfile")]
+[ClassVersion("1.0.0.1"), FriendlyName("IntuneDeviceConfigurationPolicyAndroidWorkProfile")]
 class MSFT_IntuneDeviceConfigurationPolicyAndroidWorkProfile : OMI_BaseResource
 {
     [Key, Description("Display name of the device general configuration policy for Android WorkProfile.")] String DisplayName;
+    [Write, Description("The Id of the policy.")] String Id;
     [Write, Description("Description of the device general configuration policy for Android WorkProfile")] String Description;
     [Write, Description("List of Scope Tags for this Entity instance.")] String RoleScopeTagIds[];
     [Write, Description("Assignments of the Intune Policy."), EmbeddedInstance("MSFT_DeviceManagementConfigurationPolicyAssignments")] String Assignments[];

@@ -698,7 +698,7 @@ function Export-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        return ''
+        throw
     }
 }
 function ConvertTo-M365DSCBase64CertificateValue

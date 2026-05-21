@@ -114,11 +114,8 @@ function Get-TargetResource
                 {
                     $getValue = Get-MgBetaDeviceManagementDeviceConfiguration `
                         -All `
-                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                        -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate' `
-                    }
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.windows81TrustedRootCertificate')" `
+                        -ErrorAction SilentlyContinue
                 }
             }
             #endregion
@@ -137,17 +134,17 @@ function Get-TargetResource
 
         #region resource generator code
         $enumDestinationStore = $null
-        if ($null -ne $getValue.AdditionalProperties.destinationStore)
+        if ($null -ne $getValue.destinationStore)
         {
-            $enumDestinationStore = $getValue.AdditionalProperties.destinationStore.ToString()
+            $enumDestinationStore = $getValue.destinationStore.ToString()
         }
         #endregion
 
         $results = @{
             #region resource generator code
-            CertFileName           = $getValue.AdditionalProperties.certFileName
+            CertFileName           = $getValue.certFileName
             DestinationStore       = $enumDestinationStore
-            TrustedRootCertificate = $getValue.AdditionalProperties.trustedRootCertificate
+            TrustedRootCertificate = $getValue.trustedRootCertificate
             Description            = $getValue.Description
             DisplayName            = $getValue.DisplayName
             Id                     = $getValue.Id
@@ -473,11 +470,16 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows81TrustedRootCertificate' `
+        $baseFilter = "isof('microsoft.graph.windows81TrustedRootCertificate')"
+        if (-not [string]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
         }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All -ErrorAction Stop
         #endregion
 
         $i = 1

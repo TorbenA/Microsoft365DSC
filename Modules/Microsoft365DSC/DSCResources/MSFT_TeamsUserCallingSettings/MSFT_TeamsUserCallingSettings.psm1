@@ -435,7 +435,7 @@ function Export-TargetResource
         $allUsers = Get-MgUser -All -Property 'UserPrincipalName'
         $i = 1
         Write-M365DSCHost -Message "`r`n" -DeferWrite
-        $dscContent = [System.Text.StringBuilder]::New()
+        $dscContent = [System.Text.StringBuilder]::new()
         $Script:exportMode = $true
         foreach ($user in $allUsers)
         {

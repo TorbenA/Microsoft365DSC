@@ -152,7 +152,7 @@ function Get-TargetResource
             RoleScopeTagIds       = $getValue.RoleScopeTagIds
             RunAs32Bit            = $getValue.RunAs32Bit
             RunAsAccount          = $enumRunAsAccount
-            ScriptContent         = [System.Convert]::ToBase64String($getValue.ScriptContent)
+            ScriptContent         = $getValue.ScriptContent
             Id                    = $getValue.Id
             Ensure                = 'Present'
             Credential            = $Credential

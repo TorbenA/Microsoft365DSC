@@ -369,7 +369,6 @@ function Set-TargetResource
         $AccessTokens
     )
 
-
     Write-Verbose -Message "Setting configuration of SCProtectionAlert for $Name"
 
     #Ensure the proper dependencies are installed in the current environment.

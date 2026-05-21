@@ -178,16 +178,14 @@ function Set-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-
     $currentParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
     $currentParameters.Remove('IsSingleInstance') | Out-Null
-    $currentParameters.Add('OrganizationId', $(Get-MgBetaOrganization).Id)
 
     try
     {
         Write-Verbose -Message 'Calling Update-MGBetaOrganization with parameters:'
         Write-Verbose -Message "$(Convert-M365DscHashtableToString -Hashtable $currentParameters)"
-        Update-MgBetaOrganization @currentParameters
+        Update-MgBetaOrganization -OrganizationId (Get-MgBetaOrganization).Id -BodyParameter $currentParameters
     }
     catch
     {

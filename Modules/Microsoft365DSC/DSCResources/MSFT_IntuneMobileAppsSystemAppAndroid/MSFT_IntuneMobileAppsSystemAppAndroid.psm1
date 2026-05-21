@@ -108,7 +108,7 @@ function Get-TargetResource
                     $getValue = Get-MgBetaDeviceAppManagementMobileApp `
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.androidManagedStoreApp')" `
                         -ErrorAction SilentlyContinue | Where-Object -FilterScript {
-                            $_.AdditionalProperties.isSystemApp -eq $true
+                            $_.isSystemApp -eq $true
                         }
                 }
             }
@@ -130,7 +130,7 @@ function Get-TargetResource
 
         $results = @{
             #region resource generator code
-            AppIdentifier         = $getValue.AdditionalProperties.appIdentifier
+            AppIdentifier         = $getValue.appIdentifier
             DisplayName           = $getValue.DisplayName
             Publisher             = $getValue.Publisher
             RoleScopeTagIds       = $getValue.RoleScopeTagIds
@@ -247,7 +247,6 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
@@ -454,7 +453,7 @@ function Export-TargetResource
             -All `
             -ErrorAction Stop | Where-Object `
             -FilterScript {
-                $_.AdditionalProperties.isSystemApp -eq $true
+                $_.isSystemApp -eq $true
             }
         #endregion
 
@@ -483,7 +482,7 @@ function Export-TargetResource
             $params = @{
                 Id                    = $config.Id
                 DisplayName           = $config.DisplayName
-                AppIdentifier         = $config.AdditionalProperties.appIdentifier
+                AppIdentifier         = $config.appIdentifier
                 Publisher             = $config.Publisher
                 Ensure                = 'Present'
                 Credential            = $Credential
@@ -500,7 +499,17 @@ function Export-TargetResource
 
             if ($Results.Assignments)
             {
-                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString -ComplexObject $Results.Assignments -CIMInstanceName DeviceManagementMobileAppAssignment
+                $complexMapping = @(
+                    @{
+                        Name            = 'AssignmentSettings'
+                        CIMInstanceName = 'DeviceManagementSystemMobileAppAssignmentSettings'
+                        IsRequired      = $false
+                    }
+                )
+                $complexTypeStringResult = Get-M365DSCDRGComplexTypeToString `
+                    -ComplexObject $Results.Assignments `
+                    -CIMInstanceName DeviceManagementSystemMobileAppAssignment `
+                    -ComplexTypeMapping $complexMapping
                 if ($complexTypeStringResult)
                 {
                     $Results.Assignments = $complexTypeStringResult

@@ -180,41 +180,41 @@ function Get-TargetResource
 
         #region resource generator code
         $enumPinLowercaseCharactersUsage = $null
-        if ($null -ne $getValue.AdditionalProperties.pinLowercaseCharactersUsage)
+        if ($null -ne $getValue.pinLowercaseCharactersUsage)
         {
-            $enumPinLowercaseCharactersUsage = $getValue.AdditionalProperties.pinLowercaseCharactersUsage.ToString()
+            $enumPinLowercaseCharactersUsage = $getValue.pinLowercaseCharactersUsage.ToString()
         }
 
         $enumPinSpecialCharactersUsage = $null
-        if ($null -ne $getValue.AdditionalProperties.pinSpecialCharactersUsage)
+        if ($null -ne $getValue.pinSpecialCharactersUsage)
         {
-            $enumPinSpecialCharactersUsage = $getValue.AdditionalProperties.pinSpecialCharactersUsage.ToString()
+            $enumPinSpecialCharactersUsage = $getValue.pinSpecialCharactersUsage.ToString()
         }
 
         $enumPinUppercaseCharactersUsage = $null
-        if ($null -ne $getValue.AdditionalProperties.pinUppercaseCharactersUsage)
+        if ($null -ne $getValue.pinUppercaseCharactersUsage)
         {
-            $enumPinUppercaseCharactersUsage = $getValue.AdditionalProperties.pinUppercaseCharactersUsage.ToString()
+            $enumPinUppercaseCharactersUsage = $getValue.pinUppercaseCharactersUsage.ToString()
         }
 
         #endregion
 
         $results = @{
             #region resource generator code
-            EnhancedAntiSpoofingForFacialFeaturesEnabled = $getValue.AdditionalProperties.enhancedAntiSpoofingForFacialFeaturesEnabled
-            PinExpirationInDays                          = $getValue.AdditionalProperties.pinExpirationInDays
+            EnhancedAntiSpoofingForFacialFeaturesEnabled = $getValue.enhancedAntiSpoofingForFacialFeaturesEnabled
+            PinExpirationInDays                          = $getValue.pinExpirationInDays
             PinLowercaseCharactersUsage                  = $enumPinLowercaseCharactersUsage
-            PinMaximumLength                             = $getValue.AdditionalProperties.pinMaximumLength
-            PinMinimumLength                             = $getValue.AdditionalProperties.pinMinimumLength
-            PinPreviousBlockCount                        = $getValue.AdditionalProperties.pinPreviousBlockCount
-            PinRecoveryEnabled                           = $getValue.AdditionalProperties.pinRecoveryEnabled
+            PinMaximumLength                             = $getValue.pinMaximumLength
+            PinMinimumLength                             = $getValue.pinMinimumLength
+            PinPreviousBlockCount                        = $getValue.pinPreviousBlockCount
+            PinRecoveryEnabled                           = $getValue.pinRecoveryEnabled
             PinSpecialCharactersUsage                    = $enumPinSpecialCharactersUsage
             PinUppercaseCharactersUsage                  = $enumPinUppercaseCharactersUsage
-            SecurityDeviceRequired                       = $getValue.AdditionalProperties.securityDeviceRequired
-            UnlockWithBiometricsEnabled                  = $getValue.AdditionalProperties.unlockWithBiometricsEnabled
-            UseCertificatesForOnPremisesAuthEnabled      = $getValue.AdditionalProperties.useCertificatesForOnPremisesAuthEnabled
-            UseSecurityKeyForSignin                      = $getValue.AdditionalProperties.useSecurityKeyForSignin
-            WindowsHelloForBusinessBlocked               = $getValue.AdditionalProperties.windowsHelloForBusinessBlocked
+            SecurityDeviceRequired                       = $getValue.securityDeviceRequired
+            UnlockWithBiometricsEnabled                  = $getValue.unlockWithBiometricsEnabled
+            UseCertificatesForOnPremisesAuthEnabled      = $getValue.useCertificatesForOnPremisesAuthEnabled
+            UseSecurityKeyForSignin                      = $getValue.useSecurityKeyForSignin
+            WindowsHelloForBusinessBlocked               = $getValue.windowsHelloForBusinessBlocked
             Description                                  = $getValue.Description
             DisplayName                                  = $getValue.DisplayName
             Id                                           = $getValue.Id
@@ -635,11 +635,16 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsIdentityProtectionConfiguration' `
+        $baseFilter = "isof('microsoft.graph.windowsIdentityProtectionConfiguration')"
+        if (-not [string]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
         }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All -ErrorAction Stop
         #endregion
 
         $i = 1

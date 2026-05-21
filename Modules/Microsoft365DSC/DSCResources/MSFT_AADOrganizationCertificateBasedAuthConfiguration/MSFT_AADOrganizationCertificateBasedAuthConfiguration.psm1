@@ -357,7 +357,7 @@ function Export-TargetResource
 
     try
     {
-        $getValue = Get-MgBetaOrganization
+        [array]$getValue = Get-MgBetaOrganization
 
         $i = 1
         $dscContent = [System.Text.StringBuilder]::new()

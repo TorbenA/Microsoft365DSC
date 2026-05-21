@@ -135,13 +135,13 @@ function Get-TargetResource
         {
             foreach ($sponsor in $getExternalSponsors)
             {
-                if ($sponsor.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.user')
+                if ($sponsor.'@odata.type' -eq '#microsoft.graph.user')
                 {
-                    $ExternalSponsorsValues += $sponsor.AdditionalProperties.userPrincipalName
+                    $ExternalSponsorsValues += $sponsor.userPrincipalName
                 }
-                elseif ($sponsor.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.group')
+                elseif ($sponsor.'@odata.type' -eq '#microsoft.graph.group')
                 {
-                    $ExternalSponsorsValues += $sponsor.AdditionalProperties.displayName
+                    $ExternalSponsorsValues += $sponsor.displayName
                 }
             }
         }
@@ -153,13 +153,13 @@ function Get-TargetResource
         {
             foreach ($sponsor in $getInternalSponsors)
             {
-                if ($sponsor.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.user')
+                if ($sponsor.'@odata.type' -eq '#microsoft.graph.user')
                 {
-                    $InternalSponsorsValues += $sponsor.AdditionalProperties.userPrincipalName
+                    $InternalSponsorsValues += $sponsor.userPrincipalName
                 }
-                elseif ($sponsor.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.group')
+                elseif ($sponsor.'@odata.type' -eq '#microsoft.graph.group')
                 {
-                    $InternalSponsorsValues += $sponsor.AdditionalProperties.displayName
+                    $InternalSponsorsValues += $sponsor.displayName
                 }
             }
         }
@@ -171,32 +171,32 @@ function Get-TargetResource
             foreach ($source in $getValue.IdentitySources)
             {
                 $formattedSource = @{
-                    odataType = $source.AdditionalProperties.'@odata.type'
+                    odataType = $source.'@odata.type'
                 }
 
-                if (-not [String]::IsNullOrEmpty($source.AdditionalProperties.displayName))
+                if (-not [String]::IsNullOrEmpty($source.displayName))
                 {
-                    $formattedSource.Add('DisplayName', $source.AdditionalProperties.displayName)
+                    $formattedSource.Add('DisplayName', $source.displayName)
                 }
 
-                if (-not [String]::IsNullOrEmpty($source.AdditionalProperties.tenantId))
+                if (-not [String]::IsNullOrEmpty($source.tenantId))
                 {
-                    $formattedSource.Add('ExternalTenantId', $source.AdditionalProperties.tenantId)
+                    $formattedSource.Add('ExternalTenantId', $source.tenantId)
                 }
 
-                if (-not [String]::IsNullOrEmpty($source.AdditionalProperties.cloudInstance))
+                if (-not [String]::IsNullOrEmpty($source.cloudInstance))
                 {
-                    $formattedSource.Add('CloudInstance', $source.AdditionalProperties.cloudInstance)
+                    $formattedSource.Add('CloudInstance', $source.cloudInstance)
                 }
 
-                if (-not [String]::IsNullOrEmpty($source.AdditionalProperties.domainName))
+                if (-not [String]::IsNullOrEmpty($source.domainName))
                 {
-                    $formattedSource.Add('DomainName', $source.AdditionalProperties.domainName)
+                    $formattedSource.Add('DomainName', $source.domainName)
                 }
 
-                if (-not [String]::IsNullOrEmpty($source.AdditionalProperties.issuerUri))
+                if (-not [String]::IsNullOrEmpty($source.issuerUri))
                 {
-                    $formattedSource.Add('IssuerUri', $source.AdditionalProperties.issuerUri)
+                    $formattedSource.Add('IssuerUri', $source.issuerUri)
                 }
                 $sources += $formattedSource
             }
@@ -421,8 +421,8 @@ function Set-TargetResource
         foreach ($sponsor in $ExternalSponsors)
         {
             $directoryObject = Get-MgBetaDirectoryObject -DirectoryObjectId $sponsor
-            $directoryObjectType = $directoryObject.AdditionalProperties.'@odata.type'
-            $directoryObjectType = ($directoryObject.AdditionalProperties.'@odata.type').Split('.') | Select-Object -Last 1
+            $directoryObjectType = $directoryObject.'@odata.type'
+            $directoryObjectType = ($directoryObject.'@odata.type').Split('.') | Select-Object -Last 1
             $directoryObjectRef = @{
                 '@odata.id' = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/$($directoryObjectType)s/$($sponsor)"
             }
@@ -435,7 +435,7 @@ function Set-TargetResource
         foreach ($sponsor in $InternalSponsors)
         {
             $directoryObject = Get-MgBetaDirectoryObject -DirectoryObjectId $sponsor
-            $directoryObjectType = ($directoryObject.AdditionalProperties.'@odata.type').Split('.') | Select-Object -Last 1
+            $directoryObjectType = ($directoryObject.'@odata.type').Split('.') | Select-Object -Last 1
             $directoryObjectRef = @{
                 '@odata.id' = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/$($directoryObjectType)s/$($sponsor)"
             }
@@ -480,8 +480,8 @@ function Set-TargetResource
         foreach ($sponsor in $sponsorsToAdd)
         {
             $directoryObject = Get-MgBetaDirectoryObject -DirectoryObjectId $sponsor
-            $directoryObjectType = $directoryObject.AdditionalProperties.'@odata.type'
-            $directoryObjectType = ($directoryObject.AdditionalProperties.'@odata.type').Split('.') | Select-Object -Last 1
+            $directoryObjectType = $directoryObject.'@odata.type'
+            $directoryObjectType = ($directoryObject.'@odata.type').Split('.') | Select-Object -Last 1
             $directoryObjectRef = @{
                 '@odata.id' = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/$($directoryObjectType)s/$($sponsor)"
             }
@@ -518,8 +518,8 @@ function Set-TargetResource
         foreach ($sponsor in $sponsorsToAdd)
         {
             $directoryObject = Get-MgBetaDirectoryObject -DirectoryObjectId $sponsor
-            $directoryObjectType = $directoryObject.AdditionalProperties.'@odata.type'
-            $directoryObjectType = ($directoryObject.AdditionalProperties.'@odata.type').Split('.') | Select-Object -Last 1
+            $directoryObjectType = $directoryObject.'@odata.type'
+            $directoryObjectType = ($directoryObject.'@odata.type').Split('.') | Select-Object -Last 1
             $directoryObjectRef = @{
                 '@odata.id' = (Get-MSCloudLoginConnectionProfile -Workload MicrosoftGraph).ResourceUrl + "beta/$($directoryObjectType)s/$($sponsor)"
             }

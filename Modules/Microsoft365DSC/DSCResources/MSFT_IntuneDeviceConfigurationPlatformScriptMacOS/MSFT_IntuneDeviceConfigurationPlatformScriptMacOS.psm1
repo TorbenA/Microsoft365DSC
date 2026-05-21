@@ -155,12 +155,12 @@ function Get-TargetResource
             BlockExecutionNotifications = $getValue.BlockExecutionNotifications
             Description                 = $getValue.Description
             DisplayName                 = $getValue.DisplayName
-            ExecutionFrequency          = $getValue.ExecutionFrequency
+            ExecutionFrequency          = [System.Xml.XmlConvert]::ToTimeSpan($getValue.ExecutionFrequency).ToString()
             FileName                    = $getValue.FileName
             RetryCount                  = $getValue.RetryCount
             RoleScopeTagIds             = $getValue.RoleScopeTagIds
             RunAsAccount                = $enumRunAsAccount
-            ScriptContent               = [System.Convert]::ToBase64String($getValue.ScriptContent)
+            ScriptContent               = $getValue.ScriptContent
             Id                          = $getValue.Id
             Ensure                      = 'Present'
             Credential                  = $Credential
@@ -297,6 +297,10 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    if ($BoundParameters.ContainsKey('ExecutionFrequency'))
+    {
+        $BoundParameters['ExecutionFrequency'] = [System.Xml.XmlConvert]::ToString([System.TimeSpan]::Parse($BoundParameters['ExecutionFrequency']))
+    }
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {

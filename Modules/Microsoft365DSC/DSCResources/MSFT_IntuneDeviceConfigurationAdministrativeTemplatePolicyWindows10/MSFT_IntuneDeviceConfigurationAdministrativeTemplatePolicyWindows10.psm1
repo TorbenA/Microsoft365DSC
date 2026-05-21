@@ -182,24 +182,24 @@ function Get-TargetResource
             foreach ($presentationValue in $presentationValues)
             {
                 $complexPresentationValue = [ordered]@{}
-                $complexPresentationValue.Add('odataType', $presentationValue.AdditionalProperties.'@odata.type')
+                $complexPresentationValue.Add('odataType', $presentationValue.'@odata.type')
                 $complexPresentationValue.Add('Id', $presentationValue.Id)
                 $complexPresentationValue.Add('presentationDefinitionId', $presentationValue.Presentation.Id)
                 $complexPresentationValue.Add('presentationDefinitionLabel', $presentationValue.Presentation.Label)
-                switch -Wildcard ($presentationValue.AdditionalProperties.'@odata.type')
+                switch -Wildcard ($presentationValue.'@odata.type')
                 {
                     '*.groupPolicyPresentationValueBoolean'
                     {
-                        $complexPresentationValue.Add('BooleanValue', $presentationValue.AdditionalProperties.value)
+                        $complexPresentationValue.Add('BooleanValue', $presentationValue.value)
                     }
                     '*.groupPolicyPresentationValue*Decimal'
                     {
-                        $complexPresentationValue.Add('DecimalValue', $presentationValue.AdditionalProperties.value)
+                        $complexPresentationValue.Add('DecimalValue', $presentationValue.value)
                     }
                     '*.groupPolicyPresentationValueList'
                     {
                         $complexKeyValuePairValues = @()
-                        foreach ($value in $presentationValue.AdditionalProperties.values)
+                        foreach ($value in $presentationValue.values)
                         {
 
                             $complexKeyValuePairValue = @{
@@ -218,11 +218,11 @@ function Get-TargetResource
                     }
                     '*.groupPolicyPresentationValueMultiText'
                     {
-                        $complexPresentationValue.Add('StringValues', $presentationValue.AdditionalProperties.values)
+                        $complexPresentationValue.Add('StringValues', $presentationValue.values)
                     }
                     '*.groupPolicyPresentationValueText'
                     {
-                        $complexPresentationValue.Add('StringValue', $presentationValue.AdditionalProperties.value)
+                        $complexPresentationValue.Add('StringValue', $presentationValue.value)
                     }
                 }
                 $complexPresentationValues += $complexPresentationValue

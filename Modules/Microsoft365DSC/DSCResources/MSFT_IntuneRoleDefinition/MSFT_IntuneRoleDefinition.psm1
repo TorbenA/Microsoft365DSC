@@ -129,7 +129,7 @@ function Get-TargetResource
             DisplayName           = $getValue.DisplayName
             IsBuiltIn             = $getValue.IsBuiltIn
             Ensure                = 'Present'
-            roleScopeTagIds       = $getValue.RoleScopeTagIds
+            RoleScopeTagIds       = $getValue.RoleScopeTagIds
             Credential            = $Credential
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
@@ -140,8 +140,8 @@ function Get-TargetResource
         }
         if ($getValue.RolePermissions)
         {
-            $results.Add('allowedResourceActions', $getValue.RolePermissions.ResourceActions.AllowedResourceActions)
-            $results.Add('notallowedResourceActions', $getValue.RolePermissions.ResourceActions.notAllowedResourceActions)
+            $results.Add('AllowedResourceActions', $getValue.RolePermissions.ResourceActions.AllowedResourceActions)
+            $results.Add('NotAllowedResourceActions', $getValue.RolePermissions.ResourceActions.NotAllowedResourceActions)
         }
 
         return $results
@@ -459,11 +459,16 @@ function Export-TargetResource
 
     try
     {
-        [array]$getValue = Get-MgBetaDeviceManagementRoleDefinition -Filter $Filter -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.deviceAndAppManagementRoleDefinition' `
+        $baseFilter = "isof('microsoft.graph.deviceAndAppManagementRoleDefinition')"
+        if (-not [string]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
         }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = Get-MgBetaDeviceManagementRoleDefinition -Filter $Filter -All -ErrorAction Stop
 
         if (-not $getValue)
         {
@@ -507,7 +512,6 @@ function Export-TargetResource
 
             $Script:exportedInstance = $config
             $Results = Get-TargetResource @Params
-
 
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `

@@ -175,17 +175,17 @@ function Get-TargetResource
             $complexCategories += $myCategory
         }
         $complexInstallExperience = $null
-        if ($null -ne $getValue.AdditionalProperties.installExperience.runAsAccount)
+        if ($null -ne $getValue.installExperience.runAsAccount)
         {
             $complexInstallExperience = @{}
-            $complexInstallExperience.Add('RunAsAccount', $getValue.AdditionalProperties.installExperience.runAsAccount.ToString())
+            $complexInstallExperience.Add('RunAsAccount', $getValue.installExperience.runAsAccount.ToString())
         }
         $complexLargeIcon = $null
         if ($null -ne $getValue.LargeIcon.Value)
         {
             $complexLargeIcon = @{}
             $complexLargeIcon.Add('Type', $getValue.LargeIcon.Type)
-            $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($getValue.LargeIcon.Value))
+            $complexLargeIcon.Add('Value', $getValue.LargeIcon.Value)
         }
         #endregion
 
@@ -193,7 +193,7 @@ function Get-TargetResource
             #region resource generator code
             Categories            = $complexCategories
             InstallExperience     = $complexInstallExperience
-            PackageIdentifier     = $getValue.AdditionalProperties.packageIdentifier
+            PackageIdentifier     = $getValue.packageIdentifier
             Description           = $getValue.Description
             Developer             = $getValue.Developer
             DisplayName           = $getValue.DisplayName
@@ -646,7 +646,7 @@ function Export-TargetResource
             $params = @{
                 Id                    = $config.Id
                 DisplayName           = $config.DisplayName
-                PackageIdentifier     = $config.AdditionalProperties.packageIdentifier
+                PackageIdentifier     = $config.packageIdentifier
                 Ensure                = 'Present'
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId

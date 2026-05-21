@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneRoleDefinitionWindows365'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -491,8 +493,9 @@ function Export-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        return ''
+        throw
     }
 }
 
 Export-ModuleMember -Function *-TargetResource
+

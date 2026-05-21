@@ -93,7 +93,7 @@ function Get-TargetResource
                 -Filter "alertRuleTemplate eq '$($AlertRuleTemplate -replace "'", "''")'" `
                 -All `
                 -ErrorAction SilentlyContinue | Where-Object {
-                    $_.alertRuleTemplate -eq $AlertRuleTemplate
+                    $_.AlertRuleTemplate -eq $AlertRuleTemplate
                 }
             $Script:currentAlertRule = $getValue
             #endregion

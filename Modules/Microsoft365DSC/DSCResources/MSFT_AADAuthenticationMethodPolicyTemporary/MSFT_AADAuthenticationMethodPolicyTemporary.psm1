@@ -156,7 +156,7 @@ function Get-TargetResource
 
         Write-Verbose -Message 'Processing IncludeTargets'
         $complexIncludeTargets = @()
-        foreach ($currentIncludeTargets in $getValue.AdditionalProperties.includeTargets)
+        foreach ($currentIncludeTargets in $getValue.includeTargets)
         {
             Write-Verbose -Message "Retrieving IncludeTarget {$($currentIncludeTargets.id)}"
             $myIncludeTargets = [ordered]@{}
@@ -196,11 +196,11 @@ function Get-TargetResource
         Write-Verbose -Message 'Get-TargetResource returned values'
         $results = @{
             #region resource generator code
-            DefaultLength            = $getValue.AdditionalProperties.defaultLength
-            DefaultLifetimeInMinutes = $getValue.AdditionalProperties.defaultLifetimeInMinutes
-            IsUsableOnce             = $getValue.AdditionalProperties.isUsableOnce
-            MaximumLifetimeInMinutes = $getValue.AdditionalProperties.maximumLifetimeInMinutes
-            MinimumLifetimeInMinutes = $getValue.AdditionalProperties.minimumLifetimeInMinutes
+            DefaultLength            = $getValue.defaultLength
+            DefaultLifetimeInMinutes = $getValue.defaultLifetimeInMinutes
+            IsUsableOnce             = $getValue.isUsableOnce
+            MaximumLifetimeInMinutes = $getValue.maximumLifetimeInMinutes
+            MinimumLifetimeInMinutes = $getValue.minimumLifetimeInMinutes
             ExcludeTargets           = $complexExcludeTargets
             IncludeTargets           = $complexIncludeTargets
             State                    = $enumState

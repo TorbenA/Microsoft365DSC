@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDeviceConfigurationPlatformScriptLinux'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -305,13 +307,13 @@ function Set-TargetResource
             -TemplateId $templateReferenceId
 
         $createParameters = @{
-            Name              = $DisplayName
-            Description       = $Description
-            TemplateReference = @{ templateId = $templateReferenceId }
-            Platforms         = $platforms
-            Technologies      = $technologies
-            Settings          = $settings
-            RoleScopeTagIds   = $RoleScopeTagIds
+            name              = $DisplayName
+            description       = $Description
+            templateReference = @{ templateId = $templateReferenceId }
+            platforms         = $platforms
+            technologies      = $technologies
+            settings          = $settings
+            roleScopeTagIds   = $RoleScopeTagIds
         }
 
         #region resource generator code
@@ -609,3 +611,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

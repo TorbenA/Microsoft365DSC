@@ -139,14 +139,14 @@ function Get-TargetResource
 
         $complexRule = [ordered]@{
             id       = $getValue.id
-            ruleType = $getValue.AdditionalProperties.'@odata.type'
+            ruleType = $getValue.'@odata.type'
         }
 
         if ($complexRule.ruleType -eq '#microsoft.graph.unifiedRoleManagementPolicyExpirationRule')
         {
             $complexExpirationRule = [ordered]@{
-                isExpirationRequired = $getValue.AdditionalProperties.isExpirationRequired
-                maximumDuration      = $getValue.AdditionalProperties.maximumDuration
+                isExpirationRequired = $getValue.isExpirationRequired
+                maximumDuration      = $getValue.maximumDuration
             }
             $complexRule.Add('ExpirationRule', $complexExpirationRule)
         }
@@ -154,11 +154,11 @@ function Get-TargetResource
         if ($complexRule.ruleType -eq '#microsoft.graph.unifiedRoleManagementPolicyNotificationRule')
         {
             $complexNotificationRule = [ordered]@{
-                isDefaultRecipientsEnabled = $getValue.AdditionalProperties.isDefaultRecipientsEnabled
-                notificationLevel          = $getValue.AdditionalProperties.notificationLevel
-                notificationRecipients     = [array]$getValue.AdditionalProperties.notificationRecipients
-                notificationType           = $getValue.AdditionalProperties.notificationType
-                recipientType              = $getValue.AdditionalProperties.recipientType
+                isDefaultRecipientsEnabled = $getValue.isDefaultRecipientsEnabled
+                notificationLevel          = $getValue.notificationLevel
+                notificationRecipients     = [array]$getValue.notificationRecipients
+                notificationType           = $getValue.notificationType
+                recipientType              = $getValue.recipientType
             }
             $complexRule.Add('NotificationRule', $complexNotificationRule)
         }
@@ -166,7 +166,7 @@ function Get-TargetResource
         if ($complexRule.ruleType -eq '#microsoft.graph.unifiedRoleManagementPolicyEnablementRule')
         {
             $complexEnablementRule = @{
-                enabledRules = [array]$getValue.AdditionalProperties.enabledRules
+                enabledRules = [array]$getValue.enabledRules
             }
             $complexRule.Add('EnablementRule', $complexEnablementRule)
         }
@@ -174,7 +174,7 @@ function Get-TargetResource
         if ($complexRule.ruleType -eq '#microsoft.graph.unifiedRoleManagementPolicyApprovalRule')
         {
             $approvalStages = @()
-            foreach ($stage in $getValue.AdditionalProperties.setting.approvalStages)
+            foreach ($stage in $getValue.setting.approvalStages)
             {
                 $primaryApprovers = @()
                 foreach ($approver in $stage.primaryApprovers)
@@ -206,11 +206,11 @@ function Get-TargetResource
                 $approvalStages += $approvalStage
             }
             $setting = [ordered]@{
-                approvalMode                     = $getValue.AdditionalProperties.setting.approvalMode
+                approvalMode                     = $getValue.setting.approvalMode
                 approvalStages                   = [array]$approvalStages
-                isApprovalRequired               = $getValue.AdditionalProperties.setting.isApprovalRequired
-                isApprovalRequiredForExtension   = $getValue.AdditionalProperties.setting.isApprovalRequiredForExtension
-                isRequestorJustificationRequired = $getValue.AdditionalProperties.setting.isRequestorJustificationRequired
+                isApprovalRequired               = $getValue.setting.isApprovalRequired
+                isApprovalRequiredForExtension   = $getValue.setting.isApprovalRequiredForExtension
+                isRequestorJustificationRequired = $getValue.setting.isRequestorJustificationRequired
             }
             $complexApprovalRule = @{
                 setting = $setting
@@ -221,8 +221,8 @@ function Get-TargetResource
         if ($complexRule.ruleType -eq '#microsoft.graph.unifiedRoleManagementPolicyAuthenticationContextRule')
         {
             $complexAuthenticationContextRule = [ordered]@{
-                claimValue = $getValue.AdditionalProperties.claimValue
-                isEnabled  = $getValue.AdditionalProperties.isEnabled
+                claimValue = $getValue.claimValue
+                isEnabled  = $getValue.isEnabled
             }
             $complexRule.Add('AuthenticationContextRule', $complexAuthenticationContextRule)
         }
@@ -469,8 +469,10 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
+    $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
-        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
+        -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
+        @compareParameters
     return $result
 }
 
@@ -737,4 +739,15 @@ function Export-TargetResource
     }
 }
 
-Export-ModuleMember -Function *-TargetResource
+function Get-CompareParameters
+{
+    [CmdletBinding()]
+    [OutputType([System.Collections.Hashtable])]
+    param()
+
+    return @{
+        ExcludedProperties = @('PolicyId')
+    }
+}
+
+Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')

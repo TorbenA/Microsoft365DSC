@@ -25,7 +25,7 @@ function Get-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $AllowPartnerToCollectIosPersonalApplicationMetadata,
+        $AllowPartnerToCollectIOSPersonalApplicationMetadata,
 
         [Parameter()]
         [System.Boolean]
@@ -158,8 +158,8 @@ function Get-TargetResource
                 # The DisplayName property is not supported by the any API of this resource, hence hard-coded in below function for convenience.
                 $connectorId = (Get-MobileThreatDefenseConnectorIdOrDisplayName -DisplayName $DisplayName).Id
                 $instance = Get-MgBetaDeviceManagementMobileThreatDefenseConnector `
-                    -MobileThreatDefenseConnectorId $connectorId
-                -ErrorAction SilentlyContinue
+                    -MobileThreatDefenseConnectorId $connectorId `
+                    -ErrorAction SilentlyContinue
             }
 
             if ($null -eq $instance)
@@ -178,7 +178,7 @@ function Get-TargetResource
             Id                                                  = $instance.Id
             DisplayName                                         = $DisplayName
             AllowPartnerToCollectIosApplicationMetadata         = $instance.AllowPartnerToCollectIosApplicationMetadata
-            AllowPartnerToCollectIosPersonalApplicationMetadata = $instance.AllowPartnerToCollectIosPersonalApplicationMetadata
+            AllowPartnerToCollectIOSPersonalApplicationMetadata = $instance.AllowPartnerToCollectIosPersonalApplicationMetadata
             AndroidDeviceBlockedOnMissingPartnerData            = $instance.AndroidDeviceBlockedOnMissingPartnerData
             AndroidEnabled                                      = $instance.AndroidEnabled
             AndroidMobileApplicationManagementEnabled           = $instance.AndroidMobileApplicationManagementEnabled
@@ -192,7 +192,6 @@ function Get-TargetResource
             PartnerUnsupportedOSVersionBlocked                  = $instance.PartnerUnsupportedOSVersionBlocked
             WindowsDeviceBlockedOnMissingPartnerData            = $instance.WindowsDeviceBlockedOnMissingPartnerData
             WindowsEnabled                                      = $instance.WindowsEnabled
-
             Ensure                                              = 'Present'
             Credential                                          = $Credential
             ApplicationId                                       = $ApplicationId
@@ -238,7 +237,7 @@ function Set-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $AllowPartnerToCollectIosPersonalApplicationMetadata,
+        $AllowPartnerToCollectIOSPersonalApplicationMetadata,
 
         [Parameter()]
         [System.Boolean]
@@ -342,26 +341,39 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
     $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $SetParameters = Rename-M365DSCCimInstanceParameter -Properties $SetParameters
 
     # Remove the DisplayName parameter as the Graph API does not support it
     $SetParameters.Remove('DisplayName') | Out-Null
     $SetParameters.Remove('Id') | Out-Null
     $SetParameters.Remove('LastHeartbeatDateTime') | Out-Null
 
+
+    if ($PSBoundParameters.ContainsKey('PartnerUnsupportedOSVersionBlocked'))
+    {
+        $SetParameters.Remove('PartnerUnsupportedOSVersionBlocked') | Out-Null
+        $SetParameters.Add('partnerUnsupportedOsVersionBlocked', $PartnerUnsupportedOSVersionBlocked)
+    }
+    if ($PSBoundParameters.ContainsKey('AllowPartnerToCollectIosApplicationMetadata'))
+    {
+        $SetParameters.Remove('AllowPartnerToCollectIosApplicationMetadata') | Out-Null
+        $SetParameters.Add('allowPartnerToCollectIOSApplicationMetadata', $AllowPartnerToCollectIosApplicationMetadata)
+    }
+
     # CREATE
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        New-MgBetaDeviceManagementMobileThreatDefenseConnector @SetParameters
+        New-MgBetaDeviceManagementMobileThreatDefenseConnector -BodyParameter $SetParameters
     }
     # UPDATE
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Update-MgBetaDeviceManagementMobileThreatDefenseConnector -MobileThreatDefenseConnectorId $currentInstance.Id @SetParameters
+        Update-MgBetaDeviceManagementMobileThreatDefenseConnector -MobileThreatDefenseConnectorId $currentInstance.Id -BodyParameter $SetParameters
     }
     # REMOVE
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Remove-MgBetaDeviceManagementMobileThreatDefenseConnector -MobileThreatDefenseConnectorId $currentInstance.Id -Confirm:$false
+        Remove-MgBetaDeviceManagementMobileThreatDefenseConnector -MobileThreatDefenseConnectorId $currentInstance.Id
     }
 }
 
@@ -387,7 +399,7 @@ function Test-TargetResource
 
         [Parameter()]
         [System.Boolean]
-        $AllowPartnerToCollectIosPersonalApplicationMetadata,
+        $AllowPartnerToCollectIOSPersonalApplicationMetadata,
 
         [Parameter()]
         [System.Boolean]
@@ -571,7 +583,7 @@ function Export-TargetResource
                 Id                                                  = $config.Id
                 DisplayName                                         = $config.DisplayName
                 AllowPartnerToCollectIosApplicationMetadata         = $config.AllowPartnerToCollectIosApplicationMetadata
-                AllowPartnerToCollectIosPersonalApplicationMetadata = $config.AllowPartnerToCollectIosPersonalApplicationMetadata
+                AllowPartnerToCollectIOSPersonalApplicationMetadata = $config.AllowPartnerToCollectIosPersonalApplicationMetadata
                 AndroidDeviceBlockedOnMissingPartnerData            = $config.AndroidDeviceBlockedOnMissingPartnerData
                 AndroidEnabled                                      = $config.AndroidEnabled
                 AndroidMobileApplicationManagementEnabled           = $config.AndroidMobileApplicationManagementEnabled

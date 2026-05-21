@@ -337,7 +337,7 @@ function Get-TargetResource
         $disableRestorePointInstance = $settings | Where-Object { $_.SettingInstance.SettingDefinitionId -like '*_disablerestorepoint' }
         if ($null -ne $disableRestorePointInstance)
         {
-            $policySettings.DisableRestorePoint = [int]$disableRestorePointInstance.SettingInstance.AdditionalProperties.choiceSettingValue.value.Split('_')[-1]
+            $policySettings.DisableRestorePoint = [int]$disableRestorePointInstance.SettingInstance.choiceSettingValue.value.Split('_')[-1]
         }
 
         $results = @{
@@ -736,12 +736,13 @@ function Set-TargetResource
         }
 
         $createParameters = @{
-            Name           = $DisplayName
-            Description    = $Description
-            CreationSource = 'SccmAV'
-            Platforms      = $platforms
-            Technologies   = $technologies
-            Settings       = $settings
+            name            = $DisplayName
+            description     = $Description
+            creationSource  = 'SccmAV'
+            platforms       = $platforms
+            technologies    = $technologies
+            settings        = $settings
+            roleScopeTagIds = $RoleScopeTagIds
         }
 
         #region resource generator code

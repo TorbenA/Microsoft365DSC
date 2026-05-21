@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneAzureNetworkConnectionWindows365'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -649,3 +651,4 @@ function Get-CompareParameters
 }
 
 Export-ModuleMember -Function @('*-TargetResource', 'Get-CompareParameters')
+

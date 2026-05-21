@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_AADB2BManagementPolicy'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -182,11 +184,21 @@ function Set-TargetResource
 
     $currentInstance = Get-MgBetaPolicyB2BManagementPolicy -Filter "DisplayName eq 'B2BManagementPolicy'"
 
-    #region resource generator code
-    Update-MgBetaPolicyB2BManagementPolicy `
-        -B2BManagementPolicyId $currentInstance.Id `
-        -Definition $Definition
-    #endregion
+    if ($null -eq $currentInstance)
+    {
+        Write-Verbose -Message "No existing Azure AD B2B Management Policy found, creating new policy with DisplayName 'B2BManagementPolicy'"
+        $createParameters = $updateParameters
+        $createParameters.Add('displayName', 'B2BManagementPolicy')
+        $null = New-MgBetaPolicyB2BManagementPolicy -BodyParameter $createParameters
+    }
+    else
+    {
+        #region resource generator code
+        Update-MgBetaPolicyB2BManagementPolicy `
+            -B2BManagementPolicyId $currentInstance.Id `
+            -BodyParameter $updateParameters
+        #endregion
+    }
 }
 
 function Test-TargetResource
@@ -372,3 +384,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

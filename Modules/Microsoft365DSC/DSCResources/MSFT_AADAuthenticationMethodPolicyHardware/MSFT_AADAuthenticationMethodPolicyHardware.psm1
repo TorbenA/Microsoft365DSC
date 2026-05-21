@@ -133,7 +133,7 @@ function Get-TargetResource
         #endregion
 
         $complexIncludeTargets = @()
-        foreach ($currentIncludeTargets in $getValue.AdditionalProperties.includeTargets)
+        foreach ($currentIncludeTargets in $getValue.includeTargets)
         {
             $myIncludeTargets = [ordered]@{}
             if ($currentIncludeTargets.id -ne 'all_users')

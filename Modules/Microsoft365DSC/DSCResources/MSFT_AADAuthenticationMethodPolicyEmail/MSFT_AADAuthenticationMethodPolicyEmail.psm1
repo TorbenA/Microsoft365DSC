@@ -139,13 +139,13 @@ function Get-TargetResource
 
         #region resource generator code
         $enumAllowExternalIdToUseEmailOtp = $null
-        if ($null -ne $getValue.AdditionalProperties.allowExternalIdToUseEmailOtp)
+        if ($null -ne $getValue.allowExternalIdToUseEmailOtp)
         {
-            $enumAllowExternalIdToUseEmailOtp = $getValue.AdditionalProperties.allowExternalIdToUseEmailOtp.ToString()
+            $enumAllowExternalIdToUseEmailOtp = $getValue.allowExternalIdToUseEmailOtp.ToString()
         }
 
         $complexIncludeTargets = @()
-        foreach ($currentincludeTargets in $getValue.AdditionalProperties.includeTargets)
+        foreach ($currentincludeTargets in $getValue.includeTargets)
         {
             $myincludeTargets = [ordered]@{}
             if ($currentIncludeTargets.id -ne 'all_users')

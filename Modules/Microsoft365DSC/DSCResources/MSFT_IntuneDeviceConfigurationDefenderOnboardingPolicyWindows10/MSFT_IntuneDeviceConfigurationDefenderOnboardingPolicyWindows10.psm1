@@ -129,11 +129,8 @@ function Get-TargetResource
                 {
                     $getValue = Get-MgBetaDeviceManagementDeviceConfiguration `
                         -All `
-                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                        -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsDefenderAdvancedThreatProtectionConfiguration' `
-                    }
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.windowsDefenderAdvancedThreatProtectionConfiguration')" `
+                        -ErrorAction SilentlyContinue
                     if ($null -eq $getValue)
                     {
                         Write-Verbose -Message "Could not find an Intune Device Configuration Defender For Endpoint Onboarding Policy for Windows10 with DisplayName {$DisplayName}"
@@ -157,13 +154,13 @@ function Get-TargetResource
 
         $results = @{
             #region resource generator code
-            AdvancedThreatProtectionAutoPopulateOnboardingBlob = $getValue.AdditionalProperties.advancedThreatProtectionAutoPopulateOnboardingBlob
-            AdvancedThreatProtectionOffboardingBlob            = $getValue.AdditionalProperties.advancedThreatProtectionOffboardingBlob
-            AdvancedThreatProtectionOffboardingFilename        = $getValue.AdditionalProperties.advancedThreatProtectionOffboardingFilename
-            AdvancedThreatProtectionOnboardingBlob             = $getValue.AdditionalProperties.advancedThreatProtectionOnboardingBlob
-            AdvancedThreatProtectionOnboardingFilename         = $getValue.AdditionalProperties.advancedThreatProtectionOnboardingFilename
-            AllowSampleSharing                                 = $getValue.AdditionalProperties.allowSampleSharing
-            EnableExpeditedTelemetryReporting                  = $getValue.AdditionalProperties.enableExpeditedTelemetryReporting
+            AdvancedThreatProtectionAutoPopulateOnboardingBlob = $getValue.advancedThreatProtectionAutoPopulateOnboardingBlob
+            AdvancedThreatProtectionOffboardingBlob            = $getValue.advancedThreatProtectionOffboardingBlob
+            AdvancedThreatProtectionOffboardingFilename        = $getValue.advancedThreatProtectionOffboardingFilename
+            AdvancedThreatProtectionOnboardingBlob             = $getValue.advancedThreatProtectionOnboardingBlob
+            AdvancedThreatProtectionOnboardingFilename         = $getValue.advancedThreatProtectionOnboardingFilename
+            AllowSampleSharing                                 = $getValue.allowSampleSharing
+            EnableExpeditedTelemetryReporting                  = $getValue.enableExpeditedTelemetryReporting
             Description                                        = $getValue.Description
             DisplayName                                        = $getValue.DisplayName
             Id                                                 = $getValue.Id
@@ -532,11 +529,16 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windowsDefenderAdvancedThreatProtectionConfiguration' `
+        $baseFilter = "isof('microsoft.graph.windowsDefenderAdvancedThreatProtectionConfiguration')"
+        if (-not [string]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
         }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All -ErrorAction Stop
         #endregion
 
         $i = 1

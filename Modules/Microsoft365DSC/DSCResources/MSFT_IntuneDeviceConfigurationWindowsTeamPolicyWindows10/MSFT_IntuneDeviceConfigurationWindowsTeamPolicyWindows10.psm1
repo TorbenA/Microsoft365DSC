@@ -183,11 +183,8 @@ function Get-TargetResource
                 {
                     $getValue = Get-MgBetaDeviceManagementDeviceConfiguration `
                         -All `
-                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                        -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10TeamGeneralConfiguration' `
-                    }
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.windows10TeamGeneralConfiguration')" `
+                        -ErrorAction SilentlyContinue
                 }
             }
             #endregion
@@ -206,47 +203,47 @@ function Get-TargetResource
 
         #region resource generator code
         $enumMiracastChannel = $null
-        if ($null -ne $getValue.AdditionalProperties.miracastChannel)
+        if ($null -ne $getValue.miracastChannel)
         {
-            $enumMiracastChannel = $getValue.AdditionalProperties.miracastChannel.ToString()
+            $enumMiracastChannel = $getValue.miracastChannel.ToString()
         }
 
         $enumWelcomeScreenMeetingInformation = $null
-        if ($null -ne $getValue.AdditionalProperties.welcomeScreenMeetingInformation)
+        if ($null -ne $getValue.welcomeScreenMeetingInformation)
         {
-            $enumWelcomeScreenMeetingInformation = $getValue.AdditionalProperties.welcomeScreenMeetingInformation.ToString()
+            $enumWelcomeScreenMeetingInformation = $getValue.welcomeScreenMeetingInformation.ToString()
         }
         #endregion
 
         #region resource generator code
         $timeMaintenanceWindowStartTime = $null
-        if ($null -ne $getValue.AdditionalProperties.maintenanceWindowStartTime)
+        if ($null -ne $getValue.maintenanceWindowStartTime)
         {
-            $timeMaintenanceWindowStartTime = ([TimeSpan]$getValue.AdditionalProperties.maintenanceWindowStartTime).ToString()
+            $timeMaintenanceWindowStartTime = ([TimeSpan]$getValue.maintenanceWindowStartTime).ToString()
         }
         #endregion
 
         $results = @{
             #region resource generator code
-            AzureOperationalInsightsBlockTelemetry = $getValue.AdditionalProperties.azureOperationalInsightsBlockTelemetry
-            AzureOperationalInsightsWorkspaceId    = $getValue.AdditionalProperties.azureOperationalInsightsWorkspaceId
-            AzureOperationalInsightsWorkspaceKey   = $getValue.AdditionalProperties.azureOperationalInsightsWorkspaceKey
-            ConnectAppBlockAutoLaunch              = $getValue.AdditionalProperties.connectAppBlockAutoLaunch
-            MaintenanceWindowBlocked               = $getValue.AdditionalProperties.maintenanceWindowBlocked
-            MaintenanceWindowDurationInHours       = $getValue.AdditionalProperties.maintenanceWindowDurationInHours
+            AzureOperationalInsightsBlockTelemetry = $getValue.azureOperationalInsightsBlockTelemetry
+            AzureOperationalInsightsWorkspaceId    = $getValue.azureOperationalInsightsWorkspaceId
+            AzureOperationalInsightsWorkspaceKey   = $getValue.azureOperationalInsightsWorkspaceKey
+            ConnectAppBlockAutoLaunch              = $getValue.connectAppBlockAutoLaunch
+            MaintenanceWindowBlocked               = $getValue.maintenanceWindowBlocked
+            MaintenanceWindowDurationInHours       = $getValue.maintenanceWindowDurationInHours
             MaintenanceWindowStartTime             = $timeMaintenanceWindowStartTime
-            MiracastBlocked                        = $getValue.AdditionalProperties.miracastBlocked
+            MiracastBlocked                        = $getValue.miracastBlocked
             MiracastChannel                        = $enumMiracastChannel
-            MiracastRequirePin                     = $getValue.AdditionalProperties.miracastRequirePin
-            SettingsBlockMyMeetingsAndFiles        = $getValue.AdditionalProperties.settingsBlockMyMeetingsAndFiles
-            SettingsBlockSessionResume             = $getValue.AdditionalProperties.settingsBlockSessionResume
-            SettingsBlockSigninSuggestions         = $getValue.AdditionalProperties.settingsBlockSigninSuggestions
-            SettingsDefaultVolume                  = $getValue.AdditionalProperties.settingsDefaultVolume
-            SettingsScreenTimeoutInMinutes         = $getValue.AdditionalProperties.settingsScreenTimeoutInMinutes
-            SettingsSessionTimeoutInMinutes        = $getValue.AdditionalProperties.settingsSessionTimeoutInMinutes
-            SettingsSleepTimeoutInMinutes          = $getValue.AdditionalProperties.settingsSleepTimeoutInMinutes
-            WelcomeScreenBackgroundImageUrl        = $getValue.AdditionalProperties.welcomeScreenBackgroundImageUrl
-            WelcomeScreenBlockAutomaticWakeUp      = $getValue.AdditionalProperties.welcomeScreenBlockAutomaticWakeUp
+            MiracastRequirePin                     = $getValue.miracastRequirePin
+            SettingsBlockMyMeetingsAndFiles        = $getValue.settingsBlockMyMeetingsAndFiles
+            SettingsBlockSessionResume             = $getValue.settingsBlockSessionResume
+            SettingsBlockSigninSuggestions         = $getValue.settingsBlockSigninSuggestions
+            SettingsDefaultVolume                  = $getValue.settingsDefaultVolume
+            SettingsScreenTimeoutInMinutes         = $getValue.settingsScreenTimeoutInMinutes
+            SettingsSessionTimeoutInMinutes        = $getValue.settingsSessionTimeoutInMinutes
+            SettingsSleepTimeoutInMinutes          = $getValue.settingsSleepTimeoutInMinutes
+            WelcomeScreenBackgroundImageUrl        = $getValue.welcomeScreenBackgroundImageUrl
+            WelcomeScreenBlockAutomaticWakeUp      = $getValue.welcomeScreenBlockAutomaticWakeUp
             WelcomeScreenMeetingInformation        = $enumWelcomeScreenMeetingInformation
             Description                            = $getValue.Description
             DisplayName                            = $getValue.DisplayName
@@ -711,11 +708,16 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10TeamGeneralConfiguration' `
+        $baseFilter = "isof('microsoft.graph.windows10TeamGeneralConfiguration')"
+        if (-not [string]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
         }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All -ErrorAction Stop
         #endregion
 
         $i = 1

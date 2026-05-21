@@ -1,6 +1,5 @@
 Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SPOSearchResultSource'
 
-
 $InfoMapping = @(
     @{
         Protocol   = 'Local'

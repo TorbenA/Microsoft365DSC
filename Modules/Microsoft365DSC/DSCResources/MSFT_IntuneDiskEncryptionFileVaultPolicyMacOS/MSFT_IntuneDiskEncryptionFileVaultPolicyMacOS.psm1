@@ -1,3 +1,5 @@
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_IntuneDiskEncryptionFileVaultPolicyMacOS'
+
 function Get-TargetResource
 {
     [CmdletBinding()]
@@ -329,12 +331,13 @@ function Set-TargetResource
             -TemplateId $templateReferenceId
 
         $createParameters = @{
-            Name              = $DisplayName
-            Description       = $Description
-            TemplateReference = @{ templateId = $templateReferenceId }
-            Platforms         = $platforms
-            Technologies      = $technologies
-            Settings          = $settings
+            name              = $DisplayName
+            description       = $Description
+            templateReference = @{ templateId = $templateReferenceId }
+            platforms         = $platforms
+            technologies      = $technologies
+            settings          = $settings
+            roleScopeTagIds   = $RoleScopeTagIds
         }
 
         #region resource generator code
@@ -650,3 +653,4 @@ function Export-TargetResource
 }
 
 Export-ModuleMember -Function *-TargetResource
+

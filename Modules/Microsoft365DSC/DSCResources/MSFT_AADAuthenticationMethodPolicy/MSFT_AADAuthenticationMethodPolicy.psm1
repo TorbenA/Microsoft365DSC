@@ -633,7 +633,6 @@ function Export-TargetResource
                     }
                 }
 
-
                 if ($null -ne $Results.SystemCredentialPreferences)
                 {
                     $complexMapping = @(

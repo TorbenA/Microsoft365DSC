@@ -511,7 +511,6 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-
     $compareParameters = Get-CompareParameters
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '') `
@@ -575,11 +574,16 @@ function Export-TargetResource
 
     try
     {
-        [array]$getValue = Get-MgBetaDeviceManagementRoleAssignment -Filter $Filter -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.deviceAndAppManagementRoleAssignment' `
-            }
+        $baseFilter = "isof('microsoft.graph.deviceAndAppManagementRoleAssignment')"
+        if (-not [string]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
+        }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = Get-MgBetaDeviceManagementRoleAssignment -Filter $Filter -All -ErrorAction Stop
 
         if (-not $getValue)
         {

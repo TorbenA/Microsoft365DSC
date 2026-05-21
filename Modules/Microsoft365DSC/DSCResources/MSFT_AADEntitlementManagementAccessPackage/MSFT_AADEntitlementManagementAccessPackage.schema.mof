@@ -1,9 +1,10 @@
-[ClassVersion("1.0.0.0")]
+[ClassVersion("1.0.0.1")]
 class MSFT_AccessPackageResourceRoleScope
 {
     [Write, Description("The Id of the resource roleScope.")] String Id;
     [Write, Description("The origine Id of the resource.")] String AccessPackageResourceOriginId;
     [Write, Description("The display name of the resource role.")] String AccessPackageResourceRoleDisplayName;
+    [Write, Description("The type of the resource in the origin system.")] String AccessPackageResourceScopeOriginSystem;
 };
 
 [ClassVersion("1.0.0.0"), FriendlyName("AADEntitlementManagementAccessPackage")]

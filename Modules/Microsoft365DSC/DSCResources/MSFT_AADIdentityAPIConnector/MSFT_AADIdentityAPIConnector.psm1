@@ -121,15 +121,14 @@ function Get-TargetResource
         Write-Verbose -Message "An Azure AD Identity API Connector with Id {$Id} and DisplayName {$DisplayName} was found"
 
         #region resource generator code
-        if ($null -ne $getValue.AuthenticationConfiguration.AdditionalProperties.password)
+        if ($null -ne $getValue.AuthenticationConfiguration.password)
         {
-            $securePassword = ConvertTo-SecureString $getValue.AuthenticationConfiguration.AdditionalProperties.password -AsPlainText -Force
+            $securePassword = ConvertTo-SecureString $getValue.AuthenticationConfiguration.password -AsPlainText -Force
             $Password = New-Object System.Management.Automation.PSCredential ('Password', $securePassword)
         }
 
-
         $complexCertificates = @()
-        foreach ($currentCertificate in $getValue.AuthenticationConfiguration.AdditionalProperties.certificateList)
+        foreach ($currentCertificate in $getValue.AuthenticationConfiguration.certificateList)
         {
             $myCertificate = [ordered]@{}
             $myCertificate.Add('Pkcs12Value', "New-Object System.Management.Automation.PSCredential('Password', (ConvertTo-SecureString ('Please insert a valid Pkcs12Value') -AsPlainText -Force))")
@@ -149,7 +148,7 @@ function Get-TargetResource
             DisplayName           = $getValue.DisplayName
             TargetUrl             = $getValue.TargetUrl
             Id                    = $getValue.Id
-            Username              = $getValue.AuthenticationConfiguration.AdditionalProperties.username
+            Username              = $getValue.AuthenticationConfiguration.username
             Password              = $Password
             Certificates          = $complexCertificates
             Ensure                = 'Present'
@@ -385,7 +384,6 @@ function Set-TargetResource
 
         $createParameters.Add('@odata.type', '#microsoft.graph.IdentityApiConnector')
         $policy = New-MgBetaIdentityApiConnector -BodyParameter $createParameters
-
 
         # Upload the inactive certificates
         foreach ($currentCertificate in $inactiveCertificates)
@@ -623,7 +621,6 @@ function Export-TargetResource
                 -Results $Results `
                 -Credential $Credential `
                 -NoEscape @('Certificates')
-
 
             # Replace the main password variable.
             $currentDSCBlock = $currentDSCBlock.Replace('"New-Object System.', 'New-Object System.').Replace(') -AsPlainText -Force));";', ') -AsPlainText -Force));')

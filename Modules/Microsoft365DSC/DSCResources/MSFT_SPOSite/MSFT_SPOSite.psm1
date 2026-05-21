@@ -995,7 +995,6 @@ function Export-TargetResource
                     $Results.Remove('HubUrl') | Out-Null
                 }
 
-
                 $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                     -ConnectionMode $ConnectionMode `
                     -ModulePath $PSScriptRoot `

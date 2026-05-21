@@ -206,14 +206,14 @@ function Set-TargetResource
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating new Authentication Context with Id {$Id}"
-        New-MgBetaIdentityConditionalAccessAuthenticationContextClassReference @BoundParameters | Out-Null
+        New-MgBetaIdentityConditionalAccessAuthenticationContextClassReference -BodyParameter $BoundParameters | Out-Null
     }
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Authentication Context with Id {$($currentInstance.Id)}"
         $BoundParameters.Add('AuthenticationContextClassReferenceId', $Id)
         $BoundParameters.Remove('Id') | Out-Null
-        Update-MgBetaIdentityConditionalAccessAuthenticationContextClassReference @BoundParameters | Out-Null
+        Update-MgBetaIdentityConditionalAccessAuthenticationContextClassReference -AuthenticationContextClassReferenceId $currentInstance.Id -BodyParameter $BoundParameters | Out-Null
     }
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {

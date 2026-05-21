@@ -233,7 +233,6 @@ function Set-TargetResource
 
     #region Item Insights
     $ItemInsightsUpdateParams = @{
-        OrganizationId          = $TenantId
         IsEnabledInOrganization = $ItemInsightsIsEnabledInOrganization
     }
     if ($PSBoundParameters.ContainsKey('ItemInsightsDisabledForGroup'))
@@ -255,13 +254,12 @@ function Set-TargetResource
         $ItemInsightsUpdateParams.Add('DisabledForGroup', $disabledForGroupValue)
     }
     Write-Verbose -Message 'Updating settings for Item Insights'
-    Update-MgBetaOrganizationSettingItemInsight @ItemInsightsUpdateParams | Out-Null
+    Update-MgBetaOrganizationSettingItemInsight -OrganizationId $TenantId -BodyParameter $ItemInsightsUpdateParams | Out-Null
     #endregion
 
     #region Person Insights
     $PersonInsightsUpdateParams = @{
-        OrganizationId          = $TenantId
-        IsEnabledInOrganization = $ItemInsightsIsEnabledInOrganization
+        IsEnabledInOrganization = $PersonInsightsIsEnabledInOrganization
     }
     if ($PSBoundParameters.ContainsKey('PersonInsightsDisabledForGroup'))
     {
@@ -283,7 +281,7 @@ function Set-TargetResource
     }
 
     Write-Verbose -Message 'Updating settings for Person Insights'
-    Update-MgBetaOrganizationSettingPersonInsight @PersonInsightsUpdateParams | Out-Null
+    Update-MgBetaOrganizationSettingPersonInsight -OrganizationId $TenantId -BodyParameter $PersonInsightsUpdateParams | Out-Null
     #endregion
 
     if ($null -ne $MeetingInsightsIsEnabledInOrganization)

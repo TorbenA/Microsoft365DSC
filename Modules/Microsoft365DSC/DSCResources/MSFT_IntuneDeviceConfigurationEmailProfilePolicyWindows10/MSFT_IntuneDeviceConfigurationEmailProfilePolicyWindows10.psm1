@@ -159,12 +159,8 @@ function Get-TargetResource
                 {
                     $getValue = Get-MgBetaDeviceManagementDeviceConfiguration `
                         -All `
-                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" `
-                        -ErrorAction SilentlyContinue | Where-Object `
-                        -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10EasEmailProfileConfiguration' `
-                    }
-
+                        -Filter "DisplayName eq '$($DisplayName -replace "'", "''")' and isof('microsoft.graph.windows10EasEmailProfileConfiguration')" `
+                        -ErrorAction SilentlyContinue
                     if ($null -eq $getValue)
                     {
                         Write-Verbose -Message "Could not find an Intune Device Configuration Email Profile Policy for Windows10 with DisplayName {$DisplayName}"
@@ -188,54 +184,54 @@ function Get-TargetResource
 
         #region resource generator code
         $enumDurationOfEmailToSync = $null
-        if ($null -ne $getValue.AdditionalProperties.durationOfEmailToSync)
+        if ($null -ne $getValue.durationOfEmailToSync)
         {
-            $enumDurationOfEmailToSync = $getValue.AdditionalProperties.durationOfEmailToSync.ToString()
+            $enumDurationOfEmailToSync = $getValue.durationOfEmailToSync.ToString()
         }
 
         $enumEmailAddressSource = $null
-        if ($null -ne $getValue.AdditionalProperties.emailAddressSource)
+        if ($null -ne $getValue.emailAddressSource)
         {
-            $enumEmailAddressSource = $getValue.AdditionalProperties.emailAddressSource.ToString()
+            $enumEmailAddressSource = $getValue.emailAddressSource.ToString()
         }
 
         $enumEmailSyncSchedule = $null
-        if ($null -ne $getValue.AdditionalProperties.emailSyncSchedule)
+        if ($null -ne $getValue.emailSyncSchedule)
         {
-            $enumEmailSyncSchedule = $getValue.AdditionalProperties.emailSyncSchedule.ToString()
+            $enumEmailSyncSchedule = $getValue.emailSyncSchedule.ToString()
         }
 
         $enumUserDomainNameSource = $null
-        if ($null -ne $getValue.AdditionalProperties.userDomainNameSource)
+        if ($null -ne $getValue.userDomainNameSource)
         {
-            $enumUserDomainNameSource = $getValue.AdditionalProperties.userDomainNameSource.ToString()
+            $enumUserDomainNameSource = $getValue.userDomainNameSource.ToString()
         }
 
         $enumUsernameAADSource = $null
-        if ($null -ne $getValue.AdditionalProperties.usernameAADSource)
+        if ($null -ne $getValue.usernameAADSource)
         {
-            $enumUsernameAADSource = $getValue.AdditionalProperties.usernameAADSource.ToString()
+            $enumUsernameAADSource = $getValue.usernameAADSource.ToString()
         }
 
         $enumUsernameSource = $null
-        if ($null -ne $getValue.AdditionalProperties.usernameSource)
+        if ($null -ne $getValue.usernameSource)
         {
-            $enumUsernameSource = $getValue.AdditionalProperties.usernameSource.ToString()
+            $enumUsernameSource = $getValue.usernameSource.ToString()
         }
         #endregion
 
         $results = @{
             #region resource generator code
-            AccountName           = $getValue.AdditionalProperties.accountName
+            AccountName           = $getValue.accountName
             DurationOfEmailToSync = $enumDurationOfEmailToSync
             EmailAddressSource    = $enumEmailAddressSource
             EmailSyncSchedule     = $enumEmailSyncSchedule
-            HostName              = $getValue.AdditionalProperties.hostName
-            RequireSsl            = $getValue.AdditionalProperties.requireSsl
-            SyncCalendar          = $getValue.AdditionalProperties.syncCalendar
-            SyncContacts          = $getValue.AdditionalProperties.syncContacts
-            SyncTasks             = $getValue.AdditionalProperties.syncTasks
-            CustomDomainName      = $getValue.AdditionalProperties.customDomainName
+            HostName              = $getValue.hostName
+            RequireSsl            = $getValue.requireSsl
+            SyncCalendar          = $getValue.syncCalendar
+            SyncContacts          = $getValue.syncContacts
+            SyncTasks             = $getValue.syncTasks
+            CustomDomainName      = $getValue.customDomainName
             UserDomainNameSource  = $enumUserDomainNameSource
             UsernameAADSource     = $enumUsernameAADSource
             UsernameSource        = $enumUsernameSource
@@ -654,11 +650,16 @@ function Export-TargetResource
     try
     {
         #region resource generator code
-        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All `
-            -ErrorAction Stop | Where-Object `
-            -FilterScript {
-                $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.windows10EasEmailProfileConfiguration' `
+        $baseFilter = "isof('microsoft.graph.windows10EasEmailProfileConfiguration')"
+        if (-not [string]::IsNullOrEmpty($Filter))
+        {
+            $Filter = "($baseFilter) and ($Filter)"
         }
+        else
+        {
+            $Filter = $baseFilter
+        }
+        [array]$getValue = Get-MgBetaDeviceManagementDeviceConfiguration -Filter $Filter -All -ErrorAction Stop
         #endregion
 
         $i = 1

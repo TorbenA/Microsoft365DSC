@@ -645,9 +645,9 @@ function Get-TargetResource
         }
 
         $ProtocolFlowsValue = @()
-        if ($null -ne $Policy.Conditions.AuthenticationFlows.AdditionalProperties.protocolFlows)
+        if ($null -ne $Policy.Conditions.AuthenticationFlows.protocolFlows)
         {
-            $ProtocolFlowsValue = $Policy.Conditions.AuthenticationFlows.AdditionalProperties.protocolFlows.Split(',')
+            $ProtocolFlowsValue = $Policy.Conditions.AuthenticationFlows.protocolFlows.Split(',')
         }
 
         $DisableResilienceDefaultsIsEnabledValue = $null
@@ -724,11 +724,11 @@ function Get-TargetResource
             ExcludeRoles                             = $ExcludeRoles
             IncludeGuestOrExternalUserTypes          = [System.String[]]$IncludeGuestOrExternalUserTypes
             IncludeExternalTenantsMembershipKind     = [System.String]$Policy.Conditions.Users.IncludeGuestsOrExternalUsers.ExternalTenants.MembershipKind
-            IncludeExternalTenantsMembers            = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.Users.IncludeGuestsOrExternalUsers.ExternalTenants.AdditionalProperties.members -ElementType ([System.String])
+            IncludeExternalTenantsMembers            = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.Users.IncludeGuestsOrExternalUsers.ExternalTenants.members -ElementType ([System.String])
 
             ExcludeGuestOrExternalUserTypes          = [System.String[]]$ExcludeGuestOrExternalUserTypes
             ExcludeExternalTenantsMembershipKind     = [System.String]$Policy.Conditions.Users.ExcludeGuestsOrExternalUsers.ExternalTenants.MembershipKind
-            ExcludeExternalTenantsMembers            = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.Users.ExcludeGuestsOrExternalUsers.ExternalTenants.AdditionalProperties.members -ElementType ([System.String])
+            ExcludeExternalTenantsMembers            = Get-M365DSCArrayFromProperty -PropertyValue $Policy.Conditions.Users.ExcludeGuestsOrExternalUsers.ExternalTenants.members -ElementType ([System.String])
 
             IncludeServicePrincipals                 = $Policy.Conditions.ClientApplications.IncludeServicePrincipals
             ExcludeServicePrincipals                 = $Policy.Conditions.ClientApplications.ExcludeServicePrincipals
@@ -1723,14 +1723,12 @@ function Set-TargetResource
             #no translation or conversion needed
         }
 
-
         Write-Verbose -Message "Set-Targetresource: SignInRiskLevels: $SignInRiskLevels"
         if ($currentParameters.ContainsKey('SignInRiskLevels'))
         {
             $Conditions.Add('signInRiskLevels', $SignInRiskLevels)
             #no translation or conversion needed
         }
-
 
         Write-Verbose -Message "Set-Targetresource: ClientAppTypes: $ClientAppTypes"
         if ($currentParameters.ContainsKey('ClientAppTypes'))
@@ -1813,7 +1811,6 @@ function Set-TargetResource
                 $TermsOfUseObj = Get-MgBetaAgreement | Where-Object -FilterScript { $_.DisplayName -eq $TermsOfUse }
                 $GrantControls.Add('termsOfUse', @($TermsOfUseObj.Id))
             }
-
 
             #no translation or conversion needed
             Write-Verbose -Message 'Set-Targetresource: Adding processed grant controls'
@@ -1909,7 +1906,8 @@ function Set-TargetResource
             {
                 $sessionControls = $null
             }
-            $NewParameters.Add('sessionControls', $sessionControls)
+
+            $NewParameters.Add('sessionControls', $sessioncontrols)
         }
     }
 

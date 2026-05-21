@@ -157,7 +157,6 @@ function Set-TargetResource
 
     Write-Verbose -Message "Setting Audit settings for {$Url}"
 
-
     #Ensure the proper dependencies are installed in the current environment.
     Confirm-M365DSCDependencies
 

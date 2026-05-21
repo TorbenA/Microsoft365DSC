@@ -2107,7 +2107,6 @@ function Test-AutoLabelingSettings
                 $foundSettings = $false
             }
 
-
             if ($sensitiveinfotype.ContainsKey('classifiertype') -and $sensitiveinfotype.classifiertype -ne $currentSensitiveInfoType.classifiertype)
             {
                 $null = $driftedSetting.Add("Parameter 'classifiertype' does not match for Sensitive Information Type '$($sensitiveinfotype.name)' in group '$($group.Name)'. Current: '$($currentSensitiveInfoType.classifiertype)'. Desired: '$($sensitiveinfotype.classifiertype)'.")

@@ -193,7 +193,7 @@ function Get-TargetResource
         }
 
         $complexChildApps = @()
-        foreach ($childApp in $instance.AdditionalProperties.childApps)
+        foreach ($childApp in $instance.childApps)
         {
             $myChildApp = [ordered]@{}
             $myChildApp.Add('BundleId', $childApp.bundleId)
@@ -205,14 +205,14 @@ function Get-TargetResource
         $complexLargeIcon = [ordered]@{}
         if ($null -ne $instance.LargeIcon.Value)
         {
-            $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($instance.LargeIcon.Value))
             $complexLargeIcon.Add('Type', $instance.LargeIcon.Type)
+            $complexLargeIcon.Add('Value', $instance.LargeIcon.Value)
         }
 
         $complexMinimumSupportedOperatingSystem = [ordered]@{}
-        if ($null -ne $instance.AdditionalProperties.minimumSupportedOperatingSystem)
+        if ($null -ne $instance.minimumSupportedOperatingSystem)
         {
-            $instance.AdditionalProperties.minimumSupportedOperatingSystem.GetEnumerator() | ForEach-Object {
+            $instance.minimumSupportedOperatingSystem.GetEnumerator() | ForEach-Object {
                 if ($_.Value) # Values are either true or false. Only export the true value.
                 {
                     $complexMinimumSupportedOperatingSystem.Add($_.Key, $_.Value)
@@ -222,17 +222,17 @@ function Get-TargetResource
 
         $results = @{
             Id                              = $instance.Id
-            BundleId                        = $instance.AdditionalProperties.bundleId
-            BuildNumber                     = $instance.AdditionalProperties.buildNumber
+            BundleId                        = $instance.bundleId
+            BuildNumber                     = $instance.buildNumber
             Categories                      = $complexCategories
             ChildApps                       = $complexChildApps
             Description                     = $instance.Description
             Developer                       = $instance.Developer
             DisplayName                     = $instance.DisplayName
-            IgnoreVersionDetection          = $instance.AdditionalProperties.ignoreVersionDetection
+            IgnoreVersionDetection          = $instance.ignoreVersionDetection
             InformationUrl                  = $instance.InformationUrl
             IsFeatured                      = $instance.IsFeatured
-            InstallAsManaged                = $instance.AdditionalProperties.installAsManaged
+            InstallAsManaged                = $instance.installAsManaged
             LargeIcon                       = $complexLargeIcon
             MinimumSupportedOperatingSystem = $complexMinimumSupportedOperatingSystem
             Notes                           = $instance.Notes
@@ -240,7 +240,7 @@ function Get-TargetResource
             PrivacyInformationUrl           = $instance.PrivacyInformationUrl
             Publisher                       = $instance.Publisher
             RoleScopeTagIds                 = $instance.RoleScopeTagIds
-            VersionNumber                   = $instance.AdditionalProperties.versionNumber
+            VersionNumber                   = $instance.versionNumber
             Ensure                          = 'Present'
             Credential                      = $Credential
             ApplicationId                   = $ApplicationId
@@ -428,9 +428,15 @@ function Set-TargetResource
         $CreateParameters.Remove('Categories') | Out-Null
 
         $CreateParameters.Add('@odata.type', '#microsoft.graph.macOSLobApp')
+        $CreateParameters.Add('fileName', "$DisplayName.pkg")
         $app = New-MgBetaDeviceAppManagementMobileApp -BodyParameter $CreateParameters
 
-        Update-DeviceAppManagementAppCategory -App $app -Categories $Categories
+        Invoke-M365DSCIntuneMobileAppInitialUpload -AppId $app.Id -OdataType '#microsoft.graph.macOSLobApp' -FileExtension 'pkg'
+
+        if ($PSBoundParameters.ContainsKey('Categories'))
+        {
+            Update-DeviceAppManagementAppCategory -App $app -Categories $Categories
+        }
 
         #Assignments
         if ($app.Id)
@@ -453,7 +459,10 @@ function Set-TargetResource
         $UpdateParameters.Add('@odata.type', '#microsoft.graph.macOSLobApp')
         Update-MgBetaDeviceAppManagementMobileApp -MobileAppId $currentInstance.Id -BodyParameter $UpdateParameters
 
-        Update-DeviceAppManagementAppCategory -App $currentInstance -Categories $Categories -Compare
+        if ($PSBoundParameters.ContainsKey('Categories'))
+        {
+            Update-DeviceAppManagementAppCategory -App $currentInstance -Categories $Categories
+        }
 
         #Assignments
         $assignmentsHash = ConvertTo-IntuneMobileAppAssignment -IncludeDeviceFilter:$true -Assignments $Assignments
@@ -463,7 +472,7 @@ function Set-TargetResource
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Remove the Intune MacOS Lob App with Id {$($currentInstance.Id)}"
-        Remove-MgBetaDeviceAppManagementMobileApp -MobileAppId $currentInstance.Id -Confirm:$false
+        Remove-MgBetaDeviceAppManagementMobileApp -MobileAppId $currentInstance.Id
     }
 }
 

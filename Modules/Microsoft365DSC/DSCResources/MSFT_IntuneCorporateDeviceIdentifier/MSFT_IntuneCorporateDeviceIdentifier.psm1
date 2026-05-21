@@ -442,7 +442,6 @@ function Test-TargetResource
     Add-M365DSCTelemetryEvent -Data $data
     #endregion
 
-
     $result = Test-M365DSCTargetResource -DesiredValues $PSBoundParameters `
         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
 
@@ -579,7 +578,7 @@ function Export-TargetResource
             -TenantId $TenantId `
             -Credential $Credential
 
-        return ''
+        throw
     }
 }
 

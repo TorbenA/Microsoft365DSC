@@ -120,8 +120,8 @@ function Get-TargetResource
                 {
                     $entry = [ordered]@{
                         PolicyName   = $policyInfo.Name
-                        LoggingState = $link.AdditionalProperties.loggingState
-                        Priority     = $link.AdditionalProperties.priority
+                        LoggingState = $link.loggingState
+                        Priority     = $link.priority
                         State        = $link.State
                     }
                     $PolicyValue += $entry

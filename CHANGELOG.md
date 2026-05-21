@@ -1,5 +1,43 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* AADAccessReviewDefinition
+  * Added new properties `AdditionalNotificationRecipients` and `InstanceEnumerationScope`.
+  * Fixed issues when creating and updating instances of this resource.
+* AADCustomAuthenticationExtension
+  * Added missing application update permission `CustomAuthenticationExtension.ReadWrite.All`.
+* AADEntitlementManagementAccessPackageCatalogResource
+  * Changed properties `CatalogId` and `OriginId` to their display name equivalent.
+* AADTenantAppManagementPolicy
+  * Changed the `MaxLifetime` property in application + service principal restrictions
+    --> key and password credentials to only include necessary date and time information.
+* IntuneAndroidManagedStoreAppConfiguration
+  * Changed property `targetedMobileApps` to use display name instead of app id.
+* IntuneDeviceCompliancePolicyAndroidWorkProfile
+  * Added support for the property `RoleScopeTagIds`.
+* IntuneDeviceCompliancePolicyiOs
+  * Added support for the property `ScheduledActionsForRule`.
+* IntuneDeviceConfigurationPolicyMacOS
+  * Fixed an issue where profiles that didn't match the filter were being exported.
+* IntuneDeviceManagementAndroidDeviceOwnerEnrollmentProfile
+  * Standardized time format of `TokenExpirationDateTime` and excluded it from comparison.
+* IntunePolicySets
+  * Updated resource to work with multitenants.
+* SPOTenantCdnPolicy
+  * Fixed an issue where property values were not being returned.
+* M365DSCReverse
+  * Added functionality to use wildcards in the `-Components` parameter when exporting.
+  * Fixed an issue where the resources to export counter did not match the actual value.
+* C# - SettingCatalogPolicySettingBuilder
+  * Fixed an issue if a setting definition appears multiple times in the same instance template.
+* MISC
+  * Introduced Microsoft Graph shim layer.
+  * Refactored filters on Graph calls to be done on the server side instead of locally.
+* Dependencies
+  * Removed all `Microsoft.Graph.*` dependencies except for `Microsoft.Graph.Authentication`.
+  * Updated `MSCloudLoginAssistant` to version 1.1.63.
+
 # 1.26.520.1
 
 * AADConditionalAccessPolicy

@@ -180,7 +180,7 @@ function Set-TargetResource
             isSyncAllowed = $UserSyncInbound.isSyncAllowed
         }
     }
-    Update-MgBetaPolicyCrossTenantAccessPolicyTemplateMultiTenantOrganizationIdentitySynchronization @setParameters
+    Update-MgBetaPolicyCrossTenantAccessPolicyTemplateMultiTenantOrganizationIdentitySynchronization -BodyParameter $setParameters
 }
 
 function Test-TargetResource

@@ -79,23 +79,20 @@ function Get-TargetResource
         }
 
         $Policies = Get-PnPTenantCdnPolicies -CdnType $CDNType -ErrorAction Stop
-        if ($Policies['ExcludeRestrictedSiteClassifications'].Length -gt 0)
-        {
-            $ExcludeRestrictedSiteClassifications = `
-                $Policies['ExcludeRestrictedSiteClassifications'].Split(',')
-        }
-        else
-        {
-            $ExcludeRestrictedSiteClassifications = @()
-        }
-        if ($Policies['IncludeFileExtensions'].Length -gt 0)
-        {
-            $IncludeFileExtensions = `
-                $Policies['IncludeFileExtensions'].Split(',')
-        }
-        else
-        {
-            $IncludeFileExtensions = @()
+
+        $ExcludeRestrictedSiteClassifications = @()
+        $IncludeFileExtensions = @()
+        $Policies.GetEnumerator() | ForEach-Object {
+            if ($_.Name.Value -eq 'ExcludeRestrictedSiteClassifications' -and $_.Value.Length -gt 0)
+            {
+                $ExcludeRestrictedSiteClassifications = `
+                    $_.Value.Split(',')
+            }
+            if ($_.Name.Value -eq 'IncludeFileExtensions' -and $_.Value.Length -gt 0)
+            {
+                $IncludeFileExtensions = `
+                    $_.Value.Split(',')
+            }
         }
 
         return @{

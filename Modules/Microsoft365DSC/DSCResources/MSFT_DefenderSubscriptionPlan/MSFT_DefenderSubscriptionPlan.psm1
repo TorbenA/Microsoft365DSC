@@ -410,7 +410,6 @@ function Export-TargetResource
     }
 }
 
-
 function Get-SubscriptionsDefenderPlansFromArg
 {
     try
@@ -436,6 +435,5 @@ securityresources | where type == "microsoft.security/pricings" | project Id=id,
         throw $_
     }
 }
-
 
 Export-ModuleMember -Function *-TargetResource

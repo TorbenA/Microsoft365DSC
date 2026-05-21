@@ -244,7 +244,6 @@ function Get-TargetResource
         $AccessTokens
     )
 
-
     Write-Verbose -Message "Getting configuration of the Intune Endpoint Protection Attack Surface Protection rules Policy with Id {$Id} and DisplayName {$DisplayName}"
 
     try
@@ -629,13 +628,13 @@ function Set-TargetResource
             -TemplateId $templateReferenceId
 
         $createParameters = @{
-            Name              = $DisplayName
-            Description       = $Description
-            TemplateReference = @{templateId = $templateReferenceId }
-            Platforms         = $platforms
-            Technologies      = $technologies
-            Settings          = $settings
-            RoleScopeTagIds   = $RoleScopeTagIds
+            name              = $DisplayName
+            description       = $Description
+            templateReference = @{ templateId = $templateReferenceId }
+            platforms         = $platforms
+            technologies      = $technologies
+            settings          = $settings
+            roleScopeTagIds   = $RoleScopeTagIds
         }
         $policy = New-MgBetaDeviceManagementConfigurationPolicy -BodyParameter $createParameters
 

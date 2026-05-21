@@ -110,9 +110,9 @@ function Get-TargetResource
         #region resource generator code
         $complexAuthenticationModeConfiguration = [ordered]@{}
         $complexRules = @()
-        if ($getValue.AdditionalProperties.authenticationModeConfiguration.rules.Count -gt 0)
+        if ($getValue.authenticationModeConfiguration.rules.Count -gt 0)
         {
-            foreach ($currentRules in $getValue.AdditionalProperties.authenticationModeConfiguration.rules)
+            foreach ($currentRules in $getValue.authenticationModeConfiguration.rules)
             {
                 $myRules = [ordered]@{}
                 $myRules.Add('Identifier', $currentRules.identifier)
@@ -132,9 +132,9 @@ function Get-TargetResource
         }
         $complexAuthenticationModeConfiguration.Add('Rules', $complexRules)
 
-        if ($null -ne $getValue.AdditionalProperties.authenticationModeConfiguration.x509CertificateAuthenticationDefaultMode)
+        if ($null -ne $getValue.authenticationModeConfiguration.x509CertificateAuthenticationDefaultMode)
         {
-            $complexAuthenticationModeConfiguration.Add('X509CertificateAuthenticationDefaultMode', $getValue.AdditionalProperties.authenticationModeConfiguration.x509CertificateAuthenticationDefaultMode.ToString())
+            $complexAuthenticationModeConfiguration.Add('X509CertificateAuthenticationDefaultMode', $getValue.authenticationModeConfiguration.x509CertificateAuthenticationDefaultMode.ToString())
         }
         if ($complexAuthenticationModeConfiguration.values.Where({ $null -ne $_ }).Count -eq 0)
         {
@@ -142,7 +142,7 @@ function Get-TargetResource
         }
 
         $complexCertificateUserBindings = @()
-        foreach ($currentcertificateUserBindings in $getValue.AdditionalProperties.certificateUserBindings)
+        foreach ($currentcertificateUserBindings in $getValue.certificateUserBindings)
         {
             $mycertificateUserBindings = [ordered]@{}
             $mycertificateUserBindings.Add('Priority', $currentcertificateUserBindings.priority)
@@ -187,7 +187,7 @@ function Get-TargetResource
 
         Write-Verbose 'Processing IncludeTargets'
         $complexIncludeTargets = @()
-        foreach ($currentIncludeTargets in $getValue.AdditionalProperties.includeTargets)
+        foreach ($currentIncludeTargets in $getValue.includeTargets)
         {
             $myIncludeTargets = [ordered]@{}
             if ($currentIncludeTargets.id -ne 'all_users')

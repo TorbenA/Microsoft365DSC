@@ -927,7 +927,7 @@ function Export-TargetResource
             }
         } while ($currentBatch.Count -eq 100)
 
-        $dscContent = [System.Text.StringBuilder]::New()
+        $dscContent = [System.Text.StringBuilder]::new()
         Write-M365DSCHost -Message "`r`n" -DeferWrite
         foreach ($instance in $exportedInstances)
         {

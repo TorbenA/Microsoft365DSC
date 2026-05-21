@@ -173,7 +173,7 @@ function Get-TargetResource
         {
             $complexLargeIcon = [ordered]@{}
             $complexLargeIcon.Add('Type', $getValue.LargeIcon.Type)
-            $complexLargeIcon.Add('Value', [System.Convert]::ToBase64String($getValue.LargeIcon.Value))
+            $complexLargeIcon.Add('Value', $getValue.LargeIcon.Value)
         }
         #endregion
 
@@ -373,7 +373,6 @@ function Set-TargetResource
         $updateParameters = ([Hashtable]$boundParameters).Clone()
         $updateParameters = Rename-M365DSCCimInstanceParameter -Properties $updateParameters
         $updateParameters.Remove('Id') | Out-Null
-
 
         #region resource generator code
         $updateParameters.Add('@odata.type', '#microsoft.graph.macOSMicrosoftDefenderApp')

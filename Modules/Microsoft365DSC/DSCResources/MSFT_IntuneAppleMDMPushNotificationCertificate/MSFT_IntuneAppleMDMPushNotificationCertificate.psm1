@@ -199,6 +199,7 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
 
     $SetParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $SetParameters = Rename-M365DSCCimInstanceParameter -Properties $SetParameters
     $SetParameters.Remove('DataSharingConsetGranted') | Out-Null
 
     # CREATE
@@ -219,13 +220,13 @@ function Set-TargetResource
         }
 
         # There is only PATCH request hence using Update cmdlet to post the certificate
-        Update-MgBetaDeviceManagementApplePushNotificationCertificate @SetParameters
+        Update-MgBetaDeviceManagementApplePushNotificationCertificate -BodyParameter $SetParameters
     }
     # UPDATE
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
         Write-Verbose -Message "Updating the Intune Apple Push Notification Certificate with Apple ID: '$AppleIdentifier'."
-        Update-MgBetaDeviceManagementApplePushNotificationCertificate @SetParameters
+        Update-MgBetaDeviceManagementApplePushNotificationCertificate -BodyParameter $SetParameters
     }
     # REMOVE
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')

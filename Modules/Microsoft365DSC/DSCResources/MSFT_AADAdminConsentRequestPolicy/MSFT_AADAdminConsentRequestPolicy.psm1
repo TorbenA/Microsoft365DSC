@@ -242,6 +242,15 @@ function Set-TargetResource
         if ($reviewer.ReviewerType -eq 'User')
         {
             $userInfo = Get-MgUser -Filter "UserPrincipalName eq '$($reviewer.ReviewerId)'"
+            if ($null -eq $userInfo)
+            {
+                $message = "User with UPN $($reviewer.ReviewerId) specified in Reviewers not found"
+                New-M365DSCLogEntry -Message $message `
+                    -Source $($MyInvocation.MyCommand.Source) `
+                    -TenantId $TenantId `
+                    -Credential $Credential
+                continue
+            }
             $entry = @{
                 query     = "/users/$($userInfo.Id)"
                 queryType = 'MicrosoftGraph'
@@ -251,6 +260,15 @@ function Set-TargetResource
         elseif ($reviewer.ReviewerType -eq 'Group')
         {
             $groupInfo = Get-MgGroup -Filter "DisplayName eq '$($reviewer.ReviewerId -replace "'", "''")'"
+            if ($null -eq $groupInfo)
+            {
+                $message = "Group with DisplayName $($reviewer.ReviewerId) specified in Reviewers not found"
+                New-M365DSCLogEntry -Message $message `
+                    -Source $($MyInvocation.MyCommand.Source) `
+                    -TenantId $TenantId `
+                    -Credential $Credential
+                continue
+            }
             $entry = @{
                 query     = "/groups/$($groupInfo.Id)/transitiveMembers/microsoft.graph.user"
                 queryType = 'MicrosoftGraph'
@@ -260,6 +278,15 @@ function Set-TargetResource
         elseif ($reviewer.ReviewerType -eq 'Role')
         {
             $roleInfo = Get-MgBetaRoleManagementDirectoryRoleDefinition -Filter "DisplayName eq '$($reviewer.ReviewerId -replace "'", "''")'"
+            if ($null -eq $roleInfo)
+            {
+                $message = "Role with DisplayName $($reviewer.ReviewerId) specified in Reviewers not found"
+                New-M365DSCLogEntry -Message $message `
+                    -Source $($MyInvocation.MyCommand.Source) `
+                    -TenantId $TenantId `
+                    -Credential $Credential
+                continue
+            }
             $entry = @{
                 query     = "/roleManagement/directory/roleAssignments?`$filter=roleDefinitionId eq '$($roleInfo.Id.Replace('\u0027', ''))'"
                 queryType = 'MicrosoftGraph'

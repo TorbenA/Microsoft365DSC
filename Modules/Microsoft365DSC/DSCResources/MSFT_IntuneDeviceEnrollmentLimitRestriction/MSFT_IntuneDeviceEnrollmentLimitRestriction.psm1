@@ -109,7 +109,7 @@ function Get-TargetResource
                     $config = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration `
                         -All `
                         -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" | Where-Object -FilterScript {
-                            $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.deviceEnrollmentLimitConfiguration'
+                            $_.'@odata.type' -eq '#microsoft.graph.deviceEnrollmentLimitConfiguration'
                         }
                 }
             }
@@ -131,7 +131,7 @@ function Get-TargetResource
             Id                    = $config.Id
             DisplayName           = $config.DisplayName
             Description           = $config.Description
-            Limit                 = $config.AdditionalProperties.limit
+            Limit                 = $config.limit
             Priority              = $config.Priority
             RoleScopeTagIds       = $config.RoleScopeTagIds
             Ensure                = 'Present'
@@ -255,12 +255,13 @@ function Set-TargetResource
 
     $currentInstance = Get-TargetResource @PSBoundParameters
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
+    $BoundParameters = Rename-M365DSCCimInstanceParameter -Properties $BoundParameters
 
     $priorityPresent = $false
-    if ($PSBoundParameters.Keys.Contains('Priority'))
+    if ($BoundParameters.Keys.Contains('Priority'))
     {
         $priorityPresent = $true
-        $PSBoundParameters.Remove('Priority') | Out-Null
+        $BoundParameters.Remove('Priority') | Out-Null
     }
 
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
@@ -269,15 +270,7 @@ function Set-TargetResource
 
         $BoundParameters.Remove('Assignments') | Out-Null
         $BoundParameters.Add('@odata.type', '#microsoft.graph.deviceEnrollmentLimitConfiguration')
-
-        $policy = New-MgBetaDeviceManagementDeviceEnrollmentConfiguration `
-            -DisplayName $DisplayName `
-            -Description $Description `
-            -RoleScopeTagIds $RoleScopeTagIds `
-            -AdditionalProperties @{
-                '@odata.type' = '#microsoft.graph.deviceEnrollmentLimitConfiguration'
-                limit         = $Limit
-            }
+        $policy = New-MgBetaDeviceManagementDeviceEnrollmentConfiguration -BodyParameter $BoundParameters
 
         # Assignments from DefaultPolicy are not editable and will raise an alert
         if ($policy.Id -notlike '*_DefaultLimit')
@@ -305,15 +298,9 @@ function Set-TargetResource
 
         $BoundParameters.Remove('Assignments') | Out-Null
         $BoundParameters.Add('@odata.type', '#microsoft.graph.deviceEnrollmentLimitConfiguration')
-
         Update-MgBetaDeviceManagementDeviceEnrollmentConfiguration `
             -DeviceEnrollmentConfigurationId $currentInstance.Id `
-            -Description $Description `
-            -RoleScopeTagIds $RoleScopeTagIds `
-            -AdditionalProperties @{
-                '@odata.type' = '#microsoft.graph.deviceEnrollmentLimitConfiguration'
-                limit         = $Limit
-            }
+            -BodyParameter $BoundParameters
 
         # Assignments from DefaultPolicy are not editable and will raise an alert
         if ($currentInstance.Id -notlike '*_DefaultLimit')
@@ -481,8 +468,9 @@ function Export-TargetResource
 
     try
     {
-        [array]$configs = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -All -Filter $Filter -ErrorAction Stop `
-        | Where-Object -FilterScript { $_.AdditionalProperties.'@odata.type' -eq '#microsoft.graph.deviceEnrollmentLimitConfiguration' }
+        [array]$configs = Get-MgBetaDeviceManagementDeviceEnrollmentConfiguration -Filter $Filter -All -ErrorAction Stop | Where-Object {
+            $_.'@odata.type' -eq "#microsoft.graph.deviceEnrollmentLimitConfiguration"
+        }
         $i = 1
         $dscContent = [System.Text.StringBuilder]::new()
         if ($configs.Length -eq 0)

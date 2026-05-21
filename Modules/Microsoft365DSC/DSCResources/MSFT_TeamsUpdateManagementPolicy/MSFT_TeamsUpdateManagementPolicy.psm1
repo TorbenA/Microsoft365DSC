@@ -385,7 +385,6 @@ function Test-TargetResource
         -ResourceName $($MyInvocation.MyCommand.Source).Replace('MSFT_', '')
     return $result
 
-
 }
 
 function Export-TargetResource

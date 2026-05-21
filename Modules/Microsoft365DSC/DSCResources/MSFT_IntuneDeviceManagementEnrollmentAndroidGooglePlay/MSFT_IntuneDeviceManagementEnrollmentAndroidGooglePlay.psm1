@@ -224,7 +224,6 @@ function Set-TargetResource
     $currentInstance = Get-TargetResource @PSBoundParameters
     $BoundParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
 
-
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
         Write-Verbose -Message "Creating an Intune Device Management Android Google Play Enrollment with id {$Id}"
@@ -265,7 +264,6 @@ function Set-TargetResource
             ownerOrganizationName                           = $OwnerOrganizationName;
             ownerUserPrincipalName                          = $OwnerUserPrincipalName;
         }
-
 
         Write-Verbose -Message "Updating Intune Device Management Android Google Play Enrollment with values:`r`n$(ConvertTo-Json $UpdateParameters -Depth 10)"
         Invoke-MgGraphRequest -Uri $uri `
