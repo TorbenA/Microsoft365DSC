@@ -24,6 +24,9 @@
   * Standardized time format of `TokenExpirationDateTime` and excluded it from comparison.
 * IntunePolicySets
   * Updated resource to work with multitenants.
+* SCDLPSensitiveInformationType
+  * Removed the parameter verbose output to prevent screen cluttering.
+    FIXES [#7145](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7145)
 * SPOTenantCdnPolicy
   * Fixed an issue where property values were not being returned.
 * M365DSCReverse
@@ -37,6 +40,12 @@
 * Dependencies
   * Removed all `Microsoft.Graph.*` dependencies except for `Microsoft.Graph.Authentication`.
   * Updated `MSCloudLoginAssistant` to version 1.1.63.
+  * Updated `Az.Accounts` to version 5.3.2.
+    FIXES [#7143](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7143)
+  * Updated `Az.Resources` to version 9.0.1.
+  * Updated `Az.Security` to version 1.8.0.
+  * Updated `Az.SecurityInsights` to version 3.2.1.
+
 
 # 1.26.520.1
 

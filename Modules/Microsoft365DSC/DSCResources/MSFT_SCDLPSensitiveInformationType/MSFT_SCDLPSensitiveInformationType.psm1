@@ -222,20 +222,20 @@ function Set-TargetResource
     # CREATE
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating new DLPSensitiveInformationType with:`r`n$(ConvertTo-Json $setParameters -Depth 5)"
+        Write-Verbose -Message "Creating a DLPSensitiveInformationType with Name {$Name}"
         $setParameters.Remove('Identity') | Out-Null
         New-DLPSensitiveInformationType @setParameters
     }
     # UPDATE
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating DLPSensitiveInformationType with:`r`n$(ConvertTo-Json $setParameters -Depth 5)"
+        Write-Verbose -Message "Updating the DLPSensitiveInformationType with Name {$Name}"
         Set-DLPSensitiveInformationType @SetParameters
     }
     # REMOVE
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removig DLPSensitiveInformationType $Name"
+        Write-Verbose -Message "Removing the DLPSensitiveInformationType with Name {$Name}"
         Remove-DLPSensitiveInformationType -Identity $currentInstance.Identity
     }
 }

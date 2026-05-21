@@ -2,7 +2,7 @@
     Dependencies = @(
         @{
             ModuleName      = 'Az.Accounts'
-            RequiredVersion = '5.0.1'
+            RequiredVersion = '5.3.2'
         },
         @{
             ModuleName      = 'Az.ResourceGraph'
@@ -10,7 +10,7 @@
         },
         @{
             ModuleName      = 'Az.Resources'
-            RequiredVersion = '8.0.0'
+            RequiredVersion = '9.0.1'
         },
         @{
             ModuleName      = 'Az.Subscription'
@@ -18,11 +18,11 @@
         },
         @{
             ModuleName      = 'Az.Security'
-            RequiredVersion = '1.6.2'
+            RequiredVersion = '1.8.0'
         },
         @{
             ModuleName      = 'Az.SecurityInsights'
-            RequiredVersion = '3.2.0'
+            RequiredVersion = '3.2.1'
         },
         @{
             ModuleName      = 'DSCParser'
