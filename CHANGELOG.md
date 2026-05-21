@@ -24,6 +24,8 @@
   * Standardized time format of `TokenExpirationDateTime` and excluded it from comparison.
 * IntunePolicySets
   * Updated resource to work with multitenants.
+* SPOTenantCdnPolicy
+  * Fixed an issue where property values were not being returned.
 * M365DSCReverse
   * Added functionality to use wildcards in the `-Components` parameter when exporting.
   * Fixed an issue where the resources to export counter did not match the actual value.

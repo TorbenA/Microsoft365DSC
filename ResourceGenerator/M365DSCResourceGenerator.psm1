@@ -513,7 +513,7 @@ $($userDefinitionSettings.MOF -join "`r`n")
 
         if ($null -ne $getKeyIdentifier)
         {
-            $getParameterString = [System.Text.StringBuilder]::New()
+            $getParameterString = [System.Text.StringBuilder]::new()
             foreach ($key in $getKeyIdentifier)
             {
                 if ($getKeyIdentifier.Count -gt 1)
@@ -637,7 +637,7 @@ $($userDefinitionSettings.MOF -join "`r`n")
 
         if ($null -ne $newKeyIdentifier)
         {
-            $newParameterString = [System.Text.StringBuilder]::New()
+            $newParameterString = [System.Text.StringBuilder]::new()
             foreach ($key in $newKeyIdentifier)
             {
                 if ($newKeyIdentifier.Count -gt 1)
@@ -772,7 +772,7 @@ $($userDefinitionSettings.MOF -join "`r`n")
 
         if ($null -ne $updateKeyIdentifier)
         {
-            $updateParameterString = [System.Text.StringBuilder]::New()
+            $updateParameterString = [System.Text.StringBuilder]::new()
             foreach ($key in $updateKeyIdentifier)
             {
                 if ($updateKeyIdentifier.Count -gt 1)
@@ -832,7 +832,7 @@ $($userDefinitionSettings.MOF -join "`r`n")
 
         if ($null -ne $removeKeyIdentifier)
         {
-            $removeParameterString = [System.Text.StringBuilder]::New()
+            $removeParameterString = [System.Text.StringBuilder]::new()
             foreach ($key in $removeKeyIdentifier)
             {
                 if ($removeKeyIdentifier.Count -gt 1)
@@ -1076,10 +1076,10 @@ class MSFT_DeviceManagementConfigurationPolicyAssignments
 
         #region Get ParameterBlock
         $primaryKey = ''
-        $paramContent = [System.Text.StringBuilder]::New()
-        $returnContent = [System.Text.StringBuilder]::New()
-        $exportAuthContent = [System.Text.StringBuilder]::New()
-        $mofSchemaContent = [System.Text.StringBuilder]::New()
+        $paramContent = [System.Text.StringBuilder]::new()
+        $returnContent = [System.Text.StringBuilder]::new()
+        $exportAuthContent = [System.Text.StringBuilder]::new()
+        $mofSchemaContent = [System.Text.StringBuilder]::new()
         $fakeValues = @{}
         foreach ($property in $properties)
         {
@@ -1976,7 +1976,7 @@ function Get-ComplexTypeConstructorToString
         $IsNested = $false
     )
 
-    $complexString = [System.Text.StringBuilder]::New()
+    $complexString = [System.Text.StringBuilder]::new()
     $indent = "    "
     $spacing = $indent * $IndentCount
     $propertyName = Get-StringFirstCharacterToUpper -Value $Property.Name
@@ -2273,7 +2273,7 @@ function Get-DateTypeConstructorToString
         $IsNested = $false
     )
 
-    $dateString = [System.Text.StringBuilder]::New()
+    $dateString = [System.Text.StringBuilder]::new()
     $indent = "    "
     $spacing = $indent * $IndentCount
 
@@ -2343,7 +2343,7 @@ function Get-TimeTypeConstructorToString
         $IsNested = $false
     )
 
-    $timeString = [System.Text.StringBuilder]::New()
+    $timeString = [System.Text.StringBuilder]::new()
     $indent = "    "
     $spacing = $indent * $IndentCount
 
@@ -2409,7 +2409,7 @@ function Get-EnumTypeConstructorToString
         $DateFormat
     )
 
-    $enumString = [System.Text.StringBuilder]::New()
+    $enumString = [System.Text.StringBuilder]::new()
     $indent = "    "
     $spacing = $indent * $IndentCount
 
@@ -2897,7 +2897,7 @@ function Get-M365DSCHashAsString
         [System.Boolean]
         $isCmdletCall = $false
     )
-    $sb = [System.Text.StringBuilder]::New()
+    $sb = [System.Text.StringBuilder]::new()
     $keys = $Values.Keys | Sort-Object -Property $_
     foreach ($key in $keys)
     {
@@ -3501,10 +3501,10 @@ function New-M365HashTableMapping
     $convertToString = ''
     [array]$toEscape = @()
     $additionalProperties = ''
-    $complexTypeConstructor = [System.Text.StringBuilder]::New()
-    $enumTypeConstructor = [System.Text.StringBuilder]::New()
-    $dateTypeConstructor = [System.Text.StringBuilder]::New()
-    $timeTypeConstructor = [System.Text.StringBuilder]::New()
+    $complexTypeConstructor = [System.Text.StringBuilder]::new()
+    $enumTypeConstructor = [System.Text.StringBuilder]::new()
+    $dateTypeConstructor = [System.Text.StringBuilder]::new()
+    $timeTypeConstructor = [System.Text.StringBuilder]::new()
 
     $biggestParameterLength = 'CertificateThumbprint'.Length
     foreach ($property in $properties.Name)
@@ -3536,7 +3536,7 @@ function New-M365HashTableMapping
                 $complexTypeConstructor.AppendLine((Get-ComplexTypeConstructorToString -Property $property -IndentCount 2 -DateFormat $DateFormat)) | Out-Null
                 $global:ComplexList = $null
                 [Array]$complexMapping = Get-ComplexTypeMapping -Property $property -Workload $Workload
-                $complexMappingString = [System.Text.StringBuilder]::New()
+                $complexMappingString = [System.Text.StringBuilder]::new()
                 if ($complexMapping.Count -gt 1)
                 {
                     $complexMappingString.AppendLine("                `$complexMapping = @(") | Out-Null
@@ -3745,7 +3745,7 @@ function Get-ResourceStub
         'InformationAction'
         'PipelineVariable'
     )
-    $stub = [System.Text.StringBuilder]::New()
+    $stub = [System.Text.StringBuilder]::new()
     $version = (Get-Command -Noun $cmdletNoun | Select-Object -Unique Version | Sort-Object -Descending | Select-Object -First 1).Version.ToString()
     $commands = Get-Command -Noun $cmdletNoun | Where-Object -FilterScript { $_.Version -eq $version }
     foreach ($command in $commands)

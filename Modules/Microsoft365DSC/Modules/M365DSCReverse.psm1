@@ -418,7 +418,7 @@ function Start-M365DSCConfigurationExtract
 
         [array] $version = Get-Module 'Microsoft365DSC'
         $version = $version[0].Version
-        $DSCContent = [System.Text.StringBuilder]::New()
+        $DSCContent = [System.Text.StringBuilder]::new()
         $DSCContent.Append("# Generated with Microsoft365DSC version $version`r`n") | Out-Null
         $DSCContent.Append("# For additional information on how to use Microsoft365DSC, please visit https://aka.ms/M365DSC`r`n") | Out-Null
         $DSCContent.Append("param (`r`n") | Out-Null
@@ -474,7 +474,7 @@ function Start-M365DSCConfigurationExtract
         $DSCContent.Append("    param (`r`n") | Out-Null
 
         $newline = $false
-        $postParamContent = [System.Text.StringBuilder]::New()
+        $postParamContent = [System.Text.StringBuilder]::new()
         switch ($AuthMethods)
         {
             { $_ -in 'CertificateThumbprint', 'CertificatePath', 'ApplicationWithSecret' }

@@ -242,7 +242,7 @@ function Test-M365DSCParameterState
 
     if ($returnValue -eq $false -or $DriftedParameters.Keys.Length -gt 0)
     {
-        $EventMessage = [System.Text.StringBuilder]::New()
+        $EventMessage = [System.Text.StringBuilder]::new()
         $EventMessage.Append("<M365DSCEvent>`r`n") | Out-Null
         Write-Verbose -Message "Found Tenant Name: $TenantName"
 
@@ -362,7 +362,7 @@ function Test-M365DSCParameterState
     elseif ($includeNonDriftsInformation -eq $true)
     {
         # Include details about non-drifted resources.
-        $EventMessage = [System.Text.StringBuilder]::New()
+        $EventMessage = [System.Text.StringBuilder]::new()
         $EventMessage.Append("<M365DSCEvent>`r`n") | Out-Null
         $EventMessage.Append("    <ConfigurationDrift Source=`"$Source`" />`r`n") | Out-Null
         $EventMessage.Append("    <DesiredValues>`r`n") | Out-Null

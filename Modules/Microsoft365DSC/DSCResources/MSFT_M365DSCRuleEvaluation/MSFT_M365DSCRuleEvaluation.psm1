@@ -267,7 +267,7 @@ function Test-TargetResource
 
         $result = ($instances.Length - $DSCConvertedInstances.Length) -eq 0
 
-        $message = [System.Text.StringBuilder]::New()
+        $message = [System.Text.StringBuilder]::new()
         [void]$message.AppendLine('<M365DSCRuleEvaluation>')
         [void]$message.AppendLine("  <RuleName>$RuleName</RuleName>")
         [void]$message.AppendLine("  <ResourceName>$ResourceTypeName</ResourceName>")
