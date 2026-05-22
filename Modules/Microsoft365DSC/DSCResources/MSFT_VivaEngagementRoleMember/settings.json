@@ -1,6 +1,6 @@
 {
   "resourceName": "VivaEngagementRoleMember",
-  "description": "Manage a Viva Engage roles assigned to a user.",
+  "description": "Manage a Viva Engage role assigned to a user.",
   "roles": {
     "read": [],
     "update": []

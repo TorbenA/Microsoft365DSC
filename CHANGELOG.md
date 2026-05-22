@@ -5,6 +5,8 @@
 * AADAccessReviewDefinition
   * Added new properties `AdditionalNotificationRecipients` and `InstanceEnumerationScope`.
   * Fixed issues when creating and updating instances of this resource.
+* AADAuthenticationRequirement
+  * Changed resource type from `Configuration` to `Data`.
 * AADCustomAuthenticationExtension
   * Added missing application update permission `CustomAuthenticationExtension.ReadWrite.All`.
 * AADEntitlementManagementConnectedOrganization
@@ -12,6 +14,8 @@
     FIXES [#7102](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7102)
 * AADEntitlementManagementAccessPackageCatalogResource
   * Changed properties `CatalogId` and `OriginId` to their display name equivalent.
+* AADPIMGroupSetting
+  * Changed resource type from `Configuration` to `Data`.
 * AADServicePrincipal
   * Added additional schema definitions for more claims information.
   * Added support for `groupFilter` in the claims policy.
@@ -19,6 +23,18 @@
 * AADTenantAppManagementPolicy
   * Changed the `MaxLifetime` property in application + service principal restrictions
     --> key and password credentials to only include necessary date and time information.
+* EXOCASMailboxSettings
+  * Changed resource type from `Configuration` to `Data`.
+* EXOMailboxCalendarConfiguration
+  * Changed resource type from `Configuration` to `Data`.
+* EXOMailboxIRMAccess
+  * Changed resource type from `Configuration` to `Data`.
+* EXORecipientPermission
+  * Changed resource type from `Configuration` to `Data`.
+* EXOSharedMailbox
+  * Changed resource type from `Configuration` to `Data`.
+* EXOSweepRule
+  * Changed resource type from `Configuration` to `Data`.
 * IntuneAndroidManagedStoreAppConfiguration
   * Changed property `targetedMobileApps` to use display name instead of app id.
 * IntuneDeviceCompliancePolicyAndroidWorkProfile

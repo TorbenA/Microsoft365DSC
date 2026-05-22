@@ -443,7 +443,7 @@ function Export-TargetResource
 
     try
     {
-        $mailboxes = Get-Mailbox
+        $mailboxes = Get-Mailbox -ResultSize Unlimited -ErrorAction Stop
         $j = 1
         if ($Script:mailboxes.Length -eq 0)
         {
