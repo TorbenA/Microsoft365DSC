@@ -71,6 +71,14 @@ function Get-TargetResource
         $CertificateThumbprint,
 
         [Parameter()]
+        [System.String]
+        $CertificatePath,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $CertificatePassword,
+
+        [Parameter()]
         [Switch]
         $ManagedIdentity,
 
@@ -290,6 +298,14 @@ function Set-TargetResource
         $CertificateThumbprint,
 
         [Parameter()]
+        [System.String]
+        $CertificatePath,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $CertificatePassword,
+
+        [Parameter()]
         [Switch]
         $ManagedIdentity,
 
@@ -449,6 +465,14 @@ function Test-TargetResource
         [Parameter()]
         [System.String]
         $CertificateThumbprint,
+
+        [Parameter()]
+        [System.String]
+        $CertificatePath,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $CertificatePassword,
 
         [Parameter()]
         [Switch]

@@ -49,6 +49,10 @@ function Get-TargetResource
         $CertificatePassword,
 
         [Parameter()]
+        [Switch]
+        $ManagedIdentity,
+
+        [Parameter()]
         [System.String[]]
         $AccessTokens
     )
@@ -112,10 +116,11 @@ function Get-TargetResource
             Ensure                = 'Present'
             Credential            = $Credential
             ApplicationId         = $ApplicationId
+            TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint
             CertificatePath       = $CertificatePath
             CertificatePassword   = $CertificatePassword
-            TenantId              = $TenantId
+            ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
         }
 
@@ -180,6 +185,10 @@ function Set-TargetResource
         [Parameter()]
         [System.Management.Automation.PSCredential]
         $CertificatePassword,
+
+        [Parameter()]
+        [Switch]
+        $ManagedIdentity,
 
         [Parameter()]
         [System.String[]]
@@ -297,6 +306,10 @@ function Test-TargetResource
         $CertificatePassword,
 
         [Parameter()]
+        [Switch]
+        $ManagedIdentity,
+
+        [Parameter()]
         [System.String[]]
         $AccessTokens
     )
@@ -346,6 +359,10 @@ function Export-TargetResource
         [Parameter()]
         [System.Management.Automation.PSCredential]
         $CertificatePassword,
+
+        [Parameter()]
+        [Switch]
+        $ManagedIdentity,
 
         [Parameter()]
         [System.String[]]

@@ -32,12 +32,20 @@ function Get-TargetResource
         $TenantId,
 
         [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ApplicationSecret,
+
+        [Parameter()]
         [System.String]
         $CertificateThumbprint,
 
         [Parameter()]
+        [System.String]
+        $CertificatePath,
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
-        $ApplicationSecret,
+        $CertificatePassword,
 
         [Parameter()]
         [Switch]
@@ -110,6 +118,8 @@ function Get-TargetResource
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
             CertificateThumbprint = $CertificateThumbprint
+            CertificatePath       = $CertificatePath
+            CertificatePassword   = $CertificatePassword
             ApplicationSecret     = $ApplicationSecret
             ManagedIdentity       = $ManagedIdentity.IsPresent
             AccessTokens          = $AccessTokens
@@ -159,12 +169,20 @@ function Set-TargetResource
         $TenantId,
 
         [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ApplicationSecret,
+
+        [Parameter()]
         [System.String]
         $CertificateThumbprint,
 
         [Parameter()]
+        [System.String]
+        $CertificatePath,
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
-        $ApplicationSecret,
+        $CertificatePassword,
 
         [Parameter()]
         [Switch]
@@ -245,12 +263,20 @@ function Test-TargetResource
         $TenantId,
 
         [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ApplicationSecret,
+
+        [Parameter()]
         [System.String]
         $CertificateThumbprint,
 
         [Parameter()]
+        [System.String]
+        $CertificatePath,
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
-        $ApplicationSecret,
+        $CertificatePassword,
 
         [Parameter()]
         [Switch]
@@ -300,12 +326,20 @@ function Export-TargetResource
         $TenantId,
 
         [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $ApplicationSecret,
+
+        [Parameter()]
         [System.String]
         $CertificateThumbprint,
 
         [Parameter()]
+        [System.String]
+        $CertificatePath,
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
-        $ApplicationSecret,
+        $CertificatePassword,
 
         [Parameter()]
         [Switch]
@@ -356,8 +390,10 @@ function Export-TargetResource
                 Credential            = $Credential
                 ApplicationId         = $ApplicationId
                 TenantId              = $TenantId
-                CertificateThumbprint = $CertificateThumbprint
                 ApplicationSecret     = $ApplicationSecret
+                CertificateThumbprint = $CertificateThumbprint
+                CertificatePath       = $CertificatePath
+                CertificatePassword   = $CertificatePassword
                 ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }
