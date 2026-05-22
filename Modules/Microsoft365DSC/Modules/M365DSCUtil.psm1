@@ -1949,7 +1949,7 @@ function Invoke-M365DSCGraphBatchRequest
             requests = $batchRequestSized
         }
 
-        Write-Verbose -Message "Sending BATCH Request with:`r`n$($request | ConvertTo-Json -Depth 10))"
+        Write-Verbose -Message "Sending BATCH Request with $($request.requests.Count) sub-requests (starting at index $i)..."
         $apiResponse = Invoke-MgGraphRequest -Method POST `
             -Uri 'beta/$batch' `
             -Body ($request | ConvertTo-Json -Depth 10) `

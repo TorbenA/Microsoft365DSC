@@ -478,7 +478,7 @@ function Export-TargetResource
         }
 
         $displayedKey = 'Policy'
-        Write-M365DSCHost -Message "    |---[$i/1] $displayedKey" -DeferWrite
+        Write-M365DSCHost -Message "`r`n    |---[1/1] $displayedKey" -DeferWrite
         $params = @{
             IsSingleInstance      = 'Yes'
             Credential            = $Credential
