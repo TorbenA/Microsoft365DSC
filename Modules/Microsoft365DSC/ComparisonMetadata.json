@@ -380,6 +380,14 @@
       "HasCustomComparison": true,
       "Description": "Excludes properties: Name"
     },
+    "SCDLPSensitiveInformationType": {
+      "HasCustomComparison": true,
+      "Description": "Excludes properties: Identity, FileData"
+    },
+    "SCDLPSensitiveInformationTypeRulePackage": {
+      "HasCustomComparison": true,
+      "Description": "Excludes properties: Identity"
+    },
     "SCRoleGroupMember": {
       "HasCustomComparison": true,
       "Description": "Excludes properties: Description"

@@ -7,8 +7,15 @@
   * Fixed issues when creating and updating instances of this resource.
 * AADCustomAuthenticationExtension
   * Added missing application update permission `CustomAuthenticationExtension.ReadWrite.All`.
+* AADEntitlementManagementConnectedOrganization
+  * Removed required value `ExternalTenantId`.
+    FIXES [#7102](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7102)
 * AADEntitlementManagementAccessPackageCatalogResource
   * Changed properties `CatalogId` and `OriginId` to their display name equivalent.
+* AADServicePrincipal
+  * Added additional schema definitions for more claims information.
+  * Added support for `groupFilter` in the claims policy.
+    FIXES [#7102](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7102)
 * AADTenantAppManagementPolicy
   * Changed the `MaxLifetime` property in application + service principal restrictions
     --> key and password credentials to only include necessary date and time information.
@@ -24,6 +31,15 @@
   * Standardized time format of `TokenExpirationDateTime` and excluded it from comparison.
 * IntunePolicySets
   * Updated resource to work with multitenants.
+* SCDLPSensitiveInformationType
+  * Removed the parameter verbose output to prevent screen cluttering.
+    FIXES [#7145](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7145)
+  * Removed exporting instances that belong to the `SCDLPSensitiveInformationTypeRulePackage`
+    resource type.
+    FIXES [#7144](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7144)
+* SCDLPSensitiveInformationTypeRulePackage
+  * Initial release.
+    FIXES [#7144](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7144)
 * SPOTenantCdnPolicy
   * Fixed an issue where property values were not being returned.
 * M365DSCReverse
@@ -37,6 +53,12 @@
 * Dependencies
   * Removed all `Microsoft.Graph.*` dependencies except for `Microsoft.Graph.Authentication`.
   * Updated `MSCloudLoginAssistant` to version 1.1.63.
+  * Updated `Az.Accounts` to version 5.3.2.
+    FIXES [#7143](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7143)
+  * Updated `Az.Resources` to version 9.0.1.
+  * Updated `Az.Security` to version 1.8.0.
+  * Updated `Az.SecurityInsights` to version 3.2.1.
+
 
 # 1.26.520.1
 

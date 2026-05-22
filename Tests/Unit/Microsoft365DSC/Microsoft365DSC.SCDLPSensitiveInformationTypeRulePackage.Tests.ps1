@@ -35,23 +35,20 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 return "Credentials"
             }
 
-            Mock -CommandName New-DLPSensitiveInformationType -MockWith {
+            Mock -CommandName New-DLPSensitiveInformationTypeRulePackage -MockWith {
             }
 
-            Mock -CommandName Set-DLPSensitiveInformationType -MockWith {
+            Mock -CommandName Set-DLPSensitiveInformationTypeRulePackage -MockWith {
             }
 
-            Mock -CommandName Remove-DLPSensitiveInformationType -MockWith {
+            Mock -CommandName Remove-DLPSensitiveInformationTypeRulePackage -MockWith {
             }
 
-            Mock -CommandName Get-DLPSensitiveInformationType -MockWith {
+            Mock -CommandName Get-DLPSensitiveInformationTypeRulePackage -MockWith {
                 return @{
-                    Name           = "MySIT"
-                    Id             = "12345-12345-12345-12345-12345"
-                    DefaultCulture = 'en-US'
-                    Description    = "This is my description"
-                    FingerPrints = @('{"Value":"Hello World"}')
-                    RulePackId     = '00000000-0000-0000-0000-000000000000'
+                    RuleCollectionName = "MySIT"
+                    Identity           = "12345-12345-12345-12345-12345"
+                    ClassificationRuleCollectionXml = "<xml>Data</xml>"
                 }
             }
 
@@ -66,12 +63,12 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     Name                = "MyNonExistentSIT"
-                    Description         = "Test desc"
+                    XmlFileData         = "<xml>Data</xml>"
                     Ensure              = 'Present'
                     Credential          = $Credential;
                 }
 
-                Mock -CommandName Get-DLPSensitiveInformationType -MockWith {
+                Mock -CommandName Get-DLPSensitiveInformationTypeRulePackage -MockWith {
                     return $null
                 }
             }
@@ -84,7 +81,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should create a new instance from the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName New-DLPSensitiveInformationType -Exactly 1
+                Should -Invoke -CommandName New-DLPSensitiveInformationTypeRulePackage -Exactly 1
             }
         }
 
@@ -92,7 +89,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     Name                = "MySIT"
-                    Description         = ""
+                    XmlFileData         = "<xml>Data</xml>"
                     Ensure              = 'Absent'
                     Credential          = $Credential;
                 }
@@ -106,7 +103,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should remove the instance from the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName Remove-DLPSensitiveInformationType -Exactly 1
+                Should -Invoke -CommandName Remove-DLPSensitiveInformationTypeRulePackage -Exactly 1
             }
         }
 
@@ -114,8 +111,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     Name                = "MySit"
-                    Description         = "This is my description"
-                    Locale              = 'en-US'
+                    XmlFileData         = "<xml>Data</xml>"
                     Ensure              = 'Present'
                     Credential          = $Credential;
                 }
@@ -130,8 +126,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
             BeforeAll {
                 $testParams = @{
                     Name                = "MySit"
-                    Description         = "This is my description"
-                    Locale              = 'fr-CA'
+                    XmlFileData         = "<xml>Data - Updated</xml>"
                     Ensure              = 'Present'
                     Credential          = $Credential;
                 }
@@ -147,7 +142,7 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
 
             It 'Should call the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName Set-DLPSensitiveInformationType -Exactly 1
+                Should -Invoke -CommandName Set-DLPSensitiveInformationTypeRulePackage -Exactly 1
             }
         }
 
