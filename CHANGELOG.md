@@ -7,8 +7,15 @@
   * Fixed issues when creating and updating instances of this resource.
 * AADCustomAuthenticationExtension
   * Added missing application update permission `CustomAuthenticationExtension.ReadWrite.All`.
+* AADEntitlementManagementConnectedOrganization
+  * Removed required value `ExternalTenantId`.
+    FIXES [#7102](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7102)
 * AADEntitlementManagementAccessPackageCatalogResource
   * Changed properties `CatalogId` and `OriginId` to their display name equivalent.
+* AADServicePrincipal
+  * Added additional schema definitions for more claims information.
+  * Added support for `groupFilter` in the claims policy.
+    FIXES [#7102](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7102)
 * AADTenantAppManagementPolicy
   * Changed the `MaxLifetime` property in application + service principal restrictions
     --> key and password credentials to only include necessary date and time information.

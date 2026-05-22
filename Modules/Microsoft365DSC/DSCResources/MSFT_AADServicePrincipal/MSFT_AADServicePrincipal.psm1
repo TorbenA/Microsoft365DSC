@@ -1163,6 +1163,16 @@ function Export-TargetResource
                             IsRequired      = $False
                         },
                         @{
+                            Name            = 'groupFilter'
+                            CimInstanceName = 'AADServicePrincipalClaimsPolicyGroupFilter'
+                            IsRequired      = $False
+                        },
+                        @{
+                            Name            = 'input'
+                            CimInstanceName = 'MSFT_AADServicePrincipalTransformationAttribute'
+                            IsRequired      = $False
+                        },
+                        @{
                             Name            = 'configurations'
                             CimInstanceName = 'AADServicePrincipalCustomClaimConfiguration'
                             IsRequired      = $False
