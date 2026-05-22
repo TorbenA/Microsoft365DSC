@@ -89,14 +89,6 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
-        $CertificatePath,
-
-        [Parameter()]
-        [System.Management.Automation.PSCredential]
-        $CertificatePassword,
-
-        [Parameter()]
-        [System.String]
         $CertificateThumbprint,
 
         [Parameter()]
@@ -319,14 +311,6 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $TenantId,
-
-        [Parameter()]
-        [System.String]
-        $CertificatePath,
-
-        [Parameter()]
-        [System.Management.Automation.PSCredential]
-        $CertificatePassword,
 
         [Parameter()]
         [System.String]
@@ -556,14 +540,6 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
-        $CertificatePath,
-
-        [Parameter()]
-        [System.Management.Automation.PSCredential]
-        $CertificatePassword,
-
-        [Parameter()]
-        [System.String]
         $CertificateThumbprint,
 
         [Parameter()]
@@ -617,14 +593,6 @@ function Export-TargetResource
 
         [Parameter()]
         [System.String]
-        $CertificatePath,
-
-        [Parameter()]
-        [System.Management.Automation.PSCredential]
-        $CertificatePassword,
-
-        [Parameter()]
-        [System.String]
         $CertificateThumbprint,
 
         [Parameter()]
@@ -670,8 +638,6 @@ function Export-TargetResource
             IsSingleInstance      = 'Yes'
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
-            CertificatePassword   = $CertificatePassword
-            CertificatePath       = $CertificatePath
             CertificateThumbprint = $CertificateThumbprint
             CertificatePath       = $CertificatePath
             CertificatePassword   = $CertificatePassword

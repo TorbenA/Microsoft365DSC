@@ -62,7 +62,6 @@
   * Updated `Az.Security` to version 1.8.0.
   * Updated `Az.SecurityInsights` to version 3.2.1.
 
-
 # 1.26.520.1
 
 * AADConditionalAccessPolicy

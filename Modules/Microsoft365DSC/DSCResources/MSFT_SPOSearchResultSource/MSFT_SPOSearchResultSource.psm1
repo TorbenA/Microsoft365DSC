@@ -175,8 +175,6 @@ function Get-TargetResource
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
             ApplicationSecret     = $ApplicationSecret
-            CertificatePassword   = $CertificatePassword
-            CertificatePath       = $CertificatePath
             CertificateThumbprint = $CertificateThumbprint
             CertificatePath       = $CertificatePath
             CertificatePassword   = $CertificatePassword
@@ -640,8 +638,6 @@ function Export-TargetResource
                 CertificatePath       = $CertificatePath
                 CertificatePassword   = $CertificatePassword
                 ManagedIdentity       = $ManagedIdentity.IsPresent
-                CertificatePath       = $CertificatePath
-                CertificatePassword   = $CertificatePassword
                 AccessTokens          = $AccessTokens
             }
             $Results = Get-TargetResource @Params

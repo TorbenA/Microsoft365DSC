@@ -225,17 +225,15 @@ function Get-TargetResource
             FinerQueryTokenization      = [boolean]::Parse($property.Value.ExpandSegments)
             MappedCrawledProperties     = $mappings
             CompanyNameExtraction       = $CompanyNameExtraction
+            Ensure                      = 'Present'
             Credential                  = $Credential
             ApplicationId               = $ApplicationId
             TenantId                    = $TenantId
             ApplicationSecret           = $ApplicationSecret
-            CertificatePassword         = $CertificatePassword
-            CertificatePath             = $CertificatePath
             CertificateThumbprint       = $CertificateThumbprint
             CertificatePath             = $CertificatePath
             CertificatePassword         = $CertificatePassword
             ManagedIdentity             = $ManagedIdentity.IsPresent
-            Ensure                      = 'Present'
             AccessTokens                = $AccessTokens
         }
     }
@@ -957,8 +955,6 @@ function Export-TargetResource
                 CertificatePath       = $CertificatePath
                 CertificatePassword   = $CertificatePassword
                 ManagedIdentity       = $ManagedIdentity.IsPresent
-                CertificatePath       = $CertificatePath
-                CertificatePassword   = $CertificatePassword
                 AccessTokens          = $AccessTokens
             }
 
