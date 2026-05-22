@@ -137,6 +137,10 @@ function Get-TargetResource
         $CertificatePassword,
 
         [Parameter()]
+        [Switch]
+        $ManagedIdentity,
+
+        [Parameter()]
         [System.String[]]
         $AccessTokens
     )
@@ -187,12 +191,6 @@ function Get-TargetResource
             AggregationType                                             = $AlertObject.AggregationType
             Category                                                    = $AlertObject.Category
             Comment                                                     = $AlertObject.Comment
-            Credential                                                  = $Credential
-            ApplicationId                                               = $ApplicationId
-            TenantId                                                    = $TenantId
-            CertificateThumbprint                                       = $CertificateThumbprint
-            CertificatePath                                             = $CertificatePath
-            CertificatePassword                                         = $CertificatePassword
             Disabled                                                    = $AlertObject.Disabled
             Filter                                                      = $AlertObject.Filter
             Name                                                        = $AlertObject.Name
@@ -212,6 +210,13 @@ function Get-TargetResource
             Threshold                                                   = $AlertObject.Threshold
             TimeWindow                                                  = $AlertObject.TimeWindow
             VolumeThreshold                                             = $AlertObject.VolumeThreshold
+            Credential                                                  = $Credential
+            ApplicationId                                               = $ApplicationId
+            TenantId                                                    = $TenantId
+            CertificateThumbprint                                       = $CertificateThumbprint
+            CertificatePath                                             = $CertificatePath
+            CertificatePassword                                         = $CertificatePassword
+            ManagedIdentity                                             = $ManagedIdentity.IsPresent
             AccessTokens                                                = $AccessTokens
         }
         return $result
@@ -363,6 +368,10 @@ function Set-TargetResource
         [Parameter()]
         [System.Management.Automation.PSCredential]
         $CertificatePassword,
+
+        [Parameter()]
+        [Switch]
+        $ManagedIdentity,
 
         [Parameter()]
         [System.String[]]
@@ -548,6 +557,10 @@ function Test-TargetResource
         $CertificatePassword,
 
         [Parameter()]
+        [Switch]
+        $ManagedIdentity,
+
+        [Parameter()]
         [System.String[]]
         $AccessTokens
     )
@@ -595,6 +608,10 @@ function Export-TargetResource
         [Parameter()]
         [System.Management.Automation.PSCredential]
         $CertificatePassword,
+
+        [Parameter()]
+        [Switch]
+        $ManagedIdentity,
 
         [Parameter()]
         [System.String[]]

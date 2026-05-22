@@ -66,6 +66,14 @@ function Get-TargetResource
         $CertificateThumbprint,
 
         [Parameter()]
+        [System.String]
+        $CertificatePath,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $CertificatePassword,
+
+        [Parameter()]
         [Switch]
         $ManagedIdentity,
 
@@ -208,6 +216,8 @@ function Get-TargetResource
             TenantId                           = $TenantId
             ApplicationSecret                  = $ApplicationSecret
             CertificateThumbprint              = $CertificateThumbprint
+            CertificatePath                    = $CertificatePath
+            CertificatePassword                = $CertificatePassword
             ManagedIdentity                    = $ManagedIdentity.IsPresent
             #endregion
         }
@@ -295,6 +305,14 @@ function Set-TargetResource
         [Parameter()]
         [System.String]
         $CertificateThumbprint,
+
+        [Parameter()]
+        [System.String]
+        $CertificatePath,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $CertificatePassword,
 
         [Parameter()]
         [Switch]
@@ -478,6 +496,14 @@ function Test-TargetResource
         $CertificateThumbprint,
 
         [Parameter()]
+        [System.String]
+        $CertificatePath,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $CertificatePassword,
+
+        [Parameter()]
         [Switch]
         $ManagedIdentity,
 
@@ -534,6 +560,14 @@ function Export-TargetResource
         [Parameter()]
         [System.String]
         $CertificateThumbprint,
+
+        [Parameter()]
+        [System.String]
+        $CertificatePath,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        $CertificatePassword,
 
         [Parameter()]
         [Switch]
@@ -600,6 +634,8 @@ function Export-TargetResource
                 TenantId              = $TenantId
                 ApplicationSecret     = $ApplicationSecret
                 CertificateThumbprint = $CertificateThumbprint
+                CertificatePath       = $CertificatePath
+                CertificatePassword   = $CertificatePassword
                 ManagedIdentity       = $ManagedIdentity.IsPresent
                 AccessTokens          = $AccessTokens
             }

@@ -50,15 +50,17 @@
 * MISC
   * Introduced Microsoft Graph shim layer.
   * Refactored filters on Graph calls to be done on the server side instead of locally.
+  * Streamlined authentication parameters across all resources and added `CertificatePath`
+    and `CertificatePassword` to supported resources.
+    FIXES [#7147](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7147)
 * Dependencies
   * Removed all `Microsoft.Graph.*` dependencies except for `Microsoft.Graph.Authentication`.
-  * Updated `MSCloudLoginAssistant` to version 1.1.63.
+  * Updated `MSCloudLoginAssistant` to version 1.1.64.
   * Updated `Az.Accounts` to version 5.3.2.
     FIXES [#7143](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7143)
   * Updated `Az.Resources` to version 9.0.1.
   * Updated `Az.Security` to version 1.8.0.
   * Updated `Az.SecurityInsights` to version 3.2.1.
-
 
 # 1.26.520.1
 
