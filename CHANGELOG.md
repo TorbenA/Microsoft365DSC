@@ -27,6 +27,12 @@
 * SCDLPSensitiveInformationType
   * Removed the parameter verbose output to prevent screen cluttering.
     FIXES [#7145](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7145)
+  * Removed exporting instances that belong to the `SCDLPSensitiveInformationTypeRulePackage`
+    resource type.
+    FIXES [#7144](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7144)
+* SCDLPSensitiveInformationTypeRulePackage
+  * Initial release.
+    FIXES [#7144](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7144)
 * SPOTenantCdnPolicy
   * Fixed an issue where property values were not being returned.
 * M365DSCReverse

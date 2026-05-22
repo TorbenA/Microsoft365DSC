@@ -1,4 +1,4 @@
-Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCDLPSensitiveInformationType'
+Confirm-M365DSCModuleDependency -ModuleName 'MSFT_SCDLPSensitiveInformationTypeRulePackage'
 
 function Get-TargetResource
 {
@@ -12,19 +12,11 @@ function Get-TargetResource
 
         [Parameter()]
         [System.String]
-        $Description,
-
-        [Parameter()]
-        [System.String]
         $Identity,
 
         [Parameter()]
         [System.String]
-        $Locale,
-
-        [Parameter()]
-        [System.String]
-        $FileData,
+        $XmlFileData,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -55,7 +47,8 @@ function Get-TargetResource
         [System.String[]]
         $AccessTokens
     )
-    Write-Verbose -Message "Getting configuration of DLPSensitiveInformationType for $Name"
+
+    Write-Verbose -Message "Getting configuration of DLPSensitiveInformationTypeRulePackage for $Name"
 
     try
     {
@@ -79,11 +72,11 @@ function Get-TargetResource
             $nullReturn = $PSBoundParameters
             $nullReturn.Ensure = 'Absent'
 
-            $SIT = Invoke-M365DSCCommand -ScriptBlock { Get-DlpSensitiveInformationType -Identity $Name -ErrorAction Stop } -SuppressNotFoundError
+            $SIT = Invoke-M365DSCCommand -ScriptBlock { Get-DlpSensitiveInformationTypeRulePackage -Identity $Name -ErrorAction Stop } -SuppressNotFoundError
 
             if ($null -eq $SIT)
             {
-                Write-Verbose -Message "DLPSensitiveInformationType $($Name) does not exist."
+                Write-Verbose -Message "DLPSensitiveInformationTypeRulePackage $($Name) does not exist."
                 return $nullReturn
             }
         }
@@ -92,20 +85,13 @@ function Get-TargetResource
             $SIT = $Script:exportedInstance
         }
 
-        Write-Verbose "Found existing DLPSensitiveInformationType $($Name)"
+        Write-Verbose "Found existing DLPSensitiveInformationTypeRulePackage $($Name)"
 
-        $fileDataValue = $null
-        if ($null -ne $SIT.FingerPrints)
-        {
-            $fileDataValue = (ConvertFrom-Json $SIT.FingerPrints[0]).Value
-        }
         $result = @{
             Ensure                = 'Present'
-            Name                  = $SIT.Name
-            Identity              = $SIT.Id
-            Description           = $SIT.Description
-            Locale                = $SIT.DefaultCulture.ToString()
-            FileData              = $fileDataValue
+            Name                  = $SIT.RuleCollectionName
+            Identity              = $SIT.Identity
+            XmlFileData           = $SIT.ClassificationRuleCollectionXml -replace "lastModifiedTime=`".*?`"", '' # Remove last modified time as it is not relevant to the configuration and causes noise in diffs
             Credential            = $Credential
             ApplicationId         = $ApplicationId
             TenantId              = $TenantId
@@ -113,20 +99,6 @@ function Get-TargetResource
             CertificatePath       = $CertificatePath
             CertificatePassword   = $CertificatePassword
             AccessTokens          = $AccessTokens
-        }
-
-        $paramsToRemove = @()
-        foreach ($paramName in $result.Keys)
-        {
-            if ($null -eq $result[$paramName] -or '' -eq $result[$paramName] -or @() -eq $result[$paramName])
-            {
-                $paramsToRemove += $paramName
-            }
-        }
-
-        foreach ($paramName in $paramsToRemove)
-        {
-            $result.Remove($paramName)
         }
 
         return $result
@@ -154,19 +126,11 @@ function Set-TargetResource
 
         [Parameter()]
         [System.String]
-        $Description,
-
-        [Parameter()]
-        [System.String]
         $Identity,
 
         [Parameter()]
         [System.String]
-        $Locale,
-
-        [Parameter()]
-        [System.String]
-        $FileData,
+        $XmlFileData,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -211,32 +175,25 @@ function Set-TargetResource
     #endregion
 
     $currentInstance = Get-TargetResource @PSBoundParameters
-
     $setParameters = Remove-M365DSCAuthenticationParameter -BoundParameters $PSBoundParameters
-
-    if ($null -ne $setParameters.FileData)
-    {
-        $setParameters.FileData = [System.Text.Encoding]::UTF8.GetBytes($setParameters.FileData)
-    }
 
     # CREATE
     if ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Absent')
     {
-        Write-Verbose -Message "Creating a DLPSensitiveInformationType with Name {$Name}"
-        $setParameters.Remove('Identity') | Out-Null
-        New-DLPSensitiveInformationType @setParameters
+        Write-Verbose -Message "Creating a new DLPSensitiveInformationTypeRulePackage with RuleCollectionName $Name"
+        New-DLPSensitiveInformationTypeRulePackage -FileData ([System.Text.Encoding]::Unicode.GetBytes($XmlFileData))
     }
     # UPDATE
     elseif ($Ensure -eq 'Present' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Updating the DLPSensitiveInformationType with Name {$Name}"
-        Set-DLPSensitiveInformationType @SetParameters
+        Write-Verbose -Message "Updating a DLPSensitiveInformationTypeRulePackage with RuleCollectionName $Name"
+        Set-DLPSensitiveInformationTypeRulePackage -FileData ([System.Text.Encoding]::Unicode.GetBytes($XmlFileData))
     }
     # REMOVE
     elseif ($Ensure -eq 'Absent' -and $currentInstance.Ensure -eq 'Present')
     {
-        Write-Verbose -Message "Removing the DLPSensitiveInformationType with Name {$Name}"
-        Remove-DLPSensitiveInformationType -Identity $currentInstance.Identity
+        Write-Verbose -Message "Removing a DLPSensitiveInformationTypeRulePackage with RuleCollectionName $Name"
+        Remove-DLPSensitiveInformationTypeRulePackage -Identity $currentInstance.Identity
     }
 }
 
@@ -252,19 +209,11 @@ function Test-TargetResource
 
         [Parameter()]
         [System.String]
-        $Description,
-
-        [Parameter()]
-        [System.String]
         $Identity,
 
         [Parameter()]
         [System.String]
-        $Locale,
-
-        [Parameter()]
-        [System.String]
-        $FileData,
+        $XmlFileData,
 
         [Parameter()]
         [ValidateSet('Present', 'Absent')]
@@ -363,10 +312,8 @@ function Export-TargetResource
 
     try
     {
-        [array]$SITs = Get-DLPSensitiveInformationType -ErrorAction Stop | Where-Object {
-            # Only use information types that are not part of a rule package
-            # as those are handled in the SCDLPSensitiveInformationTypeRulePackage resource.
-            $_.RulePackId -like "0000*"
+        [array]$SITs = Get-DLPSensitiveInformationTypeRulePackage -ErrorAction Stop | Where-Object {
+            $null -ne $_.Identity
         }
 
         $i = 1
@@ -386,12 +333,12 @@ function Export-TargetResource
                 $Global:M365DSCExportResourceInstancesCount++
             }
 
-            Write-M365DSCHost -Message "    |---[$i/$($SITS.Length)] $($SIT.Name)" -DeferWrite
+            Write-M365DSCHost -Message "    |---[$i/$($SITs.Length)] $($SIT.RuleCollectionName)" -DeferWrite
 
             $Script:exportedInstance = $SIT
             $Results = Get-TargetResource @PSBoundParameters `
-                -Name $SIT.name `
-                -FileData 'temp'
+                -Name $SIT.RuleCollectionName `
+                -XmlFileData 'temp'
 
             $currentDSCBlock = Get-M365DSCExportContentForResource -ResourceName $ResourceName `
                 -ConnectionMode $ConnectionMode `
@@ -429,7 +376,7 @@ function Get-CompareParameters
     param()
 
     return @{
-        ExcludedProperties = @('Identity', 'FileData')
+        ExcludedProperties = @('Identity')
     }
 }
 

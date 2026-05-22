@@ -348,6 +348,59 @@ function Remove-DlpSensitiveInformationType
     )
 }
 
+function New-DlpSensitiveInformationTypeRulePackage
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.Byte[]]
+        $FileData,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm
+    )
+}
+function Set-DlpSensitiveInformationTypeRulePackage
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.Byte[]]
+        $FileData,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm
+    )
+}
+function Get-DlpSensitiveInformationTypeRulePackage
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.Object]
+        $Identity,
+
+        [Parameter()]
+        [System.Object]
+        $Capability
+    )
+}
+function Remove-DlpSensitiveInformationTypeRulePackage
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.Object]
+        $Identity,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Confirm
+    )
+}
+
 function Stop-MigrationBatch
 {
     [CmdletBinding()]
