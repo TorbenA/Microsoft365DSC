@@ -81724,6 +81724,90 @@ function Set-CsTeamsMessagingConfiguration
         $Force
     )
 }
+function Get-CsTeamsTargetingPolicy
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $Identity,
+
+        [Parameter()]
+        [System.String]
+        $Filter
+    )
+}
+function Set-CsTeamsTargetingPolicy
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $Identity,
+
+        [Parameter()]
+        [System.String]
+        $CustomTagsMode,
+
+        [Parameter()]
+        [System.String]
+        $Description,
+
+        [Parameter()]
+        [System.String]
+        $ManageTagsPermissionMode,
+
+        [Parameter()]
+        [System.String]
+        $ShiftBackedTagsMode,
+
+        [Parameter()]
+        [System.String]
+        $SuggestedPresetTags,
+
+        [Parameter()]
+        [System.String]
+        $TeamOwnersEditWhoCanManageTagsMode
+    )
+}
+function Get-CsTeamsNotificationAndFeedsPolicy
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $Identity,
+
+        [Parameter()]
+        [System.String]
+        $Filter
+    )
+}
+function Set-CsTeamsNotificationAndFeedsPolicy
+{
+    [CmdletBinding()]
+    param(
+        [Parameter()]
+        [System.String]
+        $Identity,
+
+        [Parameter()]
+        [System.String]
+        $Description,
+
+        [Parameter()]
+        [System.String]
+        $SuggestedFeedsEnabledType,
+
+        [Parameter()]
+        [System.String]
+        $TrendingFeedsEnabledType,
+
+        [Parameter()]
+        [switch]
+        $Force
+    )
+}
 #endregion
 
 #region PnP.PowerShell
@@ -91588,6 +91672,7 @@ function Remove-RoleGroupMember
     )
 }
 #endregion
+
 #region MgBetaDeviceManagementReusableSetting
 function Get-MgBetaDeviceManagementReusableSetting
 {

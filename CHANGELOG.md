@@ -58,6 +58,10 @@
     FIXES [#7144](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7144)
 * SPOTenantCdnPolicy
   * Fixed an issue where property values were not being returned.
+* TeamsNotificationAndFeedsPolicy
+  * Initial release.
+* TeamsTargetingPolicy
+  * Initial release.
 * M365DSCReverse
   * Added functionality to use wildcards in the `-Components` parameter when exporting.
   * Fixed an issue where the resources to export counter did not match the actual value.
