@@ -59,6 +59,10 @@
 * SCDLPSensitiveInformationTypeRulePackage
   * Initial release.
     FIXES [#7144](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7144)
+* SCInsiderRiskPolicy
+  * Fixed an issue where notification values were tried to be set
+    even though the feature was neither configured nor enabled.
+    FIXES [#7162](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7162)
 * SPOTenantCdnPolicy
   * Fixed an issue where property values were not being returned.
 * TeamsAIPolicy
