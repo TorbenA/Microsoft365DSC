@@ -47,6 +47,9 @@
   * Standardized time format of `TokenExpirationDateTime` and excluded it from comparison.
 * IntunePolicySets
   * Updated resource to work with multitenants.
+* SCDLPComplianceRule
+  * Fixed an issue where an attempt was made to resolve trainable classifiers with a null Id.
+    FIXES [#7156](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7156)
 * SCDLPSensitiveInformationType
   * Removed the parameter verbose output to prevent screen cluttering.
     FIXES [#7145](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7145)
