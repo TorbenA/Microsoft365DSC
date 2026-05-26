@@ -73483,6 +73483,10 @@ function New-CsTeamsEventsPolicy
         $EventAccessType,
 
         [Parameter()]
+        [System.String]
+        $ExternalPresenterJoinVerification,
+
+        [Parameter()]
         [System.Boolean]
         $AllowEventIntegrations,
 
@@ -73517,6 +73521,10 @@ function New-CsTeamsEventsPolicy
         [Parameter()]
         [System.String]
         $RecordingForWebinar,
+
+        [Parameter()]
+        [System.String]
+        $Registration,
 
         [Parameter()]
         [System.String]
@@ -75529,6 +75537,10 @@ function Set-CsTeamsEventsPolicy
         $EventAccessType,
 
         [Parameter()]
+        [System.String]
+        $ExternalPresenterJoinVerification,
+
+        [Parameter()]
         [System.Boolean]
         $AllowEventIntegrations,
 
@@ -75563,6 +75575,10 @@ function Set-CsTeamsEventsPolicy
         [Parameter()]
         [System.String]
         $RecordingForWebinar,
+
+        [Parameter()]
+        [System.String]
+        $Registration,
 
         [Parameter()]
         [System.String]
@@ -78982,6 +78998,10 @@ function New-CsTeamsAIPolicy
         [Parameter()]
         [System.String]
         $EnrollVoice,
+
+        [Parameter()]
+        [System.String]
+        $PassiveVoiceEnrollment,
 
         [Parameter()]
         [System.String]

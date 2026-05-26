@@ -166,6 +166,11 @@ function Set-TargetResource
         [Parameter()]
         [ValidateSet('Enabled', 'Disabled')]
         [System.String]
+        $PassiveVoiceEnrollment,
+
+        [Parameter()]
+        [ValidateSet('Enabled', 'Disabled')]
+        [System.String]
         $SpeakerAttributionForBYOD,
 
         [Parameter()]
@@ -264,6 +269,11 @@ function Test-TargetResource
         [ValidateSet('Enabled', 'Disabled')]
         [System.String]
         $EnrollVoice,
+
+        [Parameter()]
+        [ValidateSet('Enabled', 'Disabled')]
+        [System.String]
+        $PassiveVoiceEnrollment,
 
         [Parameter()]
         [ValidateSet('Enabled', 'Disabled')]
