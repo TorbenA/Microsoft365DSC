@@ -7,7 +7,7 @@ function Get-TargetResource
 <ParameterBlock>
     )
 
-    Write-Verbose -Message "Getting configuration for <ResourceDescription> with <FilterKey> {$<FilterKey>}."
+    Write-Verbose -Message "Getting configuration for the <ResourceDescription> with <FilterKey> {$<FilterKey>}"
 
     try
     {
@@ -34,7 +34,7 @@ function Get-TargetResource
             $instance = <GetCmdLetName> -<getKeyIdentifier> $<PrimaryKey> -ErrorAction SilentlyContinue
             if ($null -eq $instance)
             {
-                Write-Verbose -Message "Could not find an <ResourceDescription> with <FilterKey> {$<FilterKey>}."
+                Write-Verbose -Message "Could not find an <ResourceDescription> with <FilterKey> {$<FilterKey>}"
                 return $nullResult
             }
         }

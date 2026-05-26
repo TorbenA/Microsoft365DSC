@@ -56,7 +56,7 @@ function Get-TargetResource
         $AccessTokens
     )
 
-    Write-Verbose -Message "Getting configuration for Teams Notification And Feeds Policy with Identity {$Identity}."
+    Write-Verbose -Message "Getting configuration for the Teams Notification And Feeds Policy"
 
     try
     {
@@ -83,7 +83,7 @@ function Get-TargetResource
             $instance = Get-CsTeamsNotificationAndFeedsPolicy -Identity 'Global' -ErrorAction Stop
             if ($null -eq $instance)
             {
-                throw 'Could not find a Teams Notification And Feeds Policy with Identity {Global}.'
+                throw 'Could not find a Teams Notification And Feeds Policy with Identity {Global}'
             }
         }
         else

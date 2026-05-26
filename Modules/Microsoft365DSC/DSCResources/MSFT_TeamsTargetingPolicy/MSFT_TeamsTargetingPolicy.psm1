@@ -70,6 +70,8 @@ function Get-TargetResource
         $AccessTokens
     )
 
+    Write-Verbose -Message "Getting configuration for the Teams Targeting Policy"
+
     try
     {
         $null = New-M365DSCConnection -Workload 'MicrosoftTeams' `
@@ -93,7 +95,7 @@ function Get-TargetResource
         $instance = Get-CsTeamsTargetingPolicy -ErrorAction SilentlyContinue
         if ($null -eq $instance)
         {
-            Write-Verbose -Message "Could not find an Teams Targeting Policy with Identity {Global}."
+            Write-Verbose -Message "Could not find an Teams Targeting Policy with Identity {Global}"
             return $nullResult
         }
 
