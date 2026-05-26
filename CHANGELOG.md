@@ -88,6 +88,9 @@
   * Initial release.
 * TeamsTargetingPolicy
   * Initial release.
+* M365DSCDllLoader
+  * Fixed an issue where an attempt was made to read the `HKLM:` drive on non-Windows systems.
+    FIXES [#7157](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7157)
 * M365DSCReverse
   * Added functionality to use wildcards in the `-Components` parameter when exporting.
   * Fixed an issue where the resources to export counter did not match the actual value.
