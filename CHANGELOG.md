@@ -58,6 +58,29 @@
     FIXES [#7144](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7144)
 * SPOTenantCdnPolicy
   * Fixed an issue where property values were not being returned.
+* TeamsAIPolicy
+  * Added property `PassiveVoiceEnrollment`.
+* TeamsCallQueue
+  * Added properties `TextAnnouncementForCR`, `TextAnnouncementForCRFailure`
+    and `HideAuthorizedUsers`.
+* TeamsCallingPolicy
+  * Added property `ReportCall`.
+* TeamsClientConfiguration
+  * Added properties `ExtendedWorkInfoInPeopleSearch` and `UseUnifiedDomain`.
+* TeamsEventsPolicy
+  * Added properties `BackroomChat`, `ExternalPresenterJoinVerification`, `Registration`
+    and `TownhallMaxResolution`.
+* TeamsFederationConfiguration
+  * Added properties `AllowedTrialTenantDomains` and `BlockAllSubdomains`.
+* TeamsFilesPolicy
+  * Fixed an issue where `DefaultFileUploadAppId` was not exported.
+* TeamsGuestMeetingConfiguration
+  * Added property `AllowMultipleScreenshare`.
+* TeamsMeetingPolicy
+  * Added properties `AllowMultipleScreenshare`, `BackroomChat`, `PasscodeComplexity`
+    and `SetRecordingAndTranscriptOwnership`.
+* TeamsMobilityPolicy
+  * Added property `LinksInTeams`.
 * TeamsNotificationAndFeedsPolicy
   * Initial release.
 * TeamsTargetingPolicy

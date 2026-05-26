@@ -27,6 +27,11 @@ function Get-TargetResource
         [Parameter()]
         [ValidateSet('Enabled', 'Disabled')]
         [System.String]
+        $PassiveVoiceEnrollment,
+
+        [Parameter()]
+        [ValidateSet('Enabled', 'Disabled')]
+        [System.String]
         $SpeakerAttributionForBYOD,
 
         [Parameter()]
@@ -109,6 +114,7 @@ function Get-TargetResource
             Description               = $instance.Description
             EnrollFace                = $instance.EnrollFace
             EnrollVoice               = $instance.EnrollVoice
+            PassiveVoiceEnrollment    = $instance.PassiveVoiceEnrollment
             SpeakerAttributionForBYOD = $instance.SpeakerAttributionForBYOD
             Ensure                    = 'Present'
             Credential                = $Credential
