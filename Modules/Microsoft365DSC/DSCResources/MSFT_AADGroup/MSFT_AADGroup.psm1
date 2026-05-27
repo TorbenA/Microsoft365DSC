@@ -645,7 +645,7 @@ function Set-TargetResource
                 Write-Verbose -Message "Creating Group with Values: $(Convert-M365DscHashtableToString -Hashtable $currentParameters)"
                 $currentGroup = New-MgGroup -BodyParameter $currentParameters
                 Write-Verbose -Message "Created Group $($currentGroup.id), wait for sync to complete"
-                Invoke-M365DSCCommand -ScriptBlock { Get-MgGroup -GroupId $currentGroup.Id -Property Id -ErrorAction Stop } -RetryOnNotFoundError | Out-Null            }
+                Invoke-M365DSCCommand -ScriptBlock { Get-MgGroup -GroupId $currentGroup.Id -Property Id -ErrorAction Stop } -RetryOnNotFoundError | Out-Null
             }
             catch
             {
