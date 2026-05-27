@@ -665,7 +665,7 @@ function Set-TargetResource
             {
                 Write-Verbose -Message "Updating settings by ID for group {$DisplayName}"
 
-                if ($true -eq $currentParameters.ContainsKey('IsAssignableToRole'))
+                if ($currentParameters.ContainsKey('IsAssignableToRole'))
                 {
                     Write-Verbose -Message 'Cannot set IsAssignableToRole once group is created.'
                     $currentParameters.Remove('IsAssignableToRole') | Out-Null
