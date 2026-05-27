@@ -1400,7 +1400,7 @@ function Get-M365DSCAzureADGroupLicenses
 
     foreach ($assignedLicense in $AssignedLicenses)
     {
-        $skuPartNumber = $Script:SubscribedSkus.Where({ $_.SkuId -eq $assignedLicense.SkuId })
+        $skuPartNumber = $Script:SubscribedSkus | Where-Object -FilterScript { $_.SkuId -eq $assignedLicense.SkuId }
         $disabledPlansValues = @()
         foreach ($plan in $assignedLicense.DisabledPlans)
         {
