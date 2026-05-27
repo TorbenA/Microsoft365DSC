@@ -644,8 +644,8 @@ function Set-TargetResource
             {
                 Write-Verbose -Message "Creating Group with Values: $(Convert-M365DscHashtableToString -Hashtable $currentParameters)"
                 $currentGroup = New-MgGroup -BodyParameter $currentParameters
-                Write-Verbose -Message "Created Group $($currentGroup.id), wait for sync to complete"
-                Invoke-M365DSCCommand -ScriptBlock { Get-MgGroup -GroupId $currentGroup.Id -Property Id -ErrorAction Stop } -RetryOnNotFoundError | Out-Null            }
+                Write-Verbose -Message "Created Group $($currentGroup.id)"
+            }
             catch
             {
                 Write-Verbose -Message $_
@@ -660,23 +660,22 @@ function Set-TargetResource
         Write-Verbose -Message "Group {$DisplayName} exists and it should."
         try
         {
-            if ($currentGroup.Ensure -eq 'Present')
+            Write-Verbose -Message "Updating settings by ID for group {$DisplayName}"
+            if ($true -eq $currentParameters.ContainsKey('IsAssignableToRole'))
             {
-                Write-Verbose -Message "Updating settings by ID for group {$DisplayName}"
+                Write-Verbose -Message 'Cannot set IsAssignableToRole once group is created.'
+                $currentParameters.Remove('IsAssignableToRole') | Out-Null
+            }
 
-                if ($true -eq $currentParameters.ContainsKey('IsAssignableToRole'))
-                {
-                    Write-Verbose -Message 'Cannot set IsAssignableToRole once group is created.'
-                    $currentParameters.Remove('IsAssignableToRole') | Out-Null
-                }
-
-                if ($currentParameters.ContainsKey('Id'))
-                {
-                    $currentParameters.Remove('Id') | Out-Null
-                }
-
-                Write-Verbose -Message "Updating existing Group with Values: $(Convert-M365DscHashtableToString -Hashtable $currentParameters)"
-                Update-MgGroup -GroupId $currentGroup.Id -BodyParameter $currentParameters -ErrorAction Stop
+            if ($false -eq $currentParameters.ContainsKey('Id'))
+            {
+                Update-MgGroup -BodyParameter $currentParameters -GroupId $currentGroup.Id | Out-Null
+            }
+            else
+            {
+                $currentParameters.Remove('Id') | Out-Null
+                Write-Verbose -Message "Updating Group with Values: $(Convert-M365DscHashtableToString -Hashtable $currentParameters)"
+                Invoke-M365DSCCommand -ScriptBlock { Update-MgGroup -GroupId $currentGroup.Id -BodyParameter $currentParameters -ErrorAction Stop } -RetryOnNotFoundError | Out-Null
             }
 
             if (($licensesToAdd.Length -gt 0 -or $licensesToRemove.Length -gt 0) -and $PSBoundParameters.ContainsKey('AssignedLicenses'))

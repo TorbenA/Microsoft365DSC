@@ -14,9 +14,6 @@
     FIXES [#7102](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7102)
 * AADEntitlementManagementAccessPackageCatalogResource
   * Changed properties `CatalogId` and `OriginId` to their display name equivalent.
-  AADGroup
-  * Include wait after creating new group
-  * Only update existing group
 * AADPIMGroupSetting
   * Changed resource type from `Configuration` to `Data`.
 * AADServicePrincipal
