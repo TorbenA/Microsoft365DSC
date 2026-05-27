@@ -63,6 +63,9 @@
   * Fixed an issue where notification values were tried to be set
     even though the feature was neither configured nor enabled.
     FIXES [#7162](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7162)
+* SPOStorageEntity
+  * Fixed an issue where applying entries to a protected app catalog failed.
+    FIXES [#6895](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/6895)
 * SPOTenantCdnPolicy
   * Fixed an issue where property values were not being returned.
 * TeamsAIPolicy
