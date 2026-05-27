@@ -15,8 +15,8 @@
 * AADEntitlementManagementAccessPackageCatalogResource
   * Changed properties `CatalogId` and `OriginId` to their display name equivalent.
 * AADGroup
-  * Include wait after creating new group
-  * Avoid updating new group
+  * Added pause / wait after creating or restoring a group until group is provisioned.
+  * Removed a duplicate update call if a group was newly created.
 * AADPIMGroupSetting
   * Changed resource type from `Configuration` to `Data`.
 * AADServicePrincipal
