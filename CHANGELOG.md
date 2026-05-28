@@ -73,6 +73,8 @@
     FIXES [#6895](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/6895)
 * SPOTenantCdnPolicy
   * Fixed an issue where property values were not being returned.
+* SPOTenantSettings
+  * Improve handling of parameters when updating settings
 * TeamsAIPolicy
   * Added property `PassiveVoiceEnrollment`.
 * TeamsCallQueue
