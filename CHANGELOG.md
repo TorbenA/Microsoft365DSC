@@ -15,8 +15,8 @@
 * AADEntitlementManagementAccessPackageCatalogResource
   * Changed properties `CatalogId` and `OriginId` to their display name equivalent.
 * AADGroup
-  * Include wait after creating new group
-  * Avoid updating new group
+  * Added pause / wait after creating or restoring a group until group is provisioned.
+  * Removed a duplicate update call if a group was newly created.
 * AADPIMGroupSetting
   * Changed resource type from `Configuration` to `Data`.
 * AADServicePrincipal
@@ -66,6 +66,9 @@
   * Fixed an issue where notification values were tried to be set
     even though the feature was neither configured nor enabled.
     FIXES [#7162](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7162)
+* SPOStorageEntity
+  * Fixed an issue where applying entries to a protected app catalog failed.
+    FIXES [#6895](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/6895)
 * SPOTenantCdnPolicy
   * Fixed an issue where property values were not being returned.
 * TeamsAIPolicy
@@ -111,7 +114,8 @@
     FIXES [#7147](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7147)
 * Dependencies
   * Removed all `Microsoft.Graph.*` dependencies except for `Microsoft.Graph.Authentication`.
-  * Updated `MSCloudLoginAssistant` to version 1.1.65.
+  * Updated `MSCloudLoginAssistant` to version 1.1.66.
+    FIXES [#7154](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7154)
   * Updated `Az.Accounts` to version 5.3.2.
     FIXES [#7143](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7143)
   * Updated `Az.Resources` to version 9.0.1.

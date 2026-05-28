@@ -628,9 +628,10 @@ function Set-TargetResource
             {
                 $currentGroup = Get-MgBetaGroup -Filter "DisplayName eq '$($DisplayName -replace "'", "''")'" -ErrorAction Stop
             } while ($null -eq $currentGroup)
+            $null = Invoke-M365DSCCommand -ScriptBlock { Get-MgBetaGroup -GroupId $currentGroup.Id -ErrorAction Stop } -RetryOnNotFoundError
             $null = Invoke-M365DSCCommand -ScriptBlock { Get-MgBetaGroupMember -GroupId $currentGroup.Id -ErrorAction Stop } -RetryOnNotFoundError
             $commandParameters = ([Hashtable]$PSBoundParameters).Clone()
-            Invoke-M365DSCCommand -ScriptBlock { $currentGroup = Get-TargetResource @commandParameters } -RetryOnNotFoundError
+            $currentGroup = Invoke-M365DSCCommand -ScriptBlock { Get-TargetResource @commandParameters } -RetryOnNotFoundError
             $backCurrentOwners = $currentGroup.Owners
             $backCurrentMembers = $currentGroup.Members
         }
@@ -645,7 +646,7 @@ function Set-TargetResource
                 Write-Verbose -Message "Creating Group with Values: $(Convert-M365DscHashtableToString -Hashtable $currentParameters)"
                 $currentGroup = New-MgGroup -BodyParameter $currentParameters
                 Write-Verbose -Message "Created Group $($currentGroup.id), wait for sync to complete"
-                Invoke-M365DSCCommand -ScriptBlock { Get-MgGroup -GroupId $currentGroup.Id -Property Id -ErrorAction Stop } -RetryOnNotFoundError | Out-Null
+                Invoke-M365DSCCommand -ScriptBlock { Get-MgBetaGroup -GroupId $currentGroup.Id -Property Id -ErrorAction Stop } -RetryOnNotFoundError | Out-Null
             }
             catch
             {
@@ -656,6 +657,7 @@ function Set-TargetResource
             }
         }
     }
+
     if ($Ensure -eq 'Present')
     {
         Write-Verbose -Message "Group {$DisplayName} exists and it should."
