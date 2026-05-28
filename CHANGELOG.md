@@ -50,6 +50,8 @@
   * Standardized time format of `TokenExpirationDateTime` and excluded it from comparison.
 * IntunePolicySets
   * Updated resource to work with multitenants.
+* O365OrgSettings
+  * Fixed handling of Office on the Web SPN in new tenants
 * SCDLPComplianceRule
   * Fixed an issue where an attempt was made to resolve trainable classifiers with a null Id.
     FIXES [#7156](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7156)

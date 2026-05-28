@@ -213,8 +213,8 @@ function Get-TargetResource
             if ($null -eq $M365WebEnableUsersToOpenFilesFrom3PStorageValue)
             {
                 Write-Verbose -Message 'Registering the Office on the web Service Principal'
-                New-MgServicePrincipal -AppId 'c1f33bc0-bdb4-4248-ba9b-096807ddb43e' -ErrorAction Stop | Out-Null
-                $M365WebEnableUsersToOpenFilesFrom3PStorageValue = Get-MgServicePrincipal -Filter "appId eq '$OfficeOnlineId'" -Property 'AccountEnabled' -ErrorAction SilentlyContinue
+                New-MgServicePrincipal -AppId $OfficeOnlineId -ErrorAction Stop | Out-Null
+                $M365WebEnableUsersToOpenFilesFrom3PStorageValue = Invoke-M365DSCCommand -ScriptBlock { Get-MgServicePrincipal -Filter "appId eq '$OfficeOnlineId'" -Property 'AccountEnabled' -ErrorAction Stop } -RetryOnNotFoundError
             }
 
             if ($null -ne $M365WebEnableUsersToOpenFilesFrom3PStorageValue)
