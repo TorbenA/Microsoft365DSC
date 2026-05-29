@@ -519,10 +519,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 Test-TargetResource @testParams | Should -Be $true
             }
 
-            It 'Should call Invoke-MgGraphRequest for validation and create when applying the filter' {
+            It 'Should call Invoke-MgGraphRequest for validation and update when applying the filter' {
                 Set-TargetResource @testParams
                 Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1 -ParameterFilter { $Method -eq 'GET' }
-                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1 -ParameterFilter { $Method -eq 'POST' }
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1 -ParameterFilter { $Method -eq 'PATCH' }
             }
         }
 
