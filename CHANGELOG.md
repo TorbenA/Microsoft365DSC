@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# Unreleased
+
+* AADConditionalAccessPolicy
+  * improved handling of multiple custom security attributes instead of just one in filterrule
+
 # 1.26.527.1
 
 * AADAccessReviewDefinition
