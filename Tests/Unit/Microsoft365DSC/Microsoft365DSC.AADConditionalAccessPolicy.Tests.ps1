@@ -519,9 +519,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 Test-TargetResource @testParams | Should -Be $true
             }
 
-            It 'Should call Invoke-MgGraphRequest to validate the custom attribute when applying the filter' {
+            It 'Should call Invoke-MgGraphRequest for validation and create when applying the filter' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1 -ParameterFilter { $Method -eq 'GET' }
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1 -ParameterFilter { $Method -eq 'POST' }
             }
         }
 
@@ -590,9 +591,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 Test-TargetResource @testParams | Should -Be $true
             }
 
-            It 'Should call Invoke-MgGraphRequest to validate custom attributes when applying the filter' {
+            It 'Should call Invoke-MgGraphRequest for validation and update when applying the filter' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1 -ParameterFilter { $Method -eq 'GET' }
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1 -ParameterFilter { $Method -eq 'PATCH' }
             }
         }
 
@@ -685,9 +687,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 Test-TargetResource @testParams | Should -Be $false
             }
 
-            It 'Should update the policy from the Set method' {
+            It 'Should validate attributes and update the policy from the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1 -ParameterFilter { $Method -eq 'GET' }
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1 -ParameterFilter { $Method -eq 'PATCH' }
             }
         }
 
@@ -747,9 +750,10 @@ Describe -Name $Global:DscHelper.DescribeHeader -Fixture {
                 Test-TargetResource @testParams | Should -Be $false
             }
 
-            It 'Should update the policy from the Set method' {
+            It 'Should validate attributes and update the policy from the Set method' {
                 Set-TargetResource @testParams
-                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1 -ParameterFilter { $Method -eq 'GET' }
+                Should -Invoke -CommandName Invoke-MgGraphRequest -Exactly 1 -ParameterFilter { $Method -eq 'PATCH' }
             }
         }
 
