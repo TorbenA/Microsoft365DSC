@@ -22,6 +22,8 @@
     FIXES [#7175](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7175)
 * M365DSCReverse
   * Fixed an issue where the number of resources to export could be wrong.
+* MISC
+  * Fixed an issue where `Az.Accounts` failed to import.
 
 # 1.26.527.1
 

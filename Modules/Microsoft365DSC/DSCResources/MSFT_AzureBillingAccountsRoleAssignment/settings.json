@@ -26,12 +26,19 @@
     }
   },
   "requiredModules": [
+    "Az.Accounts",
     "Microsoft.Graph.Applications",
     "Microsoft.Graph.Groups",
     "Microsoft.Graph.Users"
   ],
   "mode": "Configuration",
   "commands": [
+    {
+      "module": "Az.Accounts",
+      "cmdlets": [
+        "Connect-AzAccount"
+      ]
+    },
     {
       "module": "Microsoft.Graph.Applications",
       "cmdlets": [
