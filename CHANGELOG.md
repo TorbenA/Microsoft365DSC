@@ -3,7 +3,8 @@
 # Unreleased
 
 * AADConditionalAccessPolicy
-  * improved handling of multiple custom security attributes instead of just one in filterrule
+  * Improved handling of multiple custom security attributes instead of just one
+    in `ServicePrincipalFilterRule`.
 
 # 1.26.527.1
 
