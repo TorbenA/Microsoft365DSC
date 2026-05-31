@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADConditionalAccessPolicy
+  * Improved handling of multiple custom security attributes instead of just one
+    in `ServicePrincipalFilterRule`.
 * AADFilteringPolicyRule
   * Fixed an issue where an incorrect number of instances to export was shown.
 * EXOReportSubmissionPolicy
