@@ -47,6 +47,7 @@
       "cmdlets": [
         "Connect-AzAccount",
         "Get-AzSubscription",
+        "Register-AzModule",
         "Set-AzContext"
       ]
     },

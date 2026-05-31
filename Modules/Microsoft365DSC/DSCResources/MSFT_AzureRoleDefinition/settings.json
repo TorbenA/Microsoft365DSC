@@ -40,12 +40,13 @@
     "USGov",
     "USGovDoD"
   ],
-  "mode": "Configuration",
+  "mode": "Data",
   "commands": [
     {
       "module": "Az.Accounts",
       "cmdlets": [
-        "Connect-AzAccount"
+        "Connect-AzAccount",
+        "Register-AzModule"
       ]
     },
     {
