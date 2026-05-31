@@ -33,7 +33,8 @@
     {
       "module": "Az.Accounts",
       "cmdlets": [
-        "Connect-AzAccount"
+        "Connect-AzAccount",
+        "Register-AzModule"
       ]
     }
   ]

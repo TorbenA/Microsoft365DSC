@@ -40,15 +40,22 @@
     "USGov",
     "USGovDoD"
   ],
-  "mode": "Configuration",
+  "mode": "Data",
   "commands": [
+    {
+      "module": "Az.Accounts",
+      "cmdlets": [
+        "Connect-AzAccount",
+        "Register-AzModule"
+      ]
+    },
     {
       "module": "Az.Resources",
       "cmdlets": [
         "Get-AzRoleDefinition",
         "New-AzRoleDefinition",
-        "Set-AzRoleDefinition",
-        "Remove-AzRoleDefinition"
+        "Remove-AzRoleDefinition",
+        "Set-AzRoleDefinition"
       ]
     }
   ]
