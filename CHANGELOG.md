@@ -23,6 +23,9 @@
 * O365OrgSettings
   * Fixed an issue when updating the `Office Online Unused API` service principal.
     FIXES [#7175](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7175)
+* M365DSCPermissions
+  * Fixed an issue when updating app permissions.
+    FIXES [#7182](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7182)
 * M365DSCReverse
   * Fixed an issue where the number of resources to export could be wrong.
 * MISC
