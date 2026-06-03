@@ -104,7 +104,15 @@ function Get-TargetResource
         foreach ($currentCertificateAuthorities in $getValue.certificateAuthorities)
         {
             $myCertificateAuthorities = [ordered]@{}
-            $myCertificateAuthorities.Add('Certificate', [System.Convert]::ToBase64String($currentCertificateAuthorities.certificate))
+            if ($currentCertificateAuthorities.certificate -is [System.Byte[]])
+            {
+            $certValue = [System.Convert]::ToBase64String($currentCertificateAuthorities.certificate)
+            }
+            else
+            {
+            $certValue = $currentCertificateAuthorities.certificate
+            }
+            $myCertificateAuthorities.Add('Certificate', $certValue)
             $myCertificateAuthorities.Add('CertificateRevocationListUrl', $currentCertificateAuthorities.certificateRevocationListUrl)
             $myCertificateAuthorities.Add('DeltaCertificateRevocationListUrl', $currentCertificateAuthorities.deltaCertificateRevocationListUrl)
             $myCertificateAuthorities.Add('IsRootAuthority', $currentCertificateAuthorities.isRootAuthority)
