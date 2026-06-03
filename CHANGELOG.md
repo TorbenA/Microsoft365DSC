@@ -1,6 +1,6 @@
 # Change log for Microsoft365DSC
 
-# UNRELEASED
+# 1.26.603.1
 
 * AADConditionalAccessPolicy
   * Improved handling of multiple custom security attributes instead of just one
