@@ -1,5 +1,10 @@
 # Change log for Microsoft365DSC
 
+# UNRELEASED
+
+* M365DSCPermissions
+  * Fixed an issue when updating app certs.
+
 # 1.26.603.1
 
 * AADConditionalAccessPolicy
