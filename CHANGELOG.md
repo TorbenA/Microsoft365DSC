@@ -2,6 +2,9 @@
 
 # UNRELEASED
 
+* AADTenantAppManagementPolicy
+  * Fixed an issue when updating the resource.
+  FIXES [#7201](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7201)
 * M365DSCPermissions
   * Fixed an issue when updating app certs.
 
