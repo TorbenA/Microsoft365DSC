@@ -8,6 +8,8 @@
   * Fixes for timing-related new user
 * O365OrgSettings
   * Fixes intermittent exception comparing install-options
+* SPOTenantSettings
+  * Improve handling of parameters when updating settings
 * M365DSCPermissions
   * Fixed an issue when updating app certs.
 
@@ -117,8 +119,6 @@
     FIXES [#6895](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/6895)
 * SPOTenantCdnPolicy
   * Fixed an issue where property values were not being returned.
-* SPOTenantSettings
-  * Improve handling of parameters when updating settings
 * TeamsAIPolicy
   * Added property `PassiveVoiceEnrollment`.
 * TeamsCallQueue
