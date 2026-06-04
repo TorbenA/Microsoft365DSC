@@ -2,6 +2,14 @@
 
 # UNRELEASED
 
+* AADGroup
+  * Various timing-related fixes for new group
+* AADUser
+  * Fixes for timing-related new user
+* O365OrgSettings
+  * Fixes intermittent exception comparing install-options
+* SPOTenantSettings
+  * Improve handling of parameters when updating settings
 * M365DSCPermissions
   * Fixed an issue when updating app certs.
 
