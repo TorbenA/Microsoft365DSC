@@ -4,6 +4,9 @@
 
 * AADGroup
   * Various timing-related fixes for new group
+* AADTenantAppManagementPolicy
+  * Fixed an issue when updating the resource.
+  FIXES [#7201](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7201)
 * AADUser
   * Fixes for timing-related new user
 * O365OrgSettings
