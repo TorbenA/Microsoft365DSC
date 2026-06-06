@@ -4,6 +4,8 @@
 
 * AADGroup
   * Various timing-related fixes for new group
+* AADEntitlementManagementAccessPackageAssignmentPolicy
+  * Fixed comparison in New-M365DSCDeltaReport
 * AADTenantAppManagementPolicy
   * Fixed an issue when updating the resource.
   FIXES [#7201](https://github.com/Microsoft365DSC/Microsoft365DSC/issues/7201)
